@@ -28,10 +28,9 @@ class BackendController extends Controller
             'version' => config('store.version')
         ];
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = $data;
-
-        return response()->json($response);
+        return $response;
 
     }
 

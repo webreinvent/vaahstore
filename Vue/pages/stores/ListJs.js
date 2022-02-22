@@ -6,11 +6,9 @@ let namespace = 'stores';
 export default {
     computed:{
         root() {return this.$store.getters['root/state']},
-        permissions() {return this.$store.getters['root/state'].permissions},
-        page() {return this.$store.getters[namespace+'/state']},
-        assets() {return this.$store.getters[namespace+'/state'].assets},
         ajax_url() {return this.$store.getters[namespace+'/state'].ajax_url},
-        query_string() {return this.$store.getters[namespace+'/state'].query_string},
+        assets() {return this.$store.getters[namespace+'/state'].assets},
+        state_page() {return this.$store.getters[namespace+'/state'].page},
     },
     components:{
         ListLargeView,
@@ -20,6 +18,7 @@ export default {
     {
         return {
             namespace: namespace,
+            page: null,
             is_content_loading: false,
             is_btn_loading: false,
             selected_date: null,
@@ -31,9 +30,15 @@ export default {
     },
     watch: {
         $route(to, from) {
-            this.updateView();
+            /*this.updateView();
             this.updateQueryString();
-            this.updateActiveItem();
+            this.updateActiveItem();*/
+        },
+        page: {
+            handler: function(newVal, oldValue) {
+                this.updatePage(newVal)
+            },
+            deep: true
         }
     },
     created()
@@ -41,6 +46,8 @@ export default {
 
     },
     mounted() {
+        //----------------------------------------------------
+        this.page = JSON.parse(JSON.stringify(this.state_page));
         //----------------------------------------------------
         this.onLoad();
         //----------------------------------------------------
@@ -50,27 +57,26 @@ export default {
     methods: {
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
-        update: function(name, value)
+        updatePage: function(newPageObject)
         {
-            let update = {
-                state_name: name,
-                state_value: value,
-                namespace: namespace,
+            let payload = {
+                key: 'page',
+                value: newPageObject
             };
-            this.$vaah.updateState(update);
+            this.$store.commit(namespace+'/updateState', payload)
         },
         //---------------------------------------------------------------------
         updateView: function()
         {
-            this.$store.dispatch(namespace+'/updateView', this.$route);
+            this.$store.dispatch(this.namespace+'/updateView', this.$route);
         },
         //---------------------------------------------------------------------
         onLoad: function()
         {
-            this.updateView();
-            this.updateQueryString();
+            /*this.updateView();
+            this.updateQueryString();*/
             this.getAssets();
-            this.setDateFilter();
+            //this.setDateFilter();
         },
         //---------------------------------------------------------------------
         updateQueryString: function()
@@ -88,24 +94,29 @@ export default {
         },
         //---------------------------------------------------------------------
         async getAssets() {
-            await this.$store.dispatch(namespace+'/getAssets');
+            await this.$store.dispatch(this.namespace+'/getAssets');
             this.getList();
         },
         //---------------------------------------------------------------------
+        getList: function () {
+            this.$Progress.start();
+            //this.$vaah.updateCurrentURL(this.query_string, this.$router);
+            let url = this.ajax_url;
+            this.$vh.ajax(url, this.query_string, this.getListAfter);
+        },
+        //---------------------------------------------------------------------
+        getListAfter: function (data, res) {
 
+            if(data)
+            {
+                this.page.list = data;
+            }
+            this.$Progress.finish();
+        },
         //---------------------------------------------------------------------
         toggleFilters: function()
         {
-            if(this.page.show_filters == false)
-            {
-                this.page.show_filters = true;
-            } else
-            {
-                this.page.show_filters = false;
-            }
-
-            this.update('show_filters', this.page.show_filters);
-
+            this.page.show_filters = !this.page.show_filters;
         },
         //---------------------------------------------------------------------
         clearSearch: function () {
@@ -199,37 +210,7 @@ export default {
         },
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
-        getList: function () {
-            this.$Progress.start();
-            this.$vaah.updateCurrentURL(this.query_string, this.$router);
-            let url = this.ajax_url+'/list';
-            this.$vaah.ajaxGet(url, this.query_string, this.getListAfter);
-        },
-        //---------------------------------------------------------------------
-        getListAfter: function (data, res) {
 
-            this.update('is_list_loading', false);
-            this.update('list', data.list);
-
-            this.update('total_permissions', data.totalPermission);
-            this.update('total_users', data.totalUser);
-
-            if(data.list.total === 0)
-            {
-                this.update('list_is_empty', true);
-            }else{
-                this.update('list_is_empty', false);
-            }
-
-            this.page.query_string.recount = null;
-
-            this.update('query_string', this.page.query_string);
-            this.$vaah.updateCurrentURL(this.page.query_string, this.$router);
-
-            this.is_btn_loading = false;
-            this.$Progress.finish();
-
-        },
         //---------------------------------------------------------------------
         actions: function () {
 
@@ -282,11 +263,11 @@ export default {
         //---------------------------------------------------------------------
         sync: function () {
 
-            this.page.query_string.recount = true;
+            /*this.page.query_string.recount = true;
 
             this.is_btn_loading = true;
 
-            this.update('query_string', this.page.query_string);
+            this.update('query_string', this.page.query_string);*/
             this.getList();
         },
         //---------------------------------------------------------------------

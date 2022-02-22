@@ -26,14 +26,14 @@ Vue.config.delimiters = ['@{{', '}}'];
 Vue.config.async = false;
 //---------Configs
 
-import vaah from './vaahvue/helpers/VaahHelper';
+import vh from './vaahvue/helpers/VhHelper';
 
 //---------Helpers
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.use(VueFuse);
-Vue.use(vaah);
+Vue.use(vh);
 //---------/Helpers
 
 

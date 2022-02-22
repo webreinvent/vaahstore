@@ -1,8 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Store;
 
@@ -24,38 +22,34 @@ class StoresController extends Controller
 
         $data = [];
         $data['permission'] = [];
+        $data['actions'] = [];
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = $data;
 
-        return response()->json($response);
+        return $response;
     }
-    //----------------------------------------------------------
 
-    //----------------------------------------------------------
-    public function postCreate(Request $request)
-    {
-        $response = Store::createItem($request);
-        return response()->json($response);
-    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {
-        $response = Store::getList($request);
-        return response()->json($response);
+        return Store::getList($request);
+    }
+    //----------------------------------------------------------
+    public function createItem(Request $request)
+    {
+        return Store::createItem($request);
     }
     //----------------------------------------------------------
     public function getItem(Request $request, $id)
     {
-        $response = Store::getItem($id);
-        return response()->json($response);
+        return Store::getItem($id);
     }
 
     //----------------------------------------------------------
-    public function postStore(Request $request,$id)
+    public function updateItem(Request $request,$id)
     {
-        $response = Store::postStore($request,$id);
-        return response()->json($response);
+        return Store::updateItem($request,$id);
     }
     //----------------------------------------------------------
     public function postActions(Request $request, $action)
@@ -70,12 +64,12 @@ class StoresController extends Controller
             $errors             = errorsToArray($validator->errors());
             $response['status'] = 'failed';
             $response['errors'] = $errors;
-            return response()->json($response);
+            return $response;
         }
 
         $response = [];
 
-        $response['status'] = 'success';
+        $response['success'] = true;
 
         $inputs = $request->all();
 
@@ -112,7 +106,7 @@ class StoresController extends Controller
 
         }
 
-        return response()->json($response);
+        return $response;
 
     }
     //----------------------------------------------------------

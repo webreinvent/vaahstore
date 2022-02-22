@@ -2,17 +2,17 @@
 <template>
     <div>
 
-        <div class="columns">
+        {{assets}}
+
+        <div class="columns" v-if="assets && page">
 
             <!--left-->
-            <div class="column" :class="{'is-6': !page.list_view}">
+            <div class="column" :class="{'is-6': page.view !== 'large'}">
 
-                <div class="block" v-if="is_content_loading">
-                    <Loader/>
-                </div>
+                {{page}}
 
                 <!--card-->
-                <div class="card" v-else-if="assets">
+                <div class="card" >
 
                     <!--header-->
                     <header class="card-header">
@@ -52,38 +52,39 @@
                     </header>
                     <!--/header-->
 
+
                     <!--content-->
                     <div class="card-content">
 
 
 
-                        <div class="block" v-if="page.list">
+                        <div class="block" >
 
 
                             <!--actions-->
                             <div class="level">
 
                                 <!--left-->
-                                <div class="level-left" v-if="page.list_view == 'large'" >
+                                <div class="level-left" v-if="page.view === 'large'" >
                                     <div  class="level-item">
                                         <b-field >
 
                                             <b-select placeholder="- Bulk Actions -"
-                                                      v-model="page.bulk_action.action">
+                                                      v-model="page.actions.action">
                                                 <option value="">
                                                     - Bulk Actions -
                                                 </option>
                                                 <option
-                                                        v-for="option in page.assets.bulk_actions"
-                                                        :value="option.slug"
-                                                        :key="option.slug">
+                                                    v-for="option in assets.actions"
+                                                    :value="option.slug"
+                                                    :key="option.slug">
                                                     {{ option.name }}
                                                 </option>
                                             </b-select>
 
                                             <b-select placeholder="- Select Status -"
-                                                      v-if="page.bulk_action.action == 'bulk-change-status'"
-                                                      v-model="page.bulk_action.data.status">
+                                                      v-if="page.actions.type === 'bulk-change-status'"
+                                                      v-model="page.actions.inputs.status">
                                                 <option value="">
                                                     - Select Status -
                                                 </option>
@@ -115,14 +116,13 @@
                                     <div class="level-item">
 
                                         <b-field>
-
                                             <b-input placeholder="Search"
                                                      type="text"
                                                      icon="search"
                                                      expanded
                                                      @input="delayedSearch"
                                                      @keyup.enter.prevent="delayedSearch"
-                                                     v-model="query_string.q">
+                                                     v-model="page.query.q">
                                             </b-input>
 
                                             <p class="control">
@@ -139,8 +139,7 @@
                                             </p>
                                             <p class="control">
                                                 <button class="button is-primary"
-                                                        @click="toggleFilters()"
-                                                        slot="trigger">
+                                                        @click="toggleFilters()">
                                                     <b-icon icon="ellipsis-v"></b-icon>
                                                 </button>
                                             </p>
@@ -154,18 +153,17 @@
                             </div>
                             <!--/actions-->
 
+
                             <!--filters-->
                             <div class="level" v-if="page.show_filters">
 
                                 <div class="level-left">
 
-
-
                                     <div class="level-item">
 
                                         <b-field label="">
                                             <b-select placeholder="- Select a status -"
-                                                      v-model="query_string.filter"
+                                                      v-model="page.query.filter"
                                                       @input="getList()"
                                             >
                                                 <option value="">
@@ -185,7 +183,7 @@
 
                                     <div class="level-item">
                                         <div class="field">
-                                            <b-checkbox v-model="query_string.trashed"
+                                            <b-checkbox v-model="page.query.trashed"
                                                         @input="getList"
                                             >
                                                 Include Trashed
@@ -202,11 +200,11 @@
 
                                         <b-field>
                                             <b-datepicker
-                                                    position="is-bottom-left"
-                                                    placeholder="- Select a dates -"
-                                                    v-model="selected_date"
-                                                    @input="setDateRange"
-                                                    range>
+                                                position="is-bottom-left"
+                                                placeholder="- Select a dates -"
+                                                v-model="selected_date"
+                                                @input="setDateRange"
+                                                range>
                                             </b-datepicker>
                                         </b-field>
 
@@ -215,45 +213,14 @@
 
                                 </div>
 
-
                             </div>
                             <!--/filters-->
-
-
-                            <!--list-->
-                            <div class="block ">
-
-                                <div class="block" style="margin-bottom: 0px;" >
-
-                                    <div v-if="page.list_view == 'large'">
-                                        <ListLargeView/>
-                                    </div>
-
-                                    <div v-else>
-                                        <ListSmallView/>
-                                    </div>
-
-                                </div>
-
-                                <hr style="margin-top: 0;"/>
-
-                                <div class="block" v-if="page.list">
-                                    <b-pagination  :total="page.list.total"
-                                                   :current.sync="page.list.current_page"
-                                                   :per-page="page.list.per_page"
-                                                   range-before=3
-                                                   range-after=3
-                                                   @change="paginate">
-                                    </b-pagination>
-                                </div>
-
-                            </div>
-                            <!--/list-->
 
 
                         </div>
                     </div>
                     <!--/content-->
+
 
                 </div>
                 <!--/card-->
@@ -262,7 +229,7 @@
             </div>
             <!--/left-->
 
-            <router-view @eReloadList="getList"></router-view>
+<!--            <router-view @eReloadList="getList"></router-view>-->
 
         </div>
 

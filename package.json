@@ -18,6 +18,7 @@
         "fs-extra": "^10.0.0",
         "laravel-mix": "^6.0.39",
         "lodash": "^4.17.21",
+        "moment-timezone": "^0.5.34",
         "postcss": "^8.4.4",
         "raw-loader": "^4.0.2",
         "resolve-url-loader": "^4.0.0",

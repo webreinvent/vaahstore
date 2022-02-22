@@ -116,7 +116,7 @@ class Store extends Model {
 
         if($item)
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = "This name is already exist.";
             return $response;
         }
@@ -127,7 +127,7 @@ class Store extends Model {
 
         if($item)
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = "This slug is already exist.";
             return $response;
         }
@@ -137,7 +137,7 @@ class Store extends Model {
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data']['item'] = $item;
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -172,18 +172,16 @@ class Store extends Model {
 
         if(isset($request->q))
         {
-
             $list->where(function ($q) use ($request){
                 $q->where('name', 'LIKE', '%'.$request->q.'%')
                     ->orWhere('slug', 'LIKE', '%'.$request->q.'%');
             });
         }
 
+        $list = $list->paginate(config('vaahcms.per_page'));
 
-        $data['list'] = $list->paginate(config('vaahcms.per_page'));
-
-        $response['status'] = 'success';
-        $response['data'] = $data;
+        $response['success'] = true;
+        $response['data'] = $list;
 
         return $response;
 
@@ -198,18 +196,16 @@ class Store extends Model {
         ->withTrashed()
         ->first();
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = $item;
 
         return $response;
 
     }
     //-------------------------------------------------
-    public static function postStore($request,$id)
+    public static function updateItem($request,$id)
     {
-
         $inputs = $request->item;
-
 
         $validation = self::validation($inputs);
         if(isset($validation['status']) && $validation['status'] == 'failed')
@@ -223,11 +219,10 @@ class Store extends Model {
 
         if($user)
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = "This name is already exist.";
             return $response;
         }
-
 
         // check if slug exist
         $user = self::where('id','!=',$inputs['id'])
@@ -235,7 +230,7 @@ class Store extends Model {
 
         if($user)
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = "This slug is already exist.";
             return $response;
         }
@@ -247,7 +242,7 @@ class Store extends Model {
         $update->save();
 
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Data updated.';
 
@@ -260,14 +255,14 @@ class Store extends Model {
 
         if(!$request->has('inputs'))
         {
-            $response['status'] = 'failed';
-            $response['errors'][] = 'Select IDs';
+            $response['failed'] = true;
+            $response['messages'][] = 'Select IDs';
             return $response;
         }
 
         if(!$request->has('data'))
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = 'Select Status';
             return $response;
         }
@@ -292,7 +287,7 @@ class Store extends Model {
             $item->save();
         }
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Action was successful';
 
@@ -306,8 +301,8 @@ class Store extends Model {
 
         if(!$request->has('inputs'))
         {
-            $response['status'] = 'failed';
-            $response['errors'][] = 'Select IDs';
+            $response['failed'] = true;
+            $response['messages'][] = 'Select IDs';
             return $response;
         }
 
@@ -321,7 +316,7 @@ class Store extends Model {
             }
         }
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Action was successful';
 
@@ -335,14 +330,14 @@ class Store extends Model {
 
         if(!$request->has('inputs'))
         {
-            $response['status'] = 'failed';
-            $response['errors'][] = 'Select IDs';
+            $response['failed'] = true;
+            $response['messages'][] = 'Select IDs';
             return $response;
         }
 
         if(!$request->has('data'))
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = 'Select Status';
             return $response;
         }
@@ -356,7 +351,7 @@ class Store extends Model {
             }
         }
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Action was successful';
 
@@ -369,14 +364,14 @@ class Store extends Model {
 
         if(!$request->has('inputs'))
         {
-            $response['status'] = 'failed';
-            $response['errors'][] = 'Select IDs';
+            $response['failed'] = true;
+            $response['messages'][] = 'Select IDs';
             return $response;
         }
 
         if(!$request->has('data'))
         {
-            $response['status'] = 'failed';
+            $response['failed'] = true;
             $response['errors'][] = 'Select Status';
             return $response;
         }
@@ -390,7 +385,7 @@ class Store extends Model {
             }
         }
 
-        $response['status'] = 'success';
+        $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Action was successful';
 
@@ -410,10 +405,9 @@ class Store extends Model {
 
         $validator = \Validator::make( $inputs, $rules);
         if ( $validator->fails() ) {
-
             $errors             = errorsToArray($validator->errors());
-            $response['status'] = 'failed';
-            $response['errors'] = $errors;
+            $response['failed'] = true;
+            $response['messages'] = $errors;
             return $response;
         }
 

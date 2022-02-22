@@ -23,7 +23,7 @@ Route::group(
             ->name( 'vh.backend.store' );
         //------------------------------------------------
         //------------------------------------------------
-        Route::post( '/assets', 'BackendController@getAssets' )
+        Route::get( '/assets', 'BackendController@getAssets' )
             ->name( 'vh.backend.store.assets' );
         //------------------------------------------------
     });
