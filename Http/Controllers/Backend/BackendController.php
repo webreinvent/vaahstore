@@ -15,7 +15,8 @@ class BackendController extends Controller
 
     public function index()
     {
-        return view('store::backend.pages.index');
+        //return view('store::backend.pages.index');
+        return view('store::backend.pages.app');
     }
 
     public function getAssets(Request $request)

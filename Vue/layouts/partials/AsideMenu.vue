@@ -2,7 +2,14 @@
 
     <b-menu>
         <b-menu-list label="Menu">
-            <b-menu-item tag="router-link" to="/" label="Dashboard"></b-menu-item>
+            <b-menu-item tag="router-link"
+                         to="/"
+                         label="Dashboard">
+            </b-menu-item>
+            <b-menu-item tag="router-link"
+                         to="/stores"
+                         label="Stores">
+            </b-menu-item>
         </b-menu-list>
     </b-menu>
 

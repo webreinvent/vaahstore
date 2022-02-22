@@ -4,7 +4,8 @@
       <div class="content has-text-centered">
         <p v-if="assets">
           {{root.assets.module.name}} <b>v{{root.assets.module.version}}</b>
-        </p v-else>
+        </p>
+          <p v-else>
         store  <b>v0.0.1</b>
         </p>
       </div>

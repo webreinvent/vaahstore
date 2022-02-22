@@ -27,3 +27,5 @@ Route::group(
             ->name( 'vh.backend.store.assets' );
         //------------------------------------------------
     });
+
+include_once __DIR__."/backend/routes-stores.php";

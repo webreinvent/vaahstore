@@ -7,9 +7,13 @@ use Illuminate\Routing\Controller;
 class ExtendController extends Controller
 {
 
+    public static $link;
     //----------------------------------------------------------
     public function __construct()
     {
+        $base_url = route('vh.backend.store')."#/";
+        $link = $base_url;
+        self::$link = $link;
     }
     //----------------------------------------------------------
     public static function topLeftMenu()
@@ -38,9 +42,16 @@ class ExtendController extends Controller
         $links = [];
 
         $links[0] = [
-            'link' => route('vh.backend.store'),
-            'icon' => 'cubes',
-            'label'=> 'Store'
+            'link' => '#',
+            'icon'=> 'store',
+            'label'=> 'Store',
+            'child' => [
+                [
+                    'link' => self::$link."stores/",
+                    'icon' => 'store-alt',
+                    'label'=> 'Stores'
+                ],
+            ]
         ];
 
         $response['status'] = 'success';
