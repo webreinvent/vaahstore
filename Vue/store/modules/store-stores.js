@@ -9,11 +9,17 @@ let ajax_url = base_url+"/backend/store/stores";
 export default {
     namespaced: true,
     state: {
+        base_url: base_url,
         ajax_url: ajax_url,
         assets: null,
-        page:{
+        data:{
+            model: 'VaahCms\\Modules\\Store\\Models\\Store',
             list: null,
             item: null,
+            inputs: {
+                name: null,
+                slug: null,
+            },
             view: 'large',
             query: {
                 page: 1,
@@ -61,21 +67,22 @@ export default {
         },
         //-----------------------------------------------------------------
         updateView({ state, commit, dispatch, getters }, payload) {
-            let view;
+            let view ='large';
             let update;
 
             if(payload.name === 'stores.create'
             || payload.name === 'stores.view'
             || payload.name === 'stores.edit')
             {
-                view = 'medium';
-            };
+                view = 'small';
+            }
+
+            state.data.view = view;
 
             update = {
-                key: 'view',
-                value: view
+                key: 'data',
+                value: state.data
             };
-
             commit('updateState', update);
 
         },
@@ -85,7 +92,7 @@ export default {
     getters:{
         state(state) {return state;},
         assets(state) {return state.assets;},
-        page(state) {return state.page;},
+        data(state) {return state.data;},
     }
 
 }

@@ -8,7 +8,7 @@ export default {
         root() {return this.$store.getters['root/state']},
         ajax_url() {return this.$store.getters[namespace+'/state'].ajax_url},
         assets() {return this.$store.getters[namespace+'/state'].assets},
-        state_page() {return this.$store.getters[namespace+'/state'].page},
+        data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
         ListLargeView,
@@ -19,24 +19,28 @@ export default {
         return {
             namespace: namespace,
             page: null,
-            is_content_loading: false,
-            is_btn_loading: false,
+            is_btn_loading: null,
             selected_date: null,
             search_delay: null,
             search_delay_time: 800,
             ids: [],
-            moduleSection: null,
         }
     },
     watch: {
         $route(to, from) {
-            /*this.updateView();
-            this.updateQueryString();
-            this.updateActiveItem();*/
+            this.$store.dispatch(
+                this.namespace+'/updateView',
+                this.$route
+            );
         },
-        page: {
+        'data.query': {
             handler: function(newVal, oldValue) {
-                this.updatePage(newVal)
+                let url_query = JSON.stringify(this.$route.query);
+                let page_query = JSON.stringify(newVal);
+                if(url_query !== page_query)
+                {
+                    this.$router.replace({query: newVal});
+                }
             },
             deep: true
         }
@@ -47,7 +51,8 @@ export default {
     },
     mounted() {
         //----------------------------------------------------
-        this.page = JSON.parse(JSON.stringify(this.state_page));
+        //----------------------------------------------------
+        this.data.query = this.$vh.clone(this.$route.query);
         //----------------------------------------------------
         this.onLoad();
         //----------------------------------------------------
@@ -56,41 +61,24 @@ export default {
     },
     methods: {
         //---------------------------------------------------------------------
+        onLoad: function()
+        {
+            this.updateView();
+            this.getAssets();
+        },
         //---------------------------------------------------------------------
-        updatePage: function(newPageObject)
+        updateData: function(newPageObject)
         {
             let payload = {
-                key: 'page',
+                key: 'data',
                 value: newPageObject
             };
-            this.$store.commit(namespace+'/updateState', payload)
+            this.$store.commit(this.namespace+'/updateState', payload)
         },
         //---------------------------------------------------------------------
         updateView: function()
         {
             this.$store.dispatch(this.namespace+'/updateView', this.$route);
-        },
-        //---------------------------------------------------------------------
-        onLoad: function()
-        {
-            /*this.updateView();
-            this.updateQueryString();*/
-            this.getAssets();
-            //this.setDateFilter();
-        },
-        //---------------------------------------------------------------------
-        updateQueryString: function()
-        {
-            let query = this.$vaah.removeEmpty(this.$route.query);
-            if(Object.keys(query).length)
-            {
-                for(let key in query)
-                {
-                    this.query_string[key] = query[key];
-                }
-            }
-            this.update('query_string', this.query_string);
-            this.$vaah.updateCurrentURL(this.query_string, this.$router);
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -101,22 +89,24 @@ export default {
         getList: function () {
             this.$Progress.start();
             //this.$vaah.updateCurrentURL(this.query_string, this.$router);
+
+            console.log('--->', this.ajax_url);
+
             let url = this.ajax_url;
             this.$vh.ajax(url, this.query_string, this.getListAfter);
         },
         //---------------------------------------------------------------------
         getListAfter: function (data, res) {
-
             if(data)
             {
-                this.page.list = data;
+                this.data.list = data;
             }
             this.$Progress.finish();
         },
         //---------------------------------------------------------------------
         toggleFilters: function()
         {
-            this.page.show_filters = !this.page.show_filters;
+            this.data.show_filters = !this.data.show_filters;
         },
         //---------------------------------------------------------------------
         clearSearch: function () {
@@ -181,12 +171,12 @@ export default {
         //---------------------------------------------------------------------
         resetBulkAction: function()
         {
-            this.page.bulk_action = {
+            this.data.bulk_action = {
                 selected_items: [],
                 data: {},
                 action: null,
             };
-            this.update('bulk_action', this.page.bulk_action);
+            this.update('bulk_action', this.data.bulk_action);
         },
         //---------------------------------------------------------------------
         paginate: function(page=1)
@@ -214,37 +204,37 @@ export default {
         //---------------------------------------------------------------------
         actions: function () {
 
-            if(!this.page.bulk_action.action)
+            if(!this.data.bulk_action.action)
             {
                 this.$vaah.toastErrors(['Select an action']);
                 return false;
             }
 
-            if(this.page.bulk_action.action == 'bulk-change-status'){
-                if(!this.page.bulk_action.data.status){
+            if(this.data.bulk_action.action == 'bulk-change-status'){
+                if(!this.data.bulk_action.data.status){
                     this.$vaah.toastErrors(['Select a status']);
                     return false;
                 }
             }
 
-            if(this.page.bulk_action.selected_items.length < 1)
+            if(this.data.bulk_action.selected_items.length < 1)
             {
                 this.$vaah.toastErrors(['Select a record']);
                 return false;
             }
 
             this.$Progress.start();
-            this.update('bulk_action', this.page.bulk_action);
-            let ids = this.$vaah.pluckFromObject(this.page.bulk_action.selected_items, 'id');
+            this.update('bulk_action', this.data.bulk_action);
+            let ids = this.$vaah.pluckFromObject(this.data.bulk_action.selected_items, 'id');
 
             let params = {
                 inputs: ids,
-                data: this.page.bulk_action.data
+                data: this.data.bulk_action.data
             };
 
             console.log('--->params', params);
 
-            let url = this.ajax_url+'/actions/'+this.page.bulk_action.action;
+            let url = this.ajax_url+'/actions/'+this.data.bulk_action.action;
             this.$vaah.ajax(url, params, this.actionsAfter);
         },
         //---------------------------------------------------------------------
@@ -263,11 +253,11 @@ export default {
         //---------------------------------------------------------------------
         sync: function () {
 
-            /*this.page.query_string.recount = true;
+            /*this.data.query_string.recount = true;
 
             this.is_btn_loading = true;
 
-            this.update('query_string', this.page.query_string);*/
+            this.update('query_string', this.data.query_string);*/
             this.getList();
         },
         //---------------------------------------------------------------------

@@ -100,7 +100,7 @@ class Store extends Model {
     public static function createItem($request)
     {
 
-        $inputs = $request->new_item;
+        $inputs = $request->all();
 
         $validation = self::validation($inputs);
         if( isset($validation['status'])
@@ -120,7 +120,6 @@ class Store extends Model {
             $response['errors'][] = "This name is already exist.";
             return $response;
         }
-
 
         // check if slug exist
         $item = self::where('slug',$inputs['slug'])->first();

@@ -1,15 +1,11 @@
 let namespace = 'stores';
 
-
-
 export default {
     computed:{
         root() {return this.$store.getters['root/state']},
-        permissions() {return this.$store.getters['root/state'].permissions},
-        page() {return this.$store.getters[namespace+'/state']},
-        assets() {return this.$store.getters[namespace+'/state'].assets},
         ajax_url() {return this.$store.getters[namespace+'/state'].ajax_url},
-        item() {return this.$store.getters[namespace+'/state'].active_item},
+        assets() {return this.$store.getters[namespace+'/state'].assets},
+        data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
 
@@ -18,31 +14,41 @@ export default {
     {
         return {
             namespace: namespace,
-            is_btn_loading: false,
-            is_content_loading: false,
+            item: null,
+            is_btn_loading: null,
+            is_content_loading: null,
         }
     },
     watch: {
         $route(to, from) {
-
-            if (to.query.page) {
-                this.updateView();
-                this.getItem();
-            }
-
+            this.$store.dispatch(
+                this.namespace+'/updateView',
+                this.$route
+            );
+            this.getItem();
+        },
+        'data.item': {
+            handler: function(newVal, oldValue) {
+                this.item = newVal;
+            },
+            deep: true
         }
     },
     mounted() {
         //----------------------------------------------------
         this.onLoad();
         //----------------------------------------------------
-        this.$root.$on('eReloadItem', this.getItem);
+        this.item = this.data.item;
         //----------------------------------------------------
-        this.$root.$on('eResetBulkActions', this.resetBulkAction);
         //----------------------------------------------------
         //----------------------------------------------------
     },
     methods: {
+        //---------------------------------------------------------------------
+        onLoad: function()
+        {
+            this.getItem();
+        },
         //---------------------------------------------------------------------
         update: function(name, value)
         {
@@ -59,42 +65,23 @@ export default {
             this.$store.dispatch(namespace+'/updateView', this.$route);
         },
         //---------------------------------------------------------------------
-        onLoad: function()
-        {
-            this.is_content_loading = true;
-
-            this.updateView();
-            this.getAssets();
-            this.getItem();
-        },
-        //---------------------------------------------------------------------
-        async getAssets() {
-            await this.$store.dispatch(namespace+'/getAssets');
-        },
-        //---------------------------------------------------------------------
         getItem: function () {
             this.$Progress.start();
             this.params = {};
-            let url = this.ajax_url+'/item/'+this.$route.params.id;
-            this.$vaah.ajaxGet(url, this.params, this.getItemAfter);
+            let url = this.ajax_url+'/'+this.$route.params.id;
+            this.$vh.ajax(url, this.params, this.getItemAfter);
         },
         //---------------------------------------------------------------------
         getItemAfter: function (data, res) {
             this.$Progress.finish();
             this.is_content_loading = false;
-
-            if(data && data)
+            if(data)
             {
-                if(data.is_active == 1){
-                    data.is_active = 'Yes';
-                }else{
-                    data.is_active = 'No';
-                }
-                this.update('active_item', data);
+                this.data.item = data;
             } else
             {
                 //if item does not exist or delete then redirect to list
-                this.update('active_item', null);
+                this.data.item = null;
                 this.$router.push({name: 'stores.list'});
             }
         },

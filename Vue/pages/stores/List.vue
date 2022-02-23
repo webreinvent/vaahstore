@@ -4,12 +4,25 @@
 
         {{assets}}
 
-        <div class="columns" v-if="assets && page">
+
+        <div class="columns">
+
+            <div class="column is-6">
+                Data
+                <pre>{{data}}</pre>
+            </div>
+
+            <div class="column is-6">
+                Page
+                <pre>{{page}}</pre>
+            </div>
+
+        </div>
+
+        <div class="columns" v-if="assets && data">
 
             <!--left-->
-            <div class="column" :class="{'is-6': page.view !== 'large'}">
-
-                {{page}}
+            <div class="column" :class="{'is-6': data.view !== 'large'}">
 
                 <!--card-->
                 <div class="card" >
@@ -20,10 +33,10 @@
                         <div class="card-header-title">
                             Stores
 
-                            <span v-if="page.list">
-                                 &nbsp; ({{page.list.total}})
-                            </span>
-
+                            <b-tag v-if="data.list"
+                                   class="has-margin-left-5">
+                                {{data.list.total}}
+                            </b-tag>
 
                         </div>
 
@@ -65,12 +78,12 @@
                             <div class="level">
 
                                 <!--left-->
-                                <div class="level-left" v-if="page.view === 'large'" >
+                                <div class="level-left" v-if="data.view === 'large'" >
                                     <div  class="level-item">
                                         <b-field >
 
                                             <b-select placeholder="- Bulk Actions -"
-                                                      v-model="page.actions.action">
+                                                      v-model="data.actions.action">
                                                 <option value="">
                                                     - Bulk Actions -
                                                 </option>
@@ -83,8 +96,8 @@
                                             </b-select>
 
                                             <b-select placeholder="- Select Status -"
-                                                      v-if="page.actions.type === 'bulk-change-status'"
-                                                      v-model="page.actions.inputs.status">
+                                                      v-if="data.actions.type === 'bulk-change-status'"
+                                                      v-model="data.actions.inputs.status">
                                                 <option value="">
                                                     - Select Status -
                                                 </option>
@@ -98,7 +111,7 @@
 
 
                                             <p class="control">
-                                                <button class="button is-primary"
+                                                <button class="button is-light"
                                                         @click="actions">
                                                     Apply
                                                 </button>
@@ -116,29 +129,17 @@
                                     <div class="level-item">
 
                                         <b-field>
+
                                             <b-input placeholder="Search"
-                                                     type="text"
+                                                     v-model="data.query.q"
                                                      icon="search"
-                                                     expanded
-                                                     @input="delayedSearch"
-                                                     @keyup.enter.prevent="delayedSearch"
-                                                     v-model="page.query.q">
+                                                     icon-right="close-circle"
+                                                     icon-right-clickable
+                                                     @icon-right-click="data.query.q = ''">
                                             </b-input>
 
                                             <p class="control">
-                                                <button class="button is-primary"
-                                                        @click="getList">
-                                                    Filter
-                                                </button>
-                                            </p>
-                                            <p class="control">
-                                                <button class="button is-primary"
-                                                        @click="resetPage">
-                                                    Reset
-                                                </button>
-                                            </p>
-                                            <p class="control">
-                                                <button class="button is-primary"
+                                                <button class="button is-light"
                                                         @click="toggleFilters()">
                                                     <b-icon icon="ellipsis-v"></b-icon>
                                                 </button>
@@ -155,7 +156,7 @@
 
 
                             <!--filters-->
-                            <div class="level" v-if="page.show_filters">
+                            <div class="level" v-if="data.show_filters">
 
                                 <div class="level-left">
 
@@ -163,16 +164,16 @@
 
                                         <b-field label="">
                                             <b-select placeholder="- Select a status -"
-                                                      v-model="page.query.filter"
+                                                      v-model="data.query.filter"
                                                       @input="getList()"
                                             >
                                                 <option value="">
                                                     - Select a status -
                                                 </option>
-                                                <option value=01>
+                                                <option value="1">
                                                     Active
                                                 </option>
-                                                <option value=10>
+                                                <option value="0">
                                                     Inactive
                                                 </option>
                                             </b-select>
@@ -183,7 +184,7 @@
 
                                     <div class="level-item">
                                         <div class="field">
-                                            <b-checkbox v-model="page.query.trashed"
+                                            <b-checkbox v-model="data.query.trashed"
                                                         @input="getList"
                                             >
                                                 Include Trashed
@@ -217,6 +218,33 @@
                             <!--/filters-->
 
 
+                            <!--list-->
+                            <div class="container">
+
+                                <div v-if="data.view == 'large'">
+                                    <ListLargeView/>
+                                </div>
+
+                                <div v-else>
+                                    <ListSmallView/>
+                                </div>
+
+                                <hr style="margin-top: 0;"/>
+
+                                <div class="block" v-if="data.list">
+                                    <b-pagination  :total="data.list.total"
+                                                   :current.sync="data.list.current_page"
+                                                   :per-page="data.list.per_page"
+                                                   range-before=3
+                                                   range-after=3
+                                                   @change="paginate">
+                                    </b-pagination>
+                                </div>
+
+                            </div>
+                            <!--/list-->
+
+
                         </div>
                     </div>
                     <!--/content-->
@@ -226,10 +254,16 @@
                 <!--/card-->
 
 
+
+
+
             </div>
             <!--/left-->
 
-<!--            <router-view @eReloadList="getList"></router-view>-->
+
+
+
+            <router-view @eReloadList="getList"></router-view>
 
         </div>
 

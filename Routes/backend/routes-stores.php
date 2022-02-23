@@ -16,7 +16,7 @@ function () {
     Route::get('/', 'StoresController@getList')
         ->name('vh.backend.store.stores.list');
     //---------------------------------------------------------
-    Route::post('/{id}', 'StoresController@createItem')
+    Route::post('/', 'StoresController@createItem')
         ->name('vh.backend.store.stores.create');
     //---------------------------------------------------------
     Route::get('/{id}', 'StoresController@getItem')
@@ -25,7 +25,7 @@ function () {
     Route::match(['put', 'patch'], '/{uuid}', 'StoresController@updateItem')
         ->name('vh.backend.store.stores.update');
     //---------------------------------------------------------
-    Route::delete('/{uuid}', 'StoresController@deteleItem')
+    Route::delete('/{id}', 'StoresController@deteleItem')
         ->name('vh.backend.store.stores.delete');
     //---------------------------------------------------------
 

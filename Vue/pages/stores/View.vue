@@ -1,14 +1,14 @@
 <script src="./ViewJs.js"></script>
 <template>
-    <div class="column" v-if="assets">
+    <div class="column" v-if="assets && item">
 
-        <div class="card" v-if="item">
+        <div class="card" >
 
             <!--header-->
             <header class="card-header">
 
                 <div class="card-header-title">
-                    <span>{{$vaah.limitString(item.name, 15)}}</span>
+                    <span>{{item.name}}</span>
                 </div>
 
                 <div class="card-header-buttons">

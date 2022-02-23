@@ -1,50 +1,44 @@
+
 let namespace = 'stores';
 export default {
     computed: {
         root() {return this.$store.getters['root/state']},
-        permissions() {return this.$store.getters['root/state'].permissions},
-        page() {return this.$store.getters[namespace+'/state']},
         ajax_url() {return this.$store.getters[namespace+'/state'].ajax_url},
-        query_string() {return this.$store.getters[namespace+'/state'].query_string},
+        assets() {return this.$store.getters[namespace+'/state'].assets},
+        data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
-
     },
-
     data()
     {
         let obj = {
             namespace: namespace,
+            page: null,
             icon_copy: "<i class='fas fa-copy'></i>"
         };
 
         return obj;
     },
-    created() {
+    watch: {
+
     },
     mounted(){
 
     },
-
-    watch: {
-
-    },
     methods: {
         //---------------------------------------------------------------------
-        update: function(name, value)
+        updatePage: function(newPageObject)
         {
-            let update = {
-                state_name: name,
-                state_value: value,
-                namespace: namespace,
+            let payload = {
+                key: 'data',
+                value: newPageObject
             };
-            this.$vaah.updateState(update);
+            this.$store.commit(namespace+'/updateState', payload)
         },
         //---------------------------------------------------------------------
         setRowClass: function(row, index)
         {
-
-            if(this.page.active_item && row.id == this.page.active_item.id)
+            if(this.data.item && row.id == this.data.item.id)
             {
                 return 'is-selected';
             }
@@ -57,7 +51,7 @@ export default {
         },
         //---------------------------------------------------------------------
         setActiveItem: function (item) {
-            this.update('active_item', item);
+            this.data.item = item;
             this.$router.push({name: 'stores.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -74,18 +68,10 @@ export default {
         changeStatusAfter: function (data,res) {
             this.$emit('eReloadList');
             this.update('is_list_loading', false);
-
         },
-
         //---------------------------------------------------------------------
         copiedData: function (data) {
-
             this.$vaah.toastSuccess(['copied']);
-
-            // alertify.success('copied');
-
-            this.$vaah.console(data, 'copied data');
-
         },
         //---------------------------------------------------------------------
         hasPermission: function(slug)
