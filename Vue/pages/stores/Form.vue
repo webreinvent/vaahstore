@@ -1,6 +1,6 @@
-<script src="./EditJs.js"></script>
+<script src="./FormJs.js"></script>
 <template>
-    <div class="column" v-if="assets && item">
+    <div class="column" v-if="data && data.item">
 
         <div class="card">
 
@@ -8,7 +8,7 @@
             <header class="card-header">
 
                 <div class="card-header-title">
-                    <span>{{$vaah.limitString(title, 15)}}</span>
+                    {{form_type}}
                 </div>
 
 
@@ -16,17 +16,20 @@
 
                     <div class="field has-addons is-pulled-right">
                         <p class="control">
-                            <b-button @click="$vaah.copy(item.id)"  type="is-light">
-                                <small><b>#{{item.id}}</b></small>
-                            </b-button>
-                        </p>
-
-                        <p class="control">
-                            <b-button icon-left="save"
+                            <b-button v-if="data.item.id"
+                                      icon-left="edit"
                                       type="is-light"
                                       :loading="is_btn_loading"
                                       @click="setLocalAction('save')">
                                 Save
+                            </b-button>
+
+                            <b-button v-else
+                                      icon-left="edit"
+                                      type="is-light"
+                                      :loading="is_btn_loading"
+                                      @click="setLocalAction('save-and-new')">
+                                Save & New
                             </b-button>
                         </p>
 
@@ -34,8 +37,7 @@
 
 
                             <b-dropdown aria-role="list" position="is-bottom-left">
-                                <button class="button is-light"
-                                        slot="trigger">
+                                <button class="button is-light" slot="trigger">
                                     <b-icon icon="caret-down"></b-icon>
                                 </button>
 
@@ -46,15 +48,21 @@
                                 </b-dropdown-item>
 
                                 <b-dropdown-item aria-role="listitem"
-                                                 @click="setLocalAction('save-and-new')">
-                                    <b-icon icon="plus"></b-icon>
-                                    Save & New
-                                </b-dropdown-item>
-
-                                <b-dropdown-item aria-role="listitem"
                                                  @click="setLocalAction('save-and-clone')">
                                     <b-icon icon="copy"></b-icon>
                                     Save & Clone
+                                </b-dropdown-item>
+
+                                <b-dropdown-item aria-role="listitem"
+                                                 @click="resetNewItem()">
+                                    <b-icon icon="eraser"></b-icon>
+                                    Reset
+                                </b-dropdown-item>
+
+                                <b-dropdown-item aria-role="listitem"
+                                                 @click="getFaker()">
+                                    <b-icon icon="i-cursor"></b-icon>
+                                    Fill Dummy Data
                                 </b-dropdown-item>
 
                             </b-dropdown>
@@ -65,7 +73,7 @@
                         <p class="control">
                             <b-button tag="router-link"
                                       type="is-light"
-                                      :to="{name: 'stores.view', params:{id:item.id}}"
+                                      :to="{name: 'stores.list'}"
                                       icon-left="times">
                             </b-button>
                         </p>
@@ -82,18 +90,19 @@
 
             <!--content-->
             <div class="card-content">
-                <div class="block">
 
-                    <b-field label="Name" :label-position="labelPosition">
-                        <b-input name="stores-name" data-wdio="stores-name" v-model="item.name"></b-input>
-                    </b-field>
+                <b-field label="Name" :label-position="labelPosition">
+                    <b-input name="stores-name"
+                             data-wdio="stores-name"
+                             v-model="data.item.name"></b-input>
+                </b-field>
 
-                    <b-field label="Slug" :label-position="labelPosition">
-                        <b-input name="stores-slug" data-wdio="stores-slug" v-model="item.slug"></b-input>
-                    </b-field>
-
-
-                </div>
+                <b-field label="Slug" :label-position="labelPosition">
+                    <b-input name="stores-slug"
+                             data-wdio="stores-slug"
+                             v-model="data.item.slug">
+                    </b-input>
+                </b-field>
             </div>
             <!--/content-->
 

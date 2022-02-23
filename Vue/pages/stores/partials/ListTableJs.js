@@ -1,3 +1,4 @@
+
 let namespace = 'stores';
 export default {
     computed: {
@@ -7,13 +8,15 @@ export default {
         data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
-
     },
     data()
     {
         let obj = {
             namespace: namespace,
+            page: null,
+            icon_copy: "<i class='fas fa-copy'></i>"
         };
+
         return obj;
     },
     watch: {
@@ -35,19 +38,21 @@ export default {
         //---------------------------------------------------------------------
         setRowClass: function(row, index)
         {
-            if(this.data.item && row.id === this.data.item.id)
+            if(this.data.item && row.id == this.data.item.id)
             {
                 return 'is-selected';
             }
+
             if(row.deleted_at != null)
             {
                 return 'is-danger';
             }
+
         },
         //---------------------------------------------------------------------
         setActiveItem: function (item) {
             this.data.item = item;
-            this.$router.push({name: 'stores.view', params:{id:item.id}})
+            this.$router.push({name: 'stores.read', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         changeStatus: function (id) {
@@ -64,7 +69,6 @@ export default {
             this.$emit('eReloadList');
             this.update('is_list_loading', false);
         },
-
         //---------------------------------------------------------------------
         copiedData: function (data) {
             this.$vaah.toastSuccess(['copied']);
@@ -75,6 +79,15 @@ export default {
             return this.$vaah.hasPermission(this.permissions, slug);
         },
         //---------------------------------------------------------------------
+        isViewLarge: function ()
+        {
+            if(this.data.view==='large')
+            {
+                return true;
+            }
+
+            return false;
+        }
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

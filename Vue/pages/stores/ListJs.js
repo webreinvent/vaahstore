@@ -1,5 +1,5 @@
-import ListLargeView from './partials/ListLargeView';
-import ListSmallView from './partials/ListSmallView';
+
+import ListTable from './partials/ListTable';
 
 let namespace = 'stores';
 
@@ -11,8 +11,7 @@ export default {
         data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
-        ListLargeView,
-        ListSmallView,
+        ListTable,
     },
     data()
     {

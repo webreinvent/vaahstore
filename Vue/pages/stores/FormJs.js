@@ -17,6 +17,7 @@ export default {
             page: null,
             is_btn_loading: null,
             labelPosition: 'on-border',
+            form_type: null,
             params: {},
             local_action: null,
         }
@@ -27,11 +28,12 @@ export default {
                 this.namespace+'/updateView',
                 this.$route
             );
+            this.onLoad();
         },
     },
     mounted() {
         //----------------------------------------------------
-        this.data.item = this.$vh.clone(this.data.inputs);
+        this.onLoad();
         //----------------------------------------------------
         //----------------------------------------------------
     },
@@ -39,6 +41,18 @@ export default {
         //---------------------------------------------------------------------
         onLoad: function()
         {
+            if(this.$route.name === 'stores.update')
+            {
+                this.form_type = 'Update';
+                if(!this.data.item)
+                {
+                    this.getItem();
+                }
+            } else
+            {
+                this.form_type = 'Create';
+                this.data.item = this.$vh.clone(this.assets.fillable.columns);
+            }
         },
         //---------------------------------------------------------------------
         updateData: function(data)
@@ -81,7 +95,8 @@ export default {
         getFaker: function () {
             this.$Progress.start();
             this.params = {
-                model_namespace: this.data.model
+                model_namespace: this.data.model,
+                faker: this.assets.faker,
             };
             let url = this.base_url+'/faker';
             this.$vh.ajax(url, this.params, this.getFakerAfter, 'post');
@@ -95,6 +110,8 @@ export default {
                 this.data.item = data.fill;
             }
         },
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
         createItem: function (action) {
             this.is_btn_loading = true;
@@ -128,6 +145,26 @@ export default {
             }
 
 
+        },
+        //---------------------------------------------------------------------
+        getItem: function () {
+            this.$Progress.start();
+            this.params = {};
+            let url = this.ajax_url+'/'+this.$route.params.id;
+            this.$vh.ajax(url, this.params, this.getItemAfter);
+        },
+        //---------------------------------------------------------------------
+        getItemAfter: function (data, res) {
+            this.$Progress.finish();
+            if(data)
+            {
+                this.data.item = data;
+            } else
+            {
+                //if item does not exist or delete then redirect to list
+                this.data.item = null;
+                this.$router.push({name: 'stores.list'});
+            }
         },
         //---------------------------------------------------------------------
         saveAndClone: function () {

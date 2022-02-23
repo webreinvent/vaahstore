@@ -2,22 +2,8 @@
 <template>
     <div>
 
-        {{assets}}
 
 
-        <div class="columns">
-
-            <div class="column is-6">
-                Data
-                <pre>{{data}}</pre>
-            </div>
-
-            <div class="column is-6">
-                Page
-                <pre>{{page}}</pre>
-            </div>
-
-        </div>
 
         <div class="columns" v-if="assets && data">
 
@@ -221,13 +207,8 @@
                             <!--list-->
                             <div class="container">
 
-                                <div v-if="data.view == 'large'">
-                                    <ListLargeView/>
-                                </div>
+                                <ListTable/>
 
-                                <div v-else>
-                                    <ListSmallView/>
-                                </div>
 
                                 <hr style="margin-top: 0;"/>
 
@@ -264,6 +245,17 @@
 
 
             <router-view @eReloadList="getList"></router-view>
+
+        </div>
+
+
+        <div class="columns">
+
+            <div class="column is-6">
+                Data
+                <pre>{{data.item}}</pre>
+            </div>
+
 
         </div>
 

@@ -21,7 +21,24 @@ class StoresController extends Controller
     {
 
         $data = [];
+
+
+
         $data['permission'] = [];
+
+        $data['fillable']['except'] = [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+
+        $model = new Store();
+        $fillable = $model->getFillable();
+        $data['fillable']['columns'] = array_diff(
+            $fillable, $data['fillable']['except']
+        );
+
         $data['actions'] = [];
 
         $response['success'] = true;

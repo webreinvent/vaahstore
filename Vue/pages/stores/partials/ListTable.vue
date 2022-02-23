@@ -1,16 +1,18 @@
-<script src="./ListLargeViewJs.js"></script>
+<script src="./ListTableJs.js"></script>
 <template>
     <div>
         <div v-if="data && data.list">
             <b-table :data="data.list.length ? [] : data.list.data"
                      :checked-rows.sync="data.actions.items"
                      checkbox-position="left"
-                     checkable
+                     :checkable="isViewLarge()"
                      :hoverable="true"
                      :row-class="setRowClass">
 
                 <template >
-                    <b-table-column field="id" label="ID" v-slot="props">
+                    <b-table-column field="id" label="ID"
+                                    :visible="isViewLarge()"
+                                    v-slot="props">
                         {{ props.row.id }}
                     </b-table-column>
 
@@ -18,7 +20,9 @@
                         {{ props.row.name }}
                     </b-table-column>
 
-                    <b-table-column field="slug" label="Slug" v-slot="props">
+                    <b-table-column field="slug" label="Slug"
+                                    :visible="isViewLarge()"
+                                    v-slot="props">
                         <b-tooltip label="Copy"
                                    type="is-dark">
                         <vh-copy class="text-copyable"
@@ -32,6 +36,7 @@
 
                     <b-table-column field="updated_at"
                                     label="Updated At"
+                                    :visible="isViewLarge()"
                                     width="120"
                                     v-slot="props">
                         <b-tooltip :label="props.row.updated_at"

@@ -16,6 +16,7 @@ export default {
             model: 'VaahCms\\Modules\\Store\\Models\\Store',
             list: null,
             item: null,
+            fillable:null,
             inputs: {
                 name: null,
                 slug: null,
@@ -71,8 +72,8 @@ export default {
             let update;
 
             if(payload.name === 'stores.create'
-            || payload.name === 'stores.view'
-            || payload.name === 'stores.edit')
+            || payload.name === 'stores.read'
+            || payload.name === 'stores.update')
             {
                 view = 'small';
             }

@@ -8,7 +8,6 @@
             <header class="card-header">
 
                 <div class="card-header-title">
-                    <span>{{item.name}}</span>
                 </div>
 
                 <div class="card-header-buttons">
@@ -23,7 +22,7 @@
                             <b-button icon-left="edit"
                                       type="is-light"
                                       tag="router-link"
-                                      :to="{name:'stores.edit', params:{id: item.id}}">
+                                      :to="{name:'stores.update', params:{id: item.id}}">
                                 Edit
                             </b-button>
                         </p>
@@ -70,9 +69,8 @@
             <b-notification type="is-danger"
                             :closable="false"
                             class="is-light is-small"
-                            v-if="item.deleted_at"
-            >
-                Deleted {{$vaah.fromNow(item.deleted_at)}}
+                            v-if="item.deleted_at">
+                Deleted {{$vh.ago(item.deleted_at)}}
             </b-notification>
 
             <!--content-->
@@ -83,7 +81,7 @@
                             <table class="table is-hoverable">
                                 <tbody>
                                 <tr>
-                                    <th align="right">Name</th>
+                                    <th align="right" width="30%">Name</th>
                                     <td colspan="2">
                                         {{item.name}}
                                     </td>
