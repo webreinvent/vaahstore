@@ -176,8 +176,8 @@ export default {
 
         },
         //---------------------------------------------------------------------
-        resetActiveItem: function () {
-            this.update('active_item', null);
+        resetItem: function () {
+            this.data.item = null;
             this.$router.push({name:'stores.list'});
         },
         //---------------------------------------------------------------------

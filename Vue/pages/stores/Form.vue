@@ -16,7 +16,7 @@
 
                     <div class="field has-addons is-pulled-right">
                         <p class="control">
-                            <b-button v-if="data.item.id"
+                            <b-button v-if="form_type ==='Update'"
                                       icon-left="edit"
                                       type="is-light"
                                       :loading="is_btn_loading"
@@ -41,26 +41,25 @@
                                     <b-icon icon="caret-down"></b-icon>
                                 </button>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="setLocalAction('save-and-close')">
                                     <b-icon icon="check"></b-icon>
                                     Save & Close
                                 </b-dropdown-item>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="setLocalAction('save-and-clone')">
                                     <b-icon icon="copy"></b-icon>
                                     Save & Clone
                                 </b-dropdown-item>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="resetNewItem()">
                                     <b-icon icon="eraser"></b-icon>
                                     Reset
                                 </b-dropdown-item>
 
-                                <b-dropdown-item aria-role="listitem"
-                                                 @click="getFaker()">
+                                <b-dropdown-item @click="getFaker()">
                                     <b-icon icon="i-cursor"></b-icon>
                                     Fill Dummy Data
                                 </b-dropdown-item>
@@ -71,9 +70,8 @@
                         </p>
 
                         <p class="control">
-                            <b-button tag="router-link"
-                                      type="is-light"
-                                      :to="{name: 'stores.list'}"
+                            <b-button type="is-light"
+                                      @click="closeCard()"
                                       icon-left="times">
                             </b-button>
                         </p>

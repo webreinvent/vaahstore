@@ -39,6 +39,11 @@ class StoresController extends Controller
             $fillable, $data['fillable']['except']
         );
 
+        foreach ($data['fillable']['columns'] as $column)
+        {
+            $data['empty_item'][$column] = null;
+        }
+
         $data['actions'] = [];
 
         $response['success'] = true;

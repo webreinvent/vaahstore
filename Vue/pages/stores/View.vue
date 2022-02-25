@@ -56,7 +56,7 @@
                         </p>
                         <p class="control">
                             <b-button type="is-light"
-                                      @click="resetActiveItem()"
+                                      @click="resetItem()"
                                       icon-left="times">
                             </b-button>
                         </p>

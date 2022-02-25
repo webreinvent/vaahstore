@@ -2,7 +2,15 @@
 <template>
     <div>
 
+        <div class="columns">
 
+            <div class="column is-6">
+                Data
+                <pre>{{data.query}}</pre>
+            </div>
+
+
+        </div>
 
 
         <div class="columns" v-if="assets && data">
@@ -61,10 +69,10 @@
 
 
                             <!--actions-->
-                            <div class="level">
+                            <div  v-if="data.view === 'large'" class="level">
 
                                 <!--left-->
-                                <div class="level-left" v-if="data.view === 'large'" >
+                                <div class="level-left" >
                                     <div  class="level-item">
                                         <b-field >
 
@@ -118,6 +126,8 @@
 
                                             <b-input placeholder="Search"
                                                      v-model="data.query.q"
+                                                     @input="delayedSearch"
+                                                     @keyup.enter.prevent="delayedSearch"
                                                      icon="search"
                                                      icon-right="close-circle"
                                                      icon-right-clickable
@@ -130,6 +140,14 @@
                                                     <b-icon icon="ellipsis-v"></b-icon>
                                                 </button>
                                             </p>
+
+                                            <p class="control">
+                                                <button class="button is-light"
+                                                        @click="toggleFilters()">
+                                                    <b-icon icon="filter"></b-icon>
+                                                </button>
+                                            </p>
+
                                         </b-field>
 
                                     </div>
@@ -140,6 +158,22 @@
                             </div>
                             <!--/actions-->
 
+                            <!--search on small view-->
+                            <b-field v-else>
+
+                                <b-input placeholder="Search"
+                                         v-model="data.query.q"
+                                         @input="delayedSearch"
+                                         @keyup.enter.prevent="delayedSearch"
+                                         icon="search"
+                                         expanded
+                                         icon-right="close-circle"
+                                         icon-right-clickable
+                                         @icon-right-click="data.query.q = ''">
+                                </b-input>
+
+                            </b-field>
+                            <!--/search on small view-->
 
                             <!--filters-->
                             <div class="level" v-if="data.show_filters">
@@ -151,8 +185,7 @@
                                         <b-field label="">
                                             <b-select placeholder="- Select a status -"
                                                       v-model="data.query.filter"
-                                                      @input="getList()"
-                                            >
+                                                      @input="getList()">
                                                 <option value="">
                                                     - Select a status -
                                                 </option>
@@ -212,6 +245,7 @@
 
                                 <hr style="margin-top: 0;"/>
 
+
                                 <div class="block" v-if="data.list">
                                     <b-pagination  :total="data.list.total"
                                                    :current.sync="data.list.current_page"
@@ -249,15 +283,7 @@
         </div>
 
 
-        <div class="columns">
 
-            <div class="column is-6">
-                Data
-                <pre>{{data.item}}</pre>
-            </div>
-
-
-        </div>
 
     </div>
 </template>

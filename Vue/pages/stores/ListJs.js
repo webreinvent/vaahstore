@@ -34,6 +34,7 @@ export default {
         },
         'data.query': {
             handler: function(newVal, oldValue) {
+                console.log('newVal--->', newVal);
                 let url_query = JSON.stringify(this.$route.query);
                 let page_query = JSON.stringify(newVal);
                 if(url_query !== page_query)
@@ -87,12 +88,10 @@ export default {
         //---------------------------------------------------------------------
         getList: function () {
             this.$Progress.start();
-            //this.$vaah.updateCurrentURL(this.query_string, this.$router);
-
-            console.log('--->', this.ajax_url);
-
             let url = this.ajax_url;
-            this.$vh.ajax(url, this.query_string, this.getListAfter);
+            this.$vh.ajax(
+                url, this.data.query, this.getListAfter
+            );
         },
         //---------------------------------------------------------------------
         getListAfter: function (data, res) {
@@ -180,22 +179,22 @@ export default {
         //---------------------------------------------------------------------
         paginate: function(page=1)
         {
-            this.query_string.page = page;
-            this.update('query_string', this.query_string);
+            // set reactive property to query
+            this.$set(this.data.query, 'page', page)
             this.getList();
         },
         //---------------------------------------------------------------------
         delayedSearch: function()
         {
+            console.log('--->');
+
             let self = this;
             clearTimeout(this.search_delay);
             this.search_delay = setTimeout(function() {
+                console.log('--->');
                 self.getList();
             }, this.search_delay_time);
-
-            this.query_string.page = 1;
-            this.update('query_string', this.query_string);
-
+            this.data.query.page = 1;
         },
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

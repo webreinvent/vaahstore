@@ -51,7 +51,7 @@ export default {
             } else
             {
                 this.form_type = 'Create';
-                this.data.item = this.$vh.clone(this.assets.fillable.columns);
+                this.data.item = this.$vh.clone(this.assets.empty_item);
             }
         },
         //---------------------------------------------------------------------
@@ -63,40 +63,23 @@ export default {
             };
             this.$store.commit(this.namespace+'/updateState', payload)
         },
-
-        //---------------------------------------------------------------------
-        resetActiveItem: function()
-        {
-            this.update('active_item', null);
-        },
-        //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
-        updateNewItem: function()
-        {
-            this.update('new_item', this.new_item);
-        },
-        //---------------------------------------------------------------------
         //---------------------------------------------------------------------
         setLocalAction: function (action) {
             this.local_action = action;
-            this.createItem();
-        },
-        //---------------------------------------------------------------------
-        saveAndClose: function () {
-            this.update('active_item', null);
-            this.$router.push({name:'stores.list'});
-        },
-        //---------------------------------------------------------------------
-        saveAndNew: function () {
-            this.data.item = this.data.inputs;
+            if(this.local_action === 'save')
+            {
+                this.updateItem();
+            } else
+            {
+                this.createItem();
+            }
         },
         //---------------------------------------------------------------------
         getFaker: function () {
             this.$Progress.start();
             this.params = {
                 model_namespace: this.data.model,
-                faker: this.assets.faker,
+                except: this.assets.fillable.except,
             };
             let url = this.base_url+'/faker';
             this.$vh.ajax(url, this.params, this.getFakerAfter, 'post');
@@ -107,7 +90,10 @@ export default {
             this.is_content_loading = false;
             if(data)
             {
-                this.data.item = data.fill;
+                let self = this;
+                Object.keys(data.fill).forEach(function(key) {
+                    self.data.item[key] = data.fill[key];
+                });
             }
         },
         //---------------------------------------------------------------------
@@ -130,6 +116,7 @@ export default {
             if(data)
             {
                 this.$emit('eReloadList');
+
                 if(this.local_action === 'save-and-new')
                 {
                     this.saveAndNew()
@@ -140,11 +127,34 @@ export default {
                 }
                 if(this.local_action === 'save-and-clone')
                 {
-                    this.saveAndClone()
+                    //do nothing
                 }
             }
 
 
+        },
+        //---------------------------------------------------------------------
+        updateItem: function (action) {
+            this.is_btn_loading = true;
+            this.$Progress.start();
+
+            let url = this.ajax_url+"/"+this.data.item.id;
+
+            this.$vh.ajax(
+                url,
+                this.data.item,
+                this.updateItemAfter,
+                'put'
+            );
+        },
+        //---------------------------------------------------------------------
+        updateItemAfter: function (data, res) {
+            this.is_btn_loading = false;
+            this.$Progress.finish();
+            if(data)
+            {
+                this.$emit('eReloadList');
+            }
         },
         //---------------------------------------------------------------------
         getItem: function () {
@@ -167,10 +177,15 @@ export default {
             }
         },
         //---------------------------------------------------------------------
-        saveAndClone: function () {
-            this.fillNewItem();
-            this.$router.push({name:'stores.create'});
+        saveAndClose: function () {
+            this.data.item = null;
+            this.$router.push({name:'stores.list'});
         },
+        //---------------------------------------------------------------------
+        saveAndNew: function () {
+            this.data.item = this.$vh.clone(this.assets.empty_item);
+        },
+
         //---------------------------------------------------------------------
         getNewItem: function()
         {
@@ -210,6 +225,15 @@ export default {
             return this.$vaah.hasPermission(this.permissions, slug);
         },
         //---------------------------------------------------------------------
+        closeCard: function ()
+        {
+            if(this.form_type === 'Update')
+            {
+                this.$router.push({name: 'stores.read', params:{id: this.data.item.id}})
+            } else{
+                this.$router.push({name: 'stores.list'})
+            }
+        }
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

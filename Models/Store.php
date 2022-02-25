@@ -117,7 +117,7 @@ class Store extends Model {
         if($item)
         {
             $response['failed'] = true;
-            $response['errors'][] = "This name is already exist.";
+            $response['messages'][] = "This name is already exist.";
             return $response;
         }
 
@@ -127,7 +127,7 @@ class Store extends Model {
         if($item)
         {
             $response['failed'] = true;
-            $response['errors'][] = "This slug is already exist.";
+            $response['messages'][] = "This slug is already exist.";
             return $response;
         }
 
@@ -146,12 +146,10 @@ class Store extends Model {
     public static function getList($request)
     {
 
-
         $list = self::orderBy('id', 'desc');
 
         if($request['trashed'] == 'true')
         {
-
             $list->withTrashed();
         }
 
@@ -162,7 +160,6 @@ class Store extends Model {
 
         if($request['filter'] && $request['filter'] == '1')
         {
-
             $list->where('is_active',$request['filter']);
         }elseif($request['filter'] == '10'){
 
@@ -204,7 +201,7 @@ class Store extends Model {
     //-------------------------------------------------
     public static function updateItem($request,$id)
     {
-        $inputs = $request->item;
+        $inputs = $request->all();
 
         $validation = self::validation($inputs);
         if(isset($validation['status']) && $validation['status'] == 'failed')
@@ -219,7 +216,7 @@ class Store extends Model {
         if($user)
         {
             $response['failed'] = true;
-            $response['errors'][] = "This name is already exist.";
+            $response['messages'][] = "This name is already exist.";
             return $response;
         }
 
@@ -230,7 +227,7 @@ class Store extends Model {
         if($user)
         {
             $response['failed'] = true;
-            $response['errors'][] = "This slug is already exist.";
+            $response['messages'][] = "This slug is already exist.";
             return $response;
         }
 
@@ -239,7 +236,6 @@ class Store extends Model {
         $update->name = $inputs['name'];
         $update->slug = Str::slug($inputs['slug']);
         $update->save();
-
 
         $response['success'] = true;
         $response['data'] = [];
@@ -262,7 +258,7 @@ class Store extends Model {
         if(!$request->has('data'))
         {
             $response['failed'] = true;
-            $response['errors'][] = 'Select Status';
+            $response['messages'][] = 'Select Status';
             return $response;
         }
 
@@ -337,7 +333,7 @@ class Store extends Model {
         if(!$request->has('data'))
         {
             $response['failed'] = true;
-            $response['errors'][] = 'Select Status';
+            $response['messages'][] = 'Select Status';
             return $response;
         }
 
@@ -371,7 +367,7 @@ class Store extends Model {
         if(!$request->has('data'))
         {
             $response['failed'] = true;
-            $response['errors'][] = 'Select Status';
+            $response['messages'][] = 'Select Status';
             return $response;
         }
 
@@ -404,9 +400,9 @@ class Store extends Model {
 
         $validator = \Validator::make( $inputs, $rules);
         if ( $validator->fails() ) {
-            $errors             = errorsToArray($validator->errors());
+            $messages             = messagesToArray($validator->messages());
             $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['messages'] = $messages;
             return $response;
         }
 
