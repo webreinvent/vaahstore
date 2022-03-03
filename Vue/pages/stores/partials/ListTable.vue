@@ -3,7 +3,7 @@
     <div>
         <div v-if="data && data.list">
             <b-table :data="data.list.length ? [] : data.list.data"
-                     :checked-rows.sync="data.actions.items"
+                     :checked-rows.sync="data.action.items"
                      checkbox-position="left"
                      :checkable="isViewLarge()"
                      :hoverable="true"
@@ -31,6 +31,23 @@
                                  @copied="copiedData">
                         </vh-copy>
                         </b-tooltip>
+                    </b-table-column>
+
+
+                    <b-table-column field="is_active" label="Active"
+                                    :visible="isViewLarge()"
+                                    v-slot="props">
+                        <b-button v-if="props.row.is_active"
+                                  type="is-success"
+                                  size="is-small" >
+                            Yes
+                        </b-button>
+                        <b-button v-else
+                                  type="is-danger"
+                                  size="is-small" >
+                            No
+                        </b-button>
+
                     </b-table-column>
 
 

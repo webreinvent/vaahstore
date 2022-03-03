@@ -146,24 +146,40 @@ class Store extends Model {
     public static function getList($request)
     {
 
-        $list = self::orderBy('id', 'desc');
 
-        if($request['trashed'] == 'true')
+        if(isset($request->sort))
         {
-            $list->withTrashed();
+
+            $sort = $request->sort;
+            if(Str::contains($request->sort, ':'))
+            {
+                $sort = explode(":", $request->sort);
+                $list= self::orderBy($sort[0], $sort[1]);
+            } else
+            {
+                $list = self::orderBy($sort, 'asc');
+            }
+        } else{
+            $list = self::orderBy('id', 'desc');
         }
 
-        if(isset($request->from) && isset($request->to))
+        if(isset($request['filter']['is_active']))
         {
-            $list->betweenDates($request['from'],$request['to']);
+            $list->where('is_active',$request['filter']['is_active']);
         }
 
-        if($request['filter'] && $request['filter'] == '1')
+        if(isset($request['filter']['trashed']))
         {
-            $list->where('is_active',$request['filter']);
-        }elseif($request['filter'] == '10'){
+            if($request['filter']['trashed'] === 'include')
+            {
+                $list->withTrashed();
+            }
 
-            $list->whereNull('is_active')->orWhere('is_active',0);
+            if($request['filter']['trashed'] === 'only')
+            {
+                $list->onlyTrashed();
+            }
+
         }
 
         if(isset($request->q))
@@ -182,6 +198,79 @@ class Store extends Model {
         return $response;
 
 
+    }
+    //-------------------------------------------------
+    public static function updateList($request)
+    {
+        $inputs = $request->all();
+
+        $rules = array(
+            'type' => 'required',
+            'items' => 'required',
+        );
+
+        $messages = array(
+            'type.required' => 'Action type is required',
+            'items.required' => 'Select items',
+        );
+
+
+        $validator = \Validator::make( $inputs, $rules, $messages);
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['failed'] = true;
+            $response['errors'] = $errors;
+            return $response;
+        }
+
+        switch ($inputs['type'])
+        {
+            case 'trash':
+                $items_id = collect($inputs['items'])->pluck('id')->toArray();
+                self::whereIn('id', $items_id)->delete();
+                break;
+
+        }
+
+        $response['success'] = true;
+        $response['data'] = true;
+        $response['messages'][] = 'Action was successful.';
+
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function deleteList($request)
+    {
+        $inputs = $request->all();
+
+        $rules = array(
+            'type' => 'required',
+            'items' => 'required',
+        );
+
+        $messages = array(
+            'type.required' => 'Action type is required',
+            'items.required' => 'Select items',
+        );
+
+        $validator = \Validator::make( $inputs, $rules, $messages);
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['failed'] = true;
+            $response['messages'] = $errors;
+            return $response;
+        }
+
+        $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::whereIn('id', $items_id)->forceDelete();
+
+        $response['success'] = true;
+        $response['data'] = true;
+        $response['messages'][] = 'Action was successful.';
+
+        return $response;
     }
     //-------------------------------------------------
     public static function getItem($id)
@@ -232,161 +321,43 @@ class Store extends Model {
         }
 
         $update = self::where('id',$id)->withTrashed()->first();
-
-        $update->name = $inputs['name'];
+        $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
         $update->save();
 
+        //check specific actions
+        switch($inputs['action'])
+        {
+            case 'trash':
+                $update->delete();
+                break;
+        }
+
         $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Data updated.';
+        $response['data'] = $update;
+        $response['messages'][] = 'Record has been updated';
 
         return $response;
 
     }
     //-------------------------------------------------
-    public static function bulkStatusChange($request)
+    public static function deleteItem($request,$id): array
     {
-
-        if(!$request->has('inputs'))
+        $update = self::where('id',$id)->withTrashed()->first();
+        if(!$update)
         {
             $response['failed'] = true;
-            $response['messages'][] = 'Select IDs';
+            $response['messages'][] = 'Record does not exist.';
             return $response;
         }
 
-        if(!$request->has('data'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select Status';
-            return $response;
-        }
-
-        foreach($request->inputs as $id)
-        {
-            $item = self::where('id',$id)->withTrashed()->first();
-
-            if($item->deleted_at){
-                continue ;
-            }
-
-            if($request['data']){
-                $item->is_active = $request['data']['status'];
-            }else{
-                if($item->is_active == 1){
-                    $item->is_active = 0;
-                }else{
-                    $item->is_active = 1;
-                }
-            }
-            $item->save();
-        }
+        $update->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Action was successful';
+        $response['messages'][] = 'Record has been deleted';
 
         return $response;
-
-    }
-    //-------------------------------------------------
-    public static function bulkTrash($request)
-    {
-
-
-        if(!$request->has('inputs'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select IDs';
-            return $response;
-        }
-
-
-        foreach($request->inputs as $id)
-        {
-            $item = self::withTrashed()->where('id', $id)->first();
-            if($item)
-            {
-                $item->delete();
-            }
-        }
-
-        $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Action was successful';
-
-        return $response;
-
-
-    }
-    //-------------------------------------------------
-    public static function bulkRestore($request)
-    {
-
-        if(!$request->has('inputs'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select IDs';
-            return $response;
-        }
-
-        if(!$request->has('data'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select Status';
-            return $response;
-        }
-
-        foreach($request->inputs as $id)
-        {
-            $item = self::withTrashed()->where('id', $id)->first();
-            if(isset($item) && isset($item->deleted_at))
-            {
-                $item->restore();
-            }
-        }
-
-        $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Action was successful';
-
-        return $response;
-
-    }
-    //-------------------------------------------------
-    public static function bulkDelete($request)
-    {
-
-        if(!$request->has('inputs'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select IDs';
-            return $response;
-        }
-
-        if(!$request->has('data'))
-        {
-            $response['failed'] = true;
-            $response['messages'][] = 'Select Status';
-            return $response;
-        }
-
-        foreach($request->inputs as $id)
-        {
-            $item = self::where('id', $id)->withTrashed()->first();
-            if($item)
-            {
-                $item->forceDelete();
-            }
-        }
-
-        $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Action was successful';
-
-        return $response;
-
-
     }
     //-------------------------------------------------
 

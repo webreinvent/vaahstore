@@ -58,12 +58,22 @@ class StoresController extends Controller
         return Store::getList($request);
     }
     //----------------------------------------------------------
+    public function updateList(Request $request)
+    {
+        return Store::updateList($request);
+    }
+    //----------------------------------------------------------
+    public function deleteList(Request $request)
+    {
+        return Store::deleteList($request);
+    }
+    //----------------------------------------------------------
     public function createItem(Request $request)
     {
         return Store::createItem($request);
     }
     //----------------------------------------------------------
-    public function getItem(Request $request, $id)
+    public function getItem(Request $request, $id): array
     {
         return Store::getItem($id);
     }
@@ -74,62 +84,9 @@ class StoresController extends Controller
         return Store::updateItem($request,$id);
     }
     //----------------------------------------------------------
-    public function postActions(Request $request, $action)
+    public function deleteItem(Request $request,$id)
     {
-        $rules = array(
-            'inputs' => 'required',
-        );
-
-        $validator = \Validator::make( $request->all(), $rules);
-        if ( $validator->fails() ) {
-
-            $errors             = errorsToArray($validator->errors());
-            $response['status'] = 'failed';
-            $response['errors'] = $errors;
-            return $response;
-        }
-
-        $response = [];
-
-        $response['success'] = true;
-
-        $inputs = $request->all();
-
-        switch ($action)
-        {
-
-            //------------------------------------
-            case 'bulk-change-status':
-
-                $response = Store::bulkStatusChange($request);
-
-                break;
-            //------------------------------------
-            case 'bulk-trash':
-
-                $response = Store::bulkTrash($request);
-
-                break;
-            //------------------------------------
-            case 'bulk-restore':
-
-                $response = Store::bulkRestore($request);
-
-                break;
-
-            //------------------------------------
-            case 'bulk-delete':
-
-                $response = Store::bulkDelete($request);
-
-                break;
-            //------------------------------------
-            //------------------------------------
-
-        }
-
-        return $response;
-
+        return Store::deleteItem($request,$id);
     }
     //----------------------------------------------------------
     //----------------------------------------------------------

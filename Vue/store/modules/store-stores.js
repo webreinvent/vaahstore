@@ -23,15 +23,17 @@ export default {
             },
             view: 'large',
             query: {
-                page: 1,
+                page: null,
                 q: null,
-                trashed: null,
-                filter: null,
-                sort_by: null,
-                sort_order: 'desc',
+                sort: 'updated_at:desc',
+                filter: {
+                    is_active: null,
+                    trashed: null,
+                },
+                include: null,
             },
             show_filters: null,
-            actions: {
+            action: {
                 type: null,
                 items: [],
                 inputs: {},

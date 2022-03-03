@@ -1,5 +1,6 @@
 
 import ListTable from './partials/ListTable';
+import qs from "qs";
 
 let namespace = 'stores';
 
@@ -22,6 +23,9 @@ export default {
             selected_date: null,
             search_delay: null,
             search_delay_time: 800,
+            empty_query: null,
+            empty_action: null,
+            count_filters: 0,
             ids: [],
         }
     },
@@ -34,13 +38,16 @@ export default {
         },
         'data.query': {
             handler: function(newVal, oldValue) {
-                console.log('newVal--->', newVal);
-                let url_query = JSON.stringify(this.$route.query);
-                let page_query = JSON.stringify(newVal);
-                if(url_query !== page_query)
-                {
-                    this.$router.replace({query: newVal});
-                }
+
+                let query_string = qs.stringify(newVal, {
+                        skipNulls: true
+                    });
+                let query_object = qs.parse(query_string);
+
+                this.$router.replace({query: query_object});
+
+                this.count_filters = Object.keys(query_object).length;
+                this.getList();
             },
             deep: true
         }
@@ -51,20 +58,31 @@ export default {
     },
     mounted() {
         //----------------------------------------------------
-        //----------------------------------------------------
-        this.data.query = this.$vh.clone(this.$route.query);
+        this.empty_query = this.$vh.clone(this.data.query);
+        this.empty_action = this.$vh.clone(this.data.action);
         //----------------------------------------------------
         this.onLoad();
-        //----------------------------------------------------
-
         //----------------------------------------------------
     },
     methods: {
         //---------------------------------------------------------------------
         onLoad: function()
         {
+            this.updateQueryFromUrl();
             this.updateView();
             this.getAssets();
+        },
+        //---------------------------------------------------------------------
+        updateQueryFromUrl: function ()
+        {
+            let query = this.$vh.clone(this.$route.query);
+            if(Object.keys(query).length > 0)
+            {
+                for(let k in query)
+                {
+                    this.data.query[k] = query[k];
+                }
+            }
         },
         //---------------------------------------------------------------------
         updateData: function(newPageObject)
@@ -102,190 +120,119 @@ export default {
             this.$Progress.finish();
         },
         //---------------------------------------------------------------------
-        toggleFilters: function()
-        {
-            this.data.show_filters = !this.data.show_filters;
-        },
-        //---------------------------------------------------------------------
         clearSearch: function () {
-            this.query_string.q = null;
-            this.update('query_string', this.query_string);
+            this.data.query.q = null;
             this.getList();
         },
         //---------------------------------------------------------------------
-        setDateFilter: function()
+        resetQuery: function()
         {
-            if(this.query_string.from){
-                let from = new Date(this.query_string.from);
-
-                this.selected_date=[
-                    from
-                ];
-            }
-
-            if(this.query_string.to){
-                let to = new Date(this.query_string.to);
-
-                this.selected_date[1] = to;
-            }
-        },
-        //---------------------------------------------------------------------
-        resetPage: function()
-        {
-
             //reset query strings
             this.resetQueryString();
 
-            this.resetSelectedDate();
-
-            //reset bulk actions
-            this.resetBulkAction();
-
             //reload page list
             this.getList();
-
-        },
-        //---------------------------------------------------------------------
-        resetSelectedDate: function()
-        {
-            this.selected_date = null;
         },
         //---------------------------------------------------------------------
         resetQueryString: function()
         {
-            for(let key in this.query_string)
-            {
-                if(key == 'page')
-                {
-                    this.query_string[key] = 1;
-                } else
-                {
-                    this.query_string[key] = null;
-                }
-            }
-
-            this.update('query_string', this.query_string);
-        },
-        //---------------------------------------------------------------------
-        resetBulkAction: function()
-        {
-            this.data.bulk_action = {
-                selected_items: [],
-                data: {},
-                action: null,
-            };
-            this.update('bulk_action', this.data.bulk_action);
+            this.data.query = this.$vh.clone(this.empty_query);
+            this.data.query.sort = null;
         },
         //---------------------------------------------------------------------
         paginate: function(page=1)
         {
             // set reactive property to query
+            if(page===1)
+            {
+                page = null;
+            }
             this.$set(this.data.query, 'page', page)
             this.getList();
         },
         //---------------------------------------------------------------------
         delayedSearch: function()
         {
-            console.log('--->');
-
             let self = this;
             clearTimeout(this.search_delay);
             this.search_delay = setTimeout(function() {
-                console.log('--->');
                 self.getList();
             }, this.search_delay_time);
             this.data.query.page = 1;
         },
         //---------------------------------------------------------------------
-        //---------------------------------------------------------------------
+        updateList: function (type) {
 
-        //---------------------------------------------------------------------
-        actions: function () {
-
-            if(!this.data.bulk_action.action)
+            if(!type)
             {
-                this.$vaah.toastErrors(['Select an action']);
+                this.$vh.toastErrors(['Select an action type']);
                 return false;
             }
-
-            if(this.data.bulk_action.action == 'bulk-change-status'){
-                if(!this.data.bulk_action.data.status){
-                    this.$vaah.toastErrors(['Select a status']);
-                    return false;
-                }
-            }
-
-            if(this.data.bulk_action.selected_items.length < 1)
+            this.data.action.type = type;
+            if(this.data.action.items.length < 1)
             {
-                this.$vaah.toastErrors(['Select a record']);
+                this.$vh.toastErrors(['Select a record']);
                 return false;
             }
 
             this.$Progress.start();
-            this.update('bulk_action', this.data.bulk_action);
-            let ids = this.$vaah.pluckFromObject(this.data.bulk_action.selected_items, 'id');
-
-            let params = {
-                inputs: ids,
-                data: this.data.bulk_action.data
-            };
-
-            console.log('--->params', params);
-
-            let url = this.ajax_url+'/actions/'+this.data.bulk_action.action;
-            this.$vaah.ajax(url, params, this.actionsAfter);
+            let params = this.data.action;
+            let url = this.ajax_url;
+            this.$vh.ajax(url, params, this.updateListAfter, 'put');
         },
         //---------------------------------------------------------------------
-        actionsAfter: function (data, res) {
+        updateListAfter: function (data, res) {
             if(data)
             {
+                this.data.action = this.$vh.clone(this.empty_action);
                 this.$root.$emit('eReloadItem');
-                this.resetBulkAction();
                 this.getList();
-                this.$store.dispatch('root/reloadPermissions');
-            } else
-            {
-                this.$Progress.finish();
             }
         },
         //---------------------------------------------------------------------
-        sync: function () {
+        confirmDelete: function()
+        {
 
-            /*this.data.query_string.recount = true;
+            if(this.data.action.items.length < 1)
+            {
+                this.$vh.toastErrors(['Select a record']);
+                return false;
+            }
 
-            this.is_btn_loading = true;
-
-            this.update('query_string', this.data.query_string);*/
-            this.getList();
+            let self = this;
+            this.$buefy.dialog.confirm({
+                title: 'Deleting record',
+                message: 'Are you sure you want to <b>delete</b> the records? This action cannot be undone.',
+                confirmText: 'Delete',
+                type: 'is-danger',
+                hasIcon: true,
+                onConfirm: function () {
+                    self.deleteList('delete');
+                }
+            })
         },
         //---------------------------------------------------------------------
-        updateActiveItem: function () {
+        deleteList: function (type) {
 
-            if(this.$route.fullPath.includes('stores/?')){
-                this.update('active_item', null);
+            this.data.action.type = type;
+            this.$Progress.start();
+            let params = this.data.action;
+            let url = this.ajax_url;
+            this.$vh.ajax(url, params, this.deleteListAfter, 'delete');
+        },
+        //---------------------------------------------------------------------
+        deleteListAfter: function (data, res) {
+            if(data)
+            {
+                this.data.action = this.$vh.clone(this.empty_action);
+                this.$root.$emit('eReloadItem');
+                this.getList();
             }
         },
         //---------------------------------------------------------------------
         hasPermission: function(slug)
         {
             return this.$vaah.hasPermission(this.permissions, slug);
-        },
-        //---------------------------------------------------------------------
-        setDateRange: function()
-        {
-
-            if(this.selected_date.length > 0){
-                let current_datetime = new Date(this.selected_date[0]);
-                this.query_string.from = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
-
-                current_datetime = new Date(this.selected_date[1]);
-                this.query_string.to = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
-
-                this.getList();
-            }
-
-
-
         },
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

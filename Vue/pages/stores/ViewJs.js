@@ -49,21 +49,7 @@ export default {
         {
             this.getItem();
         },
-        //---------------------------------------------------------------------
-        update: function(name, value)
-        {
-            let update = {
-                state_name: name,
-                state_value: value,
-                namespace: namespace,
-            };
-            this.$vaah.updateState(update);
-        },
-        //---------------------------------------------------------------------
-        updateView: function()
-        {
-            this.$store.dispatch(namespace+'/updateView', this.$route);
-        },
+
         //---------------------------------------------------------------------
         getItem: function () {
             this.$Progress.start();
@@ -86,53 +72,21 @@ export default {
             }
         },
         //---------------------------------------------------------------------
-        actions: function (action) {
-
-            console.log('--->action', action);
-
+        updateItem: function (action) {
+            this.$set(this.item, 'action', action)
             this.$Progress.start();
-            this.page.bulk_action.action = action;
-            this.update('bulk_action', this.page.bulk_action);
-            let params = {
-                inputs: [this.item.id],
-                data: null
-            };
-
-            let url = this.ajax_url+'/actions/'+action;
-            this.$vaah.ajax(url, params, this.actionsAfter);
-
+            let params = this.item;
+            let url = this.ajax_url+'/'+this.item.id;
+            this.$vh.ajax(url, params, this.updateItemAfter, 'patch');
         },
         //---------------------------------------------------------------------
-        actionsAfter: function (data, res) {
-            let action = this.page.bulk_action.action;
+        updateItemAfter: function (data, res) {
+            this.$Progress.finish();
             if(data)
             {
-                this.resetBulkAction();
-                this.$emit('eReloadList');
-
-                if(action == 'bulk-delete')
-                {
-                    this.$router.push({name: 'stores.list'});
-                } else
-                {
-                    this.getItem();
-                }
-
-            } else
-            {
-                this.$Progress.finish();
+                this.item = data;
             }
-        },
-        //---------------------------------------------------------------------
-        //---------------------------------------------------------------------
-        resetBulkAction: function()
-        {
-            this.page.bulk_action = {
-                selected_items: [],
-                data: {},
-                action: "",
-            };
-            this.update('bulk_action', this.page.bulk_action);
+            this.$emit('eReloadList');
         },
         //---------------------------------------------------------------------
         confirmDelete: function()
@@ -145,35 +99,22 @@ export default {
                 type: 'is-danger',
                 hasIcon: true,
                 onConfirm: function () {
-                    self.actions('bulk-delete');
+                    self.deleteItem();
                 }
             })
         },
         //---------------------------------------------------------------------
-        isCopiable: function (label) {
-
-            if(
-                label == 'id' || label == 'uuid' || label == 'slug'
-            )
-            {
-                return true;
-            }
-
-            return false;
-
+        deleteItem: function () {
+            this.$Progress.start();
+            let params = {};
+            let url = this.ajax_url+'/'+this.item.id;
+            this.$vh.ajax(url, params, this.deleteItemAfter, 'delete');
         },
         //---------------------------------------------------------------------
-        isUpperCase: function (label) {
-
-            if(
-                label == 'id' || label == 'uuid'
-            )
-            {
-                return true;
-            }
-
-            return false;
-
+        deleteItemAfter: function (data, res) {
+            this.$Progress.finish();
+            this.$emit('eReloadList');
+            this.resetItem();
         },
         //---------------------------------------------------------------------
         resetItem: function () {

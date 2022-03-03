@@ -54,21 +54,7 @@ export default {
             this.data.item = item;
             this.$router.push({name: 'stores.read', params:{id:item.id}})
         },
-        //---------------------------------------------------------------------
-        changeStatus: function (id) {
-            this.$Progress.start();
-            let url = this.ajax_url+'/actions/bulk-change-status';
-            let params = {
-                inputs: [id],
-                data: null
-            };
-            this.$vaah.ajax(url, params, this.changeStatusAfter);
-        },
-        //---------------------------------------------------------------------
-        changeStatusAfter: function (data,res) {
-            this.$emit('eReloadList');
-            this.update('is_list_loading', false);
-        },
+
         //---------------------------------------------------------------------
         copiedData: function (data) {
             this.$vaah.toastSuccess(['copied']);
