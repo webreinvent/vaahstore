@@ -12,3 +12,5 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+include_once __DIR__."/api/routes-stores.php";

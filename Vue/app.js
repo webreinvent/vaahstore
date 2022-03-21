@@ -16,7 +16,6 @@ import VueFuse from 'vue-fuse'
 import VueProgressBar from 'vue-progressbar'
 
 
-
 import VaahVuePagination from 'vaah-vue-pagination'
 import VaahVueClickToCopy from 'vaah-vue-clicktocopy'
 //---------/Package imports
@@ -27,6 +26,7 @@ Vue.config.async = false;
 //---------Configs
 
 import vaah from './vaahvue/helpers/VaahHelper';
+import vh from './vaahvue/helpers/VhHelper';
 
 //---------Helpers
 Vue.use(VueAxios, axios);
@@ -34,6 +34,7 @@ Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.use(VueFuse);
 Vue.use(vaah);
+Vue.use(vh);
 //---------/Helpers
 
 
@@ -73,8 +74,8 @@ Vue.component('vue-fontawesome', FontAwesomeIcon);
 import Buefy from 'buefy';
 Vue.use(Buefy, {
     "css": false,
-    defaultIconPack: 'fas',
     defaultIconComponent: 'vue-fontawesome',
+    defaultIconPack: 'far',
 });
 //---------/Buefy
 

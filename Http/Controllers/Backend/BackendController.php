@@ -28,10 +28,12 @@ class BackendController extends Controller
             'version' => config('store.version')
         ];
 
-        $response['status'] = 'success';
-        $response['data'] = $data;
+        $data['timezone'] = env("APP_TIMEZONE");
+        $data['server_date_time'] = \Carbon::now();
 
-        return response()->json($response);
+        $response['success'] = true;
+        $response['data'] = $data;
+        return $response;
 
     }
 

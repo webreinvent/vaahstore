@@ -1,7 +1,6 @@
 import StoresList from "./../pages/stores/List";
-import StoresCreate from "../pages/stores/Create";
 import StoresView from "./../pages/stores/View";
-import StoresEdit from "./../pages/stores/Edit";
+import Form from "./../pages/stores/Form";
 
 import GetAssets from './middleware/GetAssets'
 
@@ -33,7 +32,7 @@ let list =     {
                 {
                     path: 'create',
                     name: 'stores.create',
-                    component: StoresCreate,
+                    component: Form,
                     props: true,
                     meta: {
                         middleware: [
@@ -42,8 +41,8 @@ let list =     {
                     },
                 },
                 {
-                    path: 'view/:id',
-                    name: 'stores.view',
+                    path: 'read/:id',
+                    name: 'stores.read',
                     component: StoresView,
                     props: true,
                     meta: {
@@ -53,9 +52,9 @@ let list =     {
                     },
                 },
                 {
-                    path: 'edit/:id',
-                    name: 'stores.edit',
-                    component: StoresEdit,
+                    path: 'update/:id',
+                    name: 'stores.update',
+                    component: Form,
                     props: true,
                     meta: {
                         middleware: [

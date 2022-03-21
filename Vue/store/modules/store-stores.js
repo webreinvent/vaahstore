@@ -1,8 +1,7 @@
-import {VaahHelper as Vaah} from "../../vaahvue/helpers/VaahHelper";
+import {VhHelper as Vh} from "../../vaahvue/helpers/VhHelper";
 
 //---------Variables
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let debug = document.getElementById('debug').getAttribute('content');
 //---------/Variables
 
 let ajax_url = base_url+"/backend/store/stores";
@@ -10,34 +9,37 @@ let ajax_url = base_url+"/backend/store/stores";
 export default {
     namespaced: true,
     state: {
-        debug: debug,
+        base_url: base_url,
         ajax_url: ajax_url,
         assets: null,
-        assets_is_fetching: null,
-        list: null,
-        list_is_empty: false,
-        is_list_loading: false,
-        list_view: true,
-        active_item: null,
-        is_item_loading: false,
-        show_filters: false,
-        query_string: {
-            page: 1,
-            q: null,
-            trashed: null,
-            filter: null,
-            sort_by: null,
-            sort_order: 'desc',
+        data:{
+            model: 'VaahCms\\Modules\\Store\\Models\\Store',
+            list: null,
+            item: null,
+            fillable:null,
+            inputs: {
+                name: null,
+                slug: null,
+            },
+            view: 'large',
+            query: {
+                page: null,
+                q: null,
+                sort: 'updated_at:desc',
+                filter: {
+                    is_active: null,
+                    trashed: null,
+                },
+                include: null,
+            },
+            show_filters: null,
+            action: {
+                type: null,
+                items: [],
+                inputs: {},
+            }
         },
-        bulk_action:{
-            selected_items: [],
-            data: {},
-            action: null,
-        },
-        new_item:{
-            name: null,
-            slug: null,
-        },
+
 
     },
     //=========================================================================
@@ -52,60 +54,39 @@ export default {
         //-----------------------------------------------------------------
         async getAssets({ state, commit, dispatch, getters }) {
 
-            if(!state.assets_is_fetching || !state.assets)
+            if(!state.assets)
             {
-                let payload = {
-                    key: 'assets_is_fetching',
-                    value: true
-                };
-                commit('updateState', payload);
-
+                let payload;
                 let url = state.ajax_url+'/assets';
-
-                console.log('--->assets url', url);
-
                 let params = {};
-                let data = await Vaah.ajaxGet(url, params);
+                let data = await Vh.ajax(url, params);
                 payload = {
                     key: 'assets',
                     value: data.data.data
                 };
-
                 commit('updateState', payload);
             }
 
         },
         //-----------------------------------------------------------------
         updateView({ state, commit, dispatch, getters }, payload) {
-            let list_view;
+            let view ='large';
             let update;
 
-            if(payload && payload.name && payload.name == 'stores.list')
+            if(payload.name === 'stores.create'
+            || payload.name === 'stores.read'
+            || payload.name === 'stores.update')
             {
-                list_view = 'large';
-
-                update = {
-                    key: 'active_item',
-                    value: null
-                };
-
-                commit('updateState', update);
-
+                view = 'small';
             }
 
-            if(payload.name == 'stores.create'
-            || payload.name == 'stores.view'
-            || payload.name == 'stores.edit')
-            {
-                list_view = 'medium';
-            };
+            state.data.view = view;
 
-            let view = {
-                key: 'list_view',
-                value: list_view
+            update = {
+                key: 'data',
+                value: state.data
             };
-
-            commit('updateState', view);
+            commit('updateState', update);
 
         },
         //-----------------------------------------------------------------
@@ -114,7 +95,7 @@ export default {
     getters:{
         state(state) {return state;},
         assets(state) {return state.assets;},
-        permissions(state) {return state.permissions;},
+        data(state) {return state.data;},
     }
 
 }

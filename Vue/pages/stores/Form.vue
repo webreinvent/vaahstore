@@ -1,6 +1,6 @@
-<script src="./CreateJs.js"></script>
+<script src="./FormJs.js"></script>
 <template>
-    <div class="column" v-if="assets">
+    <div class="column" v-if="data && data.item">
 
         <div class="card">
 
@@ -8,7 +8,7 @@
             <header class="card-header">
 
                 <div class="card-header-title">
-                    Create
+                    {{form_type}}
                 </div>
 
 
@@ -16,7 +16,16 @@
 
                     <div class="field has-addons is-pulled-right">
                         <p class="control">
-                            <b-button icon-left="edit"
+                            <b-button v-if="form_type ==='Update'"
+                                      icon-left="edit"
+                                      type="is-light"
+                                      :loading="is_btn_loading"
+                                      @click="setLocalAction('save')">
+                                Save
+                            </b-button>
+
+                            <b-button v-else
+                                      icon-left="edit"
                                       type="is-light"
                                       :loading="is_btn_loading"
                                       @click="setLocalAction('save-and-new')">
@@ -32,22 +41,27 @@
                                     <b-icon icon="caret-down"></b-icon>
                                 </button>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="setLocalAction('save-and-close')">
                                     <b-icon icon="check"></b-icon>
                                     Save & Close
                                 </b-dropdown-item>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="setLocalAction('save-and-clone')">
                                     <b-icon icon="copy"></b-icon>
                                     Save & Clone
                                 </b-dropdown-item>
 
-                                <b-dropdown-item aria-role="listitem"
+                                <b-dropdown-item v-if="form_type === 'Create'"
                                                  @click="resetNewItem()">
                                     <b-icon icon="eraser"></b-icon>
                                     Reset
+                                </b-dropdown-item>
+
+                                <b-dropdown-item @click="getFaker()">
+                                    <b-icon icon="i-cursor"></b-icon>
+                                    Fill Dummy Data
                                 </b-dropdown-item>
 
                             </b-dropdown>
@@ -56,9 +70,8 @@
                         </p>
 
                         <p class="control">
-                            <b-button tag="router-link"
-                                      type="is-light"
-                                      :to="{name: 'stores.list'}"
+                            <b-button type="is-light"
+                                      @click="closeCard()"
                                       icon-left="times">
                             </b-button>
                         </p>
@@ -75,18 +88,19 @@
 
             <!--content-->
             <div class="card-content">
-                <div class="block">
 
-                    <b-field label="Name" :label-position="labelPosition">
-                        <b-input name="stores-name" data-wdio="stores-name" v-model="new_item.name"></b-input>
-                    </b-field>
+                <b-field label="Name" :label-position="labelPosition">
+                    <b-input name="stores-name"
+                             data-wdio="stores-name"
+                             v-model="data.item.name"></b-input>
+                </b-field>
 
-                    <b-field label="Slug" :label-position="labelPosition">
-                        <b-input name="stores-slug" data-wdio="stores-slug" v-model="new_item.slug"></b-input>
-                    </b-field>
-
-
-                </div>
+                <b-field label="Slug" :label-position="labelPosition">
+                    <b-input name="stores-slug"
+                             data-wdio="stores-slug"
+                             v-model="data.item.slug">
+                    </b-input>
+                </b-field>
             </div>
             <!--/content-->
 

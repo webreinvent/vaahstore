@@ -1,14 +1,13 @@
 <script src="./ViewJs.js"></script>
 <template>
-    <div class="column" v-if="assets">
+    <div class="column" v-if="assets && item">
 
-        <div class="card" v-if="item">
+        <div class="card" >
 
             <!--header-->
             <header class="card-header">
 
                 <div class="card-header-title">
-                    <span>{{$vaah.limitString(item.name, 15)}}</span>
                 </div>
 
                 <div class="card-header-buttons">
@@ -23,7 +22,7 @@
                             <b-button icon-left="edit"
                                       type="is-light"
                                       tag="router-link"
-                                      :to="{name:'stores.edit', params:{id: item.id}}">
+                                      :to="{name:'stores.update', params:{id: item.id}}">
                                 Edit
                             </b-button>
                         </p>
@@ -35,14 +34,13 @@
                                 </button>
                                 <b-dropdown-item aria-role="listitem"
                                                  v-if="!item.deleted_at"
-                                                 @click="actions('bulk-trash')"
-                                >
+                                                 @click="updateItem('trash')">
                                     <b-icon icon="trash"></b-icon>
                                     Trash
                                 </b-dropdown-item>
                                 <b-dropdown-item aria-role="listitem"
                                                  v-if="item.deleted_at"
-                                                 @click="actions('bulk-restore')"
+                                                 @click="updateItem('restore')"
                                 >
                                     <b-icon icon="trash-restore"></b-icon>
                                     Restore
@@ -57,7 +55,7 @@
                         </p>
                         <p class="control">
                             <b-button type="is-light"
-                                      @click="resetActiveItem()"
+                                      @click="resetItem()"
                                       icon-left="times">
                             </b-button>
                         </p>
@@ -70,9 +68,8 @@
             <b-notification type="is-danger"
                             :closable="false"
                             class="is-light is-small"
-                            v-if="item.deleted_at"
-            >
-                Deleted {{$vaah.fromNow(item.deleted_at)}}
+                            v-if="item.deleted_at">
+                Deleted {{$vh.ago(item.deleted_at)}}
             </b-notification>
 
             <!--content-->
@@ -83,7 +80,7 @@
                             <table class="table is-hoverable">
                                 <tbody>
                                 <tr>
-                                    <th align="right">Name</th>
+                                    <th align="right" width="30%">Name</th>
                                     <td colspan="2">
                                         {{item.name}}
                                     </td>
