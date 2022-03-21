@@ -224,10 +224,17 @@ class Store extends Model {
             return $response;
         }
 
+        $items_id = collect($inputs['items'])->pluck('id')->toArray();
+
         switch ($inputs['type'])
         {
+            case 'inactive':
+                self::whereIn('id', $items_id)->update(['is_active' => null]);
+                break;
+            case 'active':
+                self::whereIn('id', $items_id)->update(['is_active' => 1]);
+                break;
             case 'trash':
-                $items_id = collect($inputs['items'])->pluck('id')->toArray();
                 self::whereIn('id', $items_id)->delete();
                 break;
 

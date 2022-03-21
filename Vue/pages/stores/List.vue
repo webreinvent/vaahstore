@@ -54,8 +54,6 @@
                     <!--content-->
                     <div class="card-content">
 
-
-
                         <div class="block" >
 
 
