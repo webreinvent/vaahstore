@@ -8,7 +8,7 @@
             <header class="card-header">
 
                 <div class="card-header-title">
-                    {{form_type}}
+                    {{data.form.type}}
                 </div>
 
 
@@ -16,19 +16,19 @@
 
                     <div class="field has-addons is-pulled-right">
                         <p class="control">
-                            <b-button v-if="form_type ==='Update'"
+                            <b-button v-if="data.form.type ==='Update'"
                                       icon-left="edit"
                                       type="is-light"
-                                      :loading="is_btn_loading"
-                                      @click="setLocalAction('save')">
+                                      :loading="data.form.is_button_loading"
+                                      @click="setFormAction('save')">
                                 Save
                             </b-button>
 
                             <b-button v-else
                                       icon-left="edit"
                                       type="is-light"
-                                      :loading="is_btn_loading"
-                                      @click="setLocalAction('save-and-new')">
+                                      :loading="data.form.is_button_loading"
+                                      @click="setFormAction('save-and-new')">
                                 Save & New
                             </b-button>
                         </p>
@@ -41,19 +41,19 @@
                                     <b-icon icon="caret-down"></b-icon>
                                 </button>
 
-                                <b-dropdown-item v-if="form_type === 'Create'"
-                                                 @click="setLocalAction('save-and-close')">
+                                <b-dropdown-item v-if="data.form.type === 'Create'"
+                                                 @click="setFormAction('save-and-close')">
                                     <b-icon icon="check"></b-icon>
                                     Save & Close
                                 </b-dropdown-item>
 
-                                <b-dropdown-item v-if="form_type === 'Create'"
-                                                 @click="setLocalAction('save-and-clone')">
+                                <b-dropdown-item v-if="data.form.type === 'Create'"
+                                                 @click="setFormAction('save-and-clone')">
                                     <b-icon icon="copy"></b-icon>
                                     Save & Clone
                                 </b-dropdown-item>
 
-                                <b-dropdown-item v-if="form_type === 'Create'"
+                                <b-dropdown-item v-if="data.form.type === 'Create'"
                                                  @click="resetNewItem()">
                                     <b-icon icon="eraser"></b-icon>
                                     Reset
@@ -89,13 +89,13 @@
             <!--content-->
             <div class="card-content">
 
-                <b-field label="Name" :label-position="labelPosition">
+                <b-field label="Name" :label-position="data.form.label_position">
                     <b-input name="stores-name"
                              data-wdio="stores-name"
                              v-model="data.item.name"></b-input>
                 </b-field>
 
-                <b-field label="Slug" :label-position="labelPosition">
+                <b-field label="Slug" :label-position="data.form.label_position">
                     <b-input name="stores-slug"
                              data-wdio="stores-slug"
                              v-model="data.item.slug">

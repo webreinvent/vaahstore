@@ -18,15 +18,6 @@ export default {
     {
         return {
             namespace: namespace,
-            page: null,
-            is_btn_loading: null,
-            selected_date: null,
-            search_delay: null,
-            search_delay_time: 800,
-            empty_query: null,
-            empty_action: null,
-            count_filters: 0,
-            ids: [],
         }
     },
     watch: {
@@ -39,14 +30,19 @@ export default {
         'data.query': {
             handler: function(newVal, oldValue) {
 
+                //create query string
                 let query_string = qs.stringify(newVal, {
                         skipNulls: true
                     });
                 let query_object = qs.parse(query_string);
 
+                //replace url query string
                 this.$router.replace({query: query_object});
 
-                this.count_filters = Object.keys(query_object).length;
+                //update applied filters
+                this.data.count_filters = Object.keys(query_object).length;
+
+                //reload list on query update
                 this.getList();
             },
             deep: true
@@ -57,9 +53,7 @@ export default {
 
     },
     mounted() {
-        //----------------------------------------------------
-        this.empty_query = this.$vh.clone(this.data.query);
-        this.empty_action = this.$vh.clone(this.data.action);
+
         //----------------------------------------------------
         this.onLoad();
         //----------------------------------------------------
@@ -85,15 +79,6 @@ export default {
             }
         },
         //---------------------------------------------------------------------
-        updateData: function(newPageObject)
-        {
-            let payload = {
-                key: 'data',
-                value: newPageObject
-            };
-            this.$store.commit(this.namespace+'/updateState', payload)
-        },
-        //---------------------------------------------------------------------
         updateView: function()
         {
             this.$store.dispatch(this.namespace+'/updateView', this.$route);
@@ -106,6 +91,7 @@ export default {
         //---------------------------------------------------------------------
         getList: function () {
             this.$Progress.start();
+            this.data.is_list_loading = true;
             let url = this.ajax_url;
             this.$vh.ajax(
                 url, this.data.query, this.getListAfter
@@ -117,6 +103,7 @@ export default {
             {
                 this.data.list = data;
             }
+            this.data.is_list_loading = null;
             this.$Progress.finish();
         },
         //---------------------------------------------------------------------
@@ -136,7 +123,7 @@ export default {
         //---------------------------------------------------------------------
         resetQueryString: function()
         {
-            this.data.query = this.$vh.clone(this.empty_query);
+            this.data.query = this.$vh.clone(this.data.empty.query);
             this.data.query.sort = null;
         },
         //---------------------------------------------------------------------
@@ -154,10 +141,10 @@ export default {
         delayedSearch: function()
         {
             let self = this;
-            clearTimeout(this.search_delay);
-            this.search_delay = setTimeout(function() {
+            clearTimeout(this.data.search.delay_timer);
+            this.data.search.delay_timer = setTimeout(function() {
                 self.getList();
-            }, this.search_delay_time);
+            }, this.data.search.delay_time);
             this.data.query.page = 1;
         },
         //---------------------------------------------------------------------
@@ -184,7 +171,7 @@ export default {
         updateListAfter: function (data, res) {
             if(data)
             {
-                this.data.action = this.$vh.clone(this.empty_action);
+                this.data.action = this.$vh.clone(this.data.empty.action);
                 this.$root.$emit('eReloadItem');
                 this.getList();
             }
@@ -213,7 +200,6 @@ export default {
         },
         //---------------------------------------------------------------------
         deleteList: function (type) {
-
             this.data.action.type = type;
             this.$Progress.start();
             let params = this.data.action;
@@ -224,7 +210,7 @@ export default {
         deleteListAfter: function (data, res) {
             if(data)
             {
-                this.data.action = this.$vh.clone(this.empty_action);
+                this.data.action = this.$vh.clone(this.data.empty.action);
                 this.$root.$emit('eReloadItem');
                 this.getList();
             }

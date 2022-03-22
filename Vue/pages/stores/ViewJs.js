@@ -14,9 +14,6 @@ export default {
     {
         return {
             namespace: namespace,
-            item: null,
-            is_btn_loading: null,
-            is_content_loading: null,
         }
     },
     watch: {
