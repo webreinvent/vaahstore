@@ -14,12 +14,6 @@ export default {
     {
         return {
             namespace: namespace,
-            page: null,
-            is_btn_loading: null,
-            labelPosition: 'on-border',
-            form_type: null,
-            params: {},
-            local_action: null,
         }
     },
     watch: {
@@ -43,30 +37,21 @@ export default {
         {
             if(this.$route.name === 'stores.update')
             {
-                this.form_type = 'Update';
+                this.data.form_type = 'Update';
                 if(!this.data.item)
                 {
                     this.getItem();
                 }
             } else
             {
-                this.form_type = 'Create';
+                this.data.form_type = 'Create';
                 this.data.item = this.$vh.clone(this.assets.empty_item);
             }
         },
         //---------------------------------------------------------------------
-        updateData: function(data)
-        {
-            let payload = {
-                key: 'data',
-                value: data
-            };
-            this.$store.commit(this.namespace+'/updateState', payload)
-        },
-        //---------------------------------------------------------------------
-        setLocalAction: function (action) {
-            this.local_action = action;
-            if(this.local_action === 'save')
+        setFormAction: function (action) {
+            this.data.form.action = action;
+            if(this.data.form.action === 'save')
             {
                 this.updateItem();
             } else
@@ -77,12 +62,12 @@ export default {
         //---------------------------------------------------------------------
         getFaker: function () {
             this.$Progress.start();
-            this.params = {
+            let params = {
                 model_namespace: this.data.model,
                 except: this.assets.fillable.except,
             };
             let url = this.base_url+'/faker';
-            this.$vh.ajax(url, this.params, this.getFakerAfter, 'post');
+            this.$vh.ajax(url, params, this.getFakerAfter, 'post');
         },
         //---------------------------------------------------------------------
         getFakerAfter: function (data, res) {
@@ -100,7 +85,7 @@ export default {
 
         //---------------------------------------------------------------------
         createItem: function (action) {
-            this.is_btn_loading = true;
+            this.data.is_creating = true;
             this.$Progress.start();
             this.$vh.ajax(
                 this.ajax_url,
@@ -111,21 +96,22 @@ export default {
         },
         //---------------------------------------------------------------------
         createItemAfter: function (data, res) {
-            this.is_btn_loading = false;
+            this.data.is_creating = true;
             this.$Progress.finish();
             if(data)
             {
+
                 this.$emit('eReloadList');
 
-                if(this.local_action === 'save-and-new')
+                if(this.data.form.action === 'save-and-new')
                 {
                     this.saveAndNew()
                 }
-                if(this.local_action === 'save-and-close')
+                if(this.data.form.action === 'save-and-close')
                 {
                     this.saveAndClose()
                 }
-                if(this.local_action === 'save-and-clone')
+                if(this.data.form.action === 'save-and-clone')
                 {
                     //do nothing
                 }
@@ -135,7 +121,7 @@ export default {
         },
         //---------------------------------------------------------------------
         updateItem: function (action) {
-            this.is_btn_loading = true;
+            this.data.form.is_button_loading = true;
             this.$Progress.start();
 
             let url = this.ajax_url+"/"+this.data.item.id;
@@ -149,7 +135,7 @@ export default {
         },
         //---------------------------------------------------------------------
         updateItemAfter: function (data, res) {
-            this.is_btn_loading = false;
+            this.data.form.is_button_loading = false;
             this.$Progress.finish();
             if(data)
             {
@@ -159,9 +145,9 @@ export default {
         //---------------------------------------------------------------------
         getItem: function () {
             this.$Progress.start();
-            this.params = {};
+            let params = {};
             let url = this.ajax_url+'/'+this.$route.params.id;
-            this.$vh.ajax(url, this.params, this.getItemAfter);
+            this.$vh.ajax(url, params, this.getItemAfter);
         },
         //---------------------------------------------------------------------
         getItemAfter: function (data, res) {
@@ -185,40 +171,6 @@ export default {
         saveAndNew: function () {
             this.data.item = this.$vh.clone(this.assets.empty_item);
         },
-
-        //---------------------------------------------------------------------
-        getNewItem: function()
-        {
-            let new_item = {
-                name: null,
-                slug: null,
-                is_active: null,
-                details: null,
-            };
-            return new_item;
-        },
-        //---------------------------------------------------------------------
-        resetNewItem: function()
-        {
-            let new_item = this.getNewItem();
-            this.update('new_item', new_item);
-        },
-        //---------------------------------------------------------------------
-        fillNewItem: function () {
-
-            let new_item = {
-                name: null,
-                slug: null,
-                is_active: null,
-                details: null,
-            };
-
-            for(let key in new_item)
-            {
-                new_item[key] = this.new_item[key];
-            }
-            this.update('new_item', new_item);
-        },
         //---------------------------------------------------------------------
         hasPermission: function(slug)
         {
@@ -227,7 +179,7 @@ export default {
         //---------------------------------------------------------------------
         closeCard: function ()
         {
-            if(this.form_type === 'Update')
+            if(this.data.type === 'Update')
             {
                 this.$router.push({name: 'stores.read', params:{id: this.data.item.id}})
             } else{

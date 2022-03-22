@@ -5,6 +5,27 @@ let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
 //---------/Variables
 
 let ajax_url = base_url+"/backend/store/stores";
+let query = {
+    page: null,
+    q: null,
+    sort: 'updated_at:desc',
+    filter: {
+        is_active: null,
+        trashed: null,
+    },
+    include: null,
+};
+
+let action = {
+    type: null,
+    items: [],
+    inputs: {},
+}
+
+let inputs = {
+    name: null,
+    slug: null,
+}
 
 export default {
     namespaced: true,
@@ -17,27 +38,28 @@ export default {
             list: null,
             item: null,
             fillable:null,
-            inputs: {
-                name: null,
-                slug: null,
+            inputs: Vh.clone(query),
+            query: Vh.clone(query),
+            action: Vh.clone(action),
+            search: {
+                delay_time: 600, // time delay in milliseconds
+                delay_timer: 0 // time delay in milliseconds
+            },
+            empty: {
+                inputs: Vh.clone(inputs),
+                query: Vh.clone(query),
+                action: Vh.clone(action),
             },
             view: 'large',
-            query: {
-                page: null,
-                q: null,
-                sort: 'updated_at:desc',
-                filter: {
-                    is_active: null,
-                    trashed: null,
-                },
-                include: null,
+            form: {
+                type: 'Create',
+                label_position: 'on-border',
+                action: null,
+                is_button_loading: null
             },
             show_filters: null,
-            action: {
-                type: null,
-                items: [],
-                inputs: {},
-            }
+            is_list_loading: null,
+            count_filters: 0,
         },
 
 

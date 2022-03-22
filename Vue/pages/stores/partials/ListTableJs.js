@@ -13,8 +13,6 @@ export default {
     {
         let obj = {
             namespace: namespace,
-            page: null,
-            icon_copy: "<i class='fas fa-copy'></i>"
         };
 
         return obj;
@@ -26,15 +24,6 @@ export default {
 
     },
     methods: {
-        //---------------------------------------------------------------------
-        updatePage: function(newPageObject)
-        {
-            let payload = {
-                key: 'data',
-                value: newPageObject
-            };
-            this.$store.commit(namespace+'/updateState', payload)
-        },
         //---------------------------------------------------------------------
         setRowClass: function(row, index)
         {

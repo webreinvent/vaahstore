@@ -2,12 +2,11 @@
 <template>
     <div>
 
-
-
         <div class="columns" v-if="assets && data">
 
             <!--left-->
             <div class="column" :class="{'is-6': data.view !== 'large'}">
+
 
                 <!--card-->
                 <div class="card" >
@@ -40,7 +39,7 @@
                                 <p class="control">
                                     <b-button type="is-light"
                                               @click="getList()"
-                                              :loading="is_btn_loading"
+                                              :loading="data.is_list_loading"
                                               icon-left="redo-alt">
                                     </b-button>
                                 </p>
@@ -152,7 +151,7 @@
                                                 <template #trigger>
                                                     <b-button
                                                         type="is-outlined"
-                                                        :label="'Filters ('+count_filters+')'"
+                                                        :label="'Filters ('+data.count_filters+')'"
                                                         icon-left="filter">
                                                     </b-button>
                                                 </template>

@@ -103,9 +103,7 @@ class Store extends Model {
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if( isset($validation['status'])
-            && $validation['status'] == 'failed'
-            )
+        if(isset($validation['failed']))
         {
             return $validation;
         }
@@ -300,7 +298,7 @@ class Store extends Model {
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if(isset($validation['status']) && $validation['status'] == 'failed')
+        if(isset($validation['failed']))
         {
             return $validation;
         }
@@ -378,7 +376,7 @@ class Store extends Model {
 
         $validator = \Validator::make( $inputs, $rules);
         if ( $validator->fails() ) {
-            $messages             = messagesToArray($validator->messages());
+            $messages = $validator->errors();
             $response['failed'] = true;
             $response['messages'] = $messages;
             return $response;
