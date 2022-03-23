@@ -15,6 +15,12 @@
                 <div class="card-header-buttons">
 
                     <div class="field has-addons is-pulled-right">
+
+                        <p v-if="data.item && data.item.id" class="control">
+                            <b-button @click="$vaah.copy(data.item.id)"  type="is-light">
+                                <small><b>#{{data.item.id}}</b></small>
+                            </b-button>
+                        </p>
                         <p class="control">
                             <b-button v-if="data.form.type ==='Update'"
                                       icon-left="edit"

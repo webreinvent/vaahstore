@@ -166,7 +166,8 @@ class Store extends Model {
             if($request['filter']['is_active'] == "true")
             {
                 $list->where('is_active',1);
-            }else{
+            } else
+            {
                 $list->where(function ($q){
                     $q->where('is_active',0);
                     $q->orWhereNull('is_active');
@@ -339,12 +340,16 @@ class Store extends Model {
         $update->save();
 
         //check specific actions
-        switch($inputs['action'])
-        {
-            case 'trash':
-                $update->delete();
-                break;
+
+        if(isset($inputs['action'])){
+            switch($inputs['action'])
+            {
+                case 'trash':
+                    $update->delete();
+                    break;
+            }
         }
+
 
         $response['success'] = true;
         $response['data'] = $update;

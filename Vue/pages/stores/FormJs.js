@@ -37,21 +37,21 @@ export default {
         {
             if(this.$route.name === 'stores.update')
             {
-                this.data.form_type = 'Update';
+                this.data.form.type = 'Update';
                 if(!this.data.item)
                 {
                     this.getItem();
                 }
             } else
             {
-                this.data.form_type = 'Create';
+                this.data.form.type = 'Create';
                 this.data.item = this.$vh.clone(this.assets.empty_item);
             }
         },
         //---------------------------------------------------------------------
         setFormAction: function (action) {
             this.data.form.action = action;
-            if(this.data.form.action === 'save')
+            if(this.data.form.type === 'Update')
             {
                 this.updateItem();
             } else

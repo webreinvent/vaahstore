@@ -62,7 +62,30 @@ export default {
             }
 
             return false;
-        }
+        },
+        //---------------------------------------------------------------------
+        changeStatus: function (item) {
+
+            let params = this.$vh.clone(item);
+
+            if(params.is_active == 1){
+                params.is_active = null;
+            }else{
+                params.is_active = 1;
+            }
+
+
+
+            this.$Progress.start();
+
+            let url = this.ajax_url+'/'+item.id;
+            this.$vh.ajax(url, params, this.changeStatusAfter, 'put');
+        },
+        //---------------------------------------------------------------------
+        changeStatusAfter: function (data,res) {
+            this.$emit('eReloadList');
+
+        },
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

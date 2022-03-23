@@ -37,15 +37,11 @@
                     <b-table-column field="is_active" label="Active"
                                     :visible="isViewLarge()"
                                     v-slot="props">
-                        <b-button v-if="props.row.is_active"
-                                  type="is-success"
+
+                        <b-button @click="changeStatus(props.row)"
+                                  :type="props.row.is_active?'is-success':'is-danger'"
                                   size="is-small" >
-                            Yes
-                        </b-button>
-                        <b-button v-else
-                                  type="is-danger"
-                                  size="is-small" >
-                            No
+                            {{ props.row.is_active?'Yes':'No' }}
                         </b-button>
 
                     </b-table-column>

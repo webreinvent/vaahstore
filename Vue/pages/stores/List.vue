@@ -329,7 +329,7 @@
                             <!--list-->
                             <div class="container">
 
-                                <ListTable/>
+                                <ListTable @eReloadList="getList"></ListTable>
 
 
                                 <hr style="margin-top: 0;"/>
