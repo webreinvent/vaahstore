@@ -169,7 +169,7 @@ export default {
         },
         //---------------------------------------------------------------------
         saveAndNew: function () {
-            this.data.item = this.$vh.clone(this.assets.empty_item);
+            this.resetNewItem();
         },
         //---------------------------------------------------------------------
         hasPermission: function(slug)
@@ -185,6 +185,11 @@ export default {
             } else{
                 this.$router.push({name: 'stores.list'})
             }
+        },
+        //---------------------------------------------------------------------
+        resetNewItem: function ()
+        {
+            this.data.item = this.$vh.clone(this.assets.empty_item);
         }
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------

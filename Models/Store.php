@@ -209,6 +209,7 @@ class Store extends Model {
     //-------------------------------------------------
     public static function updateList($request)
     {
+
         $inputs = $request->all();
 
         $rules = array(
@@ -243,6 +244,9 @@ class Store extends Model {
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                break;
+            case 'restore':
+                self::whereIn('id', $items_id)->restore();
                 break;
 
         }
@@ -346,6 +350,9 @@ class Store extends Model {
             {
                 case 'trash':
                     $update->delete();
+                    break;
+                case 'restore':
+                    $update->restore();
                     break;
             }
         }

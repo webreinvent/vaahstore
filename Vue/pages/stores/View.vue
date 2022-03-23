@@ -34,12 +34,12 @@
                                 </button>
                                 <b-dropdown-item aria-role="listdata.item"
                                                  v-if="!data.item.deleted_at"
-                                                 @click="updateItem.item('trash')">
+                                                 @click="updateItem('trash')">
                                     <b-icon icon="trash"></b-icon>
                                     Trash
                                 </b-dropdown-item>
                                 <b-dropdown-item v-if="data.item.deleted_at"
-                                                 @click="updateItem.item('restore')">
+                                                 @click="updateItem('restore')">
                                     <b-icon icon="trash-restore"></b-icon>
                                     Restore
                                 </b-dropdown-item>

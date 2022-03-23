@@ -86,12 +86,13 @@ export default {
         //---------------------------------------------------------------------
         async getAssets() {
             await this.$store.dispatch(this.namespace+'/getAssets');
+            this.data.is_list_loading = true;
             this.getList();
         },
         //---------------------------------------------------------------------
         getList: function () {
             this.$Progress.start();
-            this.data.is_list_loading = true;
+
             let url = this.ajax_url;
             this.$vh.ajax(
                 url, this.data.query, this.getListAfter

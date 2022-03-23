@@ -70,7 +70,7 @@ export default {
         },
         //---------------------------------------------------------------------
         updateItem: function (action) {
-            this.$set(this.item, 'action', action)
+            this.$set(this.item, 'action', action);
             this.$Progress.start();
             let params = this.item;
             let url = this.ajax_url+'/'+this.item.id;
@@ -83,6 +83,7 @@ export default {
             {
                 this.item = data;
             }
+            this.getItem();
             this.$emit('eReloadList');
         },
         //---------------------------------------------------------------------
