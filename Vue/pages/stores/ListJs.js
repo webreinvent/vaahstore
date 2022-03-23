@@ -30,6 +30,8 @@ export default {
         'data.query': {
             handler: function(newVal, oldValue) {
 
+                this.data.action = this.$vh.clone(this.data.empty.action);
+
                 //create query string
                 let query_string = qs.stringify(newVal, {
                         skipNulls: true
@@ -54,6 +56,8 @@ export default {
     },
     mounted() {
 
+        //----------------------------------------------------
+        document.title = "Stores";
         //----------------------------------------------------
         this.onLoad();
         //----------------------------------------------------
@@ -86,12 +90,13 @@ export default {
         //---------------------------------------------------------------------
         async getAssets() {
             await this.$store.dispatch(this.namespace+'/getAssets');
+            this.data.is_list_loading = true;
             this.getList();
         },
         //---------------------------------------------------------------------
         getList: function () {
             this.$Progress.start();
-            this.data.is_list_loading = true;
+
             let url = this.ajax_url;
             this.$vh.ajax(
                 url, this.data.query, this.getListAfter

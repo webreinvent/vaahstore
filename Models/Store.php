@@ -163,7 +163,16 @@ class Store extends Model {
 
         if(isset($request['filter']['is_active']))
         {
-            $list->where('is_active',$request['filter']['is_active']);
+            if($request['filter']['is_active'] == "true")
+            {
+                $list->where('is_active',1);
+            } else
+            {
+                $list->where(function ($q){
+                    $q->where('is_active',0);
+                    $q->orWhereNull('is_active');
+                });
+            }
         }
 
         if(isset($request['filter']['trashed']))
@@ -200,6 +209,7 @@ class Store extends Model {
     //-------------------------------------------------
     public static function updateList($request)
     {
+
         $inputs = $request->all();
 
         $rules = array(
@@ -234,6 +244,9 @@ class Store extends Model {
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                break;
+            case 'restore':
+                self::whereIn('id', $items_id)->restore();
                 break;
 
         }
@@ -331,12 +344,19 @@ class Store extends Model {
         $update->save();
 
         //check specific actions
-        switch($inputs['action'])
-        {
-            case 'trash':
-                $update->delete();
-                break;
+
+        if(isset($inputs['action'])){
+            switch($inputs['action'])
+            {
+                case 'trash':
+                    $update->delete();
+                    break;
+                case 'restore':
+                    $update->restore();
+                    break;
+            }
         }
+
 
         $response['success'] = true;
         $response['data'] = $update;

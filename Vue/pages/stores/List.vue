@@ -38,7 +38,7 @@
 
                                 <p class="control">
                                     <b-button type="is-light"
-                                              @click="getList()"
+                                              @click="getAssets()"
                                               :loading="data.is_list_loading"
                                               icon-left="redo-alt">
                                     </b-button>
@@ -94,6 +94,13 @@
                                                                      aria-role="listitem">
                                                         <b-icon icon="trash"></b-icon>
                                                         Trash
+                                                    </b-dropdown-item>
+
+                                                    <b-dropdown-item @click="updateList('restore')"
+                                                                     aria-role="listitem">
+                                                        <b-icon type="is-success is-light"
+                                                                icon="trash"></b-icon>
+                                                        Restore
                                                     </b-dropdown-item>
 
                                                     <b-dropdown-item @click="confirmDelete()"
@@ -329,7 +336,7 @@
                             <!--list-->
                             <div class="container">
 
-                                <ListTable/>
+                                <ListTable @eReloadList="getList"></ListTable>
 
 
                                 <hr style="margin-top: 0;"/>
