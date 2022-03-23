@@ -163,7 +163,15 @@ class Store extends Model {
 
         if(isset($request['filter']['is_active']))
         {
-            $list->where('is_active',$request['filter']['is_active']);
+            if($request['filter']['is_active'] == "true")
+            {
+                $list->where('is_active',1);
+            }else{
+                $list->where(function ($q){
+                    $q->where('is_active',0);
+                    $q->orWhereNull('is_active');
+                });
+            }
         }
 
         if(isset($request['filter']['trashed']))
