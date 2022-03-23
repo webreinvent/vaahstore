@@ -38,7 +38,7 @@ export default {
             list: null,
             item: null,
             fillable:null,
-            inputs: Vh.clone(query),
+            inputs: Vh.clone(inputs),
             query: Vh.clone(query),
             action: Vh.clone(action),
             search: {
