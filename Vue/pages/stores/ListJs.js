@@ -30,6 +30,8 @@ export default {
         'data.query': {
             handler: function(newVal, oldValue) {
 
+                this.data.action = this.$vh.clone(this.data.empty.action);
+
                 //create query string
                 let query_string = qs.stringify(newVal, {
                         skipNulls: true

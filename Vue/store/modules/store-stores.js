@@ -20,12 +20,12 @@ let action = {
     type: null,
     items: [],
     inputs: {},
-}
+};
 
 let inputs = {
     name: null,
     slug: null,
-}
+};
 
 export default {
     namespaced: true,
