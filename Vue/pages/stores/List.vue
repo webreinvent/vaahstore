@@ -15,7 +15,7 @@
                     <header class="card-header">
 
                         <div class="card-header-title">
-                            Stores
+                            Stores v2
 
                             <b-tag v-if="data.list"
                                    class="has-margin-left-5">
