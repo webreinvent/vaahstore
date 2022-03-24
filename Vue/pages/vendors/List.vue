@@ -15,7 +15,7 @@
                     <header class="card-header">
 
                         <div class="card-header-title">
-                            Stores
+                            Vendors
 
                             <b-tag v-if="data.list"
                                    class="has-margin-left-5">
@@ -30,7 +30,7 @@
                                 <p   class="control">
                                     <b-button tag="router-link"
                                               type="is-light"
-                                              :to="{name: 'stores.create'}"
+                                              :to="{name: 'vendors.create'}"
                                               icon-left="plus">
                                         Create
                                     </b-button>
@@ -96,18 +96,18 @@
                                                         Trash
                                                     </b-dropdown-item>
 
-                                                    <b-dropdown-item @click="updateList('restore')"
-                                                                     aria-role="listitem">
-                                                        <b-icon type="is-success is-light"
-                                                                icon="trash"></b-icon>
-                                                        Restore
-                                                    </b-dropdown-item>
-
                                                     <b-dropdown-item @click="confirmDelete()"
                                                                      aria-role="listitem">
                                                         <b-icon type="is-danger is-light"
                                                                 icon="trash-alt"></b-icon>
                                                         Delete
+                                                    </b-dropdown-item>
+
+                                                    <b-dropdown-item @click="updateList('restore')"
+                                                                     aria-role="listitem">
+                                                        <b-icon type="is-success is-light"
+                                                                icon="trash"></b-icon>
+                                                        Restore
                                                     </b-dropdown-item>
 
 
@@ -336,7 +336,7 @@
                             <!--list-->
                             <div class="container">
 
-                                <ListTable @eReloadList="getList"></ListTable>
+                                <ListTable @eReloadList="getList" />
 
 
                                 <hr style="margin-top: 0;"/>

@@ -4,11 +4,11 @@ import {VhHelper as Vh} from "../../vaahvue/helpers/VhHelper";
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
 //---------/Variables
 
-let ajax_url = base_url+"/backend/store/stores";
+let ajax_url = base_url+"/backend/store/vendors";
 let query = {
     page: null,
     q: null,
-    sort: 'updated_at:desc',
+    sort: null,
     filter: {
         is_active: null,
         trashed: null,
@@ -20,21 +20,15 @@ let action = {
     type: null,
     items: [],
     inputs: {},
-};
+}
 
 let inputs = {
     name: null,
     slug: null,
-    notes: null,
-    is_multi_currency: null,
-    is_multi_lingual: null,
-    is_multi_vendor: null,
-    allowed_ips: null,
-    is_default: null,
-    is_active: null,
-    status: null,
-    status_notes: null,
-};
+}
+
+
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
 export default {
     namespaced: true,
@@ -43,7 +37,7 @@ export default {
         ajax_url: ajax_url,
         assets: null,
         data:{
-            model: 'VaahCms\\Modules\\Store\\Models\\Store',
+            model: model_namespace,
             list: null,
             item: null,
             fillable:null,
@@ -104,9 +98,9 @@ export default {
             let view ='large';
             let update;
 
-            if(payload.name === 'stores.create'
-            || payload.name === 'stores.read'
-            || payload.name === 'stores.update')
+            if(payload.name === 'vendors.create'
+            || payload.name === 'vendors.read'
+            || payload.name === 'vendors.update')
             {
                 view = 'small';
             }

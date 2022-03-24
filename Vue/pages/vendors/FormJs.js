@@ -1,4 +1,4 @@
-let namespace = 'stores';
+let namespace = 'vendors';
 
 export default {
     computed:{
@@ -35,7 +35,7 @@ export default {
         //---------------------------------------------------------------------
         onLoad: function()
         {
-            if(this.$route.name === 'stores.update')
+            if(this.$route.name === 'vendors.update')
             {
                 this.data.form.type = 'Update';
                 if(!this.data.item)
@@ -159,17 +159,17 @@ export default {
             {
                 //if item does not exist or delete then redirect to list
                 this.data.item = null;
-                this.$router.push({name: 'stores.list'});
+                this.$router.push({name: 'vendors.list'});
             }
         },
         //---------------------------------------------------------------------
         saveAndClose: function () {
             this.data.item = null;
-            this.$router.push({name:'stores.list'});
+            this.$router.push({name:'vendors.list'});
         },
         //---------------------------------------------------------------------
         saveAndNew: function () {
-            this.resetNewItem();
+            this.data.item = this.$vh.clone(this.assets.empty_item);
         },
         //---------------------------------------------------------------------
         hasPermission: function(slug)
@@ -182,9 +182,9 @@ export default {
             this.resetNewItem();
             if(this.data.type === 'Update')
             {
-                this.$router.push({name: 'stores.read', params:{id: this.data.item.id}})
+                this.$router.push({name: 'vendors.read', params:{id: this.data.item.id}})
             } else{
-                this.$router.push({name: 'stores.list'})
+                this.$router.push({name: 'vendors.list'})
             }
         },
         //---------------------------------------------------------------------
@@ -196,11 +196,8 @@ export default {
 
         backToView: function ()
         {
-            this.$router.push({name: 'stores.read', params:{id: this.data.item.id}})
+            this.$router.push({name: 'vendors.read', params:{id: this.data.item.id}})
         },
-
-        //---------------------------------------------------------------------
-        //---------------------------------------------------------------------
         //---------------------------------------------------------------------
     }
 }
