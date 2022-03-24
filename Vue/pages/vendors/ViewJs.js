@@ -1,12 +1,4 @@
-let namespace = 'stores';
-
-import TableTrView from '../../vaahvue/reusable/TableTrView.vue'
-import TableTrActedBy from '../../vaahvue/reusable/TableTrActedBy.vue'
-import TableTrTag from '../../vaahvue/reusable/TableTrTag.vue'
-import TableTrStatus from '../../vaahvue/reusable/TableTrStatus.vue'
-import TableTrYesNo from '../../vaahvue/reusable/TableTrYesNo'
-import TableTrUrl from "../../vaahvue/reusable/TableTrUrl.vue";
-import ButtonMeta from '../../vaahvue/reusable/ButtonMeta'
+let namespace = 'vendors';
 
 export default {
     computed:{
@@ -16,13 +8,7 @@ export default {
         data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
-        TableTrView,
-        TableTrStatus,
-        TableTrYesNo,
-        TableTrActedBy,
-        TableTrTag,
-        TableTrUrl,
-        ButtonMeta,
+
     },
     data()
     {
@@ -79,7 +65,7 @@ export default {
             {
                 //if item does not exist or delete then redirect to list
                 this.data.item = null;
-                this.$router.push({name: 'stores.list'});
+                this.$router.push({name: 'vendors.list'});
             }
         },
         //---------------------------------------------------------------------
@@ -131,7 +117,7 @@ export default {
         //---------------------------------------------------------------------
         resetItem: function () {
             this.data.item = null;
-            this.$router.push({name:'stores.list'});
+            this.$router.push({name:'vendors.list'});
         },
         //---------------------------------------------------------------------
         hasPermission: function(slug)

@@ -5,7 +5,7 @@
         "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --config=node_modules/laravel-mix/setup/webpack.config.js",
         "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --mode=development --config=node_modules/laravel-mix/setup/webpack.config.js",
         "watch-poll": "npm run watch",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js  --hot --mode=development --config=node_modules/laravel-mix/setup/webpack.config.js",
+        "hot": "mix watch --hot",
         "prod": "npm run production",
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --config=node_modules/laravel-mix/setup/webpack.config.js"
     },

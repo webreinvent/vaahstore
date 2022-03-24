@@ -24,8 +24,10 @@ class Store extends Model {
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'name', 'slug', 'notes', 'is_multi_currency',
+        'is_multi_lingual', 'is_multi_vendor', 'allowed_ips',
+        'is_default', 'is_active', 'status',
+        'status_notes', 'meta',
         'is_active',
         'created_by',
         'updated_by',

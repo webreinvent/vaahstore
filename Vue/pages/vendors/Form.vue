@@ -15,7 +15,6 @@
                 <div class="card-header-buttons">
 
                     <div class="field has-addons is-pulled-right">
-
                         <p v-if="data.item && data.item.id" class="control">
                             <b-button @click="$vaah.copy(data.item.id)"  type="is-light">
                                 <small><b>#{{data.item.id}}</b></small>
@@ -75,12 +74,14 @@
 
                         </p>
 
-                        <p class="control" v-if="data.item && data.item.id">
+
+                        <p class="control" v-if="data.item.id">
                             <b-button type="is-light"
                                       @click="backToView()"
                                       icon-left="arrow-left">
                             </b-button>
                         </p>
+
 
                         <p class="control">
                             <b-button type="is-light"
@@ -88,6 +89,7 @@
                                       icon-left="times">
                             </b-button>
                         </p>
+
 
 
                     </div>
@@ -101,83 +103,22 @@
             <!--content-->
             <div class="card-content">
 
-
                 <b-field label="Name" :label-position="data.form.label_position">
-                    <b-input name="stores-name"
-                             data-wdio="stores-name"
+                    <b-input name="vendors-name"
+                             data-wdio="vendors-name"
                              v-model="data.item.name"></b-input>
                 </b-field>
 
                 <b-field label="Slug" :label-position="data.form.label_position">
-                    <b-input v-model="data.item.slug">
+                    <b-input name="vendors-slug"
+                             data-wdio="vendors-slug"
+                             v-model="data.item.slug">
                     </b-input>
                 </b-field>
-
-                <b-field label="Notes" :label-position="data.form.label_position">
-                    <b-input v-model="data.item.notes"
-                             maxlength="500"
-                             type="textarea">
-                    </b-input>
-                </b-field>
-
-
-                <b-field >
-                    <b-switch type="is-success"
-                              :true-value="1"
-                              v-model="data.item.is_multi_currency">
-                        Is Multi-Currency
-                    </b-switch>
-                </b-field>
-
-                <b-field >
-                    <b-switch type="is-success"
-                              :true-value="1"
-                              v-model="data.item.is_multi_lingual">
-                        Is Multi-Lingual
-                    </b-switch>
-                </b-field>
-
-                <b-field >
-                    <b-switch type="is-success"
-                              :true-value="1"
-                              v-model="data.item.is_multi_vendor">
-                        Is Multi-Vendor
-                    </b-switch>
-                </b-field>
-
-
-                <b-field >
-                    <b-switch type="is-success"
-                              :true-value="1"
-                              v-model="data.item.is_default">
-                        Is Default Store
-                    </b-switch>
-                </b-field>
-
-                <b-field >
-                    <b-switch type="is-success"
-                              :true-value="1"
-                              v-model="data.item.is_active">Is Active</b-switch>
-                </b-field>
-
-                <b-field label="Status" :label-position="data.form.label_position">
-                    <b-select v-model="data.item.status" placeholder="Select a status">
-                        <option>approved</option>
-                        <option>disapproved</option>
-                        <option>banned</option>
-                    </b-select>
-                </b-field>
-
-
-                <b-field label="Status Notes"
-                         :label-position="data.form.label_position">
-                    <b-input maxlength="254" type="textarea" v-model="data.item.status_notes" >
-                    </b-input>
-                </b-field>
-
-
             </div>
             <!--/content-->
+
+
 
 
 

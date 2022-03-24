@@ -10,6 +10,10 @@
                          to="/stores"
                          label="Stores">
             </b-menu-item>
+            <b-menu-item tag="router-link"
+                         to="/vendors"
+                         label="Vendors">
+            </b-menu-item>
         </b-menu-list>
     </b-menu>
 

@@ -22,7 +22,7 @@
                             <b-button icon-left="edit"
                                       type="is-light"
                                       tag="router-link"
-                                      :to="{name:'stores.update', params:{id: data.item.id}}">
+                                      :to="{name:'vendors.update', params:{id: data.item.id}}">
                                 Edit
                             </b-button>
                         </p>
@@ -71,75 +71,23 @@
             <!--content-->
             <div class="card-content is-paddingless ">
                 <div class="block" >
-
-                    <div class="b-table" v-if="data.item">
-
+                    <div class="b-table">
                         <div class="table-wrapper">
                             <table class="table is-hoverable">
-
                                 <tbody>
-
-                                <template v-for="(value, label) in data.item">
-
-                                    <template v-if="label === 'is_active'
-                                    || label === 'is_multi_currency' || label === 'is_multi_lingual'
-                                    || label === 'is_multi_vendor' || label === 'is_default'
-                                    ">
-                                        <TableTrYesNo :value="value"
-                                                      :label="label">
-                                        </TableTrYesNo>
-                                    </template>
-
-                                    <template v-else-if="label === 'created_by'">
-                                        <TableTrActedBy :value="data.item['created_by_user']"
-                                                        :label="label">
-                                        </TableTrActedBy>
-                                    </template>
-
-                                    <template v-else-if="label === 'updated_by'">
-                                        <TableTrActedBy :value="data.item['updated_by_user']"
-                                                        :label="label">
-                                        </TableTrActedBy>
-                                    </template>
-
-                                    <template v-else-if="label === 'deleted_by'">
-                                        <TableTrActedBy :value="data.item['deleted_by_user']"
-                                                        :label="label">
-                                        </TableTrActedBy>
-                                    </template>
-
-                                    <template v-else-if="label === 'meta'">
-
-                                        <tr>
-                                            <th align="right">{{$vaah.toLabel(label)}}</th>
-                                            <td >
-                                                <span v-if="data.item.meta">
-                                                    <ButtonMeta dusk="action-view_payload" :value="data.item.meta"/>
-                                                </span>
-                                            </td>
-                                        </tr>
-
-                                    </template>
-
-                                    <template v-else-if="label === 'created_by_user'
-                                      || label === 'updated_by_user' || label === 'deleted_by_user'
-                                      || label === 'name'  || label == 'thumbnail' ">
-
-                                    </template>
-
-
-                                    <template v-else>
-                                        <TableTrView :value="value"
-                                                     :label="label">
-                                        </TableTrView>
-                                    </template>
-
-                                </template>
-
+                                <tr>
+                                    <th align="right" width="30%">Name</th>
+                                    <td colspan="2">
+                                        {{data.item.name}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th align="right">Slug</th>
+                                    <td colspan="2">
+                                        {{data.item.slug}}
+                                    </td>
+                                </tr>
                                 </tbody>
-
-
-
                             </table>
                         </div>
 
