@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
 
 
@@ -42,6 +43,7 @@ class VendorsController extends Controller
             $data['empty_item'][$column] = null;
         }
 
+        $data['stores'] = Store::where('is_active', 1)->get();
         $data['actions'] = [];
 
         $response['success'] = true;

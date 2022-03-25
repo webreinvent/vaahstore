@@ -2,6 +2,7 @@
 <template>
     <div>
 
+
         <div class="columns" v-if="assets && data">
 
             <!--left-->
@@ -9,7 +10,7 @@
 
 
                 <!--card-->
-                <div class="card" >
+                <div class="card">
 
                     <!--header-->
                     <header class="card-header">
@@ -27,7 +28,7 @@
 
                         <div class="card-header-buttons">
                             <div class="field has-addons is-pulled-right">
-                                <p   class="control">
+                                <p class="control">
                                     <b-button tag="router-link"
                                               type="is-light"
                                               :to="{name: 'vendors.create'}"
@@ -53,15 +54,15 @@
                     <!--content-->
                     <div class="card-content">
 
-                        <div class="block" >
+                        <div class="block">
 
 
                             <!--actions-->
-                            <div  v-if="data.view === 'large'" class="level">
+                            <div v-if="data.view === 'large'" class="level">
 
                                 <!--left-->
-                                <div class="level-left" >
-                                    <div  class="level-item">
+                                <div class="level-left">
+                                    <div class="level-item">
 
 
                                         <b-field>
@@ -126,7 +127,6 @@
                                 <div class="level-right">
 
 
-
                                     <div class="level-item">
 
                                         <b-field>
@@ -149,159 +149,163 @@
                                     <div class="level-item">
 
                                         <b-field grouped>
-                                        <b-field>
-                                            <div class="control">
-                                                <b-dropdown class="is-paddingless"
-                                                        position="is-bottom-left"
-                                                        aria-role="list">
+                                            <b-field>
+                                                <div class="control">
+                                                    <b-dropdown class="is-paddingless"
+                                                                position="is-bottom-left"
+                                                                aria-role="list">
 
-                                                <template #trigger>
-                                                    <b-button
-                                                        type="is-outlined"
-                                                        :label="'Filters ('+data.count_filters+')'"
-                                                        icon-left="filter">
-                                                    </b-button>
-                                                </template>
+                                                        <template #trigger>
+                                                            <b-button
+                                                                type="is-outlined"
+                                                                :label="'Filters ('+data.count_filters+')'"
+                                                                icon-left="filter">
+                                                            </b-button>
+                                                        </template>
 
 
-                                                <b-dropdown-item
-                                                    aria-role="menu-item"
-                                                    :focusable="false"
-                                                    custom>
+                                                        <b-dropdown-item
+                                                            aria-role="menu-item"
+                                                            :focusable="false"
+                                                            custom>
 
-                                                    <div class="columns is-paddingless is-multiline is-marginless filters" style="width: 400px;">
+                                                            <div
+                                                                class="columns is-paddingless is-multiline is-marginless filters"
+                                                                style="width: 400px;">
 
-                                                        <div class="column is-6">
-                                                            <div class="filter mb-2">
-                                                                <p class="mb-1"><b>Is Active</b></p>
+                                                                <div class="column is-6">
+                                                                    <div class="filter mb-2">
+                                                                        <p class="mb-1"><b>Is Active</b></p>
 
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.is_active"
-                                                                             :native-value="null"
-                                                                             name="is_active">
-                                                                        All
-                                                                    </b-radio>
-                                                                </b-field>
+                                                                        <b-field>
+                                                                            <b-radio
+                                                                                v-model="data.query.filter.is_active"
+                                                                                :native-value="null"
+                                                                                name="is_active">
+                                                                                All
+                                                                            </b-radio>
+                                                                        </b-field>
 
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.is_active"
-                                                                             native-value="true"
-                                                                             name="is_active">
-                                                                        Only Active
-                                                                    </b-radio>
-                                                                </b-field>
+                                                                        <b-field>
+                                                                            <b-radio
+                                                                                v-model="data.query.filter.is_active"
+                                                                                native-value="true"
+                                                                                name="is_active">
+                                                                                Only Active
+                                                                            </b-radio>
+                                                                        </b-field>
 
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.is_active"
-                                                                             native-value="false"
-                                                                             name="is_active">
-                                                                        Only Inactive
-                                                                    </b-radio>
-                                                                </b-field>
+                                                                        <b-field>
+                                                                            <b-radio
+                                                                                v-model="data.query.filter.is_active"
+                                                                                native-value="false"
+                                                                                name="is_active">
+                                                                                Only Inactive
+                                                                            </b-radio>
+                                                                        </b-field>
 
-                                                                <hr/>
+                                                                        <hr/>
+                                                                    </div>
+
+                                                                    <div class="filter mb-2">
+                                                                        <p class="mb-1"><b>Include</b></p>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.filter.trashed"
+                                                                                     :native-value="null"
+                                                                                     name="trashed">
+                                                                                Exclude Trashed
+                                                                            </b-radio>
+
+                                                                        </b-field>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.filter.trashed"
+                                                                                     native-value="include"
+                                                                                     name="trashed">
+                                                                                Include Trashed
+                                                                            </b-radio>
+
+                                                                        </b-field>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.filter.trashed"
+                                                                                     native-value="only"
+                                                                                     name="trashed">
+                                                                                Only Trashed
+                                                                            </b-radio>
+                                                                        </b-field>
+                                                                        <hr/>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="column is-6">
+                                                                    <div class="filter mb-2">
+                                                                        <p class="mb-1"><b>Sort By</b></p>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.sort"
+                                                                                     :native-value="null"
+                                                                                     name="sort">
+                                                                                None
+                                                                            </b-radio>
+                                                                        </b-field>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.sort"
+                                                                                     native-value="updated_at"
+                                                                                     name="sort">
+                                                                                Updated (Ascending)
+                                                                            </b-radio>
+                                                                        </b-field>
+
+                                                                        <b-field>
+                                                                            <b-radio v-model="data.query.sort"
+                                                                                     native-value="updated_at:desc"
+                                                                                     name="sort">
+                                                                                Updated (Descending)
+                                                                            </b-radio>
+                                                                        </b-field>
+                                                                        <hr/>
+                                                                    </div>
+
+
+                                                                    <div class="filter mb-2">
+                                                                        <p class="mb-1"><b>Page</b></p>
+
+                                                                        <b-field>
+                                                                            <b-field>
+                                                                                <b-input
+                                                                                    native-min="1"
+                                                                                    v-model="data.query.page">
+                                                                                </b-input>
+                                                                            </b-field>
+                                                                        </b-field>
+
+                                                                        <hr/>
+                                                                    </div>
+                                                                </div>
+
                                                             </div>
 
-                                                            <div class="filter mb-2">
-                                                                <p class="mb-1"><b>Include</b></p>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.trashed"
-                                                                             :native-value="null"
-                                                                             name="trashed">
-                                                                        Exclude Trashed
-                                                                    </b-radio>
-
-                                                                </b-field>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.trashed"
-                                                                             native-value="include"
-                                                                             name="trashed">
-                                                                        Include Trashed
-                                                                    </b-radio>
-
-                                                                </b-field>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.filter.trashed"
-                                                                             native-value="only"
-                                                                             name="trashed">
-                                                                        Only Trashed
-                                                                    </b-radio>
-                                                                </b-field>
-                                                                <hr/>
-                                                            </div>
-
-                                                        </div>
-                                                        <div class="column is-6">
-                                                            <div class="filter mb-2">
-                                                                <p class="mb-1"><b>Sort By</b></p>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.sort"
-                                                                             :native-value="null"
-                                                                             name="sort">
-                                                                        None
-                                                                    </b-radio>
-                                                                </b-field>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.sort"
-                                                                             native-value="updated_at"
-                                                                             name="sort">
-                                                                        Updated (Ascending)
-                                                                    </b-radio>
-                                                                </b-field>
-
-                                                                <b-field>
-                                                                    <b-radio v-model="data.query.sort"
-                                                                             native-value="updated_at:desc"
-                                                                             name="sort">
-                                                                        Updated (Descending)
-                                                                    </b-radio>
-                                                                </b-field>
-                                                                <hr/>
-                                                            </div>
+                                                        </b-dropdown-item>
 
 
-                                                            <div class="filter mb-2">
-                                                                <p class="mb-1"><b>Page</b></p>
-
-                                                                <b-field>
-                                                                    <b-field>
-                                                                        <b-input
-                                                                            native-min="1"
-                                                                            v-model="data.query.page">
-                                                                        </b-input>
-                                                                    </b-field>
-                                                                </b-field>
-
-                                                                <hr/>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                </b-dropdown-item>
+                                                    </b-dropdown>
+                                                </div>
 
 
-                                            </b-dropdown>
-                                            </div>
+                                                <b-tooltip label="Reset Filters"
+                                                           type="is-dark">
+                                                    <p class="control">
 
+                                                        <b-button @click="resetQuery()"
+                                                                  icon-left="times">
+                                                        </b-button>
+                                                    </p>
+                                                </b-tooltip>
 
-                                            <b-tooltip label="Reset Filters"
-                                                       type="is-dark">
-                                            <p class="control" >
-
-                                                <b-button @click="resetQuery()"
-                                                          icon-left="times">
-                                                </b-button>
-                                            </p>
-                                            </b-tooltip>
-
-                                        </b-field>
-
+                                            </b-field>
 
 
                                         </b-field>
@@ -332,23 +336,22 @@
                             <!--/search on small view-->
 
 
-
                             <!--list-->
                             <div class="container">
 
-                                <ListTable @eReloadList="getList" />
+                                <ListTable @eReloadList="getList"/>
 
 
                                 <hr style="margin-top: 0;"/>
 
 
                                 <div class="block" v-if="data.list">
-                                    <b-pagination  :total="data.list.total"
-                                                   :current.sync="data.list.current_page"
-                                                   :per-page="data.list.per_page"
-                                                   range-before=3
-                                                   range-after=3
-                                                   @change="paginate">
+                                    <b-pagination :total="data.list.total"
+                                                  :current.sync="data.list.current_page"
+                                                  :per-page="data.list.per_page"
+                                                  range-before=3
+                                                  range-after=3
+                                                  @change="paginate">
                                     </b-pagination>
                                 </div>
 
@@ -365,20 +368,13 @@
                 <!--/card-->
 
 
-
-
-
             </div>
             <!--/left-->
-
-
 
 
             <router-view @eReloadList="getList"></router-view>
 
         </div>
-
-
 
 
     </div>

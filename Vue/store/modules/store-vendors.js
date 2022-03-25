@@ -22,12 +22,6 @@ let action = {
     inputs: {},
 }
 
-let inputs = {
-    name: null,
-    slug: null,
-}
-
-
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
 export default {
@@ -41,7 +35,6 @@ export default {
             list: null,
             item: null,
             fillable:null,
-            inputs: Vh.clone(inputs),
             query: Vh.clone(query),
             action: Vh.clone(action),
             search: {
@@ -49,7 +42,6 @@ export default {
                 delay_timer: 0 // time delay in milliseconds
             },
             empty: {
-                inputs: Vh.clone(inputs),
                 query: Vh.clone(query),
                 action: Vh.clone(action),
             },
@@ -90,6 +82,7 @@ export default {
                     value: data.data.data
                 };
                 commit('updateState', payload);
+
             }
 
         },
