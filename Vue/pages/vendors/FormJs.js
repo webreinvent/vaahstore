@@ -1,5 +1,7 @@
 let namespace = 'vendors';
 
+import AutoCompleteUsers from "../../vaahvue/reusable/AutoCompleteUsers";
+
 export default {
     computed:{
         root() {return this.$store.getters['root/state']},
@@ -9,6 +11,7 @@ export default {
         data() {return this.$store.getters[namespace+'/state'].data},
     },
     components:{
+        AutoCompleteUsers,
     },
     data()
     {
@@ -198,6 +201,11 @@ export default {
         {
             this.$router.push({name: 'vendors.read', params:{id: this.data.item.id}})
         },
+        //---------------------------------------------------------------------
+        setOwnedBy: function (user)
+        {
+            this.data.item.owned_by = user.id
+        }
         //---------------------------------------------------------------------
     }
 }

@@ -21,7 +21,7 @@ class VhStVendors extends Migration
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
 
-            $table->integer('registered_by')->nullable()->index();
+            $table->integer('owned_by')->nullable()->index();
             $table->dateTime('registered_at')->nullable();
 
             $table->boolean('auto_approve_products')->nullable();
@@ -48,10 +48,10 @@ class VhStVendors extends Migration
     }
 
     /**
-    * Reverse the migrations.
-    *
-    * @return void
-    */
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::dropIfExists('vh_st_vendors');
