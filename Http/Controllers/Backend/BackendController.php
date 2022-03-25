@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 class BackendController extends Controller
 {
@@ -30,6 +31,10 @@ class BackendController extends Controller
 
         $data['timezone'] = env("APP_TIMEZONE");
         $data['server_date_time'] = \Carbon::now();
+
+        $data['product_types'] = Taxonomy::getTaxonomyByType('product-types');
+        $data['urls']['brands'] = route('vh.backend.store.brands.list');
+
 
         $response['success'] = true;
         $response['data'] = $data;

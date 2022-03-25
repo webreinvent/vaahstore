@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Vendor extends Model
+class Product extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_vendors';
+    protected $table = 'vh_st_products';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -25,12 +25,11 @@ class Vendor extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_st_store_id', 'name', 'slug',
-        'owned_by', 'registered_at',
-        'auto_approve_products', 'approved_by',
-        'approved_at', 'is_default', 'is_active',
+        'name', 'slug', 'taxonomy_id_product_type',
+        'vh_st_store_id',
+        'vh_st_brand_id', 'vh_cms_content_form_field_id',
+        'quantity', 'in_stock', 'is_active',
         'status', 'status_notes', 'meta',
-        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -71,12 +70,13 @@ class Vendor extends Model
             'deleted_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
+
     //-------------------------------------------------
-    public function ownedByUser()
+    public function type()
     {
-        return $this->belongsTo(User::class,
-            'deleted_by', 'id'
-        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+        return $this->belongsTo(StoreTaxonomy::class,
+            'taxonomy_id_product_type', 'id'
+        );
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -92,20 +92,9 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public function scopeActive($query, Store $store = null)
+    public function scopeIsDefault($query)
     {
-        $q = $query->where('is_active', 1);
-        if($store)
-        {
-            $q->where('vh_st_store_id', $store->id);
-        }
-        return $q;
-    }
-    //-------------------------------------------------
-    public function scopeIsDefault($query, Store $store)
-    {
-        return $query->where('is_active', 1)->where('is_default', 1)
-            ->where('vh_st_store_id', $store->id);
+        return $query->where('is_active', 1)->where('is_default', 1);
     }
     //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
@@ -214,6 +203,8 @@ class Vendor extends Model
                     ->orWhere('slug', 'LIKE', '%' . $request->q . '%');
             });
         }
+
+        $list->with(['type']);
 
         $list = $list->paginate(config('vaahcms.per_page'));
 
@@ -428,6 +419,7 @@ class Vendor extends Model
         $item = self::where('is_active', 1)->get();
         return $item;
     }
+
     //-------------------------------------------------
     //-------------------------------------------------
     //-------------------------------------------------

@@ -79,6 +79,16 @@ class Store extends Model {
     }
 
     //-------------------------------------------------
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
+    //-------------------------------------------------
+    public function scopeIsDefault($query)
+    {
+        return $query->where('is_active', 1)->where('is_default', 1);
+    }
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 

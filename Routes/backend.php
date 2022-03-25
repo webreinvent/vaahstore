@@ -31,3 +31,4 @@ Route::group(
 include_once __DIR__."/backend/routes-stores.php";
 include_once __DIR__."/backend/routes-vendors.php";
 include_once __DIR__."/backend/routes-brands.php";
+include_once __DIR__."/backend/routes-products.php";

@@ -1,0 +1,27 @@
+[
+
+    {
+        "type_slug": "product-types",
+        "name": "Simple"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Configurable"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Digital"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Ticket"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Quotation"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Voucher"
+    }
+]

@@ -20,7 +20,8 @@ class VhStProducts extends Migration
 
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
-            $table->string('type')->nullable()->index();
+
+            $table->integer('taxonomy_id_product_type')->nullable()->index();
 
             $table->integer('vh_st_store_id')->nullable()->index();
             $table->integer('vh_st_brand_id')->nullable()->index();
