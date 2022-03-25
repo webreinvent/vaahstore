@@ -14,6 +14,10 @@
                          to="/vendors"
                          label="Vendors">
             </b-menu-item>
+            <b-menu-item tag="router-link"
+                         to="/brands"
+                         label="Brands">
+            </b-menu-item>
         </b-menu-list>
     </b-menu>
 
