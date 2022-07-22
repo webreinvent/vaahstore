@@ -18,6 +18,10 @@
                          to="/brands"
                          label="Brands">
             </b-menu-item>
+            <b-menu-item tag="router-link"
+                         to="/products"
+                         label="Products">
+            </b-menu-item>
         </b-menu-list>
     </b-menu>
 

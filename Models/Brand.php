@@ -37,13 +37,12 @@ class Brand extends Model
     ];
 
     //-------------------------------------------------
-    protected
-        $appends = [
+
+    protected $appends = [
     ];
 
     //-------------------------------------------------
-    protected
-    function serializeDate(DateTimeInterface $date)
+    protected function serializeDate(DateTimeInterface $date)
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
@@ -51,8 +50,7 @@ class Brand extends Model
 
     //-------------------------------------------------
 
-    public
-    function createdByUser()
+    public function createdByUser()
     {
         return $this->belongsTo(User::class,
             'created_by', 'id'
@@ -60,8 +58,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    function updatedByUser()
+    public function updatedByUser()
     {
         return $this->belongsTo(User::class,
             'updated_by', 'id'
@@ -69,32 +66,45 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    function deletedByUser()
+    public function deletedByUser()
     {
         return $this->belongsTo(User::class,
             'deleted_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-
     //-------------------------------------------------
-    public
-    function getTableColumns()
+    public function ownedByUser()
+    {
+        return $this->belongsTo(User::class,
+            'deleted_by', 'id'
+        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+    //-------------------------------------------------
+    public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
             ->getColumnListing($this->getTable());
     }
 
     //-------------------------------------------------
-    public
-    function scopeExclude($query, $columns)
+    public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
 
     //-------------------------------------------------
-    public
-    function scopeBetweenDates($query, $from, $to)
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
+    //-------------------------------------------------
+    public function scopeIsDefault($query, Store $store)
+    {
+        return $query->where('is_active', 1)->where('is_default', 1)
+            ->where('vh_st_store_id', $store->id);
+    }
+    //-------------------------------------------------
+    public function scopeBetweenDates($query, $from, $to)
     {
 
         if ($from) {
@@ -113,8 +123,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function createItem($request)
+    public static function createItem($request)
     {
 
         $inputs = $request->all();
@@ -156,8 +165,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function getList($request)
+    public static function getList($request)
     {
 
 
@@ -214,8 +222,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function updateList($request)
+    public static function updateList($request)
     {
 
         $inputs = $request->all();
@@ -266,8 +273,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function deleteList($request)
+    public static function deleteList($request)
     {
         $inputs = $request->all();
 
@@ -301,8 +307,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function getItem($id)
+    public static function getItem($id)
     {
 
         $item = self::where('id', $id)
@@ -318,8 +323,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function updateItem($request, $id)
+    public static function updateItem($request, $id)
     {
         $inputs = $request->all();
 
@@ -376,8 +380,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function deleteItem($request, $id): array
+    public static function deleteItem($request, $id): array
     {
         $update = self::where('id', $id)->withTrashed()->first();
         if (!$update) {
@@ -397,8 +400,7 @@ class Brand extends Model
 
     //-------------------------------------------------
 
-    public
-    static function validation($inputs)
+    public static function validation($inputs)
     {
 
         $rules = array(
@@ -417,13 +419,11 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public
-    static function getActiveItems()
+    public static function getActiveItems()
     {
         $item = self::where('is_active', 1)->get();
         return $item;
     }
-
     //-------------------------------------------------
     //-------------------------------------------------
     //-------------------------------------------------

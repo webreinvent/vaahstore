@@ -17,7 +17,7 @@
 
 @section('content')
 
-    <div id="appStore">
+    <div id="appStore" class="bulma">
 
         <router-view></router-view>
 
