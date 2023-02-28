@@ -109,6 +109,49 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+                <VhField label="Is Multi Currency">
+                    <div class="flex flex-row">
+                        <InputSwitch v-model="store.item.is_multi_currency" />
+
+                        <div v-if="store.item.is_multi_currency" class="pl-5 w-full">
+                            <MultiSelect placeholder="Select Currencys" />
+                        </div>
+                    </div>
+                </VhField>
+
+                <VhField label="Is Multi Lingual">
+                    <div class="flex flex-row">
+                        <InputSwitch v-model="store.item.is_multi_lingual" />
+
+                        <div v-if="store.item.is_multi_lingual" class="pl-5 w-full">
+                            <MultiSelect placeholder="Select Languages" />
+                        </div>
+                    </div>
+                </VhField>
+
+                <VhField label="Is Multi Vendor">
+                    <div class="flex flex-row">
+                        <InputSwitch v-model="store.item.is_multi_vendor" />
+
+                        <div v-if="store.item.is_multi_vendor" class="pl-5 w-full">
+                            <MultiSelect placeholder="Select Languages" />
+                        </div>
+                    </div>
+                </VhField>
+
+                <VhField label="Allowed Ips">
+                    <InputSwitch v-model="store.item.allowed_ips" />
+                </VhField>
+
+                <VhField label="Is Default">
+                    <InputSwitch v-model="store.item.is_default" />
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea v-model="store.item.status_notes" rows="5" cols="60" />
+                </VhField>
+
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
