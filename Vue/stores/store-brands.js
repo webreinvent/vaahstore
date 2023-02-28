@@ -34,7 +34,6 @@ export const useBrandStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        value1: 'Off',
         status:['Off', 'On'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
@@ -46,7 +45,7 @@ export const useBrandStore = defineStore({
         query: vaah().clone(empty_states.query),
         action: vaah().clone(empty_states.action),
         search: {
-            delay_time: 600, // time delay in milliseconds
+            delay_time: 600, //time delay in milliseconds
             delay_timer: 0 // time delay in milliseconds
         },
         route: null,
@@ -156,7 +155,8 @@ export const useBrandStore = defineStore({
         async defaultItems(){
             if(this.item != null){
                 if(this.item.uuid == null){
-                    this.item.status = 'off'
+                    console.log('Tejas')
+                    this.item.status = 'Off'
                 }
 
             }
@@ -167,6 +167,7 @@ export const useBrandStore = defineStore({
             if(this.item){
                     watch(() => this.item.name, (newVal,oldVal) =>
                         {
+                            this.defaultItems();
                             if(newVal && newVal !== "")
                             {
                                 // this.item.name = vaah().capitalising(newVal);
@@ -219,6 +220,7 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.defaultItems();
             if(data)
             {
                 this.list = data;
@@ -468,6 +470,7 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         async reload()
         {
+            this.defaultItems();
             await this.getAssets();
             await this.getList();
         },

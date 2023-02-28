@@ -406,9 +406,13 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
+            'status'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
+        $validator->sometimes('status_notes', 'required', function ($input) {
+            return ($input->status === 'On') ;
+        });
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['failed'] = true;
