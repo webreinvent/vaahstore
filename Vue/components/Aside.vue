@@ -19,6 +19,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/"
             },
+            {
+                label: 'Store',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/store"
+            },
         ]
     },
 ]);
