@@ -117,6 +117,20 @@ const toggleFormMenu = (event) => {
                                  v-model="store.item.is_active"/>
                 </VhField>
 
+                <VhField label="Status Type">
+                    <SelectButton
+                        v-model="store.item.status"
+                        name="brands-status" data-testid="brands-status"
+                        :options="store.status" />
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <InputText class="w-full"
+                               name="brands-status_notes"
+                               data-testid="brands-status_notes"
+                               v-model="store.item.status_notes"/>
+                </VhField>
+
             </div>
         </Panel>
 
