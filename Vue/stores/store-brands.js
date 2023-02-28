@@ -34,6 +34,8 @@ export const useBrandStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
+        value1: 'Off',
+        status:['Off', 'On'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -151,6 +153,14 @@ export const useBrandStore = defineStore({
                 },{deep: true}
             )
         },
+        async defaultItems(){
+            if(this.item != null){
+                if(this.item.uuid == null){
+                    this.item.status = 'off'
+                }
+
+            }
+        },
         //---------------------------------------------------------------------
         watchItem()
         {
@@ -159,8 +169,8 @@ export const useBrandStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
+                                // this.item.name = vaah().capitalising(newVal);
+                                // this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
                     )
@@ -230,6 +240,7 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.status  = data.status
             }else{
                 this.$router.push({name: 'brands.index'});
             }
