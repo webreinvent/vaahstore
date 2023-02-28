@@ -42,7 +42,7 @@ class ExtendController extends Controller
         $links = [];
 
         $links[0] = [
-            'link' => route('vh.backend.store'),
+            'link' => self::$link,
             'icon'=> 'store',
             'label'=> 'Store'
         ];
