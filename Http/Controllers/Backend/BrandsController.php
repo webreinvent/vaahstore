@@ -20,32 +20,46 @@ class BrandsController extends Controller
     public function getAssets(Request $request)
     {
 
-        $data = [];
+        try{
 
-        $data['permission'] = [];
+            $data = [];
 
-        $data['fillable']['except'] = [
-            'uuid',
-            'created_by',
-            'updated_by',
-            'deleted_by',
-        ];
+            $data['permission'] = [];
+            $data['rows'] = config('vaahcms.per_page');
 
-        $model = new Brand();
-        $fillable = $model->getFillable();
-        $data['fillable']['columns'] = array_diff(
-            $fillable, $data['fillable']['except']
-        );
+            $data['fillable']['except'] = [
+                'uuid',
+                'created_by',
+                'updated_by',
+                'deleted_by',
+            ];
 
-        foreach ($data['fillable']['columns'] as $column)
-        {
-            $data['empty_item'][$column] = null;
+            $model = new Brand();
+            $fillable = $model->getFillable();
+            $data['fillable']['columns'] = array_diff(
+                $fillable, $data['fillable']['except']
+            );
+
+            foreach ($fillable as $column)
+            {
+                $data['empty_item'][$column] = null;
+            }
+
+            $data['actions'] = [];
+
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
         }
-
-        $data['actions'] = [];
-
-        $response['success'] = true;
-        $response['data'] = $data;
 
         return $response;
     }
@@ -53,40 +67,158 @@ class BrandsController extends Controller
     //----------------------------------------------------------
     public function getList(Request $request)
     {
-        return Brand::getList($request);
+        try{
+            return Brand::getList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
-        return Brand::updateList($request);
+        try{
+            return Brand::updateList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function listAction(Request $request, $type)
+    {
+
+
+        try{
+            return Brand::listAction($request, $type);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
-        return Brand::deleteList($request);
+        try{
+            return Brand::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
-        return Brand::createItem($request);
+        try{
+            return Brand::createItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function getItem(Request $request, $id)
     {
-        return Brand::getItem($id);
+        try{
+            return Brand::getItem($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
-
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
-        return Brand::updateItem($request,$id);
+        try{
+            return Brand::updateItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
-        return Brand::deleteItem($request,$id);
+        try{
+            return Brand::deleteItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
+    public function itemAction(Request $request,$id,$action)
+    {
+        try{
+            return Brand::itemAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
 
 
