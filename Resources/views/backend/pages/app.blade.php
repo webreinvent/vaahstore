@@ -8,21 +8,20 @@
 @section('vaahcms_extend_backend_js')
 
     @if(env('MODULE_STORE_ENV') == 'develop')
-        <script src="http://localhost:9060/store/assets/build/app.js" defer></script>
+        <script type="module" src="http://localhost:8464/Vue/main.js"></script>
     @else
-        <script src="{{vh_module_assets_url("Store", "build/app.js")}}"></script>
+        <script type="module" src="{{vh_module_assets_url("Store", "build/index.js")}}"></script>
     @endif
 
 @endsection
 
 @section('content')
 
-    <div id="appStore" class="bulma">
+    <div class="primevue">
+        <div id="appStore">
 
-        <router-view></router-view>
 
-        <vue-progress-bar></vue-progress-bar>
-
+        </div>
     </div>
 
 @endsection
