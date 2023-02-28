@@ -12,10 +12,10 @@ const menu = ref();
 
 const items = ref([
     {
-        label: 'HelloWorld',
+        label: 'Store',
         items: [
             {
-                label: 'Dashboard',
+                label: 'Store',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/"
             },
