@@ -13,7 +13,6 @@ const menu = ref();
 const items = ref([
     {
         label: 'Store',
-        label: 'Vendor',
         items: [
             {
                 label: 'Dashboard',
