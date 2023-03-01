@@ -99,6 +99,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="brands-name"
                                data-testid="brands-name"
+                               placeholder="Enter a Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -106,6 +107,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="brands-slug"
                                data-testid="brands-slug"
+                               placeholder="Enter a Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -118,19 +120,50 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
+
+
                 <VhField label="Status Type">
-                    <SelectButton
+                    <Dropdown
                         v-model="store.item.status"
-                        name="brands-status" data-testid="brands-status"
-                        :options="store.status" />
+                        :options="store.status"
+                        name="brands-status"
+                        placeholder="Select a Status"
+                        data-testid="brands-status"
+                        :editable="true"/>
                 </VhField>
 
-                <VhField v-if="store.item.status != 'Off'" label="Status Notes">
+                <VhField label="Status Notes">
                     <InputText class="w-full"
-                               :disabled="store.item.status == 'Off'"
+                               placeholder="Enter a Status Note"
                                name="brands-status_notes"
                                data-testid="brands-status_notes"
                                v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Registered By ">
+
+                    <AutoComplete
+                        v-model="store.item.registered_by"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        :dropdown="true" optionLabel="first_name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+
+                <VhField label="Registered at" >
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              name="brands-registered_at"
+                              id="registered_at"
+                              value="registered_at"
+                              data-testid="blogs-registered_at"
+                              dateFormat="yy-mm-dd"
+                              :showTime="true" :showSeconds="true"
+                              placeholder="Select date"
+                              v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
             </div>
@@ -139,3 +172,8 @@ const toggleFormMenu = (event) => {
     </div>
 
 </template>
+<style>
+#pv_id_5_panel{
+    width: 400px;
+}
+</style>

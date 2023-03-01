@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Brand;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class BrandsController extends Controller
@@ -44,7 +45,7 @@ class BrandsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-
+            $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
 
             $response['success'] = true;
