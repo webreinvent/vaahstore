@@ -115,7 +115,7 @@ const toggleFormMenu = (event) => {
                             <SelectButton v-model="store.item.is_multi_currency" :options="store.on_off_options" aria-labelledby="single" />
                         </div>
 
-                        <div v-if="store.item.is_multi_currency == 'On'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_currency == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Currencys" />
                         </div>
                     </div>
@@ -127,7 +127,7 @@ const toggleFormMenu = (event) => {
                             <SelectButton v-model="store.item.is_multi_lingual" :options="store.on_off_options" aria-labelledby="single" />
                         </div>
 
-                        <div v-if="store.item.is_multi_lingual == 'On'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_lingual == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>
@@ -139,7 +139,7 @@ const toggleFormMenu = (event) => {
                             <SelectButton v-model="store.item.is_multi_vendor" :options="store.on_off_options" aria-labelledby="single" />
                         </div>
 
-                        <div v-if="store.item.is_multi_vendor == 'On'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_vendor == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>

@@ -34,7 +34,7 @@ export const useStoreStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        on_off_options: ['Off', 'On'],
+        on_off_options: ['no', 'yes'],
         status_option:['Pending','Approved','Rejected'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
