@@ -2,10 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
-use VaahCms\Modules\Store\Models\Store;
-use VaahCms\Modules\Store\Models\Vendor;
 
 
 class ProductsController extends Controller
@@ -23,48 +20,46 @@ class ProductsController extends Controller
     public function getAssets(Request $request)
     {
 
-        $data = [];
+        try{
 
-        $data['permission'] = [];
+            $data = [];
 
-        $data['fillable']['except'] = [
-            'uuid',
-            'vh_st_store_id',
-            'vh_st_brand_id',
-            'taxonomy_id_product_type',
-            'vh_cms_content_form_field_id',
-            'meta',
-            'created_by',
-            'updated_by',
-            'deleted_by',
-        ];
+            $data['permission'] = [];
+            $data['rows'] = config('vaahcms.per_page');
 
-        $model = new Product();
-        $fillable = $model->getFillable();
-        $data['fillable']['columns'] = array_diff(
-            $fillable, $data['fillable']['except']
-        );
+            $data['fillable']['except'] = [
+                'uuid',
+                'created_by',
+                'updated_by',
+                'deleted_by',
+            ];
 
-        foreach ($fillable as $column)
-        {
-            $data['empty_item'][$column] = null;
+            $model = new Product();
+            $fillable = $model->getFillable();
+            $data['fillable']['columns'] = array_diff(
+                $fillable, $data['fillable']['except']
+            );
+
+            foreach ($fillable as $column)
+            {
+                $data['empty_item'][$column] = null;
+            }
+
+            $data['actions'] = [];
+
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
         }
-
-        $data['stores'] = Store::active()->get();
-        $data['default_store'] = Store::isDefault()->first();
-        /*$data['default_vendor'] = Vendor::isDefault($data['default_store'])->first();
-        $data['vendors'] = Vendor::active($data['default_store'])->take(10)
-            ->orderBy('created_at', 'desc')
-            ->get();*/
-
-        $data['brands'] = Brand::active()->take(10)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $data['actions'] = [];
-
-        $response['success'] = true;
-        $response['data'] = $data;
 
         return $response;
     }
@@ -72,40 +67,158 @@ class ProductsController extends Controller
     //----------------------------------------------------------
     public function getList(Request $request)
     {
-        return Product::getList($request);
+        try{
+            return Product::getList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
-        return Product::updateList($request);
+        try{
+            return Product::updateList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function listAction(Request $request, $type)
+    {
+
+
+        try{
+            return Product::listAction($request, $type);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
-        return Product::deleteList($request);
+        try{
+            return Product::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
-        return Product::createItem($request);
+        try{
+            return Product::createItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function getItem(Request $request, $id)
     {
-        return Product::getItem($id);
+        try{
+            return Product::getItem($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
-
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
-        return Product::updateItem($request,$id);
+        try{
+            return Product::updateItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
-        return Product::deleteItem($request,$id);
+        try{
+            return Product::deleteItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
+    public function itemAction(Request $request,$id,$action)
+    {
+        try{
+            return Product::itemAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
 
 
