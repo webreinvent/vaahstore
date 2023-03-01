@@ -13,6 +13,7 @@ const menu = ref();
 const items = ref([
     {
         label: 'Store',
+        label: 'Vendor',
         items: [
             {
                 label: 'Store',
@@ -23,6 +24,11 @@ const items = ref([
                 label: 'Product',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/products"
+            },
+            {
+                label: 'Vendor',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/vendors"
             },
             {
                 label: 'Vendor',
