@@ -164,21 +164,21 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="column === 'is_multi_currency'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       type="On-Off"
+                                       type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_multi_lingual'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       type="On-Off"
+                                       type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_multi_vendor'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       type="On-Off"
+                                       type="yes-no"
                             />
                         </template>
 
