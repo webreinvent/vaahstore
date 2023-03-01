@@ -470,7 +470,7 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         async reload()
         {
-            this.defaultItems();
+            await this.defaultItems();
             await this.getAssets();
             await this.getList();
         },
