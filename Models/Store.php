@@ -106,41 +106,61 @@ class Store extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
+        $validation_result = self::storeInputValidator($request->all());
 
-        $inputs = $request->all();
-
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+        $inputs = $validation_result['data'];
 
         $item = new self();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->allowed_ips = json_encode($inputs['allowed_ips']);
+        $item->is_default = $inputs['is_default'];
+        $item->status = $inputs['status'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = true;
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function storeInputValidator($requestData){
+
+        $validated_data = validator($requestData, [
+            'name' => 'required',
+            'slug' => 'required',
+            'is_multi_currency' => 'required',
+            'is_multi_lingual' => 'required',
+            'is_multi_vendor' => 'required',
+            'allowed_ips' => 'required',
+            'is_default' => 'required',
+            'status' => 'required',
+            'status_notes' => 'required',
+        ]);
+
+        if($validated_data->fails()){
+            return [
+                'success' => false,
+                'messages' => $validated_data->errors()->all()
+            ];
+        }
+
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 
@@ -416,6 +436,14 @@ class Store extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        $item->is_multi_currency = $item->is_multi_currency == 1 ?  "yes" : "no";
+        $item->is_multi_lingual = $item->is_multi_lingual == 1 ?  "yes" : "no";
+        $item->is_multi_vendor = $item->is_multi_vendor == 1 ?  "yes" : "no";
+        $item->is_default = $item->is_default == 1 ? true :false;
+        $item->is_active = $item->is_active == 1 ? true :false;
+        $item->allowed_ips = json_decode($item->allowed_ips);
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -425,37 +453,23 @@ class Store extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
+        $validation_result = self::storeInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+        $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->allowed_ips = json_encode($inputs['allowed_ips']);
+        $item->is_default = $inputs['is_default'];
+        $item->status = $inputs['status'];
+        $item->status_notes = $inputs['status_notes'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

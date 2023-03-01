@@ -111,9 +111,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Is Multi Currency">
                     <div class="flex flex-row">
-                        <InputSwitch v-model="store.item.is_multi_currency" />
+                        <div class="col-4">
+                            <SelectButton v-model="store.item.is_multi_currency" :options="store.on_off_options" aria-labelledby="single" />
+                        </div>
 
-                        <div v-if="store.item.is_multi_currency" class="pl-5 w-full">
+                        <div v-if="store.item.is_multi_currency == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Currencys" />
                         </div>
                     </div>
@@ -121,9 +123,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
-                        <InputSwitch v-model="store.item.is_multi_lingual" />
+                        <div class="col-4">
+                            <SelectButton v-model="store.item.is_multi_lingual" :options="store.on_off_options" aria-labelledby="single" />
+                        </div>
 
-                        <div v-if="store.item.is_multi_lingual" class="pl-5 w-full">
+                        <div v-if="store.item.is_multi_lingual == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>
@@ -131,33 +135,44 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
-                        <InputSwitch v-model="store.item.is_multi_vendor" />
+                        <div class="col-4">
+                            <SelectButton v-model="store.item.is_multi_vendor" :options="store.on_off_options" aria-labelledby="single" />
+                        </div>
 
-                        <div v-if="store.item.is_multi_vendor" class="pl-5 w-full">
+                        <div v-if="store.item.is_multi_vendor == 'yes'" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>
                 </VhField>
 
                 <VhField label="Allowed Ips">
-                    <InputSwitch v-model="store.item.allowed_ips" />
+                    <InputText class="w-full"
+                               name="store-allowed-ips"
+                               data-testid="store-allowed-ips"
+                               v-model="store.item.allowed_ips"/>
+
                 </VhField>
 
                 <VhField label="Is Default">
                     <InputSwitch v-model="store.item.is_default" />
+
+                </VhField>
+
+                <VhField label="Status">
+                    <Dropdown
+                        v-model="store.item.status"
+                        :options="store.status_option"
+                        name="brands-status"
+                        placeholder="Select a Status"
+                        data-testid="brands-status"
+                        :editable="true"/>
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes" rows="5" cols="60" />
-                </VhField>
-
-
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="store-active"
-                                 data-testid="store-active"
-                                 v-model="store.item.is_active"/>
+                    <InputText class="w-full"
+                               name="store-statue-notes"
+                               data-testid="store-statue-notes"
+                               v-model="store.item.status_notes"/>
                 </VhField>
 
             </div>
@@ -166,3 +181,9 @@ const toggleFormMenu = (event) => {
     </div>
 
 </template>
+<style>
+.p-selectbutton .p-button.p-highlight {
+    background-color: #007ad9 !important;
+    font-weight: 700;
+}
+</style>

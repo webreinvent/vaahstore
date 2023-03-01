@@ -3,7 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\Modules\Store\\Models\\Store';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Store';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
@@ -34,6 +34,8 @@ export const useStoreStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
+        on_off_options: ['no', 'yes'],
+        status_option:['Pending','Approved','Rejected'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -190,7 +192,7 @@ export const useStoreStore = defineStore({
                 }
 
                 if(this.route.params && !this.route.params.id){
-                    this.item = vaah().clone(data.empty_item);
+                    this.setActiveItemAsEmpty();
                 }
 
             }
@@ -601,13 +603,13 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         toList()
         {
-            this.item = vaah().clone(this.assets.empty_item);
+            this.setActiveItemAsEmpty();
             this.$router.push({name: 'store.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
-            this.item = vaah().clone(this.assets.empty_item);
+            this.setActiveItemAsEmpty();
             this.getFormMenu();
             this.$router.push({name: 'store.form'})
         },

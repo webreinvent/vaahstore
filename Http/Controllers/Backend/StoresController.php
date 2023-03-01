@@ -31,6 +31,11 @@ class StoresController extends Controller
             'created_by',
             'updated_by',
             'deleted_by',
+            'is_multi_currency',
+            'is_multi_lingual',
+            'is_multi_vendor',
+            'is_default',
+            'is_active',
         ];
 
         $model = new Store();
@@ -43,6 +48,11 @@ class StoresController extends Controller
         {
             $data['empty_item'][$column] = null;
         }
+        $data['empty_item']['is_multi_currency'] = 'no';
+        $data['empty_item']['is_multi_lingual'] = 'no';
+        $data['empty_item']['is_multi_vendor'] = 'no';
+        $data['empty_item']['is_default'] = false;
+        $data['empty_item']['is_active'] = 'no';
 
         $data['actions'] = [];
 
@@ -89,6 +99,10 @@ class StoresController extends Controller
         return Store::deleteItem($request,$id);
     }
     //----------------------------------------------------------
+    public function itemAction(Request $request,$id,$action)
+    {
+        return Store::itemAction($request,$id,$action);
+    }
     //----------------------------------------------------------
 
 
