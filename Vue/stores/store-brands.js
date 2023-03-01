@@ -3,7 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\Modules\Store\\Models\\Brand';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Brand';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
@@ -34,7 +34,9 @@ export const useBrandStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        status:['Off', 'On'],
+        user:null,
+        suggestion:null,
+        status:['Pending','Approved','Rejected'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -71,6 +73,20 @@ export const useBrandStore = defineStore({
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.user;
+                }
+                else {
+                    this.suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -152,26 +168,16 @@ export const useBrandStore = defineStore({
                 },{deep: true}
             )
         },
-        async defaultItems(){
-            if(this.item != null){
-                if(this.item.uuid == null){
-                    console.log('Tejas')
-                    this.item.status = 'Off'
-                }
-
-            }
-        },
         //---------------------------------------------------------------------
         watchItem()
         {
             if(this.item){
                     watch(() => this.item.name, (newVal,oldVal) =>
                         {
-                            this.defaultItems();
                             if(newVal && newVal !== "")
                             {
-                                // this.item.name = vaah().capitalising(newVal);
-                                // this.item.slug = vaah().strToSlug(newVal);
+                                this.item.name = vaah().capitalising(newVal);
+                                this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
                     )
@@ -195,6 +201,7 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.user = data.user.data
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -220,7 +227,6 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
-            this.defaultItems();
             if(data)
             {
                 this.list = data;
@@ -242,7 +248,7 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.status  = data.status
+                this.item.registered_by = data.user;
             }else{
                 this.$router.push({name: 'brands.index'});
             }
@@ -470,7 +476,6 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         async reload()
         {
-            await this.defaultItems();
             await this.getAssets();
             await this.getList();
         },

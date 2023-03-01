@@ -5,8 +5,8 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 
 class Brand extends Model
 {
@@ -87,6 +87,12 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class,'id','registered_by');
+    }
+
+    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
@@ -97,6 +103,7 @@ class Brand extends Model
     {
         return $query->where('is_active', 1);
     }
+
     //-------------------------------------------------
     public function scopeIsDefault($query, Store $store)
     {
@@ -155,6 +162,8 @@ class Brand extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->registered_by = $inputs['registered_by']['id'];
+        $item->status = $inputs['status'];
         $item->save();
 
         $response['success'] = true;
@@ -167,8 +176,6 @@ class Brand extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-
-
         if (isset($request->sort)) {
 
             $sort = $request->sort;
@@ -311,7 +318,7 @@ class Brand extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user'])
             ->withTrashed()
             ->first();
 
@@ -355,6 +362,8 @@ class Brand extends Model
         $update = self::where('id', $id)->withTrashed()->first();
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
+        $update->registered_by = $inputs['registered_by']['id'];
+        $update->status = $inputs['status'];
         $update->save();
 
         //check specific actions
@@ -406,13 +415,12 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required'
+            'status'=> 'required|max:150',
+            'status_notes'=> 'required|max:150',
+            'registered_at'=> 'required|before:tomorrow'
         );
 
         $validator = \Validator::make($inputs, $rules);
-        $validator->sometimes('status_notes', 'required', function ($input) {
-            return ($input->status === 'On') ;
-        });
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['failed'] = true;
