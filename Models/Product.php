@@ -563,7 +563,6 @@ class Product extends Model
             'status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
             'in_stock'=> 'required|numeric',
-//            'quantity'=> 'required_if:in_stock,1|min:0',
             'brand'=> 'required',
             'store'=> 'required',
             'taxonomy_product'=> 'required',
