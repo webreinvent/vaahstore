@@ -66,21 +66,50 @@ export const useProductStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        suggestion:null
+        suggestion:null,
+        name:null,
     }),
     getters: {
 
     },
     actions: {
         //---------------------------------------------------------------------
+        searchTaxonomyProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.taxonomy_product;
+                }
+                else {
+                    this.suggestion= this.taxonomy_product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchBrand(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.brand;
+                }
+                else {
+                    this.suggestion= this.brand.filter((brand) => {
+                        return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.user;
+                    this.suggestion = this.store;
                 }
                 else {
-                    this.suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.suggestion= this.store.filter((store) => {
+                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -199,6 +228,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.brand = data.brand.data
+                this.store = data.store.data
+                this.taxonomy_product = data.taxonomy_product.data
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
