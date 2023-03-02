@@ -25,7 +25,7 @@ class Vendor extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name', 'slug', 'notes', 'is_multi_currency',
+        'name', 'slug', 'notes', 'is_multi_currency','vh_st_store_id',
         'is_multi_lingual', 'is_multi_vendor', 'allowed_ips',
         'is_default', 'is_active', 'status',
         'status_notes', 'meta',
@@ -104,43 +104,82 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
+    public function store(){
+        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'approved_by')->select(['id','first_name']);
+    }
+
+    //-------------------------------------------------
     public static function createItem($request)
     {
 
-        $inputs = $request->all();
+        $validation_result = self::storeInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
+        $inputs = $validation_result['data'];
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = new self();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
+        $item->auto_approve_products  = $inputs['auto_approve_products'];
+        $item->vh_st_store_id  = (int)$inputs['vh_st_store_id']['id'];
+        $item->owned_by  = (int)$inputs['owned_by'];
+//        $item->approved_by = (int)$inputs['approved_by']['id'];
+        $item->is_default = (int)$inputs['is_default'];
+        $item->status = $inputs['status'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = (int)$inputs['is_active'];
+        $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
+//        $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function storeInputValidator($requestData){
+
+        $validated_data = validator($requestData, [
+            'name' => 'required',
+            'slug' => 'required',
+            'vh_st_store_id' => 'required',
+            'owned_by' => 'required',
+            'auto_approve_products' => 'required',
+//            'approved_by' => 'required',
+            'is_default' => 'required',
+            'status' => 'required',
+            'status_notes' => 'required',
+            'is_active' => 'required',
+        ],
+            [
+                'vh_st_store_id.required' => 'The Store field is required',
+            ]
+        );
+
+        if($validated_data->fails()){
+            return [
+                'success' => false,
+                'messages' => $validated_data->errors()->all()
+            ];
+        }
+
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 
@@ -406,7 +445,7 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'user'])
             ->withTrashed()
             ->first();
 
@@ -425,38 +464,26 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
+        $validation_result = self::storeInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+        $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
+        $item->auto_approve_products  = (int)$inputs['auto_approve_products'];
+        $item->vh_st_store_id  = (int)$inputs['vh_st_store_id']['id'];
+//        $item->owned_by  = (int)$inputs['owned_by'];
+        $item->approved_by = (int)$inputs['approved_by']['id'];
+        $item->is_default = (int)$inputs['is_default'];
+        $item->status = $inputs['status'];
+//        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = (int)$inputs['is_active'];
+//        $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();
 
         $response = self::getItem($item->id);
