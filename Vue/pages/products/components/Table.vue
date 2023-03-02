@@ -38,6 +38,86 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.status === 'Pending'"
+                            severity="warning">{{prop.data.status}}</Badge>
+                     <Badge v-else-if="prop.data.status === 'Rejected'"
+                            severity="danger">{{prop.data.status}}</Badge>
+                     <Badge v-else
+                            severity="success">{{prop.data.status}}</Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="store" header="Store"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.store.name}}
+                 </template>
+
+             </Column>
+
+             <Column field="brand" header="Brand"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.brand.name}}
+                 </template>
+
+             </Column>
+
+             <Column field="taxonomy_product" header="Taxonomy Product"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.taxonomy_product.name}}
+                 </template>
+
+             </Column>
+
+             <Column field="in_stock" header="In Stock"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.in_stock == 0"
+                            value="out of stock"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.in_stock == 1"
+                            value="in stock"
+                            severity="success"></Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="quantity" header="Quantity"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.quantity == 0"
+                            value="0"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.quantity > 0"
+                            :value="prop.data.quantity"
+                            severity="success"></Badge>
+                 </template>
+
+             </Column>
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"

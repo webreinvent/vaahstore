@@ -136,7 +136,7 @@ const toggleFormMenu = (event) => {
                                data-testid="products-status_notes"
                                v-model="store.item.status_notes"/>
                 </VhField>
-
+{{store.item.in_stock}}
                 <VhField label="In Stock">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"

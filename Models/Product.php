@@ -254,7 +254,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('brand','store','taxonomyProduct');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -562,11 +562,16 @@ class Product extends Model
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
-            'in_stock'=> 'required',
-            'quantity'=> 'required_if:in_stock,1|min:0',
+            'in_stock'=> 'required|numeric',
+//            'quantity'=> 'required_if:in_stock,1|min:0',
             'brand'=> 'required',
             'store'=> 'required',
-            'taxonomy_product'=> 'required'
+            'taxonomy_product'=> 'required',
+            'quantity'  => [
+                "required_if:in_stock, ==, 1",
+                'numeric',
+                'min:1',
+            ],
         );
 
         $validator = \Validator::make($inputs, $rules);

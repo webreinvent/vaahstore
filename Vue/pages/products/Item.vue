@@ -137,7 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'store' || column === 'taxonomy_product'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -150,6 +150,34 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'brand'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'taxonomy_id_product_type'">
+                            <VhViewRow :label="column"
+                                       :value="store.item.taxonomy_product"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_store_id'">
+                            <VhViewRow :label="column"
+                                       :value="store.item.store"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_brand_id'">
+                            <VhViewRow :label="column"
+                                       :value="store.item.brand"
                                        type="user"
                             />
                         </template>
