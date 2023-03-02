@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Store;
+//use WebReinvent\VaahCms\Entities\User;
 
 
 class VendorsController extends Controller
@@ -45,7 +47,14 @@ class VendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['is_default'] = 1;
+            $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['auto_approve_products'] = 1;
+
             $data['actions'] = [];
+            $data['stores'] = Store::where('is_active', 1)->get(['name','id']);
+
+//            $data['users'] = User::where('is_active',1)->get(['id','first_name']);
 
             $response['success'] = true;
             $response['data'] = $data;
