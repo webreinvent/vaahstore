@@ -137,6 +137,9 @@ class Product extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->status = $inputs['status'];
+        if($inputs['is_stock']==0){
+            $item->quantity = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -459,6 +462,9 @@ class Product extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->status = $inputs['status'];
+        if($inputs['in_stock']==0){
+            $item->quantity = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -520,6 +526,8 @@ class Product extends Model
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
+            'in_stock'=> 'required',
+            'quantity'=> 'required_if:in_stock,1|numeric|min:1'
         );
 
         $validator = \Validator::make($inputs, $rules);

@@ -66,25 +66,25 @@ export const useProductStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        suggestion:null
+        // suggestion:null
     }),
     getters: {
 
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.suggestion = this.user;
-                }
-                else {
-                    this.suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
+        // searchStore(event) {
+        //     setTimeout(() => {
+        //         if (!event.query.trim().length) {
+        //             this.suggestion = this.user;
+        //         }
+        //         else {
+        //             this.suggestion= this.user.filter((user) => {
+        //                 return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+        //             });
+        //         }
+        //     }, 250);
+        // },
         //---------------------------------------------------------------------
         async onLoad(route)
         {

@@ -117,7 +117,7 @@ const toggleFormMenu = (event) => {
                                  v-model="store.item.is_active"/>
                 </VhField>
 
-                <VhField label="Status Type">
+                <VhField label="Status">
                     <Dropdown
                         v-model="store.item.status"
                         :options="store.status"
@@ -135,18 +135,34 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.status_notes"/>
                 </VhField>
 
-                <VhField label="Registered By ">
-
-                    <AutoComplete
-                        v-model="store.item.store"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchStore($event)"
-                        placeholder="Select User"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
-                    </AutoComplete>
-
+                <VhField label="In Stock">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="products-in_stock"
+                                 data-testid="products-in_stock"
+                                 v-model="store.item.in_stock"/>
                 </VhField>
+
+                <VhField label="Quantity" v-if="store.item.in_stock">
+                    <InputNumber
+                        inputId="minmax-buttons"
+                        v-model="store.item.quantity"
+                        mode="decimal" showButtons
+                        :min="1"/>
+                </VhField>
+
+<!--                <VhField label="Registered By ">-->
+
+<!--                    <AutoComplete-->
+<!--                        v-model="store.item.store"-->
+<!--                        class="w-full"-->
+<!--                        :suggestions="store.suggestion"-->
+<!--                        @complete="store.searchStore($event)"-->
+<!--                        placeholder="Select User"-->
+<!--                        :dropdown="true" optionLabel="first_name" forceSelection>-->
+<!--                    </AutoComplete>-->
+
+<!--                </VhField>-->
 
             </div>
         </Panel>
