@@ -109,6 +109,74 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+                <VhField label="Store">
+                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
+                        <template>
+                            <div class="store-item">
+                                <div class="ml-2">{{store.all_store_list}}</div>
+                            </div>
+                        </template>
+                    </AutoComplete>
+                </VhField>
+
+<!--                <VhField label="Approve By">-->
+<!--                    <AutoComplete v-model="store.item.approved_by" class="w-full" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>-->
+<!--                        <template>-->
+<!--                            <div class="store-item">-->
+<!--                                <div class="ml-2">{{store.all_user_list}}</div>-->
+<!--                            </div>-->
+<!--                        </template>-->
+<!--                    </AutoComplete>-->
+<!--                </VhField>-->
+
+                <VhField label="Status">
+                    <Dropdown
+                        v-model="store.item.status"
+                        :options="store.status_option"
+                        name="brands-status"
+                        class="w-full"
+                        placeholder="Select a Status"
+                        data-testid="brands-status"
+                        :editable="true"/>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <InputText class="w-full"
+                               name="store-statue-notes"
+                               data-testid="store-statue-notes"
+                               v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Owned By">
+                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
+                        <template>
+                            <div class="store-item">
+                                <div class="ml-2">{{store.all_store_list}}</div>
+                            </div>
+                        </template>
+                    </AutoComplete>
+                </VhField>
+
+<!--                <VhField label="Notes">-->
+<!--                    <Textarea v-model="store.item.notes" rows="5" cols="30" />-->
+<!--                </VhField>-->
+
+                <VhField label="Is Default">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="vendors-default"
+                                 data-testid="vendors-default"
+                                 v-model="store.item.is_default"/>
+                </VhField>
+
+                <VhField label="Auto Approve Products">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="vendors-auto-approve-products"
+                                 data-testid="vendors-auto-approve-products"
+                                 v-model="store.item.auto_approve_products"/>
+                </VhField>
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
