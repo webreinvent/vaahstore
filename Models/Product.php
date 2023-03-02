@@ -1,10 +1,10 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
-use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -61,6 +61,24 @@ class Product extends Model
         return $this->belongsTo(User::class,
             'updated_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+
+    //-------------------------------------------------
+    public function brand()
+    {
+        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name');
+    }
+
+    //-------------------------------------------------
+    public function store()
+    {
+        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name');
+    }
+
+    //-------------------------------------------------
+    public function taxonomyProduct()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name');
     }
 
     //-------------------------------------------------
@@ -137,7 +155,15 @@ class Product extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->status = $inputs['status'];
-        if($inputs['is_stock']==0){
+        $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+        if(is_string($inputs['brand']['name'])){
+            $item->vh_st_brand_id = $inputs['brand']['id'];
+        }
+        if(is_string($inputs['store']['name'])){
+            $item->vh_st_store_id = $inputs['store']['id'];
+        }
+
+        if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
         $item->save();
@@ -410,7 +436,7 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','taxonomyProduct'])
             ->withTrashed()
             ->first();
 
@@ -462,6 +488,17 @@ class Product extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->status = $inputs['status'];
+        if(is_string($inputs['brand']['name'])){
+            $item->vh_st_brand_id = $inputs['brand']['id'];
+        }else{
+            $item->vh_st_brand_id = $inputs['brand']['name']['id'];
+        }
+        if(is_string($inputs['store']['name'])){
+            $item->vh_st_store_id = $inputs['store']['id'];
+        }else{
+            $item->vh_st_store_id = $inputs['store']['name']['id'];
+        }
+        $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
@@ -520,14 +557,16 @@ class Product extends Model
 
     public static function validation($inputs)
     {
-
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
             'in_stock'=> 'required',
-            'quantity'=> 'required_if:in_stock,1|numeric|min:1'
+            'quantity'=> 'required_if:in_stock,1|min:0',
+            'brand'=> 'required',
+            'store'=> 'required',
+            'taxonomy_product'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
