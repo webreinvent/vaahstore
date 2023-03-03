@@ -163,7 +163,6 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="products-in_stock"
                                  data-testid="products-in_stock"
-                                 @change="store.item.in_stock == 1 ? store.item.quantity = store.previous_quantity : store.item.quantity = 0"
                                  v-model="store.item.in_stock"/>
                 </VhField>
 

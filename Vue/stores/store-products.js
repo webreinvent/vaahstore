@@ -48,7 +48,6 @@ export const useProductStore = defineStore({
             delay_time: 600, // time delay in milliseconds
             delay_timer: 0 // time delay in milliseconds
         },
-        previous_quantity: 1,
         route: null,
         watch_stopper: null,
         route_prefix: 'products.',
@@ -283,7 +282,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.previous_quantity = data.quantity;
             }else{
                 this.$router.push({name: 'products.index'});
             }
@@ -661,7 +659,6 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toForm()
         {
-            this.previous_quantity = 1;
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.$router.push({name: 'products.form'})

@@ -163,7 +163,10 @@ class Product extends Model
         if(is_string($inputs['store']['name'])){
             $item->vh_st_store_id = $inputs['store']['id'];
         }
-
+        if($inputs['in_stock']==1 && $inputs['quantity']==0){
+            $response['messages'][] = 'The quantity should be more then 1.';
+            return $response;
+        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
@@ -500,6 +503,10 @@ class Product extends Model
             $item->vh_st_store_id = $inputs['store']['name']['id'];
         }
         $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+        if($inputs['in_stock']==1 && $inputs['quantity']==0){
+            $response['messages'][] = 'The quantity should be more then 1';
+            return $response;
+        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
