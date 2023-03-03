@@ -39,7 +39,8 @@ export const useVendorStore = defineStore({
         all_store_list: null,
         // all_user_list: null,
         store_suggestion_list: null,
-        // user_suggestion_list: null,
+        user_suggestion_list: null,
+        owned_by_suggestion_list: null,
         status_option:['Pending','Approved','Rejected'],
         list: null,
         item: null,
@@ -216,18 +217,31 @@ export const useVendorStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        // searchUser(event) {
-        //     setTimeout(() => {
-        //         if (!event.query.trim().length) {
-        //             this.user_suggestion_list = this.all_user_list;
-        //         }
-        //         else {
-        //             this.user_suggestion_list = this.all_user_list.filter((department) => {
-        //                 return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-        //             });
-        //         }
-        //     }, 250);
-        // },
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.user_suggestion_list = this.all_user_list;
+                }
+                else {
+                    this.user_suggestion_list = this.all_user_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchOwnedBy(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.owned_by_suggestion_list = this.all_user_list;
+                }
+                else {
+                    this.owned_by_suggestion_list = this.all_user_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async getList() {
             let options = {
@@ -264,7 +278,6 @@ export const useVendorStore = defineStore({
             {
                 this.item = data;
                 this.item.vh_st_store_id = data.store;
-                this.item.approved_by = data.user;
             }else{
                 this.$router.push({name: 'vendors.index'});
             }

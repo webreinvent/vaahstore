@@ -177,13 +177,22 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'approved_by'">
                             <VhViewRow :label="column"
-                                       :value="value.first_name"
+                                       :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'owned_by'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
                             />
                         </template>
 
                         <template v-else-if="column === 'vh_st_store_id'">
                             <VhViewRow label="store"
-                                       :value="value.name"
+                                       :value="value"
+                                       type="user"
                             />
                         </template>
 

@@ -119,15 +119,15 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-<!--                <VhField label="Approve By">-->
-<!--                    <AutoComplete v-model="store.item.approved_by" class="w-full" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>-->
-<!--                        <template>-->
-<!--                            <div class="store-item">-->
-<!--                                <div class="ml-2">{{store.all_user_list}}</div>-->
-<!--                            </div>-->
-<!--                        </template>-->
-<!--                    </AutoComplete>-->
-<!--                </VhField>-->
+                <VhField label="Approve By">
+                    <AutoComplete v-model="store.item.approved_by" class="w-full" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>
+                        <template>
+                            <div class="store-item">
+                                <div class="ml-2">{{store.all_user_list}}</div>
+                            </div>
+                        </template>
+                    </AutoComplete>
+                </VhField>
 
                 <VhField label="Status">
                     <Dropdown
@@ -148,18 +148,15 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Owned By">
-                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
+                    <AutoComplete v-model="store.item.owned_by" class="w-full" :suggestions="store.owned_by_suggestion_list" @complete="store.searchOwnedBy($event)" :dropdown="true" optionLabel="name" forceSelection>
                         <template>
                             <div class="store-item">
-                                <div class="ml-2">{{store.all_store_list}}</div>
+                                <div class="ml-2">{{store.all_user_list}}</div>
                             </div>
                         </template>
                     </AutoComplete>
                 </VhField>
 
-<!--                <VhField label="Notes">-->
-<!--                    <Textarea v-model="store.item.notes" rows="5" cols="30" />-->
-<!--                </VhField>-->
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
