@@ -3,11 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Vendor;
-use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\VendorUser;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 
 
-class VendorsController extends Controller
+class VendorUsersController extends Controller
 {
 
 
@@ -36,7 +37,7 @@ class VendorsController extends Controller
                 'deleted_by',
             ];
 
-            $model = new Vendor();
+            $model = new VendorUser();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
                 $fillable, $data['fillable']['except']
@@ -47,14 +48,13 @@ class VendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['is_default'] = 1;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['auto_approve_products'] = 1;
-
-            $data['actions'] = [];
-            $data['stores'] = Store::where('is_active', 1)->get(['name','id']);
 
             $data['users'] = User::where('is_active',1)->get(['id','first_name']);
+            $data['vendors'] = Vendor::where('is_active',1)->get(['id','name']);
+            $data['roles'] = Taxonomy::getTaxonomyByType('vendor-roles');
+
+            $data['actions'] = [];
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -77,7 +77,7 @@ class VendorsController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Vendor::getList($request);
+            return VendorUser::getList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -94,7 +94,7 @@ class VendorsController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Vendor::updateList($request);
+            return VendorUser::updateList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -113,7 +113,7 @@ class VendorsController extends Controller
 
 
         try{
-            return Vendor::listAction($request, $type);
+            return VendorUser::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -130,7 +130,7 @@ class VendorsController extends Controller
     public function deleteList(Request $request)
     {
         try{
-            return Vendor::deleteList($request);
+            return VendorUser::deleteList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -147,7 +147,7 @@ class VendorsController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Vendor::createItem($request);
+            return VendorUser::createItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -164,7 +164,7 @@ class VendorsController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Vendor::getItem($id);
+            return VendorUser::getItem($id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -181,7 +181,7 @@ class VendorsController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Vendor::updateItem($request,$id);
+            return VendorUser::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -198,7 +198,7 @@ class VendorsController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Vendor::deleteItem($request,$id);
+            return VendorUser::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -215,7 +215,7 @@ class VendorsController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Vendor::itemAction($request,$id,$action);
+            return VendorUser::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
