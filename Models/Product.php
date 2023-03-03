@@ -1,6 +1,7 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
 use DateTimeInterface;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -566,11 +567,7 @@ class Product extends Model
             'brand'=> 'required',
             'store'=> 'required',
             'taxonomy_product'=> 'required',
-            'quantity'  => [
-                "required_if:in_stock, ==, 1",
-                'numeric',
-                'min:1',
-            ],
+            'quantity'  => 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
