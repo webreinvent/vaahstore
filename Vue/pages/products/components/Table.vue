@@ -45,12 +45,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status === 'Pending'"
-                            severity="warning">{{prop.data.status}}</Badge>
-                     <Badge v-else-if="prop.data.status === 'Rejected'"
-                            severity="danger">{{prop.data.status}}</Badge>
-                     <Badge v-else
-                            severity="success">{{prop.data.status}}</Badge>
+                     {{prop.data.status}}
                  </template>
 
              </Column>
@@ -68,6 +63,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="brand" header="Brand"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -80,6 +76,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="taxonomy_product" header="Taxonomy Product"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">

@@ -119,41 +119,6 @@ const toggleFormMenu = (event) => {
                                  v-model="store.item.is_active"/>
                 </VhField>
 
-                <VhField label="Status">
-                    <Dropdown
-                        v-model="store.item.status"
-                        :options="store.status"
-                        name="products-status"
-                        placeholder="Select a Status"
-                        data-testid="products-status"
-                        :editable="true"/>
-                </VhField>
-
-                <VhField label="Status Notes">
-                    <InputText class="w-full"
-                               placeholder="Enter a Status Note"
-                               name="products-status_notes"
-                               data-testid="products-status_notes"
-                               v-model="store.item.status_notes"/>
-                </VhField>
-
-                <VhField label="In Stock">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="products-in_stock"
-                                 data-testid="products-in_stock"
-                                 v-model="store.item.in_stock"/>
-                </VhField>
-
-                <VhField label="Quantity" v-if="store.item.in_stock">
-                    <InputNumber
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        v-model="store.item.quantity"
-                        mode="decimal" showButtons
-                        :min="1"/>
-                </VhField>
-
                 <VhField label="Brand">
 
                     <AutoComplete
@@ -191,6 +156,43 @@ const toggleFormMenu = (event) => {
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
+                </VhField>
+
+                <VhField label="In Stock">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="products-in_stock"
+                                 data-testid="products-in_stock"
+                                 @change="store.item.in_stock == 1 ? store.item.quantity = store.previous_quantity : store.item.quantity = 0"
+                                 v-model="store.item.in_stock"/>
+                </VhField>
+
+                <VhField label="Quantity">
+                    <InputNumber
+                        :disabled="store.item.in_stock==0"
+                        placeholder="Enter a Quantity"
+                        inputId="minmax-buttons"
+                        v-model="store.item.quantity"
+                        mode="decimal" showButtons
+                        :min="1"/>
+                </VhField>
+
+                <VhField label="Status">
+                    <Dropdown
+                        v-model="store.item.status"
+                        :options="store.status"
+                        name="products-status"
+                        placeholder="Select a Status"
+                        data-testid="products-status"
+                        :editable="true"/>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <InputText class="w-full"
+                               placeholder="Enter a Status Note"
+                               name="products-status_notes"
+                               data-testid="products-status_notes"
+                               v-model="store.item.status_notes"/>
                 </VhField>
 
             </div>
