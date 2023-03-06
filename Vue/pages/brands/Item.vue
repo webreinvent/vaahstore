@@ -155,6 +155,11 @@ const toggleItemMenu = (event) => {
                                        type="user"
                             />
                         </template>
+                        <template v-else-if="column === 'status'">
+                            <VhViewRow :label="column"
+                                       :value="store.item.status.name"
+                            />
+                        </template>
 
                         <template v-else-if="column === 'registered_by'">
                             <VhViewRow :label="column"
@@ -162,13 +167,6 @@ const toggleItemMenu = (event) => {
                                        type="user"
                             />
                         </template>
-
-<!--                        <template v-else-if="column === 'status'">-->
-<!--                            <VhViewRow :label="column"-->
-<!--                                       :value="value"-->
-<!--                                       type="user"-->
-<!--                            />-->
-<!--                        </template>-->
 
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"

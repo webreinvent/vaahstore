@@ -28,7 +28,7 @@ class VhStBrands extends Migration
             $table->dateTime('approved_at')->nullable();
 
             $table->boolean('is_active')->nullable()->index();
-            $table->string('status')->nullable()->index();
+            $table->integer('taxonomy_id_brand_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields

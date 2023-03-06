@@ -86,6 +86,19 @@ export const useBrandStore = defineStore({
                 }
             }, 250);
         },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.status;
+                }
+                else {
+                    this.suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
 
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -202,6 +215,7 @@ export const useBrandStore = defineStore({
             {
                 this.assets = data;
                 this.user = data.user.data
+                this.status = data.status.data
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -249,6 +263,7 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
+                this.item.status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
             }

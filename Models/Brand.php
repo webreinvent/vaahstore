@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 
 class Brand extends Model
@@ -91,6 +92,11 @@ class Brand extends Model
     {
         return $this->hasOne(User::class,'id','registered_by');
     }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','status')->select('id','name');
+    }
 
     //-------------------------------------------------
     public function scopeExclude($query, $columns)
@@ -163,7 +169,7 @@ class Brand extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_by = $inputs['registered_by']['id'];
-        $item->status = $inputs['status'];
+        $item->status = $inputs['status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -218,7 +224,7 @@ class Brand extends Model
             });
         }
 
-        $list = $list->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['user','status'])->paginate(config('vaahcms.per_page'));
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -318,7 +324,7 @@ class Brand extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status'])
             ->withTrashed()
             ->first();
 
@@ -363,7 +369,7 @@ class Brand extends Model
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
         $update->registered_by = $inputs['registered_by']['id'];
-        $update->status = $inputs['status'];
+        $update->status = $inputs['status']['id'];
         $update->save();
 
         //check specific actions
