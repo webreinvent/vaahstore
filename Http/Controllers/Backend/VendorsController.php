@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Store;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 
 
@@ -47,14 +48,16 @@ class VendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['is_default'] = 1;
-            $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['auto_approve_products'] = 1;
+            $data['empty_item']['is_default'] = 0;
+            $data['empty_item']['is_active'] = 0;
+            $data['empty_item']['auto_approve_products'] = 0;
 
             $data['actions'] = [];
             $data['stores'] = Store::where('is_active', 1)->get(['name','id']);
 
-            $data['users'] = User::where('is_active',1)->get(['id','first_name']);
+            $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
+
+            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $response['success'] = true;
             $response['data'] = $data;
