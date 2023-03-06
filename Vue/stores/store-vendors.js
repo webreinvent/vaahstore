@@ -37,11 +37,11 @@ export const useVendorStore = defineStore({
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         all_store_list: null,
-        // all_user_list: null,
+        all_user_list: null,
         store_suggestion_list: null,
         user_suggestion_list: null,
         owned_by_suggestion_list: null,
-        status_option:['Pending','Approved','Rejected'],
+        status_option:null,
         list: null,
         item: null,
         fillable:null,
@@ -192,6 +192,7 @@ export const useVendorStore = defineStore({
                 this.assets = data;
                 this.all_store_list = data.stores;
                 this.all_user_list = data.users;
+                this.status_option = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -212,6 +213,19 @@ export const useVendorStore = defineStore({
                 else {
                     this.store_suggestion_list = this.all_store_list.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion_list = this.status_option;
+                }
+                else {
+                    this.status_suggestion_list = this.status_option.filter((department) => {
+                        return department.name;
                     });
                 }
             }, 250);
@@ -278,6 +292,7 @@ export const useVendorStore = defineStore({
             {
                 this.item = data;
                 this.item.vh_st_store_id = data.store;
+                this.item.taxonomy_id_vendor_status = data.status;
             }else{
                 this.$router.push({name: 'vendors.index'});
             }
@@ -456,6 +471,8 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_store_id = data.store;
+                this.item.taxonomy_id_vendor_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

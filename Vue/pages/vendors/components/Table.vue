@@ -38,6 +38,32 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="store.name" header="Store"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.store.name}}</Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.status.name}}</Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="owned_by.name" header="Owned By"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.owned_by.name}}</Badge>
+                 </template>
+
+             </Column>
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
