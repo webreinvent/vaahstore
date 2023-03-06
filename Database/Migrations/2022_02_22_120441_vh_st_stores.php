@@ -28,7 +28,7 @@ class VhStStores extends Migration
 
             $table->boolean('is_default')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
-            $table->string('status')->nullable()->index();
+            $table->integer('taxonomy_id_store_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields
