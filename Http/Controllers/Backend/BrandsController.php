@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Brand;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class BrandsController extends Controller
@@ -46,6 +47,7 @@ class BrandsController extends Controller
                 $data['empty_item'][$column] = null;
             }
             $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
+            $data['status']=Taxonomy::where([['vh_taxonomy_type_id',6],['is_active',1]])->select('id','name')->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
 
             $response['success'] = true;
