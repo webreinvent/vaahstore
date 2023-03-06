@@ -75,6 +75,17 @@ const props = defineProps({
 
             </td>
         </template>
+        <template v-else-if="type==='userEmail'">
+            <td colspan="2" >
+
+                <template v-if="typeof value === 'object' && value !== null">
+                    <Button  @click="vaah().copy(value.email)"  class="p-button-outlined p-button-secondary p-button-sm">
+                        {{value.name}}
+                    </Button>
+                </template>
+
+            </td>
+        </template>
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
                 <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
