@@ -35,7 +35,8 @@ export const useStoreStore = defineStore({
         assets_is_fetching: true,
         app: null,
         on_off_options: ['no', 'yes'],
-        status_option:['Pending','Approved','Rejected'],
+        status_option:null,
+        status_suggestion_list:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -186,6 +187,7 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status_option = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -217,6 +219,19 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion_list = this.status_option;
+                }
+                else {
+                    this.status_suggestion_list = this.status_option.filter((department) => {
+                        return department.name;
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
 
         async getItem(id) {
             if(id){
@@ -232,6 +247,7 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_store_status = data.status;
             }else{
                 this.$router.push({name: 'store.index'});
             }
@@ -410,6 +426,7 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_store_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

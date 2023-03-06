@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -27,7 +28,7 @@ class Store extends Model
         'uuid',
         'name', 'slug', 'notes', 'is_multi_currency',
         'is_multi_lingual', 'is_multi_vendor', 'allowed_ips',
-        'is_default', 'is_active', 'status',
+        'is_default', 'is_active', 'taxonomy_id_store_status',
         'status_notes', 'meta',
         'is_active',
         'created_by',
@@ -85,6 +86,11 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -121,7 +127,7 @@ class Store extends Model
         $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
-        $item->status = $inputs['status'];
+        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->is_active = true;
         $item->slug = Str::slug($inputs['slug']);
@@ -144,9 +150,13 @@ class Store extends Model
             'is_multi_vendor' => 'required',
             'allowed_ips' => 'required',
             'is_default' => 'required',
-            'status' => 'required',
+            'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required',
-        ]);
+        ],
+        [
+            'taxonomy_id_store_status.required' => 'The Status field is required'
+        ]
+        );
 
         if($validated_data->fails()){
             return [
@@ -244,7 +254,7 @@ class Store extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -426,7 +436,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status'])
             ->withTrashed()
             ->first();
 
@@ -468,7 +478,7 @@ class Store extends Model
         $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
-        $item->status = $inputs['status'];
+        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();

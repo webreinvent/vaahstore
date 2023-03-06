@@ -159,20 +159,17 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status">
-                    <Dropdown
-                        v-model="store.item.status"
-                        :options="store.status_option"
-                        name="brands-status"
-                        placeholder="Select a Status"
-                        data-testid="brands-status"
-                        :editable="true"/>
+                    <AutoComplete v-model="store.item.taxonomy_id_store_status" class="w-full" :suggestions="store.status_suggestion_list" @complete="store.searchStatus($event)" :dropdown="true" optionLabel="name" forceSelection>
+                        <template>
+                            <div class="store-item">
+                                <div class="ml-2">{{store.status_option}}</div>
+                            </div>
+                        </template>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <InputText class="w-full"
-                               name="store-statue-notes"
-                               data-testid="store-statue-notes"
-                               v-model="store.item.status_notes"/>
+                    <Textarea v-model="store.item.status_notes" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
             </div>
