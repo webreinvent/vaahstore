@@ -38,19 +38,29 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="store.name" header="Store"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.store.name}}</Badge>
+                 </template>
+
+             </Column>
+
              <Column field="status" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.status === 'Pending'"
-                            severity="warning">{{prop.data.status}}</Badge>
-                     <Badge v-else-if="prop.data.status === 'Rejected'"
-                            severity="danger">{{prop.data.status}}</Badge>
-                     <Badge v-else
-                            severity="success">{{prop.data.status}}</Badge>
+                     <Badge>{{prop.data.status.name}}</Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="owned_by.name" header="Owned By"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.owned_by.name}}</Badge>
                  </template>
 
              </Column>
