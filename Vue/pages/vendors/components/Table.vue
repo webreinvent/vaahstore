@@ -70,6 +70,15 @@ const useVaah = vaah();
 
              </Column>
 
+             <Column field="owned_by.name" header="Owned By"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge>{{prop.data.owned_by.name}}</Badge>
+                 </template>
+
+             </Column>
+
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
