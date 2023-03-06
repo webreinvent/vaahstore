@@ -111,13 +111,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="products-active"
-                                 data-testid="products-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+
 
                 <VhField label="Brand">
 
@@ -158,6 +152,14 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+                <VhField label="Is Active">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="products-active"
+                                 data-testid="products-active"
+                                 v-model="store.item.is_active"/>
+                </VhField>
+
                 <VhField label="In Stock">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
@@ -176,21 +178,24 @@ const toggleFormMenu = (event) => {
                         :min="1"/>
                 </VhField>
 
+
                 <VhField label="Status">
-                    <Dropdown
+                    <AutoComplete
                         v-model="store.item.status"
-                        :options="store.status"
-                        name="products-status"
-                        placeholder="Select a Status"
-                        data-testid="products-status"
-                        :editable="true"/>
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <InputText class="w-full"
+                    <Textarea class="w-full"
                                placeholder="Enter a Status Note"
                                name="products-status_notes"
                                data-testid="products-status_notes"
+                              :autoResize="true"
                                v-model="store.item.status_notes"/>
                 </VhField>
 

@@ -77,6 +77,12 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name');
+    }
+
+    //-------------------------------------------------
     public function taxonomyProduct()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name');
@@ -153,23 +159,32 @@ class Product extends Model
         }
 
         $item = new self();
-        $item->fill($inputs);
+//        $item->fill($inputs);
+        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        $item->status = $inputs['status'];
         $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+
+        $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_product_status = $inputs['status']['id'];
         if(is_string($inputs['brand']['name'])){
             $item->vh_st_brand_id = $inputs['brand']['id'];
         }
         if(is_string($inputs['store']['name'])){
             $item->vh_st_store_id = $inputs['store']['id'];
         }
+
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
+        }else{
+            $item->quantity = $inputs['quantity'];
+            $item->in_stock = $inputs['in_stock'];
         }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
+
+
         $item->save();
 
         $response = self::getItem($item->id);
@@ -258,7 +273,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','taxonomyProduct');
+        $list = self::getSorted($request->filter)->with('brand','store','taxonomyProduct','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -440,7 +455,7 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','taxonomyProduct'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','taxonomyProduct','status'])
             ->withTrashed()
             ->first();
 
@@ -489,9 +504,9 @@ class Product extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+//        $item->fill($inputs);
+        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        $item->status = $inputs['status'];
         if(is_string($inputs['brand']['name'])){
             $item->vh_st_brand_id = $inputs['brand']['id'];
         }else{
@@ -503,9 +518,15 @@ class Product extends Model
             $item->vh_st_store_id = $inputs['store']['name']['id'];
         }
         $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+        $item->taxonomy_id_product_status = $inputs['status']['id'];
+        $item->status_notes = $inputs['status_notes'];
+
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1';
             return $response;
+        }else{
+            $item->quantity = $inputs['quantity'];
+            $item->in_stock = $inputs['in_stock'];
         }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
@@ -568,7 +589,7 @@ class Product extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
+            'status'=> 'required',
             'status_notes'=> 'required|max:150',
             'in_stock'=> 'required|numeric',
             'brand'=> 'required',

@@ -107,6 +107,20 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.status;
+                }
+                else {
+                    this.suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -236,6 +250,7 @@ export const useProductStore = defineStore({
                 this.brand = data.brand.data
                 this.store = data.store.data
                 this.taxonomy_product = data.taxonomy_product.data
+                this.status = data.status.data
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

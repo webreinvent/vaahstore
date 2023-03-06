@@ -53,6 +53,7 @@ class ProductsController extends Controller
             $data['brand']=Brand::select('id','name')->paginate(config('vaahcms.per_page'));
             $data['store']=Store::where('is_active',1)->select('id','name')->paginate(config('vaahcms.per_page'));
             $data['taxonomy_product']=Taxonomy::where([['vh_taxonomy_type_id',5],['is_active',1]])->select('id','name')->paginate(config('vaahcms.per_page'));
+            $data['status']=Taxonomy::where([['vh_taxonomy_type_id',6],['is_active',1]])->select('id','name')->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
 
             $response['success'] = true;
