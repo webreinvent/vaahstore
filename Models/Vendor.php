@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -29,7 +30,7 @@ class Vendor extends Model
         'owned_by', 'registered_at',
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
-        'status', 'status_notes', 'meta',
+        'taxonomy_id_vendor_status', 'status_notes', 'meta',
         'is_active',
         'created_by',
         'updated_by',
@@ -111,12 +112,17 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public function approvedBy(){
-        return $this->hasOne(User::class, 'id', 'approved_by')->select(['id','first_name']);
+        return $this->hasOne(User::class, 'id', 'approved_by')->select(['id','first_name','email']);
     }
 
     //-------------------------------------------------
     public function ownedBy(){
-        return $this->hasOne(User::class, 'id', 'owned_by')->select(['id','first_name']);
+        return $this->hasOne(User::class, 'id', 'owned_by')->select(['id','first_name', 'email']);
+    }
+
+    //-------------------------------------------------
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name']);
     }
 
     //-------------------------------------------------
@@ -139,7 +145,7 @@ class Vendor extends Model
         $item->owned_by  = $inputs['owned_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
         $item->is_default = $inputs['is_default'];
-        $item->status = $inputs['status'];
+        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->is_active = $inputs['is_active'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
@@ -163,12 +169,13 @@ class Vendor extends Model
             'auto_approve_products' => 'required',
             'approved_by' => 'required',
             'is_default' => 'required',
-            'status' => 'required',
+            'taxonomy_id_vendor_status' => 'required',
             'status_notes' => 'required',
             'is_active' => 'required'
         ],
             [
                 'vh_st_store_id.required' => 'The Store field is required',
+                'taxonomy_id_vendor_status.required' => 'The Status field is required',
             ]
         );
 
@@ -268,7 +275,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with(['store', 'approvedBy', 'ownedBy', 'status']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -450,7 +457,7 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy', 'status'])
             ->withTrashed()
             ->first();
 
@@ -485,7 +492,7 @@ class Vendor extends Model
         $item->owned_by  = $inputs['owned_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
         $item->is_default = $inputs['is_default'];
-        $item->status = $inputs['status'];
+        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->is_active = $inputs['is_active'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
