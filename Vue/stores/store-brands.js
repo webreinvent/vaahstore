@@ -263,7 +263,7 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
-                this.item.status = data.status;
+                this.item.taxonomy_id_brand_status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
             }
