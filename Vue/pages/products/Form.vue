@@ -144,6 +144,8 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.taxonomy_product"
                         class="w-full"
+                        data-testid="products-taxonomy_product"
+                        name="products-taxonomy_product"
                         :suggestions="store.suggestion"
                         @complete="store.searchTaxonomyProduct($event)"
                         placeholder="Select Taxonomy Product"
@@ -173,8 +175,10 @@ const toggleFormMenu = (event) => {
                         :disabled="store.item.in_stock==0"
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
+                        name="products-quantity"
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
+                        data-testid="products-quantity"
                         :min="1"/>
                 </VhField>
 
@@ -183,10 +187,13 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.status"
                         class="w-full"
+                        name="products-status"
                         :suggestions="store.suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="name"
+                        data-testid="products-status"
+                        forceSelection>
                     </AutoComplete>
                 </VhField>
 
