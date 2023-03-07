@@ -214,7 +214,7 @@ export const useBrandStore = defineStore({
             {
                 this.assets = data;
                 this.user = data.user.data
-                this.status = data.status.data
+                this.status = data.status
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
