@@ -31,7 +31,7 @@ class Brand extends Model
         'uuid',
         'name', 'slug', 'registered_by', 'registered_at',
         'approved_by', 'approved_at', 'is_active',
-        'status', 'status_notes', 'meta',
+        'taxonomy_id_brand_status', 'status_notes', 'meta',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -95,7 +95,7 @@ class Brand extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','status')->select('id','name');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name');
     }
 
     //-------------------------------------------------
@@ -169,7 +169,7 @@ class Brand extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_by = $inputs['registered_by']['id'];
-        $item->status = $inputs['status']['id'];
+        $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -369,7 +369,7 @@ class Brand extends Model
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
         $update->registered_by = $inputs['registered_by']['id'];
-        $update->status = $inputs['status']['id'];
+        $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $update->save();
 
         //check specific actions
@@ -421,9 +421,10 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
+            'taxonomy_id_brand_status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
-            'registered_at'=> 'required|before:tomorrow'
+            'registered_at'=> 'required',
+            'registered_by'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
