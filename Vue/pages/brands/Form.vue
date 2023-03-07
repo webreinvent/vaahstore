@@ -119,7 +119,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.suggestion"
                         @complete="store.searchUser($event)"
                         placeholder="Select User"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
@@ -158,7 +158,6 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status Notes">
                     <Textarea class="w-full"
-                               placeholder="Enter a Status Note"
                                name="brands-status_notes"
                                data-testid="brands-status_notes"
                               :autoResize="true"
