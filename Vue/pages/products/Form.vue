@@ -121,6 +121,8 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.suggestion"
                         @complete="store.searchBrand($event)"
                         placeholder="Select Brand"
+                        data-testid="products-brand"
+                        name="products-brand"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
@@ -134,6 +136,8 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.suggestion"
                         @complete="store.searchStore($event)"
                         placeholder="Select Store"
+                        data-testid="products-store"
+                        name="products-store"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
