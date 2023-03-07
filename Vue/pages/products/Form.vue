@@ -139,7 +139,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Taxonomy Product">
+                <VhField label="Type">
 
                     <AutoComplete
                         v-model="store.item.taxonomy_product"
@@ -195,7 +195,6 @@ const toggleFormMenu = (event) => {
                                placeholder="Enter a Status Note"
                                name="products-status_notes"
                                data-testid="products-status_notes"
-                              :autoResize="true"
                                v-model="store.item.status_notes"/>
                 </VhField>
 

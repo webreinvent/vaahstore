@@ -38,18 +38,6 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.status.name}}
-                 </template>
-
-             </Column>
-
              <Column field="store" header="Store"
                      :sortable="true">
 
@@ -75,7 +63,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="taxonomy_product" header="Taxonomy Product"
+             <Column field="taxonomy_product" header="Type"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -112,6 +100,20 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.quantity > 0"
                             :value="prop.data.quantity"
                             severity="success"></Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge
+                         severity="primary">{{prop.data.status.name}}</Badge>
+
                  </template>
 
              </Column>
