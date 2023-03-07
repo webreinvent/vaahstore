@@ -175,4 +175,7 @@ const toggleFormMenu = (event) => {
 #pv_id_5_panel{
     width: 400px;
 }
+.p-datepicker{
+    width: 400px;
+}
 </style>
