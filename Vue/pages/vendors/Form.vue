@@ -110,7 +110,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Store">
-                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
+                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" data-testid="vendors-vh_st_store_id" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
                         <template>
                             <div class="store-item">
                                 <div class="ml-2">{{store.all_store_list}}</div>
@@ -120,7 +120,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Approve By">
-                    <AutoComplete v-model="store.item.approved_by" class="w-full" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>
+                    <AutoComplete v-model="store.item.approved_by" class="w-full" data-testid="vendors-approved_by" name="vendors-approved_by" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>
                         <template>
                             <div class="store-item">
                                 <div class="ml-2">{{store.all_user_list}}</div>
@@ -130,7 +130,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status" class="w-full" :suggestions="store.status_suggestion_list" @complete="store.searchStatus($event)" :dropdown="true" optionLabel="name" forceSelection>
+                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status" data-testid="vendors-taxonomy_id_vendor_status" name="vendors-taxonomy_id_vendor_status" class="w-full" :suggestions="store.status_suggestion_list" @complete="store.searchStatus($event)" :dropdown="true" optionLabel="name" forceSelection>
                         <template>
                             <div class="store-item">
                                 <div class="ml-2">{{store.status_option}}</div>
@@ -141,11 +141,11 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes" rows="5" cols="30" />
+                    <Textarea v-model="store.item.status_notes" rows="5" cols="30" data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
 
                 <VhField label="Owned By">
-                    <AutoComplete v-model="store.item.owned_by" class="w-full" :suggestions="store.owned_by_suggestion_list" @complete="store.searchOwnedBy($event)" :dropdown="true" optionLabel="name" forceSelection>
+                    <AutoComplete v-model="store.item.owned_by" class="w-full" data-testid="vendors-owned_by" name="vendors-owned_by" :suggestions="store.owned_by_suggestion_list" @complete="store.searchOwnedBy($event)" :dropdown="true" optionLabel="name" forceSelection>
                         <template>
                             <div class="store-item">
                                 <div class="ml-2">{{store.all_user_list}}</div>
@@ -167,15 +167,15 @@ const toggleFormMenu = (event) => {
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="vendors-auto-approve-products"
-                                 data-testid="vendors-auto-approve-products"
+                                 data-testid="vendors-auto_approve_products"
                                  v-model="store.item.auto_approve_products"/>
                 </VhField>
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="vendors-active"
-                                 data-testid="vendors-active"
+                                 name="vendors-is_active"
+                                 data-testid="vendors-is_active"
                                  v-model="store.item.is_active"/>
                 </VhField>
 
