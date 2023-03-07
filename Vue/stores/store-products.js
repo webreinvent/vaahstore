@@ -249,8 +249,8 @@ export const useProductStore = defineStore({
                 this.assets = data;
                 this.brand = data.brand.data
                 this.store = data.store.data
-                this.taxonomy_product = data.taxonomy_product.data
-                this.status = data.status.data
+                this.taxonomy_product = data.taxonomy_product
+                this.status = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
