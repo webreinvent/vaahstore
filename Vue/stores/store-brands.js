@@ -36,7 +36,6 @@ export const useBrandStore = defineStore({
         app: null,
         user:null,
         suggestion:null,
-        status:['Pending','Approved','Rejected'],
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
