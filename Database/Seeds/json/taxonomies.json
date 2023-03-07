@@ -23,5 +23,53 @@
     {
         "type_slug": "product-types",
         "name": "Voucher"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Pending store"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Approved store"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Rejected store"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Pending vendor"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Approved vendor"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Rejected vendor"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Pending brand"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Approved brand"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Rejected brand"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Pending product"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Approved product"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Rejected product"
     }
 ]
