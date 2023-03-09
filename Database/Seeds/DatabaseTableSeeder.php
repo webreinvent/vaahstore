@@ -3,6 +3,9 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Store;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class DatabaseTableSeeder extends Seeder
@@ -26,6 +29,7 @@ class DatabaseTableSeeder extends Seeder
     {
         $this->seedTaxonomyTypes();
         $this->seedTaxonomies();
+        $this->seedDefaultStore();
     }
 
     //---------------------------------------------------------------
@@ -40,6 +44,22 @@ class DatabaseTableSeeder extends Seeder
     {
         $json_file_path = __DIR__."/json/taxonomy_types.json";
         VaahSeeder::taxonomyTypes($json_file_path);
+    }
+    //---------------------------------------------------------------
+    public function seedDefaultStore()
+    {
+        $status = Taxonomy::getTaxonomyByType('store-status')->first();
+        $item = new Store;
+        $item->name = 'Default Store';
+        $item->is_multi_currency  = 1;
+        $item->is_multi_lingual  = 1;
+        $item->is_multi_vendor  = 1;
+        $item->is_default = 1;
+        $item->taxonomy_id_store_status = $status->id;
+        $item->status_notes = 'Default store Status';
+        $item->is_active = 1;
+        $item->slug = Str::slug('Default Store');
+        $item->save();
     }
     //---------------------------------------------------------------
 

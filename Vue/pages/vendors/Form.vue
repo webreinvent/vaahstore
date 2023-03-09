@@ -110,33 +110,53 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Store">
-                    <AutoComplete v-model="store.item.vh_st_store_id" class="w-full" data-testid="vendors-vh_st_store_id" :suggestions="store.store_suggestion_list" @complete="store.searchStore($event)" :dropdown="true" optionLabel="name" forceSelection>
-                        <template>
-                            <div class="store-item">
-                                <div class="ml-2">{{store.all_store_list}}</div>
+                    <AutoComplete v-model="store.item.vh_st_store_id"
+                                  class="w-full"
+                                  data-testid="vendors-vh_st_store_id"
+                                  :suggestions="store.store_suggestion_list"
+                                  @complete="store.searchStore($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection >
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
                             </div>
                         </template>
                     </AutoComplete>
                 </VhField>
 
                 <VhField label="Approve By">
-                    <AutoComplete v-model="store.item.approved_by" class="w-full" data-testid="vendors-approved_by" name="vendors-approved_by" :suggestions="store.user_suggestion_list" @complete="store.searchUser($event)" :dropdown="true" optionLabel="first_name" forceSelection>
-                        <template>
-                            <div class="store-item">
-                                <div class="ml-2">{{store.all_user_list}}</div>
+                    <AutoComplete v-model="store.item.approved_by"
+                                  :disabled="store.disable_approved_by"
+                                  class="w-full"
+                                  data-testid="vendors-approved_by"
+                                  name="vendors-approved_by"
+                                  :suggestions="store.approved_by_suggestion_list"
+                                  @complete="store.searchApprovedBy($event)"
+                                  :dropdown="true"
+                                  optionLabel="first_name"
+                                  forceSelection >
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}  </div>
+                                <span>&nbsp;-&nbsp;{{slotProps.option.email}}</span>
                             </div>
                         </template>
                     </AutoComplete>
+
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status" data-testid="vendors-taxonomy_id_vendor_status" name="vendors-taxonomy_id_vendor_status" class="w-full" :suggestions="store.status_suggestion_list" @complete="store.searchStatus($event)" :dropdown="true" optionLabel="name" forceSelection>
-                        <template>
-                            <div class="store-item">
-                                <div class="ml-2">{{store.status_option}}</div>
-                            </div>
-                        </template>
-                    </AutoComplete>
+                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status"
+                                  data-testid="vendors-taxonomy_id_vendor_status"
+                                  name="vendors-taxonomy_id_vendor_status"
+                                  class="w-full"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection />
 
                 </VhField>
 
@@ -145,13 +165,23 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Owned By">
-                    <AutoComplete v-model="store.item.owned_by" class="w-full" data-testid="vendors-owned_by" name="vendors-owned_by" :suggestions="store.owned_by_suggestion_list" @complete="store.searchOwnedBy($event)" :dropdown="true" optionLabel="name" forceSelection>
-                        <template>
-                            <div class="store-item">
-                                <div class="ml-2">{{store.all_user_list}}</div>
+                    <AutoComplete v-model="store.item.owned_by"
+                                  class="w-full"
+                                  data-testid="vendors-owned_by"
+                                  name="vendors-owned_by"
+                                  :suggestions="store.owned_by_suggestion_list"
+                                  @complete="store.searchOwnedBy($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection >
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}  </div>
+                                <span>&nbsp;-&nbsp;{{slotProps.option.email}}</span>
                             </div>
                         </template>
                     </AutoComplete>
+
                 </VhField>
 
 

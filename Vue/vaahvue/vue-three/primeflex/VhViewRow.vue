@@ -46,6 +46,24 @@ const props = defineProps({
 
             </td>
         </template>
+        <template v-else-if="type==='status'">
+            <td colspan="2" >
+                <template v-if="typeof value === 'object' && value !== null">
+                    <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.id)" severity="success">
+                        {{value.name}}
+                    </Tag>
+                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.id)" severity="warning">
+                        {{value.name}}
+                    </Tag>
+                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.id)" severity="danger">
+                        {{value.name}}
+                    </Tag>
+                    <Tag v-else @click="vaah().copy(value.id)" severity="primary">
+                        {{value.name}}
+                    </Tag>
+                </template>
+            </td>
+        </template>
         <template v-else-if="type==='userEmail'">
             <td colspan="2" >
 
