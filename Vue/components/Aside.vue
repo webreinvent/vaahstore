@@ -24,11 +24,6 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/brands"
             },
-            {
-                label: 'Store',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/store"
-            },
         ]
     },
 ]);
