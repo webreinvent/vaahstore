@@ -62,6 +62,16 @@ const useVaah = vaah();
                  </template>
              </Column>
 
+             <Column field="approved_by" header="Approved By"
+                     :sortable="true">
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.approved_by.name}}
+                 </template>
+             </Column>
+
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"

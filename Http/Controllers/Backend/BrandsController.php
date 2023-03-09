@@ -50,7 +50,13 @@ class BrandsController extends Controller
             $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
             $data['status'] = Taxonomy::getTaxonomyByType('brand-status');
-            $data['approved_by'] = auth()->user()->paginate(config('vaahcms.per_page'));
+
+            $active_user = auth()->user();
+            $approved_by['id'] = $active_user->id;
+            $approved_by['name'] = $active_user->first_name;
+            $approved_by['email'] = $active_user->email;
+            $data['empty_item']['approved_by'] = $approved_by;
+//            $data['approved_by_default'] = auth()->user();
 
             $response['success'] = true;
             $response['data'] = $data;
