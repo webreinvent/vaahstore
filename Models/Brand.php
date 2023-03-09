@@ -90,12 +90,16 @@ class Brand extends Model
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','registered_by');
+        return $this->hasOne(User::class,'id','registered_by','approved_by');
+    }
+    public function approvedBy()
+    {
+        return $this->hasOne(User::class,'id','approved_by');
     }
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -169,6 +173,7 @@ class Brand extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_by = $inputs['registered_by']['id'];
+        $item->approved_by = $inputs['approved_by']['id'];
         $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $item->save();
 
@@ -224,7 +229,7 @@ class Brand extends Model
             });
         }
 
-        $list = $list->with(['user','status'])->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['user','status','approvedBy'])->paginate(config('vaahcms.per_page'));
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -324,7 +329,7 @@ class Brand extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','approvedBy'])
             ->withTrashed()
             ->first();
 
@@ -369,6 +374,7 @@ class Brand extends Model
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
         $update->registered_by = $inputs['registered_by']['id'];
+        $update->approved_by = $inputs['approved_by']['id'];
         $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $update->save();
 
@@ -424,7 +430,9 @@ class Brand extends Model
             'taxonomy_id_brand_status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
             'registered_at'=> 'required',
-            'registered_by'=> 'required'
+            'approved_at'=> 'required',
+            'registered_by'=> 'required',
+            'approved_by'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
