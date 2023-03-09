@@ -116,9 +116,13 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.registered_by"
                         class="w-full"
+                        name="brands-registered_by"
+                        id="registered_by"
+                        value="registered_by"
+                        data-testid="brands-registered_by"
                         :suggestions="store.suggestion"
-                        @complete="store.searchUser($event)"
-                        placeholder="Select User"
+                        @complete="store.searchRegisteredBy($event)"
+                        placeholder="Select Registered By"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
@@ -130,11 +134,39 @@ const toggleFormMenu = (event) => {
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
-                              data-testid="blogs-registered_at"
+                              data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
                               placeholder="Select date"
                               v-model="store.item.registered_at"></Calendar>
+                </VhField>
+
+                <VhField label="Approved By">
+                    <AutoComplete
+                        v-model="store.item.approved_by"
+                        class="w-full"
+                        name="brands-approved_by"
+                        id="approved_by"
+                        value="approved_by"
+                        data-testid="brands-approved_by"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchApprovedBy($event)"
+                        placeholder="Select Approved by"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Approved at" >
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              name="brands-approved_at"
+                              id="approved_at"
+                              value="approved_at"
+                              data-testid="brands-approved_at"
+                              dateFormat="yy-mm-dd"
+                              :showTime="true" :showSeconds="true"
+                              placeholder="Select date"
+                              v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
                 <VhField label="Is Active">

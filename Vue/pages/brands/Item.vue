@@ -137,7 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'taxonomy_id_brand_status' || column === 'updated_by' ||
+                        <template v-if="column === 'created_by' || column === 'status' || column === 'updated_by' ||
                          column === 'user'">
                         </template>
 
@@ -155,13 +155,20 @@ const toggleItemMenu = (event) => {
                                        type="user"
                             />
                         </template>
-                        <template v-else-if="column === 'status'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.status.name"
+                        <template v-else-if="column === 'taxonomy_id_brand_status'">
+                            <VhViewRow label="Status"
+                                       :value="value"
+                                       type="status"
                             />
                         </template>
 
                         <template v-else-if="column === 'registered_by'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
+                            />
+                        </template>
+                        <template v-else-if="column === 'approved_by'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"

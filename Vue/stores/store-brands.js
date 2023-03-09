@@ -35,6 +35,7 @@ export const useBrandStore = defineStore({
         assets_is_fetching: true,
         app: null,
         user:null,
+        approved_by_user:null,
         suggestion:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
@@ -73,7 +74,7 @@ export const useBrandStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchUser(event) {
+        searchRegisteredBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
                     this.suggestion = this.user;
@@ -81,6 +82,20 @@ export const useBrandStore = defineStore({
                 else {
                     this.suggestion= this.user.filter((user) => {
                         return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchApprovedBy(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.approved_by_user;
+                }
+                else {
+                    this.suggestion= this.approved_by_user.filter((approved_by_user) => {
+                        return approved_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -214,6 +229,7 @@ export const useBrandStore = defineStore({
             {
                 this.assets = data;
                 this.user = data.user.data
+                this.approved_by_user = data.approved_by.data
                 this.status = data.status
                 if(data.rows)
                 {
@@ -262,6 +278,7 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
+                this.item.approved_by = data.approved_by;
                 this.item.taxonomy_id_brand_status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
@@ -442,6 +459,7 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
+                this.item.approved_by = data.approved_by;
                 this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();

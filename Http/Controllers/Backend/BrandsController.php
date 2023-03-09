@@ -46,9 +46,11 @@ class BrandsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
+
             $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
             $data['status'] = Taxonomy::getTaxonomyByType('brand-status');
+            $data['approved_by'] = auth()->user()->paginate(config('vaahcms.per_page'));
 
             $response['success'] = true;
             $response['data'] = $data;
