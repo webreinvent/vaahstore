@@ -440,7 +440,10 @@ export const useBrandStore = defineStore({
         {
             if(data)
             {
+                console.log(data)
                 this.item = data;
+                this.item.registered_by = data.user;
+                this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

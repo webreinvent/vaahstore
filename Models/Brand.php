@@ -385,10 +385,10 @@ class Brand extends Model
             }
         }
 
-
+        $response = self::getItem($update->id);
         $response['success'] = true;
-        $response['data'] = $update;
-        $response['messages'][] = 'Record has been updated';
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
 
         return $response;
 
