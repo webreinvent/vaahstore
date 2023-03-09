@@ -140,7 +140,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Select date"
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
-
+<!--                :disabled="store.disable_approved_by"-->
                 <VhField label="Approved By">
                     <AutoComplete
                         v-model="store.item.approved_by"

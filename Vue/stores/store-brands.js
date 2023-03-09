@@ -35,6 +35,7 @@ export const useBrandStore = defineStore({
         assets_is_fetching: true,
         app: null,
         user:null,
+        disable_approved_by:true,
         approved_by_user:null,
         suggestion:null,
         assets: null,
@@ -178,7 +179,10 @@ export const useBrandStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
+                        this.disable_approved_by = false;
                         this.getItem(newVal.params.id);
+                    }else{
+                        this.disable_approved_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -229,8 +233,9 @@ export const useBrandStore = defineStore({
             {
                 this.assets = data;
                 this.user = data.user.data
-                this.approved_by_user = data.approved_by.data
+                this.approved_by_user = data.user.data
                 this.status = data.status
+                this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -278,7 +283,7 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
-                this.item.approved_by = data.approved_by;
+                this.approved_by = data.approved_by;
                 this.item.taxonomy_id_brand_status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
@@ -460,7 +465,7 @@ export const useBrandStore = defineStore({
                 console.log(data)
                 this.item = data;
                 this.item.registered_by = data.user;
-                this.item.approved_by = data.approved_by;
+                this.approved_by = data.approved_by;
                 this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
@@ -556,6 +561,12 @@ export const useBrandStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+        },
+        //---------------------------------------------------------------------
+        setDefaultApprovedBy(data)
+        {
+            // this.item.approved_by = data.approved_by;
+            console.log(data.approved_by_default)
         },
         //---------------------------------------------------------------------
         confirmDelete()
