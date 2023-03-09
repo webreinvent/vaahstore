@@ -26,19 +26,19 @@
     },
     {
         "type_slug": "store-status",
-        "name": "Pending store"
+        "name": "Pending"
     },
     {
         "type_slug": "store-status",
-        "name": "Approved store"
+        "name": "Approved"
     },
     {
         "type_slug": "store-status",
-        "name": "Rejected store"
+        "name": "Rejected"
     },
     {
         "type_slug": "vendor-status",
-        "name": "Pending vendor"
+        "name": "Pending"
     },
     {
         "type_slug": "vendor-status",
@@ -50,26 +50,26 @@
     },
     {
         "type_slug": "brand-status",
-        "name": "Pending brand"
+        "name": "Pending"
     },
     {
         "type_slug": "brand-status",
-        "name": "Approved brand"
+        "name": "Approved"
     },
     {
         "type_slug": "brand-status",
-        "name": "Rejected brand"
+        "name": "Rejected"
     },
     {
         "type_slug": "product-status",
-        "name": "Pending product"
+        "name": "Pending"
     },
     {
         "type_slug": "product-status",
-        "name": "Approved product"
+        "name": "Approved"
     },
     {
         "type_slug": "product-status",
-        "name": "Rejected product"
+        "name": "Rejected"
     }
 ]

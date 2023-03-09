@@ -139,8 +139,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by'
                         || column === 'vh_st_brand_id' || column === 'updated_by'
-                        || column === 'vh_st_store_id' || column === 'taxonomy_id_product_type'
-                        || column === 'taxonomy_id_product_status'">
+                        || column === 'vh_st_store_id' || column === 'taxonomy_id_product_type'||column === 'status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -180,10 +179,10 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'status'">
+                        <template v-else-if="column === 'taxonomy_id_product_status'">
                             <VhViewRow :label="column"
                                        :value="store.item.status"
-                                       type="user"
+                                       type="status"
                             />
                         </template>
 

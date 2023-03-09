@@ -79,7 +79,7 @@ class Product extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
