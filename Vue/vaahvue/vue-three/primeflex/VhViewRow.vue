@@ -53,6 +53,12 @@ const props = defineProps({
                     <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.id)" severity="success">
                         {{value.name}}
                     </Tag>
+                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.id)" severity="warning">
+                        {{value.name}}
+                    </Tag>
+                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.id)" severity="danger">
+                        {{value.name}}
+                    </Tag>
                     <Tag v-else @click="vaah().copy(value.id)" severity="primary">
                         {{value.name}}
                     </Tag>
