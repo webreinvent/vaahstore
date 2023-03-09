@@ -107,7 +107,7 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public function store(){
-        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name']);
+        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default']);
     }
 
     //-------------------------------------------------
@@ -122,7 +122,7 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name']);
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
     }
 
     //-------------------------------------------------

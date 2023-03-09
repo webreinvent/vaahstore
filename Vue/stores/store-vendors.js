@@ -39,9 +39,10 @@ export const useVendorStore = defineStore({
         all_store_list: null,
         all_user_list: null,
         store_suggestion_list: null,
-        user_suggestion_list: null,
+        approved_by_suggestion_list: null,
         owned_by_suggestion_list: null,
         status_option:null,
+        disable_approved_by:true,
         list: null,
         item: null,
         fillable:null,
@@ -140,7 +141,10 @@ export const useVendorStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
+                        this.disable_approved_by = false;
                         this.getItem(newVal.params.id);
+                    }else{
+                        this.disable_approved_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -193,6 +197,7 @@ export const useVendorStore = defineStore({
                 this.all_store_list = data.stores;
                 this.all_user_list = data.users;
                 this.status_option = data.status;
+                this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -231,13 +236,13 @@ export const useVendorStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchUser(event) {
+        searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.user_suggestion_list = this.all_user_list;
+                    this.approved_by_suggestion_list = this.all_user_list;
                 }
                 else {
-                    this.user_suggestion_list = this.all_user_list.filter((department) => {
+                    this.approved_by_suggestion_list = this.all_user_list.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
