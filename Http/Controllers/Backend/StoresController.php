@@ -53,7 +53,7 @@ class StoresController extends Controller
         $data['empty_item']['is_multi_lingual'] = 'no';
         $data['empty_item']['is_multi_vendor'] = 'no';
         $data['empty_item']['is_default'] = false;
-        $data['empty_item']['is_active'] = 'no';
+        $data['empty_item']['is_active'] = true;
 
         $data['status'] = Taxonomy::getTaxonomyByType('store-status');
 

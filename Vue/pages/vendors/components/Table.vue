@@ -42,18 +42,23 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge>{{prop.data.store.name}}</Badge>
+                     <Badge>{{prop.data.store.name}} <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span></Badge>
                  </template>
 
              </Column>
 
              <Column field="status" header="Status"
                      :sortable="true">
-
                  <template #body="prop">
-                     <Badge>{{prop.data.status.name}}</Badge>
-                 </template>
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else
+                            severity="primary"> {{prop.data.status.name}} </Badge>
 
+                 </template>
              </Column>
 
              <Column field="owned_by.name" header="Owned By"

@@ -87,7 +87,7 @@ class Store extends Model
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name']);
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name', 'slug']);
     }
 
     //-------------------------------------------------
@@ -120,6 +120,10 @@ class Store extends Model
 
         $inputs = $validation_result['data'];
 
+        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::removePreviousDefaults();
+        }
+
         $item = new self();
         $item->name = $inputs['name'];
         $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
@@ -129,7 +133,7 @@ class Store extends Model
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
-        $item->is_active = true;
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -139,6 +143,11 @@ class Store extends Model
 
     }
 
+    //-------------------------------------------------
+    public static function removePreviousDefaults(){
+        self::where('is_default', 1)
+            ->update(['is_default' => 0]);
+    }
     //-------------------------------------------------
     public static function storeInputValidator($requestData){
 
@@ -152,6 +161,7 @@ class Store extends Model
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required',
+            'is_active' => 'required'
         ],
         [
             'taxonomy_id_store_status.required' => 'The Status field is required'
@@ -470,6 +480,10 @@ class Store extends Model
         }
 
         $inputs = $validation_result['data'];
+
+        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::removePreviousDefaults();
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];

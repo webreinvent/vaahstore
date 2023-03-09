@@ -49,15 +49,24 @@ class VendorsController extends Controller
             }
 
             $data['empty_item']['is_default'] = 0;
-            $data['empty_item']['is_active'] = 0;
+            $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
 
             $data['actions'] = [];
-            $data['stores'] = Store::where('is_active', 1)->get(['name','id']);
+            $data['stores'] = Store::where('is_active', 1)->get(['name','id', 'is_default']);
 
             $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
 
             $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
+
+            $data['status'] = Taxonomy::getTaxonomyByType('store-status');
+
+            $active_user = auth()->user();
+            $approved_by['id'] = $active_user->id;
+            $approved_by['first_name'] = $active_user->first_name;
+            $approved_by['email'] = $active_user->email;
+
+            $data['empty_item']['approved_by'] = $approved_by;
 
             $response['success'] = true;
             $response['data'] = $data;
