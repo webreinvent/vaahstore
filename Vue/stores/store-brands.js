@@ -214,7 +214,7 @@ export const useBrandStore = defineStore({
             {
                 this.assets = data;
                 this.user = data.user.data
-                this.status = data.status.data
+                this.status = data.status
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -441,6 +441,8 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.registered_by = data.user;
+                this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
