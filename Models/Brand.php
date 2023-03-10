@@ -5,8 +5,9 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 
 class Brand extends Model
 {
@@ -30,7 +31,7 @@ class Brand extends Model
         'uuid',
         'name', 'slug', 'registered_by', 'registered_at',
         'approved_by', 'approved_at', 'is_active',
-        'status', 'status_notes', 'meta',
+        'taxonomy_id_brand_status', 'status_notes', 'meta',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -87,6 +88,21 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class,'id','registered_by','approved_by');
+    }
+    public function approvedBy()
+    {
+        return $this->hasOne(User::class,'id','approved_by');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
@@ -97,6 +113,7 @@ class Brand extends Model
     {
         return $query->where('is_active', 1);
     }
+
     //-------------------------------------------------
     public function scopeIsDefault($query, Store $store)
     {
@@ -155,6 +172,9 @@ class Brand extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->registered_by = $inputs['registered_by']['id'];
+        $item->approved_by = $inputs['approved_by']['id'];
+        $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -167,8 +187,6 @@ class Brand extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-
-
         if (isset($request->sort)) {
 
             $sort = $request->sort;
@@ -211,7 +229,7 @@ class Brand extends Model
             });
         }
 
-        $list = $list->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['user','status','approvedBy'])->paginate(config('vaahcms.per_page'));
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -311,7 +329,7 @@ class Brand extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','approvedBy'])
             ->withTrashed()
             ->first();
 
@@ -355,6 +373,9 @@ class Brand extends Model
         $update = self::where('id', $id)->withTrashed()->first();
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
+        $update->registered_by = $inputs['registered_by']['id'];
+        $update->approved_by = $inputs['approved_by']['id'];
+        $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $update->save();
 
         //check specific actions
@@ -370,10 +391,10 @@ class Brand extends Model
             }
         }
 
-
+        $response = self::getItem($update->id);
         $response['success'] = true;
-        $response['data'] = $update;
-        $response['messages'][] = 'Record has been updated';
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
 
         return $response;
 
@@ -406,6 +427,12 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
+            'taxonomy_id_brand_status'=> 'required|max:150',
+            'status_notes'=> 'required|max:150',
+            'registered_at'=> 'required',
+            'approved_at'=> 'required',
+            'registered_by'=> 'required',
+            'approved_by'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);

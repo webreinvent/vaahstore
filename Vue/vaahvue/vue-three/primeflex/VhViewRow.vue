@@ -46,6 +46,7 @@ const props = defineProps({
 
             </td>
         </template>
+
         <template v-else-if="type==='status'">
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
@@ -64,12 +65,15 @@ const props = defineProps({
                 </template>
             </td>
         </template>
+
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
                 <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
                 <Tag v-else value="No" severity="danger"></Tag>
             </td>
         </template>
+
+
         <template v-else>
             <td  colspan="2">{{value}}</td>
         </template>
