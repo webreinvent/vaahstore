@@ -34,7 +34,6 @@ export const useStoreStore = defineStore({
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        on_off_options: ['no', 'yes'],
         status_option:null,
         status_suggestion_list:null,
         assets: null,

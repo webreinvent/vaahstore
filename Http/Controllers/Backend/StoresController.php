@@ -49,9 +49,9 @@ class StoresController extends Controller
         {
             $data['empty_item'][$column] = null;
         }
-        $data['empty_item']['is_multi_currency'] = 'no';
-        $data['empty_item']['is_multi_lingual'] = 'no';
-        $data['empty_item']['is_multi_vendor'] = 'no';
+        $data['empty_item']['is_multi_currency'] = 0;
+        $data['empty_item']['is_multi_lingual'] = 0;
+        $data['empty_item']['is_multi_vendor'] = 0;
         $data['empty_item']['is_default'] = false;
         $data['empty_item']['is_active'] = true;
 
