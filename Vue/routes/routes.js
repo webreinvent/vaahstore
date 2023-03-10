@@ -1,9 +1,9 @@
 let routes= [];
 
 import dashboard from "./vue-routes-dashboard";
-import product from "./vue-routes-products";
+import store from "./vue-routes-store";
 
 routes = routes.concat(dashboard);
-routes = routes.concat(product);
+routes = routes.concat(store);
 
 export default routes;

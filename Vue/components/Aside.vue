@@ -15,14 +15,14 @@ const items = ref([
         label: 'Store',
         items: [
             {
-                label: 'Store',
+                label: 'Dashboard',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/"
             },
             {
-                label: 'Product',
+                label: 'Store',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/products"
+                to: "/store"
             },
         ]
     },
