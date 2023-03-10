@@ -1,5 +1,17 @@
 [
     {
+        "name": "Store Status"
+    },
+    {
+        "name": "Vendor Status"
+    },
+    {
         "name": "Product Types"
+    },
+    {
+        "name": "Product Status"
+    },
+    {
+        "name": "Brand Status"
     }
 ]
