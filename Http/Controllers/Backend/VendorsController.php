@@ -68,6 +68,18 @@ class VendorsController extends Controller
 
             $data['empty_item']['approved_by'] = $approved_by;
 
+            foreach($data['stores'] as $k=>$arr)
+            {
+                if($arr['is_default']==1)
+                {
+                    $default_store['id'] = $arr->id;
+                    $default_store['name'] = $arr->name;
+                    $default_store['is_default'] = $arr->is_default;
+                }
+            }
+
+            $data['empty_item']['vh_st_store_id'] = $default_store;
+
             $response['success'] = true;
             $response['data'] = $data;
 
