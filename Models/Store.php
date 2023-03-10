@@ -197,7 +197,6 @@ class Store extends Model
 
         return $query->orderBy($sort[0], $sort[1]);
     }
-
     //-------------------------------------------------
     public function scopeIsActiveFilter($query, $filter)
     {
