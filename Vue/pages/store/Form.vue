@@ -112,22 +112,41 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Multi Currency">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <SelectButton v-model="store.item.is_multi_currency" :options="store.on_off_options" aria-labelledby="single" />
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_currency = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_currency = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div v-if="store.item.is_multi_currency == 'yes'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_currency == 1" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Currencys" />
                         </div>
                     </div>
+
                 </VhField>
 
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <SelectButton v-model="store.item.is_multi_lingual" :options="store.on_off_options" aria-labelledby="single" />
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_lingual == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_lingual = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_lingual == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_lingual = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div v-if="store.item.is_multi_lingual == 'yes'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_lingual == 1" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>
@@ -136,10 +155,19 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <SelectButton v-model="store.item.is_multi_vendor" :options="store.on_off_options" aria-labelledby="single" />
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_vendor == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_vendor = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_vendor == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label" @click="store.item.is_multi_vendor = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div v-if="store.item.is_multi_vendor == 'yes'" class="pl-5 col-8">
+                        <div v-if="store.item.is_multi_vendor == 1" class="pl-5 col-8">
                             <MultiSelect placeholder="Select Languages" />
                         </div>
                     </div>
@@ -158,14 +186,19 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+                <VhField label="Is Active">
+                    <InputSwitch v-model="store.item.is_active" />
+
+                </VhField>
+
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.taxonomy_id_store_status" class="w-full" :suggestions="store.status_suggestion_list" @complete="store.searchStatus($event)" :dropdown="true" optionLabel="name" forceSelection>
-                        <template>
-                            <div class="store-item">
-                                <div class="ml-2">{{store.status_option}}</div>
-                            </div>
-                        </template>
-                    </AutoComplete>
+                    <AutoComplete v-model="store.item.taxonomy_id_store_status"
+                                  class="w-full"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection />
                 </VhField>
 
                 <VhField label="Status Notes">
@@ -183,4 +216,22 @@ const toggleFormMenu = (event) => {
     background-color: #007ad9 !important;
     font-weight: 700;
 }
+.p-selectbutton .p-button.p-danger {
+    background-color: #ee1742 !important;
+    font-weight: 700;
+}
+
+/*.btn-1{*/
+/*    width:45%;*/
+/*    float:left;*/
+/*    padding:0px 5px 0px 5px;*/
+/*    margin-bottom:20px;*/
+/*}*/
+/*.btn-2{*/
+/*    width:45%;*/
+/*    float:right;*/
+/*    padding:0px 5px 0px 5px;*/
+/*    margin-bottom:20px;*/
+/*}*/
+
 </style>

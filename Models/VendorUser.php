@@ -5,18 +5,17 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Vendor extends Model
+class VendorUser extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_vendors';
+    protected $table = 'vh_st_vendor_users';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -26,11 +25,9 @@ class Vendor extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_st_store_id', 'name', 'slug',
-        'owned_by', 'registered_at',
-        'auto_approve_products', 'approved_by',
-        'approved_at', 'is_default', 'is_active',
-        'taxonomy_id_vendor_status', 'status_notes', 'meta',
+        'name',
+        'slug','vh_st_vendor_id','vh_user_id','vh_role_id',
+        'status','status_notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -106,30 +103,20 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public function store(){
-        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default']);
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
     }
 
     //-------------------------------------------------
-    public function approvedBy(){
-        return $this->hasOne(User::class, 'id', 'approved_by')->select(['id','first_name','email']);
-    }
-
-    //-------------------------------------------------
-    public function ownedBy(){
-        return $this->hasOne(User::class, 'id', 'owned_by')->select(['id','first_name', 'email']);
-    }
-
-    //-------------------------------------------------
-    public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
+    public function vendor(){
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id','first_name']);
     }
 
     //-------------------------------------------------
     public static function createItem($request)
     {
 
-        $validation_result = self::vendorInputValidator($request->all());
+        $validation_result = self::vendorUserInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
@@ -138,18 +125,14 @@ class Vendor extends Model
         $inputs = $validation_result['data'];
 
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->auto_approve_products  = $inputs['auto_approve_products'];
-        $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
-        $item->owned_by  = $inputs['owned_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
-        $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
-        $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
+        $item->name = (string)$inputs['name'];
+        $item->slug = Str::slug((string)$inputs['slug']);
+        $item->vh_st_vendor_id  = (int)$inputs['vh_st_vendor_id']['id'];
+        $item->vh_user_id  = (int)$inputs['vh_user_id']['id'];
+        $item->vh_role_id  = (int)$inputs['vh_role_id']['id'];
+        $item->is_active = (int)$inputs['is_active'];
+        $item->status = (int)$inputs['status'];
+        $item->status_notes = (string)$inputs['status_notes'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -159,23 +142,22 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public static function vendorInputValidator($requestData){
+    public static function vendorUserInputValidator($requestData){
 
         $validated_data = validator($requestData, [
             'name' => 'required',
             'slug' => 'required',
-            'vh_st_store_id' => 'required',
-            'owned_by' => 'required',
-            'auto_approve_products' => 'required',
-            'approved_by' => 'required',
-            'is_default' => 'required',
-            'taxonomy_id_vendor_status' => 'required',
+            'vh_st_vendor_id' => 'required',
+            'vh_user_id' => 'required',
+            'vh_role_id' => 'required',
+            'status' => 'required',
             'status_notes' => 'required',
-            'is_active' => 'required'
+            'is_active' => 'required',
         ],
             [
-                'vh_st_store_id.required' => 'The Store field is required',
-                'taxonomy_id_vendor_status.required' => 'The Status field is required',
+                'vh_st_vendor_id.required' => 'The Vendor field is required',
+                'vh_user_id.required' => 'The User field is required',
+                'vh_role_id.required' => 'The Role field is required',
             ]
         );
 
@@ -194,6 +176,7 @@ class Vendor extends Model
         ];
 
     }
+
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -275,7 +258,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with(['store', 'approvedBy', 'ownedBy', 'status']);
+        $list = self::getSorted($request->filter);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -457,7 +440,7 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy', 'status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -476,7 +459,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::vendorInputValidator($request->all());
+        $validation_result = self::vendorUserInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
@@ -485,18 +468,14 @@ class Vendor extends Model
         $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->auto_approve_products  = $inputs['auto_approve_products'];
-        $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
-        $item->owned_by  = $inputs['owned_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
-        $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
-        $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
+        $item->name = (string)$inputs['name'];
+        $item->slug = Str::slug((string)$inputs['slug']);
+        $item->vh_st_vendor_id  = (int)$inputs['vh_st_vendor_id']['id'];
+        $item->vh_user_id  = (int)$inputs['vh_user_id']['id'];
+        $item->vh_role_id  = (int)$inputs['vh_role_id']['id'];
+        $item->is_active = (int)$inputs['is_active'];
+        $item->status = (int)$inputs['status'];
+        $item->status_notes = (string)$inputs['status_notes'];
         $item->save();
 
         $response = self::getItem($item->id);

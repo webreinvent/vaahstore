@@ -87,7 +87,7 @@ class Store extends Model
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name']);
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name', 'slug']);
     }
 
     //-------------------------------------------------
@@ -120,16 +120,20 @@ class Store extends Model
 
         $inputs = $validation_result['data'];
 
+        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::removePreviousDefaults();
+        }
+
         $item = new self();
         $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->is_multi_currency  = $inputs['is_multi_currency'];
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
-        $item->is_active = true;
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -139,6 +143,11 @@ class Store extends Model
 
     }
 
+    //-------------------------------------------------
+    public static function removePreviousDefaults(){
+        self::where('is_default', 1)
+            ->update(['is_default' => 0]);
+    }
     //-------------------------------------------------
     public static function storeInputValidator($requestData){
 
@@ -152,6 +161,7 @@ class Store extends Model
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required',
+            'is_active' => 'required'
         ],
         [
             'taxonomy_id_store_status.required' => 'The Status field is required'
@@ -447,9 +457,9 @@ class Store extends Model
             return $response;
         }
 
-        $item->is_multi_currency = $item->is_multi_currency == 1 ?  "yes" : "no";
-        $item->is_multi_lingual = $item->is_multi_lingual == 1 ?  "yes" : "no";
-        $item->is_multi_vendor = $item->is_multi_vendor == 1 ?  "yes" : "no";
+        $item->is_multi_currency = $item->is_multi_currency;
+        $item->is_multi_lingual = $item->is_multi_lingual;
+        $item->is_multi_vendor = $item->is_multi_vendor;
         $item->is_default = $item->is_default == 1 ? true :false;
         $item->is_active = $item->is_active == 1 ? true :false;
         $item->allowed_ips = json_decode($item->allowed_ips);
@@ -471,11 +481,15 @@ class Store extends Model
 
         $inputs = $validation_result['data'];
 
+        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::removePreviousDefaults();
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->is_multi_currency  = $inputs['is_multi_currency'];
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];

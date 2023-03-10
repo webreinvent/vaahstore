@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Store';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/stores";
+let ajax_url = base_url + "/backend/store/vendors";
 
 let empty_states = {
     query: {
@@ -26,18 +26,23 @@ let empty_states = {
     }
 };
 
-export const useStoreStore = defineStore({
-    id: 'store',
+export const useVendorStore = defineStore({
+    id: 'vendors',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        status_option:null,
-        status_suggestion_list:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
+        all_store_list: null,
+        all_user_list: null,
+        store_suggestion_list: null,
+        approved_by_suggestion_list: null,
+        owned_by_suggestion_list: null,
+        status_option:null,
+        disable_approved_by:true,
         list: null,
         item: null,
         fillable:null,
@@ -51,7 +56,7 @@ export const useStoreStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'store.',
+        route_prefix: 'vendors.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -95,7 +100,7 @@ export const useStoreStore = defineStore({
         {
             switch(route_name)
             {
-                case 'store.index':
+                case 'vendors.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -136,7 +141,10 @@ export const useStoreStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
+                        this.disable_approved_by = false;
                         this.getItem(newVal.params.id);
+                    }else{
+                        this.disable_approved_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -186,17 +194,72 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.all_store_list = data.stores;
+                this.all_user_list = data.users;
                 this.status_option = data.status;
+                this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
-                    this.setActiveItemAsEmpty();
+                    this.item = vaah().clone(data.empty_item);
                 }
 
             }
+        },
+        //---------------------------------------------------------------------
+        searchStore(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.store_suggestion_list = this.all_store_list;
+                }
+                else {
+                    this.store_suggestion_list = this.all_store_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion_list = this.status_option;
+                }
+                else {
+                    this.status_suggestion_list = this.status_option.filter((department) => {
+                        return department.name;
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchApprovedBy(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.approved_by_suggestion_list = this.all_user_list;
+                }
+                else {
+                    this.approved_by_suggestion_list = this.all_user_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchOwnedBy(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.owned_by_suggestion_list = this.all_user_list;
+                }
+                else {
+                    this.owned_by_suggestion_list = this.all_user_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
         //---------------------------------------------------------------------
         async getList() {
@@ -218,19 +281,6 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
-                }
-                else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
-                        return department.name;
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
 
         async getItem(id) {
             if(id){
@@ -246,9 +296,10 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
+                this.item.vh_st_store_id = data.store;
+                this.item.taxonomy_id_vendor_status = data.status;
             }else{
-                this.$router.push({name: 'store.index'});
+                this.$router.push({name: 'vendors.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -425,7 +476,8 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
+                this.item.vh_st_store_id = data.store;
+                this.item.taxonomy_id_vendor_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -443,7 +495,7 @@ export const useStoreStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'store.index'});
+                    this.$router.push({name: 'vendors.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -614,32 +666,32 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'store.index'})
+            this.$router.push({name: 'vendors.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
-            this.setActiveItemAsEmpty();
-            this.$router.push({name: 'store.index'})
+            this.item = vaah().clone(this.assets.empty_item);
+            this.$router.push({name: 'vendors.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
-            this.setActiveItemAsEmpty();
+            this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'store.form'})
+            this.$router.push({name: 'vendors.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'store.view', params:{id:item.id}})
+            this.$router.push({name: 'vendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'store.form', params:{id:item.id}})
+            this.$router.push({name: 'vendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -903,5 +955,5 @@ export const useStoreStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useStoreStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useVendorStore, import.meta.hot))
 }
