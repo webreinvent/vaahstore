@@ -50,7 +50,7 @@ class DatabaseTableSeeder extends Seeder
     {
         $status = Taxonomy::getTaxonomyByType('store-status')->first();
         $item = new Store;
-        $item->name = 'Default Store';
+        $item->name = 'Default';
         $item->is_multi_currency  = 1;
         $item->is_multi_lingual  = 1;
         $item->is_multi_vendor  = 1;
@@ -58,7 +58,7 @@ class DatabaseTableSeeder extends Seeder
         $item->taxonomy_id_store_status = $status->id;
         $item->status_notes = 'Default store Status';
         $item->is_active = 1;
-        $item->slug = Str::slug('Default Store');
+        $item->slug = Str::slug('Default');
         $item->save();
     }
     //---------------------------------------------------------------

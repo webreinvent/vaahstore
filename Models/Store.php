@@ -126,9 +126,9 @@ class Store extends Model
 
         $item = new self();
         $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->is_multi_currency  = $inputs['is_multi_currency'];
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
@@ -457,9 +457,9 @@ class Store extends Model
             return $response;
         }
 
-        $item->is_multi_currency = $item->is_multi_currency == 1 ?  "yes" : "no";
-        $item->is_multi_lingual = $item->is_multi_lingual == 1 ?  "yes" : "no";
-        $item->is_multi_vendor = $item->is_multi_vendor == 1 ?  "yes" : "no";
+        $item->is_multi_currency = $item->is_multi_currency;
+        $item->is_multi_lingual = $item->is_multi_lingual;
+        $item->is_multi_vendor = $item->is_multi_vendor;
         $item->is_default = $item->is_default == 1 ? true :false;
         $item->is_active = $item->is_active == 1 ? true :false;
         $item->allowed_ips = json_decode($item->allowed_ips);
@@ -487,9 +487,9 @@ class Store extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'] == 'yes' ? 1 : 0;
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'] == 'yes' ? 1 : 0;
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'] == 'yes' ? 1 : 0;
+        $item->is_multi_currency  = $inputs['is_multi_currency'];
+        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
+        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
