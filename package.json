@@ -1,5 +1,5 @@
 {
-    "name": "helloworld",
+    "name": "store",
     "scripts": {
         "dev": "vite --host",
         "build": "vite build",
