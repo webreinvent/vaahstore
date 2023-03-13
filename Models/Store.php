@@ -528,7 +528,7 @@ class Store extends Model
         $item->save();
 
         if(!empty($inputs['currency'])) {
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active', 0]);
+            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0]);
 
             foreach ($inputs['currency'] as $key => $v) {
 
@@ -537,22 +537,6 @@ class Store extends Model
                     ['is_active' => 1]
                 );
 
-//                $record = new currencie();
-//                $record->vh_st_store_id = $item->id;
-//                $record->name = $value['name'];
-//                $record->code = $value['code'];
-//                $record->symbol = $value['symbol'];
-//
-//                if (!empty($inputs['currency_default'])) {
-//                    if ($inputs['currency_default']['code'] == $value['code']) {
-//                        $record->is_default = 1;
-//                    }
-//                } else {
-//                    $record->is_default = $key == 0 ? 1 : 0;
-//                }
-//
-//                $record->is_active = 1;
-//                $record->save();
             }
         }
 

@@ -17,8 +17,6 @@ onMounted(async () => {
 
     await store.watchItem();
 
-    await store.watchCurrency();
-
 });
 
 //--------form_menu

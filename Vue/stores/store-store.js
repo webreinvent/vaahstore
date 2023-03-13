@@ -157,9 +157,19 @@ export const useStoreStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchCurrency()
+        watchItem()
         {
-            if(this.item) {
+            if(this.item){
+                    watch(() => this.item.name, (newVal,oldVal) =>
+                        {
+                            if(newVal && newVal !== "")
+                            {
+                                this.item.name = vaah().capitalising(newVal);
+                                this.item.slug = vaah().strToSlug(newVal);
+                            }
+                        },{deep: true}
+                    )
+
                 watch(() => this.item.currency, (newVal,oldVal) =>
                     {
                         if (newVal && newVal.length > 1){
@@ -175,21 +185,6 @@ export const useStoreStore = defineStore({
                         }
                     }, {deep: true}
                 )
-            }
-        },
-        //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
                 }
         },
         //---------------------------------------------------------------------
