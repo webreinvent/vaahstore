@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 
 class StoresController extends Controller
@@ -54,8 +55,12 @@ class StoresController extends Controller
         $data['empty_item']['is_multi_vendor'] = 0;
         $data['empty_item']['is_default'] = false;
         $data['empty_item']['is_active'] = true;
+        $data['empty_item']['currency'] = null;
+        $data['empty_item']['currency_default'] = null;
 
         $data['status'] = Taxonomy::getTaxonomyByType('store-status');
+
+        $data['currencys_list'] = VaahCountry::getListWithCurrency();
 
         $data['actions'] = [];
 

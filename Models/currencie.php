@@ -5,18 +5,17 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Store extends Model
+class currencie extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_stores';
+    protected $table = 'vh_st_currencies';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -26,10 +25,7 @@ class Store extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name', 'slug', 'notes', 'is_multi_currency',
-        'is_multi_lingual', 'is_multi_vendor', 'allowed_ips',
-        'is_default', 'is_active', 'taxonomy_id_store_status',
-        'status_notes', 'meta',
+        'vh_st_store_id','name','code','symbol','is_default',
         'is_active',
         'created_by',
         'updated_by',
@@ -86,16 +82,6 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name', 'slug']);
-    }
-
-    //-------------------------------------------------
-    public function currency(){
-        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')->where('is_active', 1);
-    }
-
-    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -117,100 +103,41 @@ class Store extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-        $validation_result = self::storeInputValidator($request->all());
 
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $inputs = $request->all();
+
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
 
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::removePreviousDefaults();
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
         }
 
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'];
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
-        $item->allowed_ips = json_encode($inputs['allowed_ips']);
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        if(!empty($inputs['currency'])) {
-            foreach ($inputs['currency'] as $key => $value) {
-
-                $record = new currencie();
-                $record->vh_st_store_id = $item->id;
-                $record->name = $value['name'];
-                $record->code = $value['code'];
-                $record->symbol = $value['symbol'];
-
-                if (!empty($inputs['currency_default'])) {
-                    if ($inputs['currency_default']['code'] == $value['code']) {
-                        $record->is_default = 1;
-                    }
-                } else {
-                    $record->is_default = $key == 0 ? 1 : 0;
-                }
-
-                $record->is_active = 1;
-                $record->save();
-            }
-        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function removePreviousDefaults(){
-        self::where('is_default', 1)
-            ->update(['is_default' => 0]);
-    }
-    //-------------------------------------------------
-    public static function storeInputValidator($requestData){
-
-        $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
-            'is_multi_currency' => 'required',
-            'is_multi_lingual' => 'required',
-            'is_multi_vendor' => 'required',
-            'allowed_ips' => 'required',
-            'is_default' => 'required',
-            'taxonomy_id_store_status' => 'required',
-            'status_notes' => 'required',
-            'is_active' => 'required',
-            'currency' => 'required_if:is_multi_currency,1',
-            'currency_default' => ''
-        ],
-        [
-            'taxonomy_id_store_status.required' => 'The Status field is required',
-            'currency.required_if' => 'The currency field is required when is multi currency is "Yes".'
-        ]
-        );
-
-        if($validated_data->fails()){
-            return [
-                'success' => false,
-                'messages' => $validated_data->errors()->all()
-            ];
-        }
-
-        $validated_data = $validated_data->validated();
-
-        return [
-            'success' => true,
-            'data' => $validated_data
-        ];
 
     }
 
@@ -294,7 +221,7 @@ class Store extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -476,7 +403,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currency'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -486,14 +413,6 @@ class Store extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-
-        $item->is_multi_currency = $item->is_multi_currency;
-        $item->is_multi_lingual = $item->is_multi_lingual;
-        $item->is_multi_vendor = $item->is_multi_vendor;
-        $item->is_default = $item->is_default == 1 ? true :false;
-        $item->is_active = $item->is_active == 1 ? true :false;
-        $item->allowed_ips = json_decode($item->allowed_ips);
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -503,58 +422,39 @@ class Store extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::storeInputValidator($request->all());
+        $inputs = $request->all();
 
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
+        // check if name exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
 
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::removePreviousDefaults();
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'];
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
-        $item->allowed_ips = json_encode($inputs['allowed_ips']);
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        if(!empty($inputs['currency'])) {
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active', 0]);
-
-            foreach ($inputs['currency'] as $key => $v) {
-
-                currencie::updateOrInsert(
-                    ['vh_st_store_id' => $item->id, 'name' => $v['name'], 'code' => $v['code'], 'symbol' => $v['symbol']],
-                    ['is_active' => 1]
-                );
-
-//                $record = new currencie();
-//                $record->vh_st_store_id = $item->id;
-//                $record->name = $value['name'];
-//                $record->code = $value['code'];
-//                $record->symbol = $value['symbol'];
-//
-//                if (!empty($inputs['currency_default'])) {
-//                    if ($inputs['currency_default']['code'] == $value['code']) {
-//                        $record->is_default = 1;
-//                    }
-//                } else {
-//                    $record->is_default = $key == 0 ? 1 : 0;
-//                }
-//
-//                $record->is_active = 1;
-//                $record->save();
-            }
-        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
