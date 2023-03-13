@@ -35,7 +35,10 @@ export const useStoreStore = defineStore({
         assets_is_fetching: true,
         app: null,
         status_option:null,
+        showCurrencyDefault:false,
+        currencys_list:null,
         status_suggestion_list:null,
+        currency_suggestion_list:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -166,6 +169,22 @@ export const useStoreStore = defineStore({
                             }
                         },{deep: true}
                     )
+
+                watch(() => this.item.currency, (newVal,oldVal) =>
+                    {
+                        if (newVal && newVal.length > 1){
+                            this.showCurrencyDefault = true;
+                            this.item.currency_default = this.item.currency.filter((d) => {
+                                return d.is_default == 1;
+                            })[0];
+
+
+                        }else{
+                            this.item.currency_default = null;
+                            this.showCurrencyDefault = false;
+                        }
+                    }, {deep: true}
+                )
                 }
         },
         //---------------------------------------------------------------------
@@ -187,6 +206,7 @@ export const useStoreStore = defineStore({
             {
                 this.assets = data;
                 this.status_option = data.status;
+                this.currencys_list = data.currencys_list;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -225,7 +245,33 @@ export const useStoreStore = defineStore({
                 }
                 else {
                     this.status_suggestion_list = this.status_option.filter((department) => {
-                        return department.name;
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCurrencyDefault(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.currency_default_suggestion_list = this.item.currency;
+                }
+                else {
+                    this.currency_default_suggestion_list = this.item.currency.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCurrency(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.currency_suggestion_list = this.currencys_list;
+                }
+                else {
+                    this.currency_suggestion_list = this.currencys_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -247,6 +293,11 @@ export const useStoreStore = defineStore({
             {
                 this.item = data;
                 this.item.taxonomy_id_store_status = data.status;
+                if (data.currency.length > 1) {
+                    this.item.currency_default = this.item.currency.filter((d) => {
+                        return d.is_default == 1;
+                    })[0];
+                }
             }else{
                 this.$router.push({name: 'store.index'});
             }
