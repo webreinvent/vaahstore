@@ -487,9 +487,6 @@ class Store extends Model
             return $response;
         }
 
-        $item->is_multi_currency = $item->is_multi_currency;
-        $item->is_multi_lingual = $item->is_multi_lingual;
-        $item->is_multi_vendor = $item->is_multi_vendor;
         $item->is_default = $item->is_default == 1 ? true :false;
         $item->is_active = $item->is_active == 1 ? true :false;
         $item->allowed_ips = json_decode($item->allowed_ips);
@@ -528,7 +525,7 @@ class Store extends Model
         $item->save();
 
         if(!empty($inputs['currency'])) {
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0]);
+            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
 
             foreach ($inputs['currency'] as $key => $v) {
 
@@ -538,6 +535,14 @@ class Store extends Model
                 );
 
             }
+
+            if (!empty($inputs['currency_default'])){
+                currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'], 'is_active' => 1])->update(['is_default' => 1]);
+            }else{
+                currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first()->update(['is_default' => 1]);
+            }
+        }else{
+            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         $response = self::getItem($item->id);

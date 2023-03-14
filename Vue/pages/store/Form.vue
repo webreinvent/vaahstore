@@ -115,7 +115,7 @@ const toggleFormMenu = (event) => {
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
                                 <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
-                                    <span class="p-button-label" @click="store.item.is_multi_currency = 0">no</span>
+                                    <span class="p-button-label" @click="store.item.is_multi_currency = 0;  store.item.currency = null;">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                                 <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">

@@ -65,6 +65,21 @@ const props = defineProps({
                 </template>
             </td>
         </template>
+
+        <template v-else-if="type==='multipleCurrency'">
+            <td colspan="2" >
+                <template v-if="typeof value === 'object' && value && value.length > 0">
+                    <span v-for="data in value">
+                        {{data.code}}<b>({{data.symbol}})</b>
+                        <span v-if="data.is_default == 1">
+                            <badge value="Default" severity="Default"></badge>
+                        </span>&nbsp;&nbsp;
+                    </span>
+                </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
+            </td>
+        </template>
+
         <template v-else-if="type==='userEmail'">
 
             <td colspan="2" >
