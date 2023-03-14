@@ -427,7 +427,7 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'taxonomy_id_brand_status'=> 'required|max:150',
+            'status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
