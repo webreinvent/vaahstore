@@ -39,6 +39,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/vendors"
             },
+            {
+                label: 'Product-Vendor',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/productvendors"
+            },
         ]
     },
 ]);
