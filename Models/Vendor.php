@@ -107,7 +107,7 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public function store(){
-        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default']);
+        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default','slug']);
     }
 
     //-------------------------------------------------
@@ -136,8 +136,8 @@ class Vendor extends Model
         }
 
         $inputs = $validation_result['data'];
-
         $item = new self();
+        $item->fill($inputs);
         $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
         $item->auto_approve_products  = $inputs['auto_approve_products'];
@@ -150,6 +150,7 @@ class Vendor extends Model
         $item->is_active = $inputs['is_active'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
+//        dd($item);
         $item->save();
 
         $response = self::getItem($item->id);

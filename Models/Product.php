@@ -67,13 +67,13 @@ class Product extends Model
     //-------------------------------------------------
     public function brand()
     {
-        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name');
+        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug');
     }
 
     //-------------------------------------------------
     public function store()
     {
-        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name');
+        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -85,7 +85,7 @@ class Product extends Model
     //-------------------------------------------------
     public function taxonomyProduct()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -183,6 +183,7 @@ class Product extends Model
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
+        $item->is_active = $inputs['is_active'];
 
 
         $item->save();
@@ -531,6 +532,7 @@ class Product extends Model
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
+        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -594,7 +596,7 @@ class Product extends Model
             'in_stock'=> 'required|numeric',
             'brand'=> 'required',
             'store'=> 'required',
-            'taxonomy_product'=> 'required',
+            'type'=> 'required',
             'quantity'  => 'required'
         );
 

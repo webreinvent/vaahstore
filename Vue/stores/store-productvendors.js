@@ -71,6 +71,34 @@ export const useProductVendorStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.status;
+                }
+                else {
+                    this.suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.vendor;
+                }
+                else {
+                    this.suggestion= this.vendor.filter((vendor) => {
+                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
         async onLoad(route)
         {
             /**
@@ -184,6 +212,8 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status = data.status;
+                this.vendor = data.vendor.data
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

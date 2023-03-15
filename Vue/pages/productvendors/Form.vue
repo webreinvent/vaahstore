@@ -94,6 +94,42 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
+<!--                <VhField label="Vendor">-->
+
+<!--                    <AutoComplete-->
+<!--                        v-model="store.item.vendor"-->
+<!--                        class="w-full"-->
+<!--                        :suggestions="store.suggestion"-->
+<!--                        @complete="store.searchVendor($event)"-->
+<!--                        placeholder="Select Vendor"-->
+<!--                        data-testid="productvendors-vendor"-->
+<!--                        name="productvendors-vendor"-->
+<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
+<!--                    </AutoComplete>-->
+
+<!--                </VhField>-->
+
+                <VhField label="Status">
+
+                    <AutoComplete
+                        v-model="store.item.status"
+                        class="w-full"
+                        data-testid="productvendors-status"
+                        name="productvendors-status"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+                <VhField label="Status Notes">
+                    <Textarea class="w-full"
+                              placeholder="Enter a Status Note"
+                              name="productvendors-status_notes"
+                              data-testid="productvendors-status_notes"
+                              v-model="store.item.status_notes"/>
+                </VhField>
 
                 <VhField label="Name">
                     <InputText class="w-full"

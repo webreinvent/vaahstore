@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\ProductVendor;
+use VaahCms\Modules\Store\Models\Vendor;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class ProductVendorsController extends Controller
@@ -44,7 +46,8 @@ class ProductVendorsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-
+            $data['vendor']= Vendor::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
 
             $response['success'] = true;

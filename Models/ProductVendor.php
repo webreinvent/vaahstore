@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -76,11 +77,9 @@ class ProductVendor extends Model
         )->select('id', 'uuid', 'name', 'slug');
     }
     //-------------------------------------------------
-    public function vendors()
+    public function vendor()
     {
-        return $this->hasMany(Vendor::class,
-            'id', 'vh_st_vendors_id'
-        )->select('id', 'uuid', 'name', 'slug');
+        return $this->hasOne(Vendor::class,'id','vh_st_vendors_id')->select('id','name', 'slug');
     }
 
     //-------------------------------------------------
@@ -94,6 +93,11 @@ class ProductVendor extends Model
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_vendor_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -127,27 +131,29 @@ class ProductVendor extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
+//        // check if name exist
+//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This name is already exist.";
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This slug is already exist.";
+//            return $response;
+//        }
         $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+//        $item->fill($inputs);
+        $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_product_vendor_status = $inputs['status']['id'];
+        $item->vh_st_vendors_id = $inputs['vendor']['id'];
+//        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -236,7 +242,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('products','vendors');
+        $list = self::getSorted($request->filter)->with('products','vendor');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -418,7 +424,7 @@ class ProductVendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','vendors'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','vendor'])
             ->withTrashed()
             ->first();
 
@@ -526,8 +532,8 @@ class ProductVendor extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'status'=> 'required',
+            'status_notes'=> 'required|max:150',
         );
 
         $validator = \Validator::make($inputs, $rules);
