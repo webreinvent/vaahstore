@@ -90,7 +90,7 @@ class Brand extends Model
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','registered_by','approved_by');
+        return $this->hasOne(User::class,'id','registered_by');
     }
     public function approvedBy()
     {
@@ -174,7 +174,7 @@ class Brand extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_by = $inputs['registered_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
+        $item->taxonomy_id_brand_status = $inputs['status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -375,7 +375,7 @@ class Brand extends Model
         $update->slug = Str::slug($inputs['slug']);
         $update->registered_by = $inputs['registered_by']['id'];
         $update->approved_by = $inputs['approved_by']['id'];
-        $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
+        $update->taxonomy_id_brand_status = $inputs['status']['id'];
         $update->save();
 
         //check specific actions
@@ -427,7 +427,7 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
+            'taxonomy_id_brand_status'=> 'required|max:150',
             'status_notes'=> 'required|max:150',
             'registered_at'=> 'required',
             'approved_at'=> 'required',

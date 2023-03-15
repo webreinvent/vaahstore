@@ -64,12 +64,26 @@ export const useProductVendorStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        added_by_user:null,
+        disable_approved_by:true,
     }),
     getters: {
 
     },
     actions: {
+        searchAddeddBy(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.added_by_user;
+                }
+                else {
+                    this.suggestion= this.added_by_user.filter((added_by_user) => {
+                        return added_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         searchStatus(event) {
             setTimeout(() => {
@@ -162,7 +176,10 @@ export const useProductVendorStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
+                        this.disable_added_by = false;
                         this.getItem(newVal.params.id);
+                    }else{
+                        this.disable_added_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -214,6 +231,10 @@ export const useProductVendorStore = defineStore({
                 this.assets = data;
                 this.status = data.status;
                 this.vendor = data.vendor.data
+                this.added_by_user = data.user.data
+                this.product =data.product.data
+                this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
+
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -260,6 +281,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.addd_by = data.added_by;
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -438,6 +460,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.added_by = data.added_by;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

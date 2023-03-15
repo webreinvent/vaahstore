@@ -94,20 +94,44 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-<!--                <VhField label="Vendor">-->
+                <VhField label="Vendor">
 
-<!--                    <AutoComplete-->
-<!--                        v-model="store.item.vendor"-->
-<!--                        class="w-full"-->
-<!--                        :suggestions="store.suggestion"-->
-<!--                        @complete="store.searchVendor($event)"-->
-<!--                        placeholder="Select Vendor"-->
-<!--                        data-testid="productvendors-vendor"-->
-<!--                        name="productvendors-vendor"-->
-<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
-<!--                    </AutoComplete>-->
+                    <AutoComplete
+                        v-model="store.item.vendor"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="productvendors-vendor"
+                        name="productvendors-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
 
-<!--                </VhField>-->
+                </VhField>
+
+                <VhField label="Product">
+                    <MultiSelect
+                        data-testid="productvendors-product"
+                        name="productvendors-product"
+                        v-model="store.item.product" :options="store.product"
+                        optionLabel="name" placeholder="Select Product"
+                        :maxSelectedLabels="3" class="w-full" />
+                </VhField>
+
+                <VhField label="Added By">
+                    <AutoComplete
+                        v-model="store.item.added_by"
+                        class="w-full"
+                        name="productvendors-added_by"
+                        id="added_by"
+                        value="added_by"
+                        data-testid="productvendors-added_by"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchAddeddBy($event)"
+                        placeholder="Select Added by"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+                </VhField>
 
                 <VhField label="Status">
 
@@ -123,6 +147,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
 
                 </VhField>
+
                 <VhField label="Status Notes">
                     <Textarea class="w-full"
                               placeholder="Enter a Status Note"
@@ -131,19 +156,19 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="productvendors-name"
-                               data-testid="productvendors-name"
-                               v-model="store.item.name"/>
-                </VhField>
+<!--                <VhField label="Name">-->
+<!--                    <InputText class="w-full"-->
+<!--                               name="productvendors-name"-->
+<!--                               data-testid="productvendors-name"-->
+<!--                               v-model="store.item.name"/>-->
+<!--                </VhField>-->
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="productvendors-slug"
-                               data-testid="productvendors-slug"
-                               v-model="store.item.slug"/>
-                </VhField>
+<!--                <VhField label="Slug">-->
+<!--                    <InputText class="w-full"-->
+<!--                               name="productvendors-slug"-->
+<!--                               data-testid="productvendors-slug"-->
+<!--                               v-model="store.item.slug"/>-->
+<!--                </VhField>-->
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"

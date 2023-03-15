@@ -2,9 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class ProductVendorsController extends Controller
@@ -47,7 +49,14 @@ class ProductVendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
             $data['vendor']= Vendor::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['product']= Product::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
+            $active_user = auth()->user();
+            $added_by['id'] = $active_user->id;
+            $added_by['name'] = $active_user->first_name;
+            $added_by['email'] = $active_user->email;
+            $data['empty_item']['added_by'] = $added_by;
             $data['actions'] = [];
 
             $response['success'] = true;
