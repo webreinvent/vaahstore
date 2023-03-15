@@ -255,7 +255,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('products','vendor','addedBy');
+        $list = self::getSorted($request->filter)->with('products','vendor','addedBy','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -437,7 +437,7 @@ class ProductVendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','vendor','addedBy'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','vendor','addedBy','status'])
             ->withTrashed()
             ->first();
 

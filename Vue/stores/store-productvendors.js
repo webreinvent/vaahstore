@@ -38,6 +38,7 @@ export const useProductVendorStore = defineStore({
         rows_per_page: [10,20,30,50,100,500],
         list: null,
         item: null,
+        suggestion: null,
         fillable:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -461,6 +462,7 @@ export const useProductVendorStore = defineStore({
             {
                 this.item = data;
                 this.added_by = data.added_by;
+                this.vendor = data.vendor;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
