@@ -284,7 +284,7 @@ export const useBrandStore = defineStore({
                 this.item = data;
                 this.item.registered_by = data.user;
                 this.approved_by = data.approved_by;
-                this.item.taxonomy_id_brand_status = data.status;
+                this.item.status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
             }
@@ -466,7 +466,7 @@ export const useBrandStore = defineStore({
                 this.item = data;
                 this.item.registered_by = data.user;
                 this.approved_by = data.approved_by;
-                this.item.taxonomy_id_brand_status = data.status;
+                this.item.status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

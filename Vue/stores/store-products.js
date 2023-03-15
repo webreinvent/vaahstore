@@ -39,7 +39,6 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        status:['Pending','Approved','Rejected'],
         empty_query:empty_states.query,
         empty_action:empty_states.action,
         query: vaah().clone(empty_states.query),
@@ -82,10 +81,10 @@ export const useProductStore = defineStore({
         searchTaxonomyProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.taxonomy_product;
+                    this.suggestion = this.type;
                 }
                 else {
-                    this.suggestion= this.taxonomy_product.filter((product) => {
+                    this.suggestion= this.type.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -249,7 +248,7 @@ export const useProductStore = defineStore({
                 this.assets = data;
                 this.brand = data.brand.data
                 this.store = data.store.data
-                this.taxonomy_product = data.taxonomy_product
+                this.type = data.taxonomy_product
                 this.status = data.status;
                 if(data.rows)
                 {
