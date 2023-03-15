@@ -49,6 +49,7 @@ class ProductVendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
             $data['vendor']= Vendor::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
+
             $data['product']= Product::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));

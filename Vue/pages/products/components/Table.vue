@@ -63,7 +63,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="taxonomy_product" header="Type"
+             <Column field="type" header="Type"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -71,7 +71,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     {{prop.data.taxonomy_product.name}}
+                     {{prop.data.type.name}}
                  </template>
 
              </Column>
@@ -117,8 +117,6 @@ const useVaah = vaah();
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
-
                  </template>
 
              </Column>
