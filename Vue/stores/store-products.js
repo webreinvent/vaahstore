@@ -39,6 +39,7 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        status:['Pending','Approved','Rejected'],
         empty_query:empty_states.query,
         empty_action:empty_states.action,
         query: vaah().clone(empty_states.query),

@@ -26,11 +26,20 @@ class Product extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name', 'slug', 'taxonomy_id_product_type',
+        'id',
+        'name',
+        'slug',
+        'taxonomy_id_product_type',
         'vh_st_store_id',
-        'vh_st_brand_id', 'vh_cms_content_form_field_id',
-        'quantity', 'in_stock', 'is_active',
-        'status', 'status_notes', 'meta',
+        'vh_st_brand_id',
+        'vh_cms_content_form_field_id',
+        'quantity',
+        'in_stock',
+        'is_active',
+        'taxonomy_id_product_status',
+        'status_notes',
+        'meta',
+        'meta',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -83,7 +92,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function taxonomyProduct()
+    public function type()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name','slug');
     }
@@ -159,10 +168,10 @@ class Product extends Model
         }
 
         $item = new self();
-//        $item->fill($inputs);
+        $item->fill($inputs);
         $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+        $item->taxonomy_id_product_type = $inputs['type']['id'];
 
         $item->status_notes = $inputs['status_notes'];
         $item->taxonomy_id_product_status = $inputs['status']['id'];
@@ -274,7 +283,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','taxonomyProduct','status');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -456,7 +465,7 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','taxonomyProduct','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','type','status'])
             ->withTrashed()
             ->first();
 
@@ -505,7 +514,7 @@ class Product extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-//        $item->fill($inputs);
+        $item->fill($inputs);
         $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
         if(is_string($inputs['brand']['name'])){
@@ -518,7 +527,7 @@ class Product extends Model
         }else{
             $item->vh_st_store_id = $inputs['store']['name']['id'];
         }
-        $item->taxonomy_id_product_type = $inputs['taxonomy_product']['id'];
+        $item->taxonomy_id_product_type = $inputs['type']['id'];
         $item->taxonomy_id_product_status = $inputs['status']['id'];
         $item->status_notes = $inputs['status_notes'];
 

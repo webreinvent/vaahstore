@@ -563,12 +563,6 @@ export const useBrandStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
         },
         //---------------------------------------------------------------------
-        setDefaultApprovedBy(data)
-        {
-            // this.item.approved_by = data.approved_by;
-            console.log(data.approved_by_default)
-        },
-        //---------------------------------------------------------------------
         confirmDelete()
         {
             if(this.action.items.length < 1)

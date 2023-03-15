@@ -19,8 +19,6 @@ class VhStproductvendors extends Migration
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
 
                 $table->integer('vh_st_vendor_id')->nullable()->index();
