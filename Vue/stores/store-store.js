@@ -173,15 +173,11 @@ export const useStoreStore = defineStore({
                 watch(() => this.item.currency, (newVal,oldVal) =>
                     {
                         if (newVal && newVal.length > 1){
-                            this.showCurrencyDefault = true;
                             this.item.currency_default = this.item.currency.filter((d) => {
                                 return d.is_default == 1;
                             })[0];
-
-
                         }else{
                             this.item.currency_default = null;
-                            this.showCurrencyDefault = false;
                         }
                     }, {deep: true}
                 )

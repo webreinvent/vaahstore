@@ -142,7 +142,7 @@ class Store extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        if(!empty($inputs['currency'])) {
+        if(!empty($inputs['currency']) && $item->is_multi_currency == 1) {
             foreach ($inputs['currency'] as $key => $value) {
 
                 $record = new currencie();

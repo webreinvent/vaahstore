@@ -125,48 +125,48 @@ const toggleFormMenu = (event) => {
                             </div>
                         </div>
 
-                        <div v-if="store.showCurrencyDefault || (store.item && store.item.currency && store.item.currency.length > 1)">
-                            <AutoComplete v-model="store.item.currency_default"
-                                          class="w-full"
-                                          data-testid="vendors-approved_by"
-                                          name="vendors-approved_by"
-                                          :suggestions="store.currency_default_suggestion_list"
-                                          @complete="store.searchCurrencyDefault($event)"
-                                          optionLabel="name"
-                                          placeholder="select a default currency"
-                                          forceSelection >
+                        <div v-if="store.item && store.item.currency && store.item.currency.length > 1">
+                            <Dropdown v-model="store.item.currency_default"
+                                      :options="store.item.currency"
+                                      filter
+                                      optionLabel="code"
+                                      placeholder="Select default currencys"
+                                      class="w-full md:w-14rem">
                                 <template #option="slotProps">
-                                    <div class="flex align-options-center">
+                                    <div class="flex align-items-center">
                                         <div>{{ slotProps.option.code }}  </div>
                                         <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
                                         (<b>{{slotProps.option.symbol}}</b>)
                                     </div>
                                 </template>
-                            </AutoComplete>
+                            </Dropdown>
                         </div>
                     </div>
 
                 </VhField>
-
+                
                 <VhField label="Currency" v-show="store.item.is_multi_currency == 1">
-                    <AutoComplete v-model="store.item.currency"
-                                  class="w-full"
-                                  multiple
-                                  data-testid="vendors-approved_by"
-                                  name="vendors-approved_by"
-                                  :suggestions="store.currency_suggestion_list"
-                                  @complete="store.searchCurrency($event)"
-                                  :dropdown="true"
-                                  optionLabel="name"
-                                  forceSelection >
+                    <MultiSelect v-model="store.item.currency"
+                                 filter
+                                 :options="store.currencys_list"
+                                 optionLabel="code"
+                                 placeholder="Select currencys"
+                                 display="chip"
+                                 class="w-full md:w-20rem">
                         <template #option="slotProps">
-                            <div class="flex align-options-center">
+                            <div class="flex align-items-center">
                                 <div>{{ slotProps.option.code }}  </div>
                                 <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
                                 (<b>{{slotProps.option.symbol}}</b>)
                             </div>
                         </template>
-                    </AutoComplete>
+                        <template #footer>
+                            <div class="py-2 px-3">
+                                <b>{{ store.item.currency ? store.item.currency.length : 0 }}</b>
+                                item{{ (store.item.currency ? store.item.currency.length : 0) > 1 ? 's' : '' }} selected.
+                            </div>
+                        </template>
+                    </MultiSelect>
                 </VhField>
 
                 <VhField label="Is Multi Lingual">

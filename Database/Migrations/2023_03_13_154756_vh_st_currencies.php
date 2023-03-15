@@ -24,6 +24,7 @@ class VhStcurrencies extends Migration
                 $table->string('code')->nullable()->index();
                 $table->string('symbol')->nullable()->index();
                 $table->boolean('is_default')->nullable()->index();
+                $table->boolean('is_active')->nullable()->index();
 
 
                 //----common fields
