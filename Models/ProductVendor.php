@@ -144,7 +144,7 @@ class ProductVendor extends Model
 
 
         // check if product vendor exist
-        foreach ($inputs['product'] as $input) {
+        foreach ($inputs['products'] as $input) {
             $item = self::where('vh_st_vendors_id', $inputs['vendor']['id'])->where('vh_st_product_id', $input['id'])->withTrashed()->first();
 
             if ($item) {
@@ -460,7 +460,7 @@ class ProductVendor extends Model
         }
 
         // check if vendor exist
-        foreach ($inputs['product'] as $input) {
+        foreach ($inputs['products'] as $input) {
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
             ->where('vh_st_vendors_id', $inputs['vendor']['id'])->where('vh_st_product_id', $input['id'])->first();
@@ -538,7 +538,7 @@ class ProductVendor extends Model
     {
         $rules = array(
             'vendor'=> 'required',
-            'product'=> 'required',
+            'products'=> 'required',
             'status'=> 'required',
             'status_notes'=> 'required|max:150',
             'added_by'=> 'required|max:150',

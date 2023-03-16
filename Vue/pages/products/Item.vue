@@ -158,24 +158,21 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'taxonomy_product'">
+                        <template v-else-if="column === 'type'">
                             <VhViewRow :label="column"
-                                       :value="store.item.taxonomy_product"
-                                       type="user"
+                                       :value="store.item.type.name"
                             />
                         </template>
 
                         <template v-else-if="column === 'store'">
                             <VhViewRow :label="column"
-                                       :value="store.item.store"
-                                       type="user"
+                                       :value="store.item.store.name"
                             />
                         </template>
 
                         <template v-else-if="column === 'brand'">
                             <VhViewRow :label="column"
-                                       :value="store.item.brand"
-                                       type="user"
+                                       :value="store.item.brand.name"
                             />
                         </template>
 
