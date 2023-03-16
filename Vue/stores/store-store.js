@@ -173,13 +173,15 @@ export const useStoreStore = defineStore({
                 watch(() => this.item.currencies, (newVal,oldVal) =>
                     {
                         let flag = 1;
-                        this.item.currencies.forEach((value)=>{
-                            if (this.item.currency_default.code == value.code){
-                                flag = 0;
+                        if (this.item.currency_default && this.item.currency_default.length > 1) {
+                            this.item.currencies.forEach((value) => {
+                                if (this.item.currency_default.code == value.code) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.currency_default = null;
                             }
-                        })
-                        if (flag == 1){
-                            this.item.currency_default = null;
                         }
                     }, {deep: true}
                 )
