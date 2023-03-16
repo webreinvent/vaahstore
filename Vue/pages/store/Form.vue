@@ -211,10 +211,11 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Allowed Ips">
-                    <InputText class="w-full"
-                               name="store-allowed-ips"
-                               data-testid="store-allowed-ips"
-                               v-model="store.item.allowed_ips"/>
+                    <Chips class="w-full"
+                           v-model="store.item.allowed_ips"
+                           separator=","
+                           data-testid="store-allowed-ips"
+                           type="number" />
 
                 </VhField>
 
