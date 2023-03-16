@@ -82,9 +82,11 @@ const props = defineProps({
 
         <template v-else-if="type==='defaultCurrency'">
             <td colspan="2" >
-                 <span>
-                    {{value.code}}<b>({{value.symbol}})</b>
-                 </span>
+                <template v-if="typeof value === 'object' && value !== null">
+                    <span>
+                        {{value.code}}<b>({{value.symbol}})</b>
+                     </span>
+                </template>
             </td>
         </template>
 
