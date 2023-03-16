@@ -207,6 +207,7 @@ export const useStoreStore = defineStore({
                 this.assets = data;
                 this.status_option = data.status;
                 this.currencies_list = data.currencies_list;
+                this.languages_list = data.languages_list;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

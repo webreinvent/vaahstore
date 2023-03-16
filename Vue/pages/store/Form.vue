@@ -114,12 +114,22 @@ const toggleFormMenu = (event) => {
                     <div class="flex flex-row">
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_currency_no" @click="store.item.is_multi_currency = 0;  store.item.currencies = null;">no</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_currency_no"
+                                     @click="store.item.is_multi_currency = 0;  store.item.currencies = null;"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_currency_yes" @click="store.item.is_multi_currency = 1">yes</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_currency_yes"
+                                     @click="store.item.is_multi_currency = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label">yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                             </div>
@@ -132,7 +142,7 @@ const toggleFormMenu = (event) => {
                                       filter
                                       optionLabel="code"
                                       placeholder="Select default currencys"
-                                      class="w-full md:w-14rem">
+                                      class="w-full">
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
                                         <div>{{ slotProps.option.code }}  </div>
@@ -154,7 +164,7 @@ const toggleFormMenu = (event) => {
                                  optionLabel="code"
                                  placeholder="Select currencys"
                                  display="chip"
-                                 class="w-full md:w-20rem">
+                                 class="w-full">
                         <template #option="slotProps">
                             <div class="flex align-items-center">
                                 <div>{{ slotProps.option.code }}  </div>
@@ -175,21 +185,66 @@ const toggleFormMenu = (event) => {
                     <div class="flex flex-row">
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_lingual == 0 ? 'p-danger' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_lingual_no" @click="store.item.is_multi_lingual = 0">no</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_no"
+                                     @click="store.item.is_multi_lingual = 0;  store.item.languages = null;"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_lingual == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_lingual == 1 ? 'p-highlight' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_lingual_yes" @click="store.item.is_multi_lingual = 1">yes</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_yes"
+                                     @click="store.item.is_multi_lingual = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_lingual == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label" >yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                             </div>
                         </div>
 
                         <div v-if="store.item.is_multi_lingual == 1" class="pl-5 col-8">
-                            <MultiSelect placeholder="Select Languages" />
+                            <Dropdown v-model="store.item.language_default"
+                                      :options="store.item.languages"
+                                      data-testid="store-language_default"
+                                      filter
+                                      optionLabel="name"
+                                      placeholder="Select default language"
+                                      class="w-full">
+                                <template #option="slotProps">
+                                    <div class="flex align-items-center">
+                                        <span>{{slotProps.option.name}}</span>
+                                    </div>
+                                </template>
+                            </Dropdown>
                         </div>
                     </div>
+                </VhField>
+
+                <VhField label="Languages" v-show="store.item.is_multi_lingual == 1">
+                    <MultiSelect v-model="store.item.languages"
+                                 filter
+                                 :options="store.languages_list"
+                                 data-testid="store-languages"
+                                 optionLabel="name"
+                                 placeholder="Select languages"
+                                 display="chip"
+                                 class="w-full">
+                        <template #option="slotProps">
+                            <div class="flex align-items-center">
+                                <span>{{slotProps.option.name}}</span>
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="py-2 px-3">
+                                <b>{{ store.item.languages ? store.item.languages.length : 0 }}</b>
+                                item{{ (store.item.languages ? store.item.languages.length : 0) > 1 ? 's' : '' }} selected.
+                            </div>
+                        </template>
+                    </MultiSelect>
                 </VhField>
 
                 <VhField label="Is Multi Vendor">
