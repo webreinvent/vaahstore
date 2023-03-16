@@ -108,7 +108,6 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
 
                 </VhField>
-
                 <VhField label="Product">
                     <MultiSelect v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Cities"
                                  :maxSelectedLabels="3" class="w-full md:w-20rem" />
