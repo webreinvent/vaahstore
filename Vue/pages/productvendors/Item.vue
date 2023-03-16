@@ -166,6 +166,13 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
+                        <template v-else-if="column === 'can_update'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
                         <template v-else-if="column === 'taxonomy_id_product_vendor_status'">
                             <VhViewRow label="status"
                                        :value="store.item.status"
