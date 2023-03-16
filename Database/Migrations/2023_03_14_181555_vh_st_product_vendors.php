@@ -27,7 +27,7 @@ class VhStproductvendors extends Migration
                 $table->integer('approved_by')->nullable()->index();
                 $table->dateTime('approved_at')->nullable()->index();
                 $table->integer('taxonomy_id_product_vendor_status')->nullable()->index();
-                $table->string('status_notes')->nullable()->index();
+                $table->string('status_notes')->nullable();
                 //----common fields
                 $table->text('meta')->nullable();
                 $table->bigInteger('created_by')->nullable()->index();
