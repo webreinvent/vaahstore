@@ -110,12 +110,32 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Product">
-                    <MultiSelect
-                        data-testid="productvendors-product"
-                        name="productvendors-product"
-                        v-model="store.item.product" :options="store.product"
-                        optionLabel="name" placeholder="Select Product"
-                        :maxSelectedLabels="3" class="w-full" />
+                    <MultiSelect v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Cities"
+                                 :maxSelectedLabels="3" class="w-full md:w-20rem" />
+<!--                    <MultiSelect-->
+<!--                        data-testid="productvendors-product"-->
+<!--                        name="productvendors-product"-->
+<!--                        v-model="store.item.products" :options="store.product"-->
+<!--                        optionLabel="name" placeholder="Select Product"-->
+<!--                        :maxSelectedLabels="3" class="w-full" />-->
+                </VhField>
+
+                <VhField label="Can Update">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.can_update == 0 ? 'p-danger' : ''">
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.can_update == 1 ? 'p-highlight' : ''">
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </VhField>
 
                 <VhField label="Added By">

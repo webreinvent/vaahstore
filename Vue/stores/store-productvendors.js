@@ -38,6 +38,7 @@ export const useProductVendorStore = defineStore({
         rows_per_page: [10,20,30,50,100,500],
         list: null,
         item: null,
+        options_can_update:['off','no'],
         suggestion: null,
         fillable:null,
         empty_query:empty_states.query,
