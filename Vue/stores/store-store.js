@@ -36,7 +36,7 @@ export const useStoreStore = defineStore({
         app: null,
         status_option:null,
         showCurrencyDefault:false,
-        currencys_list:null,
+        currencies_list:null,
         status_suggestion_list:null,
         currency_suggestion_list:null,
         assets: null,
@@ -170,14 +170,18 @@ export const useStoreStore = defineStore({
                         },{deep: true}
                     )
 
-                watch(() => this.item.currency, (newVal,oldVal) =>
+                watch(() => this.item.currencies, (newVal,oldVal) =>
                     {
-                        if (newVal && newVal.length > 1){
-                            this.item.currency_default = this.item.currency.filter((d) => {
-                                return d.is_default == 1;
-                            })[0];
-                        }else{
-                            this.item.currency_default = null;
+                        let flag = 1;
+                        if (this.item.currency_default && this.item.currency_default.length > 1) {
+                            this.item.currencies.forEach((value) => {
+                                if (this.item.currency_default.code == value.code) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.currency_default = null;
+                            }
                         }
                     }, {deep: true}
                 )
@@ -202,7 +206,7 @@ export const useStoreStore = defineStore({
             {
                 this.assets = data;
                 this.status_option = data.status;
-                this.currencys_list = data.currencys_list;
+                this.currencies_list = data.currencies_list;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -250,10 +254,10 @@ export const useStoreStore = defineStore({
         searchCurrencyDefault(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.currency_default_suggestion_list = this.item.currency;
+                    this.currency_default_suggestion_list = this.item.currencies;
                 }
                 else {
-                    this.currency_default_suggestion_list = this.item.currency.filter((department) => {
+                    this.currency_default_suggestion_list = this.item.currencies.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -263,10 +267,10 @@ export const useStoreStore = defineStore({
         searchCurrency(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.currency_suggestion_list = this.currencys_list;
+                    this.currency_suggestion_list = this.currencies_list;
                 }
                 else {
-                    this.currency_suggestion_list = this.currencys_list.filter((department) => {
+                    this.currency_suggestion_list = this.currencies.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -289,11 +293,8 @@ export const useStoreStore = defineStore({
             {
                 this.item = data;
                 this.item.taxonomy_id_store_status = data.status;
-                if (data.currency.length > 1) {
-                    this.item.currency_default = this.item.currency.filter((d) => {
-                        return d.is_default == 1;
-                    })[0];
-                }
+                this.item.currency_default = data.currency_default;
+                let temp = data.currency_default;
             }else{
                 this.$router.push({name: 'store.index'});
             }

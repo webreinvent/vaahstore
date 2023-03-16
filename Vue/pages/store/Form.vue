@@ -115,7 +115,7 @@ const toggleFormMenu = (event) => {
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
                                 <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
-                                    <span class="p-button-label" @click="store.item.is_multi_currency = 0;  store.item.currency = null;">no</span>
+                                    <span class="p-button-label" @click="store.item.is_multi_currency = 0;  store.item.currencies = null;">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                                 <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">
@@ -125,9 +125,9 @@ const toggleFormMenu = (event) => {
                             </div>
                         </div>
 
-                        <div v-if="store.item && store.item.currency && store.item.currency.length > 1">
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length > 1">
                             <Dropdown v-model="store.item.currency_default"
-                                      :options="store.item.currency"
+                                      :options="store.item.currencies"
                                       filter
                                       optionLabel="code"
                                       placeholder="Select default currencys"
@@ -144,11 +144,11 @@ const toggleFormMenu = (event) => {
                     </div>
 
                 </VhField>
-                
-                <VhField label="Currency" v-show="store.item.is_multi_currency == 1">
-                    <MultiSelect v-model="store.item.currency"
+
+                <VhField label="currencies" v-show="store.item.is_multi_currency == 1">
+                    <MultiSelect v-model="store.item.currencies"
                                  filter
-                                 :options="store.currencys_list"
+                                 :options="store.currencies_list"
                                  optionLabel="code"
                                  placeholder="Select currencys"
                                  display="chip"
@@ -162,8 +162,8 @@ const toggleFormMenu = (event) => {
                         </template>
                         <template #footer>
                             <div class="py-2 px-3">
-                                <b>{{ store.item.currency ? store.item.currency.length : 0 }}</b>
-                                item{{ (store.item.currency ? store.item.currency.length : 0) > 1 ? 's' : '' }} selected.
+                                <b>{{ store.item.currencies ? store.item.currencies.length : 0 }}</b>
+                                item{{ (store.item.currencies ? store.item.currencies.length : 0) > 1 ? 's' : '' }} selected.
                             </div>
                         </template>
                     </MultiSelect>

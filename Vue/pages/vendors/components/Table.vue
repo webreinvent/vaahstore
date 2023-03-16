@@ -67,14 +67,6 @@ const useVaah = vaah();
                  <template #body="prop">
                      <Badge>{{prop.data.owned_by.name}}</Badge>
                  </template>
-             </Column>
-
-             <Column field="owned_by.name" header="Owned By"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge>{{prop.data.owned_by.name}}</Badge>
-                 </template>
 
              </Column>
 

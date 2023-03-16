@@ -91,8 +91,10 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    public function currency(){
-        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')->where('is_active', 1);
+    public function currenciesRecord(){
+        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')->where('is_active', 1)
+            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
+                'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
     }
 
     //-------------------------------------------------
@@ -142,8 +144,8 @@ class Store extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        if(!empty($inputs['currency']) && $item->is_multi_currency == 1) {
-            foreach ($inputs['currency'] as $key => $value) {
+        if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
+            foreach ($inputs['currencies'] as $key => $value) {
 
                 $record = new currencie();
                 $record->vh_st_store_id = $item->id;
@@ -189,12 +191,12 @@ class Store extends Model
             'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required',
             'is_active' => 'required',
-            'currency' => 'required_if:is_multi_currency,1',
+            'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => ''
         ],
         [
             'taxonomy_id_store_status.required' => 'The Status field is required',
-            'currency.required_if' => 'The currency field is required when is multi currency is "Yes".'
+            'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".'
         ]
         );
 
@@ -476,7 +478,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currency'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesRecord'])
             ->withTrashed()
             ->first();
 
@@ -485,6 +487,25 @@ class Store extends Model
             $response['success'] = false;
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
+        }
+
+        $item->currency_default = [];
+        $item->currencies = [];
+        if ($item->currenciesRecord->isNotEmpty()){
+
+            $currency_default_record = $item->currenciesRecord()->where('is_default',1)->select('name','code','symbol')->get();
+            if($currency_default_record->isNotEmpty()){
+                $item->currency_default = $currency_default_record[0];
+            }
+
+            $currencies = [];
+            foreach ($item->currenciesRecord as $key => $value) {
+                $currencies[$key]['name'] = $value['name'];
+                $currencies[$key]['code'] = $value['code'];
+                $currencies[$key]['symbol'] = $value['symbol'];
+            }
+            $item->currencies = $currencies;
+
         }
 
         $item->is_default = $item->is_default == 1 ? true :false;
@@ -524,10 +545,10 @@ class Store extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        if(!empty($inputs['currency'])) {
+        if(!empty($inputs['currencies'])) {
             currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
 
-            foreach ($inputs['currency'] as $key => $v) {
+            foreach ($inputs['currencies'] as $key => $v) {
 
                 currencie::updateOrInsert(
                     ['vh_st_store_id' => $item->id, 'name' => $v['name'], 'code' => $v['code'], 'symbol' => $v['symbol']],
