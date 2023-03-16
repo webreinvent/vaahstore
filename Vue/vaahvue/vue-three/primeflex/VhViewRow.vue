@@ -80,6 +80,14 @@ const props = defineProps({
             </td>
         </template>
 
+        <template v-else-if="type==='defaultCurrency'">
+            <td colspan="2" >
+                 <span>
+                    {{value.code}}<b>({{value.symbol}})</b>
+                 </span>
+            </td>
+        </template>
+
         <template v-else-if="type==='userEmail'">
 
             <td colspan="2" >

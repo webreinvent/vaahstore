@@ -55,12 +55,12 @@ class StoresController extends Controller
         $data['empty_item']['is_multi_vendor'] = 0;
         $data['empty_item']['is_default'] = false;
         $data['empty_item']['is_active'] = true;
-        $data['empty_item']['currency'] = null;
+        $data['empty_item']['currencies'] = null;
         $data['empty_item']['currency_default'] = null;
 
         $data['status'] = Taxonomy::getTaxonomyByType('store-status');
 
-        $data['currencys_list'] = VaahCountry::getListWithCurrency();
+        $data['currencies_list'] = VaahCountry::getListWithCurrency();
 
         $data['actions'] = [];
 
