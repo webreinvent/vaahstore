@@ -35,15 +35,20 @@ const items = ref([
                 to: "/products"
             },
             {
-                label: 'Brands',
+                label: 'Product-Variations',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/vendors"
+                to: "/productvariations"
             },
             {
                 label: 'Product-Vendor',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productvendors"
             },
+            {
+                label: 'Brands',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/vendors"
+            }
         ]
     },
 ]);

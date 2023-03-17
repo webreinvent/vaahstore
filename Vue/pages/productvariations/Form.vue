@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useProductStore } from '../../stores/store-products'
+import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useProductStore();
+const store = useProductVariationStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -56,14 +56,14 @@ const toggleFormMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
-                            data-testid="products-save"
+                            data-testid="productvariations-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
-                            data-testid="products-create-and-new"
+                            data-testid="productvariations-create-and-new"
                             icon="pi pi-save"/>
 
 
@@ -71,7 +71,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
-                        data-testid="products-form-menu"
+                        data-testid="productvariations-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -83,7 +83,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="products-to-list"
+                            data-testid="productvariations-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -97,72 +97,66 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Name">
                     <InputText class="w-full"
-                               name="products-name"
-                               placeholder="Enter a Name"
-                               data-testid="products-name"
+                               name="productvariations-name"
+                               data-testid="productvariations-name"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Slug">
                     <InputText class="w-full"
-                               placeholder="Enter a Slug"
-                               name="products-slug"
-                               data-testid="products-slug"
+                               name="productvariations-slug"
+                               data-testid="productvariations-slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
-
-
-                <VhField label="Brand">
+                <VhField label="Product">
 
                     <AutoComplete
-                        v-model="store.item.brand"
+                        v-model="store.item.product"
                         class="w-full"
                         :suggestions="store.suggestion"
-                        @complete="store.searchBrand($event)"
-                        placeholder="Select Brand"
-                        data-testid="products-brand"
-                        name="products-brand"
+                        @complete="store.searchProduct($event)"
+                        placeholder="Select Product"
+                        data-testid="productvariations-product"
+                        name="productvariations-product"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
 
-                <VhField label="Store">
-
-                    <AutoComplete
-                        v-model="store.item.store"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchStore($event)"
-                        placeholder="Select Store"
-                        data-testid="products-store"
-                        name="products-store"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
+                <VhField label="SKU">
+                    <InputText class="w-full"
+                               name="productvariations-sku"
+                               data-testid="productvariations-sku"
+                               placeholder="Enter SKU"
+                               v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="Type">
-
-                    <AutoComplete
-                        v-model="store.item.type"
-                        class="w-full"
-                        data-testid="products-type"
-                        name="products-type"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchTaxonomyProduct($event)"
-                        placeholder="Select Type"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                <VhField label="Has Media">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 0 ? 'p-danger' : ''">
+                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 1 ? 'p-highlight' : ''">
+                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </VhField>
 
                 <VhField label="In Stock">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="products-in_stock"
-                                 data-testid="products-in_stock"
+                                 name="productvariations-in_stock"
+                                 data-testid="productvariations-in_stock"
                                  v-model="store.item.in_stock"/>
                 </VhField>
 
@@ -171,41 +165,48 @@ const toggleFormMenu = (event) => {
                         :disabled="store.item.in_stock==0"
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
-                        name="products-quantity"
+                        name="productvariations-quantity"
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
-                        data-testid="products-quantity"
+                        data-testid="productvariations-quantity"
                         :min="1"/>
                 </VhField>
-
 
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.status"
                         class="w-full"
-                        name="products-status"
+                        name="productvariations-status"
                         :suggestions="store.suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
-                        data-testid="products-status"
+                        data-testid="productvariations-status"
                         forceSelection>
                     </AutoComplete>
                 </VhField>
 
                 <VhField label="Status Notes">
                     <Textarea rows="5" cols="30"
-                               placeholder="Enter a Status Note"
-                               name="products-status_notes"
-                               data-testid="products-status_notes"
-                               v-model="store.item.status_notes"/>
+                              placeholder="Enter a Status Note"
+                              name="productvariations-status_notes"
+                              data-testid="productvariations-status_notes"
+                              v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Is Default">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="vendors-default"
+                                 data-testid="vendors-default"
+                                 v-model="store.item.is_default"/>
                 </VhField>
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="products-active"
-                                 data-testid="products-active"
+                                 name="productvariations-active"
+                                 data-testid="productvariations-active"
                                  v-model="store.item.is_active"/>
                 </VhField>
 

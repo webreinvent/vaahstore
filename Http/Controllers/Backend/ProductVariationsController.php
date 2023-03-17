@@ -3,11 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Brand;
-use WebReinvent\VaahCms\Entities\User;
+use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
-class BrandsController extends Controller
+class ProductVariationsController extends Controller
 {
 
 
@@ -36,7 +37,7 @@ class BrandsController extends Controller
                 'deleted_by',
             ];
 
-            $model = new Brand();
+            $model = new ProductVariation();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
                 $fillable, $data['fillable']['except']
@@ -47,17 +48,14 @@ class BrandsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['actions'] = [];
+            $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['status'] = Taxonomy::getTaxonomyByType('brand-status');
-
-            $active_user = auth()->user();
-            $approved_by['id'] = $active_user->id;
-            $approved_by['name'] = $active_user->first_name;
-            $approved_by['email'] = $active_user->email;
-            $data['empty_item']['approved_by'] = $approved_by;
-//            $data['approved_by_default'] = auth()->user();
+            $data['empty_item']['in_stock'] = 0;
+            $data['empty_item']['has_media'] = 0;
+            $data['empty_item']['quantity'] = 0;
+            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+            $data['product']= Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -80,7 +78,7 @@ class BrandsController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Brand::getList($request);
+            return ProductVariation::getList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -89,15 +87,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
         try{
-            return Brand::updateList($request);
+            return ProductVariation::updateList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -106,8 +104,9 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
+
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -116,7 +115,7 @@ class BrandsController extends Controller
 
 
         try{
-            return Brand::listAction($request, $type);
+            return ProductVariation::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -125,15 +124,16 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
+
         }
     }
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
         try{
-            return Brand::deleteList($request);
+            return ProductVariation::deleteList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -142,15 +142,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
         try{
-            return Brand::createItem($request);
+            return ProductVariation::createItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -159,15 +159,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function getItem(Request $request, $id)
     {
         try{
-            return Brand::getItem($id);
+            return ProductVariation::getItem($id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -176,15 +176,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
         try{
-            return Brand::updateItem($request,$id);
+            return ProductVariation::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -193,15 +193,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Brand::deleteItem($request,$id);
+            return ProductVariation::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -210,15 +210,15 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Brand::itemAction($request,$id,$action);
+            return ProductVariation::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -227,8 +227,8 @@ class BrandsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
