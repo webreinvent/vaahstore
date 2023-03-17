@@ -111,67 +111,6 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Product">
-
-                    <AutoComplete
-                        v-model="store.item.product"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchProduct($event)"
-                        placeholder="Select Product"
-                        data-testid="productvariations-product"
-                        name="productvariations-product"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
-                </VhField>
-
-                <VhField label="SKU">
-                    <InputText class="w-full"
-                               name="productvariations-sku"
-                               data-testid="productvariations-sku"
-                               placeholder="Enter SKU"
-                               v-model="store.item.sku"/>
-                </VhField>
-
-                <VhField label="Has Media">
-                    <div class="flex flex-row">
-                        <div class="col-4">
-                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 0 ? 'p-danger' : ''">
-                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 0">no</span>
-                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
-                                </div>
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 1 ? 'p-highlight' : ''">
-                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 1">yes</span>
-                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </VhField>
-
-                <VhField label="In Stock">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="productvariations-in_stock"
-                                 data-testid="productvariations-in_stock"
-                                 v-model="store.item.in_stock"/>
-                </VhField>
-
-                <VhField label="Quantity">
-                    <InputNumber
-                        :disabled="store.item.in_stock==0"
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        name="productvariations-quantity"
-                        v-model="store.item.quantity"
-                        mode="decimal" showButtons
-                        data-testid="productvariations-quantity"
-                        :min="1"/>
-                </VhField>
-
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.status"
@@ -192,14 +131,6 @@ const toggleFormMenu = (event) => {
                               name="productvariations-status_notes"
                               data-testid="productvariations-status_notes"
                               v-model="store.item.status_notes"/>
-                </VhField>
-
-                <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="vendors-default"
-                                 data-testid="vendors-default"
-                                 v-model="store.item.is_default"/>
                 </VhField>
 
                 <VhField label="Is Active">

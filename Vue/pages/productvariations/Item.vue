@@ -137,7 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'status'|| column === 'product'">
+                        <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -158,34 +158,6 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'in_stock'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'has_media'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'is_default'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_product_id'">
-                            <VhViewRow label="Product"
-                                       :value="store.item.product"
-                                       type="user"
                             />
                         </template>
 

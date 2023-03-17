@@ -38,46 +38,6 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="product" header="Product"
-                    :sortable="true">
-
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.product.name}}
-                </template>
-
-            </Column>
-
-             <Column field="in_stock" header="In Stock"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
-                            value="out of stock"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
-                            value="in stock"
-                            severity="success"></Badge>
-                 </template>
-
-             </Column>
-
-             <Column field="quantity" header="Quantity"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.quantity > 0"
-                            :value="prop.data.quantity"
-                            severity="success"></Badge>
-                 </template>
-
-             </Column>
-
              <Column field="status" header="Status"
                      :sortable="true">
 
@@ -95,7 +55,7 @@ const useVaah = vaah();
 
              </Column>
 
-                <Column field="sku" header="SKU"
+                <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
                         :sortable="true">
