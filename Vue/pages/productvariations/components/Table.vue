@@ -67,7 +67,21 @@ const useVaah = vaah();
 
              </Column>
 
-                <Column field="updated_at" header="Updated"
+                <Column field="sku" header="SKU"
+                        v-if="store.isViewLarge()"
+                        style="width:150px;"
+                        :sortable="true">
+
+                    <template #body="prop">
+                        <Badge v-if="prop.data.deleted_at"
+                               value="Trashed"
+                               severity="danger"></Badge>
+                        {{prop.data.sku}}
+                    </template>
+
+                </Column>
+
+             <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
                         :sortable="true">
