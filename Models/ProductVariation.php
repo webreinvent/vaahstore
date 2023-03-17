@@ -78,6 +78,12 @@ class ProductVariation extends Model
     }
 
     //-------------------------------------------------
+    public function product()
+    {
+        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -151,6 +157,7 @@ class ProductVariation extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
+        $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->save();
 
@@ -240,7 +247,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','product');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -422,7 +429,7 @@ class ProductVariation extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product'])
             ->withTrashed()
             ->first();
 
@@ -474,6 +481,7 @@ class ProductVariation extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
+        $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->save();
 
@@ -535,6 +543,7 @@ class ProductVariation extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required',
+            'product'=> 'required',
             'status_notes'=> 'required|max:150',
         );
 

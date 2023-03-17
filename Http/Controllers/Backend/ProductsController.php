@@ -50,7 +50,7 @@ class ProductsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 0;
-            $data['brand']=Brand::select('id','name')->paginate(config('vaahcms.per_page'));
+            $data['brand']=Brand::select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['store']=Store::where('is_active',1)->select('id','name')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['taxonomy_product'] = Taxonomy::getTaxonomyByType('product-types');
