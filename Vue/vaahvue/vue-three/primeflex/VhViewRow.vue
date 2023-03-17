@@ -90,6 +90,38 @@ const props = defineProps({
             </td>
         </template>
 
+        <template v-else-if="type==='multipleLingual'">
+            <td colspan="2" >
+                <template v-if="typeof value === 'object' && value && value.length > 0">
+                    <span v-for="data in value">
+                        {{data.name}}&nbsp; &nbsp;
+                    </span>
+                </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
+            </td>
+        </template>
+
+        <template v-else-if="type==='defaultLingual'">
+            <td colspan="2" >
+                <template v-if="typeof value === 'object' && value !== null">
+                    <span>
+                        {{value.name}}
+                     </span>
+                </template>
+            </td>
+        </template>
+
+        <template v-else-if="type==='allowedIps'">
+            <td colspan="2" >
+                <template v-if="typeof value === 'object' && value && value.length > 0">
+                    <span v-for="data in value">
+                        <badge :value="data" severity="Default"></badge>&nbsp; &nbsp;
+                    </span>
+                </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
+            </td>
+        </template>
+
         <template v-else-if="type==='userEmail'">
 
             <td colspan="2" >

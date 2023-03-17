@@ -135,7 +135,7 @@ const toggleFormMenu = (event) => {
                             </div>
                         </div>
 
-                        <div v-if="store.item && store.item.currencies && store.item.currencies.length > 1">
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8">
                             <Dropdown v-model="store.item.currency_default"
                                       :options="store.item.currencies"
                                       data-testid="store-currency_default"
@@ -206,7 +206,7 @@ const toggleFormMenu = (event) => {
                             </div>
                         </div>
 
-                        <div v-if="store.item.is_multi_lingual == 1" class="pl-5 col-8">
+                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8">
                             <Dropdown v-model="store.item.language_default"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
@@ -251,12 +251,22 @@ const toggleFormMenu = (event) => {
                     <div class="flex flex-row">
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_vendor == 0 ? 'p-danger' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_lingual_no" @click="store.item.is_multi_vendor = 0">no</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_no"
+                                     @click="store.item.is_multi_vendor = 0"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_vendor == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.is_multi_vendor == 1 ? 'p-highlight' : ''">
-                                    <span class="p-button-label" data-testid="store-is_multi_lingual_yes" @click="store.item.is_multi_vendor = 1">yes</span>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_yes"
+                                     @click="store.item.is_multi_vendor = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_vendor == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label">yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                             </div>
@@ -274,16 +284,6 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Is Default">
-                    <InputSwitch v-model="store.item.is_default" data-testid="store-is_default" />
-
-                </VhField>
-
-                <VhField label="Is Active">
-                    <InputSwitch v-model="store.item.is_active" data-testid="store-is_active" />
-
-                </VhField>
-
                 <VhField label="Status">
                     <AutoComplete v-model="store.item.taxonomy_id_store_status"
                                   class="w-full"
@@ -297,6 +297,20 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status Notes">
                     <Textarea v-model="store.item.status_notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
+                </VhField>
+
+                <VhField label="Store Notes">
+                    <Textarea v-model="store.item.notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
+                </VhField>
+
+                <VhField label="Is Default">
+                    <InputSwitch v-model="store.item.is_default" data-testid="store-is_default" />
+
+                </VhField>
+
+                <VhField label="Is Active">
+                    <InputSwitch v-model="store.item.is_active" data-testid="store-is_active" />
+
                 </VhField>
 
             </div>

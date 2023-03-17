@@ -185,6 +185,21 @@ export const useStoreStore = defineStore({
                         }
                     }, {deep: true}
                 )
+                watch(() => this.item.languages, (newVal,oldVal) =>
+                    {
+                        let flag = 1;
+                        if (this.item.language_default && this.item.language_default.length > 1) {
+                            this.item.languages.forEach((value) => {
+                                if (this.item.language_default.name == value.name) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.language_default = null;
+                            }
+                        }
+                    }, {deep: true}
+                )
                 }
         },
         //---------------------------------------------------------------------

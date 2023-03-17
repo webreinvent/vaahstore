@@ -20,16 +20,6 @@ const items = ref([
                 to: "/"
             },
             {
-                label: 'Product',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/products"
-            },
-            {
-                label: 'Brands',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/brands"
-            },
-            {
                 label: 'Store',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/store"
@@ -39,6 +29,16 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/vendors"
             },
+            {
+                label: 'Product',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/products"
+            },
+            {
+                label: 'Brands',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/brands"
+            }
         ]
     },
 ]);

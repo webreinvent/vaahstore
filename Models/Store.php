@@ -98,6 +98,12 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+    public function lingualRecord(){
+        return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')->where('is_active', 1)
+            ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.is_default']);
+    }
+
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -136,10 +142,11 @@ class Store extends Model
         $item->is_multi_currency  = $inputs['is_multi_currency'];
         $item->is_multi_lingual  = $inputs['is_multi_lingual'];
         $item->is_multi_vendor  = $inputs['is_multi_vendor'];
-        $item->allowed_ips = $inputs['allowed_ips'];
+        $item->allowed_ips =json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->notes = $inputs['notes'];
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
@@ -210,6 +217,7 @@ class Store extends Model
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required',
+            'notes' => 'required',
             'is_active' => 'required',
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
@@ -218,6 +226,7 @@ class Store extends Model
         ],
         [
             'taxonomy_id_store_status.required' => 'The Status field is required',
+            'notes.required' => 'The Store Notes field is required',
             'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
             'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".'
         ]
@@ -501,7 +510,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesRecord'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesRecord', 'lingualRecord'])
             ->withTrashed()
             ->first();
 
@@ -529,6 +538,22 @@ class Store extends Model
             }
             $item->currencies = $currencies;
 
+        }
+
+        $item->language_default = [];
+        $item->languages = [];
+        if ($item->lingualRecord->isNotEmpty()){
+
+            $language_default_record = $item->lingualRecord()->where('is_default',1)->select('name')->get();
+            if($language_default_record->isNotEmpty()){
+                $item->language_default = $language_default_record[0];
+            }
+
+            $languages = [];
+            foreach ($item->lingualRecord as $key => $value) {
+                $languages[$key]['name'] = $value['name'];
+            }
+            $item->languages = $languages;
         }
 
         $item->is_default = $item->is_default == 1 ? true :false;
@@ -565,6 +590,7 @@ class Store extends Model
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->notes = $inputs['notes'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -583,10 +609,35 @@ class Store extends Model
             if (!empty($inputs['currency_default'])){
                 currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'], 'is_active' => 1])->update(['is_default' => 1]);
             }else{
-                currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first()->update(['is_default' => 1]);
+                $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first()->update(['is_default' => 1]);
+                $first_active_currencies->is_default = 1;
+                $first_active_currencies->save();
             }
         }else{
             currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+        }
+
+        if(!empty($inputs['languages'])) {
+            Lingual::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+
+            foreach ($inputs['languages'] as $key => $v) {
+
+                Lingual::updateOrInsert(
+                    ['vh_st_store_id' => $item->id, 'name' => $v['name']],
+                    ['is_active' => 1]
+                );
+
+            }
+
+            if (!empty($inputs['language_default'])){
+                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['language_default']['name'], 'is_active' => 1])->update(['is_default' => 1]);
+            }else{
+                $first_active_lingual = Lingual::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
+                $first_active_lingual->is_default = 1;
+                $first_active_lingual->save();
+            }
+        }else{
+            Lingual::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         $response = self::getItem($item->id);
