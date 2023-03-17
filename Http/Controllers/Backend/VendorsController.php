@@ -67,7 +67,7 @@ class VendorsController extends Controller
             $approved_by['email'] = $active_user->email;
 
             $data['empty_item']['approved_by'] = $approved_by;
-
+            $default_store = [];
             foreach($data['stores'] as $k=>$arr)
             {
                 if($arr['is_default']==1)

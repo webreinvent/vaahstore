@@ -137,7 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'status'">
+                        <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'status' || column === 'currencies_record'|| column === 'lingual_record'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -158,6 +158,41 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'allowed_ips'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="allowedIps"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'currencies'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="multipleCurrency"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'currency_default'">
+                            <VhViewRow label="Default currency"
+                                       :value="value"
+                                       type="defaultCurrency"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'languages'">
+                            <VhViewRow label="Linguals"
+                                       :value="value"
+                                       type="multipleLingual"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'language_default'">
+                            <VhViewRow label="Default Lingual"
+                                       :value="value"
+                                       type="defaultLingual"
                             />
                         </template>
 
@@ -186,6 +221,12 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'notes'">
+                            <VhViewRow label="Store Notes"
+                                       :value="value"
                             />
                         </template>
 
