@@ -67,10 +67,6 @@ const useVaah = vaah();
                  <template #body="prop">
                      <Badge>{{prop.data.owned_by.name}}</Badge>
                  </template>
-<<<<<<< HEAD
-
-=======
->>>>>>> added-store-product_vendor
              </Column>
 
                 <Column field="updated_at" header="Updated"
