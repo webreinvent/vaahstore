@@ -5,7 +5,6 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -29,15 +28,6 @@ class ProductVariation extends Model
         'name',
         'slug',
         'is_active',
-        'vh_st_product_id',
-        'sku',
-        'quantity',
-        'is_default',
-        'in_stock',
-        'has_media',
-        'meta',
-        'taxonomy_id_product_variation_status',
-        'status_notes',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -69,18 +59,6 @@ class ProductVariation extends Model
         return $this->belongsTo(User::class,
             'updated_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-    }
-
-    //-------------------------------------------------
-    public function status()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_variation_status')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
-    public function product()
-    {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -156,20 +134,6 @@ class ProductVariation extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->sku = $inputs['sku'];
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1.';
-            return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -258,7 +222,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','product');
+        $list = self::getSorted($request->filter);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -440,7 +404,7 @@ class ProductVariation extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -491,20 +455,6 @@ class ProductVariation extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->sku = $inputs['sku'];
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1';
-            return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -564,13 +514,6 @@ class ProductVariation extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'sku' => 'required|max:150',
-            'status'=> 'required',
-            'product'=> 'required',
-            'quantity'  => 'required',
-            'in_stock'=> 'required|numeric',
-            'status_notes'=> 'required|max:150',
-            'has_media'=> 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);
