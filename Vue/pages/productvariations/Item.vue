@@ -161,6 +161,20 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
+                        <template v-else-if="column === 'in_stock'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'is_default'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
                         <template v-else-if="column === 'vh_st_product_id'">
                             <VhViewRow label="Product"
                                        :value="store.item.product"
