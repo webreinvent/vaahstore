@@ -33,3 +33,4 @@ include_once __DIR__."/backend/routes-vendors.php";
 include_once __DIR__."/backend/routes-brands.php";
 include_once __DIR__."/backend/routes-products.php";
 include_once __DIR__."/backend/routes-productvendors.php";
+include_once __DIR__."/backend/routes-warehouses.php";
