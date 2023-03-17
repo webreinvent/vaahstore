@@ -570,6 +570,7 @@ class ProductVariation extends Model
             'quantity'  => 'required',
             'in_stock'=> 'required|numeric',
             'status_notes'=> 'required|max:150',
+            'has_media'=> 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);
