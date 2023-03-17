@@ -18,9 +18,13 @@ class VhStproductmedias extends Migration
             Schema::create('vh_st_product_medias', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
+                $table->integer('vh_st_product_id')->nullable()->index();
+                $table->integer('vh_st_product_variation_id')->nullable()->index();
+                $table->integer('taxonomy_id_product_media_status')->nullable()->index();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
+                $table->string('status_notes')->nullable();
+                $table->string('path')->nullable();
+                $table->string('url')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 
 
