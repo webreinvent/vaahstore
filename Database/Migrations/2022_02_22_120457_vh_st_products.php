@@ -17,21 +17,19 @@ class VhStProducts extends Migration
         Schema::create('vh_st_products', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
-
-            $table->string('name')->nullable()->index();
-            $table->string('slug')->nullable()->index();
-
             $table->integer('taxonomy_id_product_type')->nullable()->index();
-
             $table->integer('vh_st_store_id')->nullable()->index();
             $table->integer('vh_st_brand_id')->nullable()->index();
             $table->integer('vh_cms_content_form_field_id')->nullable()->index();
+            $table->integer('taxonomy_id_product_status')->nullable()->index();
+
+            $table->string('name')->nullable()->index();
+            $table->string('slug')->nullable()->index();
 
             $table->bigInteger('quantity')->nullable()->index();
             $table->boolean('in_stock')->nullable()->index();
 
             $table->boolean('is_active')->nullable()->index();
-            $table->integer('taxonomy_id_product_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields
