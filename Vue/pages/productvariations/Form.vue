@@ -99,6 +99,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productvariations-name"
                                data-testid="productvariations-name"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -106,7 +107,30 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productvariations-slug"
                                data-testid="productvariations-slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
+                </VhField>
+
+                <VhField label="Status">
+                    <AutoComplete
+                        v-model="store.item.status"
+                        class="w-full"
+                        name="productvariations-status"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="productvariations-status"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Status Note"
+                              name="productvariations-status_notes"
+                              data-testid="productvariations-status_notes"
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">

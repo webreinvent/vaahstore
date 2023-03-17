@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class ProductVariationsController extends Controller
@@ -46,6 +47,7 @@ class ProductVariationsController extends Controller
             }
 
             $data['actions'] = [];
+            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
 
             $response['success'] = true;
             $response['data'] = $data;

@@ -30,7 +30,7 @@ class Product extends Model
         'vh_st_store_id',
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
         'quantity', 'in_stock', 'is_active',
-        'status', 'status_notes', 'meta',
+        'taxonomy_id_product_status', 'status_notes', 'meta',
         'created_by',
         'updated_by',
         'deleted_by',

@@ -117,8 +117,6 @@ const useVaah = vaah();
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
-
                  </template>
 
              </Column>
