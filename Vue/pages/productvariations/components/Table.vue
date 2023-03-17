@@ -38,6 +38,18 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="product" header="Product"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.product.name}}
+                </template>
+
+            </Column>
+
              <Column field="status" header="Status"
                      :sortable="true">
 

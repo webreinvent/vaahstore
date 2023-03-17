@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
@@ -48,6 +50,7 @@ class ProductVariationsController extends Controller
 
             $data['actions'] = [];
             $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+            $data['product']= Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
 
             $response['success'] = true;
             $response['data'] = $data;

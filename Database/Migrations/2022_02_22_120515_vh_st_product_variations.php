@@ -31,7 +31,7 @@ class VhStProductVariations extends Migration
             $table->boolean('has_media')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
 
-            $table->string('taxonomy_id_product_variation_status')->nullable()->index();
+            $table->integer('taxonomy_id_product_variation_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields
