@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Brand';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductVendor';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/brands";
+let ajax_url = base_url + "/backend/store/productvendors";
 
 let empty_states = {
     query: {
@@ -26,34 +26,32 @@ let empty_states = {
     }
 };
 
-export const useBrandStore = defineStore({
-    id: 'brands',
+export const useProductVendorStore = defineStore({
+    id: 'productvendors',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
-        user:null,
-        disable_approved_by:true,
-        approved_by_user:null,
-        suggestion:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
         item: null,
+        options_can_update:['off','no'],
+        suggestion: null,
         fillable:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
         query: vaah().clone(empty_states.query),
         action: vaah().clone(empty_states.action),
         search: {
-            delay_time: 600, //time delay in milliseconds
+            delay_time: 600, // time delay in milliseconds
             delay_timer: 0 // time delay in milliseconds
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'brands.',
+        route_prefix: 'productvendors.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -68,35 +66,22 @@ export const useBrandStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        added_by_user:null,
+        disable_approved_by:true,
     }),
     getters: {
 
     },
     actions: {
-        //---------------------------------------------------------------------
-        searchRegisteredBy(event) {
+        searchAddeddBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.user;
+                    this.suggestion = this.added_by_user;
                 }
                 else {
-                    this.suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchApprovedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.suggestion = this.approved_by_user;
-                }
-                else {
-                    this.suggestion= this.approved_by_user.filter((approved_by_user) => {
-                        return approved_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.suggestion= this.added_by_user.filter((added_by_user) => {
+                        return added_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -110,6 +95,20 @@ export const useBrandStore = defineStore({
                 else {
                     this.suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.vendor;
+                }
+                else {
+                    this.suggestion= this.vendor.filter((vendor) => {
+                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -138,7 +137,7 @@ export const useBrandStore = defineStore({
         {
             switch(route_name)
             {
-                case 'brands.index':
+                case 'productvendors.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -179,10 +178,10 @@ export const useBrandStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
-                        this.disable_approved_by = false;
+                        this.disable_added_by = false;
                         this.getItem(newVal.params.id);
                     }else{
-                        this.disable_approved_by = true;
+                        this.disable_added_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -232,10 +231,12 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.user = data.user.data
-                this.approved_by_user = data.user.data
-                this.status = data.status
-                this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
+                this.status = data.status;
+                this.vendor = data.vendor.data
+                this.added_by_user = data.user.data
+                this.product =data.product.data
+                this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
+
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -282,11 +283,9 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.registered_by = data.user;
-                this.approved_by = data.approved_by;
-                this.item.status = data.status;
+                this.addd_by = data.added_by;
             }else{
-                this.$router.push({name: 'brands.index'});
+                this.$router.push({name: 'productvendors.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -462,11 +461,9 @@ export const useBrandStore = defineStore({
         {
             if(data)
             {
-                console.log(data)
                 this.item = data;
-                this.item.registered_by = data.user;
-                this.approved_by = data.approved_by;
-                this.item.status = data.status;
+                this.added_by = data.added_by;
+                this.vendor = data.vendor;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -484,7 +481,7 @@ export const useBrandStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'brands.index'});
+                    this.$router.push({name: 'productvendors.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -655,32 +652,32 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'brands.index'})
+            this.$router.push({name: 'productvendors.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'brands.index'})
+            this.$router.push({name: 'productvendors.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'brands.form'})
+            this.$router.push({name: 'productvendors.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'brands.view', params:{id:item.id}})
+            this.$router.push({name: 'productvendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'brands.form', params:{id:item.id}})
+            this.$router.push({name: 'productvendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -944,5 +941,5 @@ export const useBrandStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useBrandStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useProductVendorStore, import.meta.hot))
 }

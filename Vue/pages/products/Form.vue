@@ -146,13 +146,13 @@ const toggleFormMenu = (event) => {
                 <VhField label="Type">
 
                     <AutoComplete
-                        v-model="store.item.taxonomy_product"
+                        v-model="store.item.type"
                         class="w-full"
-                        data-testid="products-taxonomy_product"
-                        name="products-taxonomy_product"
+                        data-testid="products-type"
+                        name="products-type"
                         :suggestions="store.suggestion"
                         @complete="store.searchTaxonomyProduct($event)"
-                        placeholder="Select Taxonomy Product"
+                        placeholder="Select Type"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
@@ -202,7 +202,8 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea class="w-full"
+                    <Textarea
+                              rows="5" cols="30"
                                placeholder="Enter a Status Note"
                                name="products-status_notes"
                                data-testid="products-status_notes"

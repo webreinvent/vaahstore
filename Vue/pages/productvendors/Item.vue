@@ -2,10 +2,10 @@
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
-import { useBrandStore } from '../../stores/store-brands'
+import { useProductVendorStore } from '../../stores/store-productvendors'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
-const store = useBrandStore();
+const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -78,14 +78,14 @@ const toggleItemMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Edit"
                             @click="store.toEdit(store.item)"
-                            data-testid="brands-item-to-edit"
+                            data-testid="productvendors-item-to-edit"
                             icon="pi pi-save"/>
 
                     <!--item_menu-->
                     <Button
                         type="button"
                         @click="toggleItemMenu"
-                        data-testid="brands-item-menu"
+                        data-testid="productvendors-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -96,7 +96,7 @@ const toggleItemMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="brands-item-to-list"
+                            data-testid="productvendors-item-to-list"
                             @click="store.toList()"/>
 
                 </div>
@@ -123,7 +123,7 @@ const toggleItemMenu = (event) => {
                         <div class="">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="brands-item-restore"
+                                    data-testid="productvendors-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -137,8 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'status' || column === 'updated_by' ||
-                         column === 'user'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status'|| column === 'products'|| column === 'product'|| column === 'vendor'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -148,39 +147,45 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
-                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="user"
-                            />
-                        </template>
-                        <template v-else-if="column === 'taxonomy_id_brand_status'">
-                            <VhViewRow label="status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'registered_by'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="user"
-                            />
-                        </template>
-                        <template v-else-if="column === 'approved_by'">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
                             />
                         </template>
 
-                        <template v-else-if="column === 'is_active'">
+                        <template v-else-if="column === 'vh_st_product_id'">
+                            <VhViewRow label="Product"
+                                       :value="store.item.product.name"
+                            />
+                        </template>
+                        <template v-else-if="column === 'vh_st_vendors_id'">
+                            <VhViewRow label="Vendor"
+                                       :value="store.item.vendor.name"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'added_by'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'can_update'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
+
+                        <template v-else-if="column === 'taxonomy_id_product_vendor_status'">
+                            <VhViewRow label="Status"
+                                       :value="store.item.status"
+                                       type="status"
+                            />
+                        </template>
+
 
                         <template v-else>
                             <VhViewRow :label="column"

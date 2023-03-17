@@ -179,7 +179,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.taxonomy_id_brand_status"
+                        v-model="store.item.status"
                         class="w-full"
                         name="brands-status"
                         data-testid="brands-status"
@@ -191,7 +191,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea class="w-full"
+                    <Textarea rows="5" cols="30"
                                name="brands-status_notes"
                                data-testid="brands-status_notes"
                               :autoResize="true"

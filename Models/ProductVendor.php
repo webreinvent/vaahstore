@@ -1,7 +1,7 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -9,14 +9,14 @@ use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Product extends Model
+class ProductVendor extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_products';
+    protected $table = 'vh_st_product_vendors';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -27,19 +27,13 @@ class Product extends Model
     protected $fillable = [
         'uuid',
         'id',
-        'name',
-        'slug',
-        'taxonomy_id_product_type',
-        'vh_st_store_id',
-        'vh_st_brand_id',
-        'vh_cms_content_form_field_id',
-        'quantity',
-        'in_stock',
-        'is_active',
-        'taxonomy_id_product_status',
+        'vh_st_product_id',
+        'vh_st_vendors_id',
+        'added_by',
+        'can_update',
+        'taxonomy_id_product_vendor_status',
         'status_notes',
-        'meta',
-        'meta',
+        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -74,35 +68,30 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function brand()
-    {
-        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
-    public function store()
-    {
-        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
-    public function status()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
-    public function type()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
             'deleted_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+    //-------------------------------------------------
+    public function addedBy()
+    {
+        return $this->hasOne(User::class,'id','added_by');
+    }
+    //-------------------------------------------------
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
+    }
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
+    }
+    //-------------------------------------------------
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class,'id','vh_st_vendors_id')->select('id','name', 'slug');
     }
 
     //-------------------------------------------------
@@ -116,6 +105,11 @@ class Product extends Model
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_vendor_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -149,58 +143,32 @@ class Product extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        // check if product vendor exist
+        foreach ($inputs['products'] as $input) {
+            $item = self::where('vh_st_vendors_id', $inputs['vendor']['id'])->where('vh_st_product_id', $input['id'])->withTrashed()->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
+            if ($item) {
+                $response['success'] = false;
+                $response['messages'][] = "This vendor and product (" . $input['name'] . ") is already exist.";
+                return $response;
+            }
+
+            $item = new self();
+            $item->fill($inputs);
+            $item->status_notes = $inputs['status_notes'];
+            $item->taxonomy_id_product_vendor_status = $inputs['status']['id'];
+            $item->vh_st_vendors_id = $inputs['vendor']['id'];
+            $item->is_active = $inputs['is_active'];
+            $item->vh_st_product_id = $input['id'];
+            $item->added_by = $inputs['added_by']['id'];
+            $item->can_update = $inputs['can_update'];
+            $item->save();
+
+
+            $response = self::getItem($item->id);
+            $response['messages'][] = 'Saved successfully.';
         }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
-        $item = new self();
-        $item->fill($inputs);
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_type = $inputs['type']['id'];
-
-        $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_product_status = $inputs['status']['id'];
-        if(is_string($inputs['brand']['name'])){
-            $item->vh_st_brand_id = $inputs['brand']['id'];
-        }
-        if(is_string($inputs['store']['name'])){
-            $item->vh_st_store_id = $inputs['store']['id'];
-        }
-
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1.';
-            return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
-        $item->is_active = $inputs['is_active'];
-
-
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
         return $response;
-
     }
 
     //-------------------------------------------------
@@ -283,7 +251,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status');
+        $list = self::getSorted($request->filter)->with('products','product','vendor','addedBy','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -465,7 +433,7 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','type','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','product','vendor','addedBy','status'])
             ->withTrashed()
             ->first();
 
@@ -491,61 +459,32 @@ class Product extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if vendor exist
+        foreach ($inputs['products'] as $input) {
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where('vh_st_vendors_id', $inputs['vendor']['id'])->where('vh_st_product_id', $input['id'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['messages'][] = "This vendor and product (" . $input['name'] . ") is already exist.";
             return $response;
         }
+            $item = new self();
+            $item->fill($inputs);
+            $item->status_notes = $inputs['status_notes'];
+            $item->taxonomy_id_product_vendor_status = $inputs['status']['id'];
+            $item->vh_st_vendors_id = $inputs['vendor']['id'];
+            $item->is_active = $inputs['is_active'];
+            $item->vh_st_product_id = $input['id'];
+            $item->added_by = $inputs['added_by']['id'];
+            $item->can_update = $inputs['can_update'];
+            $item->save();
 
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
+            $response = self::getItem($item->id);
+            $response['messages'][] = 'Saved successfully.';
         }
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        if(is_string($inputs['brand']['name'])){
-            $item->vh_st_brand_id = $inputs['brand']['id'];
-        }else{
-            $item->vh_st_brand_id = $inputs['brand']['name']['id'];
-        }
-        if(is_string($inputs['store']['name'])){
-            $item->vh_st_store_id = $inputs['store']['id'];
-        }else{
-            $item->vh_st_store_id = $inputs['store']['name']['id'];
-        }
-        $item->taxonomy_id_product_type = $inputs['type']['id'];
-        $item->taxonomy_id_product_status = $inputs['status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1';
-            return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
-        $item->is_active = $inputs['is_active'];
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
         return $response;
 
     }
@@ -598,15 +537,12 @@ class Product extends Model
     public static function validation($inputs)
     {
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'vendor'=> 'required',
+            'products'=> 'required',
             'status'=> 'required',
             'status_notes'=> 'required|max:150',
-            'in_stock'=> 'required|numeric',
-            'brand'=> 'required',
-            'store'=> 'required',
-            'type'=> 'required',
-            'quantity'  => 'required'
+            'added_by'=> 'required|max:150',
+            'can_update'=> 'required|max:150',
         );
 
         $validator = \Validator::make($inputs, $rules);

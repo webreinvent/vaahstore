@@ -67,7 +67,6 @@ const useVaah = vaah();
                  <template #body="prop">
                      <Badge>{{prop.data.owned_by.name}}</Badge>
                  </template>
-
              </Column>
 
                 <Column field="updated_at" header="Updated"

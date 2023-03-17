@@ -1,8 +1,8 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
-import { useProductStore } from '../../../stores/store-products'
+import { useProductVendorStore } from '../../../stores/store-productvendors'
 
-const store = useProductStore();
+const store = useProductVendorStore();
 const useVaah = vaah();
 
 </script>
@@ -26,31 +26,31 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+             <Column field="vendor" header="Vendor"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.vendor.name}}
+                 </template>
+
+             </Column>
+
+            <Column field="product" header="Product"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    {{prop.data.product.name}}
                 </template>
 
             </Column>
 
-             <Column field="store" header="Store"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.store.name}}
-                 </template>
-
-             </Column>
-
-             <Column field="brand" header="Brand"
+             <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -58,48 +58,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     {{prop.data.brand.name}}
-                 </template>
-
-             </Column>
-
-             <Column field="type" header="Type"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.type.name}}
-                 </template>
-
-             </Column>
-
-             <Column field="in_stock" header="In Stock"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
-                            value="out of stock"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
-                            value="in stock"
-                            severity="success"></Badge>
-                 </template>
-
-             </Column>
-
-             <Column field="quantity" header="Quantity"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.quantity > 0"
-                            :value="prop.data.quantity"
-                            severity="success"></Badge>
+                     {{prop.data.added_by.name}}
                  </template>
 
              </Column>
@@ -139,7 +98,7 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
-                                 data-testid="products-table-is-active"
+                                 data-testid="productvendors-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  @input="store.toggleIsActive(prop.data)">
@@ -156,19 +115,19 @@ const useVaah = vaah();
                     <div class="p-inputgroup ">
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="products-table-to-view"
+                                data-testid="productvendors-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="products-table-to-edit"
+                                data-testid="productvendors-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
-                                data-testid="products-table-action-trash"
+                                data-testid="productvendors-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
@@ -176,7 +135,7 @@ const useVaah = vaah();
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
-                                data-testid="products-table-action-restore"
+                                data-testid="productvendors-table-action-restore"
                                 v-if="store.isViewLarge() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
