@@ -160,6 +160,16 @@ class ProductVariation extends Model
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
+        if($inputs['in_stock']==1 && $inputs['quantity']==0){
+            $response['messages'][] = 'The quantity should be more then 1.';
+            return $response;
+        }else{
+            $item->quantity = $inputs['quantity'];
+            $item->in_stock = $inputs['in_stock'];
+        }
+        if($inputs['in_stock']==0){
+            $item->quantity = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -485,6 +495,16 @@ class ProductVariation extends Model
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
+        if($inputs['in_stock']==1 && $inputs['quantity']==0){
+            $response['messages'][] = 'The quantity should be more then 1';
+            return $response;
+        }else{
+            $item->quantity = $inputs['quantity'];
+            $item->in_stock = $inputs['in_stock'];
+        }
+        if($inputs['in_stock']==0){
+            $item->quantity = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -547,6 +567,8 @@ class ProductVariation extends Model
             'sku' => 'required|max:150',
             'status'=> 'required',
             'product'=> 'required',
+            'quantity'  => 'required',
+            'in_stock'=> 'required|numeric',
             'status_notes'=> 'required|max:150',
         );
 
