@@ -17,6 +17,7 @@ class VhStStores extends Migration
         Schema::create('vh_st_stores', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
+            $table->integer('taxonomy_id_store_status')->nullable()->index();
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
 
@@ -26,10 +27,9 @@ class VhStStores extends Migration
             $table->boolean('is_multi_vendor')->nullable()->index();
             $table->json('allowed_ips')->nullable();
 
+            $table->string('status_notes')->nullable();
             $table->boolean('is_default')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
-            $table->integer('taxonomy_id_store_status')->nullable()->index();
-            $table->string('status_notes')->nullable();
 
             //----common fields
             $table->text('meta')->nullable();
