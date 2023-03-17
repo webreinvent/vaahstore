@@ -69,6 +69,7 @@ const useVaah = vaah();
                  </template>
              </Column>
 
+
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
