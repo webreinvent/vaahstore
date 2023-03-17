@@ -89,11 +89,15 @@
         "name": "Pending"
     },
     {
-        "type_slug": "product-variation-status",
+        "type_slug": "warehouse-status",
+        "name": "Pending"
+    }
+    {
+        "type_slug": "warehouse-status",
         "name": "Approved"
     },
     {
-        "type_slug": "product-variation-status",
+        "type_slug": "warehouse-status",
         "name": "Rejected"
     },
     {
@@ -106,18 +110,6 @@
     },
     {
         "type_slug": "product-medias-status",
-        "name": "Rejected"
-    },
-    {
-        "type_slug": "warehouse-status",
-        "name": "Pending"
-    },
-    {
-        "type_slug": "warehouse-status",
-        "name": "Approved"
-    },
-    {
-        "type_slug": "warehouse-status",
         "name": "Rejected"
     }
 ]
