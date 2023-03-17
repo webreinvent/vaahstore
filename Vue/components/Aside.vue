@@ -37,18 +37,12 @@ const items = ref([
             {
                 label: 'Product-Variations',
                 icon: 'fa-regular fa-chart-bar',
+                to: "/productvariations"
+            },
+            {
+                label: 'Product-Vendor',
+                icon: 'fa-regular fa-chart-bar',
                 to: "/productvendors"
-                
-            },
-            {
-                label: 'Brands',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/brands"
-            },
-            {
-                label: 'Warehouses',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/warehouses"
             },
             {
                 label: 'Product-Medias',
@@ -60,7 +54,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/brands"
             }
-
+            {
+                label: 'Warehouses',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/warehouses"
+            }
         ]
     },
 ]);
