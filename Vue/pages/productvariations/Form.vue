@@ -134,6 +134,24 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.sku"/>
                 </VhField>
 
+                <VhField label="Has Media">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 0 ? 'p-danger' : ''">
+                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 0">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.has_media == 1 ? 'p-highlight' : ''">
+                                    <span name="productvariations-has_media" data-testid="productvariations-has_media" class="p-button-label" @click="store.item.has_media = 1">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </VhField>
+
                 <VhField label="In Stock">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
