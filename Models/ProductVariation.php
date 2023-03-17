@@ -159,6 +159,7 @@ class ProductVariation extends Model
         $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->sku = $inputs['sku'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -483,6 +484,7 @@ class ProductVariation extends Model
         $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->sku = $inputs['sku'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -542,6 +544,7 @@ class ProductVariation extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
+            'sku' => 'required|max:150',
             'status'=> 'required',
             'product'=> 'required',
             'status_notes'=> 'required|max:150',

@@ -126,6 +126,14 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+                <VhField label="SKU">
+                    <InputText class="w-full"
+                               name="productvariations-sku"
+                               data-testid="productvariations-sku"
+                               placeholder="Enter SKU"
+                               v-model="store.item.sku"/>
+                </VhField>
+
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.status"

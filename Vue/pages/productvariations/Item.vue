@@ -163,7 +163,8 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_st_product_id'">
                             <VhViewRow label="Product"
-                                       :value="store.item.product.name"
+                                       :value="store.item.product"
+                                       type="user"
                             />
                         </template>
 
