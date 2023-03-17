@@ -169,14 +169,6 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="brands-active"
-                                 data-testid="brands-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
-
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.status"
@@ -195,7 +187,16 @@ const toggleFormMenu = (event) => {
                                name="brands-status_notes"
                                data-testid="brands-status_notes"
                               :autoResize="true"
+                              placeholder="Enter Status Note"
                                v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Is Active">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="brands-active"
+                                 data-testid="brands-active"
+                                 v-model="store.item.is_active"/>
                 </VhField>
 
             </div>

@@ -18,6 +18,7 @@ class VhStProductVariations extends Migration
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
             $table->integer('vh_st_product_id')->nullable()->index();
+            $table->integer('taxonomy_id_product_variation_status')->nullable()->index();
 
             $table->string('sku')->nullable()->index();
             $table->string('name')->nullable()->index();
@@ -30,7 +31,6 @@ class VhStProductVariations extends Migration
             $table->boolean('has_media')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
 
-            $table->integer('taxonomy_id_product_variation_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields

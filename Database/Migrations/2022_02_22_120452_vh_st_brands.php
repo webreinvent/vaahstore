@@ -17,18 +17,18 @@ class VhStBrands extends Migration
         Schema::create('vh_st_brands', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
+            $table->integer('taxonomy_id_brand_status')->nullable()->index();
+            $table->integer('registered_by')->nullable()->index();
+            $table->integer('approved_by')->nullable();
 
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
 
-            $table->integer('registered_by')->nullable()->index();
             $table->dateTime('registered_at')->nullable();
 
-            $table->integer('approved_by')->nullable();
             $table->dateTime('approved_at')->nullable();
 
             $table->boolean('is_active')->nullable()->index();
-            $table->integer('taxonomy_id_brand_status')->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields
