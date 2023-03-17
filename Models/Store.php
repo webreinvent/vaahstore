@@ -609,7 +609,7 @@ class Store extends Model
             if (!empty($inputs['currency_default'])){
                 currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'], 'is_active' => 1])->update(['is_default' => 1]);
             }else{
-                $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first()->update(['is_default' => 1]);
+                $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
                 $first_active_currencies->is_default = 1;
                 $first_active_currencies->save();
             }
