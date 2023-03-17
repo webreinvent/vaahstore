@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -25,8 +26,13 @@ class ProductMedia extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'vh_st_product_id',
+        'vh_st_product_variation_id',
+        'taxonomy_id_product_media_status',
+        'status_notes',
+        'path',
+        'url',
+        'meta',
         'is_active',
         'created_by',
         'updated_by',
@@ -51,6 +57,11 @@ class ProductMedia extends Model
         return $this->belongsTo(User::class,
             'created_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_media_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -114,26 +125,27 @@ class ProductMedia extends Model
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This name is already exist.";
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This slug is already exist.";
+//            return $response;
+//        }
 
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_product_media_status = $inputs['status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +234,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +416,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
             ->withTrashed()
             ->first();
 
@@ -454,7 +466,8 @@ class ProductMedia extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->taxonomy_id_product_media_status = $inputs['status']['id'];
+        $item->status_notes = $inputs['status_notes'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -512,8 +525,8 @@ class ProductMedia extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'status'=> 'required',
+            'status_notes'=> 'required|max:150',
         );
 
         $validator = \Validator::make($inputs, $rules);

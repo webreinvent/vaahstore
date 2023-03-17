@@ -64,12 +64,26 @@ export const useProductMediaStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        suggestion:null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.status;
+                }
+                else {
+                    this.suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -184,6 +198,7 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
