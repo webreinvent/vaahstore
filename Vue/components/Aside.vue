@@ -42,7 +42,8 @@ const items = ref([
             {
                 label: 'Product-Variations',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productvariations"
+                to: "/productvendors"
+                
             },
             {
                 label: 'Warehouses',
@@ -64,6 +65,7 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/brands"
             }
+
         ]
     },
 ]);
