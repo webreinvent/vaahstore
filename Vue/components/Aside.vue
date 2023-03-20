@@ -53,6 +53,11 @@ const items = ref([
                 label: 'Brands',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/brands"
+            },
+            {
+                label: 'Attributes',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/attributes"
             }
         ]
     },
