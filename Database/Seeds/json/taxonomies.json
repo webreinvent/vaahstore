@@ -107,17 +107,5 @@
     {
         "type_slug": "product-medias-status",
         "name": "Rejected"
-    },
-    {
-        "type_slug": "product-prices-status",
-        "name": "Pending"
-    },
-    {
-        "type_slug": "product-prices-status",
-        "name": "Approved"
-    },
-    {
-        "type_slug": "product-prices-status",
-        "name": "Rejected"
     }
 ]

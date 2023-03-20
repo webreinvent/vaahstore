@@ -21,6 +21,7 @@ class VhStproductprices extends Migration
                 $table->integer('vh_st_vendor_id')->nullable()->index();
                 $table->integer('vh_st_product_id')->nullable()->index();
                 $table->integer('vh_st_product_variation_id')->nullable()->index();
+                $table->integer('vh_st_product_variation_id')->nullable()->index();
 
                 $table->integer('amount')->nullable();
                 $table->boolean('is_active')->nullable()->index();
