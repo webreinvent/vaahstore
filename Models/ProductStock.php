@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -79,6 +80,31 @@ class ProductStock extends Model
     }
 
     //-------------------------------------------------
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_product_stock_status')->select(['id','name', 'slug']);
+    }
+
+    //-------------------------------------------------
+    public function vendor(){
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
+    public function product(){
+        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
+    public function productVariation(){
+        return $this->hasOne(ProductVariation::class, 'id', 'vh_st_product_variation_id')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
+    public function warehouse(){
+        return $this->hasOne(ProductVariation::class, 'id', 'vh_st_warehouse_id')->select(['id','name']);
+    }
+
+    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
@@ -107,34 +133,25 @@ class ProductStock extends Model
     public static function createItem($request)
     {
 
-        $inputs = $request->all();
+        $validation_result = self::sproductStockInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
+        $inputs = $validation_result['data'];
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = new self();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
+        $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
+        $item->quantity = $inputs['quantity'];
+        $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -143,6 +160,47 @@ class ProductStock extends Model
         return $response;
 
     }
+
+    //-------------------------------------------------
+    public static function sproductStockInputValidator($requestData){
+
+        $validated_data = validator($requestData, [
+            'name' => 'required',
+            'slug' => 'required',
+            'vh_st_vendor_id' => 'required',
+            'vh_st_product_id' => 'required',
+            'vh_st_product_variation_id' => 'required',
+            'vh_st_warehouse_id' => 'required',
+            'quantity' => 'required',
+            'taxonomy_id_product_stock_status' => 'required',
+            'status_notes' => 'required',
+            'is_active' => 'required',
+        ],
+            [
+                'vh_st_vendor_id.required' => 'The Vendor field is required',
+                'vh_st_product_id.required' => 'The Product field is required',
+                'vh_st_product_variation_id.required' => 'The Product variation field is required',
+                'vh_st_warehouse_id.required' => 'The Warehouse field is required',
+                'taxonomy_id_product_stock_status.required' => 'The Status field is required',
+            ]
+        );
+
+        if($validated_data->fails()){
+            return [
+                'success' => false,
+                'messages' => $validated_data->errors()->all()
+            ];
+        }
+
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
+
+    }
+
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -224,7 +282,7 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -406,7 +464,7 @@ class ProductStock extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','vendor','product','productVariation','warehouse'])
             ->withTrashed()
             ->first();
 
@@ -416,6 +474,13 @@ class ProductStock extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        $item->taxonomy_id_product_stock_status = $item->status;
+        $item->vh_st_vendor_id = $item->vendor;
+        $item->vh_st_product_id = $item->product;
+        $item->vh_st_product_variation_id = $item->productVariation;
+        $item->vh_st_warehouse_id = $item->warehouse;
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -425,37 +490,25 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
+        $validation_result = self::sproductStockInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+        $inputs = $validation_result['data'];
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
+        $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
+        $item->quantity = $inputs['quantity'];
+        $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
