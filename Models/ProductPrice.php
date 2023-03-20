@@ -25,8 +25,11 @@ class ProductPrice extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'vh_st_vendor_id',
+        'vh_st_product_id',
+        'vh_st_product_variation_id',
+        'amount',
+        'meta',
         'is_active',
         'created_by',
         'updated_by',
