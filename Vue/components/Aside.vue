@@ -70,6 +70,12 @@ const items = ref([
                 to: "/warehouses"
             },
 
+            },
+            {
+                label: 'Product-Attributes',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/attributes"
+            }
         ]
     },
 ]);
