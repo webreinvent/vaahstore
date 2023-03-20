@@ -18,11 +18,12 @@ class VhStproductprices extends Migration
             Schema::create('vh_st_product_prices', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
+                $table->integer('vh_st_vendor_id')->nullable()->index();
+                $table->integer('vh_st_product_id')->nullable()->index();
+                $table->integer('vh_st_product_variation_id')->nullable()->index();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
+                $table->integer('amount')->nullable();
                 $table->boolean('is_active')->nullable()->index();
-
 
                 //----common fields
                 $table->text('meta')->nullable();
