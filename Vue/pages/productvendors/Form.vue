@@ -109,14 +109,8 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
                 <VhField label="Product">
-                    <MultiSelect v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Cities"
-                                 :maxSelectedLabels="3" class="w-full md:w-20rem" />
-<!--                    <MultiSelect-->
-<!--                        data-testid="productvendors-product"-->
-<!--                        name="productvendors-product"-->
-<!--                        v-model="store.item.products" :options="store.product"-->
-<!--                        optionLabel="name" placeholder="Select Product"-->
-<!--                        :maxSelectedLabels="3" class="w-full" />-->
+                    <MultiSelect class="w-full" v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Cities"
+                                 :maxSelectedLabels="3" />
                 </VhField>
 
                 <VhField label="Can Update">
@@ -168,7 +162,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea class="w-full"
+                    <Textarea  rows="5" cols="30"
                               placeholder="Enter a Status Note"
                               name="productvendors-status_notes"
                               data-testid="productvendors-status_notes"
