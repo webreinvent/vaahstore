@@ -49,6 +49,11 @@ class ProductStocksController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            //set default value
+            $data['empty_item']['quantity'] = 1;
+            $data['empty_item']['is_active'] = 1;
+
+            //get assets list
             $data['vendors_list'] = Vendor::where('is_active', 1)->get(['id', 'name']);
 
             $data['products_list'] = Product::where('is_active', 1)->get(['id', 'name']);
