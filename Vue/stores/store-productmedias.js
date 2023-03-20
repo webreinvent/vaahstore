@@ -97,6 +97,20 @@ export const useProductMediaStore = defineStore({
                 }
             }, 250);
         },
+
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product_variation;
+                }
+                else {
+                    this.suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -213,6 +227,7 @@ export const useProductMediaStore = defineStore({
                 this.assets = data;
                 this.status = data.status;
                 this.product = data.product.data;
+                this.product_variation = data.product_variation.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

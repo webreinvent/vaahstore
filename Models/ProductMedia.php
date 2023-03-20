@@ -69,6 +69,11 @@ class ProductMedia extends Model
         return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
     }
     //-------------------------------------------------
+    public function productVariation()
+    {
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
     public function updatedByUser()
     {
         return $this->belongsTo(User::class,
@@ -130,12 +135,11 @@ class ProductMedia extends Model
 
         // check if name exist
 //        foreach ($inputs['products'] as $input) {
-        dd($inputs);
-            $item = self::where('vh_st_product_id', $inputs['product']['id'])->withTrashed()->first();
+            $item = self::where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->withTrashed()->first();
 
             if ($item) {
                 $response['success'] = false;
-                $response['messages'][] = "This product (" . $inputs['name'] . ") is already exist.";
+                $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
 //
@@ -153,6 +157,7 @@ class ProductMedia extends Model
             $item->status_notes = $inputs['status_notes'];
             $item->taxonomy_id_product_media_status = $inputs['status']['id'];
             $item->vh_st_product_id = $inputs['product']['id'];
+            $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -242,7 +247,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','product');
+        $list = self::getSorted($request->filter)->with('status','product','productVariation');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -424,7 +429,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation'])
             ->withTrashed()
             ->first();
 
@@ -451,15 +456,15 @@ class ProductMedia extends Model
         }
 
         // check if name exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('name', $inputs['name'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This name is already exist.";
-//            return $response;
-//        }
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This Product and Product Variation is already exist.";
+            return $response;
+        }
 //
 //        // check if slug exist
 //        $item = self::where('id', '!=', $inputs['id'])
@@ -477,6 +482,7 @@ class ProductMedia extends Model
         $item->taxonomy_id_product_media_status = $inputs['status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->vh_st_product_id = $inputs['product']['id'];
+        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -532,9 +538,10 @@ class ProductMedia extends Model
 
     public static function validation($inputs)
     {
-
+//dd($inputs);
         $rules = array(
             'product'=> 'required',
+            'product_variation'=> 'required',
             'status'=> 'required',
             'status_notes'=> 'required|max:150',
         );
