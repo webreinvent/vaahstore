@@ -63,7 +63,11 @@ class ProductMedia extends Model
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_media_status')->select('id','name','slug');
     }
-
+    //-------------------------------------------------
+    public function product()
+    {
+        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
+    }
     //-------------------------------------------------
     public function updatedByUser()
     {
@@ -125,13 +129,15 @@ class ProductMedia extends Model
 
 
         // check if name exist
-//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This name is already exist.";
-//            return $response;
-//        }
+//        foreach ($inputs['products'] as $input) {
+        dd($inputs);
+            $item = self::where('vh_st_product_id', $inputs['product']['id'])->withTrashed()->first();
+
+            if ($item) {
+                $response['success'] = false;
+                $response['messages'][] = "This product (" . $inputs['name'] . ") is already exist.";
+                return $response;
+            }
 //
 //        // check if slug exist
 //        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
@@ -142,14 +148,16 @@ class ProductMedia extends Model
 //            return $response;
 //        }
 
-        $item = new self();
-        $item->fill($inputs);
-        $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_product_media_status = $inputs['status']['id'];
-        $item->save();
+            $item = new self();
+            $item->fill($inputs);
+            $item->status_notes = $inputs['status_notes'];
+            $item->taxonomy_id_product_media_status = $inputs['status']['id'];
+            $item->vh_st_product_id = $inputs['product']['id'];
+            $item->save();
 
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+            $response = self::getItem($item->id);
+            $response['messages'][] = 'Saved successfully.';
+//        }
         return $response;
 
     }
@@ -234,7 +242,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','product');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -416,7 +424,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product'])
             ->withTrashed()
             ->first();
 
@@ -443,31 +451,32 @@ class ProductMedia extends Model
         }
 
         // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+//        $item = self::where('id', '!=', $inputs['id'])
+//            ->withTrashed()
+//            ->where('name', $inputs['name'])->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This name is already exist.";
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('id', '!=', $inputs['id'])
+//            ->withTrashed()
+//            ->where('slug', $inputs['slug'])->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This slug is already exist.";
+//            return $response;
+//        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->taxonomy_id_product_media_status = $inputs['status']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->vh_st_product_id = $inputs['product']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -525,6 +534,7 @@ class ProductMedia extends Model
     {
 
         $rules = array(
+            'product'=> 'required',
             'status'=> 'required',
             'status_notes'=> 'required|max:150',
         );

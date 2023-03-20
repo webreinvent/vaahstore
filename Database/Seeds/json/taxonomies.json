@@ -73,6 +73,18 @@
         "name": "Rejected"
     },
     {
+        "type_slug": "product-vendor-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-vendor-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-vendor-status",
+        "name": "Rejected"
+    },
+    {
         "type_slug": "product-variation-status",
         "name": "Pending"
     },

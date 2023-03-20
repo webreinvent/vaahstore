@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
@@ -48,6 +49,7 @@ class ProductMediasController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
+            $data['product']=Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
             $response['success'] = true;
             $response['data'] = $data;
