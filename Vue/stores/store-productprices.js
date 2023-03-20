@@ -64,12 +64,53 @@ export const useProductPriceStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        suggestion: null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.vendor;
+                }
+                else {
+                    this.suggestion= this.vendor.filter((vendor) => {
+                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product;
+                }
+                else {
+                    this.suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product_variation;
+                }
+                else {
+                    this.suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -184,6 +225,9 @@ export const useProductPriceStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.vendor = data.vendor.data;
+                this.product = data.product.data;
+                this.product_variation = data.product_variation.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

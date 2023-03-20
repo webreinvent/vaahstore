@@ -95,18 +95,61 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="productprices-name"
-                               data-testid="productprices-name"
-                               v-model="store.item.name"/>
+                <VhField label="Vendor">
+
+                    <AutoComplete
+                        v-model="store.item.vendor"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="productprices-vendor"
+                        name="productprices-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
                 </VhField>
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="productprices-slug"
-                               data-testid="productprices-slug"
-                               v-model="store.item.slug"/>
+                <VhField label="Product">
+
+                    <AutoComplete
+                        v-model="store.item.product"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchProduct($event)"
+                        placeholder="Select Product"
+                        data-testid="productprices-product"
+                        name="productprices-product"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+
+                <VhField label="Product Variation">
+
+                    <AutoComplete
+                        v-model="store.item.product_variation"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchProductVariation($event)"
+                        placeholder="Select Product Variation"
+                        data-testid="productprices-product_variation"
+                        name="productprices-product_variation"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+
+                <VhField label="Amount">
+
+                    <InputNumber
+                        placeholder="Enter a Amount"
+                        inputId="minmax-buttons"
+                        name="productprices-amount"
+                        v-model="store.item.amount"
+                        mode="decimal" showButtons
+                        data-testid="productprices-amount"/>
+
                 </VhField>
 
                 <VhField label="Is Active">

@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductPrice;
+use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Vendor;
 
 
 class ProductPricesController extends Controller
@@ -46,7 +49,10 @@ class ProductPricesController extends Controller
             }
 
             $data['actions'] = [];
-
+            $data['empty_item']['is_active'] = 1;
+            $data['vendor']=Vendor::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['product']=Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['product_variation']=ProductVariation::select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $response['success'] = true;
             $response['data'] = $data;
 

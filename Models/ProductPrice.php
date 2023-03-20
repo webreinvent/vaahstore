@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -55,7 +56,21 @@ class ProductPrice extends Model
             'created_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-
+    //-------------------------------------------------
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function product()
+    {
+        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function productVariation()
+    {
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
+    }
     //-------------------------------------------------
     public function updatedByUser()
     {
@@ -116,27 +131,22 @@ class ProductPrice extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        // check if exist
+        $item = self::where('vh_st_vendor_id', $inputs['vendor']['id'])
+            ->where('vh_st_product_variation_id', $inputs['product_variation']['id'])
+            ->where('vh_st_product_id', $inputs['product']['id'])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['messages'][] = "This Vendor, Product and Product Variation is already exist.";
             return $response;
         }
 
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_vendor_id = $inputs['vendor']['id'];
+        $item->vh_st_product_id = $inputs['product']['id'];
+        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -225,7 +235,7 @@ class ProductPrice extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('vendor','product','productVariation');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -407,7 +417,7 @@ class ProductPrice extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','vendor','product','productVariation'])
             ->withTrashed()
             ->first();
 
@@ -433,31 +443,24 @@ class ProductPrice extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where('vh_st_vendor_id', $inputs['vendor']['id'])
+            ->where('vh_st_product_variation_id', $inputs['product_variation']['id'])
+            ->where('vh_st_product_id', $inputs['product']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['messages'][] = "This Vendor, Product and Product Variation is already exist.";
             return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_vendor_id = $inputs['vendor']['id'];
+        $item->vh_st_product_id = $inputs['product']['id'];
+        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -515,8 +518,10 @@ class ProductPrice extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'vendor' => 'required|max:150',
+            'product' => 'required|max:150',
+            'product_variation' => 'required|max:150',
+            'amount' => 'required|min:1|numeric',
         );
 
         $validator = \Validator::make($inputs, $rules);

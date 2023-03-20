@@ -26,14 +26,51 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="vendor" header="Vendor"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    {{prop.data.vendor.name}}
+                </template>
+
+            </Column>
+
+             <Column field="product" header="Product"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.product.name}}
+                </template>
+
+            </Column>
+
+             <Column field="product_variation" header="Product Variation"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.product_variation.name}}
+                </template>
+
+            </Column>
+
+             <Column field="amount" header="Amount"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.amount}}
                 </template>
 
             </Column>
