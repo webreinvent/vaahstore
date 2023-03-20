@@ -490,37 +490,25 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
+        $validation_result = self::sproductStockInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+        $inputs = $validation_result['data'];
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
+        $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
+        $item->quantity = $inputs['quantity'];
+        $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
