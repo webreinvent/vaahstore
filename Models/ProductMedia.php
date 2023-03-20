@@ -142,15 +142,6 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-//
-//        // check if slug exist
-//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
 
             $item = new self();
             $item->fill($inputs);
@@ -465,17 +456,6 @@ class ProductMedia extends Model
             $response['messages'][] = "This Product and Product Variation is already exist.";
             return $response;
         }
-//
-//        // check if slug exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('slug', $inputs['slug'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -544,6 +524,8 @@ class ProductMedia extends Model
             'product_variation'=> 'required',
             'status'=> 'required',
             'status_notes'=> 'required|max:150',
+            'url'=> 'required|max:150',
+            'path'=> 'required|max:150',
         );
 
         $validator = \Validator::make($inputs, $rules);
