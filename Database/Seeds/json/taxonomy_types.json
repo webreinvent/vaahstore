@@ -25,5 +25,8 @@
     },
     {
         "name": "Warehouse Status"
+    },
+    {
+        "name": "Product-Stock Status"
     }
 ]
