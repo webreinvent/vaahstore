@@ -7,6 +7,7 @@ import vendor from "./vue-routes-vendors";
 import product from "./vue-routes-products";
 import productvendors from "./vue-routes-productvendors";
 import productvariation from "./vue-routes-productvariations";
+import productmedias from "./vue-routes-productmedias";
 
 routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -15,5 +16,6 @@ routes = routes.concat(vendor);
 routes = routes.concat(product);
 routes = routes.concat(productvendors);
 routes = routes.concat(productvariation);
+routes = routes.concat(productmedias);
 
 export default routes;

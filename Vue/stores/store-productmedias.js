@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductMedia';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/products";
+let ajax_url = base_url + "/backend/store/productmedias";
 
 let empty_states = {
     query: {
@@ -26,8 +26,8 @@ let empty_states = {
     }
 };
 
-export const useProductStore = defineStore({
-    id: 'products',
+export const useProductMediaStore = defineStore({
+    id: 'productmedias',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -49,7 +49,7 @@ export const useProductStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'products.',
+        route_prefix: 'productmedias.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -64,47 +64,13 @@ export const useProductStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: [],
         suggestion:null,
-        name:null,
+        form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
-        //---------------------------------------------------------------------
-        stockToggle(event) {
-            setTimeout(() => {
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchTaxonomyProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.suggestion = this.type;
-                }
-                else {
-                    this.suggestion= this.type.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchBrand(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.suggestion = this.brand;
-                }
-                else {
-                    this.suggestion= this.brand.filter((brand) => {
-                        return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
         //---------------------------------------------------------------------
         searchStatus(event) {
             setTimeout(() => {
@@ -118,16 +84,29 @@ export const useProductStore = defineStore({
                 }
             }, 250);
         },
-
         //---------------------------------------------------------------------
-        searchStore(event) {
+        searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.store;
+                    this.suggestion = this.product;
                 }
                 else {
-                    this.suggestion= this.store.filter((store) => {
-                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product_variation;
+                }
+                else {
+                    this.suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -155,7 +134,7 @@ export const useProductStore = defineStore({
         {
             switch(route_name)
             {
-                case 'products.index':
+                case 'productmedias.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -246,10 +225,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.brand = data.brand.data
-                this.store = data.store.data
-                this.type = data.taxonomy_product
                 this.status = data.status;
+                this.product = data.product.data;
+                this.product_variation = data.product_variation.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -297,7 +275,7 @@ export const useProductStore = defineStore({
             {
                 this.item = data;
             }else{
-                this.$router.push({name: 'products.index'});
+                this.$router.push({name: 'productmedias.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -491,7 +469,7 @@ export const useProductStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'products.index'});
+                    this.$router.push({name: 'productmedias.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -662,32 +640,32 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'products.index'})
+            this.$router.push({name: 'productmedias.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'products.index'})
+            this.$router.push({name: 'productmedias.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'products.form'})
+            this.$router.push({name: 'productmedias.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'products.view', params:{id:item.id}})
+            this.$router.push({name: 'productmedias.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'products.form', params:{id:item.id}})
+            this.$router.push({name: 'productmedias.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -951,5 +929,5 @@ export const useProductStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useProductStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useProductMediaStore, import.meta.hot))
 }
