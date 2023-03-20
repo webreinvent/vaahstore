@@ -5,40 +5,37 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\User;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
+use WebReinvent\VaahCms\Entities\User;
 
-class Brand extends Model
+class ProductStock extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected
-        $table = 'vh_st_brands';
+    protected $table = 'vh_st_product_stocks';
     //-------------------------------------------------
-    protected
-        $dates = [
+    protected $dates = [
         'created_at',
         'updated_at',
         'deleted_at'
     ];
     //-------------------------------------------------
-    protected
-        $fillable = [
+    protected $fillable = [
         'uuid',
-        'name', 'slug', 'registered_by', 'registered_at',
-        'approved_by', 'approved_at', 'is_active',
-        'taxonomy_id_brand_status', 'status_notes', 'meta',
+        'name',
+        'slug','vh_st_vendor_id','vh_st_product_id',
+        'vh_st_product_variation_id','vh_st_warehouse_id',
+        'quantity','taxonomy_id_product_stock_status','status_notes',
+        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
     //-------------------------------------------------
-
     protected $appends = [
     ];
 
@@ -73,13 +70,7 @@ class Brand extends Model
             'deleted_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-    //-------------------------------------------------
-    public function ownedByUser()
-    {
-        return $this->belongsTo(User::class,
-            'deleted_by', 'id'
-        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-    }
+
     //-------------------------------------------------
     public function getTableColumns()
     {
@@ -88,38 +79,11 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public function user()
-    {
-        return $this->hasOne(User::class,'id','registered_by');
-    }
-    public function approvedBy()
-    {
-        return $this->hasOne(User::class,'id','approved_by');
-    }
-    //-------------------------------------------------
-    public function status()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
 
-    //-------------------------------------------------
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', 1);
-    }
-
-    //-------------------------------------------------
-    public function scopeIsDefault($query, Store $store)
-    {
-        return $query->where('is_active', 1)->where('is_default', 1)
-            ->where('vh_st_store_id', $store->id);
-    }
     //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
@@ -146,25 +110,25 @@ class Brand extends Model
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if (isset($validation['failed'])) {
+        if (!$validation['success']) {
             return $validation;
         }
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->first();
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['failed'] = true;
+            $response['success'] = false;
             $response['messages'][] = "This name is already exist.";
             return $response;
         }
 
         // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->first();
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['failed'] = true;
+            $response['success'] = false;
             $response['messages'][] = "This slug is already exist.";
             return $response;
         }
@@ -172,64 +136,107 @@ class Brand extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->registered_by = $inputs['registered_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_brand_status = $inputs['status']['id'];
         $item->save();
 
-        $response['success'] = true;
-        $response['data']['item'] = $item;
+        $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
 
     }
 
     //-------------------------------------------------
+    public function scopeGetSorted($query, $filter)
+    {
+
+        if(!isset($filter['sort']))
+        {
+            return $query->orderBy('id', 'desc');
+        }
+
+        $sort = $filter['sort'];
+
+
+        $direction = Str::contains($sort, ':');
+
+        if(!$direction)
+        {
+            return $query->orderBy($sort, 'asc');
+        }
+
+        $sort = explode(':', $sort);
+
+        return $query->orderBy($sort[0], $sort[1]);
+    }
+    //-------------------------------------------------
+    public function scopeIsActiveFilter($query, $filter)
+    {
+
+        if(!isset($filter['is_active'])
+            || is_null($filter['is_active'])
+            || $filter['is_active'] === 'null'
+        )
+        {
+            return $query;
+        }
+        $is_active = $filter['is_active'];
+
+        if($is_active === 'true' || $is_active === true)
+        {
+            return $query->whereNotNull('is_active');
+        } else{
+            return $query->whereNull('is_active');
+        }
+
+    }
+    //-------------------------------------------------
+    public function scopeTrashedFilter($query, $filter)
+    {
+
+        if(!isset($filter['trashed']))
+        {
+            return $query;
+        }
+        $trashed = $filter['trashed'];
+
+        if($trashed === 'include')
+        {
+            return $query->withTrashed();
+        } else if($trashed === 'only'){
+            return $query->onlyTrashed();
+        }
+
+    }
+    //-------------------------------------------------
+    public function scopeSearchFilter($query, $filter)
+    {
+
+        if(!isset($filter['q']))
+        {
+            return $query;
+        }
+        $search = $filter['q'];
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
-        if (isset($request->sort)) {
+        $list = self::getSorted($request->filter);
+        $list->isActiveFilter($request->filter);
+        $list->trashedFilter($request->filter);
+        $list->searchFilter($request->filter);
 
-            $sort = $request->sort;
-            if (Str::contains($request->sort, ':')) {
-                $sort = explode(":", $request->sort);
-                $list = self::orderBy($sort[0], $sort[1]);
-            } else {
-                $list = self::orderBy($sort, 'asc');
-            }
-        } else {
-            $list = self::orderBy('id', 'desc');
+        $rows = config('vaahcms.per_page');
+
+        if($request->has('rows'))
+        {
+            $rows = $request->rows;
         }
 
-        if (isset($request['filter']['is_active'])) {
-            if ($request['filter']['is_active'] == "true") {
-                $list->where('is_active', 1);
-            } else {
-                $list->where(function ($q) {
-                    $q->where('is_active', 0);
-                    $q->orWhereNull('is_active');
-                });
-            }
-        }
-
-        if (isset($request['filter']['trashed'])) {
-            if ($request['filter']['trashed'] === 'include') {
-                $list->withTrashed();
-            }
-
-            if ($request['filter']['trashed'] === 'only') {
-                $list->onlyTrashed();
-            }
-
-        }
-
-        if (isset($request->q)) {
-            $list->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%' . $request->q . '%')
-                    ->orWhere('slug', 'LIKE', '%' . $request->q . '%');
-            });
-        }
-
-        $list = $list->with(['user','status','approvedBy'])->paginate(config('vaahcms.per_page'));
+        $list = $list->paginate($rows);
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -247,12 +254,10 @@ class Brand extends Model
 
         $rules = array(
             'type' => 'required',
-            'items' => 'required',
         );
 
         $messages = array(
             'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
         );
 
 
@@ -260,19 +265,28 @@ class Brand extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
+            $response['success'] = false;
             $response['errors'] = $errors;
             return $response;
         }
 
-        $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        if(isset($inputs['items']))
+        {
+            $items_id = collect($inputs['items'])
+                ->pluck('id')
+                ->toArray();
+        }
+
+
+        $items = self::whereIn('id', $items_id)
+            ->withTrashed();
 
         switch ($inputs['type']) {
-            case 'inactive':
-                self::whereIn('id', $items_id)->update(['is_active' => null]);
+            case 'deactivate':
+                $items->update(['is_active' => null]);
                 break;
-            case 'active':
-                self::whereIn('id', $items_id)->update(['is_active' => 1]);
+            case 'activate':
+                $items->update(['is_active' => 1]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -280,7 +294,6 @@ class Brand extends Model
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
                 break;
-
         }
 
         $response['success'] = true;
@@ -291,7 +304,7 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public static function deleteList($request)
+    public static function deleteList($request): array
     {
         $inputs = $request->all();
 
@@ -323,94 +336,144 @@ class Brand extends Model
 
         return $response;
     }
+    //-------------------------------------------------
+    public static function listAction($request, $type): array
+    {
+        $inputs = $request->all();
 
+        if(isset($inputs['items']))
+        {
+            $items_id = collect($inputs['items'])
+                ->pluck('id')
+                ->toArray();
+
+            $items = self::whereIn('id', $items_id)
+                ->withTrashed();
+        }
+
+
+        switch ($type) {
+            case 'deactivate':
+                if($items->count() > 0) {
+                    $items->update(['is_active' => null]);
+                }
+                break;
+            case 'activate':
+                if($items->count() > 0) {
+                    $items->update(['is_active' => 1]);
+                }
+                break;
+            case 'trash':
+                if(isset($items_id) && count($items_id) > 0) {
+                    self::whereIn('id', $items_id)->delete();
+                }
+                break;
+            case 'restore':
+                if(isset($items_id) && count($items_id) > 0) {
+                    self::whereIn('id', $items_id)->restore();
+                }
+                break;
+            case 'delete':
+                if(isset($items_id) && count($items_id) > 0) {
+                    self::whereIn('id', $items_id)->forceDelete();
+                }
+                break;
+            case 'activate-all':
+                self::query()->update(['is_active' => 1]);
+                break;
+            case 'deactivate-all':
+                self::query()->update(['is_active' => null]);
+                break;
+            case 'trash-all':
+                self::query()->delete();
+                break;
+            case 'restore-all':
+                self::withTrashed()->restore();
+                break;
+            case 'delete-all':
+                self::withTrashed()->forceDelete();
+                break;
+        }
+
+        $response['success'] = true;
+        $response['data'] = true;
+        $response['messages'][] = 'Action was successful.';
+
+        return $response;
+    }
     //-------------------------------------------------
     public static function getItem($id)
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','approvedBy'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
+        if(!$item)
+        {
+            $response['success'] = false;
+            $response['errors'][] = 'Record not found with ID: '.$id;
+            return $response;
+        }
         $response['success'] = true;
         $response['data'] = $item;
 
         return $response;
 
     }
-
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if (isset($validation['failed'])) {
+        if (!$validation['success']) {
             return $validation;
         }
 
         // check if name exist
-        $user = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
             ->where('name', $inputs['name'])->first();
 
-        if ($user) {
-            $response['failed'] = true;
+        if ($item) {
+            $response['success'] = false;
             $response['messages'][] = "This name is already exist.";
             return $response;
         }
 
         // check if slug exist
-        $user = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
             ->where('slug', $inputs['slug'])->first();
 
-        if ($user) {
-            $response['failed'] = true;
+        if ($item) {
+            $response['success'] = false;
             $response['messages'][] = "This slug is already exist.";
             return $response;
         }
 
-        $update = self::where('id', $id)->withTrashed()->first();
-        $update->fill($inputs);
-        $update->slug = Str::slug($inputs['slug']);
-        $update->registered_by = $inputs['registered_by']['id'];
-        $update->approved_by = $inputs['approved_by']['id'];
-        $update->taxonomy_id_brand_status = $inputs['status']['id'];
-        $update->save();
+        $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
+        $item->save();
 
-        //check specific actions
-
-        if (isset($inputs['action'])) {
-            switch ($inputs['action']) {
-                case 'trash':
-                    $update->delete();
-                    break;
-                case 'restore':
-                    $update->restore();
-                    break;
-            }
-        }
-
-        $response = self::getItem($update->id);
-        $response['success'] = true;
+        $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
 
-        return $response;
-
     }
-
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
-        $update = self::where('id', $id)->withTrashed()->first();
-        if (!$update) {
-            $response['failed'] = true;
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
-
-        $update->forceDelete();
+        $item->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
@@ -418,7 +481,33 @@ class Brand extends Model
 
         return $response;
     }
+    //-------------------------------------------------
+    public static function itemAction($request, $id, $type): array
+    {
+        switch($type)
+        {
+            case 'activate':
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->update(['is_active' => 1]);
+                break;
+            case 'deactivate':
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->update(['is_active' => null]);
+                break;
+            case 'trash':
+                self::find($id)->delete();
+                break;
+            case 'restore':
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->restore();
+                break;
+        }
 
+        return self::getItem($id);
+    }
     //-------------------------------------------------
 
     public static function validation($inputs)
@@ -427,30 +516,29 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
-            'status_notes'=> 'required|max:150',
-            'registered_at'=> 'required',
-            'approved_at'=> 'required',
-            'registered_by'=> 'required',
-            'approved_by'=> 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);
         if ($validator->fails()) {
             $messages = $validator->errors();
-            $response['failed'] = true;
-            $response['messages'] = $messages;
+            $response['success'] = false;
+            $response['messages'] = $messages->all();
             return $response;
         }
+
+        $response['success'] = true;
+        return $response;
 
     }
 
     //-------------------------------------------------
     public static function getActiveItems()
     {
-        $item = self::where('is_active', 1)->get();
+        $item = self::where('is_active', 1)
+            ->first();
         return $item;
     }
+
     //-------------------------------------------------
     //-------------------------------------------------
     //-------------------------------------------------

@@ -83,5 +83,17 @@
     {
         "type_slug": "product-variation-status",
         "name": "Rejected"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Rejected"
     }
 ]
