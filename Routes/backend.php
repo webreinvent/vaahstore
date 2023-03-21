@@ -34,9 +34,7 @@ include_once __DIR__."/backend/routes-brands.php";
 include_once __DIR__."/backend/routes-products.php";
 include_once __DIR__."/backend/routes-productvariations.php";
 include_once __DIR__."/backend/routes-productvendors.php";
-include_once __DIR__."/backend/routes-productmedias.php";
-<<<<<<< HEAD
 include_once __DIR__."/backend/routes-productprices.php";
-=======
->>>>>>> added-store-Warehouses
 include_once __DIR__."/backend/routes-warehouses.php";
+include_once __DIR__."/backend/routes-productstocks.php";
+include_once __DIR__."/backend/routes-productmedias.php";
