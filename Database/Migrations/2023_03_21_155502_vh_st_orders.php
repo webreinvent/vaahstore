@@ -33,7 +33,7 @@ class VhStorders extends Migration
 
                 //----common fields
                 $table->text('meta')->nullable();
-                $table->text('status_note')->nullable();
+                $table->text('status_notes')->nullable();
                 $table->bigInteger('created_by')->nullable()->index();
                 $table->bigInteger('updated_by')->nullable()->index();
                 $table->bigInteger('deleted_by')->nullable()->index();

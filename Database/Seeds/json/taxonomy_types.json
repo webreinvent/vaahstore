@@ -28,5 +28,8 @@
     },
     {
         "name": "Product-Stock Status"
+    },
+    {
+        "name": "Order Status"
     }
 ]

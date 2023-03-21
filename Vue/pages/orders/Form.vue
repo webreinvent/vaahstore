@@ -95,18 +95,37 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="orders-name"
-                               data-testid="orders-name"
-                               v-model="store.item.name"/>
+                <VhField label="Amount">
+                    <InputNumber
+                        :disabled="store.item.in_stock==0"
+                        placeholder="Enter a Amount"
+                        inputId="minmax-buttons"
+                        name="orders-quantity"
+                        v-model="store.item.amount"
+                        mode="decimal" showButtons
+                        data-testid="orders-amount"/>
                 </VhField>
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="orders-slug"
-                               data-testid="orders-slug"
-                               v-model="store.item.slug"/>
+                <VhField label="Status">
+                    <AutoComplete
+                        v-model="store.item.status"
+                        class="w-full"
+                        name="orders-status"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orders-status"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Status Note"
+                              name="orders-status_notes"
+                              data-testid="orders-status_notes"
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">
