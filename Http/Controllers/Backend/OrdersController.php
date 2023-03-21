@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Order;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class OrdersController extends Controller
@@ -46,6 +47,8 @@ class OrdersController extends Controller
             }
 
             $data['actions'] = [];
+            $data['empty_item']['is_active'] = 1;
+            $data['status'] = Taxonomy::getTaxonomyByType('order-status');
 
             $response['success'] = true;
             $response['data'] = $data;

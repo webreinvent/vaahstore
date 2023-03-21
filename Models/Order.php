@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -25,8 +26,18 @@ class Order extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'vh_user_id',
+        'taxonomy_id_order_status',
+        'amount',
+        'delivery_fee',
+        'taxes',
+        'discount',
+        'payable',
+        'paid',
+        'is_paid',
+        'payment_method',
+        'meta',
+        'status_notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -59,6 +70,12 @@ class Order extends Model
         return $this->belongsTo(User::class,
             'updated_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -114,26 +131,27 @@ class Order extends Model
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This name is already exist.";
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This slug is already exist.";
+//            return $response;
+//        }
 
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_order_status = $inputs['status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +240,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +422,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
             ->withTrashed()
             ->first();
 
@@ -431,30 +449,31 @@ class Order extends Model
         }
 
         // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+//        $item = self::where('id', '!=', $inputs['id'])
+//            ->withTrashed()
+//            ->where('name', $inputs['name'])->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This name is already exist.";
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('id', '!=', $inputs['id'])
+//            ->withTrashed()
+//            ->where('slug', $inputs['slug'])->first();
+//
+//        if ($item) {
+//            $response['success'] = false;
+//            $response['messages'][] = "This slug is already exist.";
+//            return $response;
+//        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->taxonomy_id_order_status = $inputs['status']['id'];
+        $item->status_notes = $inputs['status_notes'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -512,8 +531,9 @@ class Order extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'status' => 'required|max:150',
+            'status_notes' => 'required|max:150',
+            'amount' => 'required|min:1|numeric'
         );
 
         $validator = \Validator::make($inputs, $rules);
