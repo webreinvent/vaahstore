@@ -69,7 +69,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/warehouses"
             },
-
+            {
+                label: 'Product-Attributes',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/attributes"
+            }
         ]
     },
 ]);

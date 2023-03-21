@@ -38,3 +38,4 @@ include_once __DIR__."/backend/routes-productprices.php";
 include_once __DIR__."/backend/routes-warehouses.php";
 include_once __DIR__."/backend/routes-productstocks.php";
 include_once __DIR__."/backend/routes-productmedias.php";
+include_once __DIR__."/backend/routes-attributes.php";
