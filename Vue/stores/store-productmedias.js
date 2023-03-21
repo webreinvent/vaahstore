@@ -72,6 +72,12 @@ export const useProductMediaStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
+        onUpload(event) {
+            setTimeout(() => {
+                toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+            }, 250);
+        },
+        //---------------------------------------------------------------------
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {

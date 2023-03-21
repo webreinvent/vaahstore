@@ -37,17 +37,17 @@ const items = ref([
             {
                 label: 'Product-Variations',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productvariations"
+                to: "/product-variations"
             },
             {
                 label: 'Product-Vendor',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productvendors"
+                to: "/product-vendors"
             },
             {
                 label: 'Product-Medias',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productmedias"
+                to: "/product-medias"
             },
             {
                 label: 'Brands',
