@@ -149,11 +149,6 @@ class ProductMedia extends Model
             $item->taxonomy_id_product_media_status = $inputs['status']['id'];
             $item->vh_st_product_id = $inputs['product']['id'];
             $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
-            if($request->file()) {
-                $file_name = time().'_'.$request->file->getClientOriginalName();
-                $file_path = $request->file('file')->storeAs('uploads', $file_name, 'public');
-                $item->path = '/storage/' . $file_path;
-            }
             $item->save();
 
             $response = self::getItem($item->id);
