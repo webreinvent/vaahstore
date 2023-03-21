@@ -91,7 +91,7 @@
     {
         "type_slug": "warehouse-status",
         "name": "Pending"
-    }
+    },
     {
         "type_slug": "warehouse-status",
         "name": "Approved"
@@ -110,18 +110,6 @@
     },
     {
         "type_slug": "product-medias-status",
-        "name": "Rejected"
-    },
-    {
-        "type_slug": "product-stock-status",
-        "name": "Pending"
-    },
-    {
-        "type_slug": "product-stock-status",
-        "name": "Approved"
-    },
-    {
-        "type_slug": "product-stock-status",
         "name": "Rejected"
     },
     {

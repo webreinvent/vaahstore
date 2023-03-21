@@ -68,12 +68,8 @@ const items = ref([
                 label: 'Warehouses',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/warehouses"
-<<<<<<< HEAD
-            }
-=======
             },
 
->>>>>>> added-store-Warehouses
         ]
     },
 ]);

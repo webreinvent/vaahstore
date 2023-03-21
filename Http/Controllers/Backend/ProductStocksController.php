@@ -6,6 +6,7 @@ use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
@@ -60,7 +61,7 @@ class ProductStocksController extends Controller
 
             $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get(['id', 'name']);
 
-            $data['warehouses_list'] = ProductVariation::where('is_active', 1)->get(['id', 'name']);
+            $data['warehouses_list'] = Warehouse::where('is_active', 1)->get(['id', 'name']);
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 

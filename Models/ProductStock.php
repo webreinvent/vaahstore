@@ -101,7 +101,7 @@ class ProductStock extends Model
 
     //-------------------------------------------------
     public function warehouse(){
-        return $this->hasOne(ProductVariation::class, 'id', 'vh_st_warehouse_id')->select(['id','name']);
+        return $this->hasOne(Warehouse::class, 'id', 'vh_st_warehouse_id')->select(['id','name']);
     }
 
     //-------------------------------------------------
