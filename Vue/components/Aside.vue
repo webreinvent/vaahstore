@@ -65,18 +65,12 @@ const items = ref([
                 to: "/brands"
             },
             {
-<<<<<<< HEAD
                 label: 'Warehouses',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/warehouses"
             },
-
-            },
             {
                 label: 'Product-Attributes',
-=======
-                label: 'Attributes',
->>>>>>> added-store-attribute
                 icon: 'fa-regular fa-chart-bar',
                 to: "/attributes"
             }

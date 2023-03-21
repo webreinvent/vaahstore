@@ -9,11 +9,8 @@ import warehouse from "./vue-routes-warehouses";
 import productvendors from "./vue-routes-productvendors";
 import productvariation from "./vue-routes-productvariations";
 import productmedias from "./vue-routes-productmedias";
-<<<<<<< HEAD
 import productprices from "./vue-routes-productprices";
 import productstocks from "./vue-routes-productstocks";
-=======
->>>>>>> added-store-attribute
 import attributes from "./vue-routes-attributes";
 
 routes = routes.concat(dashboard);
@@ -25,11 +22,8 @@ routes = routes.concat(warehouse);
 routes = routes.concat(productvendors);
 routes = routes.concat(productvariation);
 routes = routes.concat(productmedias);
-<<<<<<< HEAD
 routes = routes.concat(productprices);
 routes = routes.concat(productstocks);
-=======
->>>>>>> added-store-attribute
 routes = routes.concat(attributes);
 
 export default routes;
