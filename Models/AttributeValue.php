@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Attribute extends Model
+class AttributeValue extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_attributes';
+    protected $table = 'vh_st_attribute_values';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -25,9 +25,8 @@ class Attribute extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug','type',
-        'is_active',
+        'vh_st_attribute_id',
+        'value',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -132,14 +131,9 @@ class Attribute extends Model
         }
 
         $item = new self();
-        $item->name = $inputs['name'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        $row = new AttributeValue();
-        $row->vh_st_attribute_id = $item->id;
-        $row->value = $inputs['value'];
-
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -519,8 +513,6 @@ class Attribute extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-//            'type' => 'required',
-            'value' => 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);

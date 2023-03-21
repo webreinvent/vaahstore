@@ -36,6 +36,8 @@ export const useAttributeStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
+        product_variation_options: null,
+        product_variation_suggestion_list: null,
         list: null,
         item: null,
         fillable:null,
@@ -167,6 +169,19 @@ export const useAttributeStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion_list = this.product_variation_options;
+                }
+                else {
+                    this.product_variation_suggestion_list = this.product_variation_options.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -184,6 +199,7 @@ export const useAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.product_variation_options = data.product_variation_list;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
