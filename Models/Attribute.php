@@ -126,6 +126,7 @@ class Attribute extends Model
 
         $item = new self();
         $item->name = $inputs['name'];
+        $item->type = $inputs['type'];
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
@@ -444,7 +445,9 @@ class Attribute extends Model
 
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
+        $item->name = $inputs['name'];
+        $item->type = $inputs['type'];
+        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
