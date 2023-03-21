@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Attribute extends Model
+class ProductAttribute extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_attributes';
+    protected $table = 'vh_st_product_attributes';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -25,9 +25,9 @@ class Attribute extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug','type',
-        'is_active',
+        'vh_st_product_variation_id',
+        'vh_st_attribute_id',
+        'vh_st_attribute_value_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -83,18 +83,6 @@ class Attribute extends Model
     }
 
     //-------------------------------------------------
-    public function productVariation()
-    {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_attributes', 'vh_st_attribute_id', 'vh_st_product_variation_id')
-            ->select('vh_st_product_variations.id','vh_st_product_variations.name');
-    }
-
-    //-------------------------------------------------
-    public function attributeValue(){
-        return $this->hasOne(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
-    }
-
-    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -124,24 +112,29 @@ class Attribute extends Model
             return $validation;
         }
 
+
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        $item1 = new AttributeValue();
-        $item1->vh_st_attribute_id = $item->id;
-        $item1->value = $inputs['value'];
-        $item1->save();
-
-        $item2 = new ProductAttribute();
-        $item2->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item2->vh_st_attribute_id = $item->id;
-        $item2->vh_st_attribute_value_id = $item1->id;
-        $item2->save();
-
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -411,7 +404,7 @@ class Attribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','productVariation','attributeValue'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -421,12 +414,6 @@ class Attribute extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-
-        $product_variation = $item->productVariation->toArray();
-        unset($product_variation[0]['pivot']);
-        $item->vh_st_product_variation_id = $product_variation[0];
-        $item->value = $item->attributeValue->value;
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -443,27 +430,32 @@ class Attribute extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->save();
-
-        $item1 = AttributeValue::where('vh_st_attribute_id', $item->id)->withTrashed()->first();
-        $item1->vh_st_attribute_id = $item->id;
-        $item1->value = $inputs['value'];
-        $item1->save();
-
-        $item2 = ProductAttribute::where(['vh_st_attribute_id' => $item->id, 'vh_st_attribute_value_id' => $item1->id])->withTrashed()->first();
-        $item2->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item2->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -522,8 +514,6 @@ class Attribute extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-//            'type' => 'required',
-            'value' => 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);
