@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Attribute;
+use VaahCms\Modules\Store\Models\ProductVariation;
 
 
 class AttributesController extends Controller
@@ -46,6 +47,7 @@ class AttributesController extends Controller
             }
 
             $data['actions'] = [];
+            $data['product_variation_list'] = ProductVariation::where('is_active',1)->get(['id','name']);
 
             $response['success'] = true;
             $response['data'] = $data;
