@@ -25,6 +25,11 @@ const items = ref([
                 to: "/store"
             },
             {
+                label: 'Store-Payment-Methods',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/storepaymentmethods"
+            },
+            {
                 label: 'Vendor',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/vendors"
