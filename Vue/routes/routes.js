@@ -24,5 +24,6 @@ routes = routes.concat(productvendors);
 routes = routes.concat(productvariation);
 routes = routes.concat(productmedias);
 routes = routes.concat(productprices);
+routes = routes.concat(orders);
 
 export default routes;

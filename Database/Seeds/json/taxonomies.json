@@ -143,5 +143,25 @@
     {
         "type_slug": "order-payment-method",
         "name": "Credit Card"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "order-payment-method",
+        "name": "Debit Card"
+    },
+    {
+        "type_slug": "order-payment-method",
+        "name": "Credit Card"
     }
 ]
