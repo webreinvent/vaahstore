@@ -569,7 +569,7 @@ class ProductVariation extends Model
             'product'=> 'required',
             'quantity'  => 'required',
             'in_stock'=> 'required|numeric',
-            'status_notes'=> 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'has_media'=> 'required',
         );
 

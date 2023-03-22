@@ -569,7 +569,7 @@ class Order extends Model
         $rules = array(
             'status' => 'required|max:150',
             'user' => 'required|max:150',
-            'status_notes' => 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'payment_method' => 'required|max:150',
             'amount' => 'required|min:1|numeric',
             'delivery_fee' => 'required|min:0|numeric',
