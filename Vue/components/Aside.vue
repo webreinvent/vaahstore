@@ -68,7 +68,6 @@ const items = ref([
                 label: 'Product-Attributes',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/attributes"
-            }
             },
             {
                 label: 'Orders',
