@@ -95,6 +95,21 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
+                <VhField label="Product">
+
+                    <AutoComplete
+                        v-model="store.item.product"
+                        class="w-full"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchProduct($event)"
+                        placeholder="Select Product"
+                        data-testid="productvariations-product"
+                        name="productvariations-product"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+
                 <VhField label="Name">
                     <InputText class="w-full"
                                name="productvariations-name"
@@ -109,21 +124,6 @@ const toggleFormMenu = (event) => {
                                data-testid="productvariations-slug"
                                placeholder="Enter Slug"
                                v-model="store.item.slug"/>
-                </VhField>
-
-                <VhField label="Product">
-
-                    <AutoComplete
-                        v-model="store.item.product"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchProduct($event)"
-                        placeholder="Select Product"
-                        data-testid="productvariations-product"
-                        name="productvariations-product"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
                 </VhField>
 
                 <VhField label="SKU">
