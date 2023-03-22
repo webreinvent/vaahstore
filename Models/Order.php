@@ -35,7 +35,7 @@ class Order extends Model
         'payable',
         'paid',
         'is_paid',
-        'payment_method',
+        'taxonomy_id_payment_method',
         'meta',
         'status_notes',
         'is_active',
@@ -76,6 +76,12 @@ class Order extends Model
     public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
+    public function paymentMethod()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_method')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -152,6 +158,7 @@ class Order extends Model
         $item->fill($inputs);
         $item->status_notes = $inputs['status_notes'];
         $item->taxonomy_id_order_status = $inputs['status']['id'];
+        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -240,7 +247,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','paymentMethod');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -422,7 +429,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod'])
             ->withTrashed()
             ->first();
 
@@ -474,6 +481,7 @@ class Order extends Model
         $item->fill($inputs);
         $item->taxonomy_id_order_status = $inputs['status']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -533,7 +541,13 @@ class Order extends Model
         $rules = array(
             'status' => 'required|max:150',
             'status_notes' => 'required|max:150',
-            'amount' => 'required|min:1|numeric'
+            'payment_method' => 'required|max:150',
+            'amount' => 'required|min:1|numeric',
+            'delivery_fee' => 'required|min:0|numeric',
+            'taxes' => 'required|min:0|numeric',
+            'discount' => 'required|min:0|numeric',
+            'payable' => 'required|min:0|numeric',
+            'paid' => 'required|min:0|numeric'
         );
 
         $validator = \Validator::make($inputs, $rules);

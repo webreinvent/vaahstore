@@ -15,11 +15,6 @@ const items = ref([
         label: 'Store',
         items: [
             {
-                label: 'Dashboard',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/"
-            },
-            {
                 label: 'Store',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/store"
