@@ -570,7 +570,6 @@ class ProductVariation extends Model
             'quantity'  => 'required',
             'in_stock'=> 'required|numeric',
             'status_notes' => 'required_if:status.slug,==,rejected',
-            'has_media'=> 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);
