@@ -35,7 +35,7 @@ class Order extends Model
         'payable',
         'paid',
         'is_paid',
-        'payment_method',
+        'taxonomy_id_payment_method',
         'meta',
         'status_notes',
         'is_active',
@@ -76,6 +76,18 @@ class Order extends Model
     public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
+    }
+
+    //-------------------------------------------------
+    public function paymentMethod()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_method')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -131,13 +143,13 @@ class Order extends Model
 
 
         // check if name exist
-//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This name is already exist.";
-//            return $response;
-//        }
+        $item = self::where('vh_user_id', $inputs['user']['id'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
 //
 //        // check if slug exist
 //        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
@@ -152,6 +164,18 @@ class Order extends Model
         $item->fill($inputs);
         $item->status_notes = $inputs['status_notes'];
         $item->taxonomy_id_order_status = $inputs['status']['id'];
+        $item->vh_user_id = $inputs['user']['id'];
+        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
+        if($inputs['is_paid']==1 && $inputs['paid']==0){
+            $response['messages'][] = 'The paid should be more then 1';
+            return $response;
+        }else{
+            $item->paid = $inputs['paid'];
+            $item->is_paid = $inputs['is_paid'];
+        }
+        if($inputs['is_paid']==0){
+            $item->paid = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -240,7 +264,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','paymentMethod','user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -422,7 +446,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user'])
             ->withTrashed()
             ->first();
 
@@ -449,15 +473,15 @@ class Order extends Model
         }
 
         // check if name exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('name', $inputs['name'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This name is already exist.";
-//            return $response;
-//        }
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('vh_user_id', $inputs['user']['id'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
 //
 //        // check if slug exist
 //        $item = self::where('id', '!=', $inputs['id'])
@@ -473,7 +497,19 @@ class Order extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->taxonomy_id_order_status = $inputs['status']['id'];
+        $item->vh_user_id = $inputs['user']['id'];
         $item->status_notes = $inputs['status_notes'];
+        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
+        if($inputs['is_paid']==1 && $inputs['paid']==0){
+            $response['messages'][] = 'The paid should be more then 1';
+            return $response;
+        }else{
+            $item->paid = $inputs['paid'];
+            $item->is_paid = $inputs['is_paid'];
+        }
+        if($inputs['is_paid']==0){
+            $item->paid = 0;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -532,8 +568,15 @@ class Order extends Model
 
         $rules = array(
             'status' => 'required|max:150',
+            'user' => 'required|max:150',
             'status_notes' => 'required|max:150',
-            'amount' => 'required|min:1|numeric'
+            'payment_method' => 'required|max:150',
+            'amount' => 'required|min:1|numeric',
+            'delivery_fee' => 'required|min:0|numeric',
+            'taxes' => 'required|min:0|numeric',
+            'discount' => 'required|min:0|numeric',
+            'payable' => 'required|min:0|numeric',
+            'paid' => 'required|min:0|numeric'
         );
 
         $validator = \Validator::make($inputs, $rules);

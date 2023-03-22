@@ -33,7 +33,19 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    {{prop.data.user.first_name}}
+                </template>
+
+            </Column>
+
+             <Column field="payment_method" header="Payment Method"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.payment_method.name}}
                 </template>
 
             </Column>
@@ -49,6 +61,74 @@ const useVaah = vaah();
                 </template>
 
             </Column>
+
+             <Column field="delivery_fee" header="Delivery Fee"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.delivery_fee}}
+                </template>
+
+            </Column>
+
+             <Column field="taxes" header="Taxes"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.taxes}}
+                </template>
+
+            </Column>
+
+             <Column field="discount" header="Discount"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.discount}}
+                </template>
+
+            </Column>
+
+             <Column field="payable" header="Payable"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{prop.data.payable}}
+                </template>
+
+            </Column>
+
+             <Column field="paid" header="Paid"
+                     v-if="store.isViewLarge()"
+                    :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.paid == 0"
+                            value="0"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.paid > 0"
+                            :value="prop.data.paid"
+                            severity="success"></Badge>
+                 </template>
+
+            </Column>
+
 
              <Column field="status" header="Status"
                      :sortable="true">

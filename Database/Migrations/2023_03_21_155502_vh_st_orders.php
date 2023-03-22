@@ -20,15 +20,15 @@ class VhStorders extends Migration
                 $table->uuid('uuid')->nullable()->index();
                 $table->integer('vh_user_id')->nullable()->index();
                 $table->integer('taxonomy_id_order_status')->nullable()->index();
+                $table->integer('taxonomy_id_payment_method')->nullable()->index();
 
                 $table->integer('amount')->nullable()->index();
-                $table->decimal('delivery_fee')->nullable()->index();
-                $table->decimal('taxes')->nullable()->index();
-                $table->decimal('discount')->nullable()->index();
-                $table->decimal('payable')->nullable()->index();
-                $table->decimal('paid')->nullable()->index();
+                $table->double('delivery_fee')->nullable()->index();
+                $table->double('taxes')->nullable()->index();
+                $table->double('discount')->nullable()->index();
+                $table->double('payable')->nullable()->index();
+                $table->double('paid')->nullable()->index();
                 $table->boolean('is_paid')->nullable()->index();
-                $table->text('payment_method')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
 
                 //----common fields

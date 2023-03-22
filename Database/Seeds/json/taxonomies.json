@@ -123,5 +123,13 @@
     {
         "type_slug": "order-status",
         "name": "Rejected"
+    },
+    {
+        "type_slug": "order-payment-method",
+        "name": "Debit Card"
+    },
+    {
+        "type_slug": "order-payment-method",
+        "name": "Credit Card"
     }
 ]
