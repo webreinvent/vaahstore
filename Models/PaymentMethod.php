@@ -26,7 +26,6 @@ class PaymentMethod extends Model
     protected $fillable = [
         'uuid',
         'name',
-        'slug',
         'is_active',
         'created_by',
         'updated_by',

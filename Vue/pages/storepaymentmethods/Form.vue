@@ -95,18 +95,68 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="storepaymentmethods-name"
-                               data-testid="storepaymentmethods-name"
-                               v-model="store.item.name"/>
+                <VhField label="Store">
+                    <AutoComplete v-model="store.item.vh_st_store_id"
+                                  class="w-full"
+                                  data-testid="storepaymentmethods-vh_st_store_id"
+                                  :suggestions="store.store_suggestion_list"
+                                  @complete="store.searchStore($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection >
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
+                            </div>
+                        </template>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="storepaymentmethods-slug"
-                               data-testid="storepaymentmethods-slug"
-                               v-model="store.item.slug"/>
+                <VhField label="Payment method">
+                    <AutoComplete v-model="store.item.vh_st_store_id"
+                                  class="w-full"
+                                  data-testid="storepaymentmethods-vh_st_store_id"
+                                  :suggestions="store.store_suggestion_list"
+                                  @complete="store.searchStore($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection >
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
+                            </div>
+                        </template>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Last payment at" >
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              name="brands-last_payment_at"
+                              data-testid="storepaymentmethods-last_payment_at"
+                              dateFormat="yy-mm-dd"
+                              :showTime="true" :showSeconds="true"
+                              placeholder="Select date"
+                              v-model="store.item.last_payment_at" />
+                </VhField>
+
+                <VhField label="Status">
+                    <AutoComplete v-model="store.item.taxonomy_id_payment_method_status"
+                                  class="w-full"
+                                  data-testid="storepaymentmethods-taxonomy_status"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection />
+                </VhField>
+
+                <VhField label="Status notes">
+                    <Textarea v-model="store.item.status_notes"
+                              data-testid="storepaymentmethods-taxonomy_status_notes"
+                              :autoResize="true"
+                              rows="5"
+                              cols="30" />
                 </VhField>
 
                 <VhField label="Is Active">

@@ -36,6 +36,10 @@ export const useStorePaymentMethodStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
+        status_suggestion_list:null,
+        status_option:null,
+        store_suggestion_list:null,
+        all_store_list:null,
         list: null,
         item: null,
         fillable:null,
@@ -167,6 +171,32 @@ export const useStorePaymentMethodStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion_list = this.status_option;
+                }
+                else {
+                    this.status_suggestion_list = this.status_option.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStore(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.store_suggestion_list = this.all_store_list;
+                }
+                else {
+                    this.store_suggestion_list = this.all_store_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -184,6 +214,8 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status_option = data.status;
+                this.all_store_list = data.stores;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

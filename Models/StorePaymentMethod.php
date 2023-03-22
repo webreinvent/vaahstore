@@ -25,8 +25,12 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'vh_st_store_id',
+        'vh_st_payment_method_id',
+        'last_payment_at',
+        'taxonomy_id_payment_method_status',
+        'status_notes',
+        'meta',
         'is_active',
         'created_by',
         'updated_by',

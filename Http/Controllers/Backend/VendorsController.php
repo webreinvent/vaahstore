@@ -59,8 +59,6 @@ class VendorsController extends Controller
 
             $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
-            $data['status'] = Taxonomy::getTaxonomyByType('store-status');
-
             $active_user = auth()->user();
             $approved_by['id'] = $active_user->id;
             $approved_by['first_name'] = $active_user->first_name;

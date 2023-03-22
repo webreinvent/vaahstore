@@ -2,7 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\StorePaymentMethod;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class StorePaymentMethodsController extends Controller
@@ -45,7 +47,13 @@ class StorePaymentMethodsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
+
+            $data['status'] = Taxonomy::getTaxonomyByType('payment-method-status');
+
+            $data['stores'] = Store::where('is_active', 1)->get(['name','id', 'is_default']);
+
 
             $response['success'] = true;
             $response['data'] = $data;
