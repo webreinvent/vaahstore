@@ -86,6 +86,20 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.user;
+                }
+                else {
+                    this.suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -213,6 +227,7 @@ export const useOrderStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
+                this.user = data.users;
                 this.payment_method = data.payment_method;
                 if(data.rows)
                 {

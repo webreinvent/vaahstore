@@ -95,6 +95,20 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
+                <VhField label="User">
+                    <AutoComplete
+                        v-model="store.item.user"
+                        class="w-full"
+                        name="orders-user"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        :dropdown="true" optionLabel="first_name"
+                        data-testid="orders-user"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
                 <VhField label="Amount">
                     <InputNumber
                         placeholder="Enter a Amount"
@@ -152,6 +166,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Paid">
                     <InputNumber
+                        :disabled="store.item.is_paid==0"
                         placeholder="Enter a Paid"
                         name="orders-paid"
                         v-model="store.item.paid"

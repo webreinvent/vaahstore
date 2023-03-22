@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Order;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class OrdersController extends Controller
@@ -51,6 +52,7 @@ class OrdersController extends Controller
             $data['empty_item']['is_paid'] = 1;
             $data['status'] = Taxonomy::getTaxonomyByType('order-status');
             $data['payment_method'] = Taxonomy::getTaxonomyByType('order-payment-method');
+            $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
 
             $response['success'] = true;
             $response['data'] = $data;
