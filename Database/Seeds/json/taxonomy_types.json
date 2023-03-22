@@ -28,5 +28,11 @@
     },
     {
         "name": "Product-Stock Status"
+    },
+    {
+        "name": "Order Status"
+    },
+    {
+        "name": "Order Payment-Method"
     }
 ]
