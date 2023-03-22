@@ -181,10 +181,10 @@ class Product extends Model
             return $response;
         }else{
             $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
+            $item->in_stock = 1;
         }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
+        if($inputs['quantity']==0){
+            $item->in_stock = 0;
         }
         $item->is_active = $inputs['is_active'];
 
@@ -530,10 +530,10 @@ class Product extends Model
             return $response;
         }else{
             $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
+            $item->in_stock = 1;
         }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
+        if($inputs['quantity']==0){
+            $item->in_stock = 0;
         }
         $item->is_active = $inputs['is_active'];
         $item->save();
@@ -595,7 +595,7 @@ class Product extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required',
-            'status_notes'=> 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'in_stock'=> 'required|numeric',
             'brand'=> 'required',
             'store'=> 'required',

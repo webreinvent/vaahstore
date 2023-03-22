@@ -429,7 +429,7 @@ class Brand extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
-            'status_notes'=> 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
             'registered_by'=> 'required',

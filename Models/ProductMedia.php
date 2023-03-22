@@ -518,12 +518,12 @@ class ProductMedia extends Model
 
     public static function validation($inputs)
     {
-//dd($inputs);
+
         $rules = array(
             'product'=> 'required',
             'product_variation'=> 'required',
             'status'=> 'required',
-            'status_notes'=> 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'url'=> 'required|max:150',
             'path'=> 'required|max:150',
         );

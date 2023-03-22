@@ -540,7 +540,7 @@ class ProductVendor extends Model
             'vendor'=> 'required',
             'products'=> 'required',
             'status'=> 'required',
-            'status_notes'=> 'required|max:150',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'added_by'=> 'required|max:150',
             'can_update'=> 'required|max:150',
         );
