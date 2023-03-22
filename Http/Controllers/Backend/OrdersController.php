@@ -48,7 +48,9 @@ class OrdersController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['is_paid'] = 1;
             $data['status'] = Taxonomy::getTaxonomyByType('order-status');
+            $data['payment_method'] = Taxonomy::getTaxonomyByType('order-payment-method');
 
             $response['success'] = true;
             $response['data'] = $data;

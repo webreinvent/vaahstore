@@ -84,6 +84,20 @@ export const useOrderStore = defineStore({
                 }
             }, 250);
         },
+
+        //---------------------------------------------------------------------
+        searchPaymentMethod(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.payment_method;
+                }
+                else {
+                    this.suggestion= this.payment_method.filter((payment_method) => {
+                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -199,6 +213,7 @@ export const useOrderStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
+                this.payment_method = data.payment_method;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

@@ -31,5 +31,8 @@
     },
     {
         "name": "Order Status"
+    },
+    {
+        "name": "Order Payment-Method"
     }
 ]
