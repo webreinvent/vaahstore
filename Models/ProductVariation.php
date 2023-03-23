@@ -36,7 +36,7 @@ class ProductVariation extends Model
         'in_stock',
         'has_media',
         'meta',
-        'taxonomy_id_product_variation_status',
+        'taxonomy_id_variation_status',
         'status_notes',
         'created_by',
         'updated_by',
@@ -156,7 +156,7 @@ class ProductVariation extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
+        $item->taxonomy_id_variation_status = $inputs['status']['id'];
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
@@ -491,7 +491,7 @@ class ProductVariation extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_variation_status = $inputs['status']['id'];
+        $item->taxonomy_id_variation_status = $inputs['status']['id'];
         $item->vh_st_product_id = $inputs['product']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
