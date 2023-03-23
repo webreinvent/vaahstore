@@ -39,6 +39,7 @@ export const useAttributeStore = defineStore({
         product_variation_options: null,
         product_variation_suggestion_list: null,
         attribute_new_value: null,
+        attribute_value: [],
         list: null,
         item: null,
         fillable:null,
@@ -174,18 +175,9 @@ export const useAttributeStore = defineStore({
             if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
                 let new_array = {};
                 new_array.value = this.attribute_new_value;
-                new_array.is_active = 1;
-                this.item.value.push(new_array);
+                this.attribute_value.push(new_array);
                 this.attribute_new_value = null;
             }
-        },
-        //---------------------------------------------------------------------
-        deleteAttributeValue(value_name){
-            this.item.value.forEach((element, index)=>{
-                if (element.value == value_name){
-                    element.is_active = 0;
-                }
-            })
         },
         //---------------------------------------------------------------------
         searchProductVariation(event) {
