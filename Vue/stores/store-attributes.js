@@ -38,6 +38,8 @@ export const useAttributeStore = defineStore({
         rows_per_page: [10,20,30,50,100,500],
         product_variation_options: null,
         product_variation_suggestion_list: null,
+        attribute_new_value: null,
+        attribute_value: [],
         list: null,
         item: null,
         fillable:null,
@@ -167,6 +169,15 @@ export const useAttributeStore = defineStore({
                         },{deep: true}
                     )
                 }
+        },
+        //---------------------------------------------------------------------
+        addAttributeNewValue(){
+            if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
+                let new_array = {};
+                new_array.value = this.attribute_new_value;
+                this.attribute_value.push(new_array);
+                this.attribute_new_value = null;
+            }
         },
         //---------------------------------------------------------------------
         searchProductVariation(event) {
