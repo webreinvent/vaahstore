@@ -61,9 +61,9 @@ class ProductVariationsController extends Controller
             {
                 if($product['is_default']==1)
                 {
-                    $default_product['id'] = $brand->id;
-                    $default_product['name'] = $brand->name;
-                    $default_product['is_default'] = $brand->is_default;
+                    $default_product['id'] = $product->id;
+                    $default_product['name'] = $product->name;
+                    $default_product['is_default'] = $product->is_default;
                 }
             }
             $data['empty_item']['product'] = $default_product;

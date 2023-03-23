@@ -50,9 +50,31 @@ class ProductPricesController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['vendor']=Vendor::select('id','name','slug')->paginate(config('vaahcms.per_page'));
-            $data['product']=Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['vendor']=Vendor::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['product']=Product::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
             $data['product_variation']=ProductVariation::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $default_product = [];
+            foreach($data['product'] as $k=>$product)
+            {
+                if($product['is_default']==1)
+                {
+                    $default_product['id'] = $product->id;
+                    $default_product['name'] = $product->name;
+                    $default_product['is_default'] = $product->is_default;
+                }
+            }
+            $data['empty_item']['product'] = $default_product;
+            $default_vendor = [];
+            foreach($data['vendor'] as $l=>$vendor)
+            {
+                if($vendor['is_default']==1)
+                {
+                    $default_vendor['id'] = $vendor->id;
+                    $default_vendor['name'] = $vendor->name;
+                    $default_vendor['is_default'] = $vendor->is_default;
+                }
+            }
+            $data['empty_item']['vendor'] = $default_vendor;
             $response['success'] = true;
             $response['data'] = $data;
 

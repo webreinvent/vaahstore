@@ -58,7 +58,7 @@ class DatabaseTableSeeder extends Seeder
         if(!$item){
             $status = Taxonomy::getTaxonomyByType('store-status')->first();
             $item = new Store;
-            $item->name = 'Default';
+            $item->name = 'Default Store';
             $item->is_multi_currency  = 1;
             $item->is_multi_lingual  = 1;
             $item->is_multi_vendor  = 1;
@@ -80,7 +80,7 @@ class DatabaseTableSeeder extends Seeder
             $active_user = auth()->user();
             $status = Taxonomy::getTaxonomyByType('vendor-status')->first();
             $item = new Vendor;
-            $item->name = 'Default';
+            $item->name = 'Default Vendor';
             $item->vh_st_store_id  = $itemStore->id;
             $item->is_default = 1;
             $item->owned_by = $active_user->id;
@@ -103,7 +103,7 @@ class DatabaseTableSeeder extends Seeder
             $active_user = auth()->user();
             $status = Taxonomy::getTaxonomyByType('brand-status')->first();
             $item = new Brand;
-            $item->name = 'Default';
+            $item->name = 'Default Brand';
             $item->is_default = 1;
             $item->registered_by = $active_user->id;
             $item->approved_by = $active_user->id;
@@ -124,7 +124,7 @@ class DatabaseTableSeeder extends Seeder
             $status = Taxonomy::getTaxonomyByType('product-status')->first();
             $type = Taxonomy::getTaxonomyByType('product-types')->first();
             $item = new Product;
-            $item->name = 'Default';
+            $item->name = 'Default Product';
             $item->vh_st_store_id  = $itemStore->id;
             $item->is_default = 1;
             $item->quantity = 1;
