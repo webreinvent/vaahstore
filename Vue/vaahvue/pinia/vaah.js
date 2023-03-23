@@ -383,17 +383,6 @@ export const vaah = defineStore({
             return array;
         },
         //----------------------------------------------------------
-        capitalising: function (str) {
-            let capitalized = []
-            str.split(' ').forEach(word => {
-                capitalized.push(
-                    word.charAt(0).toUpperCase() +
-                    word.slice(1).toLowerCase()
-                )
-            })
-            return capitalized.join(' ')
-        },
-        //----------------------------------------------------------
         hasPermission: function (permissions, slug) {
 
             if(!permissions)

@@ -27,8 +27,8 @@ class DatabaseTableSeeder extends Seeder
      */
     function seeds()
     {
-        $this->seedTaxonomyTypes();
-        $this->seedTaxonomies();
+//        $this->seedTaxonomyTypes();
+//        $this->seedTaxonomies();
         $this->seedDefaultStore();
     }
 
@@ -48,18 +48,22 @@ class DatabaseTableSeeder extends Seeder
     //---------------------------------------------------------------
     public function seedDefaultStore()
     {
-        $status = Taxonomy::getTaxonomyByType('store-status')->first();
-        $item = new Store;
-        $item->name = 'Default';
-        $item->is_multi_currency  = 1;
-        $item->is_multi_lingual  = 1;
-        $item->is_multi_vendor  = 1;
-        $item->is_default = 1;
-        $item->taxonomy_id_store_status = $status->id;
-        $item->status_notes = 'Default store Status';
-        $item->is_active = 1;
-        $item->slug = Str::slug('Default');
-        $item->save();
+        $item = Store::where('is_default', 1)->first();
+        if(!$item){
+            $status = Taxonomy::getTaxonomyByType('store-status')->first();
+            $item = new Store;
+            $item->name = 'Default';
+            $item->is_multi_currency  = 1;
+            $item->is_multi_lingual  = 1;
+            $item->is_multi_vendor  = 1;
+            $item->is_default = 1;
+            $item->taxonomy_id_store_status = $status->id;
+            $item->status_notes = 'Default store Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default');
+            $item->save();
+        }
+
     }
     //---------------------------------------------------------------
 

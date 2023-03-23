@@ -19,15 +19,16 @@ class VhStproductvendors extends Migration
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
 
-                $table->boolean('is_active')->nullable()->index();
-
                 $table->integer('vh_st_vendor_id')->nullable()->index();
                 $table->integer('vh_st_product_id')->nullable()->index();
-                $table->boolean('can_update')->nullable()->index();
-                $table->integer('approved_by')->nullable()->index();
-                $table->dateTime('approved_at')->nullable()->index();
+                $table->integer('added_by')->nullable()->index();
                 $table->integer('taxonomy_id_product_vendor_status')->nullable()->index();
                 $table->string('status_notes')->nullable();
+                $table->boolean('is_active')->nullable()->index();
+                $table->boolean('can_update')->nullable()->index();
+
+
+
                 //----common fields
                 $table->text('meta')->nullable();
                 $table->bigInteger('created_by')->nullable()->index();
