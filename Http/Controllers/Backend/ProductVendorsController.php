@@ -59,6 +59,7 @@ class ProductVendorsController extends Controller
             $added_by['email'] = $active_user->email;
             $data['empty_item']['added_by'] = $added_by;
             $data['actions'] = [];
+            $data['empty_item']['is_active'] = 1;
 
             $response['success'] = true;
             $response['data'] = $data;

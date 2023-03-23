@@ -30,6 +30,7 @@ class VhStProducts extends Migration
             $table->boolean('in_stock')->nullable()->index();
 
             $table->boolean('is_active')->nullable()->index();
+            $table->boolean('is_default')->default(0)->nullable()->index();
             $table->string('status_notes')->nullable();
 
             //----common fields

@@ -4,6 +4,8 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -32,6 +34,8 @@ class DatabaseTableSeeder extends Seeder
 //        $this->seedTaxonomies();
         $this->seedDefaultStore();
         $this->seedDefaultVendor();
+        $this->seedDefaultBrand();
+        $this->seedDefaultPrdouct();
     }
 
     //---------------------------------------------------------------
@@ -71,9 +75,9 @@ class DatabaseTableSeeder extends Seeder
     public function seedDefaultVendor()
     {
         $item = Vendor::where('is_default', 1)->first();
-        $itemStore = Store::where('is_default', 1)->first();
-        $active_user = auth()->user();
         if(!$item){
+            $itemStore = Store::where('is_default', 1)->first();
+            $active_user = auth()->user();
             $status = Taxonomy::getTaxonomyByType('vendor-status')->first();
             $item = new Vendor;
             $item->name = 'Default';
@@ -86,6 +90,50 @@ class DatabaseTableSeeder extends Seeder
             $item->approved_at = null;
             $item->taxonomy_id_vendor_status = $status->id;
             $item->status_notes = 'Default Vendor Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default');
+            $item->save();
+        }
+    }
+    //---------------------------------------------------------------
+    public function seedDefaultBrand()
+    {
+        $item = Brand::where('is_default', 1)->first();
+        if(!$item){
+            $active_user = auth()->user();
+            $status = Taxonomy::getTaxonomyByType('brand-status')->first();
+            $item = new Brand;
+            $item->name = 'Default';
+            $item->is_default = 1;
+            $item->registered_by = $active_user->id;
+            $item->approved_by = $active_user->id;
+            $item->taxonomy_id_brand_status = $status->id;
+            $item->status_notes = 'Default Brand Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default');
+            $item->save();
+        }
+    }
+    //---------------------------------------------------------------
+    public function seedDefaultPrdouct()
+    {
+        $item = Product::where('is_default', 1)->first();
+        if(!$item){
+            $itemStore = Store::where('is_default', 1)->first();
+            $itemBrand = Brand::where('is_default', 1)->first();
+            $status = Taxonomy::getTaxonomyByType('product-status')->first();
+            $type = Taxonomy::getTaxonomyByType('product-types')->first();
+            $item = new Product;
+            $item->name = 'Default';
+            $item->vh_st_store_id  = $itemStore->id;
+            $item->is_default = 1;
+            $item->quantity = 1;
+            $item->in_stock = 1;
+            $item->vh_st_store_id = $itemStore->id;
+            $item->vh_st_brand_id = $itemBrand->id;
+            $item->taxonomy_id_product_status = $status->id;
+            $item->taxonomy_id_product_type = $type->id;
+            $item->status_notes = 'Default Product Status';
             $item->is_active = 1;
             $item->slug = Str::slug('Default');
             $item->save();
