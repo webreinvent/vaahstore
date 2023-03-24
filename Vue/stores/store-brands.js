@@ -207,7 +207,7 @@ export const useBrandStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = vaah().capitalising(newVal);
+                                this.item.name =newVal;
                                 this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
