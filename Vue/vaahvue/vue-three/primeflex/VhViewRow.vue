@@ -140,6 +140,17 @@ const props = defineProps({
                 <Tag v-else value="No" severity="danger"></Tag>
             </td>
         </template>
+        <template v-else-if="type==='multipleValues'">
+            <td colspan="2">
+                <template v-if="typeof value === 'object' && value !== null">
+                    <span v-for="data in value">
+                        <Button  @click="vaah().copy(data.id)"  class="p-button-outlined p-button-secondary p-button-sm">
+                            {{data.value}}
+                        </Button>&nbsp;
+                    </span>
+                </template>
+            </td>
+        </template>
 
 
         <template v-else>
