@@ -90,8 +90,8 @@ class Attribute extends Model
     }
 
     //-------------------------------------------------
-    public function attributeValue(){
-        return $this->hasOne(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
+    public function value(){
+        return $this->hasMany(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
     }
 
     //-------------------------------------------------
@@ -131,17 +131,14 @@ class Attribute extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        $item1 = new AttributeValue();
-        $item1->vh_st_attribute_id = $item->id;
-        $item1->value = $inputs['value'];
-        $item1->save();
-
-        $item2 = new ProductAttribute();
-        $item2->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item2->vh_st_attribute_id = $item->id;
-        $item2->vh_st_attribute_value_id = $item1->id;
-        $item2->save();
-
+        foreach ($inputs['value'] as $key=>$value){
+            if ($value['is_active'] == 1){
+                $item1 = new AttributeValue();
+                $item1->vh_st_attribute_id = $item->id;
+                $item1->value = $value['value'];
+                $item1->save();
+            }
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -411,7 +408,7 @@ class Attribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','productVariation','attributeValue'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','value'])
             ->withTrashed()
             ->first();
 
@@ -422,10 +419,9 @@ class Attribute extends Model
             return $response;
         }
 
-        $product_variation = $item->productVariation->toArray();
-        unset($product_variation[0]['pivot']);
-        $item->vh_st_product_variation_id = $product_variation[0];
-        $item->value = $item->attributeValue->value;
+        foreach ($item->value as $key=>$value){
+            $value['is_active'] = 1;
+        }
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -451,19 +447,26 @@ class Attribute extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->save();
+        foreach ($inputs['value'] as $key=>$value){
+            if ($value['is_active'] == 1){
+                if(isset($value['vh_st_attribute_id'])){
+                    $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();
+                    $item1->vh_st_attribute_id = $item->id;
+                    $item1->value = $value['value'];
+                    $item1->save();
 
-        $item1 = AttributeValue::where('vh_st_attribute_id', $item->id)->withTrashed()->first();
-        $item1->vh_st_attribute_id = $item->id;
-        $item1->value = $inputs['value'];
-        $item1->save();
-
-        $item2 = ProductAttribute::where(['vh_st_attribute_id' => $item->id, 'vh_st_attribute_value_id' => $item1->id])->withTrashed()->first();
-        $item2->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item2->save();
+                }else{
+                    $item1 = new AttributeValue();
+                    $item1->vh_st_attribute_id = $item->id;
+                    $item1->value = $value['value'];
+                    $item1->save();
+                }
+            }else {
+                if (isset($value['vh_st_attribute_id']) && isset($value['id']) && $value['is_active'] == 0) {
+                    AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->delete();
+                }
+            }
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -522,7 +525,7 @@ class Attribute extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-//            'type' => 'required',
+            'type' => 'required',
             'value' => 'required',
         );
 
