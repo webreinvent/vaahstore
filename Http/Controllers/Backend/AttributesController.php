@@ -47,6 +47,7 @@ class AttributesController extends Controller
             }
 
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['value'] = [];
 
             $data['actions'] = [];
             $data['product_variation_list'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','is_active','deleted_at']);
