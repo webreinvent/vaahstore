@@ -12,6 +12,7 @@ import productmedias from "./vue-routes-productmedias";
 import productprices from "./vue-routes-productprices";
 import productstocks from "./vue-routes-productstocks";
 import attributes from "./vue-routes-attributes";
+import attributeGroups from "./vue-routes-attributegroups";
 import orders from "./vue-routes-orders";
 
 // routes = routes.concat(dashboard);
@@ -27,5 +28,6 @@ routes = routes.concat(productprices);
 routes = routes.concat(orders);
 routes = routes.concat(productstocks);
 routes = routes.concat(attributes);
+routes = routes.concat(attributeGroups);
 
 export default routes;
