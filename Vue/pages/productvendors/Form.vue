@@ -94,20 +94,31 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-                <VhField label="Vendor">
 
-                    <AutoComplete
-                        v-model="store.item.vendor"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchVendor($event)"
-                        placeholder="Select Vendor"
-                        data-testid="productvendors-vendor"
-                        name="productvendors-vendor"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                <VhField label="Store">
+                    <MultiSelect class="w-full" v-model="store.item.stores" display="chip" :options="store.store" optionLabel="name" placeholder="Select Stores"
+                                 :maxSelectedLabels="3" @change="store.getProductsListForStore()" />
+                </VhField>
+
+                <VhField label="Vendor">
+                    <MultiSelect class="w-full" v-model="store.item.vendors" display="chip"
+                                 :options="store.vendor" optionLabel="name" placeholder="Select Vendor"
+                                 :maxSelectedLabels="3" />
+
+<!--                    <AutoComplete-->
+<!--                        v-model="store.item.vendor"-->
+<!--                        class="w-full"-->
+<!--                        :suggestions="store.suggestion"-->
+<!--                        @complete="store.searchVendor($event)"-->
+<!--                        placeholder="Select Vendor"-->
+<!--                        data-testid="productvendors-vendor"-->
+<!--                        name="productvendors-vendor"-->
+<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
+<!--                    </AutoComplete>-->
 
                 </VhField>
+
+
                 <VhField label="Product">
                     <MultiSelect class="w-full" v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Products"
                                  :maxSelectedLabels="3" />

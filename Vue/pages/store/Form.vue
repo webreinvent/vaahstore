@@ -299,10 +299,6 @@ const toggleFormMenu = (event) => {
                     <Textarea v-model="store.item.status_notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
-                <VhField label="Store Notes">
-                    <Textarea v-model="store.item.notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
-                </VhField>
-
                 <VhField label="Is Default">
                     <InputSwitch v-model="store.item.is_default" data-testid="store-is_default" />
 

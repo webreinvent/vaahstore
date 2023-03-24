@@ -84,16 +84,31 @@ class ProductVendor extends Model
     {
         return $this->hasMany(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
     }
+    //-------------------------------------------------
     public function product()
     {
         return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
+    }
+    //-------------------------------------------------
+    public function stores()
+    {
+        return $this->hasMany(Store::class, 'id', 'vh_st_store_id')->select('id', 'name', 'slug');
+    }
+    //-------------------------------------------------
+    public function store()
+    {
+        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select('id', 'name', 'slug');
     }
     //-------------------------------------------------
     public function vendor()
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug');
     }
-
+    //-------------------------------------------------
+    public function vendors()
+    {
+        return $this->hasMany(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug');
+    }
     //-------------------------------------------------
     public function getTableColumns()
     {
@@ -251,7 +266,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('products','product','vendor','addedBy','status');
+        $list = self::getSorted($request->filter)->with('products','product','vendor','addedBy','status','stores','store','vendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -433,7 +448,7 @@ class ProductVendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','product','vendor','addedBy','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','products','product','vendor','vendors','addedBy','status','stores','store'])
             ->withTrashed()
             ->first();
 

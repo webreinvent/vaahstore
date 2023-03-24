@@ -40,6 +40,7 @@ export const useProductVendorStore = defineStore({
         item: null,
         options_can_update:['off','no'],
         suggestion: null,
+        vendor: null,
         fillable:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -214,6 +215,25 @@ export const useProductVendorStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        async getProductsListForStore(){
+            let options = {
+                params: this.item.stores,
+                method: 'POST'
+            };
+            await vaah().ajax(
+                this.ajax_url+'/getProductForStore',
+                this.afterGetProductsListforStore,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        afterGetProductsListforStore(data, res)
+        {
+            if(data){
+                this.vendor = data;
+            }
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -232,9 +252,9 @@ export const useProductVendorStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.vendor = data.vendor.data
-                this.added_by_user = data.user.data
-                this.product =data.product.data
+                this.store = data.store.data;
+                this.added_by_user = data.user.data;
+                this.product =data.product.data;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)
@@ -283,7 +303,9 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.addd_by = data.added_by;
+                if(data.stores.length != 0){
+                    this.getProductsListForStore();
+                }
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -463,7 +485,6 @@ export const useProductVendorStore = defineStore({
             {
                 this.item = data;
                 this.added_by = data.added_by;
-                this.vendor = data.vendor;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
