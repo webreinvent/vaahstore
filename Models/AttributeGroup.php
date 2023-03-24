@@ -105,8 +105,7 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public function attributesList()
     {
-        return $this->belongsToMany(Attribute::class, 'vh_st_attr_group_items', 'vh_st_attribute_group_id', 'vh_st_attribute_id')
-            ->where('vh_st_attr_group_items.deleted_at', null)
+        return $this->belongsToMany(Attribute::class, 'vh_st_attr_group_items', 'vh_st_attribute_id', 'vh_st_attribute_group_id')
             ->select('vh_st_attributes.id', 'vh_st_attributes.name', 'vh_st_attributes.type');
     }
 
@@ -147,7 +146,7 @@ class AttributeGroup extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        foreach ($inputs['active_attributes'] as $key=>$value){
+        foreach ($inputs['attributes'] as $key=>$value){
             $item1 = new AttributeGroupItem();
             $item1->vh_st_attribute_id = $value['id'];
             $item1->vh_st_attribute_group_id = $item->id;
@@ -432,17 +431,15 @@ class AttributeGroup extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-
-        if (!empty($item->attributesList)){
-            $item->active_attributes = [];
-            $attributes = [];
-            foreach ($item->attributesList->toArray() as $k=>$a){
-                $attributes[$k]['id'] = $a['id'];
-                $attributes[$k]['name'] = $a['name'];
-                $attributes[$k]['type'] = $a['type'];
-            }
-            $item->active_attributes = $attributes;
+        
+        $item->attributes = [];
+        $attributes = [];
+        foreach ($item->attributesList as $k=>$a){
+            $attributes[$k]['id'] = $a['id'];
+            $attributes[$k]['name'] = $a['name'];
+            $attributes[$k]['type'] = $a['type'];
         }
+        $item->attributes = $attributes;
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -483,27 +480,9 @@ class AttributeGroup extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->description = $inputs['description'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        $all_active_attribute_ids = [];
-        foreach ($inputs['active_attributes'] as $key=>$value){
-
-            $item1 = AttributeGroupItem::where(['vh_st_attribute_group_id' => $item->id, 'vh_st_attribute_id' => $value['id']])->first();
-            if(!$item1){
-
-                $item1 = new AttributeGroupItem();
-                $item1->vh_st_attribute_id = $value['id'];
-                $item1->vh_st_attribute_group_id = $item->id;
-                $item1->save();
-            }
-            array_push($all_active_attribute_ids,$value['id']);
-        }
-
-        AttributeGroupItem::where(['vh_st_attribute_group_id' => $item->id])->whereNotIn('vh_st_attribute_id', $all_active_attribute_ids)->delete();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -562,7 +541,7 @@ class AttributeGroup extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'active_attributes' => 'required',
+            'attributes' => 'required',
             'description' => 'required',
             'is_active' => 'required'
         );
