@@ -130,22 +130,20 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <vhField label="Attribute Values" v-if="store.item.attribute_values">
-                    <div v-for="item in store.item.attribute_values">
-                        <div class="p-inputgroup flex-1 p-1">
-                            <span class="p-inputgroup-addon" v-tooltip="item.default_value" >{{ item.default_value.substring(0, 4) + '...' }}</span>
-                            <InputText v-model="item.new_value" :placeholder="item.default_value" />
-                        </div>
-                    </div>
-                </vhField>
+                <VhField label="Slug">
+                    <InputText class="w-full"
+                               name="productattributes-slug"
+                               data-testid="productattributes-slug"
+                               v-model="store.item.slug"/>
+                </VhField>
 
-<!--                <VhField label="Is Active">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="productattributes-active"-->
-<!--                                 data-testid="productattributes-active"-->
-<!--                                 v-model="store.item.is_active"/>-->
-<!--                </VhField>-->
+                <VhField label="Is Active">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="productattributes-active"
+                                 data-testid="productattributes-active"
+                                 v-model="store.item.is_active"/>
+                </VhField>
 
             </div>
         </Panel>
