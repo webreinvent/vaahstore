@@ -66,6 +66,9 @@ const toggleFormMenu = (event) => {
                             data-testid="productvendors-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="productvendors-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -96,14 +99,20 @@ const toggleFormMenu = (event) => {
             <div v-if="store.item">
 
                 <VhField label="Store">
-                    <MultiSelect class="w-full" v-model="store.item.stores" display="chip" :options="store.store" optionLabel="name" placeholder="Select Stores"
+                    <MultiSelect class="w-full" v-model="store.item.stores" display="chip"
+                                 data-testid="productvendors-stores"
+                                 name="productvendors-stores"
+                                 :options="store.store" optionLabel="name" placeholder="Select Stores"
                                  :maxSelectedLabels="3" @change="store.getProductsListForStore()" />
                 </VhField>
 
                 <VhField label="Vendor">
                     <MultiSelect class="w-full" v-model="store.item.vendors" display="chip"
+                                 data-testid="productvendors-vendors"
+                                 name="productvendors-vendors"
                                  :options="store.vendor" optionLabel="name" placeholder="Select Vendor"
                                  :maxSelectedLabels="3" />
+                    <Button v-tooltip="'vendor will be able to manage store'" type="button" icon="pi pi-info-circle" />
 
 <!--                    <AutoComplete-->
 <!--                        v-model="store.item.vendor"-->
@@ -120,7 +129,10 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Product">
-                    <MultiSelect class="w-full" v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Products"
+                    <MultiSelect
+                        data-testid="productvendors-products"
+                        name="productvendors-products"
+                        class="w-full" v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Products"
                                  :maxSelectedLabels="3" />
                 </VhField>
 
