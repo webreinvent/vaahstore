@@ -25,6 +25,10 @@
         "name": "Voucher"
     },
     {
+        "type_slug": "product-types",
+        "name": "Digital + Configurable"
+    },
+    {
         "type_slug": "store-status",
         "name": "Pending"
     },

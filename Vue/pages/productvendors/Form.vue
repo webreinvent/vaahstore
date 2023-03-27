@@ -99,7 +99,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Store">
+                <VhField label="Store"  v-if="!(store.item && store.item.id)">
                     <MultiSelect class="w-full" v-model="store.item.stores" display="chip"
                                  data-testid="productvendors-stores"
                                  name="productvendors-stores"
@@ -107,37 +107,30 @@ const toggleFormMenu = (event) => {
                                  :maxSelectedLabels="3" @change="store.getProductsListForStore()" />
                 </VhField>
 
-                <VhField label="Vendor">
-<!--                    <div class="col-12">-->
-                        <MultiSelect class="col-11" v-model="store.item.vendors" display="chip"
-                                     data-testid="productvendors-vendors"
-                                     name="productvendors-vendors"
-                                     :options="store.vendor" optionLabel="name" placeholder="Select Vendor"
-                                     :maxSelectedLabels="3" />
-                        <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-3" icon="pi pi-info-circle" />
-<!--                    </div>-->
-
-
-<!--                    <AutoComplete-->
-<!--                        v-model="store.item.vendor"-->
-<!--                        class="w-full"-->
-<!--                        :suggestions="store.suggestion"-->
-<!--                        @complete="store.searchVendor($event)"-->
-<!--                        placeholder="Select Vendor"-->
-<!--                        data-testid="productvendors-vendor"-->
-<!--                        name="productvendors-vendor"-->
-<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
-<!--                    </AutoComplete>-->
-
+                <VhField label="Product">
+                    <AutoComplete v-model="store.item.product"
+                                  @complete="store.searchProduct($event)"
+                                  :suggestions="store.suggestion"
+                                  class="w-full"
+                                  placeholder="Select Product"
+                                  data-testid="productvendors-product"
+                                  name="productvendors-product"
+                                  :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-
-                <VhField label="Product">
-                    <MultiSelect
-                        data-testid="productvendors-products"
-                        name="productvendors-products"
-                        class="w-full" v-model="store.item.products" display="chip" :options="store.product" optionLabel="name" placeholder="Select Products"
-                                 :maxSelectedLabels="3" />
+                <VhField label="Vendor">
+                    <AutoComplete
+                        v-model="store.item.vendor"
+                        class="w-11"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="productvendors-vendor"
+                        name="productvendors-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
                 <VhField label="Can Update">

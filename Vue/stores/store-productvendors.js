@@ -40,7 +40,7 @@ export const useProductVendorStore = defineStore({
         item: null,
         options_can_update:['off','no'],
         suggestion: null,
-        vendor: null,
+        product: null,
         fillable:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -110,6 +110,20 @@ export const useProductVendorStore = defineStore({
                 else {
                     this.suggestion= this.vendor.filter((vendor) => {
                         return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product;
+                }
+                else {
+                    this.suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -230,7 +244,7 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.vendor = data;
+                this.product = data;
             }
         },
         //---------------------------------------------------------------------
@@ -254,7 +268,7 @@ export const useProductVendorStore = defineStore({
                 this.status = data.status;
                 this.store = data.store.data;
                 this.added_by_user = data.user.data;
-                this.product =data.product.data;
+                this.vendor =data.vendor.data;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)
@@ -303,6 +317,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.product = data.productList.data
                 if(data.stores.length != 0){
                     this.getProductsListForStore();
                 }

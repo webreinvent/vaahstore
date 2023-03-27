@@ -21,7 +21,6 @@ class VhStproductvendors extends Migration
 
                 $table->integer('vh_st_vendor_id')->nullable()->index();
                 $table->integer('vh_st_product_id')->nullable()->index();
-                $table->integer('vh_st_store_id')->nullable()->index();
                 $table->integer('added_by')->nullable()->index();
                 $table->integer('taxonomy_id_product_vendor_status')->nullable()->index();
                 $table->string('status_notes')->nullable();
