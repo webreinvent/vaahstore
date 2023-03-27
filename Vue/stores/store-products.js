@@ -39,6 +39,7 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        status:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
         query: vaah().clone(empty_states.query),
@@ -66,6 +67,10 @@ export const useProductStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         suggestion:null,
+        status_suggestion:null,
+        store_suggestion:null,
+        brand_suggestion:null,
+        type_suggestion:null,
         name:null,
     }),
     getters: {
@@ -81,10 +86,10 @@ export const useProductStore = defineStore({
         searchTaxonomyProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.type;
+                    this.type_suggestion = this.type;
                 }
                 else {
-                    this.suggestion= this.type.filter((product) => {
+                    this.type_suggestion= this.type.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -95,10 +100,10 @@ export const useProductStore = defineStore({
         searchBrand(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.brand;
+                    this.brand_suggestion = this.brand;
                 }
                 else {
-                    this.suggestion= this.brand.filter((brand) => {
+                    this.brand_suggestion= this.brand.filter((brand) => {
                         return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -109,10 +114,10 @@ export const useProductStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.status;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -123,10 +128,10 @@ export const useProductStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.store;
+                    this.store_suggestion = this.store;
                 }
                 else {
-                    this.suggestion= this.store.filter((store) => {
+                    this.store_suggestion= this.store.filter((store) => {
                         return store.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -246,10 +251,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.brand = data.brand.data
-                this.store = data.store.data
-                this.type = data.taxonomy_product
                 this.status = data.status;
+                this.brand = data.brand.data;
+                this.store = data.store.data;
+                this.type = data.type;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -296,6 +301,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_brand_id = data.brand
+                this.item.vh_st_store_id = data.store
+                this.item.taxonomy_id_product_type = data.type
+                this.item.taxonomy_id_product_status = data.status;
             }else{
                 this.$router.push({name: 'products.index'});
             }
@@ -474,6 +483,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_product_status = data.status;
+                this.item.taxonomy_id_product_type = data.type;
+                this.item.vh_st_brand_id = data.brand;
+                this.item.vh_st_store_id = data.store;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

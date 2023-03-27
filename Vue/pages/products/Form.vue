@@ -118,9 +118,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Store">
 
                     <AutoComplete
-                        v-model="store.item.store"
+                        v-model="store.item.vh_st_store_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.store_suggestion"
                         @complete="store.searchStore($event)"
                         placeholder="Select Store"
                         data-testid="products-store"
@@ -133,9 +133,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Brand">
 
                     <AutoComplete
-                        v-model="store.item.brand"
+                        v-model="store.item.vh_st_brand_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.brand_suggestion"
                         @complete="store.searchBrand($event)"
                         placeholder="Select Brand"
                         data-testid="products-brand"
@@ -148,11 +148,11 @@ const toggleFormMenu = (event) => {
                 <VhField label="Type">
 
                     <AutoComplete
-                        v-model="store.item.type"
+                        v-model="store.item.taxonomy_id_product_type"
                         class="w-full"
                         data-testid="products-type"
                         name="products-type"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.type_suggestion"
                         @complete="store.searchTaxonomyProduct($event)"
                         placeholder="Select Type"
                         :dropdown="true" optionLabel="name" forceSelection>
@@ -183,10 +183,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_product_status"
                         class="w-full"
                         name="products-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"

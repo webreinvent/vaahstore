@@ -53,7 +53,7 @@ class ProductsController extends Controller
             $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['taxonomy_product'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
             $data['actions'] = [];
             $default_store = [];
             foreach($data['store'] as $k=>$arr)
@@ -65,7 +65,7 @@ class ProductsController extends Controller
                     $default_store['is_default'] = $arr->is_default;
                 }
             }
-            $data['empty_item']['store'] = $default_store;
+            $data['empty_item']['vh_st_store_id'] = $default_store;
             $default_brand = [];
             foreach($data['brand'] as $l=>$brand)
             {
@@ -76,7 +76,7 @@ class ProductsController extends Controller
                     $default_brand['is_default'] = $brand->is_default;
                 }
             }
-            $data['empty_item']['brand'] = $default_brand;
+            $data['empty_item']['vh_st_brand_id'] = $default_brand;
 
             $response['success'] = true;
             $response['data'] = $data;

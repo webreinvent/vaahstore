@@ -137,9 +137,8 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by'
-                        || column === 'vh_st_brand_id' || column === 'updated_by'
-                        || column === 'vh_st_store_id' || column === 'taxonomy_id_product_type'||column === 'status'">
+                        <template v-if="column === 'created_by'|| column === 'updated_by'|| column === 'brand'
+                        || column === 'store'|| column === 'type'|| column === 'status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -158,27 +157,30 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'type'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.type.name"
+                        <template v-else-if="column === 'taxonomy_id_product_type'">
+                            <VhViewRow label="Type"
+                                       :value="value"
+                                       type="user"
                             />
                         </template>
 
-                        <template v-else-if="column === 'store'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.store.name"
+                        <template v-else-if="column === 'vh_st_store_id'">
+                            <VhViewRow label="Store"
+                                       :value="value"
+                                       type="user"
                             />
                         </template>
 
-                        <template v-else-if="column === 'brand'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.brand.name"
+                        <template v-else-if="column === 'vh_st_brand_id'">
+                            <VhViewRow label="Brand"
+                                       :value="value"
+                                       type="user"
                             />
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_product_status'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.status"
+                            <VhViewRow label="Status"
+                                       :value="value"
                                        type="status"
                             />
                         </template>

@@ -165,17 +165,15 @@ class Product extends Model
         $item->fill($inputs);
         $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_type = $inputs['type']['id'];
-
+        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
         $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_product_status = $inputs['status']['id'];
-        if(is_string($inputs['brand']['name'])){
-            $item->vh_st_brand_id = $inputs['brand']['id'];
+        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
+        if(is_string($inputs['vh_st_brand_id']['name'])){
+            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
         }
-        if(is_string($inputs['store']['name'])){
-            $item->vh_st_store_id = $inputs['store']['id'];
+        if(is_string($inputs['vh_st_store_id']['name'])){
+            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         }
-
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
@@ -511,18 +509,18 @@ class Product extends Model
         $item->fill($inputs);
         $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        if(is_string($inputs['brand']['name'])){
-            $item->vh_st_brand_id = $inputs['brand']['id'];
+        if(is_string($inputs['vh_st_brand_id']['name'])){
+            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
         }else{
-            $item->vh_st_brand_id = $inputs['brand']['name']['id'];
+            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['name']['id'];
         }
-        if(is_string($inputs['store']['name'])){
-            $item->vh_st_store_id = $inputs['store']['id'];
+        if(is_string($inputs['vh_st_store_id']['name'])){
+            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         }else{
-            $item->vh_st_store_id = $inputs['store']['name']['id'];
+            $item->vh_st_store_id = $inputs['vh_st_store_id']['name']['id'];
         }
-        $item->taxonomy_id_product_type = $inputs['type']['id'];
-        $item->taxonomy_id_product_status = $inputs['status']['id'];
+        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
+        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
         $item->status_notes = $inputs['status_notes'];
 
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
@@ -591,28 +589,38 @@ class Product extends Model
 
     public static function validation($inputs)
     {
-        $rules = array(
+        $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'taxonomy_id_product_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_product_status.slug,==,rejected',
             'in_stock'=> 'required|numeric',
-            'brand'=> 'required',
-            'store'=> 'required',
-            'type'=> 'required',
+            'vh_st_brand_id'=> 'required',
+            'vh_st_store_id'=> 'required',
+            'taxonomy_id_product_type'=> 'required',
             'quantity'  => 'required'
+       ],
+       [
+            'taxonomy_id_product_status.required' => 'The Status field is required',
+            'vh_st_brand_id.required' => 'The Brand field is required',
+            'vh_st_store_id.required' => 'The Store field is required',
+            'taxonomy_id_product_type.required' => 'The Type field is required',
+           'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+       ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'messages' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 
