@@ -110,7 +110,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <vhField label="Attributes">
-                    <MultiSelect v-model="store.item.attributes"
+                    <MultiSelect v-model="store.item.active_attributes"
                                  filter
                                  :options="store.attribute_list"
                                  data-testid="attributegroups-attributes"
