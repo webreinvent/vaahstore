@@ -41,3 +41,4 @@ include_once __DIR__."/backend/routes-productstocks.php";
 include_once __DIR__."/backend/routes-attributes.php";
 include_once __DIR__."/backend/routes-orders.php";
 include_once __DIR__."/backend/routes-attributegroups.php";
+include_once __DIR__."/backend/routes-productattributes.php";

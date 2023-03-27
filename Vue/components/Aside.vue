@@ -75,6 +75,11 @@ const items = ref([
                 to: "/attributegroups"
             },
             {
+                label: 'Product-Attribute',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/productAttribute"
+            },
+            {
                 label: 'Orders',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/orders"
