@@ -68,6 +68,7 @@ const toggleFormMenu = (event) => {
 
                     <Button data-testid="productvendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
+                            v-tooltip.top="'documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
@@ -107,12 +108,15 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Vendor">
-                    <MultiSelect class="w-full" v-model="store.item.vendors" display="chip"
-                                 data-testid="productvendors-vendors"
-                                 name="productvendors-vendors"
-                                 :options="store.vendor" optionLabel="name" placeholder="Select Vendor"
-                                 :maxSelectedLabels="3" />
-                    <Button v-tooltip="'vendor will be able to manage store'" type="button" icon="pi pi-info-circle" />
+<!--                    <div class="col-12">-->
+                        <MultiSelect class="col-11" v-model="store.item.vendors" display="chip"
+                                     data-testid="productvendors-vendors"
+                                     name="productvendors-vendors"
+                                     :options="store.vendor" optionLabel="name" placeholder="Select Vendor"
+                                     :maxSelectedLabels="3" />
+                        <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-3" icon="pi pi-info-circle" />
+<!--                    </div>-->
+
 
 <!--                    <AutoComplete-->
 <!--                        v-model="store.item.vendor"-->
