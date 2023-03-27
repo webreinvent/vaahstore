@@ -27,7 +27,6 @@ class ProductAttribute extends Model
         'uuid',
         'vh_st_product_variation_id',
         'vh_st_attribute_id',
-        'vh_st_attribute_value_id',
         'created_by',
         'updated_by',
         'deleted_by',
