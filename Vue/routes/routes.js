@@ -14,6 +14,7 @@ import productstocks from "./vue-routes-productstocks";
 import attributes from "./vue-routes-attributes";
 import attributeGroups from "./vue-routes-attributegroups";
 import orders from "./vue-routes-orders";
+import productAttribute from "./vue-routes-productattributes";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -29,5 +30,6 @@ routes = routes.concat(orders);
 routes = routes.concat(productstocks);
 routes = routes.concat(attributes);
 routes = routes.concat(attributeGroups);
+routes = routes.concat(productAttribute);
 
 export default routes;

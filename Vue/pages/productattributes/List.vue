@@ -2,12 +2,12 @@
 import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
-import {useAttributeGroupStore} from '../../stores/store-attributegroups'
+import {useProductAttributeStore} from '../../stores/store-productattributes'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
 
-const store = useAttributeGroupStore();
+const store = useProductAttributeStore();
 const route = useRoute();
 
 import { useConfirm } from "primevue/useconfirm";
@@ -57,7 +57,7 @@ onMounted(async () => {
 
                     <div class="flex flex-row">
                         <div >
-                            <b class="mr-1">Attribute Groups</b>
+                            <b class="mr-1">Product Attributes</b>
                             <Badge v-if="store.list && store.list.total > 0"
                                    :value="store.list.total">
                             </Badge>
@@ -69,7 +69,7 @@ onMounted(async () => {
 
                 <template #icons>
 
-                    <Button data-testid="attributegroups-list-create"
+                    <Button data-testid="productattributes-list-create"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
