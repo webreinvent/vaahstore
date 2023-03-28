@@ -68,7 +68,7 @@ const toggleFormMenu = (event) => {
 
                     <Button data-testid="productvariations-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
-                            v-tooltip.top="'documentation'"
+                            v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
@@ -102,9 +102,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product">
 
                     <AutoComplete
-                        v-model="store.item.product"
+                        v-model="store.item.vh_st_product_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.product_suggestion"
                         @complete="store.searchProduct($event)"
                         placeholder="Select Product"
                         data-testid="productvariations-product"
@@ -138,32 +138,33 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="In Stock">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="productvariations-in_stock"
-                                 data-testid="productvariations-in_stock"
-                                 v-model="store.item.in_stock"/>
-                </VhField>
-
                 <VhField label="Quantity">
                     <InputNumber
-                        :disabled="store.item.in_stock==0"
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
                         name="productvariations-quantity"
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
-                        data-testid="productvariations-quantity"
-                        :min="1"/>
+                        :min="0"
+                        data-testid="productvariations-quantity"/>
+                </VhField>
+
+                <VhField label="In Stock">
+                    <InputSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        name="productvariations-in_stock"
+                        data-testid="productvariations-in_stock"
+                        v-model="store.item.in_stock"/>
                 </VhField>
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_variation_status"
                         class="w-full"
                         name="productvariations-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"

@@ -74,7 +74,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_variation_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_variation_status')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -156,8 +156,8 @@ class ProductVariation extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_variation_status = $inputs['status']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
+        $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
+        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
@@ -491,8 +491,8 @@ class ProductVariation extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_variation_status = $inputs['status']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
+        $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
+        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->sku = $inputs['sku'];
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
@@ -560,28 +560,33 @@ class ProductVariation extends Model
 
     public static function validation($inputs)
     {
-
-        $rules = array(
+        $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'sku' => 'required|max:150',
-            'status'=> 'required',
-            'product'=> 'required',
+            'taxonomy_id_variation_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_variation_status.slug,==,rejected',
+            'vh_st_product_id'=> 'required',
             'quantity'  => 'required',
             'in_stock'=> 'required|numeric',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+       ],
+        [
+            'vh_st_product_id.required' => 'The Product field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'messages' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 
