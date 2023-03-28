@@ -207,7 +207,7 @@ export const useProductAttributeStore = defineStore({
         },
         //---------------------------------------------------------------------
         afterGetAttributeValue(data, res){
-            console.log(data);
+            this.item.attribute_values = data;
         },
         //---------------------------------------------------------------------
         async getAssets() {
