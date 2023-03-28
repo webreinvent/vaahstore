@@ -48,6 +48,8 @@ class ProductAttributesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['attribute_values'] = null;
             $data['actions'] = [];
 
             $data['product_variation_list'] = ProductVariation::where('is_active', 1)->get(['name', 'id', 'is_default']);
@@ -90,7 +92,16 @@ class ProductAttributesController extends Controller
     //----------------------------------------------------------
     public function getAttributeValue($id){
         $item = AttributeValue::where('vh_st_attribute_id', $id)->get(['id', 'value']);
-        return $item;
+
+        $data = [];
+        foreach ($item as $key=>$value){
+            $data[$key]['id'] = $value['id'];
+            $data[$key]['default_value'] = $value['value'];
+            $data[$key]['new_value'] = $value['value'];
+        }
+        $response['success'] = true;
+        $response['data'] = $data;
+        return $response;
     }
     //----------------------------------------------------------
     public function updateList(Request $request)
