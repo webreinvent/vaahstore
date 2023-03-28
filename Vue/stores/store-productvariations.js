@@ -65,6 +65,8 @@ export const useProductVariationStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
+        status_suggestion:null,
+        product_suggestion:null,
         form_menu_list: []
     }),
     getters: {
@@ -75,10 +77,10 @@ export const useProductVariationStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.status;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -89,10 +91,10 @@ export const useProductVariationStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.product;
+                    this.product_suggestion = this.product;
                 }
                 else {
-                    this.suggestion= this.product.filter((product) => {
+                    this.product_suggestion= this.product.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -187,7 +189,7 @@ export const useProductVariationStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = vaah().capitalising(newVal);
+                                this.item.name = newVal;
                                 this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
@@ -260,6 +262,8 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_variation_status = data.status;
+                this.item.vh_st_product_id = data.product;
             }else{
                 this.$router.push({name: 'productvariations.index'});
             }
@@ -438,6 +442,8 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_variation_status = data.status;
+                this.item.vh_st_product_id = data.product;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -66,6 +66,10 @@ const toggleFormMenu = (event) => {
                             data-testid="productmedias-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="productmedias-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -98,9 +102,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product">
 
                     <AutoComplete
-                        v-model="store.item.product"
+                        v-model="store.item.vh_st_product_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.product_suggestion"
                         @complete="store.searchProduct($event)"
                         placeholder="Select Product"
                         data-testid="productmedias-product"
@@ -113,9 +117,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product Variation">
 
                     <AutoComplete
-                        v-model="store.item.product_variation"
+                        v-model="store.item.vh_st_product_variation_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.product_variation_suggestion"
                         @complete="store.searchProductVariation($event)"
                         placeholder="Select Product Variation"
                         data-testid="productmedias-product_variation"
@@ -143,10 +147,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_product_media_status"
                         class="w-full"
                         name="productmedias-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"

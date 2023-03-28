@@ -153,19 +153,20 @@ class Warehouse extends Model
             'state' => 'required',
             'city' => 'required',
             'taxonomy_id_warehouse_status' => 'required',
-            'status_notes' => 'required',
+            'status_notes' => 'required_if:taxonomy_id_warehouse_status.slug,==,rejected',
             'is_active' => 'required',
             'vh_st_vendor_id' => 'required'
         ],
             [
                 'taxonomy_id_warehouse_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 
         if($validated_data->fails()){
             return [
                 'success' => false,
-                'messages' => $validated_data->errors()->all()
+                'errors' => $validated_data->errors()->all()
             ];
         }
 

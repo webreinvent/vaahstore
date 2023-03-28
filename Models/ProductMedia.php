@@ -133,9 +133,8 @@ class ProductMedia extends Model
         }
 
 
-        // check if name exist
-//        foreach ($inputs['products'] as $input) {
-            $item = self::where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->withTrashed()->first();
+        // check if exist
+            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])->withTrashed()->first();
 
             if ($item) {
                 $response['success'] = false;
@@ -146,9 +145,9 @@ class ProductMedia extends Model
             $item = new self();
             $item->fill($inputs);
             $item->status_notes = $inputs['status_notes'];
-            $item->taxonomy_id_product_media_status = $inputs['status']['id'];
-            $item->vh_st_product_id = $inputs['product']['id'];
-            $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+            $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
+            $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+            $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -518,26 +517,34 @@ class ProductMedia extends Model
 
     public static function validation($inputs)
     {
-//dd($inputs);
-        $rules = array(
-            'product'=> 'required',
-            'product_variation'=> 'required',
-            'status'=> 'required',
-            'status_notes'=> 'required|max:150',
+
+        $rules = validator($inputs, [
+            'vh_st_product_id'=> 'required',
+            'vh_st_product_variation_id'=> 'required',
+            'taxonomy_id_product_media_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
             'url'=> 'required|max:150',
             'path'=> 'required|max:150',
+                ],
+        [
+            'taxonomy_id_product_media_status.required' => 'The Status field is required',
+            'vh_st_product_id.required' => 'The Product field is required',
+            'vh_st_product_variation.required' => 'The Product variation field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

@@ -216,7 +216,7 @@ class Store extends Model
             'allowed_ips' => 'required',
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
-            'status_notes' => 'required',
+            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
             'notes' => 'required',
             'is_active' => 'required',
             'currencies' => 'required_if:is_multi_currency,1',
@@ -228,14 +228,15 @@ class Store extends Model
             'taxonomy_id_store_status.required' => 'The Status field is required',
             'notes.required' => 'The Store Notes field is required',
             'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
-            'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".'
+            'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
+             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
 
         if($validated_data->fails()){
             return [
                 'success' => false,
-                'messages' => $validated_data->errors()->all()
+                'errors' => $validated_data->errors()->all()
             ];
         }
 

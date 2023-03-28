@@ -163,9 +163,9 @@ class Order extends Model
         $item = new self();
         $item->fill($inputs);
         $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_order_status = $inputs['status']['id'];
-        $item->vh_user_id = $inputs['user']['id'];
-        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
+        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_payment_method = $inputs['taxonomy_id_payment_method']['id'];
         if($inputs['is_paid']==1 && $inputs['paid']==0){
             $response['messages'][] = 'The paid should be more then 1';
             return $response;
@@ -496,10 +496,10 @@ class Order extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->taxonomy_id_order_status = $inputs['status']['id'];
+        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
         $item->vh_user_id = $inputs['user']['id'];
         $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_payment_method = $inputs['payment_method']['id'];
+        $item->taxonomy_id_payment_method = $inputs['taxonomy_id_payment_method']['id'];
         if($inputs['is_paid']==1 && $inputs['paid']==0){
             $response['messages'][] = 'The paid should be more then 1';
             return $response;
@@ -566,29 +566,36 @@ class Order extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'status' => 'required|max:150',
+        $rules = validator($inputs, [
+            'taxonomy_id_order_status' => 'required|max:150',
             'user' => 'required|max:150',
-            'status_notes' => 'required|max:150',
-            'payment_method' => 'required|max:150',
+            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
+            'taxonomy_id_payment_method' => 'required|max:150',
             'amount' => 'required|min:1|numeric',
             'delivery_fee' => 'required|min:0|numeric',
             'taxes' => 'required|min:0|numeric',
             'discount' => 'required|min:0|numeric',
             'payable' => 'required|min:0|numeric',
             'paid' => 'required|min:0|numeric'
+                ],
+        [
+            'taxonomy_id_payment_method.required' => 'The Payment Method field is required',
+            'taxonomy_id_order_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

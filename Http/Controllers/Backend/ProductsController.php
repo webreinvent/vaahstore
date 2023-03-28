@@ -50,13 +50,33 @@ class ProductsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['brand']=Brand::select('id','name','slug')->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::where('is_active',1)->select('id','name')->paginate(config('vaahcms.per_page'));
+            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
+            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['taxonomy_product'] = Taxonomy::getTaxonomyByType('product-types');
-//            $data['taxonomy_product']=Taxonomy::where([['slug',5],['is_active',1]])->select('id','name')->paginate(config('vaahcms.per_page'));
-//            $data['status']=Taxonomy::where([['vh_taxonomy_type_id',6],['is_active',1]])->select('id','name')->paginate(config('vaahcms.per_page'));
+            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
             $data['actions'] = [];
+            $default_store = [];
+            foreach($data['store'] as $k=>$arr)
+            {
+                if($arr['is_default']==1)
+                {
+                    $default_store['id'] = $arr->id;
+                    $default_store['name'] = $arr->name;
+                    $default_store['is_default'] = $arr->is_default;
+                }
+            }
+            $data['empty_item']['vh_st_store_id'] = $default_store;
+            $default_brand = [];
+            foreach($data['brand'] as $l=>$brand)
+            {
+                if($brand['is_default']==1)
+                {
+                    $default_brand['id'] = $brand->id;
+                    $default_brand['name'] = $brand->name;
+                    $default_brand['is_default'] = $brand->is_default;
+                }
+            }
+            $data['empty_item']['vh_st_brand_id'] = $default_brand;
 
             $response['success'] = true;
             $response['data'] = $data;

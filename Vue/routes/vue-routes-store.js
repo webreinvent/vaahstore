@@ -8,6 +8,7 @@ import Item from '../pages/store/Item.vue'
 routes_list = {
 
     path: '/store',
+    alias: ['/'],
     name: 'store.index',
     component: List,
     props: true,

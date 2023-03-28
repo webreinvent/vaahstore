@@ -67,6 +67,10 @@ const toggleFormMenu = (event) => {
                             data-testid="store-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="store-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -297,10 +301,6 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status Notes">
                     <Textarea v-model="store.item.status_notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
-                </VhField>
-
-                <VhField label="Store Notes">
-                    <Textarea v-model="store.item.notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
                 <VhField label="Is Default">

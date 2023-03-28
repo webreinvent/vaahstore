@@ -55,8 +55,18 @@ class ProductVariationsController extends Controller
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
-            $data['product']= Product::select('id','name','slug')->paginate(config('vaahcms.per_page'));
-
+            $data['product']= Product::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $default_product = [];
+            foreach($data['product'] as $l=>$product)
+            {
+                if($product['is_default']==1)
+                {
+                    $default_product['id'] = $product->id;
+                    $default_product['name'] = $product->name;
+                    $default_product['is_default'] = $product->is_default;
+                }
+            }
+            $data['empty_item']['vh_st_product_id'] = $default_product;
             $response['success'] = true;
             $response['data'] = $data;
 

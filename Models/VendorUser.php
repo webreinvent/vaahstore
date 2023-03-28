@@ -164,7 +164,7 @@ class VendorUser extends Model
         if($validated_data->fails()){
             return [
                 'success' => false,
-                'messages' => $validated_data->errors()->all()
+                'errors' => $validated_data->errors()->all()
             ];
         }
 

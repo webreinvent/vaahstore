@@ -50,7 +50,7 @@ const items = ref([
                 to: "/productprices"
             },
             {
-                label: 'product-stocks',
+                label: 'Product-Stocks',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productstocks"
             },

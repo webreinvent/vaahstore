@@ -520,7 +520,7 @@ class ProductAttribute extends Model
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
-            $response['messages'] = $messages->all();
+            $response['errors'] = $messages->all();
             return $response;
         }
 

@@ -66,6 +66,10 @@ const toggleFormMenu = (event) => {
                             data-testid="brands-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="brands-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -120,7 +124,7 @@ const toggleFormMenu = (event) => {
                         id="registered_by"
                         value="registered_by"
                         data-testid="brands-registered_by"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
                         placeholder="Select Registered By"
                         :dropdown="true" optionLabel="name" forceSelection>
@@ -149,7 +153,7 @@ const toggleFormMenu = (event) => {
                         id="approved_by"
                         value="approved_by"
                         data-testid="brands-approved_by"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
                         placeholder="Select Approved by"
                         :dropdown="true" optionLabel="name" forceSelection>
@@ -171,11 +175,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_brand_status"
                         class="w-full"
                         name="brands-status"
                         data-testid="brands-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name" forceSelection>
@@ -189,6 +193,14 @@ const toggleFormMenu = (event) => {
                               :autoResize="true"
                               placeholder="Enter Status Note"
                                v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Is Default">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="brands-default"
+                                 data-testid="brands-default"
+                                 v-model="store.item.is_default"/>
                 </VhField>
 
                 <VhField label="Is Active">

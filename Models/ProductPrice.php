@@ -132,9 +132,9 @@ class ProductPrice extends Model
 
 
         // check if exist
-        $item = self::where('vh_st_vendor_id', $inputs['vendor']['id'])
-            ->where('vh_st_product_variation_id', $inputs['product_variation']['id'])
-            ->where('vh_st_product_id', $inputs['product']['id'])->withTrashed()->first();
+        $item = self::where('vh_st_vendor_id', $inputs['vh_st_vendor_id']['id'])
+            ->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])
+            ->where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
@@ -144,9 +144,9 @@ class ProductPrice extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->vh_st_vendor_id = $inputs['vendor']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -446,9 +446,9 @@ class ProductPrice extends Model
         // check if exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('vh_st_vendor_id', $inputs['vendor']['id'])
-            ->where('vh_st_product_variation_id', $inputs['product_variation']['id'])
-            ->where('vh_st_product_id', $inputs['product']['id'])->first();
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id']['id'])
+            ->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])
+            ->where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
@@ -458,9 +458,9 @@ class ProductPrice extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->vh_st_vendor_id = $inputs['vendor']['id'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -517,23 +517,32 @@ class ProductPrice extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'vendor' => 'required|max:150',
-            'product' => 'required|max:150',
-            'product_variation' => 'required|max:150',
+        $rules = validator($inputs, [
+            'vh_st_vendor_id' => 'required|max:150',
+            'vh_st_product_id' => 'required|max:150',
+            'vh_st_product_variation_id' => 'required|max:150',
             'amount' => 'required|min:1|numeric',
+                ],
+        [
+            'vh_st_product_id.required' => 'The Product field is required',
+            'vh_st_vendor_id.required' => 'The Vendor field is required',
+            'vh_st_product_variation_id.required' => 'The Product variation field is required',
+
+        ]
         );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
 
     }
 

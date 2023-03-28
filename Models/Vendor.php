@@ -171,19 +171,20 @@ class Vendor extends Model
             'approved_by' => 'required',
             'is_default' => 'required',
             'taxonomy_id_vendor_status' => 'required',
-            'status_notes' => 'required',
+            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
             'is_active' => 'required'
         ],
             [
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 
         if($validated_data->fails()){
             return [
                 'success' => false,
-                'messages' => $validated_data->errors()->all()
+                'errors' => $validated_data->errors()->all()
             ];
         }
 

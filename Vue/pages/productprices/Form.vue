@@ -66,6 +66,10 @@ const toggleFormMenu = (event) => {
                             data-testid="productprices-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="productprices-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -98,9 +102,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Vendor">
 
                     <AutoComplete
-                        v-model="store.item.vendor"
+                        v-model="store.item.vh_st_vendor_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.vendor_suggestion"
                         @complete="store.searchVendor($event)"
                         placeholder="Select Vendor"
                         data-testid="productprices-vendor"
@@ -113,9 +117,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product">
 
                     <AutoComplete
-                        v-model="store.item.product"
+                        v-model="store.item.vh_st_product_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.product_suggestion"
                         @complete="store.searchProduct($event)"
                         placeholder="Select Product"
                         data-testid="productprices-product"
@@ -128,9 +132,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product Variation">
 
                     <AutoComplete
-                        v-model="store.item.product_variation"
+                        v-model="store.item.vh_st_product_variation_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.product_variation_suggestion"
                         @complete="store.searchProductVariation($event)"
                         placeholder="Select Product Variation"
                         data-testid="productprices-product_variation"

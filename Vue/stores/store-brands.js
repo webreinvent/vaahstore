@@ -68,6 +68,9 @@ export const useBrandStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        status_suggestion:null,
+        registered_by_suggestion:null,
+        approved_by_suggestion:null,
         form_menu_list: []
     }),
     getters: {
@@ -78,10 +81,10 @@ export const useBrandStore = defineStore({
         searchRegisteredBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.user;
+                    this.registered_by_suggestion = this.user;
                 }
                 else {
-                    this.suggestion= this.user.filter((user) => {
+                    this.registered_by_suggestion= this.user.filter((user) => {
                         return user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -92,10 +95,10 @@ export const useBrandStore = defineStore({
         searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.approved_by_user;
+                    this.approved_by_suggestion = this.approved_by_user;
                 }
                 else {
-                    this.suggestion= this.approved_by_user.filter((approved_by_user) => {
+                    this.approved_by_suggestion= this.approved_by_user.filter((approved_by_user) => {
                         return approved_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -105,10 +108,10 @@ export const useBrandStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.status;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -207,7 +210,7 @@ export const useBrandStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = vaah().capitalising(newVal);
+                                this.item.name =newVal;
                                 this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
@@ -283,8 +286,8 @@ export const useBrandStore = defineStore({
             {
                 this.item = data;
                 this.item.registered_by = data.user;
-                this.approved_by = data.approved_by;
-                this.item.status = data.status;
+                this.item.approved_by = data.approved_by;
+                this.item.taxonomy_id_brand_status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
             }
@@ -465,8 +468,8 @@ export const useBrandStore = defineStore({
                 console.log(data)
                 this.item = data;
                 this.item.registered_by = data.user;
-                this.approved_by = data.approved_by;
-                this.item.status = data.status;
+                this.item.approved_by = data.approved_by;
+                this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

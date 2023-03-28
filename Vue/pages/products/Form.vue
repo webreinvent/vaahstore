@@ -66,6 +66,10 @@ const toggleFormMenu = (event) => {
                             data-testid="products-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="products-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
@@ -111,29 +115,12 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-
-
-                <VhField label="Brand">
-
-                    <AutoComplete
-                        v-model="store.item.brand"
-                        class="w-full"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchBrand($event)"
-                        placeholder="Select Brand"
-                        data-testid="products-brand"
-                        name="products-brand"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
-                </VhField>
-
                 <VhField label="Store">
 
                     <AutoComplete
-                        v-model="store.item.store"
+                        v-model="store.item.vh_st_store_id"
                         class="w-full"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.store_suggestion"
                         @complete="store.searchStore($event)"
                         placeholder="Select Store"
                         data-testid="products-store"
@@ -143,14 +130,29 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+                <VhField label="Brand">
+
+                    <AutoComplete
+                        v-model="store.item.vh_st_brand_id"
+                        class="w-full"
+                        :suggestions="store.brand_suggestion"
+                        @complete="store.searchBrand($event)"
+                        placeholder="Select Brand"
+                        data-testid="products-brand"
+                        name="products-brand"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
+
                 <VhField label="Type">
 
                     <AutoComplete
-                        v-model="store.item.type"
+                        v-model="store.item.taxonomy_id_product_type"
                         class="w-full"
                         data-testid="products-type"
                         name="products-type"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.type_suggestion"
                         @complete="store.searchTaxonomyProduct($event)"
                         placeholder="Select Type"
                         :dropdown="true" optionLabel="name" forceSelection>
@@ -158,33 +160,33 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="In Stock">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="products-in_stock"
-                                 data-testid="products-in_stock"
-                                 v-model="store.item.in_stock"/>
-                </VhField>
-
                 <VhField label="Quantity">
                     <InputNumber
-                        :disabled="store.item.in_stock==0"
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
                         name="products-quantity"
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
-                        data-testid="products-quantity"
-                        :min="1"/>
+                        :min="0"
+                        data-testid="products-quantity"/>
                 </VhField>
 
+                <VhField label="In Stock">
+                    <InputSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        name="products-in_stock"
+                        data-testid="products-in_stock"
+                        v-model="store.item.in_stock"/>
+                </VhField>
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_product_status"
                         class="w-full"
                         name="products-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"

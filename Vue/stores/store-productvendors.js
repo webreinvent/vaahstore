@@ -40,6 +40,7 @@ export const useProductVendorStore = defineStore({
         item: null,
         options_can_update:['off','no'],
         suggestion: null,
+        product: null,
         fillable:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -68,6 +69,7 @@ export const useProductVendorStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         added_by_user:null,
+        status_suggestion:null,
         disable_approved_by:true,
     }),
     getters: {
@@ -90,10 +92,10 @@ export const useProductVendorStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.status;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -109,6 +111,20 @@ export const useProductVendorStore = defineStore({
                 else {
                     this.suggestion= this.vendor.filter((vendor) => {
                         return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.suggestion = this.product;
+                }
+                else {
+                    this.suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -214,6 +230,25 @@ export const useProductVendorStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        async getProductsListForStore(){
+            let options = {
+                params: this.item.stores,
+                method: 'POST'
+            };
+            await vaah().ajax(
+                this.ajax_url+'/getProductForStore',
+                this.afterGetProductsListforStore,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        afterGetProductsListforStore(data, res)
+        {
+            if(data){
+                this.product = data;
+            }
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -232,9 +267,9 @@ export const useProductVendorStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.vendor = data.vendor.data
-                this.added_by_user = data.user.data
-                this.product =data.product.data
+                this.store = data.store.data;
+                this.added_by_user = data.user.data;
+                this.vendor =data.vendor.data;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)
@@ -283,7 +318,11 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.addd_by = data.added_by;
+                this.product = data.productList.data
+                this.item.taxonomy_id_product_vendor_status = data.status;
+                if(data.stores.length != 0){
+                    this.getProductsListForStore();
+                }
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -462,8 +501,8 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.added_by = data.added_by;
-                this.vendor = data.vendor;
+                this.item.added_by = data.added_by;
+                this.item.taxonomy_id_product_vendor_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

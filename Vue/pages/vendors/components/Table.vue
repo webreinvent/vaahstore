@@ -42,7 +42,9 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge>{{prop.data.store.name}} <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span></Badge>
+                     <Badge>{{prop.data.store.name}}
+                         <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
+                     </Badge>
                  </template>
 
              </Column>
