@@ -423,10 +423,11 @@ class Brand extends Model
 
     public static function validation($inputs)
     {
+
         $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'taxonomy_id_brand_status'=> 'required',
+            'taxonomy_id_brand_status'=> 'required|max:150',
             'status_notes' => 'required_if:taxonomy_id_brand_status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
