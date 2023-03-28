@@ -612,7 +612,7 @@ class Product extends Model
         if($rules->fails()){
             return [
                 'success' => false,
-                'messages' => $rules->errors()->all()
+                'errors' => $rules->errors()->all()
             ];
         }
         $rules = $rules->validated();
