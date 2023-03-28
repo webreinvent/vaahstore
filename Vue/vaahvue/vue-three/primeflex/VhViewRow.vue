@@ -150,6 +150,23 @@ const props = defineProps({
             </td>
         </template>
 
+        <template v-else-if="type==='productAttributeValues'">
+
+            <td colspan="2" >
+
+                <template v-if="typeof value === 'object' && value !== null">
+                    <table class="table">
+                        <tbody>
+                            <tr v-for="data in value">
+                                <td>{{data.new_value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </template>
+
+            </td>
+        </template>
+
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
                 <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
