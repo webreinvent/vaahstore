@@ -527,6 +527,7 @@ class ProductMedia extends Model
             'path'=> 'required|max:150',
                 ],
         [
+            'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'vh_st_product_variation.required' => 'The Product variation field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',

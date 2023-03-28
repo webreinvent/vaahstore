@@ -57,7 +57,6 @@ class BrandsController extends Controller
             $approved_by['name'] = $active_user->first_name;
             $approved_by['email'] = $active_user->email;
             $data['empty_item']['approved_by'] = $approved_by;
-//            $data['approved_by_default'] = auth()->user();
 
             $response['success'] = true;
             $response['data'] = $data;
