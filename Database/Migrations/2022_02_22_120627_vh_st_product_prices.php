@@ -24,6 +24,7 @@ class VhStProductPrices extends Migration
             $table->integer('amount')->nullable()->index();
 
             //----common fields
+            $table->boolean('is_active')->nullable()->index();
             $table->text('meta')->nullable();
             $table->integer('created_by')->nullable()->index();
             $table->integer('updated_by')->nullable()->index();

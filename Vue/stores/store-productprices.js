@@ -65,6 +65,9 @@ export const useProductPriceStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
+        vendor_suggestion: null,
+        product_suggestion: null,
+        product_variation_suggestion: null,
         form_menu_list: []
     }),
     getters: {
@@ -75,10 +78,10 @@ export const useProductPriceStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.vendor;
+                    this.vendor_suggestion = this.vendor;
                 }
                 else {
-                    this.suggestion= this.vendor.filter((vendor) => {
+                    this.vendor_suggestion= this.vendor.filter((vendor) => {
                         return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -89,10 +92,10 @@ export const useProductPriceStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.product;
+                    this.product_suggestion = this.product;
                 }
                 else {
-                    this.suggestion= this.product.filter((product) => {
+                    this.product_suggestion= this.product.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -102,10 +105,10 @@ export const useProductPriceStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.product_variation;
+                    this.product_variation_suggestion = this.product_variation;
                 }
                 else {
-                    this.suggestion= this.product_variation.filter((product_variation) => {
+                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
                         return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -274,6 +277,9 @@ export const useProductPriceStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_product_id = data.product;
+                this.item.vh_st_product_variation_id = data.product_variation;
             }else{
                 this.$router.push({name: 'productprices.index'});
             }
@@ -452,6 +458,9 @@ export const useProductPriceStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_product_id = data.product;
+                this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
