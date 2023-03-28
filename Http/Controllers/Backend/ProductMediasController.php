@@ -63,7 +63,7 @@ class ProductMediasController extends Controller
                     $default_product['is_default'] = $product->is_default;
                 }
             }
-            $data['empty_item']['product'] = $default_product;
+            $data['empty_item']['vh_st_product_id'] = $default_product;
             $response['success'] = true;
             $response['data'] = $data;
 
