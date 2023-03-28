@@ -498,7 +498,7 @@ class ProductAttribute extends Model
                 $item1->value = $value['new_value'] ?? $value['default_value'];
                 $item1->save();
             }else{
-                $item1->value = $value['new_value'];
+                $item1->value = $value['new_value'] ?? $value['default_value'];
                 $item1->save();
             }
 
