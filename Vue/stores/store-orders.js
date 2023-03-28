@@ -65,6 +65,9 @@ export const useOrderStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
+        status_suggestion: null,
+        payment_method_suggestion: null,
+        user_suggestion: null,
         form_menu_list: []
     }),
     getters: {
@@ -75,10 +78,10 @@ export const useOrderStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.status;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -89,10 +92,10 @@ export const useOrderStore = defineStore({
         searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.user;
+                    this.user_suggestion = this.user;
                 }
                 else {
-                    this.suggestion= this.user.filter((user) => {
+                    this.user_suggestion= this.user.filter((user) => {
                         return user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -103,10 +106,10 @@ export const useOrderStore = defineStore({
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.payment_method;
+                    this.payment_method_suggestion = this.payment_method;
                 }
                 else {
-                    this.suggestion= this.payment_method.filter((payment_method) => {
+                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
                         return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -227,7 +230,7 @@ export const useOrderStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.user = data.users;
+                this.user = data.user;
                 this.payment_method = data.payment_method;
                 if(data.rows)
                 {
@@ -275,6 +278,9 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_payment_method = data.payment_method;
+                this.item.taxonomy_id_order_status = data.status;
+                this.item.vh_user_id = data.user;
             }else{
                 this.$router.push({name: 'orders.index'});
             }
@@ -453,6 +459,9 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_payment_method = data.payment_method;
+                this.item.taxonomy_id_order_status = data.status;
+                this.item.vh_user_id = data.user;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

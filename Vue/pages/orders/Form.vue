@@ -101,10 +101,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="User">
                     <AutoComplete
-                        v-model="store.item.user"
+                        v-model="store.item.vh_user_id"
                         class="w-full"
                         name="orders-user"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.user_suggestion"
                         @complete="store.searchUser($event)"
                         placeholder="Select User"
                         :dropdown="true" optionLabel="first_name"
@@ -180,10 +180,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Payment Method">
                     <AutoComplete
-                        v-model="store.item.payment_method"
+                        v-model="store.item.taxonomy_id_payment_method"
                         class="w-full"
                         name="orders-payment_method"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.payment_method_suggestion"
                         @complete="store.searchPaymentMethod($event)"
                         placeholder="Select Payment Method"
                         :dropdown="true" optionLabel="name"
@@ -194,10 +194,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.status"
+                        v-model="store.item.taxonomy_id_order_status"
                         class="w-full"
                         name="orders-status"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"

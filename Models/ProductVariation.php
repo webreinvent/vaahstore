@@ -572,13 +572,14 @@ class ProductVariation extends Model
        ],
         [
             'vh_st_product_id.required' => 'The Product field is required',
+            'taxonomy_id_variation_status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
         if($rules->fails()){
             return [
                 'success' => false,
-                'messages' => $rules->errors()->all()
+                'errors' => $rules->errors()->all()
             ];
         }
         $rules = $rules->validated();

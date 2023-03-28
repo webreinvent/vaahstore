@@ -155,7 +155,7 @@ class ProductVendor extends Model
             $item = new self();
             $item->fill($inputs);
             $item->status_notes = $inputs['status_notes'];
-            $item->taxonomy_id_product_vendor_status = $inputs['status']['id'];
+            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             $item->vh_st_vendor_id = $inputs['vendor']['id'];
             $item->is_active = $inputs['is_active'];
             $item->vh_st_product_id = $inputs['product']['id'];
@@ -435,7 +435,6 @@ class ProductVendor extends Model
             ->first();
         $itemProduct = Product::where('id',$item->vh_st_product_id)->first();
         $item['productList'] = Product::where('vh_st_store_id',$itemProduct->vh_st_store_id)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
-//        dd($item['product']);
         if(!$item)
         {
             $response['success'] = false;
@@ -468,15 +467,16 @@ class ProductVendor extends Model
                 $response['messages'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist.";
                 return $response;
             }
+
             $item = new self();
-            $item->fill($inputs);
             $item->status_notes = $inputs['status_notes'];
-            $item->taxonomy_id_product_vendor_status = $inputs['status']['id'];
+            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             $item->vh_st_vendor_id = $inputs['vendor']['id'];
             $item->is_active = $inputs['is_active'];
             $item->vh_st_product_id = $inputs['product']['id'];
             $item->added_by = $inputs['added_by']['id'];
             $item->can_update = $inputs['can_update'];
+            $item->is_active = $inputs['is_active'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -531,25 +531,32 @@ class ProductVendor extends Model
 
     public static function validation($inputs)
     {
-        $rules = array(
+        $rules = validator($inputs, [
             'vendor'=> 'required',
             'product'=> 'required',
-            'status'=> 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'taxonomy_id_product_vendor_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_product_vendor_status.slug,==,rejected',
             'added_by'=> 'required|max:150',
             'can_update'=> 'required|max:150',
+                ],
+        [
+            'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

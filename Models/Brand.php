@@ -30,8 +30,7 @@ class Brand extends Model
         $fillable = [
         'uuid',
         'name', 'slug', 'registered_by', 'registered_at',
-        'approved_by', 'approved_at', 'is_active',
-        'status',
+        'approved_by', 'approved_at', 'is_active','is_default',
         'taxonomy_id_brand_status', 'status_notes', 'meta',
         'created_by',
         'updated_by',
@@ -147,7 +146,7 @@ class Brand extends Model
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if (isset($validation['failed'])) {
+        if (!$validation['success']) {
             return $validation;
         }
 
@@ -175,7 +174,7 @@ class Brand extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_by = $inputs['registered_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_brand_status = $inputs['status']['id'];
+        $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -347,7 +346,7 @@ class Brand extends Model
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
-        if (isset($validation['failed'])) {
+        if (!$validation['success']) {
             return $validation;
         }
 
@@ -376,7 +375,7 @@ class Brand extends Model
         $update->slug = Str::slug($inputs['slug']);
         $update->registered_by = $inputs['registered_by']['id'];
         $update->approved_by = $inputs['approved_by']['id'];
-        $update->taxonomy_id_brand_status = $inputs['status']['id'];
+        $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $update->save();
 
         //check specific actions
@@ -425,24 +424,33 @@ class Brand extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
+        $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'taxonomy_id_brand_status'=> 'required|max:150',
+            'status_notes' => 'required_if:taxonomy_id_brand_status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
             'registered_by'=> 'required',
             'approved_by'=> 'required'
+                ],
+        [
+            'taxonomy_id_brand_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['failed'] = true;
-            $response['messages'] = $messages;
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 
