@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -43,7 +44,21 @@ class StorePaymentMethod extends Model
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
     }
-
+    //-------------------------------------------------
+    public function store()
+    {
+        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_method_status')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+    }
     //-------------------------------------------------
 
     public function createdByUser()
@@ -113,8 +128,10 @@ class StorePaymentMethod extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        // check if exist
+        $item = self::where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])
+            ->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
@@ -122,18 +139,14 @@ class StorePaymentMethod extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+//        $item->fill($inputs);
+        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
+        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
+        $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
+        $item->last_payment_at = $inputs['last_payment_at'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +235,7 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('store','paymentMethod','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +417,7 @@ class StorePaymentMethod extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','store','paymentMethod','status'])
             ->withTrashed()
             ->first();
 
@@ -430,10 +443,11 @@ class StorePaymentMethod extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
@@ -441,20 +455,14 @@ class StorePaymentMethod extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+//        $item->fill($inputs);
+        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
+        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
+        $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
+        $item->last_payment_at = $inputs['last_payment_at'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -511,21 +519,34 @@ class StorePaymentMethod extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+        $rules = validator($inputs, [
+            'vh_st_store_id'=> 'required',
+            'vh_st_payment_method_id'=> 'required',
+            'last_payment_at'=> 'required',
+            'taxonomy_id_payment_method_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_payment_method_status.slug,==,rejected',
+        ],
+            [
+                'vh_st_store_id.required' => 'The Store field is required',
+                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+                'last_payment_at.required' => 'The Last Payment at field is required',
+                'taxonomy_id_payment_method_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

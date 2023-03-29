@@ -231,7 +231,7 @@ export const useOrderStore = defineStore({
                 this.assets = data;
                 this.status = data.status;
                 this.user = data.user;
-                this.payment_method = data.payment_method;
+                this.payment_method = data.payment_method.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -278,7 +278,7 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_payment_method = data.payment_method;
+                this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status;
                 this.item.vh_user_id = data.user;
             }else{
@@ -459,7 +459,7 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_payment_method = data.payment_method;
+                this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status;
                 this.item.vh_user_id = data.user;
                 await this.getList();

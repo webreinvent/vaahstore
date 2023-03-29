@@ -64,12 +64,54 @@ export const useStorePaymentMethodStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        store_suggestion:null,
+        status_suggestion:null,
+        payment_method_suggestion:null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchStore(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.store_suggestion = this.store;
+                }
+                else {
+                    this.store_suggestion= this.store.filter((store) => {
+                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion = this.status;
+                }
+                else {
+                    this.status_suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchPaymentMethod(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.payment_method_suggestion = this.payment_method;
+                }
+                else {
+                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
+                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -159,7 +201,7 @@ export const useStorePaymentMethodStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = vaah().capitalising(newVal);
+                                this.item.name = newVal;
                                 this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
@@ -184,6 +226,9 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.store = data.store.data;
+                this.payment_method = data.payment_method.data;
+                this.status = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -230,6 +275,9 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_store_id = data.store;
+                this.item.vh_st_payment_method_id = data.payment_method;
+                this.item.taxonomy_id_payment_method_status = data.status;
             }else{
                 this.$router.push({name: 'storepaymentmethods.index'});
             }
@@ -408,6 +456,9 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_st_store_id = data.store;
+                this.item.vh_st_payment_method_id = data.payment_method;
+                this.item.taxonomy_id_payment_method_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -35,7 +35,7 @@ class Order extends Model
         'payable',
         'paid',
         'is_paid',
-        'taxonomy_id_payment_method',
+        'vh_st_payment_method_id',
         'meta',
         'status_notes',
         'is_active',
@@ -87,7 +87,7 @@ class Order extends Model
     //-------------------------------------------------
     public function paymentMethod()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_method')->select('id','name','slug');
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -165,7 +165,7 @@ class Order extends Model
         $item->status_notes = $inputs['status_notes'];
         $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
         $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->taxonomy_id_payment_method = $inputs['taxonomy_id_payment_method']['id'];
+        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
         if($inputs['is_paid']==1 && $inputs['paid']==0){
             $response['messages'][] = 'The paid should be more then 1';
             return $response;
@@ -499,7 +499,7 @@ class Order extends Model
         $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
         $item->vh_user_id = $inputs['user']['id'];
         $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_payment_method = $inputs['taxonomy_id_payment_method']['id'];
+        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
         if($inputs['is_paid']==1 && $inputs['paid']==0){
             $response['messages'][] = 'The paid should be more then 1';
             return $response;
@@ -570,7 +570,7 @@ class Order extends Model
             'taxonomy_id_order_status' => 'required|max:150',
             'user' => 'required|max:150',
             'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
-            'taxonomy_id_payment_method' => 'required|max:150',
+            'vh_st_payment_method_id' => 'required|max:150',
             'amount' => 'required|min:1|numeric',
             'delivery_fee' => 'required|min:0|numeric',
             'taxes' => 'required|min:0|numeric',
@@ -579,7 +579,7 @@ class Order extends Model
             'paid' => 'required|min:0|numeric'
                 ],
         [
-            'taxonomy_id_payment_method.required' => 'The Payment Method field is required',
+            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
             'taxonomy_id_order_status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]

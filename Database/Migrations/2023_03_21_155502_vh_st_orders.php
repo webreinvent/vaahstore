@@ -20,7 +20,7 @@ class VhStorders extends Migration
                 $table->uuid('uuid')->nullable()->index();
                 $table->integer('vh_user_id')->nullable()->index();
                 $table->integer('taxonomy_id_order_status')->nullable()->index();
-                $table->integer('taxonomy_id_payment_method')->nullable()->index();
+                $table->integer('vh_st_payment_method_id')->nullable()->index();
 
                 $table->integer('amount')->nullable()->index();
                 $table->double('delivery_fee')->nullable()->index();
