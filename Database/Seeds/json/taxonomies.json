@@ -141,11 +141,15 @@
         "name": "Rejected"
     },
     {
-        "type_slug": "order-payment-method",
-        "name": "Debit Card"
+        "type_slug": "payment-methods-status",
+        "name": "Pending"
     },
     {
-        "type_slug": "order-payment-method",
-        "name": "Credit Card"
+        "type_slug": "payment-methods-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "payment-methods-status",
+        "name": "Rejected"
     }
 ]

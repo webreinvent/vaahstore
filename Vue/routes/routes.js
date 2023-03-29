@@ -13,6 +13,8 @@ import productprices from "./vue-routes-productprices";
 import productstocks from "./vue-routes-productstocks";
 import attributes from "./vue-routes-attributes";
 import orders from "./vue-routes-orders";
+import paymentmethods from "./vue-routes-paymentmethods";
+import storepaymentmethods from "./vue-routes-storepaymentmethods";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -27,5 +29,7 @@ routes = routes.concat(productprices);
 routes = routes.concat(orders);
 routes = routes.concat(productstocks);
 routes = routes.concat(attributes);
+routes = routes.concat(paymentmethods);
+routes = routes.concat(storepaymentmethods);
 
 export default routes;
