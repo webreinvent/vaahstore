@@ -20,6 +20,11 @@ const items = ref([
                 to: "/store"
             },
             {
+                label: 'Store Payment Methods',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/storepaymentmethods"
+            },
+            {
                 label: 'Vendor',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/vendors"
@@ -30,27 +35,27 @@ const items = ref([
                 to: "/products"
             },
             {
-                label: 'Product-Variations',
+                label: 'Product Variations',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productvariations"
             },
             {
-                label: 'Product-Vendor',
+                label: 'Product Vendor',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productvendors"
             },
             {
-                label: 'Product-Medias',
+                label: 'Product Medias',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productmedias"
             },
             {
-                label: 'Product-Prices',
+                label: 'Product Prices',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productprices"
             },
             {
-                label: 'Product-Stocks',
+                label: 'Product Stocks',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productstocks"
             },
@@ -65,7 +70,7 @@ const items = ref([
                 to: "/warehouses"
             },
             {
-                label: 'Product-Attributes',
+                label: 'Product Attributes',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/attributes"
             },
@@ -75,7 +80,7 @@ const items = ref([
                 to: "/orders"
             },
             {
-                label: 'Payment-Methods',
+                label: 'Payment Methods',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/paymentmethods"
             },

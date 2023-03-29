@@ -42,3 +42,4 @@ include_once __DIR__."/backend/routes-attributes.php";
 include_once __DIR__."/backend/routes-orders.php";
 include_once __DIR__."/backend/routes-orders.php";
 include_once __DIR__."/backend/routes-paymentmethods.php";
+include_once __DIR__."/backend/routes-storepaymentmethods.php";
