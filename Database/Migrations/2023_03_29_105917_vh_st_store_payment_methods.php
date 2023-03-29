@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStorders extends Migration
+class VhStstorepaymentmethods extends Migration
 {
     /**
      * Run the migrations.
@@ -14,26 +14,24 @@ class VhStorders extends Migration
     public function up()
     {
 
-        if (!Schema::hasTable('vh_st_orders')) {
-            Schema::create('vh_st_orders', function (Blueprint $table) {
+        if (!Schema::hasTable('vh_st_store_payment_methods')) {
+            Schema::create('vh_st_store_payment_methods', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
-                $table->integer('vh_user_id')->nullable()->index();
-                $table->integer('taxonomy_id_order_status')->nullable()->index();
+                $table->integer('vh_st_store_id')->nullable()->index();
                 $table->integer('vh_st_payment_method_id')->nullable()->index();
+                $table->integer('taxonomy_id_payment_methods_status')->nullable()->index();
 
-                $table->integer('amount')->nullable()->index();
-                $table->double('delivery_fee')->nullable()->index();
-                $table->double('taxes')->nullable()->index();
-                $table->double('discount')->nullable()->index();
-                $table->double('payable')->nullable()->index();
-                $table->double('paid')->nullable()->index();
-                $table->boolean('is_paid')->nullable()->index();
+                $table->dateTime('last_payment_at')->nullable();
+
+                $table->string('name')->nullable()->index();
+                $table->string('slug')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
 
+
                 //----common fields
+                $table->string('status_notes')->nullable()->index();
                 $table->text('meta')->nullable();
-                $table->text('status_notes')->nullable();
                 $table->bigInteger('created_by')->nullable()->index();
                 $table->bigInteger('updated_by')->nullable()->index();
                 $table->bigInteger('deleted_by')->nullable()->index();
@@ -54,6 +52,6 @@ class VhStorders extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_orders');
+        Schema::dropIfExists('vh_st_store_payment_methods');
     }
 }

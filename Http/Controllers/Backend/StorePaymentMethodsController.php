@@ -1,14 +1,15 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
+use Composer\XdebugHandler\Status;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\PaymentMethod;
+use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\StorePaymentMethod;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-use WebReinvent\VaahCms\Entities\User;
 
 
-class OrdersController extends Controller
+class StorePaymentMethodsController extends Controller
 {
 
 
@@ -37,7 +38,7 @@ class OrdersController extends Controller
                 'deleted_by',
             ];
 
-            $model = new Order();
+            $model = new StorePaymentMethod();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
                 $fillable, $data['fillable']['except']
@@ -49,18 +50,27 @@ class OrdersController extends Controller
             }
 
             $data['actions'] = [];
+            $data['store']= Store::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['payment_method']= PaymentMethod::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['is_paid'] = 1;
-            $data['status'] = Taxonomy::getTaxonomyByType('order-status');
-            $data['payment_method'] = PaymentMethod::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
-            $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
-
+            $default_store = [];
+            foreach($data['store'] as $l=>$store)
+            {
+                if($store['is_default']==1)
+                {
+                    $default_store['id'] = $store->id;
+                    $default_store['name'] = $store->name;
+                    $default_store['is_default'] = $store->is_default;
+                }
+            }
+            $data['empty_item']['vh_st_store_id'] = $default_store;
             $response['success'] = true;
             $response['data'] = $data;
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -76,10 +86,10 @@ class OrdersController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Order::getList($request);
+            return StorePaymentMethod::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -93,10 +103,10 @@ class OrdersController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Order::updateList($request);
+            return StorePaymentMethod::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -113,10 +123,10 @@ class OrdersController extends Controller
 
 
         try{
-            return Order::listAction($request, $type);
+            return StorePaymentMethod::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -131,10 +141,10 @@ class OrdersController extends Controller
     public function deleteList(Request $request)
     {
         try{
-            return Order::deleteList($request);
+            return StorePaymentMethod::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -148,10 +158,10 @@ class OrdersController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Order::createItem($request);
+            return StorePaymentMethod::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -165,10 +175,10 @@ class OrdersController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Order::getItem($id);
+            return StorePaymentMethod::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -182,10 +192,10 @@ class OrdersController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Order::updateItem($request,$id);
+            return StorePaymentMethod::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -199,10 +209,10 @@ class OrdersController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Order::deleteItem($request,$id);
+            return StorePaymentMethod::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -216,10 +226,10 @@ class OrdersController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Order::itemAction($request,$id,$action);
+            return StorePaymentMethod::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();

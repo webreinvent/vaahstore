@@ -30,8 +30,8 @@ class DatabaseTableSeeder extends Seeder
      */
     function seeds()
     {
-//        $this->seedTaxonomyTypes();
-//        $this->seedTaxonomies();
+        $this->seedTaxonomyTypes();
+        $this->seedTaxonomies();
         $this->seedDefaultStore();
         $this->seedDefaultVendor();
         $this->seedDefaultBrand();

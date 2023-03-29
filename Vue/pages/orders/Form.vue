@@ -180,7 +180,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Payment Method">
                     <AutoComplete
-                        v-model="store.item.taxonomy_id_payment_method"
+                        v-model="store.item.vh_st_payment_method_id"
                         class="w-full"
                         name="orders-payment_method"
                         :suggestions="store.payment_method_suggestion"

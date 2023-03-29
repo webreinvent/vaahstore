@@ -9,14 +9,14 @@ use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Order extends Model
+class StorePaymentMethod extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_orders';
+    protected $table = 'vh_st_store_payment_methods';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -26,18 +26,8 @@ class Order extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_user_id',
-        'taxonomy_id_order_status',
-        'amount',
-        'delivery_fee',
-        'taxes',
-        'discount',
-        'payable',
-        'paid',
-        'is_paid',
-        'vh_st_payment_method_id',
-        'meta',
-        'status_notes',
+        'name',
+        'slug',
         'is_active',
         'created_by',
         'updated_by',
@@ -54,7 +44,21 @@ class Order extends Model
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
     }
-
+    //-------------------------------------------------
+    public function store()
+    {
+        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_method_status')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+    }
     //-------------------------------------------------
 
     public function createdByUser()
@@ -70,24 +74,6 @@ class Order extends Model
         return $this->belongsTo(User::class,
             'updated_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-    }
-
-    //-------------------------------------------------
-    public function status()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
-    }
-
-    //-------------------------------------------------
-    public function user()
-    {
-        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
-    }
-
-    //-------------------------------------------------
-    public function paymentMethod()
-    {
-        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -142,40 +128,25 @@ class Order extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('vh_user_id', $inputs['user']['id'])->withTrashed()->first();
+        // check if exist
+        $item = self::where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])
+            ->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
             $response['messages'][] = "This name is already exist.";
             return $response;
         }
-//
-//        // check if slug exist
-//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
 
         $item = new self();
-        $item->fill($inputs);
-        $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
+//        $item->fill($inputs);
+        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        if($inputs['is_paid']==1 && $inputs['paid']==0){
-            $response['messages'][] = 'The paid should be more then 1';
-            return $response;
-        }else{
-            $item->paid = $inputs['paid'];
-            $item->is_paid = $inputs['is_paid'];
-        }
-        if($inputs['is_paid']==0){
-            $item->paid = 0;
-        }
+        $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
+        $item->last_payment_at = $inputs['last_payment_at'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -264,7 +235,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user');
+        $list = self::getSorted($request->filter)->with('store','paymentMethod','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -362,8 +333,8 @@ class Order extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -446,7 +417,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','store','paymentMethod','status'])
             ->withTrashed()
             ->first();
 
@@ -472,44 +443,26 @@ class Order extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('vh_user_id', $inputs['user']['id'])->first();
+            ->where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['errors'][] = "This name is already exist.";
             return $response;
         }
-//
-//        // check if slug exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('slug', $inputs['slug'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
-        $item->vh_user_id = $inputs['user']['id'];
-        $item->status_notes = $inputs['status_notes'];
+//        $item->fill($inputs);
+        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        if($inputs['is_paid']==1 && $inputs['paid']==0){
-            $response['messages'][] = 'The paid should be more then 1';
-            return $response;
-        }else{
-            $item->paid = $inputs['paid'];
-            $item->is_paid = $inputs['is_paid'];
-        }
-        if($inputs['is_paid']==0){
-            $item->paid = 0;
-        }
+        $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
+        $item->last_payment_at = $inputs['last_payment_at'];
+        $item->status_notes = $inputs['status_notes'];
+        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -523,7 +476,7 @@ class Order extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -567,23 +520,21 @@ class Order extends Model
     {
 
         $rules = validator($inputs, [
-            'taxonomy_id_order_status' => 'required|max:150',
-            'user' => 'required|max:150',
-            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
-            'vh_st_payment_method_id' => 'required|max:150',
-            'amount' => 'required|min:1|numeric',
-            'delivery_fee' => 'required|min:0|numeric',
-            'taxes' => 'required|min:0|numeric',
-            'discount' => 'required|min:0|numeric',
-            'payable' => 'required|min:0|numeric',
-            'paid' => 'required|min:0|numeric'
-                ],
-        [
-            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-            'taxonomy_id_order_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+            'vh_st_store_id'=> 'required',
+            'vh_st_payment_method_id'=> 'required',
+            'last_payment_at'=> 'required',
+            'taxonomy_id_payment_method_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_payment_method_status.slug,==,rejected',
+        ],
+            [
+                'vh_st_store_id.required' => 'The Store field is required',
+                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+                'last_payment_at.required' => 'The Last Payment at field is required',
+                'taxonomy_id_payment_method_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
         );
+
         if($rules->fails()){
             return [
                 'success' => false,

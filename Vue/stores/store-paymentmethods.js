@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\PaymentMethod';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/orders";
+let ajax_url = base_url + "/backend/store/paymentmethods";
 
 let empty_states = {
     query: {
@@ -26,8 +26,8 @@ let empty_states = {
     }
 };
 
-export const useOrderStore = defineStore({
-    id: 'orders',
+export const usePaymentMethodStore = defineStore({
+    id: 'paymentmethods',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -49,7 +49,7 @@ export const useOrderStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'orders.',
+        route_prefix: 'paymentmethods.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -64,57 +64,12 @@ export const useOrderStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        suggestion: null,
-        status_suggestion: null,
-        payment_method_suggestion: null,
-        user_suggestion: null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.user;
-                }
-                else {
-                    this.user_suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_method;
-                }
-                else {
-                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
-                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -138,7 +93,7 @@ export const useOrderStore = defineStore({
         {
             switch(route_name)
             {
-                case 'orders.index':
+                case 'paymentmethods.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -229,9 +184,6 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
-                this.user = data.user;
-                this.payment_method = data.payment_method.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -278,11 +230,8 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status;
-                this.item.vh_user_id = data.user;
             }else{
-                this.$router.push({name: 'orders.index'});
+                this.$router.push({name: 'paymentmethods.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -459,9 +408,6 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status;
-                this.item.vh_user_id = data.user;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -479,7 +425,7 @@ export const useOrderStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'orders.index'});
+                    this.$router.push({name: 'paymentmethods.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -650,32 +596,32 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'paymentmethods.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'paymentmethods.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'orders.form'})
+            this.$router.push({name: 'paymentmethods.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'orders.view', params:{id:item.id}})
+            this.$router.push({name: 'paymentmethods.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'orders.form', params:{id:item.id}})
+            this.$router.push({name: 'paymentmethods.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -939,5 +885,5 @@ export const useOrderStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useOrderStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(usePaymentMethodStore, import.meta.hot))
 }
