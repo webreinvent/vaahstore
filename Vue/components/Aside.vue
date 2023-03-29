@@ -73,7 +73,12 @@ const items = ref([
                 label: 'Orders',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/orders"
-            }
+            },
+            {
+                label: 'Payment-Methods',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/paymentmethods"
+            },
         ]
     },
 ]);
