@@ -132,7 +132,6 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Approve By">
                     <AutoComplete v-model="store.item.approved_by"
-                                  :disabled="store.disable_approved_by"
                                   class="w-full"
                                   data-testid="vendors-approved_by"
                                   name="vendors-approved_by"
