@@ -50,7 +50,8 @@ class OrdersController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['is_paid'] = 1;
+            $data['empty_item']['is_paid'] = 0;
+            $data['empty_item']['paid'] = 0;
             $data['status'] = Taxonomy::getTaxonomyByType('order-status');
             $data['payment_method'] = PaymentMethod::where('is_active',1)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
