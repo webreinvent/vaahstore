@@ -47,7 +47,6 @@ const useVaah = vaah();
                             severity="primary"> null </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
                  </template>
              </Column>
 
