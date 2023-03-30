@@ -92,7 +92,7 @@ const items = ref([
 <template>
 
     <div v-if="height">
-        <Menu :model="items" />
+        <Menu class="col-10" :model="items" />
     </div>
 
 </template>
