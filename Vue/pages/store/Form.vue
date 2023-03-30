@@ -103,12 +103,14 @@ const toggleFormMenu = (event) => {
                 <VhField label="Name">
                     <InputText class="w-full"
                                name="store-name"
+                               placeholder="Enter Name"
                                data-testid="store-name"
                                v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Slug">
                     <InputText class="w-full"
+                               placeholder="Enter Slug"
                                name="store-slug"
                                data-testid="store-slug"
                                v-model="store.item.slug"/>
@@ -145,7 +147,7 @@ const toggleFormMenu = (event) => {
                                       data-testid="store-currency_default"
                                       filter
                                       optionLabel="code"
-                                      placeholder="Select default currencys"
+                                      placeholder="Select Default Currencys"
                                       class="w-full">
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
@@ -160,13 +162,13 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="currencies" v-show="store.item.is_multi_currency == 1">
+                <VhField label="Currencies" v-show="store.item.is_multi_currency == 1">
                     <MultiSelect v-model="store.item.currencies"
                                  filter
                                  :options="store.currencies_list"
                                  data-testid="store-currencies"
                                  optionLabel="code"
-                                 placeholder="Select currencys"
+                                 placeholder="Select Currencys"
                                  display="chip"
                                  class="w-full">
                         <template #option="slotProps">
@@ -216,7 +218,7 @@ const toggleFormMenu = (event) => {
                                       data-testid="store-language_default"
                                       filter
                                       optionLabel="name"
-                                      placeholder="Select default language"
+                                      placeholder="Select Default Language"
                                       class="w-full">
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
@@ -234,7 +236,7 @@ const toggleFormMenu = (event) => {
                                  :options="store.languages_list"
                                  data-testid="store-languages"
                                  optionLabel="name"
-                                 placeholder="Select languages"
+                                 placeholder="Select Languages"
                                  display="chip"
                                  class="w-full">
                         <template #option="slotProps">
@@ -283,6 +285,7 @@ const toggleFormMenu = (event) => {
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
                            separator=","
+                           placeholder="Enter Ips"
                            data-testid="store-allowed-ips"
                            type="number" />
 
@@ -295,12 +298,13 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.status_suggestion_list"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
+                                  placeholder="Select Status"
                                   optionLabel="name"
                                   forceSelection />
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
+                    <Textarea placeholder="Enter Status Note" v-model="store.item.status_notes" data-testid="store-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
                 <VhField label="Is Default">
