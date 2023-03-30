@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Attribute;
+use VaahCms\Modules\Store\Models\AttributeGroup;
+use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Store;
@@ -93,6 +96,34 @@ class ProductsController extends Controller
         }
 
         return $response;
+    }
+
+    //----------------------------------------------------------
+    public function getAttributeList(Request $request){
+        $input = $request->all();
+        switch ($input['attribute_type']){
+            case 'attribute':
+                $item = Attribute::get(['name', 'id', 'type']);
+                break;
+            case 'attribute_group':
+                $item = AttributeGroup::get(['name', 'id']);
+                break;
+        }
+
+        return [
+            'data' => $item
+        ];
+    }
+
+    //----------------------------------------------------------
+    public function getAttributeValue(Request $request){
+        $input = $request->all();
+
+        $item = AttributeValue::where('vh_st_attribute_id', $input['attribute']['id'])->get(['id', 'vh_st_attribute_id', 'value']);
+
+        return [
+            'data' => $item
+        ];
     }
 
     //----------------------------------------------------------
