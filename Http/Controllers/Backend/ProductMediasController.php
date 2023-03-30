@@ -50,8 +50,8 @@ class ProductMediasController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['product']=Product::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
-            $data['product_variation']=ProductVariation::select('id','name','slug')->paginate(config('vaahcms.per_page'));
+            $data['product']=Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['product_variation']=ProductVariation::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
             $default_product = [];
             foreach($data['product'] as $l=>$product)
