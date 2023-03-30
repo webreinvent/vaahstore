@@ -39,6 +39,13 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        variation_item: {
+            attribute_option_type: 1,
+            product_attributes: [],
+            selected_attribute: null,
+            product_variation: null,
+            attribute_options: null
+        },
         status:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -164,6 +171,10 @@ export const useProductStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+                case 'products.variation':
+                    this.view = 'small';
+                    this.list_view_width = 4;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
@@ -232,6 +243,94 @@ export const useProductStore = defineStore({
                         },{deep: true}
                     )
                 }
+        },
+        //---------------------------------------------------------------------
+        watchVariationItem()
+        {
+            if(this.variation_item){
+                    watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
+                        {
+                            if(newVal != oldVal)
+                            {
+                                this.getAttributeList();
+                            }
+                        },{deep: true}
+                    )
+                }
+        },
+        //---------------------------------------------------------------------
+        async getAttributeList() {
+
+            let params = {
+                attribute_type: this.variation_item.attribute_option_type == 0 ? 'attribute' : 'attribute_group',
+                product_id: this.item.id
+            }
+
+            let options = {
+                params: params,
+                method: "POST"
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/getAttributeList',
+                this.afterGetAttributeList,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+        afterGetAttributeList(data, res){
+
+            this.variation_item.attribute_options = data;
+
+        },
+        //---------------------------------------------------------------------
+        async getAttributeValue() {
+
+            let params = {
+                attribute_type: this.variation_item.attribute_option_type == 0 ? 'attribute' : 'attribute_group',
+                attribute: this.variation_item.selected_attribute,
+                product_id: this.item.id
+            }
+
+            let options = {
+                params: params,
+                method: "POST"
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/getAttributeValue',
+                this.afterGetAttributeValue,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+        afterGetAttributeValue(data, res){
+
+            if (data && data.length > 0){
+                data.forEach((i)=>{
+                    this.variation_item.product_attributes.push(i);
+                })
+
+                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
+            }
+
+        },
+        //---------------------------------------------------------------------
+        getUnique(data, key){
+            return [...new Map(data.map(x => [key(x), x])).values()];
+        },
+        //---------------------------------------------------------------------
+        addNewProductAttribute(){
+            if (this.variation_item.selected_attribute){
+                this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
+                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.name);
+            }
+        },
+        //---------------------------------------------------------------------
+        removeProductAttribute(attribute){
+            this.variation_item.product_attributes = this.variation_item.product_attributes.filter(function(item){ return item.name != attribute.name })
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -695,6 +794,12 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'products.view', params:{id:item.id}})
+        },
+        //---------------------------------------------------------------------
+        toVariation(item)
+        {
+            this.item = vaah().clone(item);
+            this.$router.push({name: 'products.variation', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)

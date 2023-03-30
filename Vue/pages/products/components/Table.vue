@@ -39,6 +39,7 @@ const useVaah = vaah();
             </Column>
 
              <Column field="store" header="Store"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -93,6 +94,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="in_stock" header="In Stock"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -107,6 +109,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="quantity" header="Quantity"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -120,7 +123,22 @@ const useVaah = vaah();
 
              </Column>
 
+             <Column field="variations" header="Variations"
+                     :sortable="false">
+
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon">
+                            <b>2</b>
+                        </span>
+                         <button @click="store.toVariation(prop.data)"><b>+</b></button>
+                     </div>
+                 </template>
+
+             </Column>
+
              <Column field="status" header="Status"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -165,6 +183,7 @@ const useVaah = vaah();
             </Column>
 
             <Column field="actions" style="width:150px;"
+                    v-if="store.isViewLarge()"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
