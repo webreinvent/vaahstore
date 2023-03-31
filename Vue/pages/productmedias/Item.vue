@@ -182,6 +182,13 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
+                        <template v-else-if="column === 'path'">
+                                <Image :src="store.item.path"
+                                       preview
+                                       alt="Image"
+                                       width="150" />
+                        </template>
+
                         <template v-else>
                             <VhViewRow :label="column"
                                        :value="value"
