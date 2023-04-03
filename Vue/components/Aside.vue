@@ -84,6 +84,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/paymentmethods"
             },
+            {
+                label: 'Addresses',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/addresses"
+            },
         ]
     },
 ]);
@@ -92,7 +97,7 @@ const items = ref([
 <template>
 
     <div v-if="height">
-        <Menu :model="items" />
+        <Menu class="col-10" :model="items" />
     </div>
 
 </template>
