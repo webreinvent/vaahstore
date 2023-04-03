@@ -2,6 +2,7 @@ import {watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import {value} from "lodash/seq";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -44,7 +45,11 @@ export const useProductStore = defineStore({
             product_attributes: [],
             selected_attribute: null,
             product_variation: null,
-            attribute_options: null
+            attribute_options: null,
+            all_attribute_values: [],
+            show_table: false,
+            select_all_variation: false,
+            all_variation: {}
         },
         status:null,
         empty_query:empty_states.query,
@@ -259,11 +264,13 @@ export const useProductStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
-        async getAttributeList() {
+        async getAttributeList(callback= null, get_attribute_from_group = false) {
 
             let params = {
                 attribute_type: this.variation_item.attribute_option_type == 0 ? 'attribute' : 'attribute_group',
-                product_id: this.item.id
+                product_id: this.item.id,
+                selected_attribute: this.variation_item.selected_attribute,
+                get_attribute_from_group: get_attribute_from_group
             }
 
             let options = {
@@ -273,7 +280,7 @@ export const useProductStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/getAttributeList',
-                this.afterGetAttributeList,
+                callback ?? this.afterGetAttributeList,
                 options
             );
 
@@ -285,11 +292,10 @@ export const useProductStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async getAttributeValue() {
+        async getAttributeValue(callback) {
 
             let params = {
-                attribute_type: this.variation_item.attribute_option_type == 0 ? 'attribute' : 'attribute_group',
-                attribute: this.variation_item.selected_attribute,
+                attribute: this.variation_item.product_attributes,
                 product_id: this.item.id
             }
 
@@ -300,7 +306,7 @@ export const useProductStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/getAttributeValue',
-                this.afterGetAttributeValue,
+                callback,
                 options
             );
 
@@ -309,11 +315,7 @@ export const useProductStore = defineStore({
         afterGetAttributeValue(data, res){
 
             if (data && data.length > 0){
-                data.forEach((i)=>{
-                    this.variation_item.product_attributes.push(i);
-                })
 
-                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
 
         },
@@ -322,15 +324,55 @@ export const useProductStore = defineStore({
             return [...new Map(data.map(x => [key(x), x])).values()];
         },
         //---------------------------------------------------------------------
-        addNewProductAttribute(){
-            if (this.variation_item.selected_attribute){
+        addNewProductAttribute(data = null){
+            if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
-                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.name);
+                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
+            else if(this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 1){
+                this.getAttributeList(this.addProductAttributeFromGroup, true)
+            }
+        },
+        //---------------------------------------------------------------------
+        addProductAttributeFromGroup(data){
+            data.forEach((i)=>{
+                this.variation_item.product_attributes.push(i);
+            })
+            this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
         },
         //---------------------------------------------------------------------
         removeProductAttribute(attribute){
             this.variation_item.product_attributes = this.variation_item.product_attributes.filter(function(item){ return item.name != attribute.name })
+        },
+        //---------------------------------------------------------------------
+        generateProductVariation(){
+            if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
+                this.getAttributeValue(this.generateVariation);
+            }
+        },
+        //---------------------------------------------------------------------
+        generateVariation(data, res){
+            if (data){
+                this.variation_item.all_variation = data;
+                this.variation_item.show_table = true;
+            }
+        },
+        //---------------------------------------------------------------------
+        createProductVariation(){
+            if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
+                this.getAttributeValue(this.createVariation);
+            }
+        },
+        //---------------------------------------------------------------------
+        createVariation(data, res){
+            if (data){
+                this.variation_item.all_variation = data;
+                this.variation_item.show_table = true;
+            }
+        },
+        //---------------------------------------------------------------------
+        removeProductVariation(item){
+            console.log(item)
         },
         //---------------------------------------------------------------------
         async getAssets() {

@@ -113,7 +113,8 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon">
-                            <b>2</b>
+                            <b v-if="prop.data.variation_count && prop.data.variation_count.length">{{prop.data.variation_count.length}}</b>
+                            <b v-else>0</b>
                         </span>
                          <button @click="store.toVariation(prop.data)"><b>+</b></button>
                      </div>

@@ -122,7 +122,7 @@ const toggleFormMenu = (event) => {
                         <div v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0" v-for="attribute in store.variation_item.product_attributes" class="pb-1 flex flex-wrap">
                             <InputText :placeholder="attribute.name" v-model="attribute.name" disabled="true" class="col-10" />
                             <div class="pl-1">
-                                <Button label="Remove" severity="danger" style="background-color: red;" @click="store.removeProductAttribute(attribute)" />
+                                <Button label="Remove" class="btn-danger" @click="store.removeProductAttribute(attribute)" />
                             </div>
                         </div>
                         <div v-else>
@@ -132,7 +132,7 @@ const toggleFormMenu = (event) => {
                 </div>
 
 <!--                Product Variations-->
-                <div class="flex flex-wrap col-12">
+                <div class="flex flex-wrap col-12" v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
                     <div class="col-9">
                         <span>
                             <b>Product Variations</b>
@@ -140,16 +140,16 @@ const toggleFormMenu = (event) => {
                     </div>
                     <div class="flex col-3">
                         <div class="pr-1">
-                            <Button label="Create" severity="danger" size="small" />
+                            <Button label="Create" @click="store.createProductVariation()" severity="primary" size="small" />
                         </div>
                         <div class="">
-                            <Button label="Generate" severity="danger" size="small" />
+                            <Button label="Generate" @click="store.generateProductVariation()" severity="primary" size="small" />
                         </div>
                     </div>
                 </div>
 
 <!--                Bulk action -->
-                <div class="p-1 pl-2">
+                <div class="p-1 pl-2" v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
                     <div class="">
                         <!--selected_menu-->
                         <Button
@@ -169,76 +169,38 @@ const toggleFormMenu = (event) => {
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" v-if="store.variation_item.all_variation && Object.keys(store.variation_item.all_variation).length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
-                            <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
+                            <th class="col-1"><Checkbox v-model="store.variation_item.select_all_variation" :binary="true" /></th>
                             <th scope="col">Variation name</th>
-                            <th scope="col">Color</th>
-                            <th scope="col">Size</th>
+                            <th scope="col" v-for="(item, index) in store.variation_item.all_variation.all_attribute_name">{{ item }}</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Media</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Red</td>
-                                <td>SM</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="Remove" severity="danger" size="small" /></td>
-                            </tr>
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Red</td>
-                                <td>LG</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="Remove" severity="danger" size="small" /></td>
-                            </tr>
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Black</td>
-                                <td>SM</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="remove" severity="danger" size="small" /></td>
-                            </tr>
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Red</td>
-                                <td>SM</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="remove" severity="danger" size="small" /></td>
-                            </tr>
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Red</td>
-                                <td>LG</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="remove" severity="danger" size="small" /></td>
-                            </tr>
-                            <tr>
-                                <th class="col-1"><Checkbox v-model="checked" :binary="true" /></th>
-                                <td>Variation name</td>
-                                <td>Black</td>
-                                <td>SM</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td><Button label="remove" severity="danger" size="small" /></td>
+                            <tr v-for="(item, index) in store.variation_item.all_variation.structured_variation">
+                                <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="false" /></th>
+                                <td>
+                                    <InputText v-model="item['variation_name']" class="w-full md:w-5rem" />
+                                </td>
+                                <td v-for="(i) in store.variation_item.all_variation.all_attribute_name">
+                                    <InputText v-model="item[i]" class="w-full md:w-5rem" disabled="true"/>
+                                </td>
+                                <td>
+                                    <InputText v-model="item['quantity']" class="w-full md:w-5rem" />
+                                </td>
+                                <td>
+                                    <InputText v-model="item['media']" class="w-full md:w-5rem" />
+                                </td>
+                                <td><Button label="Remove" class="btn-danger" size="small" @click="store.removeProductVariation(item)" /></td>
                             </tr>
                         </tbody>
                     </table>
+
                 </div>
 
             </div>
@@ -249,19 +211,7 @@ const toggleFormMenu = (event) => {
 </template>
 
 <style scoped>
-.table-scroll tbody {
-    position: sticky;
-    overflow-y: scroll;
-    height: 250px;
-}
-
-.table-scroll tr {
-    width: 100%;
-    table-layout: fixed;
-    display: inline-table;
-}
-
-.table-scroll thead > tr > th {
-    border: none;
+.btn-danger{
+    background-color: red !important;
 }
 </style>

@@ -106,7 +106,14 @@ class ProductsController extends Controller
                 $item = Attribute::get(['name', 'id', 'type']);
                 break;
             case 'attribute_group':
-                $item = AttributeGroup::get(['name', 'id']);
+                if ($input['get_attribute_from_group']){
+                    $record = AttributeGroup::where('id', $input['selected_attribute']['id'])->with(['attributesList'])->get();
+                    if ($record) {
+                        $item = $record->toArray()[0]['attributes_list'];
+                    }
+                }else{
+                    $item = AttributeGroup::get(['name', 'id']);
+                }
                 break;
         }
 
@@ -119,11 +126,85 @@ class ProductsController extends Controller
     public function getAttributeValue(Request $request){
         $input = $request->all();
 
-        $item = AttributeValue::where('vh_st_attribute_id', $input['attribute']['id'])->get(['id', 'vh_st_attribute_id', 'value']);
+        $result = [];
+
+        foreach ($input['attribute'] as $key=>$value){
+
+            $att = Attribute::find($value['id']);
+
+
+
+            $item = AttributeValue::where('vh_st_attribute_id', $value['id'])->get(['id', 'vh_st_attribute_id', 'value']);
+
+            if ($item){
+                $record = $item->toArray();
+
+
+
+                foreach ($record as $k=>$v){
+                    $result[$value['name']][$k] = $v;
+                }
+            }
+
+        }
+
+
+        $combination = [];
+
+        // making all possible combination of attribute values
+        foreach ($result as $k => $v){
+            $temp_result = [];
+            if(count($combination) == 0){
+                foreach ($v as $key => $value){
+                    $temp = [];
+                    $temp[$k] = $value['value'];
+                    array_push($temp_result, $temp);
+                }
+                $combination = $temp_result;
+            }else{
+                foreach ($v as $key => $value){
+                    foreach ($combination as $n_key => $n_value){
+                        $temp = [];
+                        $temp[$k] = $value['value'];
+                        foreach ($n_value as $c_key => $c_value)
+
+                        $temp[$c_key] = $c_value;
+                        array_push($temp_result, $temp);
+                    }
+                }
+                $combination = $temp_result;
+            }
+        }
+
+        $structured_variation = [];
+        $all_attribute_name = [];
+        // adding additional structure for variation table
+        foreach ($combination as $k => $v){
+            if ($k == 0){
+                $all_attribute_name = array_keys($v);
+            }
+            $v['variation_name'] = 'variation name '.$k;
+            $v['quantity'] = 1;
+            $v['media'] = 1;
+            array_push($structured_variation, $v);
+        }
 
         return [
-            'data' => $item
+            'data' => [
+                'combination' => $combination,
+                'structured_variation' => $structured_variation,
+                'all_attribute_name' => $all_attribute_name
+            ]
         ];
+    }
+
+    //----------------------------------------------------------
+    public function calculateVariation($list,$att,$new_list)
+    {
+       return $list;
+       if(count($new_list) == 0){
+
+       }
     }
 
     //----------------------------------------------------------
