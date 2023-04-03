@@ -18,14 +18,17 @@ class VhStaddresses extends Migration
             Schema::create('vh_st_addresses', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
+                $table->integer('vh_user_id')->nullable()->index();
+                $table->integer('taxonomy_id_address_types')->nullable()->index();
+                $table->integer('taxonomy_id_address_status')->nullable()->index();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
-                $table->boolean('is_active')->nullable()->index();
-
+                $table->string('address_line_1')->nullable()->index();
+                $table->string('address_line_2')->nullable()->index();
 
                 //----common fields
                 $table->text('meta')->nullable();
+                $table->text('status_notes')->nullable();
+                $table->bigInteger('is_default')->nullable()->index();
                 $table->bigInteger('created_by')->nullable()->index();
                 $table->bigInteger('updated_by')->nullable()->index();
                 $table->bigInteger('deleted_by')->nullable()->index();

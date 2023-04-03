@@ -84,6 +84,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/paymentmethods"
             },
+            {
+                label: 'Addresses',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/addresses"
+            },
         ]
     },
 ]);
