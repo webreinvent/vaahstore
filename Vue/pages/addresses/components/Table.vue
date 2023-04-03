@@ -43,6 +43,73 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="types" header="Types"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.type == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <template v-else>
+                         {{prop.data.type.name}}
+                     </template>
+                 </template>
+
+             </Column>
+
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else
+                            severity="primary"> {{prop.data.status.name}} </Badge>
+                 </template>
+
+             </Column>
+
+             <Column field="address_1" header="Address 1"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.address_line_1 == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <template v-else>
+                         {{prop.data.address_line_1}}
+                     </template>
+                 </template>
+
+             </Column>
+             <Column field="address_2" header="Address 2"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.address_line_2 == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <template v-else>
+                         {{prop.data.address_line_2}}
+                     </template>
+                 </template>
+
+             </Column>
+
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
