@@ -16,6 +16,7 @@ import orders from "./vue-routes-orders";
 import paymentmethods from "./vue-routes-paymentmethods";
 import storepaymentmethods from "./vue-routes-storepaymentmethods";
 import addresses from "./vue-routes-addresses";
+import orderitems from "./vue-routes-orderitems";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -33,5 +34,6 @@ routes = routes.concat(attributes);
 routes = routes.concat(paymentmethods);
 routes = routes.concat(storepaymentmethods);
 routes = routes.concat(addresses);
+routes = routes.concat(orderitems);
 
 export default routes;
