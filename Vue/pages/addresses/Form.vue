@@ -95,27 +95,86 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="addresses-name"
-                               data-testid="addresses-name"
-                               v-model="store.item.name"/>
+                <VhField label="User">
+                    <AutoComplete
+                        v-model="store.item.vh_user_id"
+                        class="w-full"
+                        name="addresses-user"
+                        :suggestions="store.user_suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        :dropdown="true" optionLabel="first_name"
+                        data-testid="addresses-user"
+                        forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="addresses-slug"
-                               data-testid="addresses-slug"
-                               v-model="store.item.slug"/>
+                <VhField label="Type">
+                    <AutoComplete
+                        v-model="store.item.taxonomy_id_address_types"
+                        class="w-full"
+                        name="addresses-type"
+                        :suggestions="store.type_suggestion"
+                        @complete="store.searchType($event)"
+                        placeholder="Select Type"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="addresses-type"
+                        forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="addresses-active"
-                                 data-testid="addresses-active"
-                                 v-model="store.item.is_active"/>
+                <VhField label="Address line 1">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Address Line 1"
+                              name="addresses-address_line_1"
+                              data-testid="addresses-address_line_1"
+                              v-model="store.item.address_line_1"/>
                 </VhField>
+
+                <VhField label="Address line 2">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Address Line 2"
+                              name="addresses-address_line_2"
+                              data-testid="addresses-address_line_2"
+                              v-model="store.item.address_line_2"/>
+                </VhField>
+
+                <VhField label="Status">
+                    <AutoComplete
+                        v-model="store.item.taxonomy_id_address_status"
+                        class="w-full"
+                        name="addresses-status"
+                        :suggestions="store.status_suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="addresses-status"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Status Note"
+                              name="orders-status_notes"
+                              data-testid="orders-status_notes"
+                              v-model="store.item.status_notes"/>
+                </VhField>
+
+<!--                <VhField label="Slug">-->
+<!--                    <InputText class="w-full"-->
+<!--                               name="addresses-slug"-->
+<!--                               data-testid="addresses-slug"-->
+<!--                               v-model="store.item.slug"/>-->
+<!--                </VhField>-->
+
+<!--                <VhField label="Is Active">-->
+<!--                    <InputSwitch v-bind:false-value="0"-->
+<!--                                 v-bind:true-value="1"-->
+<!--                                 name="addresses-active"-->
+<!--                                 data-testid="addresses-active"-->
+<!--                                 v-model="store.item.is_active"/>-->
+<!--                </VhField>-->
 
             </div>
         </Panel>

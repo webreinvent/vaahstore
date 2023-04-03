@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -25,9 +26,12 @@ class Address extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
-        'is_active',
+        'vh_user_id',
+        'taxonomy_id_address_types',
+        'taxonomy_id_address_status',
+        'address_line_1',
+        'address_line_2',
+        'status_notes',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -75,7 +79,21 @@ class Address extends Model
         return $this->getConnection()->getSchemaBuilder()
             ->getColumnListing($this->getTable());
     }
-
+    //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_address_status')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function type()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_address_types')->select('id','name','slug');
+    }
     //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
@@ -107,14 +125,15 @@ class Address extends Model
 
         $inputs = $request->all();
 
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        // check if user exist
+        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
@@ -122,18 +141,13 @@ class Address extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_address_types = $inputs['taxonomy_id_address_types']['id'];
+        $item->taxonomy_id_address_status = $inputs['taxonomy_id_address_status']['id'];
+        $item->address_line_1  = $inputs['address_line_1'];
+        $item->address_line_2  = $inputs['address_line_2'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +236,7 @@ class Address extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('user','status','type');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +418,7 @@ class Address extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','type'])
             ->withTrashed()
             ->first();
 
@@ -430,31 +444,23 @@ class Address extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if user exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $response['messages'][] = "This name is already exist.";
             return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_user_id = $inputs['user']['id'];
+        $item->taxonomy_id_address_types = $inputs['taxonomy_id_address_types']['id'];
+        $item->taxonomy_id_address_status = $inputs['taxonomy_id_address_status']['id'];
+        $item->address_line_1  = $inputs['address_line_1'];
+        $item->address_line_2  = $inputs['address_line_2'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -510,22 +516,37 @@ class Address extends Model
 
     public static function validation($inputs)
     {
+        $rules = validator($inputs,
+            [
+                'vh_user_id' => 'required|max:150',
+                'taxonomy_id_address_types' => 'required|max:150',
+                'taxonomy_id_address_status' => 'required|max:150',
+                'status_notes' => 'required_if:taxonomy_id_address_status.slug,==,rejected',
+                'address_line_1'=>'required|max:150',
+                'address_line_2'=>'required|max:150'
+            ],
+            [
+                'vh_user_id.required' => 'The User field is required',
+                'taxonomy_id_address_types.required' => 'The Type field is required',
+                'taxonomy_id_address_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
-        }
 
-        $response['success'] = true;
-        return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

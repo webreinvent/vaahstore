@@ -64,12 +64,54 @@ export const useAddressStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        user_suggestion: null,
+        type_suggestion: null,
+        status_suggestion: null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.user_suggestion = this.user;
+                }
+                else {
+                    this.user_suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchType(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.type;
+                }
+                else {
+                    this.type_suggestion= this.type.filter((type) => {
+                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion = this.status;
+                }
+                else {
+                    this.status_suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -184,6 +226,9 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.user = data.user;
+                this.type = data.type;
+                this.status = data.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -230,6 +275,9 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_user_id = data.user;
+                this.item.taxonomy_id_address_types = data.type;
+                this.item.taxonomy_id_address_status = data.status;
             }else{
                 this.$router.push({name: 'addresses.index'});
             }
@@ -408,6 +456,9 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_user_id = data.user;
+                this.item.taxonomy_id_address_types = data.type;
+                this.item.taxonomy_id_address_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

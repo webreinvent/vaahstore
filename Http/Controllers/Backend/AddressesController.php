@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Address;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class AddressesController extends Controller
@@ -44,7 +46,9 @@ class AddressesController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-
+            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
+            $data['type'] = Taxonomy::getTaxonomyByType('address-types');
+            $data['status'] = Taxonomy::getTaxonomyByType('address-status');
             $data['actions'] = [];
 
             $response['success'] = true;
