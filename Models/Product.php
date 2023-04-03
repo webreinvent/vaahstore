@@ -92,6 +92,14 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+    public function variationCount()
+    {
+        return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
+            ->where('vh_st_product_variations.is_active', 1)
+            ->select();
+    }
+
+    //-------------------------------------------------
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -275,7 +283,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
