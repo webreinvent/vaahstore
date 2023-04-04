@@ -1,8 +1,8 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
-import { useOrderStore } from '../../../stores/store-orders'
+import { useOrderItemStore } from '../../../stores/store-orderitems'
 
-const store = useOrderStore();
+const store = useOrderItemStore();
 const useVaah = vaah();
 
 </script>
@@ -33,106 +33,117 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.user.first_name}}
+                    <Badge v-else-if="prop.data.user == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.user.first_name}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="payment_method" header="Payment Method"
-                    :sortable="true">
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <Badge v-if="prop.data.payment_method == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.payment_method.name}}
-                    </template>
-                </template>
-
-            </Column>
-
-             <Column field="amount" header="Amount"
+             <Column field="order" header="Order"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.amount}}
+                    <Badge v-else-if="prop.data.order == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.order.id}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="delivery_fee" header="Delivery Fee"
-                     v-if="store.isViewLarge()"
+             <Column field="type" header="Type"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.delivery_fee}}
+                    <Badge v-else-if="prop.data.type == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.type.name}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="taxes" header="Taxes"
-                     v-if="store.isViewLarge()"
+             <Column field="product" header="Product"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.taxes}}
+                    <Badge v-else-if="prop.data.product == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.product.name}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="discount" header="Discount"
-                     v-if="store.isViewLarge()"
+             <Column field="product_variation" header="Product Variation"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.discount}}
+                    <Badge v-else-if="prop.data.product_variation == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.product_variation.name}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="payable" header="Payable"
-                     v-if="store.isViewLarge()"
+             <Column field="vendor" header="Vendor"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.payable}}
+                    <Badge v-else-if="prop.data.vendor == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.vendor.name}}
+                  </template>
                 </template>
 
             </Column>
 
-             <Column field="paid" header="Paid"
-                     v-if="store.isViewLarge()"
+             <Column field="customer_group" header="Customer Group"
                     :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.paid == 0"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.paid > 0"
-                            :value="prop.data.paid"
-                            severity="success"></Badge>
-                 </template>
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.customer_group == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.customer_group.name}}
+                  </template>
+                </template>
 
             </Column>
-
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -170,7 +181,7 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
-                                 data-testid="orders-table-is-active"
+                                 data-testid="orderitems-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  @input="store.toggleIsActive(prop.data)">
@@ -187,19 +198,19 @@ const useVaah = vaah();
                     <div class="p-inputgroup ">
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="orders-table-to-view"
+                                data-testid="orderitems-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="orders-table-to-edit"
+                                data-testid="orderitems-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
-                                data-testid="orders-table-action-trash"
+                                data-testid="orderitems-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
@@ -207,7 +218,7 @@ const useVaah = vaah();
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
-                                data-testid="orders-table-action-restore"
+                                data-testid="orderitems-table-action-restore"
                                 v-if="store.isViewLarge() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"

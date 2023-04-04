@@ -36,6 +36,9 @@
         "name": "Payment-methods Status"
     },
     {
+        "name": "Order-items Status"
+    },
+    {
         "name": "Address Types"
     },
     {
@@ -43,5 +46,8 @@
     },
     {
         "name": "Customer Groups Status"
+    },
+    {
+        "name": "Order-items Types"
     }
 ]

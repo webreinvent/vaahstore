@@ -153,6 +153,26 @@
         "name": "Rejected"
     },
     {
+        "type_slug": "order-items-types",
+        "name": "COD"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "Card Payment"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "EMI"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Approved"
+    },
+    {
         "type_slug": "address-types",
         "name": "Home"
     },
@@ -193,7 +213,27 @@
         "name": "Approved"
     },
     {
-        "type_slug": "customer-groups-status",
+        "type_slug": "order-items-types",
+        "name": "COD"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "Card Payment"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "EMI"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-items-status",
         "name": "Rejected"
     }
 ]
