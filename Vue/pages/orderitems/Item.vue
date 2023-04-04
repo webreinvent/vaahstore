@@ -137,7 +137,8 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'">
+                        <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'|| column === 'type'
+                        || column === 'product'|| column === 'product_variation'|| column === 'status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -155,6 +156,62 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_user_id'">
+                            <VhViewRow label="User"
+                                       :value="store.item.user"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_product_variation_id'">
+                            <VhViewRow label="Product Variation"
+                                       :value="store.item.product_variation"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_product_id'">
+                            <VhViewRow label="Product"
+                                       :value="store.item.product"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'taxonomy_id_order_items_status'">
+                            <VhViewRow label="Status"
+                                       :value="store.item.status"
+                                       type="status"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'taxonomy_id_order_items_types'">
+                            <VhViewRow label="Type"
+                                       :value="store.item.type"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_vendor_id'">
+                            <VhViewRow label="Vendor"
+                                       :value="store.item.vendor"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_customer_group_id'">
+                            <VhViewRow label="Customer Group"
+                                       :value="store.item.customer_group"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'is_invoice_available'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"

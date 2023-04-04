@@ -111,6 +111,40 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="vendor" header="Vendor"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.vendor == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.vendor.name}}
+                  </template>
+                </template>
+
+            </Column>
+
+             <Column field="customer_group" header="Customer Group"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.customer_group == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.customer_group.name}}
+                  </template>
+                </template>
+
+            </Column>
+
              <Column field="status" header="Status"
                      :sortable="true">
 

@@ -18,7 +18,8 @@ class VhStorderitems extends Migration
             Schema::create('vh_st_order_items', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
-                $table->integer('vh_st_order_id')->nullable()->index();
+                $table->integer('vh_st_o
+                rder_id')->nullable()->index();
                 $table->integer('vh_user_id')->nullable()->index();
                 $table->integer('vh_st_customer_group_id')->nullable()->index();
                 $table->integer('taxonomy_id_order_items_types')->nullable()->index();
