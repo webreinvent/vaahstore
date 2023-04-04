@@ -102,6 +102,16 @@ class OrderItem extends Model
         return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name', 'slug');
     }
     //-------------------------------------------------
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug');
+    }
+    //-------------------------------------------------
+    public function CustomerGroup()
+    {
+        return $this->hasOne(CustomerGroup::class,'id','vh_st_customer_group_id')->select('id','name', 'slug');
+    }
+    //-------------------------------------------------
     public function order()
     {
         return $this->hasOne(Order::class,'id','vh_st_order_id')->select('id');
@@ -160,6 +170,8 @@ class OrderItem extends Model
         $item = self::where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],
             'vh_user_id'=>$inputs['vh_user_id']['id'],
             'vh_st_product_variation_id'=>$inputs['vh_st_product_variation_id']['id'],
+            'vh_st_vendor_id'=>$inputs['vh_st_vendor_id']['id'],
+            'vh_st_customer_group_id'=>$inputs['vh_st_customer_group_id']['id'],
             'vh_st_product_id'=>$inputs['vh_st_product_id']['id']])->withTrashed()->first();
 
         if ($item) {
@@ -172,6 +184,11 @@ class OrderItem extends Model
         $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
         $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+        $item->is_invoice_available = $inputs['is_invoice_available'];
+        $item->tracking = $inputs['tracking'];
+        $item->invoice_url = $inputs['invoice_url'];
+        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
         $item->vh_user_id = $inputs['vh_user_id']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
         $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
@@ -263,7 +280,7 @@ class OrderItem extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('order','status','user','type','product','ProductVariation');
+        $list = self::getSorted($request->filter)->with('order','status','user','type','product','ProductVariation','vendor');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -445,7 +462,7 @@ class OrderItem extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product','ProductVariation'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product','ProductVariation','vendor'])
             ->withTrashed()
             ->first();
 
@@ -476,6 +493,8 @@ class OrderItem extends Model
             ->withTrashed()
             ->where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],
                 'vh_st_product_id'=>$inputs['vh_st_product_id']['id'],
+                'vh_st_vendor_id'=>$inputs['vh_st_vendor_id']['id'],
+                'vh_st_customer_group_id'=>$inputs['vh_st_customer_group_id']['id'],
                 'vh_st_product_variation_id'=>$inputs['vh_st_product_variation_id']['id'],
                 'vh_user_id'=>$inputs['vh_user_id']['id']])->first();
 
@@ -488,7 +507,12 @@ class OrderItem extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
         $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+        $item->is_invoice_available = $inputs['is_invoice_available'];
+        $item->tracking = $inputs['tracking'];
+        $item->invoice_url = $inputs['invoice_url'];
         $item->vh_user_id = $inputs['vh_user_id']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
         $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
@@ -553,6 +577,11 @@ class OrderItem extends Model
             'vh_st_order_id'=> 'required',
             'vh_st_product_id'=> 'required',
             'vh_st_product_variation_id'=> 'required',
+            'invoice_url'=> 'required',
+            'is_invoice_available'=> 'required',
+            'tracking'=> 'required',
+            'vh_st_vendor_id'=> 'required',
+            'vh_st_customer_group_id'=> 'required',
             'taxonomy_id_order_items_types'=> 'required',
             'taxonomy_id_order_items_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_order_items_status.slug,==,rejected',
@@ -562,6 +591,8 @@ class OrderItem extends Model
                 'vh_st_order_id.required' => 'The Order field is required',
                 'vh_st_product_id.required' => 'The Product field is required',
                 'vh_st_product_variation_id.required' => 'The Product Variation field is required',
+                'vh_st_vendor_id.required' => 'The Vendor field is required',
+                'vh_st_customer_group_id.required' => 'The Vendor field is required',
                 'taxonomy_id_order_items_types.required' => 'The Type field is required',
                 'taxonomy_id_order_items_status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',

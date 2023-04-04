@@ -165,6 +165,50 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+                <VhField label="Vendor">
+                    <AutoComplete
+                        v-model="store.item.vh_st_vendor_id"
+                        class="w-full"
+                        name="orderitems-vendor"
+                        :suggestions="store.vendor_suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select vendor"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orderitems-vendor"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Customer Groups">
+                    <AutoComplete
+                        v-model="store.item.vh_st_customer_group_id"
+                        class="w-full"
+                        name="orderitems-customer_group"
+                        :suggestions="store.customer_group_suggestion"
+                        @complete="store.searchCustomerGroup($event)"
+                        placeholder="Select Customer Group"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orderitems-customer_group"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Invoice Url">
+                    <InputText class="w-full"
+                               placeholder="Enter a URL"
+                               name="orderitems-invoice_url"
+                               data-testid="orderitems-invoice_url"
+                               v-model="store.item.invoice_url"/>
+                </VhField>
+
+                <VhField label="Tracking">
+                    <InputText class="w-full"
+                               placeholder="Enter a Tracking"
+                               name="orderitems-tracking"
+                               data-testid="orderitems-tracking"
+                               v-model="store.item.tracking"/>
+                </VhField>
+
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.taxonomy_id_order_items_status"
@@ -184,6 +228,14 @@ const toggleFormMenu = (event) => {
                               placeholder="Enter Status Notes"
                               data-testid="orderitems-status_notes"
                               :autoResize="true" rows="5" cols="30" />
+                </VhField>
+
+                <VhField label="Is Invoice Available">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="orderitems-is_invoice_available"
+                                 data-testid="orderitems-is_invoice_available"
+                                 v-model="store.item.is_invoice_available"/>
                 </VhField>
 
                 <VhField label="Is Active">

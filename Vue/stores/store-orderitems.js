@@ -69,6 +69,8 @@ export const useOrderItemStore = defineStore({
         status_suggestion: null,
         type_suggestion: null,
         product_variation_suggestion: null,
+        vendor_suggestion: null,
+        customer_group_suggestion: null,
         product_suggestion: null,
         form_menu_list: []
     }),
@@ -150,6 +152,32 @@ export const useOrderItemStore = defineStore({
                 else {
                     this.order_suggestion= this.order.filter((order) => {
                         return order.id.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.vendor_suggestion = this.vendor;
+                }
+                else {
+                    this.vendor_suggestion= this.vendor.filter((vendor) => {
+                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCustomerGroup(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.customer_group_suggestion = this.customer_group;
+                }
+                else {
+                    this.customer_group_suggestion= this.customer_group.filter((customer_group) => {
+                        return customer_group.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -273,6 +301,8 @@ export const useOrderItemStore = defineStore({
                 this.status = data.status;
                 this.type = data.type;
                 this.product_variation = data.product_variation;
+                this.vendor = data.vendor;
+                this.customer_group = data.customer_group;
                 this.product = data.product;
                 if(data.rows)
                 {
@@ -326,6 +356,8 @@ export const useOrderItemStore = defineStore({
                 this.item.taxonomy_id_order_items_status = data.status;
                 this.item.taxonomy_id_order_items_types = data.type;
                 this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_customer_group_id = data.customer_group;
             }else{
                 this.$router.push({name: 'orderitems.index'});
             }
@@ -510,6 +542,8 @@ export const useOrderItemStore = defineStore({
                 this.item.taxonomy_id_order_items_status = data.status;
                 this.item.taxonomy_id_order_items_types = data.type;
                 this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_customer_group_id = data.customer_group;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
