@@ -184,6 +184,7 @@ class ProductsController extends Controller
                 $all_attribute_name = array_keys($v);
             }
             $v['variation_name'] = 'variation name '.$k;
+            $v['is_selected'] = false;
             $v['quantity'] = 1;
             $v['media'] = 1;
             array_push($structured_variation, $v);

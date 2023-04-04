@@ -153,7 +153,6 @@ export const vaah = defineStore({
                 this.toastErrors([error]);
             } else
             {
-                console.log(error)
                 this.toastErrors(['Something went wrong']);
             }
         },

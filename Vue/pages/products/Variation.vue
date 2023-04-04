@@ -20,12 +20,13 @@ onMounted(async () => {
     await store.watchVariationItem();
 });
 
-//--------form_menu
-const form_menu = ref();
-const toggleFormMenu = (event) => {
-    form_menu.value.toggle(event);
+//--------selected_menu_state
+const selected_menu_state = ref();
+const toggleSelectedMenuState = (event) => {
+    selected_menu_state.value.toggle(event);
 };
-//--------/form_menu
+//--------/selected_menu_state
+
 
 </script>
 <template>
@@ -149,7 +150,7 @@ const toggleFormMenu = (event) => {
                 </div>
 
 <!--                Bulk action -->
-                <div class="p-1 pl-2" v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
+                <div class="p-1 pl-2" v-if="store.variation_item.all_variation && Object.keys(store.variation_item.all_variation).length > 0">
                     <div class="">
                         <!--selected_menu-->
                         <Button
@@ -163,17 +164,19 @@ const toggleFormMenu = (event) => {
                                    :value="store.action.items.length" />
                         </Button>
                         <Menu ref="selected_menu_state"
-                              :model="store.list_selected_menu"
+                              :model="store.variation_selected_menu"
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
                 </div>
-
+<!--<pre>-->
+<!--    {{store.variation_item.all_variation.structured_variation}}-->
+<!--</pre>-->
                 <div class="col-12" v-if="store.variation_item.all_variation && Object.keys(store.variation_item.all_variation).length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
-                            <th class="col-1"><Checkbox v-model="store.variation_item.select_all_variation" :binary="true" /></th>
+                            <th class="col-1"><Checkbox v-model="store.variation_item.select_all_variation" :binary="true" @click="store.selectAllVariation()" /></th>
                             <th scope="col">Variation name</th>
                             <th scope="col" v-for="(item, index) in store.variation_item.all_variation.all_attribute_name">{{ item }}</th>
                             <th scope="col">Quantity</th>
@@ -183,7 +186,7 @@ const toggleFormMenu = (event) => {
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
                             <tr v-for="(item, index) in store.variation_item.all_variation.structured_variation">
-                                <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="false" /></th>
+                                <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                                 <td>
                                     <InputText v-model="item['variation_name']" class="w-full md:w-5rem" />
                                 </td>
