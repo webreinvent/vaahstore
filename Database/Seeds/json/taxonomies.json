@@ -205,6 +205,14 @@
         "name": "Rejected"
     },
     {
+        "type_slug": "customer-groups-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Approved"
+    },
+    {
         "type_slug": "order-items-types",
         "name": "COD"
     },

@@ -94,6 +94,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/addresses"
             },
+            {
+                label: 'Customer Groups',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/customergroups"
+            },
         ]
     },
 ]);

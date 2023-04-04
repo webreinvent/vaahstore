@@ -17,6 +17,7 @@ import paymentmethods from "./vue-routes-paymentmethods";
 import storepaymentmethods from "./vue-routes-storepaymentmethods";
 import orderitems from "./vue-routes-orderitems";
 import addresses from "./vue-routes-addresses";
+import customergroups from "./vue-routes-customergroups";
 import orderitems from "./vue-routes-orderitems";
 
 // routes = routes.concat(dashboard);
@@ -36,6 +37,7 @@ routes = routes.concat(paymentmethods);
 routes = routes.concat(storepaymentmethods);
 routes = routes.concat(orderitems);
 routes = routes.concat(addresses);
+routes = routes.concat(customergroups);
 routes = routes.concat(orderitems);
 
 export default routes;
