@@ -9,6 +9,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Entities\CustomerGroup;
 
 
 class OrderItemsController extends Controller

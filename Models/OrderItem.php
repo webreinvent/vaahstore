@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Entities\CustomerGroup;
 
 class OrderItem extends Model
 {
