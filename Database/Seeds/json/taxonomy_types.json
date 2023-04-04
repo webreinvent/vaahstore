@@ -40,5 +40,8 @@
     },
     {
         "name": "Address Status"
+    },
+    {
+        "name": "Customer Groups Status"
     }
 ]

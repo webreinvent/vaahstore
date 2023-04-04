@@ -183,5 +183,17 @@
     {
         "type_slug": "address-status",
         "name": "Rejected"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Rejected"
     }
 ]
