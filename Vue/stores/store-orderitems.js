@@ -64,12 +64,68 @@ export const useOrderItemStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        user_suggestion: null,
+        order_suggestion: null,
+        status_suggestion: null,
+        type_suggestion: null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.user_suggestion = this.user;
+                }
+                else {
+                    this.user_suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchType(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.type;
+                }
+                else {
+                    this.type_suggestion= this.type.filter((type) => {
+                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion = this.status;
+                }
+                else {
+                    this.status_suggestion= this.status.filter((status) => {
+                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchOrder(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.order_suggestion = this.order;
+                }
+                else {
+                    this.order_suggestion= this.order.filter((order) => {
+                        return order.id.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -184,6 +240,10 @@ export const useOrderItemStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.user = data.user;
+                this.order = data.order;
+                this.status = data.status;
+                this.type = data.type;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -230,6 +290,10 @@ export const useOrderItemStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_user_id = data.user;
+                this.item.vh_st_order_id = data.order;
+                this.item.taxonomy_id_order_items_status = data.status;
+                this.item.taxonomy_id_order_items_types = data.type;
             }else{
                 this.$router.push({name: 'orderitems.index'});
             }
@@ -408,6 +472,10 @@ export const useOrderItemStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.vh_user_id = data.user;
+                this.item.vh_st_order_id = data.order;
+                this.item.taxonomy_id_order_items_status = data.status;
+                this.item.taxonomy_id_order_items_types = data.type;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -40,5 +40,11 @@
     },
     {
         "name": "Address Status"
+    },
+    {
+        "name": "Order-items Status"
+    },
+    {
+        "name": "Order-items Types"
     }
 ]

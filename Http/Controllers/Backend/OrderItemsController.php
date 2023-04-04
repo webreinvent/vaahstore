@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\OrderItem;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class OrderItemsController extends Controller
@@ -44,7 +47,10 @@ class OrderItemsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-
+            $data['status'] = Taxonomy::getTaxonomyByType('order-items-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('order-items-types');
+            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
+            $data['order'] = Order::where('is_active',1)->get(['id']);
             $data['actions'] = [];
 
             $response['success'] = true;

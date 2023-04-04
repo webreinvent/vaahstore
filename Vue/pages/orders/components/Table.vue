@@ -40,12 +40,16 @@ const useVaah = vaah();
 
              <Column field="payment_method" header="Payment Method"
                     :sortable="true">
-
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.payment_method.name}}
+                    <Badge v-if="prop.data.payment_method == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <template v-else>
+                        {{prop.data.payment_method.name}}
+                    </template>
                 </template>
 
             </Column>
