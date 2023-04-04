@@ -74,6 +74,7 @@ export const useProductStore = defineStore({
         is_list_loading: null,
         count_filters: 0,
         list_selected_menu: [],
+        variation_selected_menu: [],
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
@@ -372,7 +373,38 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProductVariation(item){
-            console.log(item)
+            let item_key = this.getIndexOfArray(this.variation_item.all_variation.structured_variation, item);
+            if (item_key >= 0){
+                this.variation_item.all_variation.structured_variation.splice(item_key, 1);
+            }
+        },
+        //---------------------------------------------------------------------
+        bulkRemoveProductVariation(){
+
+            let temp = null;
+            temp = this.variation_item.all_variation.structured_variation.filter((item) => {
+                return item['is_selected'] != true;
+            });
+            this.variation_item.all_variation.structured_variation = temp;
+
+            this.variation_item.select_all_variation = false;
+        },
+        //---------------------------------------------------------------------
+        getIndexOfArray(array, findArray){
+            let index = -1;
+            array.some((item, i)=>{
+                if(JSON.stringify(item) === JSON.stringify(findArray)) {
+                    index = i;
+                    return true;
+                }
+            });
+            return index;
+        },
+        //---------------------------------------------------------------------
+        selectAllVariation(){
+            this.variation_item.all_variation.structured_variation.forEach((i)=>{
+                i['is_selected'] = !this.variation_item.select_all_variation;
+            })
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -927,6 +959,16 @@ export const useProductStore = defineStore({
                     icon: 'pi pi-trash',
                     command: () => {
                         this.confirmDelete()
+                    }
+                },
+            ]
+
+            this.variation_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProductVariation()
                     }
                 },
             ]
