@@ -33,10 +33,66 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <Badge v-else-if="prop.data.user == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.user.first_name}}
+                  </template>
                 </template>
 
             </Column>
+
+             <Column field="order" header="Order"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.order == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.order.id}}
+                  </template>
+                </template>
+
+            </Column>
+
+             <Column field="type" header="Type"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.type == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.type.name}}
+                  </template>
+                </template>
+
+            </Column>
+
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else
+                            severity="primary"> {{prop.data.status.name}} </Badge>
+                 </template>
+
+             </Column>
 
 
                 <Column field="updated_at" header="Updated"

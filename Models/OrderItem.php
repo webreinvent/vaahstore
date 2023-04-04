@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -25,8 +26,20 @@ class OrderItem extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'vh_st_order_id',
+        'vh_user_id',
+        'vh_st_customer_group_id',
+        'taxonomy_id_order_items_types',
+        'taxonomy_id_order_items_status',
+        'vh_shipping_address_id',
+        'vh_billing_address_id',
+        'vh_st_product_id',
+        'vh_st_product_variation_id',
+        'vh_st_vendor_id',
+        'is_invoice_available',
+        'invoice_url',
+        'tracking',
+        'status_notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -67,6 +80,26 @@ class OrderItem extends Model
         return $this->belongsTo(User::class,
             'deleted_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_items_status')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function type()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_items_types')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
+    }
+    //-------------------------------------------------
+    public function order()
+    {
+        return $this->hasOne(Order::class,'id','vh_st_order_id')->select('id');
     }
 
     //-------------------------------------------------
@@ -113,8 +146,8 @@ class OrderItem extends Model
         }
 
 
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        // check if order and user exist
+        $item = self::where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],'vh_user_id'=>$inputs['vh_user_id']['id']])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
@@ -122,18 +155,11 @@ class OrderItem extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
+        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +248,7 @@ class OrderItem extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('order','status','user','type');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +430,7 @@ class OrderItem extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type'])
             ->withTrashed()
             ->first();
 
@@ -430,10 +456,10 @@ class OrderItem extends Model
             return $validation;
         }
 
-        // check if name exist
+        // check if order and user exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],'vh_user_id'=>$inputs['vh_user_id']['id']])->first();
 
         if ($item) {
             $response['success'] = false;
@@ -441,20 +467,11 @@ class OrderItem extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
+        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -511,22 +528,34 @@ class OrderItem extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+        $rules = validator($inputs, [
+            'vh_user_id'=> 'required',
+            'vh_st_order_id'=> 'required',
+            'taxonomy_id_order_items_types'=> 'required',
+            'taxonomy_id_order_items_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_order_items_status.slug,==,rejected',
+                ],
+            [
+                'vh_user_id.required' => 'The User field is required',
+                'vh_st_order_id.required' => 'The Order field is required',
+                'taxonomy_id_order_items_types.required' => 'The Type field is required',
+                'taxonomy_id_order_items_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
-
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
     }
 
     //-------------------------------------------------
