@@ -68,6 +68,8 @@ export const useOrderItemStore = defineStore({
         order_suggestion: null,
         status_suggestion: null,
         type_suggestion: null,
+        product_variation_suggestion: null,
+        product_suggestion: null,
         form_menu_list: []
     }),
     getters: {
@@ -88,6 +90,19 @@ export const useOrderItemStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion = this.product_variation;
+                }
+                else {
+                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
         searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -96,6 +111,19 @@ export const useOrderItemStore = defineStore({
                 else {
                     this.type_suggestion= this.type.filter((type) => {
                         return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_suggestion = this.product;
+                }
+                else {
+                    this.product_suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -244,6 +272,8 @@ export const useOrderItemStore = defineStore({
                 this.order = data.order;
                 this.status = data.status;
                 this.type = data.type;
+                this.product_variation = data.product_variation;
+                this.product = data.product;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -292,8 +322,10 @@ export const useOrderItemStore = defineStore({
                 this.item = data;
                 this.item.vh_user_id = data.user;
                 this.item.vh_st_order_id = data.order;
+                this.item.vh_st_product_id = data.product;
                 this.item.taxonomy_id_order_items_status = data.status;
                 this.item.taxonomy_id_order_items_types = data.type;
+                this.item.vh_st_product_variation_id = data.product_variation;
             }else{
                 this.$router.push({name: 'orderitems.index'});
             }
@@ -474,8 +506,10 @@ export const useOrderItemStore = defineStore({
                 this.item = data;
                 this.item.vh_user_id = data.user;
                 this.item.vh_st_order_id = data.order;
+                this.item.vh_st_product_id = data.product;
                 this.item.taxonomy_id_order_items_status = data.status;
                 this.item.taxonomy_id_order_items_types = data.type;
+                this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -77,6 +77,40 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="product" header="Product"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.product == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.product.name}}
+                  </template>
+                </template>
+
+            </Column>
+
+             <Column field="product_variation" header="Product Variation"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.product_variation == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                  <template v-else>
+                      {{prop.data.product_variation.name}}
+                  </template>
+                </template>
+
+            </Column>
+
              <Column field="status" header="Status"
                      :sortable="true">
 

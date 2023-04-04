@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\OrderItem;
+use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -51,6 +53,8 @@ class OrderItemsController extends Controller
             $data['type'] = Taxonomy::getTaxonomyByType('order-items-types');
             $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
             $data['order'] = Order::where('is_active',1)->get(['id']);
+            $data['product'] = Product::where('is_active',1)->get(['id','name','slug']);
+            $data['product_variation'] = ProductVariation::where('is_active',1)->get(['id','name','slug']);
             $data['actions'] = [];
 
             $response['success'] = true;
