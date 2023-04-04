@@ -36,6 +36,9 @@
         "name": "Payment-methods Status"
     },
     {
+        "name": "Order-items Status"
+    },
+    {
         "name": "Address Types"
     },
     {
