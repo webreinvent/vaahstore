@@ -137,6 +137,34 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+                <VhField label="Product">
+                    <AutoComplete
+                        v-model="store.item.vh_st_product_id"
+                        class="w-full"
+                        name="orderitems-product"
+                        :suggestions="store.product_suggestion"
+                        @complete="store.searchProduct($event)"
+                        placeholder="Select Types"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orderitems-product"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Product Variation">
+                    <AutoComplete
+                        v-model="store.item.vh_st_product_variation_id"
+                        class="w-full"
+                        name="orderitems-product_variation"
+                        :suggestions="store.product_variation_suggestion"
+                        @complete="store.searchProductVariation($event)"
+                        placeholder="Select Product Variation"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orderitems-product_variation"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
                 <VhField label="Status">
                     <AutoComplete
                         v-model="store.item.taxonomy_id_order_items_status"
