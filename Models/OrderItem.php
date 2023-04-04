@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
-use WebReinvent\VaahCms\Entities\CustomerGroup;
 
 class OrderItem extends Model
 {
@@ -281,7 +280,7 @@ class OrderItem extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('order','status','user','type','product','ProductVariation','vendor');
+        $list = self::getSorted($request->filter)->with('order','status','user','type','product','ProductVariation','vendor','CustomerGroup');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -463,7 +462,7 @@ class OrderItem extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product','ProductVariation','vendor'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product','ProductVariation','vendor','CustomerGroup'])
             ->withTrashed()
             ->first();
 

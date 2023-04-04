@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\OrderItem;
 use VaahCms\Modules\Store\Models\Product;
@@ -9,7 +10,6 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
-use WebReinvent\VaahCms\Entities\CustomerGroup;
 
 
 class OrderItemsController extends Controller
@@ -58,7 +58,7 @@ class OrderItemsController extends Controller
             $data['product'] = Product::where('is_active',1)->get(['id','name','slug']);
             $data['product_variation'] = ProductVariation::where('is_active',1)->get(['id','name','slug']);
             $data['vendor'] = Vendor::where('is_active',1)->get(['id','name','slug']);
-            $data['customer_group'] = CustomerGroup::where('is_active',1)->get(['id','name','slug']);
+            $data['customer_group'] = CustomerGroup::get(['id','name','slug']);
             $data['actions'] = [];
 
             $response['success'] = true;
