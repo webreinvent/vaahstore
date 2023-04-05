@@ -53,8 +53,23 @@ class ProductsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['brand']=Brand::select('id','name','slug', 'is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::select('id','name', 'is_default','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['empty_item']['attribute_option_type'] = 1;
+            $data['empty_item']['product_attributes'] = [];
+            $data['empty_item']['selected_attribute'] = null;
+            $data['empty_item']['product_variation'] = null;
+            $data['empty_item']['attribute_options'] = null;
+            $data['empty_item']['all_attribute_values'] = [];
+            $data['empty_item']['show_create_form'] = false;
+            $data['empty_item']['show_table'] = false;
+            $data['empty_item']['select_all_variation'] = false;
+            $data['empty_item']['all_variation'] = [];
+            $data['empty_item']['create_variation_data'] = null;
+            $data['empty_item']['new_variation'] = [];
+
+
+            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
+            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
+
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['type'] = Taxonomy::getTaxonomyByType('product-types');
             $data['actions'] = [];
@@ -139,8 +154,6 @@ class ProductsController extends Controller
             if ($item){
                 $record = $item->toArray();
 
-
-
                 foreach ($record as $k=>$v){
                     $result[$value['name']][$k] = $v;
                 }
@@ -149,63 +162,68 @@ class ProductsController extends Controller
         }
 
 
-        $combination = [];
+        if ($input['method'] == 'generate'){
+            $combination = [];
 
-        // making all possible combination of attribute values
-        foreach ($result as $k => $v){
-            $temp_result = [];
-            if(count($combination) == 0){
-                foreach ($v as $key => $value){
-                    $temp = [];
-                    $temp[$k] = $value['value'];
-                    array_push($temp_result, $temp);
-                }
-                $combination = $temp_result;
-            }else{
-                foreach ($v as $key => $value){
-                    foreach ($combination as $n_key => $n_value){
+            // making all possible combination of attribute values
+            foreach ($result as $k => $v){
+                $temp_result = [];
+                if(count($combination) == 0){
+                    foreach ($v as $key => $value){
                         $temp = [];
-                        $temp[$k] = $value['value'];
-                        foreach ($n_value as $c_key => $c_value)
-
-                        $temp[$c_key] = $c_value;
+                        $temp[$k]['value'] = $value['value'];
+                        $temp[$k]['vh_st_attribute_id'] = $value['vh_st_attribute_id'];
+                        $temp[$k]['vh_st_attribute_values_id'] = $value['id'];
                         array_push($temp_result, $temp);
                     }
+                    $combination = $temp_result;
+                }else{
+                    foreach ($v as $key => $value){
+                        foreach ($combination as $n_key => $n_value){
+                            $temp = [];
+                            $temp[$k]['value'] = $value['value'];
+                            $temp[$k]['vh_st_attribute_id'] = $value['vh_st_attribute_id'];
+                            $temp[$k]['vh_st_attribute_values_id'] = $value['id'];
+                            foreach ($n_value as $c_key => $c_value){
+                                $temp[$c_key] = $c_value;
+                            }
+
+                            array_push($temp_result, $temp);
+                        }
+                    }
+                    $combination = $temp_result;
                 }
-                $combination = $temp_result;
             }
-        }
 
-        $structured_variation = [];
-        $all_attribute_name = [];
-        // adding additional structure for variation table
-        foreach ($combination as $k => $v){
-            if ($k == 0){
-                $all_attribute_name = array_keys($v);
+            $structured_variation = [];
+            $all_attribute_name = [];
+            // adding additional structure for variation table
+            foreach ($combination as $k => $v){
+                if ($k == 0){
+                    $all_attribute_name = array_keys($v);
+                }
+                $v['variation_name'] = 'variation name '.$k;
+                $v['is_selected'] = false;
+                $v['quantity'] = 1;
+                $v['media'] = 1;
+                array_push($structured_variation, $v);
             }
-            $v['variation_name'] = 'variation name '.$k;
-            $v['is_selected'] = false;
-            $v['quantity'] = 1;
-            $v['media'] = 1;
-            array_push($structured_variation, $v);
+
+            return [
+                'data' => [
+//                    'combination' => $combination,
+                    'structured_variation' => $structured_variation,
+                    'all_attribute_name' => $all_attribute_name
+                ]
+            ];
+        } else{
+            return [
+                'data' => [
+                    'all_attribute_name' => array_keys($result),
+                    'create_attribute_values' => $result
+                ]
+            ];
         }
-
-        return [
-            'data' => [
-                'combination' => $combination,
-                'structured_variation' => $structured_variation,
-                'all_attribute_name' => $all_attribute_name
-            ]
-        ];
-    }
-
-    //----------------------------------------------------------
-    public function calculateVariation($list,$att,$new_list)
-    {
-       return $list;
-       if(count($new_list) == 0){
-
-       }
     }
 
     //----------------------------------------------------------
