@@ -47,9 +47,12 @@ export const useProductStore = defineStore({
             product_variation: null,
             attribute_options: null,
             all_attribute_values: [],
+            show_create_form: false,
             show_table: false,
             select_all_variation: false,
-            all_variation: {}
+            all_variation: {},
+            create_variation_data: null,
+            new_variation: [],
         },
         status:null,
         empty_query:empty_states.query,
@@ -293,11 +296,12 @@ export const useProductStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async getAttributeValue(callback) {
+        async getAttributeValues(callback, method = 'generate') {
 
             let params = {
                 attribute: this.variation_item.product_attributes,
-                product_id: this.item.id
+                product_id: this.item.id,
+                method: method
             }
 
             let options = {
@@ -310,14 +314,6 @@ export const useProductStore = defineStore({
                 callback,
                 options
             );
-
-        },
-        //---------------------------------------------------------------------
-        afterGetAttributeValue(data, res){
-
-            if (data && data.length > 0){
-
-            }
 
         },
         //---------------------------------------------------------------------
@@ -348,27 +344,30 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         generateProductVariation(){
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
-                this.getAttributeValue(this.generateVariation);
+                this.getAttributeValues(this.afterGenerateVariations, 'generate');
             }
         },
         //---------------------------------------------------------------------
-        generateVariation(data, res){
+        afterGenerateVariations(data, res){
             if (data){
                 this.variation_item.all_variation = data;
                 this.variation_item.show_table = true;
+                this.variation_item.show_create_form = false;
+                this.variation_item.create_variation_data = [];
             }
         },
         //---------------------------------------------------------------------
         createProductVariation(){
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
-                this.getAttributeValue(this.createVariation);
+                this.getAttributeValues(this.afterCreateVariation, 'create');
             }
         },
         //---------------------------------------------------------------------
-        createVariation(data, res){
+        afterCreateVariation(data, res){
             if (data){
-                this.variation_item.all_variation = data;
-                this.variation_item.show_table = true;
+                this.variation_item.create_variation_data = data;
+                this.variation_item.show_create_form = true;
+                this.variation_item.new_variation = [];
             }
         },
         //---------------------------------------------------------------------
@@ -379,15 +378,21 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        bulkRemoveProductVariation(){
+        bulkRemoveProductVariation(all = null){
 
-            let temp = null;
-            temp = this.variation_item.all_variation.structured_variation.filter((item) => {
-                return item['is_selected'] != true;
-            });
-            this.variation_item.all_variation.structured_variation = temp;
+            if (all){
+                this.variation_item.all_variation = {};
+                this.variation_item.select_all_variation = false;
+            }else{
+                let temp = null;
+                temp = this.variation_item.all_variation.structured_variation.filter((item) => {
+                    return item['is_selected'] != true;
+                });
+                this.variation_item.all_variation.structured_variation = temp;
 
-            this.variation_item.select_all_variation = false;
+                this.variation_item.select_all_variation = false;
+            }
+
         },
         //---------------------------------------------------------------------
         getIndexOfArray(array, findArray){
@@ -405,6 +410,47 @@ export const useProductStore = defineStore({
             this.variation_item.all_variation.structured_variation.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
+        },
+        //---------------------------------------------------------------------
+        addNewProductVariation(new_record){
+            if (this.variation_item.new_variation
+                && Object.keys(this.variation_item.new_variation).length
+                > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
+                if (this.variation_item.all_variation && Object.keys(this.variation_item.all_variation).length > 0){
+
+                    let error_message = [];
+                    let variation_match_key = null;
+                    this.variation_item.all_variation.structured_variation.forEach((i,k)=>{
+                        if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
+                            error_message.push('variation name must be unique');
+                        }
+                        this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
+                            if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
+                                if (variation_match_key == k){
+                                    error_message.push('variation already exist');
+                                }else{
+                                    variation_match_key = k;
+                                }
+                            }
+                        });
+                    })
+
+                    if(error_message && error_message.length == 0){
+                        this.variation_item.all_variation.structured_variation.push(this.variation_item.new_variation);
+                        this.variation_item.create_variation_data = null;
+                        this.variation_item.show_create_form = false;
+                    }
+
+                }else{
+                    let temp = {
+                        structured_variation: [Object.assign({},this.variation_item.new_variation)],
+                        all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
+                    };
+                    this.variation_item.all_variation = temp;
+                    this.variation_item.create_variation_data = null;
+                    this.variation_item.show_create_form = false;
+                }
+            }
         },
         //---------------------------------------------------------------------
         async getAssets() {

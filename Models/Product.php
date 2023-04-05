@@ -82,15 +82,24 @@ class Product extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
+            ->select('id','name','slug');
     }
 
     //-------------------------------------------------
     public function type()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')
+            ->select('id','name','slug');
     }
 
+    //-------------------------------------------------
+    public function productAttributes()
+    {
+        return $this->belongsToMany(Attribute::class,'vh_st_product_attributes',
+            'vh_st_attribute_id',
+            'vh_st_product_variation_id');
+    }
     //-------------------------------------------------
     public function variationCount()
     {
@@ -465,7 +474,9 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','type','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
+                'brand','store','type','status', 'productAttributes',
+            ])
             ->withTrashed()
             ->first();
 
