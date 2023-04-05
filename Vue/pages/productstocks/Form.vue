@@ -103,6 +103,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productstocks-name"
                                data-testid="productstocks-name"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -110,6 +111,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productstocks-slug"
                                data-testid="productstocks-slug"
+                               placeholder="Enetr Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -121,6 +123,7 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchVendor($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Vendor"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -138,6 +141,7 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchProduct($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Product"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -155,6 +159,7 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Product Variation"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -172,6 +177,7 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchWarehouse($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Warehouse"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -186,6 +192,7 @@ const toggleFormMenu = (event) => {
                         name="productstocks-quantity"
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
+                        placeholder="Enter Quantity"
                         data-testid="productstocks-quantity"
                         :min="1"/>
                 </VhField>
@@ -198,11 +205,12 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Status"
                                   forceSelection />
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes" data-testid="productstocks-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
+                    <Textarea placeholder="Enter Status Note" v-model="store.item.status_notes" data-testid="productstocks-taxonomy_status_notes" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
                 <VhField label="Is Active">

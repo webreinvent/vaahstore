@@ -50,10 +50,10 @@ class ProductVendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
             $data['empty_item']['can_update'] = 0;
-            $data['vendor']= Vendor::where('is_active',1)->select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
-            $data['store']= Store::where('is_active',1)->select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['vendor']= Vendor::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['store']= Store::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-            $data['user']=User::where('is_active',1)->paginate(config('vaahcms.per_page'));
+            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $active_user = auth()->user();
             $added_by['id'] = $active_user->id;
             $added_by['name'] = $active_user->first_name;

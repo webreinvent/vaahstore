@@ -103,6 +103,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="attributes-name"
                                data-testid="attributes-name"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -110,12 +111,14 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="attributes-slug"
                                data-testid="attributes-slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
                 <VhField label="Product Variation">
                     <AutoComplete v-model="store.item.vh_st_product_variation_id"
                                   class="w-full"
+                                  placeholder="Select Product Variation"
                                   data-testid="attributes-vh_st_product_variation_id"
                                   :suggestions="store.product_variation_suggestion_list"
                                   @complete="store.searchProductVariation($event)"
@@ -127,6 +130,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Value">
                     <InputText class="w-full"
                                name="attributes-value"
+                               placeholder="Enter Value"
                                data-testid="attributes-value"
                                v-model="store.item.value"/>
                 </VhField>
@@ -135,6 +139,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="attributes-type"
                                data-testid="attributes-type"
+                               placeholder="Enter Type"
                                v-model="store.item.type"/>
                 </VhField>
 

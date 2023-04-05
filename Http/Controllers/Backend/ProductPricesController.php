@@ -50,9 +50,9 @@ class ProductPricesController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['vendor']=Vendor::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
-            $data['product']=Product::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
-            $data['product_variation']=ProductVariation::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['vendor']=Vendor::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['product']=Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['product_variation']=ProductVariation::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $default_product = [];
             foreach($data['product'] as $k=>$product)
             {
