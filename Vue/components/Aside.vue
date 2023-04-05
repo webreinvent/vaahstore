@@ -80,9 +80,24 @@ const items = ref([
                 to: "/orders"
             },
             {
+                label: 'Order Items',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/orderitems"
+            },
+            {
                 label: 'Payment Methods',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/paymentmethods"
+            },
+            {
+                label: 'Addresses',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/addresses"
+            },
+            {
+                label: 'Customer Groups',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/customergroups"
             },
         ]
     },

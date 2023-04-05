@@ -34,5 +34,20 @@
     },
     {
         "name": "Payment-methods Status"
+    },
+    {
+        "name": "Order-items Status"
+    },
+    {
+        "name": "Address Types"
+    },
+    {
+        "name": "Address Status"
+    },
+    {
+        "name": "Customer Groups Status"
+    },
+    {
+        "name": "Order-items Types"
     }
 ]

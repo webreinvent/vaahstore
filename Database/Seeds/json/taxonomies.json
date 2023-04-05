@@ -151,5 +151,89 @@
     {
         "type_slug": "payment-methods-status",
         "name": "Rejected"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "COD"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "Card Payment"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "EMI"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Home"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Business"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Billing"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Shipping"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Contact"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "COD"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "Card Payment"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "EMI"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Rejected"
     }
 ]
