@@ -147,6 +147,7 @@ class ProductMedia extends Model
             $item->status_notes = $inputs['status_notes'];
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+            $item->path = $inputs['path'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
 
@@ -429,6 +430,7 @@ class ProductMedia extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        $item->img_prev = (env('APP_URL').'/'.'images/'.$item->path);
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -436,6 +438,25 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
+    public static function saveUploadImage($request)
+    {
+        $inputs = $request['images'];
+        $upload_path = public_path('images');
+        if($request->hasFile('images')){
+            foreach ($inputs as $input){
+                $file_name = $input->getClientOriginalName();
+                $input->move($upload_path, $file_name);
+            }
+            $response['success'] = true;
+            $response['data'] = (env('APP_URL').'/'.'images/'.$file_name);
+            $response['messages'][] = 'Saved successfully.';
+        }else{
+            $response['success'] = false;
+            $response['errors'] = 'Error';
+        }
+        return $response;
+    }
+     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
@@ -461,6 +482,7 @@ class ProductMedia extends Model
         $item->taxonomy_id_product_media_status = $inputs['status']['id'];
         $item->status_notes = $inputs['status_notes'];
         $item->vh_st_product_id = $inputs['product']['id'];
+        $item->path = $inputs['path'];
         $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $item->save();
 
@@ -529,7 +551,7 @@ class ProductMedia extends Model
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
-            'vh_st_product_variation.required' => 'The Product variation field is required',
+            'vh_st_product_variation_id.required' => 'The Product variation field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
