@@ -522,6 +522,7 @@ class Whishlist extends Model
             'vh_user_id.required' => 'The User field is required',
             'taxonomy_id_whishlists_types.required' => 'The Type variation field is required',
             'taxonomy_id_whishlists_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
 
