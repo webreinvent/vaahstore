@@ -1,4 +1,4 @@
- <script setup>
+<script setup>
 import {onMounted, ref, watch} from "vue";
 import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
 

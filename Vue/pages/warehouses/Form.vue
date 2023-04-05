@@ -103,7 +103,6 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="warehouses-name"
                                data-testid="warehouses-name"
-                               placeholder="Enter NAme"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -111,7 +110,6 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="warehouses-slug"
                                data-testid="warehouses-slug"
-                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -123,7 +121,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchVendors($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Vendor"
                                   forceSelection />
                 </VhField>
 
@@ -134,7 +131,6 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.country_suggestion_list"
                                   @complete="store.searchCountry($event)"
                                   :dropdown="true"
-                                  placeholder="Select Country"
                                   forceSelection />
                 </VhField>
 
@@ -142,7 +138,6 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
-                               placeholder="Enter State"
                                v-model="store.item.state"/>
                 </VhField>
 
@@ -150,7 +145,6 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
-                               placeholder="Enter City"
                                v-model="store.item.city"/>
                 </VhField>
 
@@ -161,7 +155,6 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.status_suggestion_list"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
-                                  placeholder="Select Status"
                                   optionLabel="name"
                                   forceSelection />
                 </VhField>
@@ -171,7 +164,6 @@ const toggleFormMenu = (event) => {
                               data-testid="store-taxonomy_status_notes"
                               :autoResize="true"
                               rows="5"
-                              placeholder="Enter Status Note"
                               cols="30" />
                 </VhField>
 

@@ -64,6 +64,9 @@ export const useWhishlistStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        status_suggestion: null,
+        type_suggestion: null,
+        user_suggestion: null,
         form_menu_list: []
     }),
     getters: {
@@ -79,6 +82,32 @@ export const useWhishlistStore = defineStore({
                 else {
                     this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchType(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.type;
+                }
+                else {
+                    this.type_suggestion= this.type.filter((type) => {
+                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.user_suggestion = this.user;
+                }
+                else {
+                    this.user_suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -197,6 +226,9 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status = data.status;
+                this.type = data.type;
+                this.user = data.user;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -243,6 +275,9 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_whishlists_status = data.status;
+                this.item.taxonomy_id_whishlists_types = data.type;
+                this.item.vh_user_id = data.user;
             }else{
                 this.$router.push({name: 'whishlists.index'});
             }
@@ -421,6 +456,10 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_whishlists_status = data.status;
+                this.item.taxonomy_id_whishlists_types = data.type;
+                this.item.vh_user_id = data.user;
+
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

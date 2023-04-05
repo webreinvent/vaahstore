@@ -160,43 +160,22 @@ const toggleFormMenu = (event) => {
                         data-testid="orders-payable"/>
                 </VhField>
 
-<!--                <VhField label="Is Paid">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="orders-is_paid"-->
-<!--                                 data-testid="orders-is_paid"-->
-<!--                                 v-model="store.item.is_paid"/>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Paid">-->
-<!--                    <InputNumber-->
-<!--                        :disabled="store.item.is_paid==0"-->
-<!--                        placeholder="Enter a Paid"-->
-<!--                        name="orders-paid"-->
-<!--                        v-model="store.item.paid"-->
-<!--                        inputId="minmaxfraction" :minFractionDigits="2" showButtons-->
-<!--                        data-testid="orders-paid"/>-->
-<!--                </VhField>-->
+                <VhField label="Is Paid">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="orders-is_paid"
+                                 data-testid="orders-is_paid"
+                                 v-model="store.item.is_paid"/>
+                </VhField>
 
                 <VhField label="Paid">
                     <InputNumber
+                        :disabled="store.item.is_paid==0"
                         placeholder="Enter a Paid"
-                        inputId="minmax-buttons"
                         name="orders-paid"
                         v-model="store.item.paid"
-                        mode="decimal" showButtons
-                        :min="0"
+                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         data-testid="orders-paid"/>
-                </VhField>
-
-                <VhField label="Is Paid">
-                    <InputSwitch
-                        v-bind:false-value="0"
-                        v-bind:true-value="1"
-                        v-bind="store.item.paid == 0 ? store.item.is_paid = 0 : store.item.is_paid = 1"
-                        name="products-is_paid"
-                        data-testid="products-is_paid"
-                        v-model="store.item.is_paid"/>
                 </VhField>
 
                 <VhField label="Payment Method">

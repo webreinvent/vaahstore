@@ -100,6 +100,7 @@ export const useProductMediaStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
         searchProductVariation(event) {
             setTimeout(() => {
@@ -112,39 +113,6 @@ export const useProductMediaStore = defineStore({
                     });
                 }
             }, 250);
-        },
-        //---------------------------------------------------------------------
-        async onImageUpload(event){
-            let selectedFiles = event.files;
-            if(!selectedFiles.length)
-            {
-                return false;
-            }
-            let attachment = []
-            for(let i=0; i<selectedFiles.length; i++){
-                attachment.push(selectedFiles[i]);
-            }
-            let formData  = new FormData();
-            for(let i=0; i < attachment.length; i++){
-                formData.append('images[]',attachment[i]);
-            }
-            let options = {
-                params: formData,
-                method: "POST",
-                headers: {'content-type': 'multipart/form-data'}
-            };
-            await vaah().ajax(
-                this.ajax_url+'/image/upload',
-                this.afterUploadImage,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        afterUploadImage(data, res){
-            if(data)
-            {
-                this.item.path = data;
-            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)

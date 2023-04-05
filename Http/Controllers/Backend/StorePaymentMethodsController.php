@@ -50,8 +50,8 @@ class StorePaymentMethodsController extends Controller
             }
 
             $data['actions'] = [];
-            $data['store']= Store::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['payment_method']= PaymentMethod::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['store']= Store::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['payment_method']= PaymentMethod::select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
             $data['empty_item']['is_active'] = 1;
             $default_store = [];

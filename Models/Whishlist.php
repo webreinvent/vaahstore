@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -25,9 +26,11 @@ class Whishlist extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
-        'is_active',
+        'vh_user_id',
+        'taxonomy_id_whishlists_status',
+        'taxonomy_id_whishlists_types',
+        'is_default',
+        'status_notes',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -42,6 +45,18 @@ class Whishlist extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+    //-------------------------------------------------
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
+    }
+    //-------------------------------------------------
+    public function type(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
+    }
+    //-------------------------------------------------
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
     }
 
     //-------------------------------------------------
@@ -114,7 +129,7 @@ class Whishlist extends Model
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
@@ -122,18 +137,12 @@ class Whishlist extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
+        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
+        $item->is_default = $inputs['is_default'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -222,7 +231,7 @@ class Whishlist extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('user','status','type');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -404,7 +413,7 @@ class Whishlist extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','type'])
             ->withTrashed()
             ->first();
 
@@ -433,7 +442,7 @@ class Whishlist extends Model
         // check if name exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
@@ -441,20 +450,12 @@ class Whishlist extends Model
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
+        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
+        $item->is_default = $inputs['is_default'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -525,16 +526,18 @@ class Whishlist extends Model
         ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
         }
+        $rules = $rules->validated();
 
-        $response['success'] = true;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
 
     }
 

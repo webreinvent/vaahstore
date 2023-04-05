@@ -22,8 +22,6 @@ class VhStwhishlists extends Migration
                 $table->integer('taxonomy_id_whishlists_status')->nullable()->index();
                 $table->integer('taxonomy_id_whishlists_types')->nullable()->index();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
                 $table->boolean('is_default')->nullable()->index();
 
 

@@ -33,12 +33,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.vendor == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.vendor.name}}
-                         </span>
+                    {{prop.data.vendor.name}}
                 </template>
 
             </Column>
@@ -50,12 +45,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.product == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product.name}}
-                         </span>
+                    {{prop.data.product.name}}
                 </template>
 
             </Column>
@@ -67,12 +57,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.product_variation == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product_variation.name}}
-                         </span>
+                    {{prop.data.product_variation.name}}
                 </template>
 
             </Column>
@@ -85,12 +70,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.amount == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.amount}}
-                         </span>
+                    {{prop.data.amount}}
                 </template>
 
             </Column>

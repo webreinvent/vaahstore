@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/productmedias',
-
+        
         'middleware' => ['web', 'has.backend.access'],
-
+        
         'namespace' => 'Backend',
 ],
 function () {
@@ -29,12 +29,6 @@ function () {
      */
     Route::delete('/', 'ProductMediasController@deleteList')
         ->name('vh.backend.store.productmedias.list.delete');
-
-    /**
-     * POST Upload image
-     */
-    Route::post('/image/upload', 'ProductMediasController@uploadImage')
-        ->name('vh.backend.store.productmedias.list.uploadImage');
 
 
     /**

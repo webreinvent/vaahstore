@@ -102,14 +102,12 @@ const toggleFormMenu = (event) => {
                 <VhField label="Name">
                     <InputText class="w-full"
                                name="vendors-name"
-                               placeholder="Enter Name"
                                data-testid="vendors-name"
                                v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Slug">
                     <InputText class="w-full"
-                               placeholder="Enter Slug"
                                name="vendors-slug"
                                data-testid="vendors-slug"
                                v-model="store.item.slug"/>
@@ -118,7 +116,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Store">
                     <AutoComplete v-model="store.item.vh_st_store_id"
                                   class="w-full"
-                                  placeholder="Select Store"
                                   data-testid="vendors-vh_st_store_id"
                                   :suggestions="store.store_suggestion_list"
                                   @complete="store.searchStore($event)"
@@ -135,8 +132,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Approve By">
                     <AutoComplete v-model="store.item.approved_by"
+                                  :disabled="store.disable_approved_by"
                                   class="w-full"
-                                  placeholder="Select Approve By"
                                   data-testid="vendors-approved_by"
                                   name="vendors-approved_by"
                                   :suggestions="store.approved_by_suggestion_list"
@@ -154,6 +151,23 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+                <VhField label="Status">
+                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status"
+                                  data-testid="vendors-taxonomy_id_vendor_status"
+                                  name="vendors-taxonomy_id_vendor_status"
+                                  class="w-full"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection />
+
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea v-model="store.item.status_notes" rows="5" cols="30" data-testid="vendors-status_notes" name="vendors-status_notes" />
+                </VhField>
+
                 <VhField label="Owned By">
                     <AutoComplete v-model="store.item.owned_by"
                                   class="w-full"
@@ -163,7 +177,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchOwnedBy($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Owned By"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -175,23 +188,6 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Status">
-                    <AutoComplete v-model="store.item.taxonomy_id_vendor_status"
-                                  data-testid="vendors-taxonomy_id_vendor_status"
-                                  name="vendors-taxonomy_id_vendor_status"
-                                  class="w-full"
-                                  placeholder="Select Status"
-                                  :suggestions="store.status_suggestion_list"
-                                  @complete="store.searchStatus($event)"
-                                  :dropdown="true"
-                                  optionLabel="name"
-                                  forceSelection />
-
-                </VhField>
-
-                <VhField label="Status Notes">
-                    <Textarea placeholder="Enetr Status Note" v-model="store.item.status_notes" rows="5" cols="30" data-testid="vendors-status_notes" name="vendors-status_notes" />
-                </VhField>
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"

@@ -50,8 +50,8 @@ class ProductMediasController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['product']=Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['product_variation']=ProductVariation::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['product']=Product::select('id','name','slug','is_default')->paginate(config('vaahcms.per_page'));
+            $data['product_variation']=ProductVariation::select('id','name','slug')->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
             $default_product = [];
             foreach($data['product'] as $l=>$product)
@@ -77,24 +77,8 @@ class ProductMediasController extends Controller
                 $response['errors'][] = 'Something went wrong.';
             }
         }
-        return $response;
-    }
 
-    //----------------------------------------------------------
-    public function uploadImage(Request $request){
-        try{
-            return ProductMedia::saveUploadImage($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
+        return $response;
     }
 
     //----------------------------------------------------------

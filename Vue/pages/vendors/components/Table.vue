@@ -67,12 +67,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.owned_by == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.owned_by.name}}
-                         </span>
+                     <Badge>{{prop.data.owned_by.name}}</Badge>
                  </template>
              </Column>
 
