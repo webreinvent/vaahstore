@@ -18,6 +18,7 @@ import storepaymentmethods from "./vue-routes-storepaymentmethods";
 import addresses from "./vue-routes-addresses";
 import customergroups from "./vue-routes-customergroups";
 import orderitems from "./vue-routes-orderitems";
+import whishlists from "./vue-routes-whishlists";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -37,5 +38,6 @@ routes = routes.concat(storepaymentmethods);
 routes = routes.concat(addresses);
 routes = routes.concat(customergroups);
 routes = routes.concat(orderitems);
+routes = routes.concat(whishlists);
 
 export default routes;

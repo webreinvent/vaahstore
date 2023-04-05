@@ -235,5 +235,21 @@
     {
         "type_slug": "order-items-status",
         "name": "Rejected"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "whishlists-types",
+        "name": "Whishlist-type-1"
     }
 ]
