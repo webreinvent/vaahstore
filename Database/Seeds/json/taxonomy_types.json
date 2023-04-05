@@ -49,5 +49,11 @@
     },
     {
         "name": "Order-items Types"
+    },
+    {
+        "name": "Whishlists Types"
+    },
+    {
+        "name": "Whishlists Status"
     }
 ]
