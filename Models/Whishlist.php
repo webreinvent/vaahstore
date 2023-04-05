@@ -511,9 +511,18 @@ class Whishlist extends Model
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+        $rules = validator($inputs, [
+            'vh_user_id'=> 'required',
+            'taxonomy_id_whishlists_types'=> 'required',
+            'taxonomy_id_whishlists_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
+                ],
+        [
+            'vh_user_id.required' => 'The User field is required',
+            'taxonomy_id_whishlists_types.required' => 'The Type variation field is required',
+            'taxonomy_id_whishlists_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        ]
         );
 
         $validator = \Validator::make($inputs, $rules);
