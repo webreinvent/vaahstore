@@ -9,14 +9,14 @@ use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class ProductMedia extends Model
+class Whishlist extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_product_medias';
+    protected $table = 'vh_st_whishlists';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -26,14 +26,11 @@ class ProductMedia extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_st_product_id',
-        'vh_st_product_variation_id',
-        'taxonomy_id_product_media_status',
+        'vh_user_id',
+        'taxonomy_id_whishlists_status',
+        'taxonomy_id_whishlists_types',
+        'is_default',
         'status_notes',
-        'path',
-        'url',
-        'meta',
-        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -49,6 +46,18 @@ class ProductMedia extends Model
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
     }
+    //-------------------------------------------------
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
+    }
+    //-------------------------------------------------
+    public function type(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
+    }
+    //-------------------------------------------------
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
+    }
 
     //-------------------------------------------------
 
@@ -58,21 +67,7 @@ class ProductMedia extends Model
             'created_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-    //-------------------------------------------------
-    public function status()
-    {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_media_status')->select('id','name','slug');
-    }
-    //-------------------------------------------------
-    public function product()
-    {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
-    }
-    //-------------------------------------------------
-    public function productVariation()
-    {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
-    }
+
     //-------------------------------------------------
     public function updatedByUser()
     {
@@ -133,26 +128,25 @@ class ProductMedia extends Model
         }
 
 
-        // check if exist
-            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])->withTrashed()->first();
+        // check if name exist
+        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
 
-            if ($item) {
-                $response['success'] = false;
-                $response['messages'][] = "This product and Product Variation is already exist.";
-                return $response;
-            }
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
 
-            $item = new self();
-            $item->fill($inputs);
-            $item->status_notes = $inputs['status_notes'];
-            $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-            $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-            $item->save();
+        $item = new self();
+        $item->fill($inputs);
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
+        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
+        $item->is_default = $inputs['is_default'];
+        $item->save();
 
-            $response = self::getItem($item->id);
-            $response['messages'][] = 'Saved successfully.';
-//        }
+        $response = self::getItem($item->id);
+        $response['messages'][] = 'Saved successfully.';
         return $response;
 
     }
@@ -237,7 +231,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','product','productVariation');
+        $list = self::getSorted($request->filter)->with('user','status','type');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -335,8 +329,8 @@ class ProductMedia extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -419,7 +413,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','type'])
             ->withTrashed()
             ->first();
 
@@ -448,20 +442,20 @@ class ProductMedia extends Model
         // check if name exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->first();
+            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This Product and Product Variation is already exist.";
+            $response['errors'][] = "This name is already exist.";
             return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->taxonomy_id_product_media_status = $inputs['status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
+        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
+        $item->is_default = $inputs['is_default'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -475,7 +469,7 @@ class ProductMedia extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -519,20 +513,19 @@ class ProductMedia extends Model
     {
 
         $rules = validator($inputs, [
-            'vh_st_product_id'=> 'required',
-            'vh_st_product_variation_id'=> 'required',
-            'taxonomy_id_product_media_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
-            'url'=> 'required|max:150',
-            'path'=> 'required|max:150',
+            'vh_user_id'=> 'required',
+            'taxonomy_id_whishlists_types'=> 'required',
+            'taxonomy_id_whishlists_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
                 ],
         [
-            'taxonomy_id_product_media_status.required' => 'The Status field is required',
-            'vh_st_product_id.required' => 'The Product field is required',
-            'vh_st_product_variation.required' => 'The Product variation field is required',
+            'vh_user_id.required' => 'The User field is required',
+            'taxonomy_id_whishlists_types.required' => 'The Type variation field is required',
+            'taxonomy_id_whishlists_status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
+
         if($rules->fails()){
             return [
                 'success' => false,

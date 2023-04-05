@@ -99,6 +99,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/customergroups"
             },
+            {
+                label: 'Whishlists',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/whishlists"
+            },
         ]
     },
 ]);

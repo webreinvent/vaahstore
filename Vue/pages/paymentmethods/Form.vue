@@ -97,7 +97,6 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Name">
                     <InputText class="w-full"
-                               placeholder="Enter Name"
                                name="paymentmethods-name"
                                data-testid="paymentmethods-name"
                                v-model="store.item.name"/>
@@ -105,7 +104,6 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Slug">
                     <InputText class="w-full"
-                               placeholder="Enter Slug"
                                name="paymentmethods-slug"
                                data-testid="paymentmethods-slug"
                                v-model="store.item.slug"/>

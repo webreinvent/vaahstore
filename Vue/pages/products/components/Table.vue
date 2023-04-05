@@ -45,14 +45,8 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.store == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.store.name}}
-                         </span>
                  </template>
-
 
              </Column>
 
@@ -64,12 +58,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.brand == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.brand.name}}
-                         </span>
                  </template>
 
              </Column>
@@ -82,12 +71,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.type == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.type.name}}
-                         </span>
                  </template>
 
              </Column>

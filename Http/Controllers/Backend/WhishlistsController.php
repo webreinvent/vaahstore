@@ -2,11 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\Attribute;
-use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Whishlist;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
-class AttributesController extends Controller
+class WhishlistsController extends Controller
 {
 
 
@@ -35,7 +36,7 @@ class AttributesController extends Controller
                 'deleted_by',
             ];
 
-            $model = new Attribute();
+            $model = new Whishlist();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
                 $fillable, $data['fillable']['except']
@@ -46,17 +47,17 @@ class AttributesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['is_active'] = 1;
-
             $data['actions'] = [];
-            $data['product_variation_list'] = ProductVariation::where('is_active',1)->get(['id','name']);
+            $data['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
 
             $response['success'] = true;
             $response['data'] = $data;
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -72,10 +73,10 @@ class AttributesController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Attribute::getList($request);
+            return Whishlist::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -89,10 +90,10 @@ class AttributesController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Attribute::updateList($request);
+            return Whishlist::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -109,10 +110,10 @@ class AttributesController extends Controller
 
 
         try{
-            return Attribute::listAction($request, $type);
+            return Whishlist::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -127,10 +128,10 @@ class AttributesController extends Controller
     public function deleteList(Request $request)
     {
         try{
-            return Attribute::deleteList($request);
+            return Whishlist::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -144,10 +145,10 @@ class AttributesController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Attribute::createItem($request);
+            return Whishlist::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -161,10 +162,10 @@ class AttributesController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Attribute::getItem($id);
+            return Whishlist::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -178,10 +179,10 @@ class AttributesController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Attribute::updateItem($request,$id);
+            return Whishlist::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -195,10 +196,10 @@ class AttributesController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Attribute::deleteItem($request,$id);
+            return Whishlist::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -212,10 +213,10 @@ class AttributesController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Attribute::itemAction($request,$id,$action);
+            return Whishlist::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();

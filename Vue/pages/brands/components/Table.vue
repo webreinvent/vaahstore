@@ -60,12 +60,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.user.name}}
-                         </span>
                  </template>
              </Column>
 
@@ -75,12 +70,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.approved_by.name}}
-                         </span>
                  </template>
              </Column>
 

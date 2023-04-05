@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useProductMediaStore } from '../../stores/store-productmedias'
+import { useWhishlistStore } from '../../stores/store-whishlists'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useProductMediaStore();
+const store = useWhishlistStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -56,26 +56,22 @@ const toggleFormMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
-                            data-testid="productmedias-save"
+                            data-testid="whishlists-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
-                            data-testid="productmedias-create-and-new"
+                            data-testid="whishlists-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="productmedias-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'Documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
-                        data-testid="productmedias-form-menu"
+                        data-testid="whishlists-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -87,7 +83,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="productmedias-to-list"
+                            data-testid="whishlists-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -98,63 +94,42 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-
-                <VhField label="Product">
-
+                <VhField label="User">
                     <AutoComplete
-                        v-model="store.item.vh_st_product_id"
+                        v-model="store.item.vh_user_id"
                         class="w-full"
-                        :suggestions="store.product_suggestion"
-                        @complete="store.searchProduct($event)"
-                        placeholder="Select Product"
-                        data-testid="productmedias-product"
-                        name="productmedias-product"
+                        :suggestions="store.user_suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        data-testid="whishlists-user"
+                        name="whishlists-user"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-
                 </VhField>
 
-                <VhField label="Product Variation">
-
+                <VhField label="Type">
                     <AutoComplete
-                        v-model="store.item.vh_st_product_variation_id"
+                        v-model="store.item.taxonomy_id_whishlists_types"
                         class="w-full"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
-                        placeholder="Select Product Variation"
-                        data-testid="productmedias-product_variation"
-                        name="productmedias-product_variation"
+                        :suggestions="store.type_suggestion"
+                        @complete="store.searchType($event)"
+                        placeholder="Select Type"
+                        data-testid="whishlists-type"
+                        name="whishlists-type"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-
-                </VhField>
-
-                <VhField label="Path">
-                    <InputText class="w-full"
-                               placeholder="Enter a Path"
-                               name="productmedias-path"
-                               data-testid="productmedias-path"
-                               v-model="store.item.path"/>
-                </VhField>
-
-                <VhField label="URL">
-                    <InputText class="w-full"
-                               placeholder="Enter a URL"
-                               name="productmedias-url"
-                               data-testid="productmedias-url"
-                               v-model="store.item.url"/>
                 </VhField>
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.taxonomy_id_product_media_status"
+                        v-model="store.item.taxonomy_id_whishlists_status"
                         class="w-full"
-                        name="productmedias-status"
+                        name="whishlists-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
-                        data-testid="productmedias-status"
+                        data-testid="whishlists-status"
                         forceSelection>
                     </AutoComplete>
                 </VhField>
@@ -162,17 +137,17 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status Notes">
                     <Textarea rows="5" cols="30"
                               placeholder="Enter a Status Note"
-                              name="productmedias-status_notes"
-                              data-testid="productmedias-status_notes"
+                              name="whishlists-status_notes"
+                              data-testid="whishlists-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
 
-                <VhField label="Is Active">
+                <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="productmedias-active"
-                                 data-testid="productmedias-active"
-                                 v-model="store.item.is_active"/>
+                                 name="whishlists-is_default"
+                                 data-testid="whishlists-is_default"
+                                 v-model="store.item.is_default"/>
                 </VhField>
 
             </div>

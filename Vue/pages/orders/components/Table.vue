@@ -33,12 +33,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.user == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.user.first_name}}
-                         </span>
+                    {{prop.data.user.first_name}}
                 </template>
 
             </Column>
@@ -52,9 +47,9 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.payment_method == null"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.payment_method.name}}
-                         </span>
+                    <template v-else>
+                        {{prop.data.payment_method.name}}
+                    </template>
                 </template>
 
             </Column>

@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductMedia';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Whishlist';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/productmedias";
+let ajax_url = base_url + "/backend/store/whishlists";
 
 let empty_states = {
     query: {
@@ -26,8 +26,8 @@ let empty_states = {
     }
 };
 
-export const useProductMediaStore = defineStore({
-    id: 'productmedias',
+export const useWhishlistStore = defineStore({
+    id: 'whishlists',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -49,7 +49,7 @@ export const useProductMediaStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'productmedias.',
+        route_prefix: 'whishlists.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -64,10 +64,9 @@ export const useProductMediaStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        suggestion:null,
-        status_suggestion:null,
-        product_variation_suggestion:null,
-        product_suggestion:null,
+        status_suggestion: null,
+        type_suggestion: null,
+        user_suggestion: null,
         form_menu_list: []
     }),
     getters: {
@@ -88,28 +87,27 @@ export const useProductMediaStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchProduct(event) {
+        searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.type_suggestion = this.type;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.type.filter((type) => {
+                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
         },
-
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
+        searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variation;
+                    this.user_suggestion = this.user;
                 }
                 else {
-                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
-                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.user_suggestion= this.user.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -137,7 +135,7 @@ export const useProductMediaStore = defineStore({
         {
             switch(route_name)
             {
-                case 'productmedias.index':
+                case 'whishlists.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -229,8 +227,8 @@ export const useProductMediaStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.product = data.product.data;
-                this.product_variation = data.product_variation.data;
+                this.type = data.type;
+                this.user = data.user;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -277,11 +275,11 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_media_status = data.status;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.taxonomy_id_whishlists_status = data.status;
+                this.item.taxonomy_id_whishlists_types = data.type;
+                this.item.vh_user_id = data.user;
             }else{
-                this.$router.push({name: 'productmedias.index'});
+                this.$router.push({name: 'whishlists.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -458,9 +456,10 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_media_status = data.status;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.taxonomy_id_whishlists_status = data.status;
+                this.item.taxonomy_id_whishlists_types = data.type;
+                this.item.vh_user_id = data.user;
+
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -478,7 +477,7 @@ export const useProductMediaStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'productmedias.index'});
+                    this.$router.push({name: 'whishlists.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -649,32 +648,32 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'productmedias.index'})
+            this.$router.push({name: 'whishlists.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'productmedias.index'})
+            this.$router.push({name: 'whishlists.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'productmedias.form'})
+            this.$router.push({name: 'whishlists.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'productmedias.view', params:{id:item.id}})
+            this.$router.push({name: 'whishlists.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'productmedias.form', params:{id:item.id}})
+            this.$router.push({name: 'whishlists.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -938,5 +937,5 @@ export const useProductMediaStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useProductMediaStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useWhishlistStore, import.meta.hot))
 }

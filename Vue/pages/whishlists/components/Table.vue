@@ -1,8 +1,8 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
-import { useVendorStore } from '../../../stores/store-vendors'
+import { useWhishlistStore } from '../../../stores/store-whishlists'
 
-const store = useVendorStore();
+const store = useWhishlistStore();
 const useVaah = vaah();
 
 </script>
@@ -26,49 +26,57 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="user" header="User"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <Badge v-else-if="prop.data.user == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <template v-else>
+                        {{prop.data.user.first_name}}
+                    </template>
+
                 </template>
 
             </Column>
 
-             <Column field="store.name" header="Store"
-                     :sortable="true">
+             <Column field="type" header="Type"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge>{{prop.data.store.name}}
-                         <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
-                     </Badge>
-                 </template>
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-else-if="prop.data.type == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <template v-else>
+                        {{prop.data.type.name}}
+                    </template>
 
-             </Column>
+                </template>
+
+            </Column>
 
              <Column field="status" header="Status"
                      :sortable="true">
+
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
                  </template>
-             </Column>
 
-             <Column field="owned_by.name" header="Owned By"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge>{{prop.data.owned_by.name}}</Badge>
-                 </template>
              </Column>
 
 
@@ -83,22 +91,6 @@ const useVaah = vaah();
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
-                    style="width:100px;"
-                    header="Is Active">
-
-                <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
-                                 data-testid="vendors-table-is-active"
-                                 v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
-                                 @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
-                </template>
-
-            </Column>
-
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
@@ -107,19 +99,19 @@ const useVaah = vaah();
                     <div class="p-inputgroup ">
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="vendors-table-to-view"
+                                data-testid="whishlists-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="vendors-table-to-edit"
+                                data-testid="whishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
-                                data-testid="vendors-table-action-trash"
+                                data-testid="whishlists-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
@@ -127,7 +119,7 @@ const useVaah = vaah();
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
-                                data-testid="vendors-table-action-restore"
+                                data-testid="whishlists-table-action-restore"
                                 v-if="store.isViewLarge() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
