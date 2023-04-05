@@ -95,26 +95,38 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="whishlists-name"
-                               data-testid="whishlists-name"
-                               v-model="store.item.name"/>
+                <VhField label="User">
+                    <AutoComplete
+                        v-model="store.item.vh_user_id"
+                        class="w-full"
+                        :suggestions="store.user_suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        data-testid="whishlists-user"
+                        name="whishlists-user"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="whishlists-slug"
-                               data-testid="whishlists-slug"
-                               v-model="store.item.slug"/>
+                <VhField label="User">
+                    <AutoComplete
+                        v-model="store.item.vh_user_id"
+                        class="w-full"
+                        :suggestions="store.user_suggestion"
+                        @complete="store.searchUser($event)"
+                        placeholder="Select User"
+                        data-testid="whishlists-user"
+                        name="whishlists-user"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Is Active">
+                <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="whishlists-active"
-                                 data-testid="whishlists-active"
-                                 v-model="store.item.is_active"/>
+                                 name="whishlists-is_default"
+                                 data-testid="whishlists-is_default"
+                                 v-model="store.item.is_default"/>
                 </VhField>
 
             </div>
