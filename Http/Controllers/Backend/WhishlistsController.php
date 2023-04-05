@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Whishlist;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\User;
 
 
 class WhishlistsController extends Controller
@@ -46,6 +48,9 @@ class WhishlistsController extends Controller
             }
 
             $data['actions'] = [];
+            $data['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
 
             $response['success'] = true;
             $response['data'] = $data;

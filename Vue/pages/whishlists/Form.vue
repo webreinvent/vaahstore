@@ -94,7 +94,6 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-
                 <VhField label="User">
                     <AutoComplete
                         v-model="store.item.vh_user_id"
@@ -108,17 +107,39 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="User">
+                <VhField label="Type">
                     <AutoComplete
-                        v-model="store.item.vh_user_id"
+                        v-model="store.item.taxonomy_id_whishlists_types"
                         class="w-full"
-                        :suggestions="store.user_suggestion"
-                        @complete="store.searchUser($event)"
-                        placeholder="Select User"
-                        data-testid="whishlists-user"
-                        name="whishlists-user"
+                        :suggestions="store.type_suggestion"
+                        @complete="store.searchType($event)"
+                        placeholder="Select Type"
+                        data-testid="whishlists-type"
+                        name="whishlists-type"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
+                </VhField>
+
+                <VhField label="Status">
+                    <AutoComplete
+                        v-model="store.item.taxonomy_id_whishlists_status"
+                        class="w-full"
+                        name="whishlists-status"
+                        :suggestions="store.status_suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="whishlists-status"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea rows="5" cols="30"
+                              placeholder="Enter a Status Note"
+                              name="whishlists-status_notes"
+                              data-testid="whishlists-status_notes"
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Default">
