@@ -124,7 +124,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Address line 1">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 1"
                               name="addresses-address_line_1"
                               data-testid="addresses-address_line_1"
@@ -132,7 +132,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Address line 2">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 2"
                               name="addresses-address_line_2"
                               data-testid="addresses-address_line_2"
@@ -154,27 +154,12 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
-
-<!--                <VhField label="Slug">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="addresses-slug"-->
-<!--                               data-testid="addresses-slug"-->
-<!--                               v-model="store.item.slug"/>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Is Active">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="addresses-active"-->
-<!--                                 data-testid="addresses-active"-->
-<!--                                 v-model="store.item.is_active"/>-->
-<!--                </VhField>-->
 
             </div>
         </Panel>

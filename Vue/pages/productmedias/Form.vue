@@ -144,11 +144,6 @@ const toggleFormMenu = (event) => {
                             </template>
                         </template>
                     </FileUpload>
-<!--                    <InputText class="w-full"-->
-<!--                               placeholder="Enter a Path"-->
-<!--                               name="productmedias-path"-->
-<!--                               data-testid="productmedias-path"-->
-<!--                               v-model="store.item.path"/>-->
                 </VhField>
 
                 <VhField label="URL">
@@ -174,7 +169,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
                               name="productmedias-status_notes"
                               data-testid="productmedias-status_notes"

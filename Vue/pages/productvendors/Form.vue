@@ -182,26 +182,12 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea  rows="5" cols="30"
+                    <Textarea  rows="3" class="w-full"
                               placeholder="Enter a Status Note"
                               name="productvendors-status_notes"
                               data-testid="productvendors-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
-
-<!--                <VhField label="Name">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="productvendors-name"-->
-<!--                               data-testid="productvendors-name"-->
-<!--                               v-model="store.item.name"/>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Slug">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="productvendors-slug"-->
-<!--                               data-testid="productvendors-slug"-->
-<!--                               v-model="store.item.slug"/>-->
-<!--                </VhField>-->
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
