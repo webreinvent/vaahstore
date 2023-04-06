@@ -12,12 +12,13 @@ const route = useRoute();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
+        // store.item = store.
         await store.getItem(route.params.id);
 
         store.getAttributeList();
     }
 
-    await store.watchVariationItem();
+    await store.watchItem();
 });
 
 //--------selected_menu_state
@@ -55,13 +56,7 @@ const toggleSelectedMenuState = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="products-save"
-                            @click="store.itemAction('save')"
-                            icon="pi pi-save"/>
-
-                    <Button label="Create & New"
-                            v-else
-                            @click="store.itemAction('create-and-new')"
-                            data-testid="products-create-and-new"
+                            @click="store.itemAction('save-variation')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -165,26 +160,25 @@ const toggleSelectedMenuState = (event) => {
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
-                            <th class="col-md-1">Variation name</th>
-                            <th class="col-md-2"
-                                v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">
+                            <th>Variation name</th>
+                            <th v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">
                                 {{ item }}
                             </th>
-                            <th class="col-md-1">Action</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tbody v-if="store.variation_item.show_create_form">
                         <tr>
                             <th class="col-md-1">
                                 <InputText v-model="store.variation_item.new_variation['variation_name']"
-                                           class="w-full md:w-15rem" />
+                                           class="w-full md:w-5rem" />
                             </th>
                             <th class="col-md-2"
                                 v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">
                                 <Dropdown v-model="store.variation_item.new_variation[item]"
                                           :options="store.variation_item.create_variation_data['create_attribute_values'][item]"
                                           optionLabel="value"
-                                          class="w-full md:w-15rem" />
+                                          class="w-full md:w-5rem" />
                             </th>
                             <th class="col-md-1">
                                 <Button label="Add" size="small" @click="store.addNewProductVariation()" />
@@ -197,7 +191,7 @@ const toggleSelectedMenuState = (event) => {
 
 <!--                Bulk action -->
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.variation_item.all_variation && Object.keys(store.variation_item.all_variation).length > 0">
+                     v-if="store.item.all_variation && Object.keys(store.item.all_variation).length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -222,7 +216,7 @@ const toggleSelectedMenuState = (event) => {
 
 <!--                variation table-->
                 <div class="col-12"
-                     v-if="store.variation_item.all_variation && Object.keys(store.variation_item.all_variation).length > 0">
+                     v-if="store.item.all_variation && Object.keys(store.item.all_variation).length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
@@ -232,25 +226,21 @@ const toggleSelectedMenuState = (event) => {
                             </th>
                             <th scope="col">Variation name</th>
                             <th scope="col"
-                                v-for="(item, index) in store.variation_item.all_variation.all_attribute_name">
+                                v-for="(item, index) in store.item.all_variation.all_attribute_name">
                                 {{ item }}
                             </th>
-                            <th scope="col">Quantity</th>
                             <th scope="col">Media</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                            <tr v-for="(item, index) in store.variation_item.all_variation.structured_variation">
+                            <tr v-for="(item, index) in store.item.all_variation.structured_variation">
                                 <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                                 <td>
                                     <InputText v-model="item['variation_name']" class="w-full md:w-5rem" />
                                 </td>
-                                <td v-for="(i) in store.variation_item.all_variation.all_attribute_name">
+                                <td v-for="(i) in store.item.all_variation.all_attribute_name">
                                     <InputText v-model="item[i]['value']" class="w-full md:w-5rem" disabled="true"/>
-                                </td>
-                                <td>
-                                    <InputText v-model="item['quantity']" class="w-full md:w-5rem" />
                                 </td>
                                 <td>
                                     <InputText v-model="item['media']" class="w-full md:w-5rem" />

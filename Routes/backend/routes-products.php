@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/products',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -42,6 +42,12 @@ function () {
      */
     Route::post('/getAttributeValue', 'ProductsController@getAttributeValue')
         ->name('vh.backend.store.products.getAttributeValue');
+
+    /**
+     * POST create variation
+     */
+    Route::post('/variation', 'ProductsController@createVariation')
+        ->name('vh.backend.store.products.createVariation');
 
     /**
      * Create Item
