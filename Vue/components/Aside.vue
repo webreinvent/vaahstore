@@ -40,7 +40,7 @@ const items = ref([
                 to: "/productvariations"
             },
             {
-                label: 'Product Vendors',
+                label: 'Vendor Products',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productvendors"
             },
