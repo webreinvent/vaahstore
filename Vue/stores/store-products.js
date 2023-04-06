@@ -40,17 +40,14 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        empty_variation_item : null,
         variation_item: {
             attribute_option_type: 1,
             product_attributes: [],
             selected_attribute: null,
-            product_variation: null,
             attribute_options: null,
-            all_attribute_values: [],
             show_create_form: false,
-            show_table: false,
             select_all_variation: false,
-            all_variation: {},
             create_variation_data: null,
             new_variation: [],
         },
@@ -251,20 +248,14 @@ export const useProductStore = defineStore({
                             }
                         },{deep: true}
                     )
-                }
-        },
-        //---------------------------------------------------------------------
-        watchVariationItem()
-        {
-            if(this.variation_item){
-                    watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
+                watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
+                    {
+                        if(newVal != oldVal)
                         {
-                            if(newVal != oldVal)
-                            {
-                                this.getAttributeList();
-                            }
-                        },{deep: true}
-                    )
+                            this.getAttributeList();
+                        }
+                    },{deep: true}
+                )
                 }
         },
         //---------------------------------------------------------------------
@@ -350,8 +341,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGenerateVariations(data, res){
             if (data){
-                this.variation_item.all_variation = data;
-                this.variation_item.show_table = true;
+                this.item.all_variation = data;
                 this.variation_item.show_create_form = false;
                 this.variation_item.create_variation_data = [];
             }
@@ -372,23 +362,23 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProductVariation(item){
-            let item_key = this.getIndexOfArray(this.variation_item.all_variation.structured_variation, item);
+            let item_key = this.getIndexOfArray(this.item.all_variation.structured_variation, item);
             if (item_key >= 0){
-                this.variation_item.all_variation.structured_variation.splice(item_key, 1);
+                this.item.all_variation.structured_variation.splice(item_key, 1);
             }
         },
         //---------------------------------------------------------------------
         bulkRemoveProductVariation(all = null){
 
             if (all){
-                this.variation_item.all_variation = {};
+                this.item.all_variation = {};
                 this.variation_item.select_all_variation = false;
             }else{
                 let temp = null;
-                temp = this.variation_item.all_variation.structured_variation.filter((item) => {
+                temp = this.item.all_variation.structured_variation.filter((item) => {
                     return item['is_selected'] != true;
                 });
-                this.variation_item.all_variation.structured_variation = temp;
+                this.item.all_variation.structured_variation = temp;
 
                 this.variation_item.select_all_variation = false;
             }
@@ -407,7 +397,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         selectAllVariation(){
-            this.variation_item.all_variation.structured_variation.forEach((i)=>{
+            this.item.all_variation.structured_variation.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
         },
@@ -416,16 +406,17 @@ export const useProductStore = defineStore({
             if (this.variation_item.new_variation
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
-                if (this.variation_item.all_variation && Object.keys(this.variation_item.all_variation).length > 0){
+                if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
 
                     let error_message = [];
                     let variation_match_key = null;
-                    this.variation_item.all_variation.structured_variation.forEach((i,k)=>{
+                    this.item.all_variation.structured_variation.forEach((i,k)=>{
                         if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
                             error_message.push('variation name must be unique');
                         }
                         this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
                             if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
+                                // console.log(k);;
                                 if (variation_match_key == k){
                                     error_message.push('variation already exist');
                                 }else{
@@ -433,12 +424,19 @@ export const useProductStore = defineStore({
                                 }
                             }
                         });
+
+                        if (variation_match_key != null && Object.keys(this.variation_item.create_variation_data.all_attribute_name).length == 1){
+                            error_message.push('variation already exist');
+                        }
                     })
 
+                    console.log(error_message);
+                    console.log(variation_match_key);
                     if(error_message && error_message.length == 0){
-                        this.variation_item.all_variation.structured_variation.push(this.variation_item.new_variation);
+                        this.item.all_variation.structured_variation.push(Object.assign({},this.variation_item.new_variation));
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
+                        console.log(this.item.all_variation);
                     }
 
                 }else{
@@ -446,7 +444,7 @@ export const useProductStore = defineStore({
                         structured_variation: [Object.assign({},this.variation_item.new_variation)],
                         all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
                     };
-                    this.variation_item.all_variation = temp;
+                    this.item.all_variation = temp;
                     this.variation_item.create_variation_data = null;
                     this.variation_item.show_create_form = false;
                 }
@@ -669,6 +667,12 @@ export const useProductStore = defineStore({
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
+                    break;
+
+                case 'save-variation':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/variation'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -905,7 +909,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toForm()
         {
-            this.item = vaah().clone(this.assets.empty_item);
+            this.item = vaah().clone(this.empty_variation_item);
             this.getFormMenu();
             this.$router.push({name: 'products.form'})
         },
@@ -919,6 +923,7 @@ export const useProductStore = defineStore({
         toVariation(item)
         {
             this.item = vaah().clone(item);
+            this.variation_item = vaah().clone(this.variation_item);
             this.$router.push({name: 'products.variation', params:{id:item.id}})
         },
         //---------------------------------------------------------------------

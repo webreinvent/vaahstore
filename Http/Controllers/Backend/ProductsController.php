@@ -53,18 +53,8 @@ class ProductsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['attribute_option_type'] = 1;
-            $data['empty_item']['product_attributes'] = [];
-            $data['empty_item']['selected_attribute'] = null;
             $data['empty_item']['product_variation'] = null;
-            $data['empty_item']['attribute_options'] = null;
-            $data['empty_item']['all_attribute_values'] = [];
-            $data['empty_item']['show_create_form'] = false;
-            $data['empty_item']['show_table'] = false;
-            $data['empty_item']['select_all_variation'] = false;
             $data['empty_item']['all_variation'] = [];
-            $data['empty_item']['create_variation_data'] = null;
-            $data['empty_item']['new_variation'] = [];
 
 
             $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
@@ -147,8 +137,6 @@ class ProductsController extends Controller
 
             $att = Attribute::find($value['id']);
 
-
-
             $item = AttributeValue::where('vh_st_attribute_id', $value['id'])->get(['id', 'vh_st_attribute_id', 'value']);
 
             if ($item){
@@ -161,6 +149,7 @@ class ProductsController extends Controller
 
         }
 
+        $product_detail = Product::find($input['product_id']);
 
         if ($input['method'] == 'generate'){
             $combination = [];
@@ -202,9 +191,14 @@ class ProductsController extends Controller
                 if ($k == 0){
                     $all_attribute_name = array_keys($v);
                 }
-                $v['variation_name'] = 'variation name '.$k;
+//                $v['variation_name'] = 'variation name '.$k;
+                $value_name = [];
+                foreach ($all_attribute_name as $key=>$value){
+                    array_push($value_name, $v[$value]['value']);
+                }
+
+                $v['variation_name'] = $product_detail->name.'-'.implode('-', $value_name);
                 $v['is_selected'] = false;
-                $v['quantity'] = 1;
                 $v['media'] = 1;
                 array_push($structured_variation, $v);
             }
@@ -301,6 +295,23 @@ class ProductsController extends Controller
     {
         try{
             return Product::createItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function createVariation(Request $request)
+    {
+        try{
+            return Product::createVariation($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
