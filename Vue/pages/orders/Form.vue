@@ -160,24 +160,6 @@ const toggleFormMenu = (event) => {
                         data-testid="orders-payable"/>
                 </VhField>
 
-<!--                <VhField label="Is Paid">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="orders-is_paid"-->
-<!--                                 data-testid="orders-is_paid"-->
-<!--                                 v-model="store.item.is_paid"/>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Paid">-->
-<!--                    <InputNumber-->
-<!--                        :disabled="store.item.is_paid==0"-->
-<!--                        placeholder="Enter a Paid"-->
-<!--                        name="orders-paid"-->
-<!--                        v-model="store.item.paid"-->
-<!--                        inputId="minmaxfraction" :minFractionDigits="2" showButtons-->
-<!--                        data-testid="orders-paid"/>-->
-<!--                </VhField>-->
-
                 <VhField label="Paid">
                     <InputNumber
                         placeholder="Enter a Paid"
@@ -228,7 +210,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
