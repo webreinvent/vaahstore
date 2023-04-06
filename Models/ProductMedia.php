@@ -141,15 +141,17 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-
+        foreach ($inputs['path'] as $path)
+        {
             $item = new self();
             $item->fill($inputs);
-            $item->status_notes = $inputs['status_notes'];
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
+            $item->status_notes = $inputs['status_notes'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->path = $inputs['path'];
+            $item->path = $path;
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
+        }
 
             $response = self::getItem($item->id);
             $response['messages'][] = 'Saved successfully.';
@@ -242,7 +244,6 @@ class ProductMedia extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -251,7 +252,6 @@ class ProductMedia extends Model
         }
 
         $list = $list->paginate($rows);
-
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -443,12 +443,14 @@ class ProductMedia extends Model
         $inputs = $request['images'];
         $upload_path = public_path('images');
         if($request->hasFile('images')){
+            $image_name = [];
             foreach ($inputs as $input){
                 $file_name = $input->getClientOriginalName();
                 $input->move($upload_path, $file_name);
+                array_push($image_name,$file_name);
             }
             $response['success'] = true;
-            $response['data'] = (env('APP_URL').'/'.'images/'.$file_name);
+            $response['data'] = $image_name;
             $response['messages'][] = 'Saved successfully.';
         }else{
             $response['success'] = false;
@@ -476,16 +478,17 @@ class ProductMedia extends Model
             $response['messages'][] = "This Product and Product Variation is already exist.";
             return $response;
         }
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->taxonomy_id_product_media_status = $inputs['status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->vh_st_product_id = $inputs['product']['id'];
-        $item->path = $inputs['path'];
-        $item->vh_st_product_variation_id = $inputs['product_variation']['id'];
-        $item->save();
-
+        foreach ($inputs['path'] as $path)
+        {
+            $item = self::where('id', $id)->withTrashed()->first();
+            $item->fill($inputs);
+            $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
+            $item->status_notes = $inputs['status_notes'];
+            $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+            $item->path = $path;
+            $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+            $item->save();
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
