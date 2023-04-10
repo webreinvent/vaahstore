@@ -582,6 +582,17 @@ class ProductMedia extends Model
     }
 
     //-------------------------------------------------
+    public static function deleteProducts($items_id){
+        if($items_id){
+            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 

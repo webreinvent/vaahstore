@@ -125,11 +125,6 @@ class Vendor extends Model
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
     }
     //-------------------------------------------------
-    public function vendorProducts(){
-        return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id');
-    }
-
-    //-------------------------------------------------
     public static function createItem($request)
     {
 
@@ -523,8 +518,8 @@ class Vendor extends Model
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
-        ProductVendor::deleteVendors($item->id);
         $item->forceDelete();
+        ProductVendor::deleteVendors($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
