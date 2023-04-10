@@ -51,16 +51,19 @@ const useVaah = vaah();
 
              <Column field="status" header="Status"
                      :sortable="true">
+
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
                  </template>
+
              </Column>
 
              <Column field="owned_by.name" header="Owned By"
