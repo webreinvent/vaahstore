@@ -365,6 +365,7 @@ class ProductVariation extends Model
         self::whereIn('id', $items_id)->forceDelete();
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
+        ProductAttribute::deleteProductVariations($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -414,6 +415,7 @@ class ProductVariation extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                     ProductMedia::deleteProductVariations($items_id);
                     ProductPrice::deleteProductVariations($items_id);
+                    ProductAttribute::deleteProductVariations($items_id);
                 }
                 break;
             case 'activate-all':
@@ -433,6 +435,7 @@ class ProductVariation extends Model
                 self::withTrashed()->forceDelete();
                 ProductMedia::deleteProductVariations($items_id);
                 ProductPrice::deleteProductVariations($items_id);
+                ProductAttribute::deleteProductVariations($items_id);
                 break;
         }
 
@@ -530,7 +533,8 @@ class ProductVariation extends Model
         }
         $item->forceDelete();
         ProductMedia::deleteProductVariations($item->id);
-        ProductPrice::deleteProductVariations($item->id);
+        ProductMedia::deleteProductVariations($item->id);
+        ProductAttribute::deleteProductVariations($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
