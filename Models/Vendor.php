@@ -124,6 +124,10 @@ class Vendor extends Model
     public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
     }
+    //-------------------------------------------------
+    public function vendorProducts(){
+        return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id');
+    }
 
     //-------------------------------------------------
     public static function createItem($request)
@@ -382,6 +386,7 @@ class Vendor extends Model
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
+        ProductVendor::deleteVendors($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -429,6 +434,7 @@ class Vendor extends Model
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
+                    ProductVendor::deleteVendors($items_id);
                 }
                 break;
             case 'activate-all':
@@ -444,7 +450,9 @@ class Vendor extends Model
                 self::withTrashed()->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
                 self::withTrashed()->forceDelete();
+                ProductVendor::deleteVendors($items_id);
                 break;
         }
 
@@ -515,6 +523,7 @@ class Vendor extends Model
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
+        ProductVendor::deleteVendors($item->id);
         $item->forceDelete();
 
         $response['success'] = true;
