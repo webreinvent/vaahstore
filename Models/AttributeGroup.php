@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Attribute extends Model
+class AttributeGroup extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_attributes';
+    protected $table = 'vh_st_attribute_groups';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -26,8 +26,9 @@ class Attribute extends Model
     protected $fillable = [
         'uuid',
         'name',
-        'slug','type',
+        'slug',
         'is_active',
+        'description',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -83,18 +84,6 @@ class Attribute extends Model
     }
 
     //-------------------------------------------------
-    public function productVariation()
-    {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_attributes', 'vh_st_attribute_id', 'vh_st_product_variation_id')
-            ->select('vh_st_product_variations.id','vh_st_product_variations.name');
-    }
-
-    //-------------------------------------------------
-    public function value(){
-        return $this->hasMany(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
-    }
-
-    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -114,6 +103,14 @@ class Attribute extends Model
     }
 
     //-------------------------------------------------
+    public function attributesList()
+    {
+        return $this->belongsToMany(Attribute::class, 'vh_st_attr_group_items', 'vh_st_attribute_group_id', 'vh_st_attribute_id')
+            ->where('vh_st_attr_group_items.deleted_at', null)
+            ->select('vh_st_attributes.id', 'vh_st_attributes.name', 'vh_st_attributes.type');
+    }
+
+    //-------------------------------------------------
     public static function createItem($request)
     {
 
@@ -124,20 +121,37 @@ class Attribute extends Model
             return $validation;
         }
 
+
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = new self();
         $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
+        $item->description = $inputs['description'];
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        foreach ($inputs['value'] as $key=>$value){
-            if ($value['is_active'] == 1){
-                $item1 = new AttributeValue();
-                $item1->vh_st_attribute_id = $item->id;
-                $item1->value = $value['value'];
-                $item1->save();
-            }
+        foreach ($inputs['active_attributes'] as $key=>$value){
+            $item1 = new AttributeGroupItem();
+            $item1->vh_st_attribute_id = $value['id'];
+            $item1->vh_st_attribute_group_id = $item->id;
+            $item1->save();
         }
 
         $response = self::getItem($item->id);
@@ -408,7 +422,7 @@ class Attribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','value'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'attributesList'])
             ->withTrashed()
             ->first();
 
@@ -419,8 +433,15 @@ class Attribute extends Model
             return $response;
         }
 
-        foreach ($item->value as $key=>$value){
-            $value['is_active'] = 1;
+        if (!empty($item->attributesList)){
+            $item->active_attributes = [];
+            $attributes = [];
+            foreach ($item->attributesList->toArray() as $k=>$a){
+                $attributes[$k]['id'] = $a['id'];
+                $attributes[$k]['name'] = $a['name'];
+                $attributes[$k]['type'] = $a['type'];
+            }
+            $item->active_attributes = $attributes;
         }
 
         $response['success'] = true;
@@ -439,34 +460,50 @@ class Attribute extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
+        $item->description = $inputs['description'];
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        foreach ($inputs['value'] as $key=>$value){
-            if ($value['is_active'] == 1){
-                if(isset($value['vh_st_attribute_id'])){
-                    $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();
-                    $item1->vh_st_attribute_id = $item->id;
-                    $item1->value = $value['value'];
-                    $item1->save();
+        $all_active_attribute_ids = [];
+        foreach ($inputs['active_attributes'] as $key=>$value){
 
-                }else{
-                    $item1 = new AttributeValue();
-                    $item1->vh_st_attribute_id = $item->id;
-                    $item1->value = $value['value'];
-                    $item1->save();
-                }
-            }else {
-                if (isset($value['vh_st_attribute_id']) && isset($value['id']) && $value['is_active'] == 0) {
-                    AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->delete();
-                }
+            $item1 = AttributeGroupItem::where(['vh_st_attribute_group_id' => $item->id, 'vh_st_attribute_id' => $value['id']])->first();
+            if(!$item1){
+
+                $item1 = new AttributeGroupItem();
+                $item1->vh_st_attribute_id = $value['id'];
+                $item1->vh_st_attribute_group_id = $item->id;
+                $item1->save();
             }
+            array_push($all_active_attribute_ids,$value['id']);
         }
+
+        AttributeGroupItem::where(['vh_st_attribute_group_id' => $item->id])->whereNotIn('vh_st_attribute_id', $all_active_attribute_ids)->delete();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -525,8 +562,9 @@ class Attribute extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'type' => 'required',
-            'value' => 'required',
+            'active_attributes' => 'required',
+            'description' => 'required',
+            'is_active' => 'required'
         );
 
         $validator = \Validator::make($inputs, $rules);

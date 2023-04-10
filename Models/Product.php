@@ -82,13 +82,30 @@ class Product extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
+            ->select('id','name','slug');
     }
 
     //-------------------------------------------------
     public function type()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')
+            ->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
+    public function productAttributes()
+    {
+        return $this->belongsToMany(Attribute::class,'vh_st_product_attributes',
+            'vh_st_attribute_id',
+            'vh_st_product_variation_id');
+    }
+    //-------------------------------------------------
+    public function variationCount()
+    {
+        return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
+            ->where('vh_st_product_variations.is_active', 1)
+            ->select();
     }
 
     //-------------------------------------------------
@@ -129,6 +146,91 @@ class Product extends Model
         }
 
         $query->whereBetween('updated_at', [$from, $to]);
+    }
+
+    //-------------------------------------------------
+    public static function createVariation($request)
+    {
+        $input = $request->all();
+        $product_id = $input['id'];
+        $validation = self::validatedVariation($input['all_variation']);
+        if (!$validation['success']) {
+            return $validation;
+        }
+
+        $all_variation = $input['all_variation']['structured_variation'];
+        $all_attribute = $input['all_variation']['all_attribute_name'];
+
+        foreach ($all_variation as $key => $value) {
+
+            $item = new ProductVariation();
+            $item->name = $value['variation_name'];
+            $item->slug = Str::slug($value['variation_name']);
+
+            $item->vh_st_product_id = $product_id;
+            $item->is_active = 1;
+//            $item->sku
+            $item->save();
+
+            foreach ($all_attribute as $k => $v) {
+                $item2 = new ProductAttribute();
+                $item2->vh_st_product_variation_id = $item->id;
+                $item2->vh_st_attribute_id = $value[$v]['vh_st_attribute_id'];
+                $item2->save();
+
+                $item3 = new ProductAttributeValue();
+                $item3->vh_st_product_attribute_id = $item2->id;
+                $item3->vh_st_attribute_value_id = $value[$v]['vh_st_attribute_values_id'];
+                $item3->value = $value[$v]['value'];
+                $item3->save();
+            }
+        }
+
+        $response = self::getItem($product_id);
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
+    }
+
+    //-------------------------------------------------
+    public static function validatedVariation($variation){
+
+        if (isset($variation['structured_variation']) && !empty($variation['structured_variation'])){
+            $error_message = [];
+            $all_variation = $variation['structured_variation'];
+            $all_arrtibute = $variation['all_attribute_name'];
+//            dd($all_variation);
+            foreach ($all_variation as $key=>$value){
+
+                if (!isset($value['variation_name']) || empty($value['variation_name'])) {
+                    array_push($error_message, "variation name's required");
+                } elseif (!isset($value['media']) || empty($value['media'])){
+                    array_push($error_message, $value["variation_name"]."'s media required");
+                }
+
+                foreach ($all_arrtibute as $k => $v){
+                    if (!isset($value[$v]) || empty($value[$v])){
+                        array_push($error_message, $value["variation_name"]."'s ".$v."'s required");
+                    }
+                }
+
+            }
+
+            if (empty($error_message)){
+                return [
+                    'success' => true
+                ];
+            }else{
+                return [
+                    'success' => false,
+                    'errors' => $error_message
+                ];
+            }
+        }else{
+            return [
+                'success' => false,
+                'errors' => 'Product Variation is empty.'
+            ];
+        }
     }
 
     //-------------------------------------------------
@@ -275,7 +377,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -457,7 +559,9 @@ class Product extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','brand','store','type','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
+                'brand','store','type','status', 'productAttributes',
+            ])
             ->withTrashed()
             ->first();
 
@@ -467,6 +571,8 @@ class Product extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        $item['product_variation'] = null;
+        $item['all_variation'] = [];
         $response['success'] = true;
         $response['data'] = $item;
 

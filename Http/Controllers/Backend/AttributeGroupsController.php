@@ -3,10 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Attribute;
-use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\AttributeGroup;
 
 
-class AttributesController extends Controller
+class AttributeGroupsController extends Controller
 {
 
 
@@ -35,7 +35,7 @@ class AttributesController extends Controller
                 'deleted_by',
             ];
 
-            $model = new Attribute();
+            $model = new AttributeGroup();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
                 $fillable, $data['fillable']['except']
@@ -47,10 +47,9 @@ class AttributesController extends Controller
             }
 
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['value'] = [];
+            $data['attribute_list'] = Attribute::get(['id', 'name', 'type']);
 
             $data['actions'] = [];
-            $data['product_variation_list'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','is_active','deleted_at']);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -73,7 +72,7 @@ class AttributesController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Attribute::getList($request);
+            return AttributeGroup::getList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -90,7 +89,7 @@ class AttributesController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Attribute::updateList($request);
+            return AttributeGroup::updateList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -110,7 +109,7 @@ class AttributesController extends Controller
 
 
         try{
-            return Attribute::listAction($request, $type);
+            return AttributeGroup::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -128,7 +127,7 @@ class AttributesController extends Controller
     public function deleteList(Request $request)
     {
         try{
-            return Attribute::deleteList($request);
+            return AttributeGroup::deleteList($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -145,7 +144,7 @@ class AttributesController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Attribute::createItem($request);
+            return AttributeGroup::createItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -162,7 +161,7 @@ class AttributesController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Attribute::getItem($id);
+            return AttributeGroup::getItem($id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -179,7 +178,7 @@ class AttributesController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Attribute::updateItem($request,$id);
+            return AttributeGroup::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -196,7 +195,7 @@ class AttributesController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Attribute::deleteItem($request,$id);
+            return AttributeGroup::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -213,7 +212,7 @@ class AttributesController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Attribute::itemAction($request,$id,$action);
+            return AttributeGroup::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

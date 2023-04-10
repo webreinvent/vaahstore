@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
-class Attribute extends Model
+class ProductAttributeValue extends Model
 {
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_attributes';
+    protected $table = 'vh_st_product_attribute_values';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -25,9 +25,9 @@ class Attribute extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug','type',
-        'is_active',
+        'vh_st_product_attribute_id',
+        'vh_st_attribute_value_id',
+        'value',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -83,15 +83,9 @@ class Attribute extends Model
     }
 
     //-------------------------------------------------
-    public function productVariation()
+    public function attributeValues()
     {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_attributes', 'vh_st_attribute_id', 'vh_st_product_variation_id')
-            ->select('vh_st_product_variations.id','vh_st_product_variations.name');
-    }
-
-    //-------------------------------------------------
-    public function value(){
-        return $this->hasMany(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
+        return $this->hasMany(AttributeValue::class,'id','vh_st_attribute_value_id')->select(['id', 'vh_st_attribute_id', 'value']);
     }
 
     //-------------------------------------------------
@@ -124,21 +118,29 @@ class Attribute extends Model
             return $validation;
         }
 
+
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        foreach ($inputs['value'] as $key=>$value){
-            if ($value['is_active'] == 1){
-                $item1 = new AttributeValue();
-                $item1->vh_st_attribute_id = $item->id;
-                $item1->value = $value['value'];
-                $item1->save();
-            }
-        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -408,7 +410,7 @@ class Attribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','value'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -418,11 +420,6 @@ class Attribute extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-
-        foreach ($item->value as $key=>$value){
-            $value['is_active'] = 1;
-        }
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -439,34 +436,32 @@ class Attribute extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $inputs['id'])
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        foreach ($inputs['value'] as $key=>$value){
-            if ($value['is_active'] == 1){
-                if(isset($value['vh_st_attribute_id'])){
-                    $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();
-                    $item1->vh_st_attribute_id = $item->id;
-                    $item1->value = $value['value'];
-                    $item1->save();
-
-                }else{
-                    $item1 = new AttributeValue();
-                    $item1->vh_st_attribute_id = $item->id;
-                    $item1->value = $value['value'];
-                    $item1->save();
-                }
-            }else {
-                if (isset($value['vh_st_attribute_id']) && isset($value['id']) && $value['is_active'] == 0) {
-                    AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->delete();
-                }
-            }
-        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -525,15 +520,13 @@ class Attribute extends Model
         $rules = array(
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'type' => 'required',
-            'value' => 'required',
         );
 
         $validator = \Validator::make($inputs, $rules);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
-            $response['errors'] = $messages->all();
+            $response['messages'] = $messages->all();
             return $response;
         }
 

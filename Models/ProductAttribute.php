@@ -27,7 +27,6 @@ class ProductAttribute extends Model
         'uuid',
         'vh_st_product_variation_id',
         'vh_st_attribute_id',
-        'vh_st_attribute_value_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -83,6 +82,18 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
+    public function productVariation()
+    {
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('name', 'id', 'is_default');
+    }
+
+    //-------------------------------------------------
+    public function attribute()
+    {
+        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')->select('name', 'id', 'type');
+    }
+
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -105,40 +116,60 @@ class ProductAttribute extends Model
     public static function createItem($request)
     {
 
-        $inputs = $request->all();
+        $validation_result = self::productAttributeInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+        $inputs = $validation_result['data'];
 
         $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+        $item->vh_st_attribute_id = $inputs['vh_st_attribute_id']['id'];
         $item->save();
+
+        foreach ($inputs['attribute_values'] as $key=>$value){
+            $item1 = new ProductAttributeValue();
+            $item1->vh_st_product_attribute_id = $item->id;
+            $item1->vh_st_attribute_value_id = $value['id'];
+            $item1->value = $value['new_value'] ?? $value['default_value'];
+            $item1->save();
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function productAttributeInputValidator($requestData){
+
+        $validated_data = validator($requestData, [
+            'vh_st_product_variation_id' => 'required',
+            'vh_st_attribute_id' => 'required',
+            'attribute_values' => '',
+        ],
+            [
+                'vh_st_product_variation_id.required' => 'The Product Variation field is required',
+                'vh_st_attribute_id.required' => 'The Attribute field is required',
+            ]
+        );
+
+        if($validated_data->fails()){
+            return [
+                'success' => false,
+                'errors' => $validated_data->errors()->all()
+            ];
+        }
+
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 
@@ -222,7 +253,7 @@ class ProductAttribute extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with(['productVariation', 'attribute']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -235,6 +266,10 @@ class ProductAttribute extends Model
         }
 
         $list = $list->paginate($rows);
+
+//        foreach ($list->toArray()['data'] as $key=>$value){
+//            $list->toArray()['data'][$key]['vh_st_product_variation_id'] = 'abc';
+//        }
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -404,7 +439,7 @@ class ProductAttribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'productVariation', 'attribute'])
             ->withTrashed()
             ->first();
 
@@ -414,6 +449,22 @@ class ProductAttribute extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        $item->vh_st_product_variation_id = $item->productVariation;
+        $item->vh_st_attribute_id = $item->attribute;
+
+        $item1 = ProductAttributeValue::where('vh_st_product_attribute_id', $item->id)->with(['attributeValues'])->get();
+        $attribute_values = [];
+        $item->attribute_values = [];
+        if ($item1){
+            foreach ($item1->toArray() as $key=>$value){
+                $attribute_values[$key]['id'] = $value['attribute_values'][0]['id'];
+                $attribute_values[$key]['default_value'] = $value['attribute_values'][0]['value'];
+                $attribute_values[$key]['new_value'] = $value['value'];
+            }
+            $item->attribute_values = $attribute_values;
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -423,39 +474,38 @@ class ProductAttribute extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
+        $validation_result = self::productAttributeInputValidator($request->all());
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        if ($validation_result['success'] != true){
+            return $validation_result;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
+        $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+        $item->vh_st_attribute_id = $inputs['vh_st_attribute_id']['id'];
         $item->save();
+
+        $all_active_attribute_values_ids = [];
+        foreach ($inputs['attribute_values'] as $key=>$value){
+
+            $item1 = ProductAttributeValue::where(['vh_st_product_attribute_id' => $item->id, 'vh_st_attribute_value_id' => $value['id']])->first();
+            if (!$item1){
+                $item1 = new ProductAttributeValue();
+                $item1->vh_st_product_attribute_id = $item->id;
+                $item1->vh_st_attribute_value_id = $value['id'];
+                $item1->value = $value['new_value'] ?? $value['default_value'];
+                $item1->save();
+            }else{
+                $item1->value = $value['new_value'] ?? $value['default_value'];
+                $item1->save();
+            }
+
+            array_push($all_active_attribute_values_ids,$value['id']);
+        }
+
+        ProductAttributeValue::where(['vh_st_product_attribute_id' => $item->id])->whereNotIn('vh_st_attribute_value_id', $all_active_attribute_values_ids)->delete();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';

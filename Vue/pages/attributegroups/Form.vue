@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useAttributeStore } from '../../stores/store-attributes'
+import { useAttributeGroupStore } from '../../stores/store-attributegroups'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useAttributeStore();
+const store = useAttributeGroupStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -56,26 +56,22 @@ const toggleFormMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
-                            data-testid="attributes-save"
+                            data-testid="attributegroups-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
-                            data-testid="attributes-create-and-new"
+                            data-testid="attributegroups-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="attributes-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
-                        data-testid="attributes-form-menu"
+                        data-testid="attributegroups-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -87,7 +83,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="attributes-to-list"
+                            data-testid="attributegroups-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -101,53 +97,52 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Name">
                     <InputText class="w-full"
-                               name="attributes-name"
-                               data-testid="attributes-name"
-                               placeholder="Enter Name"
+                               name="attributegroups-name"
+                               data-testid="attributegroups-name"
                                v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Slug">
                     <InputText class="w-full"
-                               name="attributes-slug"
-                               data-testid="attributes-slug"
-                               placeholder="Enter Slug"
+                               name="attributegroups-slug"
+                               data-testid="attributegroups-slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <vhField label="value">
-                    <div class="p-inputgroup flex-1">
-                        <InputText placeholder="Enter Attribute Value" v-model="store.attribute_new_value" v-on:keyup.enter="store.addAttributeNewValue()"/>
-                        <Button severity="Primary" @click="store.addAttributeNewValue()">Add</Button>
-                    </div>
-                    <div v-for="item in store.item.value">
-                        <div class="p-inputgroup flex-1 p-1" v-if="item.is_active == 1">
-                            <InputText placeholder="Enter Attribute Value" disabled="" :value="item.value"/>
-                            <Button class="danger" @click="store.deleteAttributeValue(item.value)">Remove</Button>
-                        </div>
-                    </div>
+                <vhField label="Attributes">
+                    <MultiSelect v-model="store.item.active_attributes"
+                                 filter
+                                 :options="store.attribute_list"
+                                 data-testid="attributegroups-attributes"
+                                 optionLabel="name"
+                                 placeholder="Select attributes"
+                                 display="chip"
+                                 class="w-full">
+                        <template #option="slotProps">
+                            <div class="flex align-items-center">
+                                <span>{{slotProps.option.name}}</span>
+                                (<b>{{slotProps.option.type}}</b>)
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="py-2 px-3">
+                                <b>{{ store.item.attributes ? store.item.attributes.length : 0 }}</b>
+                                item{{ (store.item.attributes ? store.item.attributes.length : 0) > 1 ? 's' : '' }} selected.
+                            </div>
+                        </template>
+                    </MultiSelect>
+
                 </vhField>
 
-<!--                <VhField label="Value">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="attributes-value"-->
-<!--                               data-testid="attributes-value"-->
-<!--                               v-model="store.item.value"/>-->
-<!--                </VhField>-->
-
-                <VhField label="Type">
-                    <InputText class="w-full"
-                               name="attributes-type"
-                               data-testid="attributes-type"
-                               placeholder="Enter Type"
-                               v-model="store.item.type"/>
+                <VhField label="Description">
+                    <Textarea v-model="store.item.description" data-testid="attributegroups-description" :autoResize="true" rows="5" cols="30" />
                 </VhField>
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="attributes-active"
-                                 data-testid="attributes-active"
+                                 name="attributegroups-active"
+                                 data-testid="attributegroups-active"
                                  v-model="store.item.is_active"/>
                 </VhField>
 

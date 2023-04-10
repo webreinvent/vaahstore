@@ -2,10 +2,10 @@
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
-import { useAttributeStore } from '../../stores/store-attributes'
+import { useProductAttributeStore } from '../../stores/store-productattributes'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
-const store = useAttributeStore();
+const store = useProductAttributeStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -78,14 +78,14 @@ const toggleItemMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Edit"
                             @click="store.toEdit(store.item)"
-                            data-testid="attributes-item-to-edit"
+                            data-testid="productattributes-item-to-edit"
                             icon="pi pi-save"/>
 
                     <!--item_menu-->
                     <Button
                         type="button"
                         @click="toggleItemMenu"
-                        data-testid="attributes-item-menu"
+                        data-testid="productattributes-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -96,7 +96,7 @@ const toggleItemMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="attributes-item-to-list"
+                            data-testid="productattributes-item-to-list"
                             @click="store.toList()"/>
 
                 </div>
@@ -123,7 +123,7 @@ const toggleItemMenu = (event) => {
                         <div class="">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="attributes-item-restore"
+                                    data-testid="productattributes-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -137,7 +137,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation' || column === 'attribute_value' || column === 'status'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation' || column === 'attribute'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -161,10 +161,24 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'value'">
-                            <VhViewRow :label="column"
+                        <template v-else-if="column === 'vh_st_product_variation_id'">
+                            <VhViewRow label="Product Variation"
                                        :value="value"
-                                       type="multipleValues"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_attribute_id'">
+                            <VhViewRow label="Attribute"
+                                       :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'attribute_values'">
+                            <VhViewRow label="Attribute Values"
+                                       :value="value"
+                                       type="productAttributeValues"
                             />
                         </template>
 

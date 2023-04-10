@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/products',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -30,6 +30,24 @@ function () {
     Route::delete('/', 'ProductsController@deleteList')
         ->name('vh.backend.store.products.list.delete');
 
+
+    /**
+     * POST get attribute list
+     */
+    Route::post('/getAttributeList', 'ProductsController@getAttributeList')
+        ->name('vh.backend.store.products.getAttributeList');
+
+    /**
+     * POST get attribute values
+     */
+    Route::post('/getAttributeValue', 'ProductsController@getAttributeValue')
+        ->name('vh.backend.store.products.getAttributeValue');
+
+    /**
+     * POST create variation
+     */
+    Route::post('/variation', 'ProductsController@createVariation')
+        ->name('vh.backend.store.products.createVariation');
 
     /**
      * Create Item

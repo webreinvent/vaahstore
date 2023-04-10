@@ -3,11 +3,11 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\Modules\Store\\Models\\Attribute';
+let model_namespace = 'VaahCms\Modules\Store\\Models\\ProductAttribute';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/attributes";
+let ajax_url = base_url + "/backend/store/productattributes";
 
 let empty_states = {
     query: {
@@ -26,8 +26,8 @@ let empty_states = {
     }
 };
 
-export const useAttributeStore = defineStore({
-    id: 'attributes',
+export const useProductAttributeStore = defineStore({
+    id: 'productattributes',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -36,9 +36,10 @@ export const useAttributeStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        product_variation_options: null,
         product_variation_suggestion_list: null,
-        attribute_new_value: null,
+        product_variation_list: null,
+        attribute_suggestion_list: null,
+        attribute_list: null,
         list: null,
         item: null,
         fillable:null,
@@ -52,7 +53,7 @@ export const useAttributeStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'attributes.',
+        route_prefix: 'productattributes.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -96,7 +97,7 @@ export const useAttributeStore = defineStore({
         {
             switch(route_name)
             {
-                case 'attributes.index':
+                case 'productattributes.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -162,7 +163,7 @@ export const useAttributeStore = defineStore({
                         {
                             if(newVal && newVal !== "")
                             {
-                                this.item.name = newVal;
+                                this.item.name = vaah().capitalising(newVal);
                                 this.item.slug = vaah().strToSlug(newVal);
                             }
                         },{deep: true}
@@ -170,35 +171,43 @@ export const useAttributeStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
-        addAttributeNewValue(){
-            if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
-                let new_array = {};
-                new_array.value = this.attribute_new_value;
-                new_array.is_active = 1;
-                this.item.value.push(new_array);
-                this.attribute_new_value = null;
-            }
-        },
-        //---------------------------------------------------------------------
-        deleteAttributeValue(value_name){
-            this.item.value.forEach((element, index)=>{
-                if (element.value == value_name){
-                    element.is_active = 0;
-                }
-            })
-        },
-        //---------------------------------------------------------------------
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion_list = this.product_variation_options;
+                    this.product_variation_suggestion_list = this.product_variation_list;
                 }
                 else {
-                    this.product_variation_suggestion_list = this.product_variation_options.filter((department) => {
+                    this.product_variation_suggestion_list = this.product_variation_list.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchAttribute(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.attribute_suggestion_list = this.attribute_list;
+                }
+                else {
+                    this.attribute_suggestion_list = this.attribute_list.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        async getAttributeValue(){
+            if (typeof this.item.vh_st_attribute_id == 'object' && this.item.vh_st_attribute_id !== null){
+                await vaah().ajax(
+                    this.ajax_url+'/getAttributeValue/'+this.item.vh_st_attribute_id.id,
+                    this.afterGetAttributeValue
+                );
+            }
+        },
+        //---------------------------------------------------------------------
+        afterGetAttributeValue(data, res){
+            this.item.attribute_values = data;
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -218,7 +227,8 @@ export const useAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.product_variation_options = data.product_variation_list;
+                this.product_variation_list = data.product_variation_list;
+                this.attribute_list = data.attribute_list;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -266,7 +276,7 @@ export const useAttributeStore = defineStore({
             {
                 this.item = data;
             }else{
-                this.$router.push({name: 'attributes.index'});
+                this.$router.push({name: 'productattributes.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -460,7 +470,7 @@ export const useAttributeStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'attributes.index'});
+                    this.$router.push({name: 'productattributes.index'});
                     break;
                 case 'save-and-clone':
                     this.item.id = null;
@@ -631,32 +641,32 @@ export const useAttributeStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'attributes.index'})
+            this.$router.push({name: 'productattributes.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'attributes.index'})
+            this.$router.push({name: 'productattributes.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'attributes.form'})
+            this.$router.push({name: 'productattributes.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'attributes.view', params:{id:item.id}})
+            this.$router.push({name: 'productattributes.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'attributes.form', params:{id:item.id}})
+            this.$router.push({name: 'productattributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -920,5 +930,5 @@ export const useAttributeStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useAttributeStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useProductAttributeStore, import.meta.hot))
 }

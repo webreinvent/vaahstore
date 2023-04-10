@@ -2,6 +2,7 @@ import {watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import {value} from "lodash/seq";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -39,6 +40,18 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        empty_variation_item : null,
+        variation_item: {
+            attribute_option_type: 1,
+            product_attributes: [],
+            selected_attribute: null,
+            attribute_options: null,
+            show_create_form: false,
+            select_all_variation: false,
+            create_variation_data: null,
+            new_variation: [],
+            user_error_message: [],
+        },
         status:null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
@@ -62,6 +75,7 @@ export const useProductStore = defineStore({
         is_list_loading: null,
         count_filters: 0,
         list_selected_menu: [],
+        variation_selected_menu: [],
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
@@ -164,6 +178,10 @@ export const useProductStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+                case 'products.variation':
+                    this.view = 'small';
+                    this.list_view_width = 4;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
@@ -231,7 +249,216 @@ export const useProductStore = defineStore({
                             }
                         },{deep: true}
                     )
+                watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
+                    {
+                        if(newVal != oldVal)
+                        {
+                            this.getAttributeList();
+                        }
+                    },{deep: true}
+                )
                 }
+        },
+        //---------------------------------------------------------------------
+        async getAttributeList(callback= null, get_attribute_from_group = false) {
+
+            let params = {
+                attribute_type: this.variation_item.attribute_option_type == 0 ? 'attribute' : 'attribute_group',
+                product_id: this.item.id,
+                selected_attribute: this.variation_item.selected_attribute,
+                get_attribute_from_group: get_attribute_from_group
+            }
+
+            let options = {
+                params: params,
+                method: "POST"
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/getAttributeList',
+                callback ?? this.afterGetAttributeList,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+        afterGetAttributeList(data, res){
+
+            this.variation_item.attribute_options = data;
+
+        },
+        //---------------------------------------------------------------------
+        async getAttributeValues(callback, method = 'generate') {
+
+            let params = {
+                attribute: this.variation_item.product_attributes,
+                product_id: this.item.id,
+                method: method
+            }
+
+            let options = {
+                params: params,
+                method: "POST"
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/getAttributeValue',
+                callback,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+        getUnique(data, key){
+            return [...new Map(data.map(x => [key(x), x])).values()];
+        },
+        //---------------------------------------------------------------------
+        addNewProductAttribute(data = null){
+            if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
+                this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
+                this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
+            }
+            else if(this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 1){
+                this.getAttributeList(this.addProductAttributeFromGroup, true)
+            }
+        },
+        //---------------------------------------------------------------------
+        addProductAttributeFromGroup(data){
+            data.forEach((i)=>{
+                this.variation_item.product_attributes.push(i);
+            })
+            this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
+        },
+        //---------------------------------------------------------------------
+        removeProductAttribute(attribute){
+            this.variation_item.product_attributes = this.variation_item.product_attributes.filter(function(item){ return item.name != attribute.name })
+        },
+        //---------------------------------------------------------------------
+        generateProductVariation(){
+            if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
+                this.getAttributeValues(this.afterGenerateVariations, 'generate');
+            }
+        },
+        //---------------------------------------------------------------------
+        afterGenerateVariations(data, res){
+            if (data){
+                this.item.all_variation = data;
+                this.variation_item.show_create_form = false;
+                this.variation_item.create_variation_data = [];
+            }
+        },
+        //---------------------------------------------------------------------
+        createProductVariation(){
+            if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
+                this.getAttributeValues(this.afterCreateVariation, 'create');
+            }
+        },
+        //---------------------------------------------------------------------
+        afterCreateVariation(data, res){
+            if (data){
+                this.variation_item.create_variation_data = data;
+                this.variation_item.show_create_form = true;
+                this.variation_item.new_variation = [];
+            }
+        },
+        //---------------------------------------------------------------------
+        removeProductVariation(item){
+            let item_key = this.getIndexOfArray(this.item.all_variation.structured_variation, item);
+            if (item_key >= 0){
+                this.item.all_variation.structured_variation.splice(item_key, 1);
+            }
+        },
+        //---------------------------------------------------------------------
+        bulkRemoveProductVariation(all = null){
+
+            if (all){
+                this.item.all_variation = {};
+                this.variation_item.select_all_variation = false;
+            }else{
+                let temp = null;
+                temp = this.item.all_variation.structured_variation.filter((item) => {
+                    return item['is_selected'] != true;
+                });
+                this.item.all_variation.structured_variation = temp;
+
+                this.variation_item.select_all_variation = false;
+            }
+
+        },
+        //---------------------------------------------------------------------
+        getIndexOfArray(array, findArray){
+            let index = -1;
+            array.some((item, i)=>{
+                if(JSON.stringify(item) === JSON.stringify(findArray)) {
+                    index = i;
+                    return true;
+                }
+            });
+            return index;
+        },
+        //---------------------------------------------------------------------
+        selectAllVariation(){
+            this.item.all_variation.structured_variation.forEach((i)=>{
+                i['is_selected'] = !this.variation_item.select_all_variation;
+            })
+        },
+        //---------------------------------------------------------------------
+        addNewProductVariation(new_record){
+            if (this.variation_item.new_variation
+                && Object.keys(this.variation_item.new_variation).length
+                > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
+                if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
+
+                    let error_message = [];
+                    let variation_match_key = null;
+                    this.item.all_variation.structured_variation.forEach((i,k)=>{
+                        if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
+                            error_message.push('variation name must be unique');
+                        }
+                        this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
+                            if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
+                                // console.log(k);;
+                                if (variation_match_key == k){
+                                    error_message.push('variation already exist');
+                                }else{
+                                    variation_match_key = k;
+                                }
+                            }
+                        });
+
+                        if (variation_match_key != null && Object.keys(this.variation_item.create_variation_data.all_attribute_name).length == 1){
+                            error_message.push('variation already exist');
+                        }
+                    })
+
+                    console.log(error_message);
+                    console.log(variation_match_key);
+                    if(error_message && error_message.length == 0){
+                        this.item.all_variation.structured_variation.push(Object.assign({},this.variation_item.new_variation));
+                        this.variation_item.create_variation_data = null;
+                        this.variation_item.show_create_form = false;
+                        console.log(this.item.all_variation);
+                    }else{
+                        this.showUserErrorMessage(error_message, 4000);
+                    }
+
+                }else{
+                    let temp = {
+                        structured_variation: [Object.assign({},this.variation_item.new_variation)],
+                        all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
+                    };
+                    this.item.all_variation = temp;
+                    this.variation_item.create_variation_data = null;
+                    this.variation_item.show_create_form = false;
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+        showUserErrorMessage(message, time = 2500){
+            this.variation_item.user_error_message = message;
+          setTimeout(()=>{
+              this.variation_item.user_error_message = [];
+          },time);
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -450,6 +677,12 @@ export const useProductStore = defineStore({
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
+                    break;
+
+                case 'save-variation':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/variation'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -686,7 +919,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toForm()
         {
-            this.item = vaah().clone(this.assets.empty_item);
+            this.item = vaah().clone(this.empty_variation_item);
             this.getFormMenu();
             this.$router.push({name: 'products.form'})
         },
@@ -695,6 +928,13 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'products.view', params:{id:item.id}})
+        },
+        //---------------------------------------------------------------------
+        toVariation(item)
+        {
+            this.item = vaah().clone(item);
+            this.variation_item = vaah().clone(this.variation_item);
+            this.$router.push({name: 'products.variation', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
@@ -780,6 +1020,16 @@ export const useProductStore = defineStore({
                     icon: 'pi pi-trash',
                     command: () => {
                         this.confirmDelete()
+                    }
+                },
+            ]
+
+            this.variation_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProductVariation()
                     }
                 },
             ]

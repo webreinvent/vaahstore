@@ -70,9 +70,19 @@ const items = ref([
                 to: "/warehouses"
             },
             {
-                label: 'Product Attributes',
+                label: 'Attributes',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/attributes"
+            },
+            {
+                label: 'Attributes-Group',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/attributegroups"
+            },
+            {
+                label: 'Product-Attribute',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/productAttribute"
             },
             {
                 label: 'Orders',
