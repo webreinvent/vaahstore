@@ -65,7 +65,7 @@ const useVaah = vaah();
                      :sortable="true">
                  <template #body="prop">
                      <Image v-if="prop.data.path"
-                            :src="prop.data.path"
+                            :src="store.item.base_path+'/'+prop.data.path"
                             preview
                             alt="Image"
                             width="100" />
