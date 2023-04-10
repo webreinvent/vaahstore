@@ -862,6 +862,10 @@ export const useVendorStore = defineStore({
             this.form.type = 'delete';
             vaah().confirmDialogDelete(this.confirmDeleteItemAfter);
         },
+        toVendor(item)
+        {
+            this.$router.push({name: 'vendors.product'})
+        },
         //---------------------------------------------------------------------
         confirmDeleteItemAfter()
         {

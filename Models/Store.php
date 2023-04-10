@@ -434,6 +434,9 @@ class Store extends Model
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
+        StorePaymentMethod::deleteStores($items_id);
+        Vendor::deleteStores($items_id);
+        Product::deleteStores($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -481,6 +484,9 @@ class Store extends Model
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
+                    StorePaymentMethod::deleteStores($items_id);
+                    Vendor::deleteStores($items_id);
+                    Product::deleteStores($items_id);
                 }
                 break;
             case 'activate-all':
@@ -496,7 +502,11 @@ class Store extends Model
                 self::withTrashed()->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
                 self::withTrashed()->forceDelete();
+                StorePaymentMethod::deleteStores($items_id);
+                Vendor::deleteStores($items_id);
+                Product::deleteStores($items_id);
                 break;
         }
 
@@ -656,6 +666,9 @@ class Store extends Model
             return $response;
         }
         $item->forceDelete();
+        StorePaymentMethod::deleteStores($item->id);
+        Vendor::deleteStores($item->id);
+        Product::deleteStores($item->id);
 
         $response['success'] = true;
         $response['data'] = [];

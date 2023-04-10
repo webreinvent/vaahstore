@@ -2,7 +2,6 @@ import {watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import {value} from "lodash/seq";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
