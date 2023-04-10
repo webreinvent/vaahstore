@@ -50,6 +50,7 @@ export const useProductStore = defineStore({
             select_all_variation: false,
             create_variation_data: null,
             new_variation: [],
+            user_error_message: [],
         },
         status:null,
         empty_query:empty_states.query,
@@ -437,6 +438,8 @@ export const useProductStore = defineStore({
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
                         console.log(this.item.all_variation);
+                    }else{
+                        this.showUserErrorMessage(error_message, 4000);
                     }
 
                 }else{
@@ -449,6 +452,13 @@ export const useProductStore = defineStore({
                     this.variation_item.show_create_form = false;
                 }
             }
+        },
+        //---------------------------------------------------------------------
+        showUserErrorMessage(message, time = 2500){
+            this.variation_item.user_error_message = message;
+          setTimeout(()=>{
+              this.variation_item.user_error_message = [];
+          },time);
         },
         //---------------------------------------------------------------------
         async getAssets() {
