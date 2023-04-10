@@ -430,7 +430,7 @@ class ProductMedia extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        $item->img_prev = (env('APP_URL').'/'.'images/'.$item->path);
+        $item->base_path = url('images');
         $response['success'] = true;
         $response['data'] = $item;
 

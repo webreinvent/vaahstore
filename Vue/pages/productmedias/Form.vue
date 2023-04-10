@@ -136,11 +136,13 @@ const toggleFormMenu = (event) => {
                                 @uploader="store.onImageUpload($event)"
                                 :multiple="true" accept="image/*" :maxFileSize="1000000">
                         <template #empty>
-                            <Image v-if="store.item.path"
-                                :src="store.item.path"
+                            <Image v-if="store.item.path && typeof(store.item.path) != 'string'"
+                                   v-for="(item) in store.item.path"
+                                    :src="store.item.base_path+'/'+item"
+                                   class="p-1"
                                    preview
                                    alt="Image"
-                                   width="150" />
+                                   width="150" ></image>
                             <template v-else>
                                 <p>Drag and drop files to here to upload.</p>
                             </template>
