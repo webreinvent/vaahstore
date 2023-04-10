@@ -124,13 +124,27 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product">
                     <AutoComplete v-model="store.item.product"
                                   @complete="store.searchProduct($event)"
-                                  :suggestions="store.suggestion"
+                                  :suggestions="store.product_suggestion"
                                   class="w-full"
                                   placeholder="Select Product"
                                   data-testid="productvendors-product"
                                   name="productvendors-product"
                                   :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
+                </VhField>
+
+                <VhField label="Vendor">
+                    <AutoComplete
+                        v-model="store.item.vendor"
+                        class="w-11"
+                        :suggestions="store.vendor_suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="productvendors-vendor"
+                        name="productvendors-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
                 <VhField label="Can Update">
@@ -159,7 +173,7 @@ const toggleFormMenu = (event) => {
                         id="added_by"
                         value="added_by"
                         data-testid="productvendors-added_by"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.added_by_suggestion"
                         @complete="store.searchAddeddBy($event)"
                         placeholder="Select Added by"
                         :dropdown="true" optionLabel="name" forceSelection>
