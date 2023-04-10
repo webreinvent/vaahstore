@@ -42,6 +42,9 @@ export const useProductVendorStore = defineStore({
         suggestion: null,
         product: null,
         fillable:null,
+        product_suggestion: null,
+        vendor_suggestion: null,
+        added_by_suggestion: null,
         empty_query:empty_states.query,
         empty_action:empty_states.action,
         query: vaah().clone(empty_states.query),
@@ -79,10 +82,10 @@ export const useProductVendorStore = defineStore({
         searchAddeddBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.added_by_user;
+                    this.added_by_suggestion = this.added_by_user;
                 }
                 else {
-                    this.suggestion= this.added_by_user.filter((added_by_user) => {
+                    this.added_by_suggestion= this.added_by_user.filter((added_by_user) => {
                         return added_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -106,10 +109,10 @@ export const useProductVendorStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.vendor;
+                    this.vendor_suggestion = this.vendor;
                 }
                 else {
-                    this.suggestion= this.vendor.filter((vendor) => {
+                    this.vendor_suggestion= this.vendor.filter((vendor) => {
                         return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -120,10 +123,10 @@ export const useProductVendorStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.product;
+                    this.product_suggestion = this.product;
                 }
                 else {
-                    this.suggestion= this.product.filter((product) => {
+                    this.product_suggestion= this.product.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -245,6 +248,7 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
+                this.item.product = null;
                 this.product = data;
             }
         },
