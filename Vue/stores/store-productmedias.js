@@ -291,6 +291,7 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.list = data;
+
             }
         },
         //---------------------------------------------------------------------
@@ -311,6 +312,7 @@ export const useProductMediaStore = defineStore({
                 this.item = data;
                 this.item.taxonomy_id_product_media_status = data.status;
                 this.item.vh_st_product_id = data.product;
+                this.item.path = data.img_prev;
                 this.item.vh_st_product_variation_id = data.product_variation;
             }else{
                 this.$router.push({name: 'productmedias.index'});
@@ -491,6 +493,7 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 this.item.taxonomy_id_product_media_status = data.status;
+                this.item.path = data.img_prev;
                 this.item.vh_st_product_id = data.product;
                 this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();

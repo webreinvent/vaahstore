@@ -99,6 +99,20 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
+                <VhField label="Vendor">
+                    <AutoComplete
+                        v-model="store.item.vendor"
+                        class="w-10"
+                        :suggestions="store.suggestion"
+                        @complete="store.searchVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="productvendors-vendor"
+                        name="productvendors-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-5" icon="pi pi-info-circle" />
+                </VhField>
+
                 <VhField label="Store"  v-if="!(store.item && store.item.id)">
                     <MultiSelect class="w-full" v-model="store.item.stores" display="chip"
                                  data-testid="productvendors-stores"
@@ -117,20 +131,6 @@ const toggleFormMenu = (event) => {
                                   name="productvendors-product"
                                   :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-                </VhField>
-
-                <VhField label="Vendor">
-                    <AutoComplete
-                        v-model="store.item.vendor"
-                        class="w-11"
-                        :suggestions="store.suggestion"
-                        @complete="store.searchVendor($event)"
-                        placeholder="Select Vendor"
-                        data-testid="productvendors-vendor"
-                        name="productvendors-vendor"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
                 <VhField label="Can Update">
@@ -182,26 +182,12 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea  rows="5" cols="30"
+                    <Textarea  rows="3" class="w-full"
                               placeholder="Enter a Status Note"
                               name="productvendors-status_notes"
                               data-testid="productvendors-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
-
-<!--                <VhField label="Name">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="productvendors-name"-->
-<!--                               data-testid="productvendors-name"-->
-<!--                               v-model="store.item.name"/>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Slug">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="productvendors-slug"-->
-<!--                               data-testid="productvendors-slug"-->
-<!--                               v-model="store.item.slug"/>-->
-<!--                </VhField>-->
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"

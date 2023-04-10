@@ -190,7 +190,9 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea placeholder="Enetr Status Note" v-model="store.item.status_notes" rows="5" cols="30" data-testid="vendors-status_notes" name="vendors-status_notes" />
+                    <Textarea placeholder="Enetr Status Note"
+                              v-model="store.item.status_notes" rows="3" class="w-full"
+                              data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
 
                 <VhField label="Is Default">

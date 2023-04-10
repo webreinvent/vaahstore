@@ -187,7 +187,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea rows="5" cols="30"
+                    <Textarea rows="3" class="w-full"
                                name="brands-status_notes"
                                data-testid="brands-status_notes"
                               :autoResize="true"
