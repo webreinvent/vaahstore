@@ -167,6 +167,18 @@ const props = defineProps({
             </td>
         </template>
 
+        <template v-else-if="type==='image_preview'">
+
+            <td colspan="2" >
+
+                <Image :src="value"
+                       preview
+                       alt="Image"
+                       width="150" />
+
+            </td>
+        </template>
+
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
                 <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
