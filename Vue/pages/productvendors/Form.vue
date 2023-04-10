@@ -110,7 +110,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product">
                     <AutoComplete v-model="store.item.product"
                                   @complete="store.searchProduct($event)"
-                                  :suggestions="store.suggestion"
+                                  :suggestions="store.product_suggestion"
                                   class="w-full"
                                   placeholder="Select Product"
                                   data-testid="productvendors-product"
@@ -123,7 +123,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.vendor"
                         class="w-11"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.vendor_suggestion"
                         @complete="store.searchVendor($event)"
                         placeholder="Select Vendor"
                         data-testid="productvendors-vendor"
@@ -159,7 +159,7 @@ const toggleFormMenu = (event) => {
                         id="added_by"
                         value="added_by"
                         data-testid="productvendors-added_by"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.added_by_suggestion"
                         @complete="store.searchAddeddBy($event)"
                         placeholder="Select Added by"
                         :dropdown="true" optionLabel="name" forceSelection>

@@ -468,7 +468,7 @@ class ProductVendor extends Model
                 return $response;
             }
 
-            $item = new self();
+            $item = self::where('id', $id)->withTrashed()->first();
             $item->status_notes = $inputs['status_notes'];
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             $item->vh_st_vendor_id = $inputs['vendor']['id'];
