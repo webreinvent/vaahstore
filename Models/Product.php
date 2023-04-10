@@ -384,6 +384,7 @@ class Product extends Model
         ProductVariation::deleteProducts($items_id);
         ProductMedia::deleteProducts($items_id);
         ProductPrice::deleteProducts($items_id);
+        ProductStock::deleteProducts($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -435,6 +436,7 @@ class Product extends Model
                     ProductVariation::deleteProducts($items_id);
                     ProductMedia::deleteProducts($items_id);
                     ProductPrice::deleteProducts($items_id);
+                    ProductStock::deleteProducts($items_id);
                 }
                 break;
             case 'activate-all':
@@ -456,6 +458,7 @@ class Product extends Model
                 ProductVariation::deleteProducts($items_id);
                 ProductMedia::deleteProducts($items_id);
                 ProductPrice::deleteProducts($items_id);
+                ProductStock::deleteProducts($items_id);
                 break;
         }
 
@@ -568,6 +571,7 @@ class Product extends Model
         ProductVariation::deleteProducts($item->id);
         ProductMedia::deleteProducts($item->id);
         ProductPrice::deleteProducts($item->id);
+        ProductStock::deleteProducts($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
