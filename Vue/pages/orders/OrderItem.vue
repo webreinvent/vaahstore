@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useOrderItemStore } from '../../stores/store-orderitems'
+import { useOrderStore } from '../../stores/store-orders'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useOrderItemStore();
+const store = useOrderStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -37,11 +37,8 @@ const toggleFormMenu = (event) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title">
-                        <span v-if="store.item && store.item.id">
-                            Update
-                        </span>
-                        <span v-else>
-                            Create
+                        <span>
+                            Add Order Item
                         </span>
                     </div>
 
@@ -52,20 +49,12 @@ const toggleFormMenu = (event) => {
 
             <template #icons>
 
-
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="orderitems-save"
-                            @click="store.itemAction('save')"
+                            @click="store.itemAction('save-orderitems')"
                             icon="pi pi-save"/>
-
-                    <Button label="Create & New"
-                            v-else
-                            @click="store.itemAction('create-and-new')"
-                            data-testid="orderitems-create-and-new"
-                            icon="pi pi-save"/>
-
 
                     <!--form_menu-->
                     <Button
@@ -88,40 +77,38 @@ const toggleFormMenu = (event) => {
                     </Button>
                 </div>
 
-
-
             </template>
 
 
             <div v-if="store.item">
 
-                <VhField label="User">
-                    <AutoComplete
-                        v-model="store.item.vh_user_id"
-                        class="w-full"
-                        name="orderitems-user"
-                        :suggestions="store.user_suggestion"
-                        @complete="store.searchUser($event)"
-                        placeholder="Select User"
-                        :dropdown="true" optionLabel="first_name"
-                        data-testid="orderitems-user"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
+<!--                <VhField label="User">-->
+<!--                    <AutoComplete-->
+<!--                        v-model="store.item.vh_user_id"-->
+<!--                        class="w-full"-->
+<!--                        name="orderitems-user"-->
+<!--                        :suggestions="store.user_suggestion"-->
+<!--                        @complete="store.searchUser($event)"-->
+<!--                        placeholder="Select User"-->
+<!--                        :dropdown="true" optionLabel="first_name"-->
+<!--                        data-testid="orderitems-user"-->
+<!--                        forceSelection>-->
+<!--                    </AutoComplete>-->
+<!--                </VhField>-->
 
-                <VhField label="Order">
-                    <AutoComplete
-                        v-model="store.item.vh_st_order_id"
-                        class="w-full"
-                        name="orderitems-order"
-                        :suggestions="store.order_suggestion"
-                        @complete="store.searchOrder($event)"
-                        placeholder="Select Order"
-                        :dropdown="true" optionLabel="id"
-                        data-testid="orderitems-order"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
+<!--                <VhField label="Order">-->
+<!--                    <AutoComplete-->
+<!--                        v-model="store.item.vh_st_order_id"-->
+<!--                        class="w-full"-->
+<!--                        name="orderitems-order"-->
+<!--                        :suggestions="store.order_suggestion"-->
+<!--                        @complete="store.searchOrder($event)"-->
+<!--                        placeholder="Select Order"-->
+<!--                        :dropdown="true" optionLabel="id"-->
+<!--                        data-testid="orderitems-order"-->
+<!--                        forceSelection>-->
+<!--                    </AutoComplete>-->
+<!--                </VhField>-->
 
                 <VhField label="Types">
                     <AutoComplete
@@ -224,7 +211,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes_order"
+                    <Textarea v-model="store.item.status_notes_order_items"
                               placeholder="Enter Status Notes"
                               data-testid="orderitems-status_notes"
                               :autoResize="true" rows="5" cols="30" />
