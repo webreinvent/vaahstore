@@ -43,6 +43,17 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="order_items" header="Order Items"
+                     :sortable="false">
+
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                         <button @click="store.toOrderItem(prop.data)"><b>+</b></button>
+                     </div>
+                 </template>
+
+             </Column>
+
              <Column field="payment_method" header="Payment Method"
                     :sortable="true">
                 <template #body="prop">
@@ -60,6 +71,7 @@ const useVaah = vaah();
             </Column>
 
              <Column field="amount" header="Amount"
+                     v-if="store.isViewLarge()"
                     :sortable="true">
 
                 <template #body="prop">
@@ -146,12 +158,12 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
+                     <Badge v-if="prop.data.status_order.slug == 'approved'"
+                            severity="success"> {{prop.data.status_order.name}} </Badge>
+                     <Badge v-else-if="prop.data.status_order.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status_order.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="primary"> {{prop.data.status_order.name}} </Badge>
                  </template>
 
              </Column>

@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/orders',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -41,6 +41,12 @@ function () {
      */
     Route::get('/{id}', 'OrdersController@getItem')
         ->name('vh.backend.store.orders.read');
+
+    /**
+     * POST create orderItem
+     */
+    Route::post('/orderitems', 'OrdersController@createOrderItems')
+        ->name('vh.backend.store.products.createOrderItems');
     /**
      * Update Item
      */
