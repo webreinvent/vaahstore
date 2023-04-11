@@ -44,11 +44,11 @@ const useVaah = vaah();
             </Column>
 
              <Column field="order_items" header="Order Items"
-                     :sortable="false">
+                     :sortable="false"  >
 
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-                         <button @click="store.toOrderItem(prop.data)"><b>+</b></button>
+                         <button v-tooltip.top="'Add Order Item'" @click="store.toOrderItem(prop.data)"><b>+</b></button>
                      </div>
                  </template>
 

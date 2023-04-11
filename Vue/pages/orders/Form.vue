@@ -214,7 +214,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Enter a Status Note"
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
-                              v-model="store.item.status_notes_order"/>
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">
