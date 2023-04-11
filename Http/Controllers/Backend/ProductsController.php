@@ -7,7 +7,9 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
@@ -55,13 +57,21 @@ class ProductsController extends Controller
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['all_variation'] = [];
+            $data['empty_item']['selected_vendor'] = [];
 
 
             $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
             $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
+            $vendors_list = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['Vendors_list'] = $vendors_list;
+            $default_vendor = $vendors_list->where('is_default',1);
+            foreach ($default_vendor as $k=>$v){
+                $data['default_vendor'] = $v;
+            }
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['type'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
             $default_store = [];
             foreach($data['store'] as $k=>$arr)
@@ -125,6 +135,31 @@ class ProductsController extends Controller
         return [
             'data' => $item
         ];
+    }
+
+    //----------------------------------------------------------
+    public function getVendorsList(){
+        try{
+            $data = [];
+
+            $result = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+
+            $data['vendors_list'] = $result;
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
+        return $response;
     }
 
     //----------------------------------------------------------

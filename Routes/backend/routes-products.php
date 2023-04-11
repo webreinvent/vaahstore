@@ -30,6 +30,11 @@ function () {
     Route::delete('/', 'ProductsController@deleteList')
         ->name('vh.backend.store.products.list.delete');
 
+    /**
+     * get vendors list
+     */
+    Route::get('/Vendors_list', 'ProductsController@getVendorsList')
+        ->name('vh.backend.store.products.getVendorsList');
 
     /**
      * POST get attribute list
