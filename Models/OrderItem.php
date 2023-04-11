@@ -165,23 +165,8 @@ class OrderItem extends Model
             return $validation;
         }
 
-
-        // check if order, user and product exist
-        $item = self::where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],
-            'vh_user_id'=>$inputs['vh_user_id']['id'],
-            'vh_st_product_variation_id'=>$inputs['vh_st_product_variation_id']['id'],
-            'vh_st_vendor_id'=>$inputs['vh_st_vendor_id']['id'],
-            'vh_st_customer_group_id'=>$inputs['vh_st_customer_group_id']['id'],
-            'vh_st_product_id'=>$inputs['vh_st_product_id']['id']])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = new self();
-        $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
+        $item->vh_st_order_id = $inputs['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
         $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
         $item->is_invoice_available = $inputs['is_invoice_available'];
@@ -189,9 +174,9 @@ class OrderItem extends Model
         $item->invoice_url = $inputs['invoice_url'];
         $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
         $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->vh_user_id = $inputs['user']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
+//        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -488,34 +473,18 @@ class OrderItem extends Model
             return $validation;
         }
 
-        // check if order, user and product exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where(['vh_st_order_id'=>$inputs['vh_st_order_id']['id'],
-                'vh_st_product_id'=>$inputs['vh_st_product_id']['id'],
-                'vh_st_vendor_id'=>$inputs['vh_st_vendor_id']['id'],
-                'vh_st_customer_group_id'=>$inputs['vh_st_customer_group_id']['id'],
-                'vh_st_product_variation_id'=>$inputs['vh_st_product_variation_id']['id'],
-                'vh_user_id'=>$inputs['vh_user_id']['id']])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->vh_st_order_id = $inputs['vh_st_order_id']['id'];
+        $item->vh_st_order_id = $inputs['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
         $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
         $item->is_invoice_available = $inputs['is_invoice_available'];
         $item->tracking = $inputs['tracking'];
         $item->invoice_url = $inputs['invoice_url'];
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
+        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
+        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
+        $item->vh_user_id = $inputs['user']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
+//        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -573,28 +542,24 @@ class OrderItem extends Model
     {
 
         $rules = validator($inputs, [
-            'vh_user_id'=> 'required',
-            'vh_st_order_id'=> 'required',
+            'user'=> 'required',
             'vh_st_product_id'=> 'required',
             'vh_st_product_variation_id'=> 'required',
             'invoice_url'=> 'required',
-            'is_invoice_available'=> 'required',
             'tracking'=> 'required',
             'vh_st_vendor_id'=> 'required',
             'vh_st_customer_group_id'=> 'required',
             'taxonomy_id_order_items_types'=> 'required',
-            'taxonomy_id_order_items_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_order_items_status.slug,==,rejected',
+//            'taxonomy_id_order_items_status'=> 'required',
+//            'status_notes' => 'required_if:taxonomy_id_order_items_status.slug,==,rejected',
                 ],
             [
-                'vh_user_id.required' => 'The User field is required',
-                'vh_st_order_id.required' => 'The Order field is required',
                 'vh_st_product_id.required' => 'The Product field is required',
                 'vh_st_product_variation_id.required' => 'The Product Variation field is required',
                 'vh_st_vendor_id.required' => 'The Vendor field is required',
                 'vh_st_customer_group_id.required' => 'The Vendor field is required',
                 'taxonomy_id_order_items_types.required' => 'The Type field is required',
-                'taxonomy_id_order_items_status.required' => 'The Status field is required',
+//                'taxonomy_id_order_items_status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
@@ -620,7 +585,18 @@ class OrderItem extends Model
             ->first();
         return $item;
     }
+//-------------------------------------------------
+    public static function deleteOrder($items_id){
+        if($items_id){
+            self::whereIn('vh_st_order_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
 
+    }
     //-------------------------------------------------
     //-------------------------------------------------
     //-------------------------------------------------

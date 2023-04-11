@@ -73,7 +73,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-    public function status()
+    public function statusOrder()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
     }
@@ -89,7 +89,11 @@ class Order extends Model
     {
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
-
+    //-------------------------------------------------
+    public function orderItem()
+    {
+        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
+    }
     //-------------------------------------------------
     public function deletedByUser()
     {
@@ -129,7 +133,6 @@ class Order extends Model
 
         $query->whereBetween('updated_at', [$from, $to]);
     }
-
     //-------------------------------------------------
     public static function createItem($request)
     {
@@ -143,22 +146,13 @@ class Order extends Model
 
 
         // check if name exist
-        $item = self::where('vh_user_id', $inputs['user']['id'])->withTrashed()->first();
+        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
 
         if ($item) {
             $response['success'] = false;
             $response['messages'][] = "This name is already exist.";
             return $response;
         }
-//
-//        // check if slug exist
-//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
 
         $item = new self();
         $item->fill($inputs);
@@ -264,7 +258,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user');
+        $list = self::getSorted($request->filter)->with('statusOrder','paymentMethod','user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -369,6 +363,7 @@ class Order extends Model
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
+        OrderItem::deleteOrder($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -416,6 +411,7 @@ class Order extends Model
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
+                    OrderItem::deleteOrder($items_id);
                 }
                 break;
             case 'activate-all':
@@ -431,7 +427,9 @@ class Order extends Model
                 self::withTrashed()->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
                 self::withTrashed()->forceDelete();
+                OrderItem::deleteOrder($items_id);
                 break;
         }
 
@@ -446,7 +444,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','orderItem'])
             ->withTrashed()
             ->first();
 
@@ -475,7 +473,7 @@ class Order extends Model
         // check if name exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('vh_user_id', $inputs['user']['id'])->first();
+            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
 
         if ($item) {
             $response['success'] = false;
@@ -527,6 +525,7 @@ class Order extends Model
             return $response;
         }
         $item->forceDelete();
+        OrderItem::deleteOrder($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
@@ -568,7 +567,7 @@ class Order extends Model
 
         $rules = validator($inputs, [
             'taxonomy_id_order_status' => 'required|max:150',
-            'user' => 'required|max:150',
+            'vh_user_id' => 'required|max:150',
             'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
             'vh_st_payment_method_id' => 'required|max:150',
             'amount' => 'required|min:1|numeric',
@@ -580,6 +579,7 @@ class Order extends Model
                 ],
         [
             'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+            'vh_user_id.required' => 'The User field is required',
             'taxonomy_id_order_status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]

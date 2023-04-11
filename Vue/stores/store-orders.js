@@ -66,14 +66,98 @@ export const useOrderStore = defineStore({
         item_menu_state: null,
         suggestion: null,
         status_suggestion: null,
+        status_item_suggestion: null,
         payment_method_suggestion: null,
+        product_variation_suggestion: null,
         user_suggestion: null,
+        type_suggestion: null,
+        product_suggestion: null,
+        vendor_suggestion: null,
+        customer_group_suggestion: null,
         form_menu_list: []
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion = this.product_variation;
+                }
+                else {
+                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchType(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.type;
+                }
+                else {
+                    this.type_suggestion= this.type.filter((type) => {
+                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_suggestion = this.product;
+                }
+                else {
+                    this.product_suggestion= this.product.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchStatusItem(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_item_suggestion = this.status_item;
+                }
+                else {
+                    this.status_item_suggestion= this.status_item.filter((status_item) => {
+                        return status_item.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.vendor_suggestion = this.vendor;
+                }
+                else {
+                    this.vendor_suggestion= this.vendor.filter((vendor) => {
+                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCustomerGroup(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.customer_group_suggestion = this.customer_group;
+                }
+                else {
+                    this.customer_group_suggestion= this.customer_group.filter((customer_group) => {
+                        return customer_group.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         //---------------------------------------------------------------------
         searchStatus(event) {
             setTimeout(() => {
@@ -229,7 +313,13 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
+                this.status = data.status_orders;
+                this.status_item = data.status_item;
+                this.type = data.type;
+                this.product_variation = data.product_variation;
+                this.vendor = data.vendor;
+                this.customer_group = data.customer_group;
+                this.product = data.product;
                 this.user = data.user;
                 this.payment_method = data.payment_method.data;
                 if(data.rows)
@@ -279,7 +369,13 @@ export const useOrderStore = defineStore({
             {
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status;
+                this.item.taxonomy_id_order_status = data.status_order;
+                this.item.vh_st_product_id = data.product;
+                this.item.taxonomy_id_order_items_status = data.status_item;
+                this.item.taxonomy_id_order_items_types = data.type;
+                this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_customer_group_id = data.customer_group;
                 this.item.vh_user_id = data.user;
             }else{
                 this.$router.push({name: 'orders.index'});
@@ -427,6 +523,12 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
+
+                case 'save-orderitems':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/orderitems'
+                    break;
                 /**
                  * Delete a record, hence method is `DELETE`
                  * and no need to send entire `item` object
@@ -460,8 +562,16 @@ export const useOrderStore = defineStore({
             {
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status;
+                this.item.taxonomy_id_order_status = data.status_order;
+                this.item.vh_st_product_variation_id = data.product_variation;
                 this.item.vh_user_id = data.user;
+                this.item.vh_st_product_id = data.product;
+                this.item.taxonomy_id_order_items_status = data.status_item;
+                this.item.taxonomy_id_order_items_types = data.type;
+                this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_customer_group_id = data.customer_group;
+
+                this.item.vh_st_customer_group_id = data.customer_group;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -664,6 +774,13 @@ export const useOrderStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.$router.push({name: 'orders.form'})
+        },
+        //---------------------------------------------------------------------
+        toOrderItem(item)
+        {
+            // this.item = vaah().clone(item);
+            // this.order_items = vaah().clone(this.order_items);
+            this.$router.push({name: 'orders.orderitems', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toView(item)
