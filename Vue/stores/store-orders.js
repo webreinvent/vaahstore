@@ -370,7 +370,6 @@ export const useOrderStore = defineStore({
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status_order;
-                this.item.status_notes_order = data.status_notes;
                 this.item.vh_st_product_id = data.product;
                 this.item.taxonomy_id_order_items_status = data.status_item;
                 this.item.taxonomy_id_order_items_types = data.type;
@@ -564,13 +563,14 @@ export const useOrderStore = defineStore({
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status_order;
-                this.item.status_notes_order = data.status_notes;
                 this.item.vh_st_product_variation_id = data.product_variation;
                 this.item.vh_user_id = data.user;
                 this.item.vh_st_product_id = data.product;
                 this.item.taxonomy_id_order_items_status = data.status_item;
                 this.item.taxonomy_id_order_items_types = data.type;
                 this.item.vh_st_vendor_id = data.vendor;
+                this.item.vh_st_customer_group_id = data.customer_group;
+
                 this.item.vh_st_customer_group_id = data.customer_group;
                 await this.getList();
                 await this.formActionAfter();

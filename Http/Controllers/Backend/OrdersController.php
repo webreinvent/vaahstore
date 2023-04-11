@@ -89,7 +89,13 @@ class OrdersController extends Controller
     public function createOrderItems(Request $request)
     {
         try{
-            return OrderItem::createItem($request);
+            $check = OrderItem::where('vh_st_order_id',$request->id)->first();
+            if($check){
+                return OrderItem::updateItem($request ,$check->id);
+            }else{
+                return OrderItem::createItem($request);
+            }
+
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

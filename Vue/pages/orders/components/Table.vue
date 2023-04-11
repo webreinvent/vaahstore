@@ -71,6 +71,7 @@ const useVaah = vaah();
             </Column>
 
              <Column field="amount" header="Amount"
+                     v-if="store.isViewLarge()"
                     :sortable="true">
 
                 <template #body="prop">

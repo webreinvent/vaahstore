@@ -90,6 +90,11 @@ class Order extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
     //-------------------------------------------------
+    public function orderItem()
+    {
+        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
+    }
+    //-------------------------------------------------
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -435,7 +440,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','orderItem'])
             ->withTrashed()
             ->first();
 

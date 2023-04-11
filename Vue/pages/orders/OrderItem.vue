@@ -196,27 +196,6 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.tracking"/>
                 </VhField>
 
-                <VhField label="Status">
-                    <AutoComplete
-                        v-model="store.item.taxonomy_id_order_items_status"
-                        class="w-full"
-                        name="orderitems-status"
-                        :suggestions="store.status_suggestion"
-                        @complete="store.searchStatus($event)"
-                        placeholder="Select status"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="orderitems-status"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
-
-                <VhField label="Status Notes">
-                    <Textarea v-model="store.item.status_notes_order_items"
-                              placeholder="Enter Status Notes"
-                              data-testid="orderitems-status_notes"
-                              :autoResize="true" rows="5" cols="30" />
-                </VhField>
-
                 <VhField label="Is Invoice Available">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
@@ -225,13 +204,6 @@ const toggleFormMenu = (event) => {
                                  v-model="store.item.is_invoice_available"/>
                 </VhField>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="orderitems-active"
-                                 data-testid="orderitems-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
 
             </div>
 
