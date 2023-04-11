@@ -702,6 +702,7 @@ class Product extends Model
 
         $item['product_variation'] = null;
         $item['all_variation'] = [];
+        $item['selected_vendor'] = [];
         $response['success'] = true;
         $response['data'] = $item;
 
