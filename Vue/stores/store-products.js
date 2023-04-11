@@ -39,6 +39,8 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
+        vendors_list:null,
+        selected_vendor:null,
         empty_variation_item : null,
         variation_item: {
             attribute_option_type: 1,
@@ -75,6 +77,7 @@ export const useProductStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         variation_selected_menu: [],
+        vendor_selected_menu: [],
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
@@ -178,6 +181,7 @@ export const useProductStore = defineStore({
                     this.list_view_width = 12;
                     break;
                 case 'products.variation':
+                case 'products.vendor':
                     this.view = 'small';
                     this.list_view_width = 4;
                     break;
@@ -257,6 +261,52 @@ export const useProductStore = defineStore({
                     },{deep: true}
                 )
                 }
+        },
+        //---------------------------------------------------------------------
+        addVendor(){
+            if (this.selected_vendor != null){
+                let exist = 0;
+                this.item.selected_vendor.forEach((item)=>{
+                    if (item['vendor']['id'] == this.selected_vendor['id']){
+                        exist = 1;
+                    }
+                })
+                if (exist == 0){
+                    let new_vendor = {
+                        vendor: this.selected_vendor,
+                        is_selected : false,
+                        can_update : false,
+                        status : null,
+                    };
+                    this.item.selected_vendor.push(new_vendor);
+                }
+
+            }
+        },
+        //---------------------------------------------------------------------
+        selectAllVendor(){
+            this.item.selected_vendor.forEach((i)=>{
+                i['is_selected'] = !this.select_all_vendor;
+            })
+        },
+        //---------------------------------------------------------------------
+        removeVendor(attribute){
+            this.item.selected_vendor = this.item.selected_vendor.filter(function(item){ return item['vendor']['id'] != attribute['vendor']['id'] })
+        },
+        //---------------------------------------------------------------------
+        bulkRemoveVendor(all = null){
+            if (all){
+                this.item.selected_vendor = [];
+                this.variation_item.select_all_variation = false;
+            }else{
+                let temp = null;
+                temp = this.item.selected_vendor.filter((item) => {
+                    return item['is_selected'] != true;
+                });
+                this.item.selected_vendor = temp;
+
+                this.variation_item.select_all_variation = false;
+            }
         },
         //---------------------------------------------------------------------
         async getAttributeList(callback= null, get_attribute_from_group = false) {
@@ -936,6 +986,12 @@ export const useProductStore = defineStore({
             this.$router.push({name: 'products.variation', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+        toVendor(item)
+        {
+            this.item = vaah().clone(item);
+            this.$router.push({name: 'products.vendor', params:{id:item.id}})
+        },
+        //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
@@ -1029,6 +1085,16 @@ export const useProductStore = defineStore({
                     icon: 'pi pi-trash',
                     command: () => {
                         this.bulkRemoveProductVariation()
+                    }
+                },
+            ]
+
+            this.vendor_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveVendor()
                     }
                 },
             ]

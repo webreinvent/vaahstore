@@ -7,7 +7,9 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
@@ -149,6 +151,31 @@ class ProductsController extends Controller
         return [
             'data' => $item
         ];
+    }
+
+    //----------------------------------------------------------
+    public function getVendorsList(){
+        try{
+            $data = [];
+
+            $result = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+
+            $data['vendors_list'] = $result;
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
+        return $response;
     }
 
     //----------------------------------------------------------

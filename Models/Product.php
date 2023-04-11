@@ -109,6 +109,18 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+    public function vendorsCount()
+    {
+        return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
+            ->where('vh_st_product_vendors.is_active', 1)
+            ->select();
+    }
+
+//    public function productVendor(){
+//        return $this->hasMany(Product)
+//    }
+
+    //-------------------------------------------------
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -371,7 +383,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'vendorsCount');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -583,6 +595,7 @@ class Product extends Model
         }
         $item['product_variation'] = null;
         $item['all_variation'] = [];
+        $item['selected_vendor'] = [];
         $response['success'] = true;
         $response['data'] = $item;
 
