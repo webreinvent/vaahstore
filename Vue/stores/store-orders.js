@@ -66,7 +66,7 @@ export const useOrderStore = defineStore({
         item_menu_state: null,
         suggestion: null,
         status_suggestion: null,
-        status_item_suggestion: null,
+        status_order_items_suggestion: null,
         payment_method_suggestion: null,
         product_variation_suggestion: null,
         user_suggestion: null,
@@ -120,14 +120,14 @@ export const useOrderStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchStatusItem(event) {
+        searchStatusOrderItems(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_item_suggestion = this.status_item;
+                    this.status_order_items_suggestion = this.status_order_items;
                 }
                 else {
-                    this.status_item_suggestion= this.status_item.filter((status_item) => {
-                        return status_item.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
+                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -314,7 +314,7 @@ export const useOrderStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status_orders;
-                this.status_item = data.status_item;
+                this.status_order_items = data.status_order_items;
                 this.type = data.type;
                 this.product_variation = data.product_variation;
                 this.vendor = data.vendor;
@@ -371,7 +371,7 @@ export const useOrderStore = defineStore({
                 this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status_order;
                 this.item.vh_st_product_id = data.product;
-                this.item.taxonomy_id_order_items_status = data.status_item;
+                this.item.taxonomy_id_order_items_status = data.status_order_items;
                 this.item.taxonomy_id_order_items_types = data.type;
                 this.item.vh_st_product_variation_id = data.product_variation;
                 this.item.vh_st_vendor_id = data.vendor;
@@ -566,7 +566,7 @@ export const useOrderStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
                 this.item.vh_user_id = data.user;
                 this.item.vh_st_product_id = data.product;
-                this.item.taxonomy_id_order_items_status = data.status_item;
+                this.item.taxonomy_id_order_items_status = data.status_order_items;
                 this.item.taxonomy_id_order_items_types = data.type;
                 this.item.vh_st_vendor_id = data.vendor;
                 this.item.vh_st_customer_group_id = data.customer_group;

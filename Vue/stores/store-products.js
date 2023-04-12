@@ -918,7 +918,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toForm()
         {
-            this.item = vaah().clone(this.empty_variation_item);
+            this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.$router.push({name: 'products.form'})
         },

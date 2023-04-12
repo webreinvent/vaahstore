@@ -454,6 +454,7 @@ class Order extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        $item['order_item']=[];
         $response['success'] = true;
         $response['data'] = $item;
 
