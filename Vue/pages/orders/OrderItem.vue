@@ -81,10 +81,9 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-
                 <VhField label="Types">
                     <AutoComplete
-                        v-model="store.item.order_item.taxonomy_id_order_items_types"
+                        v-model="store.item.types"
                         class="w-full"
                         name="orderitems-types"
                         :suggestions="store.type_suggestion"
@@ -98,7 +97,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete
-                        v-model="store.item.order_item.vh_st_product_id"
+                        v-model="store.item.product"
                         class="w-full"
                         name="orderitems-product"
                         :suggestions="store.product_suggestion"
@@ -112,7 +111,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product Variation">
                     <AutoComplete
-                        v-model="store.item.order_item.vh_st_product_variation_id"
+                        v-model="store.item.product_variation"
                         class="w-full"
                         name="orderitems-product_variation"
                         :suggestions="store.product_variation_suggestion"
@@ -126,7 +125,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete
-                        v-model="store.item.order_item.vh_st_vendor_id"
+                        v-model="store.item.vendor"
                         class="w-full"
                         name="orderitems-vendor"
                         :suggestions="store.vendor_suggestion"
@@ -140,7 +139,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Customer Groups">
                     <AutoComplete
-                        v-model="store.item.order_item.vh_st_customer_group_id"
+                        v-model="store.item.customer_group"
                         class="w-full"
                         name="orderitems-customer_group"
                         :suggestions="store.customer_group_suggestion"
@@ -157,7 +156,7 @@ const toggleFormMenu = (event) => {
                                placeholder="Enter a URL"
                                name="orderitems-invoice_url"
                                data-testid="orderitems-invoice_url"
-                               v-model="store.item.order_item.invoice_url"/>
+                               v-model="store.item.invoice_url"/>
                 </VhField>
 
                 <VhField label="Tracking">
@@ -165,12 +164,12 @@ const toggleFormMenu = (event) => {
                                placeholder="Enter a Tracking"
                                name="orderitems-tracking"
                                data-testid="orderitems-tracking"
-                               v-model="store.item.order_item.tracking"/>
+                               v-model="store.item.tracking"/>
                 </VhField>
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.order_item.taxonomy_id_order_items_status"
+                        v-model="store.item.status_order_items"
                         class="w-full"
                         name="orders-status"
                         :suggestions="store.status_order_items_suggestion"
@@ -187,7 +186,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Enter a Status Note"
                               name="orderitems-status_notes"
                               data-testid="orderitems-status_notes"
-                              v-model="store.item.order_item.status_notes"/>
+                              v-model="store.item.status_notes_order"/>
                 </VhField>
 
                 <VhField label="Is Invoice Available">
@@ -195,7 +194,7 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="orderitems-is_invoice_available"
                                  data-testid="orderitems-is_invoice_available"
-                                 v-model="store.item.order_item.is_invoice_available"/>
+                                 v-model="store.item.is_invoice_available"/>
                 </VhField>
 
 
