@@ -55,6 +55,7 @@ class OrdersController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['order_item'] = [];
             $data['empty_item']['is_paid'] = 0;
             $data['empty_item']['paid'] = 0;
             $data['status_orders'] = Taxonomy::getTaxonomyByType('order-status');
