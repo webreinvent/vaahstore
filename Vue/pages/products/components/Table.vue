@@ -144,7 +144,7 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.vendors_count && prop.data.vendors_count.length">{{prop.data.vendors_count.length}}</b>
+                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">{{prop.data.product_vendors.length}}</b>
                             <b v-else>0</b>
                         </span>
                          <button @click="store.toVendor(prop.data)"><b>+</b></button>

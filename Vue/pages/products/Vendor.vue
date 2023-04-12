@@ -55,7 +55,7 @@ const toggleSelectedMenuState = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="products-save"
-                            @click="store.itemAction('save-variation')"
+                            @click="store.itemAction('save-vendor')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -76,6 +76,11 @@ const toggleSelectedMenuState = (event) => {
 
 
             <div v-if="store.item">
+
+<!--                user error message-->
+                <div v-if="store.variation_item.user_error_message && store.variation_item.user_error_message.length > 0">
+                    <Message severity="error" v-for="(item) in store.variation_item.user_error_message">{{item}}</Message>
+                </div>
 
 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
@@ -136,6 +141,7 @@ const toggleSelectedMenuState = (event) => {
                             <th scope="col">Vendor name</th>
                             <th scope="col">Can update</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Status notes</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
@@ -154,6 +160,9 @@ const toggleSelectedMenuState = (event) => {
                                           optionLabel="name"
                                           placeholder="Select a status"
                                           class="w-full" />
+                            </td>
+                            <td>
+                                <InputText v-model="item['status_notes']" class="w-full md:w-5rem" />
                             </td>
                             <td>
                                 <Button label="Remove"

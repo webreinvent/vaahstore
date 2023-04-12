@@ -277,8 +277,11 @@ export const useProductStore = defineStore({
                         is_selected : false,
                         can_update : false,
                         status : null,
+                        status_notes : null,
                     };
                     this.item.selected_vendor.push(new_vendor);
+                }else{
+                    this.showUserErrorMessage(['This vendor is already present'], 4000);
                 }
 
             }
@@ -732,6 +735,12 @@ export const useProductStore = defineStore({
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/variation'
+                    break;
+
+                case 'save-vendor':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/vendor'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
