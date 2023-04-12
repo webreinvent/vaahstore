@@ -292,6 +292,7 @@ class Product extends Model
         $vendor_data = $input['selected_vendor'];
 
         $active_user = auth()->user();
+        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_active'=>0]);
         foreach ($vendor_data as $key=>$value){
             if (isset($value['id']) && !empty($value['id'])){
                 $item = ProductVendor::where('id',$value['id'])->first();
