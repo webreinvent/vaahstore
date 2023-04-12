@@ -37,6 +37,11 @@ function () {
         ->name('vh.backend.store.products.getVendorsList');
 
     /**
+     * create vendor
+     */
+    Route::post('/vendor', 'ProductsController@createVendor')
+        ->name('vh.backend.store.products.vendor');
+    /**
      * POST get attribute list
      */
     Route::post('/getAttributeList', 'ProductsController@getAttributeList')
