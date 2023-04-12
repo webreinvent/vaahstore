@@ -109,16 +109,12 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function vendorsCount()
+    public function ProductVendors()
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
             ->where('vh_st_product_vendors.is_active', 1)
             ->select();
     }
-
-//    public function productVendor(){
-//        return $this->hasMany(Product)
-//    }
 
     //-------------------------------------------------
     public function deletedByUser()
@@ -243,6 +239,87 @@ class Product extends Model
                 'errors' => 'Product Variation is empty.'
             ];
         }
+    }
+
+    //-------------------------------------------------
+    public static function validatedVendor($data){
+        if (isset($data) && !empty($data)){
+            $error_message = [];
+
+            foreach ($data as $key=>$value){
+                if (!isset($value['status']) || empty($value['status'])){
+                    array_push($error_message, 'Status required');
+                }else if($value['status']['slug']=='rejected' && empty($value['status_notes'])){
+                    array_push($error_message, 'The Status notes field is required for "Rejected" Status');
+                }
+                if (!isset($value['vendor']) || empty($value['vendor'])){
+                    array_push($error_message, 'Vendor required');
+                }
+                if (!isset($value['can_update'])){
+                    array_push($error_message, 'Can Update required');
+                }
+            }
+
+            if (empty($error_message)){
+                return [
+                    'success' => true
+                ];
+            }else{
+                return [
+                    'success' => false,
+                    'errors' => $error_message
+                ];
+            }
+
+        }else{
+            return [
+                'success' => false,
+                'errors' => 'Vendor is empty.'
+            ];
+        }
+    }
+
+    //-------------------------------------------------
+    public static function createVendor($request){
+
+        $input = $request->all();
+
+        $product_id = $input['id'];
+        $validation = self::validatedVendor($input['selected_vendor']);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $vendor_data = $input['selected_vendor'];
+
+        $active_user = auth()->user();
+        foreach ($vendor_data as $key=>$value){
+            if (isset($value['id']) && !empty($value['id'])){
+                $item = ProductVendor::where('id',$value['id'])->first();
+                $item->vh_st_product_id = $product_id;
+                $item->vh_st_vendor_id = $value['vendor']['id'];
+                $item->added_by = $active_user->id;
+                $item->can_update = $value['can_update'];
+                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $item->status_notes = $value['status_notes'];
+                $item->is_active = 1;
+                $item->save();
+            }else {
+                $item = new ProductVendor();
+                $item->vh_st_product_id = $product_id;
+                $item->vh_st_vendor_id = $value['vendor']['id'];
+                $item->added_by = $active_user->id;
+                $item->can_update = $value['can_update'];
+                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $item->status_notes = $value['status_notes'];
+                $item->is_active = 1;
+                $item->save();
+            }
+        }
+
+        $response = self::getItem($product_id);
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
+
     }
 
     //-------------------------------------------------
@@ -389,7 +466,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'vendorsCount');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'ProductVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -588,7 +665,7 @@ class Product extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status', 'productAttributes',
+                'brand','store','type','status', 'productAttributes', 'productVendors'
             ])
             ->withTrashed()
             ->first();
@@ -599,9 +676,27 @@ class Product extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        $array_item = $item->toArray();
+        $product_vendor = [];
+        if (!empty($array_item['product_vendors'])){
+            forEach($array_item['product_vendors'] as $key=>$value){
+                $new_array = [];
+                $new_array['id'] = $value['id'];
+                $new_array['is_selected'] = false;
+                $new_array['can_update'] = $value['can_update'] == 1 ? true : false;
+                $new_array['status_notes'] = $value['status_notes'];
+                $new_array['vendor'] = Vendor::where('id',$value['vh_st_vendor_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+                $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
+                array_push($product_vendor, $new_array);
+            }
+            $item['selected_vendor'] = $product_vendor;
+        }else{
+            $item['selected_vendor'] = [];
+        }
+
+
         $item['product_variation'] = null;
         $item['all_variation'] = [];
-        $item['selected_vendor'] = [];
         $response['success'] = true;
         $response['data'] = $item;
 
