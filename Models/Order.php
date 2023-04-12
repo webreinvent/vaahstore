@@ -90,7 +90,7 @@ class Order extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
     //-------------------------------------------------
-    public function orderItem()
+    public function Items()
     {
         return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
     }
@@ -132,6 +132,49 @@ class Order extends Model
         }
 
         $query->whereBetween('updated_at', [$from, $to]);
+    }
+    //-------------------------------------------------
+    public static function createOrderItem($request){
+        $inputs = $request->all();
+
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
+        if($check){
+            $check->vh_st_order_id = $inputs['id'];
+            $check->vh_user_id  = $inputs['vh_user_id']['id'];
+            $check->taxonomy_id_order_items_types = $inputs['types']['id'];
+            $check->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
+            $check->vh_st_product_id = $inputs['product']['id'];
+            $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
+            $check->vh_st_customer_group_id = $inputs['customer_group']['id'];
+            $check->invoice_url = $inputs['invoice_url'];
+            $check->vh_st_vendor_id = $inputs['vendor']['id'];
+            $check->tracking = $inputs['tracking'];
+            $check->status_notes = $inputs['status_notes_order'];
+            $check->is_invoice_available = $inputs['is_invoice_available'];
+            $check->save();
+            $response['messages'][] = 'Saved successfully update.';
+            return $response;
+        }
+        $order_item = new OrderItem;
+        $order_item->vh_st_order_id = $inputs['id'];
+        $order_item->vh_user_id  = $inputs['vh_user_id']['id'];
+        $order_item->taxonomy_id_order_items_types = $inputs['types']['id'];
+        $order_item->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
+        $order_item->vh_st_product_id = $inputs['product']['id'];
+        $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
+        $order_item->invoice_url = $inputs['invoice_url'];
+        $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
+        $order_item->tracking = $inputs['tracking'];
+        $order_item->status_notes = $inputs['status_notes_order'];
+        $order_item->is_invoice_available = $inputs['is_invoice_available'];
+        $order_item->save();
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
     }
     //-------------------------------------------------
     public static function createItem($request)
@@ -444,7 +487,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','orderItem'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','Items'])
             ->withTrashed()
             ->first();
 
@@ -454,7 +497,21 @@ class Order extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        $item['order_item']=[];
+        $array_item = $item->toArray();
+        if($item['items']!=null){
+            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
+            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
+            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
+            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
+            $item['status_notes_order'] = $array_item['items']['status_notes'];
+            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
+            $item['invoice_url'] = $array_item['items']['invoice_url'];
+            $item['tracking'] = $array_item['items']['tracking'];
+            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'] == 1 ? 1 : 0;
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
 

@@ -55,7 +55,6 @@ class OrdersController extends Controller
 
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['order_item'] = [];
             $data['empty_item']['is_paid'] = 0;
             $data['empty_item']['paid'] = 0;
             $data['status_orders'] = Taxonomy::getTaxonomyByType('order-status');
@@ -90,13 +89,7 @@ class OrdersController extends Controller
     public function createOrderItems(Request $request)
     {
         try{
-            $check = OrderItem::where('vh_st_order_id',$request->id)->first();
-            if($check){
-                return OrderItem::updateItem($request ,$check->id);
-            }else{
-                return OrderItem::createItem($request);
-            }
-
+            return Order::createOrderItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

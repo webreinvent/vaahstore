@@ -46,10 +46,16 @@ const useVaah = vaah();
              <Column field="order_items" header="Order Items"
                      :sortable="false"  >
 
+
                  <template #body="prop">
-                     <div class="p-inputgroup flex-1">
-                         <button v-tooltip.top="'Add Order Item'" @click="store.toOrderItem(prop.data)"><b>+</b></button>
-                     </div>
+                     <Button class="p-button-tiny p-button-text"
+                             data-testid="orders-table-to-view"
+                             v-tooltip.top="'Add Order Item'"
+                             @click="store.toOrderItem(prop.data)"
+                             icon="pi pi-eye" ><b>+</b></Button>
+<!--                     <div class="p-inputgroup flex-1">-->
+<!--                         <button v-tooltip.top="'Add Order Item'" @click="store.toOrderItem(prop.data)"><b>+</b></button>-->
+<!--                     </div>-->
                  </template>
 
              </Column>
