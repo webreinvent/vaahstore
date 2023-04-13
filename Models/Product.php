@@ -285,11 +285,11 @@ class Product extends Model
         $input = $request->all();
 
         $product_id = $input['id'];
-        $validation = self::validatedVendor($input['selected_vendor']);
+        $validation = self::validatedVendor($input['vendors']);
         if (!$validation['success']) {
             return $validation;
         }
-        $vendor_data = $input['selected_vendor'];
+        $vendor_data = $input['vendors'];
 
         $active_user = auth()->user();
         ProductVendor::where('vh_st_product_id', $product_id)->update(['is_active'=>0]);
@@ -694,9 +694,9 @@ class Product extends Model
                 $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
                 array_push($product_vendor, $new_array);
             }
-            $item['selected_vendor'] = $product_vendor;
+            $item['vendors'] = $product_vendor;
         }else{
-            $item['selected_vendor'] = [];
+            $item['vendors'] = [];
         }
 
 

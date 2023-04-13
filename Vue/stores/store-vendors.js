@@ -191,7 +191,7 @@ export const useVendorStore = defineStore({
         addProduct(){
             if (this.selected_product != null){
                 let exist = 0;
-                this.item.selected_product.forEach((item)=>{
+                this.item.products.forEach((item)=>{
                     if (item['product']['id'] == this.selected_product['id']){
                         exist = 1;
                     }
@@ -204,7 +204,7 @@ export const useVendorStore = defineStore({
                         status : null,
                         status_notes : null,
                     };
-                    this.item.selected_product.push(new_product);
+                    this.item.products.push(new_product);
                 }else{
                     this.showUserErrorMessage(['This product is already present'], 4000);
                 }
@@ -220,25 +220,25 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProduct(attribute){
-            this.item.selected_product = this.item.selected_product.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+            this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
         },
         //---------------------------------------------------------------------
         selectAllProduct(){
-            this.item.selected_product.forEach((i)=>{
+            this.item.products.forEach((i)=>{
                 i['is_selected'] = !this.select_all_product;
             })
         },
         //---------------------------------------------------------------------
         bulkRemoveProduct(all = null){
             if (all){
-                this.item.selected_product = [];
+                this.item.products = [];
                 this.select_all_product = false;
             }else{
                 let temp = null;
-                temp = this.item.selected_product.filter((item) => {
+                temp = this.item.products.filter((item) => {
                     return item['is_selected'] != true;
                 });
-                this.item.selected_product = temp;
+                this.item.products = temp;
 
                 this.select_all_product = false;
             }
