@@ -143,6 +143,7 @@ class Order extends Model
         }
         $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
         if($check){
+            $check->fill($inputs);
             $check->vh_st_order_id = $inputs['id'];
             $check->vh_user_id  = $inputs['vh_user_id']['id'];
             $check->taxonomy_id_order_items_types = $inputs['types']['id'];
@@ -150,17 +151,13 @@ class Order extends Model
             $check->vh_st_product_id = $inputs['product']['id'];
             $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
             $check->vh_st_customer_group_id = $inputs['customer_group']['id'];
-            $check->invoice_url = $inputs['invoice_url'];
             $check->vh_st_vendor_id = $inputs['vendor']['id'];
-            $check->tracking = $inputs['tracking'];
-            $check->status_notes = $inputs['status_notes_order'];
-            $check->is_active = $inputs['is_active_order_item'];
-            $check->is_invoice_available = $inputs['is_invoice_available'];
             $check->save();
             $response['messages'][] = 'Saved successfully update.';
             return $response;
         }
         $order_item = new OrderItem;
+        $order_item->fill($inputs);
         $order_item->vh_st_order_id = $inputs['id'];
         $order_item->vh_user_id  = $inputs['vh_user_id']['id'];
         $order_item->taxonomy_id_order_items_types = $inputs['types']['id'];
@@ -168,12 +165,6 @@ class Order extends Model
         $order_item->vh_st_product_id = $inputs['product']['id'];
         $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
-        $order_item->invoice_url = $inputs['invoice_url'];
-        $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
-        $order_item->tracking = $inputs['tracking'];
-        $order_item->status_notes = $inputs['status_notes_order'];
-        $order_item->is_active = $inputs['is_active_order_item'];
-        $order_item->is_invoice_available = $inputs['is_invoice_available'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
         return $response;
