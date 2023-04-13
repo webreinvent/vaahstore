@@ -131,6 +131,35 @@ class ProductVendor extends Model
         $query->whereBetween('updated_at', [$from, $to]);
     }
 
+    //--------------------Add and update product price-----------------------------
+    public static function createProductPrice($request){
+        $inputs = $request->all();
+
+        $validation = self::validationProductPrice($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $check = ProductPrice::where(['vh_st_vendor_id'=>$inputs['vh_st_vendor_id'],'vh_st_product_id'=>$inputs['vh_st_product_id']])->first();
+        if($check){
+            $check->fill($inputs);
+            $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
+            $check->amount = $inputs['amount'];
+            $check->is_active = $inputs['is_active_product_price'];
+            $check->save();
+            $response['messages'][] = 'Saved successfully update.';
+            return $response;
+        }
+        $order_item = new ProductPrice;
+        $order_item->fill($inputs);
+        $order_item->vh_st_vendor_id = $inputs['vh_st_vendor_id'];
+        $order_item->vh_st_product_id  = $inputs['vh_st_product_id'];
+        $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $order_item->amount = $inputs['amount'];
+        $order_item->is_active = $inputs['is_active_product_price'];
+        $order_item->save();
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
+    }
     //-------------------------------------------------
     public static function createItem($request)
     {
@@ -441,6 +470,18 @@ class ProductVendor extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        //To get data for dropdown of product price
+        $array_item = $item->toArray();
+        $check = ProductPrice::where('vh_st_vendor_id',$array_item['vh_st_vendor_id'])->where('vh_st_product_id',$array_item['vh_st_product_id'])->first();
+        if($check){
+            $item['product_variation'] = ProductVariation::where('id',$check['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['amount'] = $check['amount'];
+        }else{
+            $item['is_active_product_price'] = 1;
+        }
+
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -545,6 +586,28 @@ class ProductVendor extends Model
         ]
         );
 
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
+    }
+    //-------------------validation for product price------------------------------
+    public static function validationProductPrice($inputs)
+    {
+        $rules = validator($inputs,
+            [
+                'product_variation' => 'required|max:150',
+                'amount' => 'required|max:150',
+            ]);
         if($rules->fails()){
             return [
                 'success' => false,
