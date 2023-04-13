@@ -27,7 +27,7 @@ routes_list = {
             props: true,
         },
         {
-            path: 'product',
+            path: 'product/:id?',
             name: 'vendors.product',
             component: Product,
             props: true,
