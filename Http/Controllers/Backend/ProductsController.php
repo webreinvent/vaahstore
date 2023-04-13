@@ -57,7 +57,7 @@ class ProductsController extends Controller
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['all_variation'] = [];
-            $data['empty_item']['selected_vendor'] = [];
+            $data['empty_item']['vendors'] = [];
 
 
             $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));

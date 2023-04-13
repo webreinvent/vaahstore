@@ -52,7 +52,7 @@ class VendorsController extends Controller
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
-            $data['empty_item']['selected_product'] = [];
+            $data['empty_item']['products'] = [];
 
             $data['actions'] = [];
             $data['stores'] = Store::where('is_active', 1)->get(['name','id', 'is_default']);

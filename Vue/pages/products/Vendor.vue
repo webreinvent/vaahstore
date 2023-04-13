@@ -105,7 +105,7 @@ const toggleSelectedMenuState = (event) => {
 
                 <!--                Bulk action -->
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.item.selected_vendor  && store.item.selected_vendor.length > 0">
+                     v-if="store.item.vendors  && store.item.vendors.length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -130,7 +130,7 @@ const toggleSelectedMenuState = (event) => {
 
 <!--                added vendor's list-->
                 <div class="col-12"
-                     v-if="store.item.selected_vendor && store.item.selected_vendor.length > 0">
+                     v-if="store.item.vendors && store.item.vendors.length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
@@ -146,7 +146,7 @@ const toggleSelectedMenuState = (event) => {
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                        <tr v-for="(item, index) in store.item.selected_vendor">
+                        <tr v-for="(item, index) in store.item.vendors">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                             <td>
                                 <InputText v-model="item['vendor']['name']" class="w-full" />

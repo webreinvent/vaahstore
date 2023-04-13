@@ -267,7 +267,7 @@ export const useProductStore = defineStore({
         addVendor(){
             if (this.selected_vendor != null){
                 let exist = 0;
-                this.item.selected_vendor.forEach((item)=>{
+                this.item.vendors.forEach((item)=>{
                     if (item['vendor']['id'] == this.selected_vendor['id']){
                         exist = 1;
                     }
@@ -280,7 +280,7 @@ export const useProductStore = defineStore({
                         status : null,
                         status_notes : null,
                     };
-                    this.item.selected_vendor.push(new_vendor);
+                    this.item.vendors.push(new_vendor);
                 }else{
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
                 }
@@ -289,25 +289,25 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         selectAllVendor(){
-            this.item.selected_vendor.forEach((i)=>{
+            this.item.vendors.forEach((i)=>{
                 i['is_selected'] = !this.select_all_vendor;
             })
         },
         //---------------------------------------------------------------------
         removeVendor(attribute){
-            this.item.selected_vendor = this.item.selected_vendor.filter(function(item){ return item['vendor']['id'] != attribute['vendor']['id'] })
+            this.item.vendors = this.item.vendors.filter(function(item){ return item['vendor']['id'] != attribute['vendor']['id'] })
         },
         //---------------------------------------------------------------------
         bulkRemoveVendor(all = null){
             if (all){
-                this.item.selected_vendor = [];
+                this.item.vendors = [];
                 this.select_all_vendor = false;
             }else{
                 let temp = null;
-                temp = this.item.selected_vendor.filter((item) => {
+                temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] != true;
                 });
-                this.item.selected_vendor = temp;
+                this.item.vendors = temp;
 
                 this.select_all_vendor = false;
             }
