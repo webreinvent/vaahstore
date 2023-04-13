@@ -41,6 +41,8 @@ export const useProductStore = defineStore({
         fillable:null,
         vendors_list:null,
         selected_vendor:null,
+        select_all_vendor:false,
+        user_error_message: [],
         empty_variation_item : null,
         variation_item: {
             attribute_option_type: 1,
@@ -51,7 +53,6 @@ export const useProductStore = defineStore({
             select_all_variation: false,
             create_variation_data: null,
             new_variation: [],
-            user_error_message: [],
         },
         status:null,
         empty_query:empty_states.query,
@@ -300,7 +301,7 @@ export const useProductStore = defineStore({
         bulkRemoveVendor(all = null){
             if (all){
                 this.item.selected_vendor = [];
-                this.variation_item.select_all_variation = false;
+                this.select_all_vendor = false;
             }else{
                 let temp = null;
                 temp = this.item.selected_vendor.filter((item) => {
@@ -308,7 +309,7 @@ export const useProductStore = defineStore({
                 });
                 this.item.selected_vendor = temp;
 
-                this.variation_item.select_all_variation = false;
+                this.select_all_vendor = false;
             }
         },
         //---------------------------------------------------------------------
@@ -507,9 +508,9 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         showUserErrorMessage(message, time = 2500){
-            this.variation_item.user_error_message = message;
+            this.user_error_message = message;
           setTimeout(()=>{
-              this.variation_item.user_error_message = [];
+              this.user_error_message = [];
           },time);
         },
         //---------------------------------------------------------------------

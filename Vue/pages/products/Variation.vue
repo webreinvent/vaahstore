@@ -79,8 +79,8 @@ const toggleSelectedMenuState = (event) => {
             <div v-if="store.item">
 
 <!--                user error message-->
-                <div v-if="store.variation_item.user_error_message && store.variation_item.user_error_message.length > 0">
-                    <Message severity="error" v-for="(item) in store.variation_item.user_error_message">{{item}}</Message>
+                <div v-if="store.user_error_message && store.user_error_message.length > 0">
+                    <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
 <!--                Radio button for attribute and attribute group-->

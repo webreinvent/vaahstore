@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/vendors',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -30,6 +30,12 @@ function () {
     Route::delete('/', 'VendorsController@deleteList')
         ->name('vh.backend.store.vendors.list.delete');
 
+
+    /**
+     * Create Product
+     */
+    Route::post('/product', 'VendorsController@createProduct')
+        ->name('vh.backend.store.vendors.createProduct');
 
     /**
      * Create Item

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -51,15 +52,23 @@ class VendorsController extends Controller
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
+            $data['empty_item']['selected_product'] = [];
 
             $data['actions'] = [];
             $data['stores'] = Store::where('is_active', 1)->get(['name','id', 'is_default']);
 
             $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
 
-            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
+            $product_list = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['product_list'] = $product_list;
+            $default_product = $product_list->where('is_default',1);
+            foreach ($default_product as $k=>$v){
+                $data['default_product'] = $v;
+            }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('store-status');
+            $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+
+            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $active_user = auth()->user();
             $approved_by['id'] = $active_user->id;
@@ -95,6 +104,24 @@ class VendorsController extends Controller
         }
 
         return $response;
+    }
+
+    //----------------------------------------------------------
+    public function createProduct(Request $request)
+    {
+        try{
+            return Vendor::createProduct($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

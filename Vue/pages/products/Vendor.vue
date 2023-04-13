@@ -78,8 +78,8 @@ const toggleSelectedMenuState = (event) => {
             <div v-if="store.item">
 
 <!--                user error message-->
-                <div v-if="store.variation_item.user_error_message && store.variation_item.user_error_message.length > 0">
-                    <Message severity="error" v-for="(item) in store.variation_item.user_error_message">{{item}}</Message>
+                <div v-if="store.user_error_message && store.user_error_message.length > 0">
+                    <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
 <!--                dropdown to select vendor -->
@@ -149,7 +149,7 @@ const toggleSelectedMenuState = (event) => {
                         <tr v-for="(item, index) in store.item.selected_vendor">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                             <td>
-                                <InputText v-model="item['vendor']['name']" class="w-full md:w-5rem" />
+                                <InputText v-model="item['vendor']['name']" class="w-full" />
                             </td>
                             <td>
                                 <InputSwitch v-model="item['can_update']" />
@@ -162,7 +162,7 @@ const toggleSelectedMenuState = (event) => {
                                           class="w-full" />
                             </td>
                             <td>
-                                <InputText v-model="item['status_notes']" class="w-full md:w-5rem" />
+                                <InputText v-model="item['status_notes']" class="w-full" />
                             </td>
                             <td>
                                 <Button label="Remove"
