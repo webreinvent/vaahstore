@@ -137,7 +137,7 @@ class Order extends Model
     public static function createOrderItem($request){
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
+        $validation = self::validationOrderItem($inputs);
         if (!$validation['success']) {
             return $validation;
         }
@@ -154,6 +154,7 @@ class Order extends Model
             $check->vh_st_vendor_id = $inputs['vendor']['id'];
             $check->tracking = $inputs['tracking'];
             $check->status_notes = $inputs['status_notes_order'];
+            $check->is_active = $inputs['is_active_order_item'];
             $check->is_invoice_available = $inputs['is_invoice_available'];
             $check->save();
             $response['messages'][] = 'Saved successfully update.';
@@ -171,6 +172,7 @@ class Order extends Model
         $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
         $order_item->tracking = $inputs['tracking'];
         $order_item->status_notes = $inputs['status_notes_order'];
+        $order_item->is_active = $inputs['is_active_order_item'];
         $order_item->is_invoice_available = $inputs['is_invoice_available'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
@@ -506,10 +508,14 @@ class Order extends Model
             $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
             $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
             $item['status_notes_order'] = $array_item['items']['status_notes'];
+            $item['is_active_order_item'] = $array_item['items']['is_active'];
             $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
             $item['invoice_url'] = $array_item['items']['invoice_url'];
             $item['tracking'] = $array_item['items']['tracking'];
-            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'] == 1 ? 1 : 0;
+        }
+        else{
+            $item['is_invoice_available'] = 1;
+            $item['is_active_order_item'] = 1;
         }
 
         $response['success'] = true;
@@ -642,6 +648,39 @@ class Order extends Model
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
+    }
+
+    public static function validationOrderItem($inputs)
+    {
+        $rules = validator($inputs,
+            [
+            'types' => 'required|max:150',
+            'product_variation' => 'required|max:150',
+            'product' => 'required|max:150',
+            'vendor' => 'required',
+            'customer_group' => 'required',
+            'invoice_url' => 'required',
+            'tracking' => 'required',
+            'status_order_items' => 'required',
+            'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
+                ],
+            [
+                'status_order_items.required' => 'The Status field is required',
+                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
+                ]);
         if($rules->fails()){
             return [
                 'success' => false,

@@ -474,19 +474,7 @@ class OrderItem extends Model
         if (!$validation['success']) {
             return $validation;
         }
-        $item = self::where('id', $id)->withTrashed()->first();
-//        $item->vh_st_order_id = $inputs['id'];
-//        $item->vh_st_product_id = $inputs['order_item']['vh_st_product_id']['id'];
-//        $item->vh_st_product_variation_id = $inputs['order_item']['vh_st_product_variation_id']['id'];
-//        $item->is_invoice_available = $inputs['order_item']['is_invoice_available'];
-//        $item->tracking = $inputs['order_item']['tracking'];
-//        $item->status_notes = $inputs['order_item']['status_notes'];
-//        $item->invoice_url = $inputs['order_item']['invoice_url'];
-//        $item->vh_st_vendor_id = $inputs['order_item']['vh_st_vendor_id']['id'];
-//        $item->vh_st_customer_group_id = $inputs['order_item']['vh_st_customer_group_id']['id'];
-//        $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-//        $item->taxonomy_id_order_items_status = $inputs['order_item']['taxonomy_id_order_items_status']['id'];
+        $item = self::where('id', $id)->withTrashed()->first();;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -543,24 +531,8 @@ class OrderItem extends Model
     public static function validation($inputs)
     {
         $rules = validator($inputs, [
-//            'vh_st_product_id'=> 'order_item.required',
-//            'vh_st_product_variation_id'=> 'order_item.required',
-//            'invoice_url'=> 'order_item.required',
-//            'tracking'=> 'order_item.required',
-//            'vh_st_vendor_id'=> 'order_item.required',
-//            'vh_st_customer_group_id'=> 'order_item.required',
-//            'taxonomy_id_order_items_types'=> 'order_item.required',
-//            'taxonomy_id_order_items_status'=> 'order_item.required',
-//            'status_notes' => 'required_if:order_item.taxonomy_id_order_items_status.slug,==,rejected',
                 ],
             [
-//                'vh_st_product_id.required' => 'The Product field is required',
-//                'vh_st_product_variation_id.required' => 'The Product Variation field is required',
-//                'vh_st_vendor_id.required' => 'The Vendor field is required',
-//                'vh_st_customer_group_id.required' => 'The Vendor field is required',
-//                'taxonomy_id_order_items_types.required' => 'The Type field is required',
-//                'taxonomy_id_order_items_status.required' => 'The Status field is required',
-//                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 
