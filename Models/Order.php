@@ -165,6 +165,7 @@ class Order extends Model
         $order_item->vh_st_product_id = $inputs['product']['id'];
         $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
+        $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
         return $response;
