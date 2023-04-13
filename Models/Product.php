@@ -274,7 +274,7 @@ class Product extends Model
         }else{
             return [
                 'success' => false,
-                'errors' => 'Vendor is empty.'
+                'errors' => ['Vendor is empty.']
             ];
         }
     }
@@ -294,6 +294,9 @@ class Product extends Model
         $active_user = auth()->user();
         ProductVendor::where('vh_st_product_id', $product_id)->update(['is_active'=>0]);
         foreach ($vendor_data as $key=>$value){
+
+            $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
+
             if (isset($value['id']) && !empty($value['id'])){
                 $item = ProductVendor::where('id',$value['id'])->first();
                 $item->vh_st_product_id = $product_id;
@@ -304,6 +307,13 @@ class Product extends Model
                 $item->status_notes = $value['status_notes'];
                 $item->is_active = 1;
                 $item->save();
+            }else if($precious_record){
+                $precious_record->added_by = $active_user->id;
+                $precious_record->can_update = $value['can_update'];
+                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $precious_record->status_notes = $value['status_notes'];
+                $precious_record->is_active = 1;
+                $precious_record->save();
             }else {
                 $item = new ProductVendor();
                 $item->vh_st_product_id = $product_id;

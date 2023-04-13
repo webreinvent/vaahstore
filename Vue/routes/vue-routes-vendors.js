@@ -4,6 +4,7 @@ let routes_list= [];
 import List from '../pages/vendors/List.vue'
 import Form from '../pages/vendors/Form.vue'
 import Item from '../pages/vendors/Item.vue'
+import Product from '../pages/vendors/Product.vue'
 
 routes_list = {
 
@@ -22,6 +23,12 @@ routes_list = {
             path: 'view/:id?',
             name: 'vendors.view',
             component: Item,
+            props: true,
+        },
+        {
+            path: 'product/:id?',
+            name: 'vendors.product',
+            component: Product,
             props: true,
         }
     ]
