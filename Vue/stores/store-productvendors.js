@@ -70,12 +70,26 @@ export const useProductVendorStore = defineStore({
         form_menu_list: [],
         added_by_user:null,
         status_suggestion:null,
+        product_variation_suggestion:null,
         disable_approved_by:true,
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion = this.product_variation;
+                }
+                else {
+                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         searchAddeddBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -270,6 +284,7 @@ export const useProductVendorStore = defineStore({
                 this.store = data.store.data;
                 this.added_by_user = data.user.data;
                 this.vendor =data.vendor.data;
+                this.product_variation =data.product_variation.data;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)
@@ -320,6 +335,8 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.product = data.productList.data
                 this.item.taxonomy_id_product_vendor_status = data.status;
+
+                this.item.vh_st_product_variation_id = data.product_variation;
                 if(data.stores.length != 0){
                     this.getProductsListForStore();
                 }
@@ -469,6 +486,12 @@ export const useProductVendorStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
+
+                case 'save-productprice':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/productprice'
+                    break;
                 /**
                  * Delete a record, hence method is `DELETE`
                  * and no need to send entire `item` object
@@ -503,6 +526,8 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
+
+                this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -698,6 +723,12 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.index'})
+        },
+        //---------------------------------------------------------------------
+        toProductPrice(item)
+        {
+            this.item = vaah().clone(this.assets.empty_item);
+            this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toForm()

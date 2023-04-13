@@ -133,7 +133,7 @@ class Order extends Model
 
         $query->whereBetween('updated_at', [$from, $to]);
     }
-    //-------------------------------------------------
+    //-----------------To save and update data of order items--------------------------------
     public static function createOrderItem($request){
         $inputs = $request->all();
 
@@ -491,6 +491,7 @@ class Order extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        //To get data for dropdown of order items
         $array_item = $item->toArray();
         if($item['items']!=null){
             $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
@@ -654,7 +655,7 @@ class Order extends Model
         ];
 
     }
-
+    //-----------------validation for product price--------------------------------
     public static function validationOrderItem($inputs)
     {
         $rules = validator($inputs,

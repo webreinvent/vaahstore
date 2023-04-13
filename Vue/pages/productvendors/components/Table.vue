@@ -60,6 +60,22 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="order_items" header="Order Items"
+                     :sortable="false"  >
+
+
+                 <template #body="prop">
+                     <Button class="p-button-tiny p-button-text"
+                             v-tooltip.top="'Add Price Item'"
+                             @click="store.toProductPrice(prop.data)"
+                             icon="pi pi-eye" ><b>+</b></Button>
+                     <!--                     <div class="p-inputgroup flex-1">-->
+                     <!--                         <button v-tooltip.top="'Add Order Item'" @click="store.toOrderItem(prop.data)"><b>+</b></button>-->
+                     <!--                     </div>-->
+                 </template>
+
+             </Column>
+
              <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"
                      :sortable="true">

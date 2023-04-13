@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
@@ -54,6 +55,7 @@ class ProductVendorsController extends Controller
             $data['store']= Store::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
             $active_user = auth()->user();
             $added_by['id'] = $active_user->id;
             $added_by['name'] = $active_user->first_name;
@@ -88,7 +90,23 @@ class ProductVendorsController extends Controller
         }
         return $response;
     }
-
+    //---------------------To save and update product price-------------------------------------
+    public function createProductPrice(Request $request)
+    {
+        try{
+            return ProductVendor::createProductPrice($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {
