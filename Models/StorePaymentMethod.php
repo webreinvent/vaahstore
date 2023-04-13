@@ -26,10 +26,12 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+        'taxonomy_id_payment_method_status',
+        'vh_st_store_id',
+        'vh_st_payment_method_id',
         'is_active',
-        'created_by',
+        'last_payment_at',
+        'status_notes',
         'updated_by',
         'deleted_by',
     ];
@@ -140,13 +142,10 @@ class StorePaymentMethod extends Model
         }
 
         $item = new self();
-//        $item->fill($inputs);
+        $item->fill($inputs);
         $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
         $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
-        $item->last_payment_at = $inputs['last_payment_at'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -456,13 +455,10 @@ class StorePaymentMethod extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-//        $item->fill($inputs);
+        $item->fill($inputs);
         $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
         $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
         $item->taxonomy_id_payment_method_status = $inputs['taxonomy_id_payment_method_status']['id'];
-        $item->last_payment_at = $inputs['last_payment_at'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);

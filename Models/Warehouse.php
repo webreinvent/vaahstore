@@ -126,14 +126,10 @@ class Warehouse extends Model
         $inputs = $validation_result['data'];
 
         $item = new self();
-        $item->name = $inputs['name'];
+        $item->fill($inputs);
         $item->country  = $inputs['country'];
         $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->state  = $inputs['state'];
-        $item->city  = $inputs['city'];
         $item->taxonomy_id_warehouse_status = $inputs['taxonomy_id_warehouse_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -471,14 +467,9 @@ class Warehouse extends Model
         $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->country  = $inputs['country'];
+        $item->fill($inputs);
         $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->state  = $inputs['state'];
-        $item->city  = $inputs['city'];
         $item->taxonomy_id_warehouse_status = $inputs['taxonomy_id_warehouse_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
