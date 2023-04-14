@@ -27,6 +27,7 @@ class VhStproductmedias extends Migration
                 $table->bigInteger('image_size')->nullable()->index();
                 $table->string('thumbnail_url')->nullable();
                 $table->bigInteger('thumbnail_size')->nullable()->index();
+                $table->string('mime_type')->nullable();
                 $table->string('url')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 

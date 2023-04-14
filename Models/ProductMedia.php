@@ -159,6 +159,7 @@ class ProductMedia extends Model
             $item->image_size = $image['image_size'];
             $item->thumbnail_url = $image['thumbnail_url'];
             $item->thumbnail_size = $image['thumbnail_size'];
+            $item->mime_type = $image['mime_type'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
         }
@@ -599,6 +600,7 @@ class ProductMedia extends Model
                 $item->thumbnail_url = $image['thumbnail_url'];
                 $item->image_size = $image['image_size'];
                 $item->thumbnail_size = $image['thumbnail_size'];
+                $item->mime_type = $image['mime_type'];
                 $item->image_url = $image['image_url'];
                 $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
                 $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];

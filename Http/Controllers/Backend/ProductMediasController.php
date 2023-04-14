@@ -107,6 +107,7 @@ class ProductMediasController extends Controller
                     $new_array['thumbnail_url'] = $response['data']['url_thumbnail'];
                     $new_array['image_url'] = $response['data']['url'];
                     $new_array['thumbnail_size'] = $response['data']['thumbnail_size'];
+                    $new_array['mime_type'] = $response['data']['mime_type'];
                     $response_list[] = $new_array;
 
                 }else{
