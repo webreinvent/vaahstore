@@ -137,7 +137,9 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' ||column === 'product_variation' || column === 'updated_by'|| column === 'product'|| column === 'status'">
+                        <template v-if="column === 'created_by' ||column === 'product_variation' ||
+                        column === 'updated_by'|| column === 'product'|| column === 'status'|| column === 'base_path'||
+                        column === 'images' || column === 'thumbnail_name' || column === 'image_size' || column === 'thumbnail_size'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -147,7 +149,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                        || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -182,9 +185,9 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'path'">
+                        <template v-else-if="column === 'image_name'">
                             <VhViewRow label="image"
-                                       :value="store.item.base_path+'/'+store.item.path"
+                                       :value="store.item.base_path+'/'+store.item.image_name"
                                        type="image_preview"
                             />
                         </template>
