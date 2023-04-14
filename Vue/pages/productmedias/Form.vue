@@ -137,12 +137,12 @@ const toggleFormMenu = (event) => {
                             <Image v-if="store.item.images && store.item.images.length > 0"
                                    class="p-1"
                                    v-for="(item) in store.item.images"
-                                   :src="store.item.base_path+'/'+item['image_name']"
+                                   :src="store.item.base_path+'/'+item['image_url']"
                                    preview
                                    alt="Image"
                                    width="150" />
-                            <Image v-else-if="store.item.image_name"
-                                    :src="store.item.base_path+'/'+store.item.image_name"
+                            <Image v-else-if="store.item.image_url"
+                                    :src="store.item.base_path+'/'+store.item.image_url"
                                    preview
                                    alt="Image"
                                    width="150" />

@@ -139,7 +139,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' ||column === 'product_variation' ||
                         column === 'updated_by'|| column === 'product'|| column === 'status'|| column === 'base_path'||
-                        column === 'images' || column === 'thumbnail_name' || column === 'image_size' || column === 'thumbnail_size'">
+                        column === 'images' || column === 'thumbnail_url' || column === 'image_size' || column === 'thumbnail_size'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -185,9 +185,9 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'image_name'">
+                        <template v-else-if="column === 'image_url'">
                             <VhViewRow label="image"
-                                       :value="store.item.base_path+'/'+store.item.image_name"
+                                       :value="store.item.base_path+'/'+store.item.image_url"
                                        type="image_preview"
                             />
                         </template>

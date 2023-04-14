@@ -48,7 +48,7 @@ class ProductMediasController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['base_path'] = url('storage/media');
+            $data['empty_item']['base_path'] = url('');
             $data['empty_item']['images'] = [];
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
@@ -104,8 +104,8 @@ class ProductMediasController extends Controller
 
                     $new_array = [];
                     $new_array['image_size'] = $response['data']['image_size'];
-                    $new_array['thumbnail_name'] = $response['data']['thumbnail_name'];
-                    $new_array['image_name'] = $response['data']['image_name'];
+                    $new_array['thumbnail_url'] = $response['data']['url_thumbnail'];
+                    $new_array['image_url'] = $response['data']['url'];
                     $new_array['thumbnail_size'] = $response['data']['thumbnail_size'];
                     $response_list[] = $new_array;
 

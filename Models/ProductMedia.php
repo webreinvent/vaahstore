@@ -35,9 +35,9 @@ class ProductMedia extends Model
         'vh_st_product_variation_id',
         'taxonomy_id_product_media_status',
         'status_notes',
-        'image_name',
+        'image_url',
         'image_size',
-        'thumbnail_name',
+        'thumbnail_url',
         'thumbnail_size',
         'url',
         'meta',
@@ -149,15 +149,15 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-        foreach ($inputs['image_name'] as $image)
+        foreach ($inputs['image_url'] as $image)
         {
             $item = new self();
             $item->fill($inputs);
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->image_name = $image['image_name'];
+            $item->image_url = $image['image_url'];
             $item->image_size = $image['image_size'];
-            $item->thumbnail_name = $image['thumbnail_name'];
+            $item->thumbnail_url = $image['thumbnail_url'];
             $item->thumbnail_size = $image['thumbnail_size'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
@@ -440,7 +440,7 @@ class ProductMedia extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        $item->base_path = url('storage/media');
+        $item->base_path = url('');
         $item->images = [];
         $response['success'] = true;
         $response['data'] = $item;
@@ -596,10 +596,10 @@ class ProductMedia extends Model
             foreach ($inputs['images'] as $image){
                 $item = self::where('id', $id)->withTrashed()->first();
                 $item->fill($inputs);
-                $item->thumbnail_name = $image['thumbnail_name'];
+                $item->thumbnail_url = $image['thumbnail_url'];
                 $item->image_size = $image['image_size'];
                 $item->thumbnail_size = $image['thumbnail_size'];
-                $item->image_name = $image['image_name'];
+                $item->image_url = $image['image_url'];
                 $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
                 $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
                 $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
@@ -674,11 +674,11 @@ class ProductMedia extends Model
             'taxonomy_id_product_media_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
             'url'=> 'required|max:150',
-            'image_name'=> 'required|max:150',
+            'image_url'=> 'required|max:150',
                 ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
-            'image_name.required' => 'The Image field is required',
+            'image_url.required' => 'The image field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'vh_st_product_variation_id.required' => 'The Product variation field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
