@@ -48,7 +48,8 @@ class ProductMediasController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['base_path'] = url('images');
+            $data['empty_item']['base_path'] = url('storage/media');
+            $data['empty_item']['images'] = [];
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
             $data['product']=Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
@@ -84,10 +85,45 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function uploadImage(Request $request){
         try{
-            return ProductMedia::saveUploadImage($request);
+
+            $inputs = $request->all();
+
+
+
+            $response_list = [];
+
+            foreach ($inputs['images'] as $file){
+                $list = [];
+                $list['file'] = $file;
+                $list['folder_path'] = 'public/media';
+
+
+
+                $response = ProductMedia::saveUploadImage(new Request($list));
+                if ($response['status']){
+
+                    $new_array = [];
+                    $new_array['image_size'] = $response['data']['image_size'];
+                    $new_array['thumbnail_name'] = $response['data']['thumbnail_name'];
+                    $new_array['image_name'] = $response['data']['image_name'];
+                    $new_array['thumbnail_size'] = $response['data']['thumbnail_size'];
+                    $response_list[] = $new_array;
+
+                }else{
+                    $response_list[] = $response;
+                }
+
+            }
+
+            return [
+                'status' => $response['status'],
+                'data'  => $response_list
+            ];
+
+//            return ProductMedia::saveUploadImage($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['status'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();

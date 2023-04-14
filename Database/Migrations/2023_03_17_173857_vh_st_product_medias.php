@@ -23,7 +23,10 @@ class VhStproductmedias extends Migration
                 $table->integer('taxonomy_id_product_media_status')->nullable()->index();
 
                 $table->string('status_notes')->nullable();
-                $table->string('path')->nullable();
+                $table->string('image_name')->nullable();
+                $table->bigInteger('image_size')->nullable()->index();
+                $table->string('thumbnail_name')->nullable();
+                $table->bigInteger('thumbnail_size')->nullable()->index();
                 $table->string('url')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 

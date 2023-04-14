@@ -143,7 +143,8 @@ export const useProductMediaStore = defineStore({
         afterUploadImage(data, res){
             if(data)
             {
-                this.item.path = data;
+                this.item.image_name = data;
+                this.item.images = data;
             }
         },
         //---------------------------------------------------------------------
@@ -310,7 +311,6 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.path = [data.path];
                 this.item.taxonomy_id_product_media_status = data.status;
                 this.item.vh_st_product_id = data.product;
                 this.item.vh_st_product_variation_id = data.product_variation;
@@ -493,7 +493,6 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 this.item.taxonomy_id_product_media_status = data.status;
-                this.item.path = data.img_prev;
                 this.item.vh_st_product_id = data.product;
                 this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
