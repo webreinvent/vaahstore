@@ -143,15 +143,12 @@ class ProductStock extends Model
 
 
         $item = new self();
-        $item->name = $inputs['name'];
+        $item->fill($inputs);
         $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
         $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
         $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
         $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
-        $item->quantity = $inputs['quantity'];
         $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -501,15 +498,12 @@ class ProductStock extends Model
 
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
+        $item->fill($inputs);
         $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
         $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
         $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
         $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
-        $item->quantity = $inputs['quantity'];
         $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

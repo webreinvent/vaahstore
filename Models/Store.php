@@ -26,7 +26,7 @@ class Store extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name', 'slug', 'notes', 'is_multi_currency',
+        'name', 'slug', 'is_multi_currency',
         'is_multi_lingual', 'is_multi_vendor', 'allowed_ips',
         'is_default', 'is_active', 'taxonomy_id_store_status',
         'status_notes', 'meta',
@@ -138,16 +138,10 @@ class Store extends Model
         }
 
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'];
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
+        $item->fill($inputs);
         $item->allowed_ips =json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->notes = $inputs['notes'];
-        $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -217,7 +211,6 @@ class Store extends Model
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
-            'notes' => 'required',
             'is_active' => 'required',
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
@@ -593,15 +586,10 @@ class Store extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->is_multi_currency  = $inputs['is_multi_currency'];
-        $item->is_multi_lingual  = $inputs['is_multi_lingual'];
-        $item->is_multi_vendor  = $inputs['is_multi_vendor'];
+        $item->fill($inputs);
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->notes = $inputs['notes'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

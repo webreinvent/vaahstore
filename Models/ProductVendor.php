@@ -183,13 +183,10 @@ class ProductVendor extends Model
 
             $item = new self();
             $item->fill($inputs);
-            $item->status_notes = $inputs['status_notes'];
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             $item->vh_st_vendor_id = $inputs['vendor']['id'];
-            $item->is_active = $inputs['is_active'];
             $item->vh_st_product_id = $inputs['product']['id'];
             $item->added_by = $inputs['added_by']['id'];
-            $item->can_update = $inputs['can_update'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -510,14 +507,11 @@ class ProductVendor extends Model
             }
 
             $item = self::where('id', $id)->withTrashed()->first();
-            $item->status_notes = $inputs['status_notes'];
+            $item->fill($inputs);
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             $item->vh_st_vendor_id = $inputs['vendor']['id'];
-            $item->is_active = $inputs['is_active'];
             $item->vh_st_product_id = $inputs['product']['id'];
             $item->added_by = $inputs['added_by']['id'];
-            $item->can_update = $inputs['can_update'];
-            $item->is_active = $inputs['is_active'];
             $item->save();
 
             $response = self::getItem($item->id);
