@@ -47,13 +47,11 @@ class WarehousesController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-
-            $data['countrys_list'] = array_column(VaahCountry::getList(), 'name');
-            $data['vendors_list'] = Vendor::where('is_active',1)->get(['id', 'name']);
-            $data['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
             $data['empty_item']['is_active'] = 1;
 
             $data['actions'] = [];
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -71,7 +69,26 @@ class WarehousesController extends Controller
 
         return $response;
     }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['countrys_list'] = array_column(VaahCountry::getList(), 'name');
+            $data['vendors_list'] = Vendor::where('is_active',1)->get();
+            $data['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
 
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

@@ -58,17 +58,9 @@ class OrdersController extends Controller
             $data['is_active_order_item'] = 1;
             $data['empty_item']['is_paid'] = 0;
             $data['empty_item']['paid'] = 0;
-            $data['status_orders'] = Taxonomy::getTaxonomyByType('order-status');
-            $data['payment_method'] = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->select('id','name','slug','deleted_at','is_active')->paginate(config('vaahcms.per_page'));
-            $data['user'] = User::where(['is_active'=>1,'deleted_at'=>null])->get(['id','first_name','email']);
 
-            $data['status_order_items'] = Taxonomy::getTaxonomyByType('order-items-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('order-items-types');
-            $data['order'] = Order::where('is_active',1)->get(['id']);
-            $data['product'] = Product::where('is_active',1)->get(['id','name','slug']);
-            $data['product_variation'] = ProductVariation::where('is_active',1)->get(['id','name','slug']);
-            $data['vendor'] = Vendor::where('is_active',1)->get(['id','name','slug']);
-            $data['customer_group'] = CustomerGroup::get(['id','name','slug']);
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -85,6 +77,34 @@ class OrdersController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+
+            $data['status_orders'] = Taxonomy::getTaxonomyByType('order-status');
+            $data['payment_method'] = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['user'] = User::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['status_order_items'] = Taxonomy::getTaxonomyByType('order-items-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('order-items-types');
+            $data['order'] = Order::where('is_active',1)->get();
+            $data['product'] = Product::where('is_active',1)->get();
+            $data['product_variation'] = ProductVariation::where('is_active',1)->get();
+            $data['vendor'] = Vendor::where('is_active',1)->get();
+            $data['customer_group'] = CustomerGroup::get();
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //----------------------------------------------------------
     public function createOrderItems(Request $request)

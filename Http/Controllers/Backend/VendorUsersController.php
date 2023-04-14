@@ -50,11 +50,9 @@ class VendorUsersController extends Controller
 
             $data['empty_item']['is_active'] = 1;
 
-            $data['users'] = User::where('is_active',1)->get(['id','first_name']);
-            $data['vendors'] = Vendor::where('is_active',1)->get(['id','name']);
-            $data['roles'] = Taxonomy::getTaxonomyByType('vendor-roles');
-
             $data['actions'] = [];
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -72,7 +70,25 @@ class VendorUsersController extends Controller
 
         return $response;
     }
-
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['users'] = User::where('is_active',1)->get();
+            $data['vendors'] = Vendor::where('is_active',1)->get();
+            $data['roles'] = Taxonomy::getTaxonomyByType('vendor-roles');
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

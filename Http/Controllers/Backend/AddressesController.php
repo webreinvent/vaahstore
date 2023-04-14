@@ -46,10 +46,10 @@ class AddressesController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
-            $data['type'] = Taxonomy::getTaxonomyByType('address-types');
-            $data['status'] = Taxonomy::getTaxonomyByType('address-status');
+
             $data['actions'] = [];
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -66,6 +66,27 @@ class AddressesController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+
+            $data['user'] = User::where('is_active',1)->get();
+            $data['type'] = Taxonomy::getTaxonomyByType('address-types');
+            $data['status'] = Taxonomy::getTaxonomyByType('address-status');
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

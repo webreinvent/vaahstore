@@ -235,8 +235,8 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.user = data.user.data
-                this.approved_by_user = data.user.data
+                this.user = data.user
+                this.approved_by_user = data.user
                 this.status = data.status
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)

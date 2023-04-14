@@ -50,11 +50,6 @@ const items = ref([
                 to: "/productmedias"
             },
             {
-                label: 'Product Prices',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/productprices"
-            },
-            {
                 label: 'Product Stocks',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/productstocks"

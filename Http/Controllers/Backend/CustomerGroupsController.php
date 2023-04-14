@@ -47,7 +47,8 @@ class CustomerGroupsController extends Controller
             }
 
             $data['actions'] = [];
-            $data['status'] = Taxonomy::getTaxonomyByType('customer-groups-status');
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -64,6 +65,24 @@ class CustomerGroupsController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['status'] = Taxonomy::getTaxonomyByType('customer-groups-status');
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

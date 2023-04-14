@@ -56,13 +56,9 @@ class ProductsController extends Controller
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['all_variation'] = [];
 
-
-            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
-
-            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
             $data['actions'] = [];
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
             $default_store = [];
             foreach($data['store'] as $k=>$arr)
             {
@@ -101,6 +97,28 @@ class ProductsController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->get();
+            $data['store']=Store::where('is_active',1)->get();
+
+            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

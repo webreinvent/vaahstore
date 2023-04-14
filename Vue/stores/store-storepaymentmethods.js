@@ -226,8 +226,8 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.store = data.store.data;
-                this.payment_method = data.payment_method.data;
+                this.store = data.store;
+                this.payment_method = data.payment_method;
                 this.status = data.status;
                 if(data.rows)
                 {
