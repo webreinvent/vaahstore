@@ -265,10 +265,8 @@ class Product extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
-        $item->status_notes = $inputs['status_notes'];
         $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
         if(is_string($inputs['vh_st_brand_id']['name'])){
             $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
@@ -280,15 +278,11 @@ class Product extends Model
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
         }else{
-            $item->quantity = $inputs['quantity'];
             $item->in_stock = 1;
         }
         if($inputs['quantity']==0){
             $item->in_stock = 0;
         }
-        $item->is_active = $inputs['is_active'];
-
-
         $item->save();
 
         $response = self::getItem($item->id);
@@ -629,7 +623,6 @@ class Product extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
         if(is_string($inputs['vh_st_brand_id']['name'])){
             $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
@@ -643,19 +636,16 @@ class Product extends Model
         }
         $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
         $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
 
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1';
             return $response;
         }else{
-            $item->quantity = $inputs['quantity'];
             $item->in_stock = 1;
         }
         if($inputs['quantity']==0){
             $item->in_stock = 0;
         }
-        $item->is_active = $inputs['is_active'];
         $item->save();
 
         $response = self::getItem($item->id);
