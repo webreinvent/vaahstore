@@ -158,15 +158,14 @@ class ProductVariation extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->sku = $inputs['sku'];
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
         }
+//        else{
+//            $item->quantity = $inputs['quantity'];
+//            $item->in_stock = $inputs['in_stock'];
+//        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
@@ -503,15 +502,14 @@ class ProductVariation extends Model
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
         $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->sku = $inputs['sku'];
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1';
             return $response;
-        }else{
-            $item->quantity = $inputs['quantity'];
-            $item->in_stock = $inputs['in_stock'];
         }
+//        else{
+//            $item->quantity = $inputs['quantity'];
+//            $item->in_stock = $inputs['in_stock'];
+//        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
