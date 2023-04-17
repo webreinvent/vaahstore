@@ -53,11 +53,21 @@ class OrdersController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['is_active_order_item'] = 1;
+            $data['empty_item']['is_active_order_item'] = 1;
             $data['empty_item']['is_paid'] = 0;
             $data['empty_item']['paid'] = 0;
+            $data['empty_item']['status_orders'] = null;
+            $data['empty_item']['payment_method'] = null;
+            $data['empty_item']['user'] = null;
+            $data['empty_item']['status_order_items'] = null;
+            $data['empty_item']['type'] = null;
+            $data['empty_item']['order'] = null;
+            $data['empty_item']['product'] = null;
+            $data['empty_item']['product_variation'] = null;
+            $data['empty_item']['vendor'] = null;
+            $data['empty_item']['customer_group'] = null;
+            $data['actions'] = [];
 
             $get_data = self::getData();
             $data = array_merge($data, $get_data);

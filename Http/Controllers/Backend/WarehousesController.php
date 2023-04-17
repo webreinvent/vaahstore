@@ -48,8 +48,11 @@ class WarehousesController extends Controller
                 $data['empty_item'][$column] = null;
             }
             $data['empty_item']['is_active'] = 1;
-
+            $data['empty_item']['countrys_list'] = null;
+            $data['empty_item']['vendors_list'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

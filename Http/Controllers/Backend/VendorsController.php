@@ -54,8 +54,8 @@ class VendorsController extends Controller
             $data['empty_item']['approve_by'] = null;
             $data['empty_item']['owned_by'] = null;
             $data['empty_item']['status'] = null;
-
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
             $default_store = [];
@@ -91,11 +91,8 @@ class VendorsController extends Controller
     public function getData(){
         try{
             $data['stores'] = Store::where('is_active', 1)->get();
-
             $data['users'] = User::where('is_active',1)->get();
-
             $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
             $data['approved_by']  = auth()->user();
 
             return $data;

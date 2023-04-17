@@ -48,7 +48,11 @@ class ProductPricesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['vendor'] = null;
+            $data['empty_item']['product'] = null;
+            $data['empty_item']['product_variation'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
             $data['empty_item']['is_active'] = 1;

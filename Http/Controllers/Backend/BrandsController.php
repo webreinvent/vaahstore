@@ -47,8 +47,9 @@ class BrandsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
+            $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

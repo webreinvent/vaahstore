@@ -48,8 +48,9 @@ class AttributesController extends Controller
 
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['value'] = [];
-
+            $data['empty_item']['product_variation_list'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

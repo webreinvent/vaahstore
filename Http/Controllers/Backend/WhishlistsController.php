@@ -47,7 +47,11 @@ class WhishlistsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['type'] = null;
+            $data['empty_item']['user'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

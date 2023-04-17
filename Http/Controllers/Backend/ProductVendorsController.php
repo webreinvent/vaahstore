@@ -59,7 +59,6 @@ class ProductVendorsController extends Controller
             $data['empty_item']['added_by'] = null;
             $data['empty_item']['status'] = null;
             $data['empty_item']['status_notes'] = null;
-
             $data['actions'] = [];
 
             $get_data = self::getData();
@@ -277,15 +276,10 @@ class ProductVendorsController extends Controller
     public function getData(){
         try{
             $data['vendor']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-
             $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             $data['added_by'] = auth()->user();
 
             return $data;

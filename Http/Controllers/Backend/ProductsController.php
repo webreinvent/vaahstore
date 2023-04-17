@@ -54,9 +54,13 @@ class ProductsController extends Controller
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['product_variation'] = null;
+            $data['empty_item']['brand'] = null;
+            $data['empty_item']['store'] = null;
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['type'] = null;
             $data['empty_item']['all_variation'] = [];
-
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
             $default_store = [];

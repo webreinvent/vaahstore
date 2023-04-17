@@ -49,8 +49,11 @@ class VendorUsersController extends Controller
             }
 
             $data['empty_item']['is_active'] = 1;
-
+            $data['empty_item']['users'] = null;
+            $data['empty_item']['vendors'] = null;
+            $data['empty_item']['roles'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

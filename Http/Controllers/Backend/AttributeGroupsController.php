@@ -47,8 +47,9 @@ class AttributeGroupsController extends Controller
             }
 
             $data['empty_item']['is_active'] = 1;
-
+            $data['empty_item']['attribute_list'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

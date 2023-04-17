@@ -46,7 +46,10 @@ class CustomerGroupsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 

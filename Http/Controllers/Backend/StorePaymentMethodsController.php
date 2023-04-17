@@ -54,8 +54,8 @@ class StorePaymentMethodsController extends Controller
             $data['empty_item']['last_payment_at'] = null;
             $data['empty_item']['status'] = null;
             $data['empty_item']['status_notes'] = null;
-
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
             $default_store = [];

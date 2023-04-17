@@ -56,6 +56,7 @@ class ProductVariationsController extends Controller
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['status'] = null;
             $data['empty_item']['product'] = null;
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
             $default_product = [];

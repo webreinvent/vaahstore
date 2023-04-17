@@ -53,8 +53,13 @@ class ProductStocksController extends Controller
             //set default value
             $data['empty_item']['quantity'] = 1;
             $data['empty_item']['is_active'] = 1;
-
+            $data['empty_item']['vendors_list'] = null;
+            $data['empty_item']['products_list'] = null;
+            $data['empty_item']['product_variations_list'] = null;
+            $data['empty_item']['warehouses_list'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
+
             $get_data = self::getData();
             $data = array_merge($data, $get_data);
 
@@ -79,13 +84,9 @@ class ProductStocksController extends Controller
     public function getData(){
         try{
             $data['vendors_list'] = Vendor::where('is_active', 1)->get();
-
             $data['products_list'] = Product::where('is_active', 1)->get();
-
             $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get();
-
             $data['warehouses_list'] = Warehouse::where('is_active', 1)->get();
-
             $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 
             return $data;

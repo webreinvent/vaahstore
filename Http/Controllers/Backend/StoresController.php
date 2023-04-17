@@ -59,8 +59,8 @@ class StoresController extends Controller
         $data['empty_item']['currency_default'] = null;
         $data['empty_item']['languages'] = null;
         $data['empty_item']['language_default'] = null;
-
         $data['actions'] = [];
+
         $get_data = self::getData();
         $data = array_merge($data, $get_data);
         $response['success'] = true;
