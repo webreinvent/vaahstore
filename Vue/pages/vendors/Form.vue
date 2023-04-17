@@ -117,6 +117,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Store">
                     <AutoComplete v-model="store.item.vh_st_store_id"
+                                  value="id"
                                   class="w-full"
                                   placeholder="Select Store"
                                   data-testid="vendors-vh_st_store_id"
@@ -135,6 +136,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Approve By">
                     <AutoComplete v-model="store.item.approved_by"
+                                  value="id"
                                   class="w-full"
                                   placeholder="Select Approve By"
                                   data-testid="vendors-approved_by"
@@ -156,6 +158,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Owned By">
                     <AutoComplete v-model="store.item.owned_by"
+                                  value="id"
                                   class="w-full"
                                   data-testid="vendors-owned_by"
                                   name="vendors-owned_by"
@@ -177,6 +180,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete v-model="store.item.taxonomy_id_vendor_status"
+                                  value="id"
                                   data-testid="vendors-taxonomy_id_vendor_status"
                                   name="vendors-taxonomy_id_vendor_status"
                                   class="w-full"

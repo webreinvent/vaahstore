@@ -102,6 +102,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product variation">
                     <AutoComplete v-model="store.item.vh_st_product_variation_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productattributes-vh_st_product_variation_id"
                                   :suggestions="store.product_variation_suggestion_list"
@@ -120,6 +121,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Attributes">
                     <AutoComplete v-model="store.item.vh_st_attribute_id"
+                                  value="id"
                                   class="w-full"
                                   placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"

@@ -117,6 +117,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete v-model="store.item.vh_st_vendor_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productstocks-vh_st_vendor_id"
                                   :suggestions="store.vendors_suggestion_list"
@@ -135,6 +136,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete v-model="store.item.vh_st_product_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productstocks-vh_st_product_id"
                                   :suggestions="store.products_suggestion_list"
@@ -153,6 +155,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product Variation">
                     <AutoComplete v-model="store.item.vh_st_product_variation_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productstocks-vh_st_product_variation_id"
                                   :suggestions="store.product_variations_suggestion_list"
@@ -171,6 +174,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Warehouse">
                     <AutoComplete v-model="store.item.vh_st_warehouse_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productstocks-vh_st_warehouse_id"
                                   :suggestions="store.warehouses_suggestion_list"
@@ -199,6 +203,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete v-model="store.item.taxonomy_id_product_stock_status"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productstocks-taxonomy_id_product_stock_status"
                                   :suggestions="store.status_suggestion_list"

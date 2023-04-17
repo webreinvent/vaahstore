@@ -118,11 +118,11 @@ const toggleFormMenu = (event) => {
                 <VhField label="Registered By ">
 
                     <AutoComplete
+                        value="id"
                         v-model="store.item.registered_by"
                         class="w-full"
                         name="brands-registered_by"
                         id="registered_by"
-                        value="registered_by"
                         data-testid="brands-registered_by"
                         :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
@@ -151,7 +151,7 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         name="brands-approved_by"
                         id="approved_by"
-                        value="approved_by"
+                        value="id"
                         data-testid="brands-approved_by"
                         :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
@@ -177,6 +177,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.taxonomy_id_brand_status"
                         class="w-full"
+                        value="id"
                         name="brands-status"
                         data-testid="brands-status"
                         :suggestions="store.status_suggestion"

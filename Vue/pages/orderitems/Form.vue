@@ -102,6 +102,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="User">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_user_id"
                         class="w-full"
                         name="orderitems-user"
@@ -116,6 +117,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Order">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_order_id"
                         class="w-full"
                         name="orderitems-order"
@@ -130,6 +132,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Types">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_order_items_types"
                         class="w-full"
                         name="orderitems-types"
@@ -144,6 +147,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_product_id"
                         class="w-full"
                         name="orderitems-product"
@@ -158,6 +162,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product Variation">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_product_variation_id"
                         class="w-full"
                         name="orderitems-product_variation"
@@ -172,6 +177,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_vendor_id"
                         class="w-full"
                         name="orderitems-vendor"
@@ -186,6 +192,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Customer Groups">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_customer_group_id"
                         class="w-full"
                         name="orderitems-customer_group"
@@ -216,6 +223,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_order_items_status"
                         class="w-full"
                         name="orderitems-status"

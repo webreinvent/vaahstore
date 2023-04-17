@@ -88,6 +88,7 @@ const toggleFormMenu = (event) => {
             <div v-if="store.item">
                 <VhField label="Types">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.types"
                         class="w-full"
                         name="orderitems-types"
@@ -102,6 +103,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.product"
                         class="w-full"
                         name="orderitems-product"
@@ -116,6 +118,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product Variation">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.product_variation"
                         class="w-full"
                         name="orderitems-product_variation"
@@ -130,6 +133,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vendor"
                         class="w-full"
                         name="orderitems-vendor"
@@ -144,6 +148,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Customer Groups">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.customer_group"
                         class="w-full"
                         name="orderitems-customer_group"
@@ -174,6 +179,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.status_order_items"
                         class="w-full"
                         name="orders-status"

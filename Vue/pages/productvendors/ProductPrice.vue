@@ -102,6 +102,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Product Variation">
 
                     <AutoComplete
+                        value="id"
                         v-model="store.item.product_variation"
                         class="w-full"
                         :suggestions="store.product_variation_suggestion"

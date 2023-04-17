@@ -104,6 +104,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.vh_user_id"
                         class="w-full"
+                        value="id"
                         name="addresses-user"
                         :suggestions="store.user_suggestion"
                         @complete="store.searchUser($event)"
@@ -118,6 +119,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.taxonomy_id_address_types"
                         class="w-full"
+                        value="id"
                         name="addresses-type"
                         :suggestions="store.type_suggestion"
                         @complete="store.searchType($event)"
@@ -152,6 +154,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
+                        value="id"
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-status"
                         forceSelection>
