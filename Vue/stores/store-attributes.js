@@ -218,7 +218,7 @@ export const useAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.product_variation_options = data.active_product_variation_lists;
+                this.product_variation_options = data.product_variations;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

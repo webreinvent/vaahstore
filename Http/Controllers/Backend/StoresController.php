@@ -52,8 +52,8 @@ class StoresController extends Controller
         }
 
         $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('store-status');
-        $data['currencies_lists'] = VaahCountry::getListWithCurrency();
-        $data['languages_lists'] = VaahCountry::getListWithLanguage();
+        $data['currencies'] = VaahCountry::getListWithCurrency();
+        $data['languages'] = VaahCountry::getListWithLanguage();
 
         $data['empty_item']['is_multi_currency'] = 0;
         $data['empty_item']['is_multi_lingual'] = 0;

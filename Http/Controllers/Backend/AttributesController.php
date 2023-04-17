@@ -72,7 +72,7 @@ class AttributesController extends Controller
     //------------------------Get Product Variation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['active_product_variation_lists'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['product_variations'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

@@ -83,7 +83,7 @@ class ProductStocksController extends Controller
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
-            $data['vendors_lists'] = Vendor::where('is_active', 1)->get();
+            $data['vendors'] = Vendor::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -100,7 +100,7 @@ class ProductStocksController extends Controller
     //------------------------Get Product data for dropdown----------------------------------
     public function getProductData(){
         try{
-            $data['products_lists'] = Product::where('is_active', 1)->get();
+            $data['products'] = Product::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -117,7 +117,7 @@ class ProductStocksController extends Controller
     //------------------------Get Product Variation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['product_variations_lists'] = ProductVariation::where('is_active', 1)->get();
+            $data['product_variations'] = ProductVariation::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -134,7 +134,7 @@ class ProductStocksController extends Controller
     //------------------------Get Warehouse data for dropdown----------------------------------
     public function getWarehouseData(){
         try{
-            $data['warehouses_lists'] = Warehouse::where('is_active', 1)->get();
+            $data['warehouses'] = Warehouse::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

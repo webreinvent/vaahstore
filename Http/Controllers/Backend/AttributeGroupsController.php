@@ -46,7 +46,7 @@ class AttributeGroupsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['attribute_lists'] = Attribute::get();
+            $data['attributes'] = Attribute::get();
 
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];

@@ -260,10 +260,10 @@ export const useProductStockStore = defineStore({
             {
                 this.assets = data;
                 this.status_option = data.taxonomy.status;
-                this.vendors_option = data.vendors_lists;
-                this.products_option = data.products_lists;
-                this.warehouses_option = data.warehouses_lists;
-                this.product_variations_option = data.product_variations_lists;
+                this.vendors_option = data.vendors;
+                this.products_option = data.products;
+                this.warehouses_option = data.warehouses;
+                this.product_variations_option = data.product_variations;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

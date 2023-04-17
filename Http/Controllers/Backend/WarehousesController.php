@@ -49,7 +49,7 @@ class WarehousesController extends Controller
             }
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
-            $data['countrys_lists'] = array_column(VaahCountry::getList(), 'name');
+            $data['countrys'] = array_column(VaahCountry::getList(), 'name');
 
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
@@ -76,7 +76,7 @@ class WarehousesController extends Controller
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
-            $data['vendors_lists'] = Vendor::where('is_active',1)->get();
+            $data['vendors'] = Vendor::where('is_active',1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

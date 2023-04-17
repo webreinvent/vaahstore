@@ -221,8 +221,8 @@ export const useStoreStore = defineStore({
             {
                 this.assets = data;
                 this.status_option = data.taxonomy.status;
-                this.currencies_list = data.currencies_lists;
-                this.languages_list = data.languages_lists;
+                this.currencies_list = data.currencies;
+                this.languages_list = data.languages;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

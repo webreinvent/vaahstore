@@ -184,7 +184,7 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.attribute_list = data.attribute_lists;
+                this.attribute_list = data.attributes;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
