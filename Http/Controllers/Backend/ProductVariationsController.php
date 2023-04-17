@@ -90,7 +90,7 @@ class ProductVariationsController extends Controller
     public function getData(){
         try{
             $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
-            $data['product']= Product::where(['is_active'=>1,'deleted_at'=>null])->geet();
+            $data['product']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
 
             return $data;
         }catch (\Exception $e){
