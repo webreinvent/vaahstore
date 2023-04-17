@@ -59,12 +59,8 @@ class VendorsController extends Controller
 
             $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
 
-            $product_list = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['product_list'] = $product_list;
-            $default_product = $product_list->where('is_default',1);
-            foreach ($default_product as $k=>$v){
-                $data['default_product'] = $v;
-            }
+            $data['product_list'] = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $default_product = $this->getDefault($data['product_list']);
 
             $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 

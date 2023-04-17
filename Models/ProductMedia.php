@@ -168,16 +168,6 @@ class ProductMedia extends Model
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-//            $item->name = $image['extension'];
-//            $item->slug = $image['extension'];
-//            $item->url = $image['extension'];
-//            $item->path = $image['extension'];
-//            $item->size = $image['extension'];
-//            $item->type = $image['extension'];
-//            $item->extension = $image['extension'];
-//            $item->mime_type = $image['extension'];
-//            $item->url_thumbnail = $image['extension'];
-//            $item->thumbnail_size = $image['extension'];
             $item->is_active = 1;
             $item->save();
         }

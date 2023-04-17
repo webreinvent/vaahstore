@@ -109,7 +109,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function ProductVendors()
+    public function productVendors()
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
             ->where('vh_st_product_vendors.is_active', 1)
@@ -477,7 +477,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'ProductVendors');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
