@@ -47,10 +47,13 @@ class WhishlistsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['type'] = null;
+            $data['empty_item']['user'] = null;
             $data['actions'] = [];
-            $data['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
-            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
+
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -67,6 +70,27 @@ class WhishlistsController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+
+            $data['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['user'] = User::where('is_active',1)->get();
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

@@ -54,8 +54,11 @@ class ProductVariationsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
-            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
-            $data['product']= Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['product'] = null;
+
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
             $default_product = [];
             foreach($data['product'] as $l=>$product)
             {
@@ -82,6 +85,25 @@ class ProductVariationsController extends Controller
         }
 
         return $response;
+    }
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+            $data['product']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

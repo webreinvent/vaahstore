@@ -478,8 +478,8 @@ export const useProductStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.brand = data.brand.data;
-                this.store = data.store.data;
+                this.brand = data.brand;
+                this.store = data.store;
                 this.type = data.type;
                 if(data.rows)
                 {

@@ -53,19 +53,15 @@ class ProductStocksController extends Controller
             //set default value
             $data['empty_item']['quantity'] = 1;
             $data['empty_item']['is_active'] = 1;
-
-            //get assets list
-            $data['vendors_list'] = Vendor::where('is_active', 1)->get(['id', 'name']);
-
-            $data['products_list'] = Product::where('is_active', 1)->get(['id', 'name']);
-
-            $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get(['id', 'name']);
-
-            $data['warehouses_list'] = Warehouse::where('is_active', 1)->get(['id', 'name']);
-
-            $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
-
+            $data['empty_item']['vendors_list'] = null;
+            $data['empty_item']['products_list'] = null;
+            $data['empty_item']['product_variations_list'] = null;
+            $data['empty_item']['warehouses_list'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
+
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -84,6 +80,28 @@ class ProductStocksController extends Controller
         return $response;
     }
 
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['vendors_list'] = Vendor::where('is_active', 1)->get();
+            $data['products_list'] = Product::where('is_active', 1)->get();
+            $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get();
+            $data['warehouses_list'] = Warehouse::where('is_active', 1)->get();
+            $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
+
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

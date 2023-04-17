@@ -215,7 +215,7 @@ export const useProductVariationStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.product = data.product.data
+                this.product = data.product
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

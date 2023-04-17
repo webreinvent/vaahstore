@@ -281,10 +281,10 @@ export const useProductVendorStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.store = data.store.data;
-                this.added_by_user = data.user.data;
-                this.vendor =data.vendor.data;
-                this.product_variation =data.product_variation.data;
+                this.store = data.store;
+                this.added_by_user = data.user;
+                this.vendor =data.vendor;
+                this.product_variation =data.product_variation;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)

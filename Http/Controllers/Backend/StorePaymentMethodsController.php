@@ -49,11 +49,15 @@ class StorePaymentMethodsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['actions'] = [];
-            $data['store']= Store::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['payment_method']= PaymentMethod::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['payment_method'] = null;
+            $data['empty_item']['last_payment_at'] = null;
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['status_notes'] = null;
+            $data['actions'] = [];
+
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
             $default_store = [];
             foreach($data['store'] as $l=>$store)
             {
@@ -81,7 +85,25 @@ class StorePaymentMethodsController extends Controller
 
         return $response;
     }
-
+    //------------------------Get data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['payment_method']= PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {
