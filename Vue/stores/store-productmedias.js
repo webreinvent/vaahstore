@@ -143,7 +143,6 @@ export const useProductMediaStore = defineStore({
         afterUploadImage(data, res){
             if(data)
             {
-                this.item.image_url = data;
                 this.item.images = data;
             }
         },
