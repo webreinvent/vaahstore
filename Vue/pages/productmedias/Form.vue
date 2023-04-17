@@ -128,7 +128,9 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
 
                 </VhField>
-
+<pre>
+    {{store.item}}
+</pre>
                 <VhField label="image">
                     <FileUpload customUpload
                                 @uploader="store.onImageUpload($event)"
@@ -137,12 +139,12 @@ const toggleFormMenu = (event) => {
                             <Image v-if="store.item.images && store.item.images.length > 0"
                                    class="p-1"
                                    v-for="(item) in store.item.images"
-                                   :src="store.item.base_path+'/'+item['image_url']"
+                                   :src="store.item.base_path+'/'+item['url']"
                                    preview
                                    alt="Image"
                                    width="150" />
-                            <Image v-else-if="store.item.image_url"
-                                    :src="store.item.base_path+'/'+store.item.image_url"
+                            <Image v-else-if="store.item.url_image"
+                                    :src="store.item.base_path+'/'+store.item.url_image"
                                    preview
                                    alt="Image"
                                    width="150" />
