@@ -70,13 +70,13 @@ class Product extends Model
     //-------------------------------------------------
     public function brand()
     {
-        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug');
+        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug','is_default');
     }
 
     //-------------------------------------------------
     public function store()
     {
-        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
+        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug', 'is_default');
     }
 
     //-------------------------------------------------

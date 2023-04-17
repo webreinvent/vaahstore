@@ -60,17 +60,17 @@ class ProductsController extends Controller
             $data['empty_item']['vendors'] = [];
 
 
-            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
-            $data['Vendors_list'] = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['default_vendor'] = $this->getDefault($data['Vendors_list']);
+            $data['brands']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+            $data['stores']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->get(['id','name', 'slug', 'is_default']);
+            $data['Vendors'] = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['default_vendor'] = $this->getDefault($data['Vendors']);
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
-            $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
-            $default_store = $this->getDefault($data['store']);
+            $default_store = $this->getDefault($data['stores']);
             $data['empty_item']['vh_st_store_id'] = $default_store;
-            $default_brand = $this->getDefault($data['brand']);
+            $default_brand = $this->getDefault($data['brands']);
             $data['empty_item']['vh_st_brand_id'] = $default_brand;
 
             $response['success'] = true;
