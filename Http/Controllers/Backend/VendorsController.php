@@ -141,6 +141,17 @@ class VendorsController extends Controller
     }
 
     //----------------------------------------------------------
+    public function getDefault($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default']==1)
+            {
+                return $v;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
     public function createProduct(Request $request)
     {
         try{
