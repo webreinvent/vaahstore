@@ -315,7 +315,7 @@ export const useOrderStore = defineStore({
                 this.assets = data;
                 this.status = data.status_orders;
                 this.user = data.user;
-                this.payment_method = data.payment_methodpayment_method;
+                this.payment_method = data.payment_method;
 
                 this.type = data.type;
                 this.product = data.product;

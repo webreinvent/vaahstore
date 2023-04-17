@@ -47,14 +47,18 @@ class WarehousesController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
+
+            $data['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
+            $data['countrys_list'] = array_column(VaahCountry::getList(), 'name');
+
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['countrys_list'] = null;
             $data['empty_item']['vendors_list'] = null;
             $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
+            $get_vendor_data = self::getVendorData();
+            $data = array_merge($data, $get_vendor_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -72,13 +76,10 @@ class WarehousesController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getVendorData(){
         try{
-            $data['countrys_list'] = array_column(VaahCountry::getList(), 'name');
             $data['vendors_list'] = Vendor::where('is_active',1)->get();
-            $data['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
-
             return $data;
         }catch (\Exception $e){
             $response = [];

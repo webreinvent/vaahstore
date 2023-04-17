@@ -48,13 +48,15 @@ class ProductAttributesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['attribute_list'] = Attribute::get();
+
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['attribute_values'] = null;
             $data['empty_item']['product_variation_list'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
+            $get_product_variation_data = self::getProductVariationData();
+            $data = array_merge($data, $get_product_variation_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -73,13 +75,10 @@ class ProductAttributesController extends Controller
         return $response;
     }
 
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Product Variation data for dropdown----------------------------------
+    public function getProductVariationData(){
         try{
-
             $data['product_variation_list'] = ProductVariation::where('is_active', 1)->get();
-            $data['attribute_list'] = Attribute::get();
-
             return $data;
         }catch (\Exception $e){
             $response = [];

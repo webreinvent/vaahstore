@@ -49,6 +49,8 @@ class StorePaymentMethodsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
+
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['payment_method'] = null;
             $data['empty_item']['last_payment_at'] = null;
@@ -56,19 +58,10 @@ class StorePaymentMethodsController extends Controller
             $data['empty_item']['status_notes'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
-            $default_store = [];
-            foreach($data['store'] as $l=>$store)
-            {
-                if($store['is_default']==1)
-                {
-                    $default_store['id'] = $store->id;
-                    $default_store['name'] = $store->name;
-                    $default_store['is_default'] = $store->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_store_id'] = $default_store;
+            $get_store_data = self::getStoreData();
+            $get_payment_method_data = self::getPaymentMethodData();
+            $data = array_merge($data, $get_store_data,$get_payment_method_data);
+
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -85,12 +78,27 @@ class StorePaymentMethodsController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Store data for dropdown----------------------------------
+    public function getStoreData(){
         try{
             $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Payment Method data for dropdown----------------------------------
+    public function getPaymentMethodData(){
+        try{
             $data['payment_method']= PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
-            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
             return $data;
         }catch (\Exception $e){
             $response = [];

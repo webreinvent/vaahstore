@@ -50,6 +50,10 @@ class ProductVendorsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
+
+            $data['added_by'] = auth()->user();
+            $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+
             $data['empty_item']['can_update'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['vendor'] = null;
@@ -61,8 +65,11 @@ class ProductVendorsController extends Controller
             $data['empty_item']['status_notes'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
+            $get_vendor_data = self::getVendorData();
+            $get_store_data = self::getStoreData();
+            $get_user_data = self::getUserData();
+            $get_product_variation_data = self::getProductVariationData();
+            $data = array_merge($data, $get_vendor_data,$get_store_data,$get_user_data,$get_product_variation_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -78,6 +85,74 @@ class ProductVendorsController extends Controller
             }
         }
         return $response;
+    }
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getVendorData(){
+        try{
+            $data['vendor']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Store data for dropdown----------------------------------
+    public function getStoreData(){
+        try{
+            $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get User data for dropdown----------------------------------
+    public function getUserData(){
+        try{
+            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get ProductVariation data for dropdown----------------------------------
+    public function getProductVariationData(){
+        try{
+            $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
     //---------------------To save and update product price-------------------------------------
     public function createProductPrice(Request $request)
@@ -272,29 +347,4 @@ class ProductVendorsController extends Controller
             }
         }
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
-        try{
-            $data['vendor']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
-            $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
-            $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
-            $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
-            $data['added_by'] = auth()->user();
-
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
-
-
 }

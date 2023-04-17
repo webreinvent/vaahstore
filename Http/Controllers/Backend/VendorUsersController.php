@@ -48,14 +48,17 @@ class VendorUsersController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['roles'] = Taxonomy::getTaxonomyByType('vendor-roles');
+
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['users'] = null;
             $data['empty_item']['vendors'] = null;
             $data['empty_item']['roles'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
+            $get_user_data = self::getUserData();
+            $get_vendor_data = self::getVendorData();
+            $data = array_merge($data, $get_user_data,$get_vendor_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -73,12 +76,27 @@ class VendorUsersController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get User data for dropdown----------------------------------
+    public function getUserData(){
         try{
             $data['users'] = User::where('is_active',1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getVendorData(){
+        try{
             $data['vendors'] = Vendor::where('is_active',1)->get();
-            $data['roles'] = Taxonomy::getTaxonomyByType('vendor-roles');
             return $data;
         }catch (\Exception $e){
             $response = [];

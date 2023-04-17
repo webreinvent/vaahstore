@@ -50,6 +50,11 @@ class StoresController extends Controller
         {
             $data['empty_item'][$column] = null;
         }
+
+        $data['status'] = Taxonomy::getTaxonomyByType('store-status');
+        $data['currencies_list'] = VaahCountry::getListWithCurrency();
+        $data['languages_list'] = VaahCountry::getListWithLanguage();
+
         $data['empty_item']['is_multi_currency'] = 0;
         $data['empty_item']['is_multi_lingual'] = 0;
         $data['empty_item']['is_multi_vendor'] = 0;
@@ -61,31 +66,10 @@ class StoresController extends Controller
         $data['empty_item']['language_default'] = null;
         $data['actions'] = [];
 
-        $get_data = self::getData();
-        $data = array_merge($data, $get_data);
         $response['success'] = true;
         $response['data'] = $data;
 
         return $response;
-    }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
-        try{
-            $data['status'] = Taxonomy::getTaxonomyByType('store-status');
-            $data['currencies_list'] = VaahCountry::getListWithCurrency();
-            $data['languages_list'] = VaahCountry::getListWithLanguage();
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
     }
     //----------------------------------------------------------
     public function getList(Request $request)

@@ -108,6 +108,7 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Product variation"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -120,6 +121,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Attributes">
                     <AutoComplete v-model="store.item.vh_st_attribute_id"
                                   class="w-full"
+                                  placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
                                   :suggestions="store.attribute_suggestion_list"
                                   @complete="store.searchAttribute($event)"

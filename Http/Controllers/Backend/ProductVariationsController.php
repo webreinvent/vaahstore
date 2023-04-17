@@ -48,6 +48,8 @@ class ProductVariationsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+
             $data['actions'] = [];
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
@@ -57,19 +59,9 @@ class ProductVariationsController extends Controller
             $data['empty_item']['status'] = null;
             $data['empty_item']['product'] = null;
 
-            $get_data = self::getData();
+            $get_data = self::getProductData();
             $data = array_merge($data, $get_data);
-            $default_product = [];
-            foreach($data['product'] as $l=>$product)
-            {
-                if($product['is_default']==1)
-                {
-                    $default_product['id'] = $product->id;
-                    $default_product['name'] = $product->name;
-                    $default_product['is_default'] = $product->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_product_id'] = $default_product;
+
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -86,12 +78,10 @@ class ProductVariationsController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Product data for dropdown----------------------------------
+    public function getProductData(){
         try{
-            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['product']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             return $data;
         }catch (\Exception $e){
             $response = [];

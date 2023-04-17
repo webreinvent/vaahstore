@@ -50,6 +50,10 @@ class ProductsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
+
+            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
+
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
@@ -61,30 +65,9 @@ class ProductsController extends Controller
             $data['empty_item']['all_variation'] = [];
             $data['actions'] = [];
 
-            $get_data = self::getData();
-            $data = array_merge($data, $get_data);
-            $default_store = [];
-            foreach($data['store'] as $k=>$arr)
-            {
-                if($arr['is_default']==1)
-                {
-                    $default_store['id'] = $arr->id;
-                    $default_store['name'] = $arr->name;
-                    $default_store['is_default'] = $arr->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_store_id'] = $default_store;
-            $default_brand = [];
-            foreach($data['brand'] as $l=>$brand)
-            {
-                if($brand['is_default']==1)
-                {
-                    $default_brand['id'] = $brand->id;
-                    $default_brand['name'] = $brand->name;
-                    $default_brand['is_default'] = $brand->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_brand_id'] = $default_brand;
+            $get_store_data = self::getStoreData();
+            $get_brand_data = self::getBrandData();
+            $data = array_merge($data, $get_store_data,$get_brand_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -102,15 +85,27 @@ class ProductsController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Brand data for dropdown----------------------------------
+    public function getBrandData(){
         try{
-            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->get();
+            $data['brand']=Brand::where('is_active',1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Store data for dropdown----------------------------------
+    public function getStoreData(){
+        try{
             $data['store']=Store::where('is_active',1)->get();
-
-            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
-
             return $data;
         }catch (\Exception $e){
             $response = [];

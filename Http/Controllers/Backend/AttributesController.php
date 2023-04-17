@@ -51,7 +51,7 @@ class AttributesController extends Controller
             $data['empty_item']['product_variation_list'] = null;
             $data['actions'] = [];
 
-            $get_data = self::getData();
+            $get_data = self::getProductVariationData();
             $data = array_merge($data, $get_data);
 
             $response['success'] = true;
@@ -70,11 +70,10 @@ class AttributesController extends Controller
 
         return $response;
     }
-    //------------------------Get data for dropdown----------------------------------
-    public function getData(){
+    //------------------------Get Product Variation data for dropdown----------------------------------
+    public function getProductVariationData(){
         try{
             $data['product_variation_list'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
-
             return $data;
         }catch (\Exception $e){
             $response = [];
