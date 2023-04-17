@@ -39,7 +39,7 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        vendors_list:null,
+        vendors:null,
         selected_vendor:null,
         select_all_vendor:false,
         user_error_message: [],
@@ -103,10 +103,10 @@ export const useProductStore = defineStore({
         searchTaxonomyProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.type_suggestion = this.type;
+                    this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.type.filter((product) => {
+                    this.type_suggestion= this.types.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -117,10 +117,10 @@ export const useProductStore = defineStore({
         searchBrand(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.brand_suggestion = this.brand;
+                    this.brand_suggestion = this.brands;
                 }
                 else {
-                    this.brand_suggestion= this.brand.filter((brand) => {
+                    this.brand_suggestion= this.brands.filter((brand) => {
                         return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -145,10 +145,10 @@ export const useProductStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.store;
+                    this.store_suggestion = this.stores;
                 }
                 else {
-                    this.store_suggestion= this.store.filter((store) => {
+                    this.store_suggestion= this.stores.filter((store) => {
                         return store.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -532,12 +532,12 @@ export const useProductStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.brand = data.brand.data;
-                this.store = data.store.data;
-                this.type = data.type;
-                this.vendors_list = data.Vendors_list;
+                this.brands = data.brands;
+                this.stores = data.stores;
+                this.types = data.types;
+                this.vendors = data.Vendors;
                 this.selected_vendor = data.default_vendor;
-                this.product_vendor_status_list = data.product_vendor_status_list;
+                this.product_vendor_status = data.product_vendor_status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

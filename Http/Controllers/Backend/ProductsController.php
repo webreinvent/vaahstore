@@ -60,40 +60,17 @@ class ProductsController extends Controller
             $data['empty_item']['vendors'] = [];
 
 
-            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
-            $vendors_list = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['Vendors_list'] = $vendors_list;
-            $default_vendor = $vendors_list->where('is_default',1);
-            foreach ($default_vendor as $k=>$v){
-                $data['default_vendor'] = $v;
-            }
-
+            $data['brands']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+            $data['stores']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->get(['id','name', 'slug', 'is_default']);
+            $data['Vendors'] = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['default_vendor'] = $this->getDefault($data['Vendors']);
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
-            $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
-            $default_store = [];
-            foreach($data['store'] as $k=>$arr)
-            {
-                if($arr['is_default']==1)
-                {
-                    $default_store['id'] = $arr->id;
-                    $default_store['name'] = $arr->name;
-                    $default_store['is_default'] = $arr->is_default;
-                }
-            }
+            $default_store = $this->getDefault($data['stores']);
             $data['empty_item']['vh_st_store_id'] = $default_store;
-            $default_brand = [];
-            foreach($data['brand'] as $l=>$brand)
-            {
-                if($brand['is_default']==1)
-                {
-                    $default_brand['id'] = $brand->id;
-                    $default_brand['name'] = $brand->name;
-                    $default_brand['is_default'] = $brand->is_default;
-                }
-            }
+            $default_brand = $this->getDefault($data['brands']);
             $data['empty_item']['vh_st_brand_id'] = $default_brand;
 
             $response['success'] = true;
@@ -111,6 +88,17 @@ class ProductsController extends Controller
         }
 
         return $response;
+    }
+
+    //----------------------------------------------------------
+    public function getDefault($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default']==1)
+            {
+                return $v;
+            }
+        }
     }
 
     //----------------------------------------------------------

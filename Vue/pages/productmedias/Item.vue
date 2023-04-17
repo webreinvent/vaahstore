@@ -138,9 +138,10 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' ||column === 'product_variation' ||
-                        column === 'updated_by'|| column === 'product'|| column === 'status'|| column === 'base_path'||
-                        column === 'images' || column === 'thumbnail_url' || column === 'image_size' || column === 'thumbnail_size'
-                         || column === 'mime_type'">
+                        column === 'updated_by'|| column === 'product' ||column === 'name'|| column === 'slug' ||
+                        column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
+                        || column === 'base_path'|| column === 'images'|| column === 'status'|| column === 'size'||
+                        column === 'type'|| column === 'extension'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -186,9 +187,9 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'image_url'">
+                        <template v-else-if="column === 'url'">
                             <VhViewRow label="image"
-                                       :value="store.item.base_path+'/'+store.item.image_url"
+                                       :value="store.item.base_path+'/'+store.item.url"
                                        type="image_preview"
                             />
                         </template>

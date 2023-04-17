@@ -59,14 +59,10 @@ class VendorsController extends Controller
 
             $data['users'] = User::where('is_active',1)->get(['id','first_name','email']);
 
-            $product_list = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['product_list'] = $product_list;
-            $default_product = $product_list->where('is_default',1);
-            foreach ($default_product as $k=>$v){
-                $data['default_product'] = $v;
-            }
+            $data['products'] = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['default_product'] = $this->getDefault($data['products']);
 
-            $data['product_vendor_status_list'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 
             $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
@@ -76,16 +72,7 @@ class VendorsController extends Controller
             $approved_by['email'] = $active_user->email;
 
             $data['empty_item']['approved_by'] = $approved_by;
-            $default_store = [];
-            foreach($data['stores'] as $k=>$arr)
-            {
-                if($arr['is_default']==1)
-                {
-                    $default_store['id'] = $arr->id;
-                    $default_store['name'] = $arr->name;
-                    $default_store['is_default'] = $arr->is_default;
-                }
-            }
+            $default_store = $this->getDefault($data['stores']);
 
             $data['empty_item']['vh_st_store_id'] = $default_store;
 
@@ -104,6 +91,17 @@ class VendorsController extends Controller
         }
 
         return $response;
+    }
+
+    //----------------------------------------------------------
+    public function getDefault($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default']==1)
+            {
+                return $v;
+            }
+        }
     }
 
     //----------------------------------------------------------

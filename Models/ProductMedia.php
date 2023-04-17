@@ -35,11 +35,16 @@ class ProductMedia extends Model
         'vh_st_product_variation_id',
         'taxonomy_id_product_media_status',
         'status_notes',
-        'image_url',
-        'image_size',
-        'thumbnail_url',
-        'thumbnail_size',
+        'name',
+        'slug',
         'url',
+        'path',
+        'size',
+        'type',
+        'extension',
+        'mime_type',
+        'url_thumbnail',
+        'thumbnail_size',
         'meta',
         'is_active',
         'created_by',
@@ -140,6 +145,12 @@ class ProductMedia extends Model
             return $validation;
         }
 
+        if (!isset($inputs['images']) || empty($inputs['images'])){
+            $response['success'] = false;
+            $response['messages'][] = "The image field is required.";
+            return $response;
+        }
+
 
         // check if exist
             $item = self::where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])->withTrashed()->first();
@@ -149,18 +160,15 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-        foreach ($inputs['image_url'] as $image)
+        foreach ($inputs['images'] as $image)
         {
             $item = new self();
             $item->fill($inputs);
+            $item->fill($image);
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->image_url = $image['image_url'];
-            $item->image_size = $image['image_size'];
-            $item->thumbnail_url = $image['thumbnail_url'];
-            $item->thumbnail_size = $image['thumbnail_size'];
-            $item->mime_type = $image['mime_type'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+            $item->is_active = 1;
             $item->save();
         }
 
@@ -490,7 +498,7 @@ class ProductMedia extends Model
             $data['mime_type'] = $request->file->getClientMimeType();
             $type = explode('/',$data['mime_type']);
             $data['type'] = $type[0];
-            $data['image_size'] = $request->file->getSize();
+            $data['size'] = $request->file->getSize();
 
             if($request->file_name && !is_null($request->file_name)
                 && $request->file_name != 'null')
@@ -541,7 +549,6 @@ class ProductMedia extends Model
                     $constraint->aspectRatio();
                 });
                 $name_details = pathinfo($data['full_path']);
-                $data['image_name'] = $name_details['basename'];
                 $thumbnail_name = $name_details['filename'].'-thumbnail.'.$name_details['extension'];
                 $thumbnail_path = $request->folder_path.'/'.$thumbnail_name;
                 $temp = \Storage::put($thumbnail_path, (string) $image->encode());
@@ -597,11 +604,7 @@ class ProductMedia extends Model
             foreach ($inputs['images'] as $image){
                 $item = self::where('id', $id)->withTrashed()->first();
                 $item->fill($inputs);
-                $item->thumbnail_url = $image['thumbnail_url'];
-                $item->image_size = $image['image_size'];
-                $item->thumbnail_size = $image['thumbnail_size'];
-                $item->mime_type = $image['mime_type'];
-                $item->image_url = $image['image_url'];
+                $item->fill($image);
                 $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
                 $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
                 $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
@@ -675,12 +678,9 @@ class ProductMedia extends Model
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
-            'url'=> 'required|max:150',
-            'image_url'=> 'required|max:150',
-                ],
+        ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
-            'image_url.required' => 'The image field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'vh_st_product_variation_id.required' => 'The Product variation field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
