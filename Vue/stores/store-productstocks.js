@@ -259,11 +259,11 @@ export const useProductStockStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_option = data.status;
-                this.vendors_option = data.vendors_list;
-                this.products_option = data.products_list;
-                this.warehouses_option = data.warehouses_list;
-                this.product_variations_option = data.product_variations_list;
+                this.status_option = data.taxonomy.status;
+                this.vendors_option = data.vendors_lists;
+                this.products_option = data.products_lists;
+                this.warehouses_option = data.warehouses_lists;
+                this.product_variations_option = data.product_variations_lists;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

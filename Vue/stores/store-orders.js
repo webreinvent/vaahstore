@@ -313,16 +313,16 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status_orders;
-                this.user = data.user;
-                this.payment_method = data.payment_method;
+                this.status = data.taxonomy.status_orders;
+                this.user = data.active_users;
+                this.payment_method = data.payment_methods;
 
-                this.type = data.type;
-                this.product = data.product;
-                this.product_variation = data.product_variation;
-                this.status_order_items = data.status_order_items;
-                this.customer_group = data.customer_group;
-                this.vendor = data.vendor;
+                this.type = data.taxonomy.types;
+                this.product = data.products;
+                this.product_variation = data.product_variations;
+                this.status_order_items = data.taxonomy.status_order_items;
+                this.customer_group = data.customer_groups;
+                this.vendor = data.vendors;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

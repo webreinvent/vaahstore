@@ -51,15 +51,12 @@ class OrderItemsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-            $data['status'] = Taxonomy::getTaxonomyByType('order-items-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('order-items-types');
-            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
-            $data['order'] = Order::where('is_active',1)->get(['id']);
-            $data['product'] = Product::where('is_active',1)->get(['id','name','slug']);
-            $data['product_variation'] = ProductVariation::where('is_active',1)->get(['id','name','slug']);
-            $data['vendor'] = Vendor::where('is_active',1)->get(['id','name','slug']);
-            $data['customer_group'] = CustomerGroup::get(['id','name','slug']);
+            $data['empty_item']['status'] = Taxonomy::getTaxonomyByType('order-items-status');
+            $data['empty_item']['type'] = Taxonomy::getTaxonomyByType('order-items-types');
             $data['actions'] = [];
+
+            $get_data = self::getData();
+            $data = array_merge($data, $get_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -77,7 +74,28 @@ class OrderItemsController extends Controller
 
         return $response;
     }
-
+    //------------------------Get User data for dropdown----------------------------------
+    public function getData(){
+        try{
+            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
+            $data['order'] = Order::where('is_active',1)->get(['id']);
+            $data['product'] = Product::where('is_active',1)->get(['id','name','slug']);
+            $data['product_variation'] = ProductVariation::where('is_active',1)->get(['id','name','slug']);
+            $data['vendor'] = Vendor::where('is_active',1)->get(['id','name','slug']);
+            $data['customer_group'] = CustomerGroup::get(['id','name','slug']);
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

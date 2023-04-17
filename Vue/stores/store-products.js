@@ -477,10 +477,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
-                this.brand = data.brand;
-                this.store = data.store;
-                this.type = data.type;
+                this.status = data.taxonomy.status;
+                this.brand = data.brands;
+                this.store = data.stores;
+                this.type = data.taxonomy.types;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

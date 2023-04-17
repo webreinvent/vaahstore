@@ -50,16 +50,11 @@ class ProductStocksController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 
             //set default value
             $data['empty_item']['quantity'] = 1;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['vendors_list'] = null;
-            $data['empty_item']['products_list'] = null;
-            $data['empty_item']['product_variations_list'] = null;
-            $data['empty_item']['warehouses_list'] = null;
-            $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
@@ -88,7 +83,7 @@ class ProductStocksController extends Controller
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
-            $data['vendors_list'] = Vendor::where('is_active', 1)->get();
+            $data['vendors_lists'] = Vendor::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -105,7 +100,7 @@ class ProductStocksController extends Controller
     //------------------------Get Product data for dropdown----------------------------------
     public function getProductData(){
         try{
-            $data['products_list'] = Product::where('is_active', 1)->get();
+            $data['products_lists'] = Product::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -122,7 +117,7 @@ class ProductStocksController extends Controller
     //------------------------Get Product Variation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get();
+            $data['product_variations_lists'] = ProductVariation::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -139,7 +134,7 @@ class ProductStocksController extends Controller
     //------------------------Get Warehouse data for dropdown----------------------------------
     public function getWarehouseData(){
         try{
-            $data['warehouses_list'] = Warehouse::where('is_active', 1)->get();
+            $data['warehouses_lists'] = Warehouse::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

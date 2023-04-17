@@ -226,9 +226,9 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
-                this.type = data.type;
-                this.user = data.user;
+                this.status = data.taxonomy.status;
+                this.type = data.taxonomy.type;
+                this.user = data.active_users;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

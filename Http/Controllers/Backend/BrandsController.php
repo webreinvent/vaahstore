@@ -47,14 +47,14 @@ class BrandsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('brand-status');
-            $data['approved_by'] = auth()->user();
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('brand-status');
+            $data['auth_approved_by'] = auth()->user()->get();
 
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
 
-            $get_data = self::getUserData();
-            $data = array_merge($data, $get_data);
+            $get_user_data = self::getUserData();
+            $data = array_merge($data, $get_user_data);
 
 
             $response['success'] = true;
@@ -76,7 +76,7 @@ class BrandsController extends Controller
     //------------------------Get User data for dropdown----------------------------------
     public function getUserData(){
         try{
-            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['active_users']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

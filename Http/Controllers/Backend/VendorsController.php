@@ -48,15 +48,11 @@ class VendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
-            $data['approved_by']  = auth()->user();
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
-            $data['empty_item']['approve_by'] = null;
-            $data['empty_item']['owned_by'] = null;
-            $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
             $get_store_data = self::getStoreData();
@@ -99,7 +95,7 @@ class VendorsController extends Controller
     //------------------------Get User data for dropdown----------------------------------
     public function getUserData(){
         try{
-            $data['users'] = User::where('is_active',1)->get();
+            $data['active_users'] = User::where('is_active',1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

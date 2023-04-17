@@ -47,12 +47,9 @@ class WhishlistsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
+            $data['taxonomy']['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
 
-            $data['empty_item']['status'] = null;
-            $data['empty_item']['type'] = null;
-            $data['empty_item']['user'] = null;
             $data['actions'] = [];
 
             $get_user_data = self::getUserData();
@@ -77,7 +74,7 @@ class WhishlistsController extends Controller
     //------------------------Get User data for dropdown----------------------------------
     public function getUserData(){
         try{
-            $data['user'] = User::where('is_active',1)->get();
+            $data['active_users'] = User::where('is_active',1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

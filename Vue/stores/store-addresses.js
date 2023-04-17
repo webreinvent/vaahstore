@@ -77,11 +77,11 @@ export const useAddressStore = defineStore({
         searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.user_suggestion = this.user;
+                    this.user_suggestion = this.active_users;
                 }
                 else {
-                    this.user_suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.user_suggestion= this.active_users.filter((active_users) => {
+                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -90,11 +90,11 @@ export const useAddressStore = defineStore({
         searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.type_suggestion = this.type;
+                    this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.type.filter((type) => {
-                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.types.filter((types) => {
+                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -226,9 +226,9 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.user = data.user;
-                this.type = data.type;
-                this.status = data.status;
+                this.active_users = data.active_users;
+                this.types = data.taxonomy.types;
+                this.status = data.taxonomy.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

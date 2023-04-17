@@ -229,9 +229,9 @@ export const useWarehouseStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.countrys_list = data.countrys_list;
-                this.vendors_list = data.vendors_list;
-                this.status_option = data.status;
+                this.countrys_list = data.countrys_lists;
+                this.vendors_list = data.vendors_lists;
+                this.status_option = data.taxonomy.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

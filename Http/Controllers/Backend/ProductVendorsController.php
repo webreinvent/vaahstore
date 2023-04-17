@@ -51,25 +51,18 @@ class ProductVendorsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['added_by'] = auth()->user();
-            $data['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['auth_users'] = auth()->user()->get();
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 
             $data['empty_item']['can_update'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['vendor'] = null;
-            $data['empty_item']['store'] = null;
-            $data['empty_item']['product'] = null;
             $data['empty_item']['can_Update'] = 0;
-            $data['empty_item']['added_by'] = null;
-            $data['empty_item']['status'] = null;
-            $data['empty_item']['status_notes'] = null;
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
             $get_store_data = self::getStoreData();
-            $get_user_data = self::getUserData();
             $get_product_variation_data = self::getProductVariationData();
-            $data = array_merge($data, $get_vendor_data,$get_store_data,$get_user_data,$get_product_variation_data);
+            $data = array_merge($data, $get_vendor_data,$get_store_data,$get_product_variation_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -89,7 +82,7 @@ class ProductVendorsController extends Controller
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
-            $data['vendor']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['vendors']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -106,24 +99,7 @@ class ProductVendorsController extends Controller
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
         try{
-            $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
-    //------------------------Get User data for dropdown----------------------------------
-    public function getUserData(){
-        try{
-            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['stores']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -140,7 +116,7 @@ class ProductVendorsController extends Controller
     //------------------------Get ProductVariation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['product_variations']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

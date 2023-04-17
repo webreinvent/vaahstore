@@ -280,11 +280,11 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
-                this.store = data.store;
-                this.added_by_user = data.user;
-                this.vendor =data.vendor;
-                this.product_variation =data.product_variation;
+                this.status = data.taxonomy.status;
+                this.store = data.stores;
+                this.added_by_user = data.auth_users;
+                this.vendor =data.vendors;
+                this.product_variation =data.product_variations;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)

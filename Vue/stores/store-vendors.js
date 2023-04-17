@@ -195,8 +195,8 @@ export const useVendorStore = defineStore({
             {
                 this.assets = data;
                 this.all_store_list = data.stores;
-                this.all_user_list = data.users;
-                this.status_option = data.status;
+                this.all_user_list = data.active_users;
+                this.status_option = data.taxonomy.status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {

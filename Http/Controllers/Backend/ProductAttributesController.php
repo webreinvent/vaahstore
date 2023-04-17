@@ -48,11 +48,9 @@ class ProductAttributesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['attribute_list'] = Attribute::get();
+            $data['attribute_lists'] = Attribute::get();
 
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['attribute_values'] = null;
-            $data['empty_item']['product_variation_list'] = null;
             $data['actions'] = [];
 
             $get_product_variation_data = self::getProductVariationData();
@@ -78,7 +76,7 @@ class ProductAttributesController extends Controller
     //------------------------Get Product Variation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['product_variation_list'] = ProductVariation::where('is_active', 1)->get();
+            $data['product_variation_lists'] = ProductVariation::where('is_active', 1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

@@ -48,7 +48,7 @@ class ProductVariationsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
 
             $data['actions'] = [];
             $data['empty_item']['is_default'] = 0;
@@ -56,8 +56,6 @@ class ProductVariationsController extends Controller
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
-            $data['empty_item']['status'] = null;
-            $data['empty_item']['product'] = null;
 
             $get_data = self::getProductData();
             $data = array_merge($data, $get_data);
@@ -81,7 +79,7 @@ class ProductVariationsController extends Controller
     //------------------------Get Product data for dropdown----------------------------------
     public function getProductData(){
         try{
-            $data['product']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['products']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

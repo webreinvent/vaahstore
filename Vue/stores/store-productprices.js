@@ -228,9 +228,9 @@ export const useProductPriceStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.vendor = data.vendor;
-                this.product = data.product;
-                this.product_variation = data.product_variation;
+                this.vendor = data.vendors;
+                this.product = data.products;
+                this.product_variation = data.product_variations;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

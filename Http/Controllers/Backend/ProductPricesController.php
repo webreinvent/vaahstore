@@ -48,9 +48,6 @@ class ProductPricesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['vendor'] = null;
-            $data['empty_item']['product'] = null;
-            $data['empty_item']['product_variation'] = null;
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
 
@@ -79,7 +76,7 @@ class ProductPricesController extends Controller
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
-            $data['vendor']=Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['vendors']=Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -96,7 +93,7 @@ class ProductPricesController extends Controller
     //------------------------Get Product data for dropdown----------------------------------
     public function getProductData(){
         try{
-            $data['product']=Product::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['products']=Product::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -113,7 +110,7 @@ class ProductPricesController extends Controller
     //------------------------Get Product Variation data for dropdown----------------------------------
     public function getProductVariationData(){
         try{
-            $data['product_variation']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['product_variations']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

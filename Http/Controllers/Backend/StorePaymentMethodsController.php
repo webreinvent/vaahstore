@@ -49,13 +49,9 @@ class StorePaymentMethodsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
 
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['payment_method'] = null;
-            $data['empty_item']['last_payment_at'] = null;
-            $data['empty_item']['status'] = null;
-            $data['empty_item']['status_notes'] = null;
             $data['actions'] = [];
 
             $get_store_data = self::getStoreData();
@@ -81,7 +77,7 @@ class StorePaymentMethodsController extends Controller
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
         try{
-            $data['store']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['stores']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -98,7 +94,7 @@ class StorePaymentMethodsController extends Controller
     //------------------------Get Payment Method data for dropdown----------------------------------
     public function getPaymentMethodData(){
         try{
-            $data['payment_method']= PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+            $data['payment_methods']= PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
             return $data;
         }catch (\Exception $e){
             $response = [];

@@ -46,9 +46,8 @@ class CustomerGroupsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['status'] = Taxonomy::getTaxonomyByType('customer-groups-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('customer-groups-status');
 
-            $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
             $response['success'] = true;
