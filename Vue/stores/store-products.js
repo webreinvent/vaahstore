@@ -39,7 +39,7 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        vendors_list:null,
+        vendors:null,
         selected_vendor:null,
         select_all_vendor:false,
         user_error_message: [],
@@ -120,8 +120,8 @@ export const useProductStore = defineStore({
                     this.brand_suggestion = this.brands;
                 }
                 else {
-                    this.brand_suggestion= this.brands.filter((brands) => {
-                        return brands.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.brand_suggestion= this.brands.filter((brand) => {
+                        return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -148,8 +148,8 @@ export const useProductStore = defineStore({
                     this.store_suggestion = this.stores;
                 }
                 else {
-                    this.store_suggestion= this.stores.filter((stores) => {
-                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.store_suggestion= this.stores.filter((store) => {
+                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
