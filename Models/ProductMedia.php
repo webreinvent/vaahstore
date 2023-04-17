@@ -35,21 +35,16 @@ class ProductMedia extends Model
         'vh_st_product_variation_id',
         'taxonomy_id_product_media_status',
         'status_notes',
-        'url_image',
-        'extension',
-        'original_name',
-        'type',
-        'uploaded_file_name',
-        'image_slug',
-        'path',
-        'full_path',
-        'full_url_image',
-        'image_name',
-        'thumbnail_name',
-        'image_size',
-        'thumbnail_url',
-        'thumbnail_size',
+        'name',
+        'slug',
         'url',
+        'path',
+        'size',
+        'type',
+        'extension',
+        'mime_type',
+        'url_thumbnail',
+        'thumbnail_size',
         'meta',
         'is_active',
         'created_by',
@@ -169,24 +164,21 @@ class ProductMedia extends Model
         {
             $item = new self();
             $item->fill($inputs);
+            $item->fill($image);
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->extension = $image['extension'];
-            $item->original_name = $image['original_name'];
-            $item->type = $image['type'];
-            $item->uploaded_file_name = $image['uploaded_file_name'];
-            $item->image_slug = $image['slug'];
-            $item->path = $image['path'];
-            $item->full_path = $image['full_path'];
-            $item->url_image = $image['url'];
-            $item->full_url_image = $image['full_url'];
-            $item->image_name = $image['image_name'];
-            $item->thumbnail_name = $image['thumbnail_name'];
-            $item->image_size = $image['image_size'];
-            $item->thumbnail_url = $image['url_thumbnail'];
-            $item->thumbnail_size = $image['thumbnail_size'];
-            $item->mime_type = $image['mime_type'];
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+//            $item->name = $image['extension'];
+//            $item->slug = $image['extension'];
+//            $item->url = $image['extension'];
+//            $item->path = $image['extension'];
+//            $item->size = $image['extension'];
+//            $item->type = $image['extension'];
+//            $item->extension = $image['extension'];
+//            $item->mime_type = $image['extension'];
+//            $item->url_thumbnail = $image['extension'];
+//            $item->thumbnail_size = $image['extension'];
+            $item->is_active = 1;
             $item->save();
         }
 
@@ -516,7 +508,7 @@ class ProductMedia extends Model
             $data['mime_type'] = $request->file->getClientMimeType();
             $type = explode('/',$data['mime_type']);
             $data['type'] = $type[0];
-            $data['image_size'] = $request->file->getSize();
+            $data['size'] = $request->file->getSize();
 
             if($request->file_name && !is_null($request->file_name)
                 && $request->file_name != 'null')
@@ -567,7 +559,6 @@ class ProductMedia extends Model
                     $constraint->aspectRatio();
                 });
                 $name_details = pathinfo($data['full_path']);
-                $data['image_name'] = $name_details['basename'];
                 $thumbnail_name = $name_details['filename'].'-thumbnail.'.$name_details['extension'];
                 $thumbnail_path = $request->folder_path.'/'.$thumbnail_name;
                 $temp = \Storage::put($thumbnail_path, (string) $image->encode());
@@ -623,21 +614,7 @@ class ProductMedia extends Model
             foreach ($inputs['images'] as $image){
                 $item = self::where('id', $id)->withTrashed()->first();
                 $item->fill($inputs);
-                $item->thumbnail_url = $image['url_thumbnail'];
-                $item->image_size = $image['image_size'];
-                $item->thumbnail_size = $image['thumbnail_size'];
-                $item->mime_type = $image['mime_type'];
-                $item->extension = $image['extension'];
-                $item->original_name = $image['original_name'];
-                $item->type = $image['type'];
-                $item->uploaded_file_name = $image['uploaded_file_name'];
-                $item->image_slug = $image['slug'];
-                $item->path = $image['path'];
-                $item->full_path = $image['full_path'];
-                $item->url_image = $image['url'];
-                $item->full_url_image = $image['full_url'];
-                $item->image_name = $image['image_name'];
-                $item->thumbnail_name = $image['thumbnail_name'];
+                $item->fill($image);
                 $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
                 $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
                 $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
@@ -711,11 +688,9 @@ class ProductMedia extends Model
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
-            'url'=> 'required|max:150',
         ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
-            'images.required' => 'The image field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'vh_st_product_variation_id.required' => 'The Product variation field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',

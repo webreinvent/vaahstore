@@ -97,8 +97,6 @@ class ProductMediasController extends Controller
                 $list['file'] = $file;
                 $list['folder_path'] = 'public/media';
 
-
-
                 $response = ProductMedia::saveUploadImage(new Request($list));
                 if ($response['status']){
                     $response_list[] = $response['data'];

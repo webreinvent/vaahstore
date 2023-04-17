@@ -22,23 +22,17 @@ class VhStproductmedias extends Migration
                 $table->integer('vh_st_product_variation_id')->nullable()->index();
                 $table->integer('taxonomy_id_product_media_status')->nullable()->index();
 
-                $table->string('status_notes')->nullable();
-                $table->string('url_image')->nullable();
-                $table->bigInteger('image_size')->nullable()->index();
-                $table->string('thumbnail_url')->nullable();
-                $table->bigInteger('thumbnail_size')->nullable()->index();
-                $table->string('mime_type')->nullable();
+                $table->string('name')->nullable();
+                $table->string('slug')->nullable();
                 $table->string('url')->nullable();
-                $table->string('extension')->nullable();
-                $table->string('original_name')->nullable();
-                $table->string('type')->nullable();
-                $table->string('uploaded_file_name')->nullable();
-                $table->string('image_slug')->nullable();
                 $table->string('path')->nullable();
-                $table->string('full_path')->nullable();
-                $table->string('full_url_image')->nullable();
-                $table->string('image_name')->nullable();
-                $table->string('thumbnail_name')->nullable();
+                $table->bigInteger('size')->nullable()->index();
+                $table->string('type')->nullable();
+                $table->string('extension')->nullable();
+                $table->string('mime_type')->nullable();
+                $table->string('url_thumbnail')->nullable();
+                $table->bigInteger('thumbnail_size')->nullable()->index();
+                $table->string('status_notes')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 
 
