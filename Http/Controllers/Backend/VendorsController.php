@@ -62,6 +62,23 @@ class VendorsController extends Controller
             $get_user_data = self::getUserData();
             $data = array_merge($data, $get_store_data,$get_user_data);
 
+            $data['products'] = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+            $data['default_product'] = $this->getDefault($data['products']);
+
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+
+            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
+
+            $active_user = auth()->user();
+            $approved_by['id'] = $active_user->id;
+            $approved_by['first_name'] = $active_user->first_name;
+            $approved_by['email'] = $active_user->email;
+
+            $data['empty_item']['approved_by'] = $approved_by;
+            $default_store = $this->getDefault($data['stores']);
+
+            $data['empty_item']['vh_st_store_id'] = $default_store;
+
             $response['success'] = true;
             $response['data'] = $data;
 
