@@ -55,6 +55,7 @@ class StorePaymentMethodsController extends Controller
             $data['actions'] = [];
 
             $get_store_data = self::getStoreData();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
             $get_payment_method_data = self::getPaymentMethodData();
             $data = array_merge($data, $get_store_data,$get_payment_method_data);
 
@@ -73,6 +74,16 @@ class StorePaymentMethodsController extends Controller
         }
 
         return $response;
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
     }
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){

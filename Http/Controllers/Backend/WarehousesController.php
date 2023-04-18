@@ -49,7 +49,7 @@ class WarehousesController extends Controller
             }
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
-            $data['countrys'] = array_column(VaahCountry::getList(), 'name');
+            $data['countries'] = array_column(VaahCountry::getList(), 'name');
 
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];

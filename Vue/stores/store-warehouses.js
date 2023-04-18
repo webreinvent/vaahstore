@@ -36,9 +36,10 @@ export const useWarehouseStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        countrys_list:null,
         country_suggestion_list: null,
-        vendors_list:null,
+        vendors:null,
+        countries:null,
+        status:null,
         vendor_suggestion_list: null,
         status_option: null,
         status_suggestion_list:null,
@@ -176,10 +177,10 @@ export const useWarehouseStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
+                    this.status_suggestion = this.status.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -189,10 +190,10 @@ export const useWarehouseStore = defineStore({
         searchVendors(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.vendor_suggestion_list = this.vendors_list;
+                    this.vendor_suggestion = this.vendors;
                 }
                 else {
-                    this.vendor_suggestion_list = this.vendors_list.filter((department) => {
+                    this.vendor_suggestion = this.vendors.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -202,10 +203,10 @@ export const useWarehouseStore = defineStore({
         searchCountry(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.country_suggestion_list = this.countrys_list;
+                    this.country_suggestion = this.countries;
                 }
                 else {
-                    this.country_suggestion_list = this.countrys_list.filter((department) => {
+                    this.country_suggestion = this.countries.filter((department) => {
                         return department.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -229,9 +230,9 @@ export const useWarehouseStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.countrys_list = data.countrys;
-                this.vendors_list = data.vendors;
-                this.status_option = data.taxonomy.status;
+                this.countries = data.countries;
+                this.vendors = data.vendors;
+                this.status = data.taxonomy.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

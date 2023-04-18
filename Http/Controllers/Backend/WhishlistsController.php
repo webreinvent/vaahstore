@@ -48,7 +48,7 @@ class WhishlistsController extends Controller
             }
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
-            $data['taxonomy']['type'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('whishlists-types');
 
             $data['actions'] = [];
 

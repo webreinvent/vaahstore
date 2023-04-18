@@ -36,10 +36,10 @@ export const useProductAttributeStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        product_variation_suggestion_list: null,
-        product_variation_list: null,
-        attribute_suggestion_list: null,
-        attribute_list: null,
+        product_variation_suggestion: null,
+        product_variation: null,
+        attribute_suggestion: null,
+        attribute: null,
         list: null,
         item: null,
         fillable:null,
@@ -174,10 +174,10 @@ export const useProductAttributeStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion_list = this.product_variation_list;
+                    this.product_variation_suggestion = this.product_variations;
                 }
                 else {
-                    this.product_variation_suggestion_list = this.product_variation_list.filter((department) => {
+                    this.product_variation_suggestion = this.product_variations.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -187,10 +187,10 @@ export const useProductAttributeStore = defineStore({
         searchAttribute(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.attribute_suggestion_list = this.attribute_list;
+                    this.attribute_suggestion = this.attributes;
                 }
                 else {
-                    this.attribute_suggestion_list = this.attribute_list.filter((department) => {
+                    this.attribute_suggestion = this.attributes.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -227,8 +227,8 @@ export const useProductAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.product_variation_list = data.product_variations;
-                this.attribute_list = data.attributes;
+                this.product_variations = data.product_variations;
+                this.attributes = data.attributes;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

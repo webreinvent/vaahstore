@@ -81,11 +81,11 @@ export const useBrandStore = defineStore({
         searchRegisteredBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.registered_by_suggestion = this.user;
+                    this.registered_by_suggestion = this.active_users;
                 }
                 else {
-                    this.registered_by_suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.registered_by_suggestion= this.active_users.filter((active_users) => {
+                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -95,11 +95,11 @@ export const useBrandStore = defineStore({
         searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.approved_by_suggestion = this.approved_by_user;
+                    this.approved_by_suggestion = this.approved_by_users;
                 }
                 else {
-                    this.approved_by_suggestion= this.approved_by_user.filter((approved_by_user) => {
-                        return approved_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.approved_by_suggestion= this.approved_by_users.filter((approved_by_users) => {
+                        return approved_by_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -235,8 +235,8 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.user = data.active_users
-                this.approved_by_user = data.auth_approved_by
+                this.active_users = data.active_users
+                this.approved_by_users = data.auth_approved_by
                 this.status = data.taxonomy.status
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)

@@ -91,11 +91,11 @@ export const useProductMediaStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.product_suggestion = this.products;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_suggestion= this.products.filter((products) => {
+                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -104,11 +104,11 @@ export const useProductMediaStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variation;
+                    this.product_variation_suggestion = this.product_variations;
                 }
                 else {
-                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
-                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
+                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -261,8 +261,8 @@ export const useProductMediaStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.product = data.product.data;
-                this.product_variation = data.product_variation.data;
+                this.products = data.product.data;
+                this.product_variations = data.product_variation.data;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

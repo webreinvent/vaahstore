@@ -99,11 +99,11 @@ export const useProductStore = defineStore({
         searchTaxonomyProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.type_suggestion = this.type;
+                    this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.type.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.types.filter((types) => {
+                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -113,11 +113,11 @@ export const useProductStore = defineStore({
         searchBrand(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.brand_suggestion = this.brand;
+                    this.brand_suggestion = this.brands;
                 }
                 else {
-                    this.brand_suggestion= this.brand.filter((brand) => {
-                        return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.brand_suggestion= this.brands.filter((brands) => {
+                        return brands.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -141,11 +141,11 @@ export const useProductStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.store;
+                    this.store_suggestion = this.stores;
                 }
                 else {
-                    this.store_suggestion= this.store.filter((store) => {
-                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.store_suggestion= this.stores.filter((stores) => {
+                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -478,9 +478,9 @@ export const useProductStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
-                this.brand = data.brands;
-                this.store = data.stores;
-                this.type = data.taxonomy.types;
+                this.brands = data.brands;
+                this.stores = data.stores;
+                this.types = data.taxonomy.types;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

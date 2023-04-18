@@ -84,11 +84,11 @@ export const useOrderStore = defineStore({
         searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.type_suggestion = this.type;
+                    this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.type.filter((type) => {
-                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.type.filter((types) => {
+                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -97,11 +97,11 @@ export const useOrderStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variation;
+                    this.product_variation_suggestion = this.product_variations;
                 }
                 else {
-                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
-                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_variation_suggestion= this.product_variations.filter((product_variation) => {
+                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -123,11 +123,11 @@ export const useOrderStore = defineStore({
         searchCustomerGroup(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.customer_group_suggestion = this.customer_group;
+                    this.customer_group_suggestion = this.customer_groups;
                 }
                 else {
-                    this.customer_group_suggestion= this.customer_group.filter((customer_group) => {
-                        return customer_group.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
+                        return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -136,11 +136,11 @@ export const useOrderStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.product_suggestion = this.products;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_suggestion= this.products.filter((products) => {
+                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -149,11 +149,11 @@ export const useOrderStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendor;
+                    this.vendor_suggestion = this.vendors;
                 }
                 else {
-                    this.vendor_suggestion= this.vendor.filter((vendor) => {
-                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.vendor_suggestion= this.vendors.filter((vendors) => {
+                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -162,11 +162,11 @@ export const useOrderStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
+                    this.status_suggestion = this.status_orders;
                 }
                 else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.status_suggestion= this.status_orders.filter((status_orders) => {
+                        return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -176,11 +176,11 @@ export const useOrderStore = defineStore({
         searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.user_suggestion = this.user;
+                    this.user_suggestion = this.active_users;
                 }
                 else {
-                    this.user_suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.user_suggestion= this.active_users.filter((active_users) => {
+                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -190,11 +190,11 @@ export const useOrderStore = defineStore({
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_method;
+                    this.payment_method_suggestion = this.payment_methods;
                 }
                 else {
-                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
-                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -313,16 +313,16 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status_orders;
-                this.user = data.active_users;
-                this.payment_method = data.payment_methods;
+                this.status_orders = data.taxonomy.status_orders;
+                this.active_users = data.active_users;
+                this.payment_methods = data.payment_methods;
 
-                this.type = data.taxonomy.types;
-                this.product = data.products;
-                this.product_variation = data.product_variations;
+                this.types = data.taxonomy.types;
+                this.products = data.products;
+                this.product_variations = data.product_variations;
                 this.status_order_items = data.taxonomy.status_order_items;
-                this.customer_group = data.customer_groups;
-                this.vendor = data.vendors;
+                this.customer_groups = data.customer_groups;
+                this.vendors = data.vendors;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

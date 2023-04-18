@@ -105,7 +105,7 @@ const toggleFormMenu = (event) => {
                                   value="id"
                                   class="w-full"
                                   data-testid="productattributes-vh_st_product_variation_id"
-                                  :suggestions="store.product_variation_suggestion_list"
+                                  :suggestions="store.product_variation_suggestion"
                                   @complete="store.searchProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
@@ -125,7 +125,7 @@ const toggleFormMenu = (event) => {
                                   class="w-full"
                                   placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
-                                  :suggestions="store.attribute_suggestion_list"
+                                  :suggestions="store.attribute_suggestion"
                                   @complete="store.searchAttribute($event)"
                                   @change="store.getAttributeValue()"
                                   :dropdown="true"
@@ -147,14 +147,6 @@ const toggleFormMenu = (event) => {
                         </div>
                     </div>
                 </vhField>
-
-<!--                <VhField label="Is Active">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="productattributes-active"-->
-<!--                                 data-testid="productattributes-active"-->
-<!--                                 v-model="store.item.is_active"/>-->
-<!--                </VhField>-->
 
             </div>
         </Panel>

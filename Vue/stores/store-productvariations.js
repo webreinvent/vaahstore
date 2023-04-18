@@ -91,11 +91,11 @@ export const useProductVariationStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.product_suggestion = this.products;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_suggestion= this.products.filter((products) => {
+                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -215,7 +215,7 @@ export const useProductVariationStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
-                this.product = data.products
+                this.products = data.products
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
