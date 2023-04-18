@@ -60,7 +60,7 @@ class ProductMediasController extends Controller
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
 
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($active_products['active_products']);
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultProduct();
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -78,14 +78,8 @@ class ProductMediasController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default']==1)
-            {
-                return $v;
-            }
-        }
+    public function getDefaultProduct(){
+        return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
     }
 
     //----------------------------------------------------------

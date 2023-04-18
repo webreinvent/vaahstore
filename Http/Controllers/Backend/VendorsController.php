@@ -64,8 +64,8 @@ class VendorsController extends Controller
             $data = array_merge($data, $active_stores, $active_users, $active_products);
 
             // set default value's
-            $data['default_product'] = $this->getDefaultRow($active_products['active_products']);
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($data['active_stores']);
+            $data['default_product'] = $this->getDefaultProduct();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
             $data['empty_item']['approved_by'] = $this->getActiveUser();
 
             // get taxonomy data's
@@ -151,14 +151,13 @@ class VendorsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default']==1)
-            {
-                return $v;
-            }
-        }
+    public function getDefaultStore(){
+        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultProduct(){
+        return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
     }
 
     //----------------------------------------------------------
