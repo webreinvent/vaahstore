@@ -137,7 +137,11 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' ||column === 'product_variation'||column === 'path' || column === 'updated_by'|| column === 'product'|| column === 'status'">
+                        <template v-if="column === 'created_by' ||column === 'product_variation' ||
+                        column === 'updated_by'|| column === 'product' ||column === 'name'|| column === 'slug' ||
+                        column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
+                        || column === 'base_path'|| column === 'images'|| column === 'status'|| column === 'size'||
+                        column === 'type'|| column === 'extension'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -147,7 +151,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                        || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -182,11 +187,11 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'img_prev'">
-                                <Image :src="store.item.img_prev"
-                                       preview
-                                       alt="Image"
-                                       width="150" />
+                        <template v-else-if="column === 'url'">
+                            <VhViewRow label="image"
+                                       :value="store.item.base_path+'/'+store.item.url"
+                                       type="image_preview"
+                            />
                         </template>
 
                         <template v-else>

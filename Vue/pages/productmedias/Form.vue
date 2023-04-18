@@ -131,13 +131,20 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Path">
+                <VhField label="image">
                     <FileUpload customUpload
                                 @uploader="store.onImageUpload($event)"
-                                :multiple="true" accept="image/*" :maxFileSize="1000000">
+                                :multiple="!route.params.id" accept="image/*" :maxFileSize="1000000">
                         <template #empty>
-                            <Image v-if="store.item.path"
-                                :src="store.item.path"
+                            <Image v-if="store.item.images && store.item.images.length > 0"
+                                   class="p-1"
+                                   v-for="(item) in store.item.images"
+                                   :src="store.item.base_path+'/'+item['url']"
+                                   preview
+                                   alt="Image"
+                                   width="150" />
+                            <Image v-else-if="store.item.url"
+                                    :src="store.item.base_path+'/'+store.item.url"
                                    preview
                                    alt="Image"
                                    width="150" />
@@ -148,13 +155,6 @@ const toggleFormMenu = (event) => {
                     </FileUpload>
                 </VhField>
 
-                <VhField label="URL">
-                    <InputText class="w-full"
-                               placeholder="Enter a URL"
-                               name="productmedias-url"
-                               data-testid="productmedias-url"
-                               v-model="store.item.url"/>
-                </VhField>
 
                 <VhField label="Status">
                     <AutoComplete

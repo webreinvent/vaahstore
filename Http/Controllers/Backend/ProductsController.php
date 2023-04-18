@@ -7,7 +7,9 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
@@ -58,13 +60,22 @@ class ProductsController extends Controller
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['all_variation'] = [];
-            $data['actions'] = [];
+            $data['empty_item']['vendors'] = [];
 
-            $get_store_data = self::getStoreData();
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
-            $get_brand_data = self::getBrandData();
-            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($get_brand_data['brands']) ?? null;
-            $data = array_merge($data, $get_store_data,$get_brand_data);
+            $active_stores = $this->getStores();
+            $active_brands = $this->getBrands();
+            $active_vendors = $this->getVendors();
+
+            $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
+
+            // set default values
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand();
+
+            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['actions'] = [];
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -117,16 +128,75 @@ class ProductsController extends Controller
         }
     }
 
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
+    //----------------------------------------------------------
+    public function getDefaultStore(){
+        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultBrand(){
+        return Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function getStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getBrands(){
+        $brands = Brand::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($brands){
+            return [
+                'active_brands' =>$brands
+            ];
+        }else{
+            return [
+                'active_brands' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getVendors(){
+        $vendors = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($vendors){
+            return [
+                'active_vendors' =>$vendors
+            ];
+        }else{
+            return [
+                'active_vendors' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function createVendor(Request $request){
+        try{
+            return Product::createVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
             }
         }
     }
+
     //----------------------------------------------------------
     public function getAttributeList(Request $request){
         $input = $request->all();
@@ -149,6 +219,31 @@ class ProductsController extends Controller
         return [
             'data' => $item
         ];
+    }
+
+    //----------------------------------------------------------
+    public function getVendorsList(){
+        try{
+            $data = [];
+
+            $result = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+
+            $data['vendors_list'] = $result;
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
+        return $response;
     }
 
     //----------------------------------------------------------

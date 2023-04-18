@@ -124,6 +124,107 @@ class Vendor extends Model
     public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
     }
+
+    //-------------------------------------------------
+    public function vendorProducts()
+    {
+        return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id')
+            ->where('vh_st_product_vendors.is_active', 1)
+            ->select();
+    }
+
+    //-------------------------------------------------
+    public static function validatedProduct($data){
+        if (isset($data) && !empty($data)){
+            $error_message = [];
+
+            foreach ($data as $key=>$value){
+                if (!isset($value['status']) || empty($value['status'])){
+                    array_push($error_message, 'Status required');
+                }else if($value['status']['slug']=='rejected' && empty($value['status_notes'])){
+                    array_push($error_message, 'The Status notes field is required for "Rejected" Status');
+                }
+                if (!isset($value['product']) || empty($value['product'])){
+                    array_push($error_message, 'product required');
+                }
+                if (!isset($value['can_update'])){
+                    array_push($error_message, 'Can Update required');
+                }
+            }
+
+            if (empty($error_message)){
+                return [
+                    'success' => true
+                ];
+            }else{
+                return [
+                    'success' => false,
+                    'errors' => $error_message
+                ];
+            }
+
+        }else{
+            return [
+                'success' => false,
+                'errors' => ['Product is empty.']
+            ];
+        }
+    }
+
+    //-------------------------------------------------
+    public static function createProduct($request){
+
+        $input = $request->all();
+
+        $vendor_id = $input['id'];
+        $validation = self::validatedProduct($input['products']);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $product_data = $input['products'];
+
+        $active_user = auth()->user();
+        ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
+        foreach ($product_data as $key=>$value){
+
+            $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
+
+            if (isset($value['id']) && !empty($value['id'])){
+                $item = ProductVendor::where('id',$value['id'])->first();
+                $item->vh_st_vendor_id = $vendor_id;
+                $item->vh_st_product_id = $value['product']['id'];
+                $item->added_by = $active_user->id;
+                $item->can_update = $value['can_update'];
+                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $item->status_notes = $value['status_notes'];
+                $item->is_active = 1;
+                $item->save();
+            }else if($precious_record){
+                $precious_record->added_by = $active_user->id;
+                $precious_record->can_update = $value['can_update'];
+                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $precious_record->status_notes = $value['status_notes'];
+                $precious_record->is_active = 1;
+                $precious_record->save();
+            }else {
+                $item = new ProductVendor();
+                $item->vh_st_vendor_id = $vendor_id;
+                $item->vh_st_product_id = $value['product']['id'];
+                $item->added_by = $active_user->id;
+                $item->can_update = $value['can_update'];
+                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+                $item->status_notes = $value['status_notes'];
+                $item->is_active = 1;
+                $item->save();
+            }
+        }
+
+        $response = self::getItem($vendor_id);
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
+
+    }
+
     //-------------------------------------------------
     public static function createItem($request)
     {
@@ -146,7 +247,6 @@ class Vendor extends Model
         $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
-//        dd($item);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -273,7 +373,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with(['store', 'approvedBy', 'ownedBy', 'status']);
+        $list = self::getSorted($request->filter)->with(['store', 'approvedBy', 'ownedBy', 'status','vendorProducts']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -459,7 +559,8 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy', 'status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy',
+                'status','vendorProducts'])
             ->withTrashed()
             ->first();
 
@@ -469,6 +570,25 @@ class Vendor extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        $array_item = $item->toArray();
+        $vendor_product = [];
+        if (!empty($array_item['vendor_products'])){
+            forEach($array_item['vendor_products'] as $key=>$value){
+                $new_array = [];
+                $new_array['id'] = $value['id'];
+                $new_array['is_selected'] = false;
+                $new_array['can_update'] = $value['can_update'] == 1 ? true : false;
+                $new_array['status_notes'] = $value['status_notes'];
+                $new_array['product'] = Product::where('id',$value['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+                $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
+                array_push($vendor_product, $new_array);
+            }
+            $item['products'] = $vendor_product;
+        }else{
+            $item['products'] = [];
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
 

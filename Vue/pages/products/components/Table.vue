@@ -138,6 +138,21 @@ const useVaah = vaah();
 
              </Column>
 
+             <Column field="vendors" header="Vendors"
+                     :sortable="false">
+
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon">
+                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">{{prop.data.product_vendors.length}}</b>
+                            <b v-else>0</b>
+                        </span>
+                         <button @click="store.toVendor(prop.data)"><b>+</b></button>
+                     </div>
+                 </template>
+
+             </Column>
+
              <Column field="status" header="Status"
                      :sortable="true">
 

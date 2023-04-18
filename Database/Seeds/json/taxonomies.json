@@ -93,6 +93,14 @@
         "name": "Pending"
     },
     {
+        "type_slug": "product-variation-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-variation-status",
+        "name": "Rejected"
+    },
+    {
         "type_slug": "warehouse-status",
         "name": "Pending"
     },
@@ -163,14 +171,6 @@
     {
         "type_slug": "order-items-types",
         "name": "EMI"
-    },
-    {
-        "type_slug": "order-items-status",
-        "name": "Pending"
-    },
-    {
-        "type_slug": "order-items-status",
-        "name": "Approved"
     },
     {
         "type_slug": "address-types",
@@ -213,16 +213,8 @@
         "name": "Approved"
     },
     {
-        "type_slug": "order-items-types",
-        "name": "COD"
-    },
-    {
-        "type_slug": "order-items-types",
-        "name": "Card Payment"
-    },
-    {
-        "type_slug": "order-items-types",
-        "name": "EMI"
+        "type_slug": "customer-groups-status",
+        "name": "Rejected"
     },
     {
         "type_slug": "order-items-status",

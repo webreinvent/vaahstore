@@ -64,8 +64,8 @@ const useVaah = vaah();
                      v-if="store.isViewLarge()"
                      :sortable="true">
                  <template #body="prop">
-                     <Image v-if="prop.data.path"
-                            :src="prop.data.path"
+                     <Image v-if="prop.data.url"
+                            :src="store.item.base_path+'/'+prop.data.url"
                             preview
                             alt="Image"
                             width="100" />

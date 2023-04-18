@@ -3,9 +3,14 @@
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Http\Controllers\MediaController;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
 
@@ -30,8 +35,16 @@ class ProductMedia extends Model
         'vh_st_product_variation_id',
         'taxonomy_id_product_media_status',
         'status_notes',
-        'path',
+        'name',
+        'slug',
         'url',
+        'path',
+        'size',
+        'type',
+        'extension',
+        'mime_type',
+        'url_thumbnail',
+        'thumbnail_size',
         'meta',
         'is_active',
         'created_by',
@@ -132,6 +145,12 @@ class ProductMedia extends Model
             return $validation;
         }
 
+        if (!isset($inputs['images']) || empty($inputs['images'])){
+            $response['success'] = false;
+            $response['messages'][] = "The image field is required.";
+            return $response;
+        }
+
 
         // check if exist
             $item = self::where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])->withTrashed()->first();
@@ -141,21 +160,21 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-        foreach ($inputs['path'] as $path)
+        foreach ($inputs['images'] as $image)
         {
             $item = new self();
             $item->fill($inputs);
+            $item->fill($image);
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-            $item->status_notes = $inputs['status_notes'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->path = $path;
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+            $item->is_active = 1;
             $item->save();
         }
 
-            $response = self::getItem($item->id);
-            $response['messages'][] = 'Saved successfully.';
-//        }
+        $response = self::getItem($item->id);
+        $response['messages'][] = 'Saved successfully.';
+
         return $response;
 
     }
@@ -430,7 +449,8 @@ class ProductMedia extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        $item->img_prev = (env('APP_URL').'/'.'images/'.$item->path);
+        $item->base_path = url('');
+        $item->images = [];
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -440,22 +460,122 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function saveUploadImage($request)
     {
-        $inputs = $request['images'];
-        $upload_path = public_path('images');
-        if($request->hasFile('images')){
-            $image_name = [];
-            foreach ($inputs as $input){
-                $file_name = $input->getClientOriginalName();
-                $input->move($upload_path, $file_name);
-                array_push($image_name,$file_name);
-            }
-            $response['success'] = true;
-            $response['data'] = $image_name;
-            $response['messages'][] = 'Saved successfully.';
-        }else{
-            $response['success'] = false;
-            $response['errors'] = 'Error';
+
+        $allowed_file_upload_size = config('vaahcms.allowed_file_upload_size');
+
+        $input_file_name = null;
+        $rules = array(
+            'folder_path' => 'required',
+            'file' => 'max:'.$allowed_file_upload_size,
+        );
+
+        if($request->has('file_input_name'))
+        {
+            $rules[$request->file_input_name] = 'required';
+            $input_file_name = $request->file_input_name;
+        } else{
+            $rules['file'] = 'required';
+            $input_file_name = 'file';
         }
+
+
+
+        $validator = \Validator::make( $request->all(), $rules);
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['status'] = 'failed';
+            $response['errors'] = $errors;
+            return response()->json($response);
+        }
+
+        try{
+
+            //add year and month folder
+
+            $data['extension'] = $request->file->extension();
+            $data['original_name'] = $request->file->getClientOriginalName();
+            $data['mime_type'] = $request->file->getClientMimeType();
+            $type = explode('/',$data['mime_type']);
+            $data['type'] = $type[0];
+            $data['size'] = $request->file->getSize();
+
+            if($request->file_name && !is_null($request->file_name)
+                && $request->file_name != 'null')
+            {
+                $upload_file_name = Str::slug($request->file_name).'.'.$data['extension'];
+
+                $upload_file_path = 'storage/app/'.$request->folder_path.'/'.$upload_file_name;
+
+                $full_upload_file_path = base_path($upload_file_path);
+
+                //if file already exist then prefix if with microtime
+                if(File::exists($full_upload_file_path))
+                {
+                    $time_stamp = \Carbon\Carbon::now()->timestamp;
+                    $upload_file_name = Str::slug($request->file_name).'-'.$time_stamp.'.'.$data['extension'];
+                }
+                $path = $request->file
+                    ->storeAs($request->folder_path, $upload_file_name);
+
+                $data['name'] = $request->file_name;
+                $data['uploaded_file_name'] = $data['name'].'.'.$data['extension'];
+
+            } else{
+                $path = $request->file->store($request->folder_path);
+
+                $data['name'] = $data['original_name'];
+                $data['uploaded_file_name'] = $data['name'];
+            }
+
+            $data['slug'] = Str::slug($data['name']);
+            //$data['extension'] = $name_details['extension'];
+
+            $data['path'] = 'storage/app/'.$path;
+            $data['full_path'] = base_path($data['path']);
+
+            $data['url'] = $path;
+
+            if (substr($path, 0, 6) =='public') {
+                $data['url'] = 'storage'.substr($path, 6);
+            }
+
+            $data['full_url'] = asset($data['url']);
+
+            //create thumbnail if image
+            if($data['type'] == 'image')
+            {
+                $image = \Image::make($data['full_path'])->fit(180, 101, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $name_details = pathinfo($data['full_path']);
+                $thumbnail_name = $name_details['filename'].'-thumbnail.'.$name_details['extension'];
+                $thumbnail_path = $request->folder_path.'/'.$thumbnail_name;
+                $temp = \Storage::put($thumbnail_path, (string) $image->encode());
+                $data['thumbnail_name'] = $thumbnail_name;
+                $data['thumbnail_size'] = Storage::size($thumbnail_path);
+
+                if (substr($thumbnail_path, 0, 6) =='public') {
+                    $data['url_thumbnail'] = 'storage'.substr($thumbnail_path, 6);
+                }
+
+            }
+
+            $response['status'] = true;
+            $response['data'] = $data;
+
+        }catch(\Exception $e)
+        {
+            $response = [];
+            $response['status'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
         return $response;
     }
      //-------------------------------------------------
@@ -468,27 +588,26 @@ class ProductMedia extends Model
             return $validation;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This Product and Product Variation is already exist.";
-            return $response;
-        }
-        foreach ($inputs['path'] as $path)
-        {
+        // if new image is updated
+        if (isset($inputs['images']) && !empty($inputs['images'])){
+            foreach ($inputs['images'] as $image){
+                $item = self::where('id', $id)->withTrashed()->first();
+                $item->fill($inputs);
+                $item->fill($image);
+                $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
+                $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
+                $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
+                $item->save();
+            }
+        }else{
             $item = self::where('id', $id)->withTrashed()->first();
             $item->fill($inputs);
             $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-            $item->status_notes = $inputs['status_notes'];
             $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->path = $path;
             $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
         }
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -548,9 +667,7 @@ class ProductMedia extends Model
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
-            'url'=> 'required|max:150',
-            'path'=> 'required|max:150',
-                ],
+        ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',

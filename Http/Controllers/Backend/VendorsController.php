@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -53,12 +54,23 @@ class VendorsController extends Controller
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
+            $data['empty_item']['products'] = [];
             $data['actions'] = [];
 
-            $get_store_data = self::getStoreData();
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
-            $get_user_data = self::getUserData();
-            $data = array_merge($data, $get_store_data,$get_user_data);
+            $active_stores = $this->getActiveStores();
+            $active_users = $this->getActiveUsers();
+            $active_products = $this->getActiveProducts();
+
+            $data = array_merge($data, $active_stores, $active_users, $active_products);
+
+            // set default value's
+            $data['default_product'] = $this->getDefaultProduct();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
+            $data['empty_item']['approved_by'] = $this->getActiveUser();
+
+            // get taxonomy data's
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -76,21 +88,75 @@ class VendorsController extends Controller
 
         return $response;
     }
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
-            }
+
+    //----------------------------------------------------------
+    public function getActiveStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
         }
     }
-    //------------------------Get Store data for dropdown----------------------------------
-    public function getStoreData(){
+
+    //----------------------------------------------------------
+    public function getActiveUsers(){
+        $users = User::where('is_active',1)->get(['id','first_name','email']);
+        if ($users){
+            return [
+                'active_users' =>$users
+            ];
+        }else{
+            return [
+                'active_users' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveProducts(){
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($active_products){
+            return [
+                'active_products' =>$active_products
+            ];
+        }else{
+            return [
+                'active_products' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveUser(){
+        $active_user = auth()->user();
+
+        return [
+            'id' => $active_user->id,
+            'first_name' => $active_user->first_name,
+            'email' => $active_user->email,
+        ];
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultStore(){
+        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultProduct(){
+        return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function createProduct(Request $request)
+    {
         try{
-            $data['stores'] = Store::where('is_active', 1)->get();
-            return $data;
+            return Vendor::createProduct($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -103,23 +169,7 @@ class VendorsController extends Controller
             }
         }
     }
-    //------------------------Get User data for dropdown----------------------------------
-    public function getUserData(){
-        try{
-            $data['active_users'] = User::where('is_active',1)->get();
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
+
     //----------------------------------------------------------
     public function getList(Request $request)
     {

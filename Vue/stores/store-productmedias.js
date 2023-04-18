@@ -65,6 +65,8 @@ export const useProductMediaStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         suggestion:null,
+        active_products:null,
+        active_product_variations:null,
         status_suggestion:null,
         product_variation_suggestion:null,
         product_suggestion:null,
@@ -91,11 +93,11 @@ export const useProductMediaStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.products;
+                    this.product_suggestion = this.active_products;
                 }
                 else {
-                    this.product_suggestion= this.products.filter((products) => {
-                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_suggestion= this.active_products.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -104,11 +106,11 @@ export const useProductMediaStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
+                    this.product_variation_suggestion = this.active_product_variations;
                 }
                 else {
-                    this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
-                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_variation_suggestion= this.active_product_variations.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -143,7 +145,7 @@ export const useProductMediaStore = defineStore({
         afterUploadImage(data, res){
             if(data)
             {
-                this.item.path = data;
+                this.item.images = data;
             }
         },
         //---------------------------------------------------------------------
@@ -261,8 +263,8 @@ export const useProductMediaStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.status;
-                this.products = data.product.data;
-                this.product_variations = data.product_variation.data;
+                this.active_products = data.active_products;
+                this.active_product_variations = data.active_product_variations;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -312,7 +314,6 @@ export const useProductMediaStore = defineStore({
                 this.item = data;
                 this.item.taxonomy_id_product_media_status = data.status;
                 this.item.vh_st_product_id = data.product;
-                this.item.path = data.img_prev;
                 this.item.vh_st_product_variation_id = data.product_variation;
             }else{
                 this.$router.push({name: 'productmedias.index'});
@@ -493,7 +494,6 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 this.item.taxonomy_id_product_media_status = data.status;
-                this.item.path = data.img_prev;
                 this.item.vh_st_product_id = data.product;
                 this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();

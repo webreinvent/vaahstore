@@ -36,15 +36,20 @@ export const useVendorStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        stores: null,
+        active_stores: null,
         active_users: null,
-        store_suggestion: null,
-        approved_by_suggestion: null,
-        owned_by_suggestion: null,
-        status_suggestion: null,
+        store_suggestions: null,
+        approved_by_suggestions: null,
+        owned_by_suggestions: null,
         status:null,
         disable_approved_by:true,
         list: null,
+        user_error_message: [],
+        selected_product: null,
+        product_vendor_status: null,
+        active_products: null,
+        select_all_product: false,
+        product_selected_menu: [],
         item: null,
         fillable:null,
         empty_query:empty_states.query,
@@ -104,6 +109,10 @@ export const useVendorStore = defineStore({
                 case 'vendors.index':
                     this.view = 'large';
                     this.list_view_width = 12;
+                    break;
+                case 'vendors.product':
+                    this.view = 'small';
+                    this.list_view_width = 4;
                     break;
                 default:
                     this.view = 'small';
@@ -178,6 +187,62 @@ export const useVendorStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        addProduct(){
+            if (this.selected_product != null){
+                let exist = 0;
+                this.item.products.forEach((item)=>{
+                    if (item['product']['id'] == this.selected_product['id']){
+                        exist = 1;
+                    }
+                })
+                if (exist == 0){
+                    let new_product = {
+                        product: this.selected_product,
+                        is_selected : false,
+                        can_update : false,
+                        status : null,
+                        status_notes : null,
+                    };
+                    this.item.products.push(new_product);
+                }else{
+                    this.showUserErrorMessage(['This product is already present'], 4000);
+                }
+
+            }
+        },
+        //---------------------------------------------------------------------
+        showUserErrorMessage(message, time = 2500){
+            this.user_error_message = message;
+            setTimeout(()=>{
+                this.user_error_message = [];
+            },time);
+        },
+        //---------------------------------------------------------------------
+        removeProduct(attribute){
+            this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+        },
+        //---------------------------------------------------------------------
+        selectAllProduct(){
+            this.item.products.forEach((i)=>{
+                i['is_selected'] = !this.select_all_product;
+            })
+        },
+        //---------------------------------------------------------------------
+        bulkRemoveProduct(all = null){
+            if (all){
+                this.item.products = [];
+                this.select_all_product = false;
+            }else{
+                let temp = null;
+                temp = this.item.products.filter((item) => {
+                    return item['is_selected'] != true;
+                });
+                this.item.products = temp;
+
+                this.select_all_product = false;
+            }
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -195,9 +260,12 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.stores = data.stores;
+                this.active_stores = data.active_stores;
                 this.active_users = data.active_users;
-                this.status = data.taxonomy.status;
+                this.status = data.status;
+                this.active_products = data.active_products;
+                this.selected_product = data.default_product;
+                this.product_vendor_status = data.product_vendor_status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
@@ -214,10 +282,10 @@ export const useVendorStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.stores;
+                    this.store_suggestions = this.active_stores;
                 }
                 else {
-                    this.store_suggestion = this.stores.filter((department) => {
+                    this.store_suggestions = this.active_stores.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -227,10 +295,10 @@ export const useVendorStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
+                    this.status_suggestions = this.status;
                 }
                 else {
-                    this.status_suggestion = this.status.filter((department) => {
+                    this.status_suggestions = this.status.filter((department) => {
                         return department.name;
                     });
                 }
@@ -240,10 +308,10 @@ export const useVendorStore = defineStore({
         searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.approved_by_suggestion = this.active_users;
+                    this.approved_by_suggestions = this.active_users;
                 }
                 else {
-                    this.approved_by_suggestion = this.active_users.filter((department) => {
+                    this.approved_by_suggestions = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -253,10 +321,10 @@ export const useVendorStore = defineStore({
         searchOwnedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.owned_by_suggestion = this.active_users;
+                    this.owned_by_suggestions = this.active_users;
                 }
                 else {
-                    this.owned_by_suggestion = this.active_users.filter((department) => {
+                    this.owned_by_suggestions = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -432,6 +500,12 @@ export const useVendorStore = defineStore({
                 case 'create-and-clone':
                     options.method = 'POST';
                     options.params = item;
+                    break;
+
+                case 'save-product':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/product'
                     break;
 
                 /**
@@ -683,6 +757,12 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.form'})
         },
         //---------------------------------------------------------------------
+        toProduct(item)
+        {
+            this.item = vaah().clone(item);
+            this.$router.push({name: 'vendors.product', params:{id:item.id}})
+        },
+        //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
@@ -772,6 +852,16 @@ export const useVendorStore = defineStore({
                     icon: 'pi pi-trash',
                     command: () => {
                         this.confirmDelete()
+                    }
+                },
+            ]
+
+            this.product_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProduct()
                     }
                 },
             ]
