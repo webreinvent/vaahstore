@@ -58,8 +58,12 @@ class ProductStocksController extends Controller
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
+            $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
             $get_product_data = self::getProductData();
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
             $get_product_variation_data = self::getProductVariationData();
+            $data['empty_item']['vh_st_product_variation_id'] =
+                $this->getDefaultRow($get_product_variation_data['product_variations']) ?? null;
             $get_warehouse_data = self::getWarehouseData();
             $data = array_merge($data, $get_vendor_data,$get_product_data,$get_product_variation_data,$get_warehouse_data);
 
@@ -79,7 +83,16 @@ class ProductStocksController extends Controller
 
         return $response;
     }
-
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{

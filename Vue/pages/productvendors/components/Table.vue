@@ -60,7 +60,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="order_items" header="Order Items"
+             <Column field="add_price" header="Add Price"
                      :sortable="false"  >
 
 

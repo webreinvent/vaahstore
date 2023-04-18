@@ -57,8 +57,9 @@ class ProductVariationsController extends Controller
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
 
-            $get_data = self::getProductData();
-            $data = array_merge($data, $get_data);
+            $get_product_data = self::getProductData();
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
+            $data = array_merge($data, $get_product_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -75,6 +76,16 @@ class ProductVariationsController extends Controller
         }
 
         return $response;
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
     }
     //------------------------Get Product data for dropdown----------------------------------
     public function getProductData(){

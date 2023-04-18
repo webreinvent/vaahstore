@@ -61,7 +61,9 @@ class ProductsController extends Controller
             $data['actions'] = [];
 
             $get_store_data = self::getStoreData();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
             $get_brand_data = self::getBrandData();
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($get_brand_data['brands']) ?? null;
             $data = array_merge($data, $get_store_data,$get_brand_data);
 
             $response['success'] = true;
@@ -83,7 +85,7 @@ class ProductsController extends Controller
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
         try{
-            $data['brand']=Brand::where('is_active',1)->get();
+            $data['brands']=Brand::where('is_active',1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -100,7 +102,7 @@ class ProductsController extends Controller
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
         try{
-            $data['store']=Store::where('is_active',1)->get();
+            $data['stores']=Store::where('is_active',1)->get();
             return $data;
         }catch (\Exception $e){
             $response = [];
@@ -115,6 +117,16 @@ class ProductsController extends Controller
         }
     }
 
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getAttributeList(Request $request){
         $input = $request->all();
