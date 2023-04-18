@@ -60,8 +60,11 @@ class ProductVendorsController extends Controller
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
+            $data['empty_item']['vendor'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
             $get_store_data = self::getStoreData();
             $get_product_variation_data = self::getProductVariationData();
+            $data['empty_item']['product_variation'] = $this->getDefaultRow
+                ($get_product_variation_data['product_variations']) ?? null;
             $data = array_merge($data, $get_vendor_data,$get_store_data,$get_product_variation_data);
 
             $response['success'] = true;
@@ -93,6 +96,16 @@ class ProductVendorsController extends Controller
             } else{
                 $response['errors'][] = 'Something went wrong.';
                 return $response;
+            }
+        }
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
             }
         }
     }

@@ -55,6 +55,7 @@ class WarehousesController extends Controller
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
+            $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
             $data = array_merge($data, $get_vendor_data);
 
             $response['success'] = true;
@@ -72,6 +73,16 @@ class WarehousesController extends Controller
         }
 
         return $response;
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
     }
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){

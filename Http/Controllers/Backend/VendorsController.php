@@ -56,6 +56,7 @@ class VendorsController extends Controller
             $data['actions'] = [];
 
             $get_store_data = self::getStoreData();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
             $get_user_data = self::getUserData();
             $data = array_merge($data, $get_store_data,$get_user_data);
 
@@ -74,6 +75,16 @@ class VendorsController extends Controller
         }
 
         return $response;
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
     }
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
