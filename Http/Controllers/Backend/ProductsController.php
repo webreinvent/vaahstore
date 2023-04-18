@@ -59,19 +59,20 @@ class ProductsController extends Controller
             $data['empty_item']['all_variation'] = [];
             $data['empty_item']['vendors'] = [];
 
+            $active_stores = $this->getStores();
+            $active_brands = $this->getBrands();
+            $active_vendors = $this->getVendors();
 
-            $data['brands']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->get(['id','name', 'slug', 'is_default']);
-            $data['stores']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->get(['id','name', 'slug', 'is_default']);
-            $data['Vendors'] = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['default_vendor'] = $this->getDefault($data['Vendors']);
+            $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
+
+            // set default values
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($active_stores['active_stores']);
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($active_brands['active_brands']);
+
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['types'] = Taxonomy::getTaxonomyByType('product-types');
             $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
-            $default_store = $this->getDefault($data['stores']);
-            $data['empty_item']['vh_st_store_id'] = $default_store;
-            $default_brand = $this->getDefault($data['brands']);
-            $data['empty_item']['vh_st_brand_id'] = $default_brand;
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -91,13 +92,55 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefault($row){
+    public function getDefaultRow($row){
         foreach($row as $k=>$v)
         {
             if($v['is_default']==1)
             {
                 return $v;
             }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getBrands(){
+        $brands = Brand::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($brands){
+            return [
+                'active_brands' =>$brands
+            ];
+        }else{
+            return [
+                'active_brands' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getVendors(){
+        $vendors = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($vendors){
+            return [
+                'active_vendors' =>$vendors
+            ];
+        }else{
+            return [
+                'active_vendors' => null
+            ];
         }
     }
 

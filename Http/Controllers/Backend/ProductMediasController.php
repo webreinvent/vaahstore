@@ -52,20 +52,15 @@ class ProductMediasController extends Controller
             $data['empty_item']['images'] = [];
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
-            $data['product']=Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['product_variation']=ProductVariation::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
+
+            $active_products = $this->getActiveProducts();
+            $active_product_variations = $this->getActiveProductVariations();
+
+            $data = array_merge($data, $active_products, $active_product_variations);
+
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
-            $default_product = [];
-            foreach($data['product'] as $l=>$product)
-            {
-                if($product['is_default']==1)
-                {
-                    $default_product['id'] = $product->id;
-                    $default_product['name'] = $product->name;
-                    $default_product['is_default'] = $product->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_product_id'] = $default_product;
+
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($active_products['active_products']);
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -80,6 +75,45 @@ class ProductMediasController extends Controller
             }
         }
         return $response;
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default']==1)
+            {
+                return $v;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveProducts(){
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($active_products){
+            return [
+                'active_products' =>$active_products
+            ];
+        }else{
+            return [
+                'active_products' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveProductVariations(){
+        $active_product_variations = ProductVariation::Where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','deleted_at','is_active']);
+        if ($active_product_variations){
+            return [
+                'active_product_variations' =>$active_product_variations
+            ];
+        }else{
+            return [
+                'active_product_variations' => null
+            ];
+        }
     }
 
     //----------------------------------------------------------
