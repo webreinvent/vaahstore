@@ -30,6 +30,11 @@ const items = ref([
                 to: "/vendors"
             },
             {
+                label: 'Vendor Products',
+                icon: 'fa-regular fa-chart-bar',
+                to: "/productvendors"
+            },
+            {
                 label: 'Products',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/products"
@@ -40,9 +45,9 @@ const items = ref([
                 to: "/productvariations"
             },
             {
-                label: 'Vendor Products',
+                label: 'Product-Attribute',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productvendors"
+                to: "/productAttribute"
             },
             {
                 label: 'Product Medias',
@@ -73,11 +78,6 @@ const items = ref([
                 label: 'Attributes-Group',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/attributegroups"
-            },
-            {
-                label: 'Product-Attribute',
-                icon: 'fa-regular fa-chart-bar',
-                to: "/productAttribute"
             },
             {
                 label: 'Orders',

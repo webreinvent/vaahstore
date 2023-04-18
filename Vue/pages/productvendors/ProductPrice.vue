@@ -37,11 +37,8 @@ const toggleFormMenu = (event) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title">
-                        <span v-if="store.item && store.item.id">
-                            Update
-                        </span>
-                        <span v-else>
-                            Create
+                        <span>
+                            Add Price
                         </span>
                     </div>
 
