@@ -60,7 +60,7 @@ class ProductsController extends Controller
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['all_variation'] = [];
-            $data['actions'] = [];
+            $data['empty_item']['vendors'] = [];
 
             $active_stores = $this->getStores();
             $active_brands = $this->getBrands();

@@ -75,63 +75,59 @@ class VendorsController extends Controller
             $response['success'] = true;
             $response['data'] = $data;
 
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
+    //----------------------------------------------------------
+    public function getActiveStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
         }
+    }
 
-        return $response;
-    }
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
-            }
+    //----------------------------------------------------------
+    public function getActiveUsers(){
+        $users = User::where('is_active',1)->get(['id','first_name','email']);
+        if ($users){
+            return [
+                'active_users' =>$users
+            ];
+        }else{
+            return [
+                'active_users' => null
+            ];
         }
     }
-    //------------------------Get Store data for dropdown----------------------------------
-    public function getStoreData(){
-        try{
-            $data['stores'] = Store::where('is_active', 1)->get();
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
+
+    //----------------------------------------------------------
+    public function getActiveProducts(){
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($active_products){
+            return [
+                'active_products' =>$active_products
+            ];
+        }else{
+            return [
+                'active_products' => null
+            ];
         }
     }
-    //------------------------Get User data for dropdown----------------------------------
-    public function getUserData(){
-        try{
-            $data['active_users'] = User::where('is_active',1)->get();
-            return $data;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
+
+    //----------------------------------------------------------
+    public function getActiveUser(){
+        $active_user = auth()->user();
+
+        return [
+            'id' => $active_user->id,
+            'first_name' => $active_user->first_name,
+            'email' => $active_user->email,
+        ];
     }
+
     //----------------------------------------------------------
     public function createProduct(Request $request)
     {

@@ -108,8 +108,8 @@ export const useProductStore = defineStore({
                     this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.types.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.types.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
