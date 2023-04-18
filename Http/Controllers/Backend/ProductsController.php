@@ -66,8 +66,8 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($active_stores['active_stores']);
-            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($active_brands['active_brands']);
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand();
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['types'] = Taxonomy::getTaxonomyByType('product-types');
@@ -92,14 +92,13 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default']==1)
-            {
-                return $v;
-            }
-        }
+    public function getDefaultStore(){
+        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+    }
+
+    //----------------------------------------------------------
+    public function getDefaultBrand(){
+        return Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
     }
 
     //----------------------------------------------------------
