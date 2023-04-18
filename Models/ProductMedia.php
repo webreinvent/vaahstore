@@ -588,17 +588,6 @@ class ProductMedia extends Model
             return $validation;
         }
 
-        // check if name exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('vh_st_product_id', $inputs['product']['id'])->where('vh_st_product_variation_id', $inputs['product_variation']['id'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This Product and Product Variation is already exist.";
-//            return $response;
-//        }
-
         // if new image is updated
         if (isset($inputs['images']) && !empty($inputs['images'])){
             foreach ($inputs['images'] as $image){
