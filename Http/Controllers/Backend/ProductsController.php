@@ -128,16 +128,6 @@ class ProductsController extends Controller
         }
     }
 
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
-            }
-        }
-    }
     //----------------------------------------------------------
     public function getDefaultStore(){
         return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();

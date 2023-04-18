@@ -75,6 +75,20 @@ class VendorsController extends Controller
             $response['success'] = true;
             $response['data'] = $data;
 
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
+        return $response;
+    }
+
     //----------------------------------------------------------
     public function getActiveStores(){
         $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
@@ -126,24 +140,6 @@ class VendorsController extends Controller
             'first_name' => $active_user->first_name,
             'email' => $active_user->email,
         ];
-    }
-
-    //----------------------------------------------------------
-    public function createProduct(Request $request)
-    {
-        try{
-            return Vendor::createProduct($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
     }
 
     //----------------------------------------------------------
@@ -154,59 +150,6 @@ class VendorsController extends Controller
     //----------------------------------------------------------
     public function getDefaultProduct(){
         return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
-
-    //----------------------------------------------------------
-    public function getActiveStores(){
-        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
-        if ($stores){
-            return [
-                'active_stores' =>$stores
-            ];
-        }else{
-            return [
-                'active_stores' => null
-            ];
-        }
-    }
-
-    //----------------------------------------------------------
-    public function getActiveUsers(){
-        $users = User::where('is_active',1)->get(['id','first_name','email']);
-        if ($users){
-            return [
-                'active_users' =>$users
-            ];
-        }else{
-            return [
-                'active_users' => null
-            ];
-        }
-    }
-
-    //----------------------------------------------------------
-    public function getActiveProducts(){
-        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-        if ($active_products){
-            return [
-                'active_products' =>$active_products
-            ];
-        }else{
-            return [
-                'active_products' => null
-            ];
-        }
-    }
-
-    //----------------------------------------------------------
-    public function getActiveUser(){
-        $active_user = auth()->user();
-
-        return [
-            'id' => $active_user->id,
-            'first_name' => $active_user->first_name,
-            'email' => $active_user->email,
-        ];
     }
 
     //----------------------------------------------------------
