@@ -68,22 +68,36 @@ export const useProductVendorStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        added_by_user:null,
+        auth_users:null,
         status_suggestion:null,
+        product_variation_suggestion:null,
         disable_approved_by:true,
     }),
     getters: {
 
     },
     actions: {
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion = this.product_variations;
+                }
+                else {
+                    this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
+                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
         searchAddeddBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.added_by_user;
+                    this.suggestion = this.auth_users;
                 }
                 else {
-                    this.suggestion= this.added_by_user.filter((added_by_user) => {
-                        return added_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.suggestion= this.auth_users.filter((auth_users) => {
+                        return auth_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -106,11 +120,11 @@ export const useProductVendorStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.suggestion = this.vendor;
+                    this.suggestion = this.vendors;
                 }
                 else {
-                    this.suggestion= this.vendor.filter((vendor) => {
-                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.suggestion= this.vendors.filter((vendors) => {
+                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -266,10 +280,11 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
-                this.store = data.store.data;
-                this.added_by_user = data.user.data;
-                this.vendor =data.vendor.data;
+                this.status = data.taxonomy.status;
+                this.stores = data.stores;
+                this.auth_users = data.auth_users;
+                this.vendors =data.vendors;
+                this.product_variations =data.product_variations;
                 this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
 
                 if(data.rows)
@@ -320,6 +335,8 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.product = data.productList.data
                 this.item.taxonomy_id_product_vendor_status = data.status;
+
+                this.item.vh_st_product_variation_id = data.product_variation;
                 if(data.stores.length != 0){
                     this.getProductsListForStore();
                 }
@@ -469,6 +486,12 @@ export const useProductVendorStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
+
+                case 'save-productprice':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/product/price'
+                    break;
                 /**
                  * Delete a record, hence method is `DELETE`
                  * and no need to send entire `item` object
@@ -503,6 +526,8 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
+
+                this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -698,6 +723,12 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.index'})
+        },
+        //---------------------------------------------------------------------
+        toProductPrice(item)
+        {
+            this.item = vaah().clone(this.assets.empty_item);
+            this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toForm()

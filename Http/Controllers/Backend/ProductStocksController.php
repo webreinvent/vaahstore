@@ -50,22 +50,22 @@ class ProductStocksController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
+
             //set default value
             $data['empty_item']['quantity'] = 1;
             $data['empty_item']['is_active'] = 1;
-
-            //get assets list
-            $data['vendors_list'] = Vendor::where('is_active', 1)->get(['id', 'name']);
-
-            $data['products_list'] = Product::where('is_active', 1)->get(['id', 'name']);
-
-            $data['product_variations_list'] = ProductVariation::where('is_active', 1)->get(['id', 'name']);
-
-            $data['warehouses_list'] = Warehouse::where('is_active', 1)->get(['id', 'name']);
-
-            $data['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
-
             $data['actions'] = [];
+
+            $get_vendor_data = self::getVendorData();
+            $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
+            $get_product_data = self::getProductData();
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
+            $get_product_variation_data = self::getProductVariationData();
+            $data['empty_item']['vh_st_product_variation_id'] =
+                $this->getDefaultRow($get_product_variation_data['product_variations']) ?? null;
+            $get_warehouse_data = self::getWarehouseData();
+            $data = array_merge($data, $get_vendor_data,$get_product_data,$get_product_variation_data,$get_warehouse_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -83,7 +83,84 @@ class ProductStocksController extends Controller
 
         return $response;
     }
-
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getVendorData(){
+        try{
+            $data['vendors'] = Vendor::where('is_active', 1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Product data for dropdown----------------------------------
+    public function getProductData(){
+        try{
+            $data['products'] = Product::where('is_active', 1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Product Variation data for dropdown----------------------------------
+    public function getProductVariationData(){
+        try{
+            $data['product_variations'] = ProductVariation::where('is_active', 1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Warehouse data for dropdown----------------------------------
+    public function getWarehouseData(){
+        try{
+            $data['warehouses'] = Warehouse::where('is_active', 1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

@@ -48,9 +48,10 @@ class AttributesController extends Controller
 
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['value'] = [];
-
             $data['actions'] = [];
-            $data['product_variation_list'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','is_active','deleted_at']);
+
+            $get_product_variation_data = self::getProductVariationData();
+            $data = array_merge($data, $get_product_variation_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -68,7 +69,23 @@ class AttributesController extends Controller
 
         return $response;
     }
-
+    //------------------------Get Product Variation data for dropdown----------------------------------
+    public function getProductVariationData(){
+        try{
+            $data['product_variations'] = ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

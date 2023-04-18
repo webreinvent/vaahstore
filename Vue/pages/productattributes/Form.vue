@@ -66,6 +66,11 @@ const toggleFormMenu = (event) => {
                             data-testid="productattributes-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="productattributes-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
@@ -97,12 +102,14 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product variation">
                     <AutoComplete v-model="store.item.vh_st_product_variation_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="productattributes-vh_st_product_variation_id"
-                                  :suggestions="store.product_variation_suggestion_list"
+                                  :suggestions="store.product_variation_suggestion"
                                   @complete="store.searchProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
+                                  placeholder="Select Product variation"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -114,9 +121,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Attributes">
                     <AutoComplete v-model="store.item.vh_st_attribute_id"
+                                  value="id"
                                   class="w-full"
+                                  placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
-                                  :suggestions="store.attribute_suggestion_list"
+                                  :suggestions="store.attribute_suggestion"
                                   @complete="store.searchAttribute($event)"
                                   @change="store.getAttributeValue()"
                                   :dropdown="true"
@@ -138,14 +147,6 @@ const toggleFormMenu = (event) => {
                         </div>
                     </div>
                 </vhField>
-
-<!--                <VhField label="Is Active">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="productattributes-active"-->
-<!--                                 data-testid="productattributes-active"-->
-<!--                                 v-model="store.item.is_active"/>-->
-<!--                </VhField>-->
 
             </div>
         </Panel>

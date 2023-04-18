@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useProductPriceStore } from '../../stores/store-productprices'
+import { useProductVendorStore } from '../../stores/store-productvendors'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useProductPriceStore();
+const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -37,11 +37,8 @@ const toggleFormMenu = (event) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title">
-                        <span v-if="store.item && store.item.id">
-                            Update
-                        </span>
-                        <span v-else>
-                            Create
+                        <span>
+                            Add Price
                         </span>
                     </div>
 
@@ -56,17 +53,17 @@ const toggleFormMenu = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
-                            data-testid="productprices-save"
-                            @click="store.itemAction('save')"
+                            data-testid="productvendors-save"
+                            @click="store.itemAction('save-productprice')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
-                            data-testid="productprices-create-and-new"
+                            data-testid="productvendors-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="productprices-document" icon="pi pi-info-circle"
+                    <Button data-testid="productvendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
@@ -75,7 +72,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
-                        data-testid="productprices-form-menu"
+                        data-testid="productvendors-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -87,7 +84,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary"
                             icon="pi pi-times"
-                            data-testid="productprices-to-list"
+                            data-testid="productvendors-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -99,40 +96,11 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Vendor">
-
-                    <AutoComplete
-                        v-model="store.item.vh_st_vendor_id"
-                        class="w-full"
-                        :suggestions="store.vendor_suggestion"
-                        @complete="store.searchVendor($event)"
-                        placeholder="Select Vendor"
-                        data-testid="productprices-vendor"
-                        name="productprices-vendor"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
-                </VhField>
-
-                <VhField label="Product">
-
-                    <AutoComplete
-                        v-model="store.item.vh_st_product_id"
-                        class="w-full"
-                        :suggestions="store.product_suggestion"
-                        @complete="store.searchProduct($event)"
-                        placeholder="Select Product"
-                        data-testid="productprices-product"
-                        name="productprices-product"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
-                </VhField>
-
                 <VhField label="Product Variation">
 
                     <AutoComplete
-                        v-model="store.item.vh_st_product_variation_id"
+                        value="id"
+                        v-model="store.item.product_variation"
                         class="w-full"
                         :suggestions="store.product_variation_suggestion"
                         @complete="store.searchProductVariation($event)"
@@ -161,7 +129,7 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="productprices-active"
                                  data-testid="productprices-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active_product_price"/>
                 </VhField>
 
             </div>

@@ -66,7 +66,7 @@ export const useOrderStore = defineStore({
         item_menu_state: null,
         suggestion: null,
         status_suggestion: null,
-        status_item_suggestion: null,
+        status_order_items_suggestion: null,
         payment_method_suggestion: null,
         product_variation_suggestion: null,
         user_suggestion: null,
@@ -81,66 +81,40 @@ export const useOrderStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variation;
-                }
-                else {
-                    this.product_variation_suggestion= this.product_variation.filter((product_variation) => {
-                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
         searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.type_suggestion = this.type;
+                    this.type_suggestion = this.types;
                 }
                 else {
-                    this.type_suggestion= this.type.filter((type) => {
-                        return type.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.type_suggestion= this.type.filter((types) => {
+                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchProduct(event) {
+        searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.product_variation_suggestion = this.product_variations;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.product_variation_suggestion= this.product_variations.filter((product_variation) => {
+                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchStatusItem(event) {
+        searchStatusOrderItems(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_item_suggestion = this.status_item;
+                    this.status_order_items_suggestion = this.status_order_items;
                 }
                 else {
-                    this.status_item_suggestion= this.status_item.filter((status_item) => {
-                        return status_item.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendor;
-                }
-                else {
-                    this.vendor_suggestion= this.vendor.filter((vendor) => {
-                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
+                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -149,11 +123,37 @@ export const useOrderStore = defineStore({
         searchCustomerGroup(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.customer_group_suggestion = this.customer_group;
+                    this.customer_group_suggestion = this.customer_groups;
                 }
                 else {
-                    this.customer_group_suggestion= this.customer_group.filter((customer_group) => {
-                        return customer_group.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
+                        return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_suggestion = this.products;
+                }
+                else {
+                    this.product_suggestion= this.products.filter((products) => {
+                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.vendor_suggestion = this.vendors;
+                }
+                else {
+                    this.vendor_suggestion= this.vendors.filter((vendors) => {
+                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -162,11 +162,11 @@ export const useOrderStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
+                    this.status_suggestion = this.status_orders;
                 }
                 else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.status_suggestion= this.status_orders.filter((status_orders) => {
+                        return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -176,11 +176,11 @@ export const useOrderStore = defineStore({
         searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.user_suggestion = this.user;
+                    this.user_suggestion = this.active_users;
                 }
                 else {
-                    this.user_suggestion= this.user.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.user_suggestion= this.active_users.filter((active_users) => {
+                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -190,11 +190,11 @@ export const useOrderStore = defineStore({
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_method;
+                    this.payment_method_suggestion = this.payment_methods;
                 }
                 else {
-                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
-                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -313,15 +313,16 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status_orders;
-                this.status_item = data.status_item;
-                this.type = data.type;
-                this.product_variation = data.product_variation;
-                this.vendor = data.vendor;
-                this.customer_group = data.customer_group;
-                this.product = data.product;
-                this.user = data.user;
-                this.payment_method = data.payment_method.data;
+                this.status_orders = data.taxonomy.status_orders;
+                this.active_users = data.active_users;
+                this.payment_methods = data.payment_methods;
+
+                this.types = data.taxonomy.types;
+                this.products = data.products;
+                this.product_variations = data.product_variations;
+                this.status_order_items = data.taxonomy.status_order_items;
+                this.customer_groups = data.customer_groups;
+                this.vendors = data.vendors;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -370,13 +371,15 @@ export const useOrderStore = defineStore({
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status_order;
-                this.item.vh_st_product_id = data.product;
-                this.item.taxonomy_id_order_items_status = data.status_item;
-                this.item.taxonomy_id_order_items_types = data.type;
-                this.item.vh_st_product_variation_id = data.product_variation;
-                this.item.vh_st_vendor_id = data.vendor;
-                this.item.vh_st_customer_group_id = data.customer_group;
                 this.item.vh_user_id = data.user;
+
+                this.item.taxonomy_id_order_items_types = data.type;
+                this.item.vh_st_product_id = data.product;
+                this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.status_notes_order = data.status_notes_order;
+                this.item.taxonomy_id_order_items_status = data.status_order_items;
+                this.item.vh_st_customer_group_id = data.customer_group;
+                this.item.vh_st_vendor_id = data.vendor;
             }else{
                 this.$router.push({name: 'orders.index'});
             }
@@ -527,7 +530,7 @@ export const useOrderStore = defineStore({
                 case 'save-orderitems':
                     options.method = 'POST';
                     options.params = item;
-                    ajax_url += '/orderitems'
+                    ajax_url += '/items'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -563,15 +566,15 @@ export const useOrderStore = defineStore({
                 this.item = data;
                 this.item.vh_st_payment_method_id = data.payment_method;
                 this.item.taxonomy_id_order_status = data.status_order;
-                this.item.vh_st_product_variation_id = data.product_variation;
                 this.item.vh_user_id = data.user;
-                this.item.vh_st_product_id = data.product;
-                this.item.taxonomy_id_order_items_status = data.status_item;
-                this.item.taxonomy_id_order_items_types = data.type;
-                this.item.vh_st_vendor_id = data.vendor;
-                this.item.vh_st_customer_group_id = data.customer_group;
 
+                this.item.taxonomy_id_order_items_types = data.type;
+                this.item.taxonomy_id_order_items_status = data.status_order_items;
+                this.item.vh_st_product_id = data.product;
+                this.item.vh_st_product_variation_id = data.product_variation;
+                this.item.status_notes_order = data.status_notes_order;
                 this.item.vh_st_customer_group_id = data.customer_group;
+                this.item.vh_st_vendor_id = data.vendor;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
@@ -778,8 +781,7 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         toOrderItem(item)
         {
-            // this.item = vaah().clone(item);
-            // this.order_items = vaah().clone(this.order_items);
+            this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'orders.orderitems', params:{id:item.id}})
         },
         //---------------------------------------------------------------------

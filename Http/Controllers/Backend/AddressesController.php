@@ -46,9 +46,11 @@ class AddressesController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
-            $data['user'] = User::where('is_active',1)->get(['id','first_name','email']);
-            $data['type'] = Taxonomy::getTaxonomyByType('address-types');
-            $data['status'] = Taxonomy::getTaxonomyByType('address-status');
+
+            $data['empty_item']['active_users'] = User::where('is_active',1)->get();
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('address-types');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('address-status');
+
             $data['actions'] = [];
 
             $response['success'] = true;

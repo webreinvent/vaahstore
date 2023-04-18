@@ -166,17 +166,7 @@ class OrderItem extends Model
         }
 
         $item = new self();
-        $item->vh_st_order_id = $inputs['id'];
-        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item->is_invoice_available = $inputs['is_invoice_available'];
-        $item->tracking = $inputs['tracking'];
-        $item->invoice_url = $inputs['invoice_url'];
-        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
-        $item->vh_user_id = $inputs['user']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-//        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -447,7 +437,8 @@ class OrderItem extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product','ProductVariation','vendor','CustomerGroup'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','order','status','user','type','product',
+                'ProductVariation','vendor','CustomerGroup'])
             ->withTrashed()
             ->first();
 
@@ -472,19 +463,7 @@ class OrderItem extends Model
         if (!$validation['success']) {
             return $validation;
         }
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->vh_st_order_id = $inputs['id'];
-        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item->is_invoice_available = $inputs['is_invoice_available'];
-        $item->tracking = $inputs['tracking'];
-        $item->invoice_url = $inputs['invoice_url'];
-        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->vh_st_customer_group_id = $inputs['vh_st_customer_group_id']['id'];
-        $item->vh_user_id = $inputs['user']['id'];
-        $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-//        $item->taxonomy_id_order_items_status = $inputs['taxonomy_id_order_items_status']['id'];
+        $item = self::where('id', $id)->withTrashed()->first();;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -540,27 +519,9 @@ class OrderItem extends Model
 
     public static function validation($inputs)
     {
-
         $rules = validator($inputs, [
-            'user'=> 'required',
-            'vh_st_product_id'=> 'required',
-            'vh_st_product_variation_id'=> 'required',
-            'invoice_url'=> 'required',
-            'tracking'=> 'required',
-            'vh_st_vendor_id'=> 'required',
-            'vh_st_customer_group_id'=> 'required',
-            'taxonomy_id_order_items_types'=> 'required',
-//            'taxonomy_id_order_items_status'=> 'required',
-//            'status_notes' => 'required_if:taxonomy_id_order_items_status.slug,==,rejected',
                 ],
             [
-                'vh_st_product_id.required' => 'The Product field is required',
-                'vh_st_product_variation_id.required' => 'The Product Variation field is required',
-                'vh_st_vendor_id.required' => 'The Vendor field is required',
-                'vh_st_customer_group_id.required' => 'The Vendor field is required',
-                'taxonomy_id_order_items_types.required' => 'The Type field is required',
-//                'taxonomy_id_order_items_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 

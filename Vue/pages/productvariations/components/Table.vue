@@ -33,7 +33,12 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <Badge v-if="prop.data.name == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <span v-else>
+                     {{prop.data.name}}
+                         </span>
                 </template>
 
             </Column>
@@ -41,12 +46,17 @@ const useVaah = vaah();
              <Column field="product" header="Product"
                     :sortable="true">
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.product.name}}
-                </template>
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.product == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span v-else>
+                     {{prop.data.product.name}}
+                         </span>
+                 </template>
 
             </Column>
 

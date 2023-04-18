@@ -48,12 +48,15 @@ class WarehousesController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['countrys_list'] = array_column(VaahCountry::getList(), 'name');
-            $data['vendors_list'] = Vendor::where('is_active',1)->get(['id', 'name']);
-            $data['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
-            $data['empty_item']['is_active'] = 1;
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
+            $data['countries'] = array_column(VaahCountry::getList(), 'name');
 
+            $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
+
+            $get_vendor_data = self::getVendorData();
+            $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
+            $data = array_merge($data, $get_vendor_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -71,7 +74,33 @@ class WarehousesController extends Controller
 
         return $response;
     }
-
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getVendorData(){
+        try{
+            $data['vendors'] = Vendor::where('is_active',1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

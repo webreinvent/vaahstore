@@ -68,7 +68,7 @@ const toggleFormMenu = (event) => {
 
                     <Button data-testid="vendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
-                            v-tooltip.top="'documentation'"
+                            v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
@@ -117,10 +117,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Store">
                     <AutoComplete v-model="store.item.vh_st_store_id"
+                                  value="id"
                                   class="w-full"
                                   placeholder="Select Store"
                                   data-testid="vendors-vh_st_store_id"
-                                  :suggestions="store.store_suggestion_list"
+                                  :suggestions="store.store_suggestion"
                                   @complete="store.searchStore($event)"
                                   :dropdown="true"
                                   optionLabel="name"
@@ -135,11 +136,12 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Approve By">
                     <AutoComplete v-model="store.item.approved_by"
+                                  value="id"
                                   class="w-full"
                                   placeholder="Select Approve By"
                                   data-testid="vendors-approved_by"
                                   name="vendors-approved_by"
-                                  :suggestions="store.approved_by_suggestion_list"
+                                  :suggestions="store.approved_by_suggestion"
                                   @complete="store.searchApprovedBy($event)"
                                   :dropdown="true"
                                   optionLabel="first_name"
@@ -156,10 +158,11 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Owned By">
                     <AutoComplete v-model="store.item.owned_by"
+                                  value="id"
                                   class="w-full"
                                   data-testid="vendors-owned_by"
                                   name="vendors-owned_by"
-                                  :suggestions="store.owned_by_suggestion_list"
+                                  :suggestions="store.owned_by_suggestion"
                                   @complete="store.searchOwnedBy($event)"
                                   :dropdown="true"
                                   optionLabel="name"
@@ -177,11 +180,12 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete v-model="store.item.taxonomy_id_vendor_status"
+                                  value="id"
                                   data-testid="vendors-taxonomy_id_vendor_status"
                                   name="vendors-taxonomy_id_vendor_status"
                                   class="w-full"
                                   placeholder="Select Status"
-                                  :suggestions="store.status_suggestion_list"
+                                  :suggestions="store.status_suggestion"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
                                   optionLabel="name"

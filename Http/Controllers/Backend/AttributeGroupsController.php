@@ -46,9 +46,9 @@ class AttributeGroupsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['empty_item']['is_active'] = 1;
-            $data['attribute_list'] = Attribute::get(['id', 'name', 'type']);
+            $data['attributes'] = Attribute::get();
 
+            $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
 
             $response['success'] = true;
@@ -67,7 +67,6 @@ class AttributeGroupsController extends Controller
 
         return $response;
     }
-
     //----------------------------------------------------------
     public function getList(Request $request)
     {

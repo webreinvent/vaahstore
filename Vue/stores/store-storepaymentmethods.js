@@ -77,11 +77,11 @@ export const useStorePaymentMethodStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.store;
+                    this.store_suggestion = this.stores;
                 }
                 else {
-                    this.store_suggestion= this.store.filter((store) => {
-                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.store_suggestion= this.stores.filter((stores) => {
+                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -103,11 +103,11 @@ export const useStorePaymentMethodStore = defineStore({
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_method;
+                    this.payment_method_suggestion = this.payment_methods;
                 }
                 else {
-                    this.payment_method_suggestion= this.payment_method.filter((payment_method) => {
-                        return payment_method.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -226,9 +226,9 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.store = data.store.data;
-                this.payment_method = data.payment_method.data;
-                this.status = data.status;
+                this.stores = data.stores;
+                this.payment_methods = data.payment_methods;
+                this.status = data.taxonomy.status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

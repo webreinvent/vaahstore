@@ -68,7 +68,7 @@ const toggleFormMenu = (event) => {
 
                     <Button data-testid="warehouses-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
-                            v-tooltip.top="'documentation'"
+                            v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
@@ -117,9 +117,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete v-model="store.item.vh_st_vendor_id"
+                                  value="id"
                                   class="w-full"
                                   data-testid="store-vendor"
-                                  :suggestions="store.vendor_suggestion_list"
+                                  :suggestions="store.vendor_suggestion"
                                   @complete="store.searchVendors($event)"
                                   :dropdown="true"
                                   optionLabel="name"
@@ -129,9 +130,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Country">
                     <AutoComplete v-model="store.item.country"
+                                  value="id"
                                   class="w-full"
                                   data-testid="store-country"
-                                  :suggestions="store.country_suggestion_list"
+                                  :suggestions="store.country_suggestion"
                                   @complete="store.searchCountry($event)"
                                   :dropdown="true"
                                   placeholder="Select Country"
@@ -156,9 +158,10 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete v-model="store.item.taxonomy_id_warehouse_status"
+                                  value="id"
                                   class="w-full"
                                   data-testid="store-taxonomy_status"
-                                  :suggestions="store.status_suggestion_list"
+                                  :suggestions="store.status_suggestion"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
                                   placeholder="Select Status"

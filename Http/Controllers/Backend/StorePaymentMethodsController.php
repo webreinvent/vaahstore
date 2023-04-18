@@ -49,22 +49,16 @@ class StorePaymentMethodsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['actions'] = [];
-            $data['store']= Store::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['payment_method']= PaymentMethod::select('id','name','slug','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
+
             $data['empty_item']['is_active'] = 1;
-            $default_store = [];
-            foreach($data['store'] as $l=>$store)
-            {
-                if($store['is_default']==1)
-                {
-                    $default_store['id'] = $store->id;
-                    $default_store['name'] = $store->name;
-                    $default_store['is_default'] = $store->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_store_id'] = $default_store;
+            $data['actions'] = [];
+
+            $get_store_data = self::getStoreData();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
+            $get_payment_method_data = self::getPaymentMethodData();
+            $data = array_merge($data, $get_store_data,$get_payment_method_data);
+
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -81,7 +75,50 @@ class StorePaymentMethodsController extends Controller
 
         return $response;
     }
-
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
+    //------------------------Get Store data for dropdown----------------------------------
+    public function getStoreData(){
+        try{
+            $data['stores']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Payment Method data for dropdown----------------------------------
+    public function getPaymentMethodData(){
+        try{
+            $data['payment_methods']= PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

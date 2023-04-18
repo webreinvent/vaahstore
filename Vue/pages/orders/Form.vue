@@ -68,7 +68,7 @@ const toggleFormMenu = (event) => {
 
                     <Button data-testid="orders-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
-                            v-tooltip.top="'documentation'"
+                            v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
@@ -101,6 +101,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="User">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_user_id"
                         class="w-full"
                         name="orders-user"
@@ -183,6 +184,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Payment Method">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_payment_method_id"
                         class="w-full"
                         name="orders-payment_method"
@@ -197,6 +199,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_order_status"
                         class="w-full"
                         name="orders-status"
@@ -214,7 +217,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Enter a Status Note"
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
-                              v-model="store.item.status_notes_order"/>
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">

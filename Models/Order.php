@@ -90,7 +90,7 @@ class Order extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
     //-------------------------------------------------
-    public function orderItem()
+    public function Items()
     {
         return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
     }
@@ -132,6 +132,45 @@ class Order extends Model
         }
 
         $query->whereBetween('updated_at', [$from, $to]);
+    }
+    //-----------------To save and update data of order items--------------------------------
+    public static function createOrderItem($request){
+        $inputs = $request->all();
+
+        $validation = self::validationOrderItem($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
+        if($check){
+            $check->fill($inputs);
+            $check->vh_st_order_id = $inputs['id'];
+            $check->vh_user_id  = $inputs['vh_user_id']['id'];
+            $check->taxonomy_id_order_items_types = $inputs['types']['id'];
+            $check->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
+            $check->vh_st_product_id = $inputs['product']['id'];
+            $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
+            $check->vh_st_customer_group_id = $inputs['customer_group']['id'];
+            $check->vh_st_vendor_id = $inputs['vendor']['id'];
+            $check->is_active = $inputs['is_active_order_item'];
+            $check->save();
+            $response['messages'][] = 'Saved successfully update.';
+            return $response;
+        }
+        $order_item = new OrderItem;
+        $order_item->fill($inputs);
+        $order_item->vh_st_order_id = $inputs['id'];
+        $order_item->vh_user_id  = $inputs['vh_user_id']['id'];
+        $order_item->taxonomy_id_order_items_types = $inputs['types']['id'];
+        $order_item->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
+        $order_item->vh_st_product_id = $inputs['product']['id'];
+        $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
+        $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
+        $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
+        $order_item->is_active = $inputs['is_active_order_item'];
+        $order_item->save();
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
     }
     //-------------------------------------------------
     public static function createItem($request)
@@ -444,7 +483,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','orderItem'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','Items'])
             ->withTrashed()
             ->first();
 
@@ -454,6 +493,26 @@ class Order extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        //To get data for dropdown of order items
+        $array_item = $item->toArray();
+        if($item['items']!=null){
+            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
+            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
+            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
+            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
+            $item['status_notes_order'] = $array_item['items']['status_notes'];
+            $item['is_active_order_item'] = $array_item['items']['is_active'];
+            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
+            $item['invoice_url'] = $array_item['items']['invoice_url'];
+            $item['tracking'] = $array_item['items']['tracking'];
+        }
+        else{
+            $item['is_invoice_available'] = 1;
+            $item['is_active_order_item'] = 1;
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -584,6 +643,39 @@ class Order extends Model
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
+    }
+    //-----------------validation for product price--------------------------------
+    public static function validationOrderItem($inputs)
+    {
+        $rules = validator($inputs,
+            [
+            'types' => 'required|max:150',
+            'product_variation' => 'required|max:150',
+            'product' => 'required|max:150',
+            'vendor' => 'required',
+            'customer_group' => 'required',
+            'invoice_url' => 'required',
+            'tracking' => 'required',
+            'status_order_items' => 'required',
+            'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
+                ],
+            [
+                'status_order_items.required' => 'The Status field is required',
+                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
+                ]);
         if($rules->fails()){
             return [
                 'success' => false,

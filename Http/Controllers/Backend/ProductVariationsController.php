@@ -48,25 +48,19 @@ class ProductVariationsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+
             $data['actions'] = [];
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
-            $data['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
-            $data['product']= Product::select('id','name','slug','is_default','deleted_at','is_active')->where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $default_product = [];
-            foreach($data['product'] as $l=>$product)
-            {
-                if($product['is_default']==1)
-                {
-                    $default_product['id'] = $product->id;
-                    $default_product['name'] = $product->name;
-                    $default_product['is_default'] = $product->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_product_id'] = $default_product;
+
+            $get_product_data = self::getProductData();
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
+            $data = array_merge($data, $get_product_data);
+
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -82,6 +76,33 @@ class ProductVariationsController extends Controller
         }
 
         return $response;
+    }
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
+    //------------------------Get Product data for dropdown----------------------------------
+    public function getProductData(){
+        try{
+            $data['products']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
     }
 
     //----------------------------------------------------------

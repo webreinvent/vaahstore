@@ -66,6 +66,11 @@ const toggleFormMenu = (event) => {
                             data-testid="storepaymentmethods-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="storepaymentmethods-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
@@ -98,6 +103,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Store">
 
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_store_id"
                         class="w-full"
                         :suggestions="store.store_suggestion"
@@ -113,6 +119,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Payment Method">
 
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_st_payment_method_id"
                         class="w-full"
                         :suggestions="store.payment_method_suggestion"
@@ -141,6 +148,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status">
 
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_payment_method_status"
                         class="w-full"
                         :suggestions="store.status_suggestion"

@@ -66,6 +66,11 @@ const toggleFormMenu = (event) => {
                             data-testid="whishlists-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="whishlists-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
@@ -96,6 +101,7 @@ const toggleFormMenu = (event) => {
             <div v-if="store.item">
                 <VhField label="User">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.vh_user_id"
                         class="w-full"
                         :suggestions="store.user_suggestion"
@@ -109,6 +115,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Type">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_whishlists_types"
                         class="w-full"
                         :suggestions="store.type_suggestion"
@@ -122,6 +129,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
+                        value="id"
                         v-model="store.item.taxonomy_id_whishlists_status"
                         class="w-full"
                         name="whishlists-status"

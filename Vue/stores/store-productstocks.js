@@ -37,16 +37,16 @@ export const useProductStockStore = defineStore({
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
-        status_suggestion_list: null,
+        status_suggestion: null,
         status_option: null,
-        vendors_suggestion_list: null,
-        vendors_option: null,
-        products_suggestion_list: null,
-        products_option: null,
-        product_variations_suggestion_list: null,
-        product_variations_option: null,
-        warehouses_suggestion_list: null,
-        warehouses_option: null,
+        vendors_suggestion: null,
+        vendors: null,
+        products_suggestion: null,
+        products: null,
+        product_variations_suggestion: null,
+        product_variations: null,
+        warehouses_suggestion: null,
+        warehouses: null,
         item: null,
         fillable:null,
         empty_query:empty_states.query,
@@ -180,10 +180,10 @@ export const useProductStockStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
+                    this.status_suggestion = this.status.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -193,12 +193,12 @@ export const useProductStockStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.vendors_suggestion_list = this.vendors_option;
+                    this.vendors_suggestion = this.vendors;
                 }
                 else {
-                    this.vendors_suggestion_list = this.vendors_option.filter((department) => {
+                    this.vendors_suggestion = this.vendors.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
+                    })
                 }
             }, 250);
         },
@@ -206,10 +206,10 @@ export const useProductStockStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.products_suggestion_list = this.products_option;
+                    this.products_suggestion = this.products;
                 }
                 else {
-                    this.products_suggestion_list = this.products_option.filter((department) => {
+                    this.products_suggestion = this.products.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -219,10 +219,10 @@ export const useProductStockStore = defineStore({
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_variations_suggestion_list = this.product_variations_option;
+                    this.product_variations_suggestion = this.product_variations;
                 }
                 else {
-                    this.product_variations_suggestion_list = this.product_variations_option.filter((department) => {
+                    this.product_variations_suggestion = this.product_variations.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -232,10 +232,10 @@ export const useProductStockStore = defineStore({
         searchWarehouse(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.warehouses_suggestion_list = this.warehouses_option;
+                    this.warehouses_suggestion = this.warehouses;
                 }
                 else {
-                    this.warehouses_suggestion_list = this.warehouses_option.filter((department) => {
+                    this.warehouses_suggestion = this.warehouses.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -259,11 +259,11 @@ export const useProductStockStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_option = data.status;
-                this.vendors_option = data.vendors_list;
-                this.products_option = data.products_list;
-                this.warehouses_option = data.warehouses_list;
-                this.product_variations_option = data.product_variations_list;
+                this.status = data.taxonomy.status;
+                this.vendors = data.vendors;
+                this.products = data.products;
+                this.warehouses = data.warehouses;
+                this.product_variations = data.product_variations;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

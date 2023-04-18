@@ -36,12 +36,13 @@ export const useVendorStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        all_store_list: null,
-        all_user_list: null,
-        store_suggestion_list: null,
-        approved_by_suggestion_list: null,
-        owned_by_suggestion_list: null,
-        status_option:null,
+        stores: null,
+        active_users: null,
+        store_suggestion: null,
+        approved_by_suggestion: null,
+        owned_by_suggestion: null,
+        status_suggestion: null,
+        status:null,
         disable_approved_by:true,
         list: null,
         item: null,
@@ -194,9 +195,9 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.all_store_list = data.stores;
-                this.all_user_list = data.users;
-                this.status_option = data.status;
+                this.stores = data.stores;
+                this.active_users = data.active_users;
+                this.status = data.taxonomy.status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
@@ -213,10 +214,10 @@ export const useVendorStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion_list = this.all_store_list;
+                    this.store_suggestion = this.stores;
                 }
                 else {
-                    this.store_suggestion_list = this.all_store_list.filter((department) => {
+                    this.store_suggestion = this.stores.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -226,10 +227,10 @@ export const useVendorStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
+                    this.status_suggestion = this.status;
                 }
                 else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
+                    this.status_suggestion = this.status.filter((department) => {
                         return department.name;
                     });
                 }
@@ -239,10 +240,10 @@ export const useVendorStore = defineStore({
         searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.approved_by_suggestion_list = this.all_user_list;
+                    this.approved_by_suggestion = this.active_users;
                 }
                 else {
-                    this.approved_by_suggestion_list = this.all_user_list.filter((department) => {
+                    this.approved_by_suggestion = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -252,10 +253,10 @@ export const useVendorStore = defineStore({
         searchOwnedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.owned_by_suggestion_list = this.all_user_list;
+                    this.owned_by_suggestion = this.active_users;
                 }
                 else {
-                    this.owned_by_suggestion_list = this.all_user_list.filter((department) => {
+                    this.owned_by_suggestion = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }

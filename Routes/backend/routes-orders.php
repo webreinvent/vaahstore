@@ -45,7 +45,7 @@ function () {
     /**
      * POST create orderItem
      */
-    Route::post('/orderitems', 'OrdersController@createOrderItems')
+    Route::post('/items', 'OrdersController@createOrderItems')
         ->name('vh.backend.store.products.createOrderItems');
     /**
      * Update Item

@@ -143,10 +143,7 @@ class Vendor extends Model
         $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
         $item->owned_by  = $inputs['owned_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
-        $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
 //        dd($item);
@@ -496,10 +493,7 @@ class Vendor extends Model
         $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
         $item->owned_by  = $inputs['owned_by']['id'];
         $item->approved_by = $inputs['approved_by']['id'];
-        $item->is_default = $inputs['is_default'];
         $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->is_active = $inputs['is_active'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();

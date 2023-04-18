@@ -50,41 +50,21 @@ class ProductsController extends Controller
             {
                 $data['empty_item'][$column] = null;
             }
+
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('product-types');
+
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['product_variation'] = null;
             $data['empty_item']['all_variation'] = [];
-
-
-            $data['brand']=Brand::select('id','name','slug', 'is_default')->where('is_active',1)->paginate(config('vaahcms.per_page'));
-            $data['store']=Store::where('is_active',1)->select('id','name', 'is_default','slug')->paginate(config('vaahcms.per_page'));
-
-            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['type'] = Taxonomy::getTaxonomyByType('product-types');
             $data['actions'] = [];
-            $default_store = [];
-            foreach($data['store'] as $k=>$arr)
-            {
-                if($arr['is_default']==1)
-                {
-                    $default_store['id'] = $arr->id;
-                    $default_store['name'] = $arr->name;
-                    $default_store['is_default'] = $arr->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_store_id'] = $default_store;
-            $default_brand = [];
-            foreach($data['brand'] as $l=>$brand)
-            {
-                if($brand['is_default']==1)
-                {
-                    $default_brand['id'] = $brand->id;
-                    $default_brand['name'] = $brand->name;
-                    $default_brand['is_default'] = $brand->is_default;
-                }
-            }
-            $data['empty_item']['vh_st_brand_id'] = $default_brand;
+
+            $get_store_data = self::getStoreData();
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
+            $get_brand_data = self::getBrandData();
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($get_brand_data['brands']) ?? null;
+            $data = array_merge($data, $get_store_data,$get_brand_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -102,7 +82,51 @@ class ProductsController extends Controller
 
         return $response;
     }
+    //------------------------Get Brand data for dropdown----------------------------------
+    public function getBrandData(){
+        try{
+            $data['brands']=Brand::where('is_active',1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Store data for dropdown----------------------------------
+    public function getStoreData(){
+        try{
+            $data['stores']=Store::where('is_active',1)->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
 
+    //---------------------Get Default Data-------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getAttributeList(Request $request){
         $input = $request->all();

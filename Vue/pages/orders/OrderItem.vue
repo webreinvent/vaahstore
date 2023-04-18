@@ -56,6 +56,11 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('save-orderitems')"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="orderitems-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
                     <!--form_menu-->
                     <Button
                         type="button"
@@ -81,38 +86,10 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-
-<!--                <VhField label="User">-->
-<!--                    <AutoComplete-->
-<!--                        v-model="store.item.vh_user_id"-->
-<!--                        class="w-full"-->
-<!--                        name="orderitems-user"-->
-<!--                        :suggestions="store.user_suggestion"-->
-<!--                        @complete="store.searchUser($event)"-->
-<!--                        placeholder="Select User"-->
-<!--                        :dropdown="true" optionLabel="first_name"-->
-<!--                        data-testid="orderitems-user"-->
-<!--                        forceSelection>-->
-<!--                    </AutoComplete>-->
-<!--                </VhField>-->
-
-<!--                <VhField label="Order">-->
-<!--                    <AutoComplete-->
-<!--                        v-model="store.item.vh_st_order_id"-->
-<!--                        class="w-full"-->
-<!--                        name="orderitems-order"-->
-<!--                        :suggestions="store.order_suggestion"-->
-<!--                        @complete="store.searchOrder($event)"-->
-<!--                        placeholder="Select Order"-->
-<!--                        :dropdown="true" optionLabel="id"-->
-<!--                        data-testid="orderitems-order"-->
-<!--                        forceSelection>-->
-<!--                    </AutoComplete>-->
-<!--                </VhField>-->
-
                 <VhField label="Types">
                     <AutoComplete
-                        v-model="store.item.taxonomy_id_order_items_types"
+                        value="id"
+                        v-model="store.item.types"
                         class="w-full"
                         name="orderitems-types"
                         :suggestions="store.type_suggestion"
@@ -126,7 +103,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete
-                        v-model="store.item.vh_st_product_id"
+                        value="id"
+                        v-model="store.item.product"
                         class="w-full"
                         name="orderitems-product"
                         :suggestions="store.product_suggestion"
@@ -140,7 +118,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product Variation">
                     <AutoComplete
-                        v-model="store.item.vh_st_product_variation_id"
+                        value="id"
+                        v-model="store.item.product_variation"
                         class="w-full"
                         name="orderitems-product_variation"
                         :suggestions="store.product_variation_suggestion"
@@ -154,7 +133,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Vendor">
                     <AutoComplete
-                        v-model="store.item.vh_st_vendor_id"
+                        value="id"
+                        v-model="store.item.vendor"
                         class="w-full"
                         name="orderitems-vendor"
                         :suggestions="store.vendor_suggestion"
@@ -168,7 +148,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Customer Groups">
                     <AutoComplete
-                        v-model="store.item.vh_st_customer_group_id"
+                        value="id"
+                        v-model="store.item.customer_group"
                         class="w-full"
                         name="orderitems-customer_group"
                         :suggestions="store.customer_group_suggestion"
@@ -196,12 +177,43 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.tracking"/>
                 </VhField>
 
+                <VhField label="Status">
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.status_order_items"
+                        class="w-full"
+                        name="orders-status"
+                        :suggestions="store.status_order_items_suggestion"
+                        @complete="store.searchStatusOrderItems($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="orderitems-status"
+                        forceSelection>
+                    </AutoComplete>
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea rows="3" class="w-full"
+                              placeholder="Enter a Status Note"
+                              name="orderitems-status_notes"
+                              data-testid="orderitems-status_notes"
+                              v-model="store.item.status_notes_order"/>
+                </VhField>
+
                 <VhField label="Is Invoice Available">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="orderitems-is_invoice_available"
                                  data-testid="orderitems-is_invoice_available"
                                  v-model="store.item.is_invoice_available"/>
+                </VhField>
+
+                <VhField label="Is Active">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="orders-active"
+                                 data-testid="orders-active"
+                                 v-model="store.item.is_active_order_item"/>
                 </VhField>
 
 

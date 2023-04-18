@@ -66,6 +66,11 @@ const toggleFormMenu = (event) => {
                             data-testid="customergroups-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="customergroups-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
@@ -135,6 +140,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         v-model="store.item.taxonomy_id_customer_groups_status"
                         class="w-full"
+                        value="id"
                         name="customergroups-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"

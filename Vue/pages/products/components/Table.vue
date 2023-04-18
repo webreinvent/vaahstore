@@ -139,7 +139,6 @@ const useVaah = vaah();
              </Column>
 
              <Column field="status" header="Status"
-                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -184,7 +183,6 @@ const useVaah = vaah();
             </Column>
 
             <Column field="actions" style="width:150px;"
-                    v-if="store.isViewLarge()"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 

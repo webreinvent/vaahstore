@@ -47,16 +47,15 @@ class BrandsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['user']=User::where(['is_active'=>1,'deleted_at'=>null])->paginate(config('vaahcms.per_page'));
-            $data['actions'] = [];
-            $data['empty_item']['is_active'] = 1;
-            $data['status'] = Taxonomy::getTaxonomyByType('brand-status');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('brand-status');
+            $data['auth_approved_by'] = auth()->user()->get();
 
-            $active_user = auth()->user();
-            $approved_by['id'] = $active_user->id;
-            $approved_by['name'] = $active_user->first_name;
-            $approved_by['email'] = $active_user->email;
-            $data['empty_item']['approved_by'] = $approved_by;
+            $data['empty_item']['is_active'] = 1;
+            $data['actions'] = [];
+
+            $get_user_data = self::getUserData();
+            $data = array_merge($data, $get_user_data);
+
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -74,7 +73,23 @@ class BrandsController extends Controller
 
         return $response;
     }
-
+    //------------------------Get User data for dropdown----------------------------------
+    public function getUserData(){
+        try{
+            $data['active_users']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
+            return $data;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
     public function getList(Request $request)
     {

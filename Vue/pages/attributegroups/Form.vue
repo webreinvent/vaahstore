@@ -66,6 +66,11 @@ const toggleFormMenu = (event) => {
                             data-testid="attributegroups-create-and-new"
                             icon="pi pi-save"/>
 
+                    <Button data-testid="attributegroups-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
@@ -97,6 +102,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Name">
                     <InputText class="w-full"
+                               placeholder="Enter Name"
                                name="attributegroups-name"
                                data-testid="attributegroups-name"
                                v-model="store.item.name"/>
@@ -104,6 +110,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Slug">
                     <InputText class="w-full"
+                               placeholder="Enter Slug"
                                name="attributegroups-slug"
                                data-testid="attributegroups-slug"
                                v-model="store.item.slug"/>
@@ -135,7 +142,11 @@ const toggleFormMenu = (event) => {
                 </vhField>
 
                 <VhField label="Description">
-                    <Textarea v-model="store.item.description" data-testid="attributegroups-description" :autoResize="true" rows="5" cols="30" />
+                    <Textarea v-model="store.item.description"
+                              rows="3" class="w-full"
+                              placeholder="Enter Description"
+                              data-testid="attributegroups-description"
+                              :autoResize="true"/>
                 </VhField>
 
                 <VhField label="Is Active">
