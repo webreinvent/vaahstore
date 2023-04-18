@@ -26,7 +26,7 @@ routes_list = {
             props: true,
         },
         {
-            path: 'productprice/:id?',
+            path: 'product/price/:id?',
             name: 'productvendors.productprice',
             component: Price,
             props: true,

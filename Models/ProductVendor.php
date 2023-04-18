@@ -143,7 +143,6 @@ class ProductVendor extends Model
         if($check){
             $check->fill($inputs);
             $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
-            $check->amount = $inputs['amount'];
             $check->is_active = $inputs['is_active_product_price'];
             $check->save();
             $response['messages'][] = 'Saved successfully update.';
@@ -151,10 +150,7 @@ class ProductVendor extends Model
         }
         $order_item = new ProductPrice;
         $order_item->fill($inputs);
-        $order_item->vh_st_vendor_id = $inputs['vh_st_vendor_id'];
-        $order_item->vh_st_product_id  = $inputs['vh_st_product_id'];
         $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
-        $order_item->amount = $inputs['amount'];
         $order_item->is_active = $inputs['is_active_product_price'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
@@ -473,6 +469,7 @@ class ProductVendor extends Model
         $check = ProductPrice::where('vh_st_vendor_id',$array_item['vh_st_vendor_id'])->where('vh_st_product_id',$array_item['vh_st_product_id'])->first();
         if($check){
             $item['product_variation'] = ProductVariation::where('id',$check['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['is_active_product_price'] = $check['is_active'];
             $item['amount'] = $check['amount'];
         }else{
             $item['is_active_product_price'] = 1;

@@ -530,7 +530,7 @@ export const useOrderStore = defineStore({
                 case 'save-orderitems':
                     options.method = 'POST';
                     options.params = item;
-                    ajax_url += '/orderitems'
+                    ajax_url += '/items'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`

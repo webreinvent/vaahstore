@@ -152,6 +152,7 @@ class Order extends Model
             $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
             $check->vh_st_customer_group_id = $inputs['customer_group']['id'];
             $check->vh_st_vendor_id = $inputs['vendor']['id'];
+            $check->is_active = $inputs['is_active_order_item'];
             $check->save();
             $response['messages'][] = 'Saved successfully update.';
             return $response;
@@ -166,6 +167,7 @@ class Order extends Model
         $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
         $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
         $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
+        $order_item->is_active = $inputs['is_active_order_item'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
         return $response;
