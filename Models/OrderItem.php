@@ -166,18 +166,7 @@ class OrderItem extends Model
         }
 
         $item = new self();
-//        $item->vh_st_order_id = $inputs['id'];
-//        $item->vh_st_product_id = $inputs['order_item']['vh_st_product_id']['id'];
-//        $item->vh_st_product_variation_id = $inputs['order_item']['vh_st_product_variation_id']['id'];
-//        $item->is_invoice_available = $inputs['order_item']['is_invoice_available'];
-//        $item->tracking = $inputs['order_item']['tracking'];
-//        $item->status_notes = $inputs['order_item']['status_notes'];
-//        $item->invoice_url = $inputs['order_item']['invoice_url'];
-//        $item->vh_st_vendor_id = $inputs['order_item']['vh_st_vendor_id']['id'];
-//        $item->vh_st_customer_group_id = $inputs['order_item']['vh_st_customer_group_id']['id'];
-//        $item->vh_user_id = $inputs['vh_user_id']['id'];
         $item->taxonomy_id_order_items_types = $inputs['taxonomy_id_order_items_types']['id'];
-//        $item->taxonomy_id_order_items_status = $inputs['order_item']['taxonomy_id_order_items_status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);

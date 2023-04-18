@@ -162,10 +162,6 @@ class ProductVariation extends Model
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
         }
-//        else{
-//            $item->quantity = $inputs['quantity'];
-//            $item->in_stock = $inputs['in_stock'];
-//        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
@@ -506,10 +502,6 @@ class ProductVariation extends Model
             $response['messages'][] = 'The quantity should be more then 1';
             return $response;
         }
-//        else{
-//            $item->quantity = $inputs['quantity'];
-//            $item->in_stock = $inputs['in_stock'];
-//        }
         if($inputs['in_stock']==0){
             $item->quantity = 0;
         }
