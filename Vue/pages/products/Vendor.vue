@@ -86,7 +86,7 @@ const toggleSelectedMenuState = (event) => {
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
                         <Dropdown v-model="store.selected_vendor"
-                                  :options="store.vendors_list"
+                                  :options="store.active_vendors"
                                   optionLabel="name"
                                   placeholder="Select a Vendor"
                                   class="w-full">

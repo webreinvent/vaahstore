@@ -36,8 +36,8 @@ export const useVendorStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        stores: null,
-        users: null,
+        active_stores: null,
+        active_users: null,
         store_suggestions: null,
         approved_by_suggestions: null,
         owned_by_suggestions: null,
@@ -47,7 +47,7 @@ export const useVendorStore = defineStore({
         user_error_message: [],
         selected_product: null,
         product_vendor_status: null,
-        products: null,
+        active_products: null,
         select_all_product: false,
         product_selected_menu: [],
         item: null,
@@ -260,10 +260,10 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.stores = data.stores;
-                this.users = data.users;
+                this.active_stores = data.active_stores;
+                this.active_users = data.active_users;
                 this.status = data.status;
-                this.products = data.products;
+                this.active_products = data.active_products;
                 this.selected_product = data.default_product;
                 this.product_vendor_status = data.product_vendor_status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
@@ -282,10 +282,10 @@ export const useVendorStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestions = this.stores;
+                    this.store_suggestions = this.active_stores;
                 }
                 else {
-                    this.store_suggestions = this.stores.filter((department) => {
+                    this.store_suggestions = this.active_stores.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -308,10 +308,10 @@ export const useVendorStore = defineStore({
         searchApprovedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.approved_by_suggestions = this.users;
+                    this.approved_by_suggestions = this.active_users;
                 }
                 else {
-                    this.approved_by_suggestions = this.users.filter((department) => {
+                    this.approved_by_suggestions = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -321,10 +321,10 @@ export const useVendorStore = defineStore({
         searchOwnedBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.owned_by_suggestions = this.users;
+                    this.owned_by_suggestions = this.active_users;
                 }
                 else {
-                    this.owned_by_suggestions = this.users.filter((department) => {
+                    this.owned_by_suggestions = this.active_users.filter((department) => {
                         return department.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }

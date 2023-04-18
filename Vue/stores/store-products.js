@@ -39,7 +39,9 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        vendors:null,
+        active_vendors:null,
+        active_brands:null,
+        active_stores:null,
         selected_vendor:null,
         select_all_vendor:false,
         user_error_message: [],
@@ -117,10 +119,10 @@ export const useProductStore = defineStore({
         searchBrand(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.brand_suggestion = this.brands;
+                    this.brand_suggestion = this.active_brands;
                 }
                 else {
-                    this.brand_suggestion= this.brands.filter((brand) => {
+                    this.brand_suggestion= this.active_brands.filter((brand) => {
                         return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -145,10 +147,10 @@ export const useProductStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.stores;
+                    this.store_suggestion = this.active_stores;
                 }
                 else {
-                    this.store_suggestion= this.stores.filter((store) => {
+                    this.store_suggestion= this.active_stores.filter((store) => {
                         return store.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -531,10 +533,13 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status;
-                this.brands = data.brands;
-                this.stores = data.stores;
-                this.types = data.taxonomy.types;
+                this.status = data.status;
+                this.active_brands = data.active_brands;
+                this.active_stores = data.active_stores;
+                this.types = data.types;
+                this.active_vendors = data.active_vendors;
+                this.selected_vendor = data.default_vendor;
+                this.product_vendor_status = data.product_vendor_status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;

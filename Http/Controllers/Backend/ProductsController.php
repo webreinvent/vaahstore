@@ -62,11 +62,20 @@ class ProductsController extends Controller
             $data['empty_item']['all_variation'] = [];
             $data['actions'] = [];
 
-            $get_store_data = self::getStoreData();
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
-            $get_brand_data = self::getBrandData();
-            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($get_brand_data['brands']) ?? null;
-            $data = array_merge($data, $get_store_data,$get_brand_data);
+            $active_stores = $this->getStores();
+            $active_brands = $this->getBrands();
+            $active_vendors = $this->getVendors();
+
+            $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
+
+            // set default values
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($active_stores['active_stores']);
+            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultRow($active_brands['active_brands']);
+
+            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['actions'] = [];
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -130,41 +139,7 @@ class ProductsController extends Controller
         }
     }
     //----------------------------------------------------------
-    public function createVendor(Request $request){
-        try{
-            return Product::createVendor($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
-
-    //----------------------------------------------------------
-    public function createVendor(Request $request){
-        try{
-            return Product::createVendor($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
-
-    //----------------------------------------------------------
-    public function getDefault($row){
+    public function getDefaultRow($row){
         foreach($row as $k=>$v)
         {
             if($v['is_default']==1)
@@ -175,13 +150,44 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefault($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default']==1)
-            {
-                return $v;
-            }
+    public function getStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getBrands(){
+        $brands = Brand::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($brands){
+            return [
+                'active_brands' =>$brands
+            ];
+        }else{
+            return [
+                'active_brands' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getVendors(){
+        $vendors = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($vendors){
+            return [
+                'active_vendors' =>$vendors
+            ];
+        }else{
+            return [
+                'active_vendors' => null
+            ];
         }
     }
 

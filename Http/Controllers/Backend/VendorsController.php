@@ -57,27 +57,20 @@ class VendorsController extends Controller
             $data['empty_item']['products'] = [];
             $data['actions'] = [];
 
-            $get_store_data = self::getStoreData();
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($get_store_data['stores']) ?? null;
-            $get_user_data = self::getUserData();
-            $data = array_merge($data, $get_store_data,$get_user_data);
+            $active_stores = $this->getActiveStores();
+            $active_users = $this->getActiveUsers();
+            $active_products = $this->getActiveProducts();
 
-            $data['products'] = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-            $data['default_product'] = $this->getDefault($data['products']);
+            $data = array_merge($data, $active_stores, $active_users, $active_products);
 
+            // set default value's
+            $data['default_product'] = $this->getDefaultRow($active_products['active_products']);
+            $data['empty_item']['vh_st_store_id'] = $this->getDefaultRow($data['active_stores']);
+            $data['empty_item']['approved_by'] = $this->getActiveUser();
+
+            // get taxonomy data's
             $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-
             $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
-            $active_user = auth()->user();
-            $approved_by['id'] = $active_user->id;
-            $approved_by['first_name'] = $active_user->first_name;
-            $approved_by['email'] = $active_user->email;
-
-            $data['empty_item']['approved_by'] = $approved_by;
-            $default_store = $this->getDefault($data['stores']);
-
-            $data['empty_item']['vh_st_store_id'] = $default_store;
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -158,7 +151,7 @@ class VendorsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefault($row){
+    public function getDefaultRow($row){
         foreach($row as $k=>$v)
         {
             if($v['is_default']==1)
@@ -166,6 +159,59 @@ class VendorsController extends Controller
                 return $v;
             }
         }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveStores(){
+        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        if ($stores){
+            return [
+                'active_stores' =>$stores
+            ];
+        }else{
+            return [
+                'active_stores' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveUsers(){
+        $users = User::where('is_active',1)->get(['id','first_name','email']);
+        if ($users){
+            return [
+                'active_users' =>$users
+            ];
+        }else{
+            return [
+                'active_users' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveProducts(){
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        if ($active_products){
+            return [
+                'active_products' =>$active_products
+            ];
+        }else{
+            return [
+                'active_products' => null
+            ];
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveUser(){
+        $active_user = auth()->user();
+
+        return [
+            'id' => $active_user->id,
+            'first_name' => $active_user->first_name,
+            'email' => $active_user->email,
+        ];
     }
 
     //----------------------------------------------------------
