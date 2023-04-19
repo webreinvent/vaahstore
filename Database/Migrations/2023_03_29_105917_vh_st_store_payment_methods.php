@@ -24,13 +24,13 @@ class VhStstorepaymentmethods extends Migration
 
                 $table->dateTime('last_payment_at')->nullable();
 
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
+                $table->string('name')->nullable();
+                $table->string('slug')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 
 
                 //----common fields
-                $table->string('status_notes')->nullable()->index();
+                $table->string('status_notes')->nullable();
                 $table->text('meta')->nullable();
                 $table->bigInteger('created_by')->nullable()->index();
                 $table->bigInteger('updated_by')->nullable()->index();

@@ -21,7 +21,7 @@ class VhStproductattributevalues extends Migration
 
                 $table->integer('vh_st_product_attribute_id')->nullable()->index();
                 $table->integer('vh_st_attribute_value_id')->nullable()->index();
-                $table->string('value')->nullable()->index();
+                $table->string('value')->nullable();
 
 
                 //----common fields
