@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStProductVariations extends Migration
+class VhStAttributeValues extends Migration
 {
     /**
      * Run the migrations.
@@ -14,24 +14,12 @@ class VhStProductVariations extends Migration
     public function up()
     {
 
-        Schema::create('vh_st_product_variations', function (Blueprint $table) {
+        Schema::create('vh_st_attribute_values', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
-            $table->integer('vh_st_product_id')->nullable()->index();
-            $table->integer('taxonomy_id_variation_status')->nullable()->index();
 
-            $table->string('sku')->nullable()->index();
-            $table->string('name')->nullable()->index();
-            $table->string('slug')->nullable()->index();
-
-            $table->bigInteger('quantity')->nullable()->index();
-            $table->boolean('is_default')->nullable()->index();
-
-            $table->boolean('in_stock')->nullable()->index();
-            $table->boolean('has_media')->nullable()->index();
-            $table->boolean('is_active')->nullable()->index();
-
-            $table->string('status_notes')->nullable();
+            $table->integer('vh_st_attribute_id')->nullable()->index();
+            $table->string('value')->nullable();
 
             //----common fields
             $table->text('meta')->nullable();
@@ -55,6 +43,6 @@ class VhStProductVariations extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_product_variations');
+        Schema::dropIfExists('vh_st_attribute_values');
     }
 }

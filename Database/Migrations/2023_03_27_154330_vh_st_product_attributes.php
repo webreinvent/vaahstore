@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStattributevalues extends Migration
+class VhStproductattributes extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +14,13 @@ class VhStattributevalues extends Migration
     public function up()
     {
 
-        if (!Schema::hasTable('vh_st_attribute_values')) {
-            Schema::create('vh_st_attribute_values', function (Blueprint $table) {
+        if (!Schema::hasTable('vh_st_product_attributes')) {
+            Schema::create('vh_st_product_attributes', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
 
+                $table->integer('vh_st_product_vari_id')->nullable()->index();
                 $table->integer('vh_st_attribute_id')->nullable()->index();
-                $table->string('value')->nullable()->index();
 
                 //----common fields
                 $table->text('meta')->nullable();
@@ -29,7 +29,9 @@ class VhStattributevalues extends Migration
                 $table->bigInteger('deleted_by')->nullable()->index();
                 $table->timestamps();
                 $table->softDeletes();
-                $table->index(['created_at', 'updated_at', 'deleted_at']);
+                $table->index(['created_at']);
+                $table->index(['updated_at']);
+                $table->index(['deleted_at']);
                 //----/common fields
 
             });
@@ -44,6 +46,6 @@ class VhStattributevalues extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_attribute_values');
+        Schema::dropIfExists('vh_st_product_attributes');
     }
 }
