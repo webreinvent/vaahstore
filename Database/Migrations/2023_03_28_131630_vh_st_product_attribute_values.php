@@ -21,7 +21,7 @@ class VhStproductattributevalues extends Migration
 
                 $table->integer('vh_st_product_attribute_id')->nullable()->index();
                 $table->integer('vh_st_attribute_value_id')->nullable()->index();
-                $table->string('value')->nullable()->index();
+                $table->string('value')->nullable();
 
 
                 //----common fields
@@ -31,7 +31,9 @@ class VhStproductattributevalues extends Migration
                 $table->bigInteger('deleted_by')->nullable()->index();
                 $table->timestamps();
                 $table->softDeletes();
-                $table->index(['created_at', 'updated_at', 'deleted_at']);
+                $table->index(['created_at']);
+                $table->index(['updated_at']);
+                $table->index(['deleted_at']);
                 //----/common fields
 
             });
