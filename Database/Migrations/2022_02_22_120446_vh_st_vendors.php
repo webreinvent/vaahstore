@@ -41,7 +41,9 @@ class VhStVendors extends Migration
             $table->integer('deleted_by')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['created_at', 'updated_at', 'deleted_at']);
+            $table->index(['created_at']);
+            $table->index(['updated_at']);
+            $table->index(['deleted_at']);
             //----/common fields
 
         });
