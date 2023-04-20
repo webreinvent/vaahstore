@@ -277,7 +277,7 @@ export const useStorePaymentMethodStore = defineStore({
                 this.item = data;
                 this.item.vh_st_store_id = data.store;
                 this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_payment_method_status = data.status;
+                this.item.taxonomy_id_payment = data.status;
             }else{
                 this.$router.push({name: 'storepaymentmethods.index'});
             }
@@ -458,7 +458,7 @@ export const useStorePaymentMethodStore = defineStore({
                 this.item = data;
                 this.item.vh_st_store_id = data.store;
                 this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_payment_method_status = data.status;
+                this.item.taxonomy_id_payment = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
