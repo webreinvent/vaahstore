@@ -20,7 +20,7 @@ class VhStstorepaymentmethods extends Migration
                 $table->uuid('uuid')->nullable()->index();
                 $table->integer('vh_st_store_id')->nullable()->index();
                 $table->integer('vh_st_payment_method_id')->nullable()->index();
-                $table->integer('taxonomy_id_payment_method_status')->nullable()->index();
+                $table->integer('taxonomy_id_payment_status')->nullable()->index();
 
                 $table->dateTime('last_payment_at')->nullable();
 

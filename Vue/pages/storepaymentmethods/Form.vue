@@ -149,7 +149,7 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.taxonomy_id_payment_method_status"
+                        v-model="store.item.taxonomy_id_payment"
                         class="w-full"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
