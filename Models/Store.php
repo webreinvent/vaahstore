@@ -86,20 +86,23 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')->select(['id','name', 'slug']);
+    public function statusRecord(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')
+            ->select(['id','name', 'slug']);
     }
 
     //-------------------------------------------------
     public function currenciesRecord(){
-        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')->where('is_active', 1)
+        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')
+            ->where('is_active', 1)
             ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
                 'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
     }
 
     //-------------------------------------------------
     public function lingualRecord(){
-        return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')->where('is_active', 1)
+        return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
+            ->where('is_active', 1)
             ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.is_default']);
     }
 
@@ -140,8 +143,6 @@ class Store extends Model
         $item = new self();
         $item->fill($inputs);
         $item->allowed_ips =json_encode($inputs['allowed_ips']);
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -322,7 +323,7 @@ class Store extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('statusRecord');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -514,7 +515,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesRecord', 'lingualRecord'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'statusRecord', 'currenciesRecord', 'lingualRecord'])
             ->withTrashed()
             ->first();
 
@@ -529,7 +530,8 @@ class Store extends Model
         $item->currencies = [];
         if ($item->currenciesRecord->isNotEmpty()){
 
-            $currency_default_record = $item->currenciesRecord()->where('is_default',1)->select('name','code','symbol')->get();
+            $currency_default_record = $item->currenciesRecord()->where('is_default',1)
+                ->select('name','code','symbol')->get();
             if($currency_default_record->isNotEmpty()){
                 $item->currency_default = $currency_default_record[0];
             }
@@ -588,8 +590,6 @@ class Store extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
-        $item->is_default = $inputs['is_default'];
-        $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -606,7 +606,8 @@ class Store extends Model
             }
 
             if (!empty($inputs['currency_default'])){
-                currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'], 'is_active' => 1])->update(['is_default' => 1]);
+                currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'],
+                    'is_active' => 1])->update(['is_default' => 1]);
             }else{
                 $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
                 $first_active_currencies->is_default = 1;
@@ -629,7 +630,8 @@ class Store extends Model
             }
 
             if (!empty($inputs['language_default'])){
-                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['language_default']['name'], 'is_active' => 1])->update(['is_default' => 1]);
+                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['language_default']['name'],
+                    'is_active' => 1])->update(['is_default' => 1]);
             }else{
                 $first_active_lingual = Lingual::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
                 $first_active_lingual->is_default = 1;

@@ -42,15 +42,15 @@ const useVaah = vaah();
             </Column>
 
 
-             <Column field="status" header="Status"
+             <Column field="status_record" header="Status"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="!prop.data.status"
+                     <Badge v-if="prop.data.status_record && prop.data.status_record.slug == 'approved'"
+                            severity="success"> {{prop.data.status_record.name}} </Badge>
+                     <Badge v-else-if="!prop.data.status_record"
                             severity="primary"> null </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="primary"> {{prop.data.status_record.name}} </Badge>
 
                  </template>
              </Column>
