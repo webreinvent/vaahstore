@@ -60,7 +60,8 @@ class StoresController extends Controller
         $data['empty_item']['is_multi_lingual'] = 0;
         $data['empty_item']['is_multi_vendor'] = 0;
         $data['empty_item']['is_default'] = 0;
-        $data['empty_item']['is_active'] = 1;
+        $data['empty_item']['is_active'] = true;
+        $data['empty_item']['status_record'] = null;
         $data['actions'] = [];
 
         $response['success'] = true;

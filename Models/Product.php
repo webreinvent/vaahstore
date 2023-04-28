@@ -68,26 +68,26 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function brand()
+    public function brandRecord()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug','is_default');
     }
 
     //-------------------------------------------------
-    public function store()
+    public function storeRecord()
     {
         return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug', 'is_default');
     }
 
     //-------------------------------------------------
-    public function status()
+    public function statusRecord()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
             ->select('id','name','slug');
     }
 
     //-------------------------------------------------
-    public function type()
+    public function typeRecord()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')
             ->select('id','name','slug');
@@ -177,7 +177,6 @@ class Product extends Model
 
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
-//            $item->sku
             $item->save();
 
             foreach ($all_attribute as $k => $v) {
@@ -206,7 +205,7 @@ class Product extends Model
             $error_message = [];
             $all_variation = $variation['structured_variation'];
             $all_arrtibute = $variation['all_attribute_name'];
-//            dd($all_variation);
+
             foreach ($all_variation as $key=>$value){
 
                 if (!isset($value['variation_name']) || empty($value['variation_name'])) {
@@ -366,14 +365,6 @@ class Product extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
-        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
-        if(is_string($inputs['vh_st_brand_id']['name'])){
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
-        }
-        if(is_string($inputs['vh_st_store_id']['name'])){
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        }
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1.';
             return $response;
@@ -471,7 +462,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
+        $list = self::getSorted($request->filter)->with('brandRecord','storeRecord','typeRecord','statusRecord', 'variationCount', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -670,7 +661,7 @@ class Product extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status', 'productAttributes', 'productVendors'
+                'brandRecord','storeRecord','typeRecord','statusRecord', 'productAttributes', 'productVendors'
             ])
             ->withTrashed()
             ->first();
@@ -743,18 +734,6 @@ class Product extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        if(is_string($inputs['vh_st_brand_id']['name'])){
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
-        }else{
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['name']['id'];
-        }
-        if(is_string($inputs['vh_st_store_id']['name'])){
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        }else{
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['name']['id'];
-        }
-        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
-        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
 
         if($inputs['in_stock']==1 && $inputs['quantity']==0){
             $response['messages'][] = 'The quantity should be more then 1';

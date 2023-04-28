@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -264,6 +264,22 @@ export const useProductStore = defineStore({
                     },{deep: true}
                 )
                 }
+        },
+        setStore(event){
+            let store = toRaw(event.value);
+            this.item.vh_st_store_id = store.id;
+        },
+        setBrand(event){
+            let brand = toRaw(event.value);
+            this.item.vh_st_brand_id = brand.id;
+        },
+        setType(event){
+            let type = toRaw(event.value);
+            this.item.taxonomy_id_product_type = type.id;
+        },
+        setProductStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_product_status = status.id;
         },
         //---------------------------------------------------------------------
         addVendor(){
@@ -586,10 +602,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_brand_id = data.brand
-                this.item.vh_st_store_id = data.store
-                this.item.taxonomy_id_product_type = data.type
-                this.item.taxonomy_id_product_status = data.status;
             }else{
                 this.$router.push({name: 'products.index'});
             }
@@ -780,10 +792,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_status = data.status;
-                this.item.taxonomy_id_product_type = data.type;
-                this.item.vh_st_brand_id = data.brand;
-                this.item.vh_st_store_id = data.store;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

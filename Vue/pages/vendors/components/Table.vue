@@ -38,13 +38,13 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store.name" header="Store"
+             <Column field="store_record.name" header="Store"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge>{{prop.data.store.name}}
-                         <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
+                     <Badge>{{prop.data.store_record.name}}
+                         <span v-if="prop.data.store_record.is_default == 1">&nbsp;(Default)</span>
                      </Badge>
                  </template>
 
@@ -65,7 +65,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status_record" header="Status"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -73,26 +73,26 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
+                     <Badge v-if="prop.data.status_record.slug == 'approved'"
+                            severity="success"> {{prop.data.status_record.name}} </Badge>
+                     <Badge v-else-if="prop.data.status_record.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status_record.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="primary"> {{prop.data.status_record.name}} </Badge>
                  </template>
 
              </Column>
 
-             <Column field="owned_by.name" header="Owned By"
+             <Column field="owned_by_user.name" header="Owned By"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.owned_by == null"
+                     <Badge v-if="prop.data.owned_by_user == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.owned_by.name}}
+                     {{prop.data.owned_by_user.name}}
                          </span>
                  </template>
              </Column>

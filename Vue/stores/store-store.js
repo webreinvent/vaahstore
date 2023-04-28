@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -233,6 +233,11 @@ export const useStoreStore = defineStore({
                 }
 
             }
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_store_status = status.id;
         },
         //---------------------------------------------------------------------
         async getList() {
@@ -489,7 +494,6 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
