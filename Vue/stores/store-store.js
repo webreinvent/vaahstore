@@ -494,7 +494,6 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
