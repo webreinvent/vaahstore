@@ -365,15 +365,7 @@ class Product extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1.';
-            return $response;
-        }else{
-            $item->in_stock = 1;
-        }
-        if($inputs['quantity']==0){
-            $item->in_stock = 0;
-        }
+        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -734,16 +726,8 @@ class Product extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
 
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1';
-            return $response;
-        }else{
-            $item->in_stock = 1;
-        }
-        if($inputs['quantity']==0){
-            $item->in_stock = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);

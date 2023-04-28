@@ -151,9 +151,7 @@ class Store extends Model
 
                 $record = new currencie();
                 $record->vh_st_store_id = $item->id;
-                $record->name = $value['name'];
-                $record->code = $value['code'];
-                $record->symbol = $value['symbol'];
+                $record->fill($value);
 
                 if (!empty($inputs['currency_default'])) {
                     if ($inputs['currency_default']['code'] == $value['code']) {
@@ -173,7 +171,7 @@ class Store extends Model
 
                 $record = new Lingual();
                 $record->vh_st_store_id = $item->id;
-                $record->name = $value['name'];
+                $record->fill($value);
 
                 if (!empty($inputs['language_default'])) {
                     if ($inputs['language_default']['name'] == $value['name']) {
