@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -41,7 +41,8 @@ export const useVendorStore = defineStore({
         store_suggestions: null,
         approved_by_suggestions: null,
         owned_by_suggestions: null,
-        status:null,
+        vendor_status:null,
+        vendor_status_suggestions:null,
         disable_approved_by:true,
         list: null,
         user_error_message: [],
@@ -242,6 +243,26 @@ export const useVendorStore = defineStore({
                 this.select_all_product = false;
             }
         },
+        setStore(event){
+            let store = toRaw(event.value);
+            this.item.vh_st_store_id = store.id;
+
+        },
+        setApprovedBy(event){
+            let user = toRaw(event.value);
+            this.item.approved_by = user.id;
+
+        },
+        setOwnedBy(event){
+            let user = toRaw(event.value);
+            this.item.owned_by = user.id;
+
+        },
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_vendor_status = status.id;
+
+        },
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -262,7 +283,7 @@ export const useVendorStore = defineStore({
                 this.assets = data;
                 this.active_stores = data.active_stores;
                 this.active_users = data.active_users;
-                this.status = data.status;
+                this.vendor_status = data.vendor_status;
                 this.active_products = data.active_products;
                 this.selected_product = data.default_product;
                 this.product_vendor_status = data.product_vendor_status;
@@ -285,8 +306,8 @@ export const useVendorStore = defineStore({
                     this.store_suggestions = this.active_stores;
                 }
                 else {
-                    this.store_suggestions = this.active_stores.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.store_suggestions = this.active_stores.filter((et) => {
+                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -295,11 +316,11 @@ export const useVendorStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestions = this.status;
+                    this.vendor_status_suggestions = this.vendor_status;
                 }
                 else {
-                    this.status_suggestions = this.status.filter((department) => {
-                        return department.name;
+                    this.vendor_status_suggestions = this.vendor_status.filter((et) => {
+                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -311,8 +332,8 @@ export const useVendorStore = defineStore({
                     this.approved_by_suggestions = this.active_users;
                 }
                 else {
-                    this.approved_by_suggestions = this.active_users.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.approved_by_suggestions = this.active_users.filter((et) => {
+                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -365,8 +386,6 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_store_id = data.store;
-                this.item.taxonomy_id_vendor_status = data.status;
             }else{
                 this.$router.push({name: 'vendors.index'});
             }
@@ -551,8 +570,6 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_store_id = data.store;
-                this.item.taxonomy_id_vendor_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
