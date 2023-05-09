@@ -454,7 +454,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','typeRecord','status', 'variationCount', 'productVendors');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
