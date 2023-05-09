@@ -74,9 +74,9 @@ class ProductsController extends Controller
             $data['empty_item']['store'] = $this->getDefaultStore();
             $data['empty_item']['brand'] = $this->getDefaultBrand();
 
-            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
-            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('product-types');
+            $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['actions'] = [];
 
             $response['success'] = true;

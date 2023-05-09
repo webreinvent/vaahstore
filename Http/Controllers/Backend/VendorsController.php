@@ -72,8 +72,8 @@ class VendorsController extends Controller
             $data['empty_item']['approved_by_user'] = $this->getActiveUser();
 
             // get taxonomy data's
-            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-            $data['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
+            $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $response['success'] = true;
             $response['data'] = $data;

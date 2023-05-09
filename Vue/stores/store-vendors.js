@@ -283,10 +283,10 @@ export const useVendorStore = defineStore({
                 this.assets = data;
                 this.active_stores = data.active_stores;
                 this.active_users = data.active_users;
-                this.vendor_status = data.vendor_status;
+                this.vendor_status = data.taxonomy.vendor_status;
                 this.active_products = data.active_products;
                 this.selected_product = data.default_product;
-                this.product_vendor_status = data.product_vendor_status;
+                this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {

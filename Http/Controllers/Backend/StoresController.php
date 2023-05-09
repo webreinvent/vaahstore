@@ -51,7 +51,7 @@ class StoresController extends Controller
             $data['empty_item'][$column] = null;
         }
 
-        $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('store-status');
+        $data['taxonomy']['store_status'] = Taxonomy::getTaxonomyByType('store-status');
 
         $data['currencies'] = $this->getCurrencies();
         $data['languages'] = $this->getLanguages();
