@@ -68,26 +68,26 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function brandRecord()
+    public function brand()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug','is_default');
     }
 
     //-------------------------------------------------
-    public function storeRecord()
+    public function store()
     {
         return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug', 'is_default');
     }
 
     //-------------------------------------------------
-    public function statusRecord()
+    public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
             ->select('id','name','slug');
     }
 
     //-------------------------------------------------
-    public function typeRecord()
+    public function type()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_type')
             ->select('id','name','slug');
@@ -454,7 +454,7 @@ class Product extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brandRecord','storeRecord','typeRecord','statusRecord', 'variationCount', 'productVendors');
+        $list = self::getSorted($request->filter)->with('brand','store','typeRecord','status', 'variationCount', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -653,7 +653,7 @@ class Product extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brandRecord','storeRecord','typeRecord','statusRecord', 'productAttributes', 'productVendors'
+                'brand','store','typeRecord','status', 'productAttributes', 'productVendors'
             ])
             ->withTrashed()
             ->first();

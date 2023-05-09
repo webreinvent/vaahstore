@@ -119,7 +119,7 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.store_record"
+                        v-model="store.item.store"
                         @change="store.setStore($event)"
                         class="w-full"
                         :suggestions="store.store_suggestion"
@@ -136,7 +136,7 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.brand_record"
+                        v-model="store.item.brand"
                         @change="store.setBrand($event)"
                         class="w-full"
                         :suggestions="store.brand_suggestion"
@@ -153,7 +153,7 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.type_record"
+                        v-model="store.item.type"
                         @change="store.setType($event)"
                         class="w-full"
                         data-testid="products-type"
@@ -190,7 +190,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.status_record"
+                        v-model="store.item.status"
                         @change="store.setProductStatus($event)"
                         class="w-full"
                         name="products-status"
