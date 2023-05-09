@@ -86,7 +86,7 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    public function statusRecord(){
+    public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')
             ->select(['id','name', 'slug']);
     }
@@ -321,7 +321,7 @@ class Store extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('statusRecord');
+        $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -513,7 +513,7 @@ class Store extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'statusRecord', 'currenciesRecord', 'lingualRecord'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesRecord', 'lingualRecord'])
             ->withTrashed()
             ->first();
 

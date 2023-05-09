@@ -292,7 +292,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.status_record"
+                    <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
                                   class="w-full"
