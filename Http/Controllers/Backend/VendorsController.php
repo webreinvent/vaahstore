@@ -55,6 +55,9 @@ class VendorsController extends Controller
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
             $data['empty_item']['products'] = [];
+            $data['empty_item']['owned_by_user'] = null;
+            $data['empty_item']['approved_by_user'] = null;
+            $data['empty_item']['status_record'] = null;
             $data['actions'] = [];
 
             $active_stores = $this->getActiveStores();
@@ -65,12 +68,12 @@ class VendorsController extends Controller
 
             // set default value's
             $data['default_product'] = $this->getDefaultProduct();
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
-            $data['empty_item']['approved_by'] = $this->getActiveUser();
+            $data['empty_item']['store'] = $this->getDefaultStore();
+            $data['empty_item']['approved_by_user'] = $this->getActiveUser();
 
             // get taxonomy data's
-            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
-            $data['status'] = Taxonomy::getTaxonomyByType('vendor-status');
+            $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
 
             $response['success'] = true;
             $response['data'] = $data;

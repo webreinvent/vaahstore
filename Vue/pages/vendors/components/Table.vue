@@ -83,16 +83,16 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="owned_by.name" header="Owned By"
+             <Column field="owned_by_user.name" header="Owned By"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.owned_by == null"
+                     <Badge v-if="prop.data.owned_by_user == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.owned_by.name}}
+                     {{prop.data.owned_by_user.name}}
                          </span>
                  </template>
              </Column>

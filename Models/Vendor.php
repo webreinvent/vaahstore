@@ -111,12 +111,12 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public function approvedBy(){
+    public function approvedByUser(){
         return $this->hasOne(User::class, 'id', 'approved_by')->select(['id','first_name','email']);
     }
 
     //-------------------------------------------------
-    public function ownedBy(){
+    public function ownedByUser(){
         return $this->hasOne(User::class, 'id', 'owned_by')->select(['id','first_name', 'email']);
     }
 
@@ -238,13 +238,7 @@ class Vendor extends Model
         $inputs = $validation_result['data'];
         $item = new self();
         $item->fill($inputs);
-        $item->name = $inputs['name'];
         $item->slug = Str::slug($inputs['slug']);
-        $item->auto_approve_products  = $inputs['auto_approve_products'];
-        $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
-        $item->owned_by  = $inputs['owned_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();
@@ -373,7 +367,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with(['store', 'approvedBy', 'ownedBy', 'status','vendorProducts']);
+        $list = self::getSorted($request->filter)->with(['store', 'approvedByUser', 'ownedByUser', 'status','vendorProducts']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -559,7 +553,7 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedBy','ownedBy',
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
                 'status','vendorProducts'])
             ->withTrashed()
             ->first();
@@ -607,13 +601,8 @@ class Vendor extends Model
         $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->auto_approve_products  = $inputs['auto_approve_products'];
-        $item->vh_st_store_id  = $inputs['vh_st_store_id']['id'];
-        $item->owned_by  = $inputs['owned_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_vendor_status = $inputs['taxonomy_id_vendor_status']['id'];
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();

@@ -177,7 +177,6 @@ class Product extends Model
 
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
-//            $item->sku
             $item->save();
 
             foreach ($all_attribute as $k => $v) {
@@ -206,7 +205,7 @@ class Product extends Model
             $error_message = [];
             $all_variation = $variation['structured_variation'];
             $all_arrtibute = $variation['all_attribute_name'];
-//            dd($all_variation);
+
             foreach ($all_variation as $key=>$value){
 
                 if (!isset($value['variation_name']) || empty($value['variation_name'])) {
@@ -366,23 +365,7 @@ class Product extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
-        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
-        if(is_string($inputs['vh_st_brand_id']['name'])){
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
-        }
-        if(is_string($inputs['vh_st_store_id']['name'])){
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        }
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1.';
-            return $response;
-        }else{
-            $item->in_stock = 1;
-        }
-        if($inputs['quantity']==0){
-            $item->in_stock = 0;
-        }
+        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -743,28 +726,8 @@ class Product extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        if(is_string($inputs['vh_st_brand_id']['name'])){
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['id'];
-        }else{
-            $item->vh_st_brand_id = $inputs['vh_st_brand_id']['name']['id'];
-        }
-        if(is_string($inputs['vh_st_store_id']['name'])){
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        }else{
-            $item->vh_st_store_id = $inputs['vh_st_store_id']['name']['id'];
-        }
-        $item->taxonomy_id_product_type = $inputs['taxonomy_id_product_type']['id'];
-        $item->taxonomy_id_product_status = $inputs['taxonomy_id_product_status']['id'];
+        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
 
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1';
-            return $response;
-        }else{
-            $item->in_stock = 1;
-        }
-        if($inputs['quantity']==0){
-            $item->in_stock = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);

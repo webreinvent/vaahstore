@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -86,6 +86,7 @@ export const useProductStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         suggestion:null,
+        product_status:null,
         status_suggestion:null,
         store_suggestion:null,
         brand_suggestion:null,
@@ -133,10 +134,10 @@ export const useProductStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
+                    this.status_suggestion = this.product_status;
                 }
                 else {
-                    this.status_suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.product_status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -264,6 +265,22 @@ export const useProductStore = defineStore({
                     },{deep: true}
                 )
                 }
+        },
+        setStore(event){
+            let store = toRaw(event.value);
+            this.item.vh_st_store_id = store.id;
+        },
+        setBrand(event){
+            let brand = toRaw(event.value);
+            this.item.vh_st_brand_id = brand.id;
+        },
+        setType(event){
+            let type = toRaw(event.value);
+            this.item.taxonomy_id_product_type = type.id;
+        },
+        setProductStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_product_status = status.id;
         },
         //---------------------------------------------------------------------
         addVendor(){
@@ -533,13 +550,13 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
+                this.product_status = data.taxonomy.product_status;
                 this.active_brands = data.active_brands;
                 this.active_stores = data.active_stores;
-                this.types = data.types;
+                this.types = data.taxonomy.types;
                 this.active_vendors = data.active_vendors;
                 this.selected_vendor = data.default_vendor;
-                this.product_vendor_status = data.product_vendor_status;
+                this.product_vendor_status = data.taxonomy.product_vendor_status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -586,10 +603,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_brand_id = data.brand
-                this.item.vh_st_store_id = data.store
-                this.item.taxonomy_id_product_type = data.type
-                this.item.taxonomy_id_product_status = data.status;
             }else{
                 this.$router.push({name: 'products.index'});
             }
@@ -780,10 +793,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_status = data.status;
-                this.item.taxonomy_id_product_type = data.type;
-                this.item.vh_st_brand_id = data.brand;
-                this.item.vh_st_store_id = data.store;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();
