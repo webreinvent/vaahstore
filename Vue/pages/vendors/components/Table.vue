@@ -38,13 +38,13 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store_record.name" header="Store"
+             <Column field="store.name" header="Store"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge>{{prop.data.store_record.name}}
-                         <span v-if="prop.data.store_record.is_default == 1">&nbsp;(Default)</span>
+                     <Badge>{{prop.data.store.name}}
+                         <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
                      </Badge>
                  </template>
 
@@ -65,7 +65,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status_record" header="Status"
+             <Column field="status" header="Status"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -73,12 +73,12 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status_record.slug == 'approved'"
-                            severity="success"> {{prop.data.status_record.name}} </Badge>
-                     <Badge v-else-if="prop.data.status_record.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status_record.name}} </Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status_record.name}} </Badge>
+                            severity="primary"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>

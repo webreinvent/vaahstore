@@ -61,10 +61,8 @@ class ProductsController extends Controller
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['all_variation'] = [];
             $data['empty_item']['vendors'] = [];
-            $data['empty_item']['store_record'] = null;
-            $data['empty_item']['brand_record'] = null;
-            $data['empty_item']['type_record'] = null;
-            $data['empty_item']['status_record'] = null;
+            $data['empty_item']['type'] = null;
+            $data['empty_item']['status'] = null;
 
             $active_stores = $this->getStores();
             $active_brands = $this->getBrands();
@@ -73,12 +71,14 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values
-            $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore();
-            $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand();
+            $data['empty_item']['store'] = $this->getDefaultStore();
+            $data['empty_item']['brand'] = $this->getDefaultBrand();
 
-            $data['status'] = Taxonomy::getTaxonomyByType('product-status');
-            $data['types'] = Taxonomy::getTaxonomyByType('product-types');
-            $data['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
+            $data['taxonomy'] = [
+                "product_status" => Taxonomy::getTaxonomyByType('product-status'),
+                "types" => Taxonomy::getTaxonomyByType('product-types'),
+                "product_vendor_status" => Taxonomy::getTaxonomyByType('product-vendor-status'),
+            ];
             $data['actions'] = [];
 
             $response['success'] = true;

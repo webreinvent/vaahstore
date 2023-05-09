@@ -38,7 +38,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store_record" header="Store"
+             <Column field="store" header="Store"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -46,18 +46,18 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.store_record == null"
+                     <Badge v-if="prop.data.store == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.store_record.name}}
+                     {{prop.data.store.name}}
                          </span>
                  </template>
 
 
              </Column>
 
-             <Column field="brand_record" header="Brand"
+             <Column field="brand" header="Brand"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -65,17 +65,17 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.brand_record == null"
+                     <Badge v-if="prop.data.brand == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.brand_record.name}}
+                     {{prop.data.brand.name}}
                          </span>
                  </template>
 
              </Column>
 
-             <Column field="type_record" header="Type"
+             <Column field="type" header="Type"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
@@ -83,11 +83,11 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.type_record == null"
+                     <Badge v-if="prop.data.type == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.type_record.name}}
+                     {{prop.data.type.name}}
                          </span>
                  </template>
 
@@ -153,19 +153,19 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status_record" header="Status"
+             <Column field="status" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status_record.slug == 'approved'"
-                            severity="success"> {{prop.data.status_record.name}} </Badge>
-                     <Badge v-else-if="prop.data.status_record.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status_record.name}} </Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status_record.name}} </Badge>
+                            severity="primary"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>

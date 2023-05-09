@@ -220,7 +220,7 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_option = data.taxonomy.status;
+                this.status_option = data.taxonomy.store_status;
                 this.currencies_list = data.currencies;
                 this.languages_list = data.languages;
                 if(data.rows)

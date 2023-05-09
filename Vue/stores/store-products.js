@@ -86,6 +86,7 @@ export const useProductStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         suggestion:null,
+        product_status:null,
         status_suggestion:null,
         store_suggestion:null,
         brand_suggestion:null,
@@ -133,10 +134,10 @@ export const useProductStore = defineStore({
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
+                    this.status_suggestion = this.product_status;
                 }
                 else {
-                    this.status_suggestion= this.status.filter((status) => {
+                    this.status_suggestion= this.product_status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -549,13 +550,13 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.status;
+                this.product_status = data.taxonomy.product_status;
                 this.active_brands = data.active_brands;
                 this.active_stores = data.active_stores;
-                this.types = data.types;
+                this.types = data.taxonomy.types;
                 this.active_vendors = data.active_vendors;
                 this.selected_vendor = data.default_vendor;
-                this.product_vendor_status = data.product_vendor_status;
+                this.product_vendor_status = data.taxonomy.product_vendor_status;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
