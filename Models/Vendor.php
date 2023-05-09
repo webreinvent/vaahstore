@@ -106,7 +106,7 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public function storeRecord(){
+    public function store(){
         return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default','slug']);
     }
 
@@ -121,7 +121,7 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    public function statusRecord(){
+    public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
     }
 
@@ -367,7 +367,7 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with(['storeRecord', 'approvedByUser', 'ownedByUser', 'statusRecord','vendorProducts']);
+        $list = self::getSorted($request->filter)->with(['store', 'approvedByUser', 'ownedByUser', 'status','vendorProducts']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -553,8 +553,8 @@ class Vendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'storeRecord', 'approvedByUser','ownedByUser',
-                'statusRecord','vendorProducts'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
+                'status','vendorProducts'])
             ->withTrashed()
             ->first();
 
