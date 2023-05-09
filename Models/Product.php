@@ -653,7 +653,7 @@ class Product extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','typeRecord','status', 'productAttributes', 'productVendors'
+                'brand','store','type','status', 'productAttributes', 'productVendors'
             ])
             ->withTrashed()
             ->first();
