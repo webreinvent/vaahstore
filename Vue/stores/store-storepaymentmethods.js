@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -64,6 +64,8 @@ export const useStorePaymentMethodStore = defineStore({
         list_bulk_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        active_stores: null,
+        active_payment_methods: null,
         store_suggestion:null,
         status_suggestion:null,
         payment_method_suggestion:null,
@@ -77,10 +79,10 @@ export const useStorePaymentMethodStore = defineStore({
         searchStore(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.store_suggestion = this.stores;
+                    this.store_suggestion = this.active_stores;
                 }
                 else {
-                    this.store_suggestion= this.stores.filter((stores) => {
+                    this.store_suggestion= this.active_stores.filter((stores) => {
                         return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -103,10 +105,10 @@ export const useStorePaymentMethodStore = defineStore({
         searchPaymentMethod(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_methods;
+                    this.payment_method_suggestion = this.active_payment_methods;
                 }
                 else {
-                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                    this.payment_method_suggestion= this.active_payment_methods.filter((payment_methods) => {
                         return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -209,6 +211,21 @@ export const useStorePaymentMethodStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setStore(event){
+            let store = toRaw(event.value);
+            this.item.vh_st_store_id = store.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_payment_status = status.id;
+        },
+        //---------------------------------------------------------------------
+        setPaymentMethod(event){
+            let status = toRaw(event.value);
+            this.item.vh_st_payment_method_id = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -226,8 +243,8 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.stores = data.stores;
-                this.payment_methods = data.payment_methods;
+                this.active_stores = data.active_stores;
+                this.active_payment_methods = data.active_payment_methods;
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
@@ -275,9 +292,6 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_store_id = data.store;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_payment = data.status;
             }else{
                 this.$router.push({name: 'storepaymentmethods.index'});
             }
@@ -456,9 +470,6 @@ export const useStorePaymentMethodStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_store_id = data.store;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_payment = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

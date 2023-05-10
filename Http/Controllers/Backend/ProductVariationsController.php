@@ -57,9 +57,8 @@ class ProductVariationsController extends Controller
             $data['empty_item']['has_media'] = 0;
             $data['empty_item']['quantity'] = 0;
 
-            $get_product_data = self::getProductData();
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
-            $data = array_merge($data, $get_product_data);
+            $data['active_products'] = $this->getActiveProducts();
+            $data['empty_item']['vh_st_product_id'] = $this->getDefaultProduct();
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -77,21 +76,28 @@ class ProductVariationsController extends Controller
 
         return $response;
     }
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
+
+    //------------------------Get Product data for dropdown----------------------------------
+    public function getActiveProducts(){
+        try{
+            return Product::where(['is_active'=>1,'deleted_at'=>null])->get();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
             }
         }
     }
+
     //------------------------Get Product data for dropdown----------------------------------
-    public function getProductData(){
+    public function getDefaultProduct(){
         try{
-            $data['products']= Product::where(['is_active'=>1,'deleted_at'=>null])->get();
-            return $data;
+            return Product::where(['is_default'=>1,'deleted_at'=>null])->get();
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

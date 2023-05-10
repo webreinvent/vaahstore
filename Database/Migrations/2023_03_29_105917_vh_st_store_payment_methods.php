@@ -23,9 +23,6 @@ class VhStstorepaymentmethods extends Migration
                 $table->integer('taxonomy_id_payment_status')->nullable()->index();
 
                 $table->dateTime('last_payment_at')->nullable();
-
-                $table->string('name')->nullable();
-                $table->string('slug')->nullable();
                 $table->boolean('is_active')->nullable()->index();
 
 

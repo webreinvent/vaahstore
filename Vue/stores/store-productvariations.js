@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -65,6 +65,7 @@ export const useProductVariationStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
+        active_products: null,
         status_suggestion:null,
         product_suggestion:null,
         form_menu_list: []
@@ -91,10 +92,10 @@ export const useProductVariationStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.products;
+                    this.product_suggestion = this.active_products;
                 }
                 else {
-                    this.product_suggestion= this.products.filter((products) => {
+                    this.product_suggestion= this.active_products.filter((products) => {
                         return products.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -197,6 +198,16 @@ export const useProductVariationStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setProduct(event){
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_variation_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -215,7 +226,7 @@ export const useProductVariationStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
-                this.products = data.products
+                this.active_products = data.active_products
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -262,8 +273,6 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_variation_status = data.status;
-                this.item.vh_st_product_id = data.product;
             }else{
                 this.$router.push({name: 'productvariations.index'});
             }
@@ -442,8 +451,6 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_variation_status = data.status;
-                this.item.vh_st_product_id = data.product;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

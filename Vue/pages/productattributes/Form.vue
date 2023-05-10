@@ -101,12 +101,13 @@ const toggleFormMenu = (event) => {
             <div v-if="store.item">
 
                 <VhField label="Product variation">
-                    <AutoComplete v-model="store.item.vh_st_product_variation_id"
+                    <AutoComplete v-model="store.item.product_variation"
                                   value="id"
                                   class="w-full"
                                   data-testid="productattributes-vh_st_product_variation_id"
                                   :suggestions="store.product_variation_suggestion"
                                   @complete="store.searchProductVariation($event)"
+                                  @change="store.setProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Product variation"
@@ -120,14 +121,14 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Attributes">
-                    <AutoComplete v-model="store.item.vh_st_attribute_id"
+                    <AutoComplete v-model="store.item.attribute"
                                   value="id"
                                   class="w-full"
                                   placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
                                   :suggestions="store.attribute_suggestion"
                                   @complete="store.searchAttribute($event)"
-                                  @change="store.getAttributeValue()"
+                                  @change="store.setAttribute($event); store.getAttributeValue()"
                                   :dropdown="true"
                                   optionLabel="name"
                                   forceSelection >

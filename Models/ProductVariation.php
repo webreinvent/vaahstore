@@ -74,13 +74,15 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_variation_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_variation_status')
+            ->select('id','name','slug');
     }
 
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name','slug');
+        return $this->hasOne(Product::class,'id','vh_st_product_id')
+            ->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -153,18 +155,14 @@ class ProductVariation extends Model
             return $response;
         }
 
+        // handle if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
-        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1.';
-            return $response;
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -493,18 +491,15 @@ class ProductVariation extends Model
             return $response;
         }
 
+        // handle if current record is default
+        if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->taxonomy_id_variation_status = $inputs['taxonomy_id_variation_status']['id'];
-        $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-        if($inputs['in_stock']==1 && $inputs['quantity']==0){
-            $response['messages'][] = 'The quantity should be more then 1';
-            return $response;
-        }
-        if($inputs['in_stock']==0){
-            $item->quantity = 0;
-        }
         $item->save();
 
         $response = self::getItem($item->id);

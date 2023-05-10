@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -198,9 +198,10 @@ export const useProductAttributeStore = defineStore({
         },
         //---------------------------------------------------------------------
         async getAttributeValue(){
-            if (typeof this.item.vh_st_attribute_id == 'object' && this.item.vh_st_attribute_id !== null){
+            console.log(this.item.vh_st_attribute_id)
+            if (this.item.vh_st_attribute_id !== null){
                 await vaah().ajax(
-                    this.ajax_url+'/getAttributeValue/'+this.item.vh_st_attribute_id.id,
+                    this.ajax_url+'/getAttributeValue/'+this.item.vh_st_attribute_id,
                     this.afterGetAttributeValue
                 );
             }
@@ -208,6 +209,16 @@ export const useProductAttributeStore = defineStore({
         //---------------------------------------------------------------------
         afterGetAttributeValue(data, res){
             this.item.attribute_values = data;
+        },
+        //---------------------------------------------------------------------
+        setAttribute(event){
+            let attribute = toRaw(event.value);
+            this.item.vh_st_attribute_id = attribute.id;
+        },
+        //---------------------------------------------------------------------
+        setProductVariation(event){
+            let productVariation = toRaw(event.value);
+            this.item.vh_st_product_variation_id = productVariation.id;
         },
         //---------------------------------------------------------------------
         async getAssets() {

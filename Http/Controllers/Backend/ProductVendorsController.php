@@ -55,18 +55,19 @@ class ProductVendorsController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 
             $data['empty_item']['can_update'] = 0;
+            $data['empty_item']['status'] = null;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
+            $data['empty_item']['vendor'] = $this->getDefaultVendor();
+            $data['empty_item']['product_variation'] = $this->getDefaultProductVariation();
+            $data['empty_item']['added_by_user'] = $this->getActiveUser();
             $data['actions'] = [];
 
-            $get_vendor_data = self::getVendorData();
-            $data['empty_item']['vendor'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
-            $get_store_data = self::getStoreData();
-            $get_product_variation_data = self::getProductVariationData();
-            $data['empty_item']['product_variation'] = $this->getDefaultRow
-                ($get_product_variation_data['product_variations']) ?? null;
-            $data = array_merge($data, $get_vendor_data,$get_store_data,$get_product_variation_data);
+            $data['active_vendors'] = $this->getActiveVendor();
+            $data['active_stores'] = $this->getActiveStore();
+            $data['active_users'] = $this->getActiveUsers();
+            $data['active_product_variations'] = $this->getActiveProductVariation();
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -83,11 +84,31 @@ class ProductVendorsController extends Controller
         }
         return $response;
     }
+    //----------------------------------------------------------
+    public function getActiveUsers(){
+        $users = User::where('is_active',1)->get(['id','first_name','email']);
+        if ($users){
+            return $users;
+        }else{
+            return null;
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getActiveUser(){
+        $active_user = auth()->user();
+
+        return [
+            'id' => $active_user->id,
+            'first_name' => $active_user->first_name,
+            'email' => $active_user->email,
+        ];
+    }
+
     //------------------------Get Vendor data for dropdown----------------------------------
-    public function getVendorData(){
+    public function getActiveVendor(){
         try{
-            $data['vendors']= Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
-            return $data;
+            return Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -100,21 +121,10 @@ class ProductVendorsController extends Controller
             }
         }
     }
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
-            }
-        }
-    }
-    //------------------------Get Store data for dropdown----------------------------------
-    public function getStoreData(){
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getDefaultVendor(){
         try{
-            $data['stores']= Store::where(['is_active'=>1,'deleted_at'=>null])->get();
-            return $data;
+            return Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first();
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -127,11 +137,43 @@ class ProductVendorsController extends Controller
             }
         }
     }
-    //------------------------Get ProductVariation data for dropdown----------------------------------
-    public function getProductVariationData(){
+    //------------------------Get Active Store list----------------------------------
+    public function getActiveStore(){
         try{
-            $data['product_variations']=ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
-            return $data;
+            return Store::where(['is_active'=>1,'deleted_at'=>null])->get();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Active Product Variation list----------------------------------
+    public function getActiveProductVariation(){
+        try{
+            return ProductVariation::where(['is_active'=>1,'deleted_at'=>null])->get();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Default Product Variation----------------------------------
+    public function getDefaultProductVariation(){
+        try{
+            return ProductVariation::where(['is_active'=>1, 'deleted_at'=>null, 'is_default'=>1])
+                ->first();
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

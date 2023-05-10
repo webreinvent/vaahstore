@@ -125,8 +125,7 @@ class ProductAttribute extends Model
         $inputs = $validation_result['data'];
 
         $item = new self();
-        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item->vh_st_attribute_id = $inputs['vh_st_attribute_id']['id'];
+        $item->fill($inputs);
         $item->save();
 
         foreach ($inputs['attribute_values'] as $key=>$value){
@@ -483,8 +482,6 @@ class ProductAttribute extends Model
         $inputs = $validation_result['data'];
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-        $item->vh_st_attribute_id = $inputs['vh_st_attribute_id']['id'];
         $item->save();
 
         $all_active_attribute_values_ids = [];
