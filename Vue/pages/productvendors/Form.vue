@@ -103,8 +103,9 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
+                        @change="store.setVendor($event)"
                         class="w-10"
-                        :suggestions="store.suggestion"
+                        :suggestions="store.vendor_suggestion"
                         @complete="store.searchVendor($event)"
                         placeholder="Select Vendor"
                         data-testid="productvendors-vendor"
@@ -124,6 +125,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Product">
                     <AutoComplete v-model="store.item.product"
+                                  @change="store.setProduct($event)"
                                   value="id"
                                   @complete="store.searchProduct($event)"
                                   :suggestions="store.product_suggestion"
@@ -133,20 +135,6 @@ const toggleFormMenu = (event) => {
                                   name="productvendors-product"
                                   :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-                </VhField>
-
-                <VhField label="Vendor">
-                    <AutoComplete
-                        v-model="store.item.vendor"
-                        class="w-11"
-                        :suggestions="store.vendor_suggestion"
-                        @complete="store.searchVendor($event)"
-                        placeholder="Select Vendor"
-                        data-testid="productvendors-vendor"
-                        name="productvendors-vendor"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
                 <VhField label="Can Update">
@@ -170,7 +158,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Added By">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.added_by"
+                        v-model="store.item.added_by_user"
+                        @change="store.setAddedBy($event)"
                         class="w-full"
                         name="productvendors-added_by"
                         id="added_by"
@@ -178,7 +167,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.added_by_suggestion"
                         @complete="store.searchAddeddBy($event)"
                         placeholder="Select Added by"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
 
@@ -186,7 +175,8 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.taxonomy_id_product_vendor_status"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
                         class="w-full"
                         data-testid="productvendors-status"
                         name="productvendors-status"

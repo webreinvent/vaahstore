@@ -26,7 +26,7 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'taxonomy_id_payment',
+        'taxonomy_id_payment_status',
         'vh_st_store_id',
         'vh_st_payment_method_id',
         'is_active',
@@ -49,17 +49,20 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     public function store()
     {
-        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug');
+        return $this->hasOne(Store::class,'id','vh_st_store_id')
+            ->select('id','name','slug');
     }
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_status')
+            ->select('id','name','slug');
     }
     //-------------------------------------------------
     public function paymentMethod()
     {
-        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')
+            ->select('id','name','slug');
     }
     //-------------------------------------------------
 
@@ -143,9 +146,6 @@ class StorePaymentMethod extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        $item->taxonomy_id_payment = $inputs['taxonomy_id_payment']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -456,9 +456,6 @@ class StorePaymentMethod extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->vh_st_store_id = $inputs['vh_st_store_id']['id'];
-        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        $item->taxonomy_id_payment = $inputs['taxonomy_id_payment']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -519,14 +516,14 @@ class StorePaymentMethod extends Model
             'vh_st_store_id'=> 'required',
             'vh_st_payment_method_id'=> 'required',
             'last_payment_at'=> 'required',
-            'taxonomy_id_payment'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_payment.slug,==,rejected',
+            'taxonomy_id_payment_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
         ],
             [
                 'vh_st_store_id.required' => 'The Store field is required',
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',
                 'last_payment_at.required' => 'The Last Payment at field is required',
-                'taxonomy_id_payment.required' => 'The Status field is required',
+                'taxonomy_id_payment_status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );

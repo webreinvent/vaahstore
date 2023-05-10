@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -41,6 +41,7 @@ export const useProductVendorStore = defineStore({
         options_can_update:['off','no'],
         suggestion: null,
         product: null,
+        active_vendors: null,
         fillable:null,
         product_suggestion: null,
         vendor_suggestion: null,
@@ -65,6 +66,7 @@ export const useProductVendorStore = defineStore({
             is_button_loading: null
         },
         is_list_loading: null,
+        active_users: null,
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
@@ -96,11 +98,11 @@ export const useProductVendorStore = defineStore({
         searchAddeddBy(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.added_by_suggestion = this.added_by_user;
+                    this.added_by_suggestion = this.active_users;
                 }
                 else {
-                    this.added_by_suggestion= this.added_by_user.filter((added_by_user) => {
-                        return added_by_user.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    this.added_by_suggestion= this.active_users.filter((user) => {
+                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
             }, 250);
@@ -123,10 +125,10 @@ export const useProductVendorStore = defineStore({
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendor;
+                    this.vendor_suggestion = this.active_vendors;
                 }
                 else {
-                    this.vendor_suggestion= this.vendor.filter((vendor) => {
+                    this.vendor_suggestion= this.active_vendors.filter((vendor) => {
                         return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -267,6 +269,26 @@ export const useProductVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        setVendor(event){
+            let vendor = toRaw(event.value);
+            this.item.vh_st_store_id = vendor.id;
+        },
+        //---------------------------------------------------------------------
+        setProduct(event){
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setAddedBy(event){
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_product_vendor_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -284,12 +306,8 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status;
-                this.stores = data.stores;
-                this.auth_users = data.auth_users;
-                this.vendors =data.vendors;
-                this.product_variations =data.product_variations;
-                this.disable_added_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
+                this.active_vendors = data.active_vendors;
+                this.active_users = data.active_users;
 
                 if(data.rows)
                 {

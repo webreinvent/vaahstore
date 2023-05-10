@@ -75,7 +75,7 @@ class ProductVendor extends Model
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
     //-------------------------------------------------
-    public function addedBy()
+    public function addedByUser()
     {
         return $this->hasOne(User::class,'id','added_by');
     }
@@ -180,9 +180,6 @@ class ProductVendor extends Model
             $item = new self();
             $item->fill($inputs);
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
-            $item->vh_st_vendor_id = $inputs['vendor']['id'];
-            $item->vh_st_product_id = $inputs['product']['id'];
-            $item->added_by = $inputs['added_by']['id'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -270,7 +267,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product','vendor','addedBy','status','stores');
+        $list = self::getSorted($request->filter)->with('product','vendor','addedByUser','status','stores');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -452,11 +449,11 @@ class ProductVendor extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor','addedBy','status','stores'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor','addedByUser','status','stores'])
             ->withTrashed()
             ->first();
         $itemProduct = Product::where('id',$item->vh_st_product_id)->first();
-        $item['productList'] = Product::where('vh_st_store_id',$itemProduct->vh_st_store_id)->select('id','name','slug')->paginate(config('vaahcms.per_page'));
+        $item['productList'] = Product::where('vh_st_store_id',$itemProduct->vh_st_store_id)->select('id','name','slug');
         if(!$item)
         {
             $response['success'] = false;
@@ -466,9 +463,11 @@ class ProductVendor extends Model
 
         //To get data for dropdown of product price
         $array_item = $item->toArray();
-        $check = ProductPrice::where('vh_st_vendor_id',$array_item['vh_st_vendor_id'])->where('vh_st_product_id',$array_item['vh_st_product_id'])->first();
+        $check = ProductPrice::where('vh_st_vendor_id',$array_item['vh_st_vendor_id'])
+            ->where('vh_st_product_id',$array_item['vh_st_product_id'])->first();
         if($check){
-            $item['product_variation'] = ProductVariation::where('id',$check['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+            $item['product_variation'] = ProductVariation::where('id',$check['vh_st_product_variation_id'])
+                ->get(['id','name','slug','is_default'])->toArray()[0];
             $item['is_active_product_price'] = $check['is_active'];
             $item['amount'] = $check['amount'];
         }else{
@@ -495,7 +494,8 @@ class ProductVendor extends Model
         // check if vendor exist
             $item = self::where('id', '!=', $inputs['id'])
                 ->withTrashed()
-                ->where('vh_st_vendor_id', $inputs['vendor']['id'])->where('vh_st_product_id', $inputs['product']['id'])->first();
+                ->where('vh_st_vendor_id', $inputs['vendor']['id'])
+                ->where('vh_st_product_id', $inputs['product']['id'])->first();
 
             if ($item) {
                 $response['success'] = false;
@@ -506,7 +506,6 @@ class ProductVendor extends Model
             $item = self::where('id', $id)->withTrashed()->first();
             $item->fill($inputs);
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
-            $item->vh_st_vendor_id = $inputs['vendor']['id'];
             $item->vh_st_product_id = $inputs['product']['id'];
             $item->added_by = $inputs['added_by']['id'];
             $item->save();
@@ -564,14 +563,16 @@ class ProductVendor extends Model
     public static function validation($inputs)
     {
         $rules = validator($inputs, [
-            'vendor'=> 'required',
-            'product'=> 'required',
+            'vh_st_vendor_id'=> 'required',
+            'vh_st_product_id'=> 'required',
             'taxonomy_id_product_vendor_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_product_vendor_status.slug,==,rejected',
             'added_by'=> 'required|max:150',
             'can_update'=> 'required|max:150',
                 ],
         [
+            'vh_st_vendor_id.required' => 'The vendor field is required',
+            'vh_st_product_id.required' => 'The product field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
