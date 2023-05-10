@@ -55,7 +55,7 @@ class ProductVendorsController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 
             $data['empty_item']['can_update'] = 0;
-            $data['empty_item']['status'] = 0;
+            $data['empty_item']['status'] = null;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
