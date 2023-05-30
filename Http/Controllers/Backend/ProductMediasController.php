@@ -50,6 +50,9 @@ class ProductMediasController extends Controller
 
             $data['empty_item']['base_path'] = url('');
             $data['empty_item']['images'] = [];
+            $data['empty_item']['product'] = null;
+            $data['empty_item']['product_variation'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 1;
 

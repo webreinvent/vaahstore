@@ -54,32 +54,32 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-             <Column field="registered_by" header="Registered By"
+             <Column field="registered_by_user" header="Registered By"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.user == null"
+                     <Badge v-if="prop.data.approved_by_user == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.user.name}}
+                     {{prop.data.registered_by_user.name}}
                          </span>
                  </template>
              </Column>
 
-             <Column field="approved_by" header="Approved By"
+             <Column field="approved_by_user" header="Approved By"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by == null"
+                     <Badge v-if="prop.data.approved_by_user == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.approved_by.name}}
+                     {{prop.data.approved_by_user.name}}
                          </span>
                  </template>
              </Column>

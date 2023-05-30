@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -245,6 +245,21 @@ export const useProductMediaStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setProduct(event){
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setProductVariation(event){
+            let productVariation = toRaw(event.value);
+            this.item.vh_st_product_variation_id = productVariation.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_product_media_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -312,9 +327,6 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_media_status = data.status;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
             }else{
                 this.$router.push({name: 'productmedias.index'});
             }
@@ -493,9 +505,6 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_product_media_status = data.status;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -28,7 +28,7 @@ class Warehouse extends Model
         'uuid',
         'name',
         'slug','vh_st_vendor_id','country','state',
-        'city','status','status_notes',
+        'city','taxonomy_id_warehouse_status ','status_notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -123,13 +123,10 @@ class Warehouse extends Model
             return $validation_result;
         }
 
-        $inputs = $validation_result['data'];
+        $inputs = $request->all();
 
         $item = new self();
         $item->fill($inputs);
-        $item->country  = $inputs['country'];
-        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->taxonomy_id_warehouse_status = $inputs['taxonomy_id_warehouse_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -148,13 +145,13 @@ class Warehouse extends Model
             'country' => 'required',
             'state' => 'required',
             'city' => 'required',
-            'taxonomy_id_warehouse_status' => 'required',
+            'status' => 'required',
             'status_notes' => 'required_if:taxonomy_id_warehouse_status.slug,==,rejected',
             'is_active' => 'required',
             'vh_st_vendor_id' => 'required'
         ],
             [
-                'taxonomy_id_warehouse_status.required' => 'The Status field is required',
+                'status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
@@ -447,8 +444,6 @@ class Warehouse extends Model
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        $item->taxonomy_id_warehouse_status = $item->status;
-        $item->vh_st_vendor_id = $item->vendor;
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -464,12 +459,10 @@ class Warehouse extends Model
             return $validation_result;
         }
 
-        $inputs = $validation_result['data'];
+        $inputs = $request->all();
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->vh_st_vendor_id = $inputs['vh_st_vendor_id']['id'];
-        $item->taxonomy_id_warehouse_status = $inputs['taxonomy_id_warehouse_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

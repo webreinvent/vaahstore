@@ -137,7 +137,8 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' || column === 'vendor'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' ||
+                                    column === 'vendor'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -147,7 +148,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
+                        column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -156,14 +158,14 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'taxonomy_id_warehouse_status'">
                             <VhViewRow label="Status"
-                                       :value="value"
+                                       :value="store.item.status"
                                        type="status"
                             />
                         </template>
 
                         <template v-else-if="column === 'vh_st_vendor_id'">
                             <VhViewRow label="Vendor"
-                                       :value="value"
+                                       :value="store.item.vendor"
                                        type="user"
                             />
                         </template>

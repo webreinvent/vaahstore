@@ -103,7 +103,8 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.vh_st_product_id"
+                        v-model="store.item.product"
+                        @change="store.setProduct($event)"
                         class="w-full"
                         :suggestions="store.product_suggestion"
                         @complete="store.searchProduct($event)"
@@ -119,7 +120,8 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.vh_st_product_variation_id"
+                        v-model="store.item.product_variation"
+                        @change="store.setProductVariation($event)"
                         class="w-full"
                         :suggestions="store.product_variation_suggestion"
                         @complete="store.searchProductVariation($event)"
@@ -159,7 +161,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.taxonomy_id_product_media_status"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
                         class="w-full"
                         name="productmedias-status"
                         :suggestions="store.status_suggestion"
