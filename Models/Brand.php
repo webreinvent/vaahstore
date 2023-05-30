@@ -88,18 +88,19 @@ class Brand extends Model
     }
 
     //-------------------------------------------------
-    public function user()
+    public function registeredByUser()
     {
         return $this->hasOne(User::class,'id','registered_by');
     }
-    public function approvedBy()
+    public function approvedByUser()
     {
         return $this->hasOne(User::class,'id','approved_by');
     }
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_brand_status')
+            ->select('id','name','slug');
     }
 
     //-------------------------------------------------
@@ -172,9 +173,6 @@ class Brand extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->registered_by = $inputs['registered_by']['id'];
-        $item->approved_by = $inputs['approved_by']['id'];
-        $item->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $item->save();
 
         $response['success'] = true;
@@ -229,7 +227,7 @@ class Brand extends Model
             });
         }
 
-        $list = $list->with(['user','status','approvedBy'])->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate(config('vaahcms.per_page'));
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -329,7 +327,7 @@ class Brand extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','approvedBy'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','registeredByUser','status','approvedByUser'])
             ->withTrashed()
             ->first();
 
@@ -373,9 +371,6 @@ class Brand extends Model
         $update = self::where('id', $id)->withTrashed()->first();
         $update->fill($inputs);
         $update->slug = Str::slug($inputs['slug']);
-        $update->registered_by = $inputs['registered_by']['id'];
-        $update->approved_by = $inputs['approved_by']['id'];
-        $update->taxonomy_id_brand_status = $inputs['taxonomy_id_brand_status']['id'];
         $update->save();
 
         //check specific actions
@@ -427,7 +422,7 @@ class Brand extends Model
         $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'taxonomy_id_brand_status'=> 'required|max:150',
+            'status'=> 'required|max:150',
             'status_notes' => 'required_if:taxonomy_id_brand_status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
@@ -435,7 +430,7 @@ class Brand extends Model
             'approved_by'=> 'required'
                 ],
         [
-            'taxonomy_id_brand_status.required' => 'The Status field is required',
+            'status.required' => 'The Status field is required',
             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         ]
         );

@@ -119,7 +119,8 @@ const toggleFormMenu = (event) => {
 
                     <AutoComplete
                         value="id"
-                        v-model="store.item.registered_by"
+                        v-model="store.item.registered_by_user"
+                        @change="store.setRegisteredBy($event)"
                         class="w-full"
                         name="brands-registered_by"
                         id="registered_by"
@@ -147,7 +148,8 @@ const toggleFormMenu = (event) => {
 <!--                :disabled="store.disable_approved_by"-->
                 <VhField label="Approved By">
                     <AutoComplete
-                        v-model="store.item.approved_by"
+                        v-model="store.item.approved_by_user"
+                        @change="store.setApprovedBy($event)"
                         class="w-full"
                         name="brands-approved_by"
                         id="approved_by"
@@ -175,7 +177,8 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status">
                     <AutoComplete
-                        v-model="store.item.taxonomy_id_brand_status"
+                        v-model="store.item.status"
+                        @change="store.SetStatus($event)"
                         class="w-full"
                         value="id"
                         name="brands-status"

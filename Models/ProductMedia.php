@@ -153,7 +153,7 @@ class ProductMedia extends Model
 
 
         // check if exist
-            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id']['id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id']['id'])->withTrashed()->first();
+            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id'])->withTrashed()->first();
 
             if ($item) {
                 $response['success'] = false;
@@ -165,10 +165,6 @@ class ProductMedia extends Model
             $item = new self();
             $item->fill($inputs);
             $item->fill($image);
-            $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-            $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
-            $item->is_active = 1;
             $item->save();
         }
 
@@ -594,17 +590,11 @@ class ProductMedia extends Model
                 $item = self::where('id', $id)->withTrashed()->first();
                 $item->fill($inputs);
                 $item->fill($image);
-                $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-                $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-                $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
                 $item->save();
             }
         }else{
             $item = self::where('id', $id)->withTrashed()->first();
             $item->fill($inputs);
-            $item->taxonomy_id_product_media_status = $inputs['taxonomy_id_product_media_status']['id'];
-            $item->vh_st_product_id = $inputs['vh_st_product_id']['id'];
-            $item->vh_st_product_variation_id = $inputs['vh_st_product_variation_id']['id'];
             $item->save();
         }
 

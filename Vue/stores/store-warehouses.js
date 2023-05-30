@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -211,6 +211,16 @@ export const useWarehouseStore = defineStore({
                     });
                 }
             }, 250);
+        },
+        //---------------------------------------------------------------------
+        setVendor(event){
+            let vendor = toRaw(event.value);
+            this.item.vh_st_vendor_id = vendor.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_warehouse_status = status.id;
         },
         //---------------------------------------------------------------------
         async getAssets() {

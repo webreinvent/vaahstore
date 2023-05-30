@@ -55,16 +55,25 @@ class ProductStocksController extends Controller
             //set default value
             $data['empty_item']['quantity'] = 1;
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['vendor'] = null;
+            $data['empty_item']['product'] = null;
+            $data['empty_item']['product_variation'] = null;
+            $data['empty_item']['warehouse'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
             $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
+
             $get_product_data = self::getProductData();
             $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
+
             $get_product_variation_data = self::getProductVariationData();
             $data['empty_item']['vh_st_product_variation_id'] =
                 $this->getDefaultRow($get_product_variation_data['product_variations']) ?? null;
+
             $get_warehouse_data = self::getWarehouseData();
+
             $data = array_merge($data, $get_vendor_data,$get_product_data,$get_product_variation_data,$get_warehouse_data);
 
             $response['success'] = true;
