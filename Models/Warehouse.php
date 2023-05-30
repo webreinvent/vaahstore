@@ -28,7 +28,7 @@ class Warehouse extends Model
         'uuid',
         'name',
         'slug','vh_st_vendor_id','country','state',
-        'city','taxonomy_id_warehouse_status ','status_notes',
+        'city','taxonomy_id_warehouse_status','status_notes',
         'is_active',
         'created_by',
         'updated_by',
