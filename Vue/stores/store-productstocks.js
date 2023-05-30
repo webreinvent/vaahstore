@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -240,6 +240,31 @@ export const useProductStockStore = defineStore({
                     });
                 }
             }, 250);
+        },
+        //---------------------------------------------------------------------
+        setVendor(event){
+            let vendor = toRaw(event.value);
+            this.item.vh_st_vendor_id = vendor.id;
+        },
+        //---------------------------------------------------------------------
+        setProduct(event){
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setProductVariation(event){
+            let productVariation = toRaw(event.value);
+            this.item.vh_st_product_variation_id = productVariation.id;
+        },
+        //---------------------------------------------------------------------
+        setWarehouse(event){
+            let warehouse = toRaw(event.value);
+            this.item.vh_st_warehouse_id = warehouse.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_product_stock_status = status.id;
         },
         //---------------------------------------------------------------------
         async getAssets() {

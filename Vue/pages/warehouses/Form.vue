@@ -103,7 +103,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="warehouses-name"
                                data-testid="warehouses-name"
-                               placeholder="Enter NAme"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -116,10 +116,11 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Vendor">
-                    <AutoComplete v-model="store.item.vh_st_vendor_id"
+                    <AutoComplete v-model="store.item.vendor"
+                                  @change="store.setVendor($event)"
                                   value="id"
                                   class="w-full"
-                                  data-testid="store-vendor"
+                                  data-testid="warehouses-vendor"
                                   :suggestions="store.vendor_suggestion"
                                   @complete="store.searchVendors($event)"
                                   :dropdown="true"
@@ -132,7 +133,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete v-model="store.item.country"
                                   value="id"
                                   class="w-full"
-                                  data-testid="store-country"
+                                  data-testid="warehouses-country"
                                   :suggestions="store.country_suggestion"
                                   @complete="store.searchCountry($event)"
                                   :dropdown="true"
@@ -157,10 +158,11 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.taxonomy_id_warehouse_status"
+                    <AutoComplete v-model="store.item.status"
+                                  @change="store.setStatus($event)"
                                   value="id"
                                   class="w-full"
-                                  data-testid="store-taxonomy_status"
+                                  data-testid="warehouses-taxonomy_status"
                                   :suggestions="store.status_suggestion"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
@@ -171,7 +173,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status notes">
                     <Textarea v-model="store.item.status_notes"
-                              data-testid="store-taxonomy_status_notes"
+                              data-testid="warehouses-taxonomy_status_notes"
                               :autoResize="true"
                               rows="3" class="w-full"
                               placeholder="Enter Status Note"/>

@@ -133,22 +133,17 @@ class ProductStock extends Model
     public static function createItem($request)
     {
 
-        $validation_result = self::sproductStockInputValidator($request->all());
+        $validation_result = self::productStockInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
         }
 
-        $inputs = $validation_result['data'];
+        $inputs = $request->all();
 
 
         $item = new self();
         $item->fill($inputs);
-        $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
-        $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
-        $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
-        $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
-        $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -159,7 +154,7 @@ class ProductStock extends Model
     }
 
     //-------------------------------------------------
-    public static function sproductStockInputValidator($requestData){
+    public static function productStockInputValidator($requestData){
 
         $validated_data = validator($requestData, [
             'name' => 'required',
@@ -169,7 +164,7 @@ class ProductStock extends Model
             'vh_st_product_variation_id' => 'required',
             'vh_st_warehouse_id' => 'required',
             'quantity' => 'required',
-            'taxonomy_id_product_stock_status' => 'required',
+            'status' => 'required',
             'status_notes' => 'required_if:taxonomy_id_product_stock_status.slug,==,rejected',
             'is_active' => 'required',
         ],
@@ -178,7 +173,7 @@ class ProductStock extends Model
                 'vh_st_product_id.required' => 'The Product field is required',
                 'vh_st_product_variation_id.required' => 'The Product variation field is required',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
-                'taxonomy_id_product_stock_status.required' => 'The Status field is required',
+                'status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
@@ -473,11 +468,6 @@ class ProductStock extends Model
             return $response;
         }
 
-        $item->taxonomy_id_product_stock_status = $item->status;
-        $item->vh_st_vendor_id = $item->vendor;
-        $item->vh_st_product_id = $item->product;
-        $item->vh_st_product_variation_id = $item->productVariation;
-        $item->vh_st_warehouse_id = $item->warehouse;
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -488,22 +478,17 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::sproductStockInputValidator($request->all());
+        $validation_result = self::productStockInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
         }
 
-        $inputs = $validation_result['data'];
+        $inputs = $request->all();
 
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->vh_st_vendor_id  = $inputs['vh_st_vendor_id']['id'];
-        $item->vh_st_product_id  = $inputs['vh_st_product_id']['id'];
-        $item->vh_st_product_variation_id  = $inputs['vh_st_product_variation_id']['id'];
-        $item->vh_st_warehouse_id = $inputs['vh_st_warehouse_id']['id'];
-        $item->taxonomy_id_product_stock_status = $inputs['taxonomy_id_product_stock_status']['id'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

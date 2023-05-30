@@ -51,6 +51,9 @@ class BrandsController extends Controller
             $data['auth_approved_by'] = auth()->user()->get();
 
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['approved_by_user'] = null;
+            $data['empty_item']['status'] = null;
+            $data['empty_item']['registered_by_user'] = null;
             $data['actions'] = [];
 
             $get_user_data = self::getUserData();

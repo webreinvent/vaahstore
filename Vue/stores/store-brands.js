@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -218,6 +218,21 @@ export const useBrandStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setApprovedBy(event){
+            let approved_by = toRaw(event.value);
+            this.item.approved_by = approved_by.id;
+        },
+        //---------------------------------------------------------------------
+        setRegisteredBy(event){
+            let approved_by = toRaw(event.value);
+            this.item.registered_by = approved_by.id;
+        },
+        //---------------------------------------------------------------------
+        SetStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_brand_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -285,9 +300,6 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.registered_by = data.user;
-                this.item.approved_by = data.approved_by;
-                this.item.taxonomy_id_brand_status = data.status;
             }else{
                 this.$router.push({name: 'brands.index'});
             }
@@ -467,9 +479,6 @@ export const useBrandStore = defineStore({
             {
                 console.log(data)
                 this.item = data;
-                this.item.registered_by = data.user;
-                this.item.approved_by = data.approved_by;
-                this.item.taxonomy_id_brand_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

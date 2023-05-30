@@ -52,6 +52,8 @@ class WarehousesController extends Controller
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
 
             $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['vendor'] = null;
+            $data['empty_item']['status'] = null;
             $data['actions'] = [];
 
             $get_vendor_data = self::getVendorData();
