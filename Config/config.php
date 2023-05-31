@@ -10,7 +10,7 @@ return [
     "download_link"=> "",
     "author_name"=> "store",
     "author_website"=> "https://vaah.dev",
-    "version"=> "0.0.24",
+    "version"=> "0.0.25",
     "is_migratable"=> true,
     "is_sample_data_available"=> true,
     "db_table_prefix"=> "vh_store_",

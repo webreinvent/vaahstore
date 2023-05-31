@@ -137,10 +137,13 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'vh_st_product_id'|| column === 'taxonomy_id_order_items_status'
-                        || column === 'updated_by'|| column === 'vh_st_product_variation_id'|| column === 'vh_st_vendor_id'
-                        || column === 'order_item'|| column === 'taxonomy_id_order_items_types'|| column === 'vh_st_customer_group_id'
-                        || column === 'user'|| column === 'payment_method'|| column === 'status'|| column === 'status_order'">
+                        <template v-if="column === 'created_by' || column === 'vh_st_product_id'||
+                            column === 'taxonomy_id_order_items_status' || column === 'updated_by'||
+                            column === 'vh_st_product_variation_id'|| column === 'vh_st_vendor_id' ||
+                            column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
+                            column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
+                            column === 'status'|| column === 'status_order'|| column === 'items'||
+                            column === 'is_active_order_item' || column == 'is_invoice_available'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -150,7 +153,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
+                                column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -159,7 +163,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'taxonomy_id_order_status'">
                             <VhViewRow label="Status"
-                                       :value="store.item.status_order"
+                                       :value="store.item.status"
                                        type="status"
                             />
                         </template>

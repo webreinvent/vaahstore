@@ -90,7 +90,7 @@ class Address extends Model
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_address_status')->select('id','name','slug');
     }
     //-------------------------------------------------
-    public function type()
+    public function addressType()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_address_types')->select('id','name','slug');
     }
@@ -131,23 +131,8 @@ class Address extends Model
             return $validation;
         }
 
-
-        // check if user exist
-        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = new self();
-
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->taxonomy_id_address_types = $inputs['taxonomy_id_address_types']['id'];
-        $item->taxonomy_id_address_status = $inputs['taxonomy_id_address_status']['id'];
-        $item->address_line_1  = $inputs['address_line_1'];
-        $item->address_line_2  = $inputs['address_line_2'];
+        $item->fill($inputs);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -236,7 +221,7 @@ class Address extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','status','type');
+        $list = self::getSorted($request->filter)->with('user','status','addressType');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -418,7 +403,7 @@ class Address extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','type'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','addressType'])
             ->withTrashed()
             ->first();
 
@@ -444,23 +429,8 @@ class Address extends Model
             return $validation;
         }
 
-        // check if user exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->vh_user_id = $inputs['user']['id'];
-        $item->taxonomy_id_address_types = $inputs['taxonomy_id_address_types']['id'];
-        $item->taxonomy_id_address_status = $inputs['taxonomy_id_address_status']['id'];
-        $item->address_line_1  = $inputs['address_line_1'];
-        $item->address_line_2  = $inputs['address_line_2'];
+        $item->fill($inputs);
         $item->save();
 
         $response = self::getItem($item->id);

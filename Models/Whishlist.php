@@ -51,7 +51,7 @@ class Whishlist extends Model
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
     }
     //-------------------------------------------------
-    public function type(){
+    public function whishlistType(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
     }
     //-------------------------------------------------
@@ -127,22 +127,8 @@ class Whishlist extends Model
             return $validation;
         }
 
-
-        // check if name exist
-        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = new self();
         $item->fill($inputs);
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
-        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
-        $item->is_default = $inputs['is_default'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -231,7 +217,7 @@ class Whishlist extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','status','type');
+        $list = self::getSorted($request->filter)->with('user','status','whishlistType');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -413,7 +399,7 @@ class Whishlist extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','type'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType'])
             ->withTrashed()
             ->first();
 
@@ -439,23 +425,8 @@ class Whishlist extends Model
             return $validation;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->taxonomy_id_whishlists_status = $inputs['taxonomy_id_whishlists_status']['id'];
-        $item->taxonomy_id_whishlists_types = $inputs['taxonomy_id_whishlists_types']['id'];
-        $item->is_default = $inputs['is_default'];
         $item->save();
 
         $response = self::getItem($item->id);

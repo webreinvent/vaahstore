@@ -164,12 +164,12 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status_order.slug == 'approved'"
-                            severity="success"> {{prop.data.status_order.name}} </Badge>
-                     <Badge v-else-if="prop.data.status_order.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status_order.name}} </Badge>
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status_order.name}} </Badge>
+                            severity="primary"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>

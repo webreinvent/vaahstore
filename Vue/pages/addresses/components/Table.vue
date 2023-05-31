@@ -43,18 +43,18 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="types" header="Types"
+             <Column field="address_type" header="Types"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.type == null"
+                     <Badge v-else-if="prop.data.address_type == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <template v-else>
-                         {{prop.data.type.name}}
+                         {{prop.data.address_type.name}}
                      </template>
                  </template>
 

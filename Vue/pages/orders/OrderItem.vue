@@ -90,6 +90,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.types"
+                        @change="store.setOrderItemType($event)"
                         class="w-full"
                         name="orderitems-types"
                         :suggestions="store.type_suggestion"
@@ -105,6 +106,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.product"
+                        @change="store.setOrderItemProduct($event)"
                         class="w-full"
                         name="orderitems-product"
                         :suggestions="store.product_suggestion"
@@ -120,6 +122,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.product_variation"
+                        @change="store.setOrderItemProductVariation($event)"
                         class="w-full"
                         name="orderitems-product_variation"
                         :suggestions="store.product_variation_suggestion"
@@ -135,6 +138,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
+                        @change="store.setOrderItemVendor($event)"
                         class="w-full"
                         name="orderitems-vendor"
                         :suggestions="store.vendor_suggestion"
@@ -150,6 +154,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.customer_group"
+                        @change="store.setOrderItemCustomerGroup($event)"
                         class="w-full"
                         name="orderitems-customer_group"
                         :suggestions="store.customer_group_suggestion"
@@ -181,6 +186,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                         value="id"
                         v-model="store.item.status_order_items"
+                        @change="store.setOrderItemStatus($event)"
                         class="w-full"
                         name="orders-status"
                         :suggestions="store.status_order_items_suggestion"
@@ -197,7 +203,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Enter a Status Note"
                               name="orderitems-status_notes"
                               data-testid="orderitems-status_notes"
-                              v-model="store.item.status_notes_order"/>
+                              v-model="store.item.status_notes_order_item"/>
                 </VhField>
 
                 <VhField label="Is Invoice Available">

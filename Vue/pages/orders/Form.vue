@@ -102,7 +102,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="User">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.vh_user_id"
+                        v-model="store.item.user"
+                        @change="store.setUser($event)"
                         class="w-full"
                         name="orders-user"
                         :suggestions="store.user_suggestion"
@@ -185,7 +186,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Payment Method">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.vh_st_payment_method_id"
+                        v-model="store.item.payment_method"
+                        @change="store.setPaymentMethod($event)"
                         class="w-full"
                         name="orders-payment_method"
                         :suggestions="store.payment_method_suggestion"
@@ -200,7 +202,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status">
                     <AutoComplete
                         value="id"
-                        v-model="store.item.taxonomy_id_order_status"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
                         class="w-full"
                         name="orders-status"
                         :suggestions="store.status_suggestion"
