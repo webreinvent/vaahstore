@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -296,6 +296,51 @@ export const useOrderStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setUser(event) {
+            let user = toRaw(event.value);
+            this.item.vh_user_id = user.id;
+        },
+        //---------------------------------------------------------------------
+        setPaymentMethod(event) {
+            let payment_method = toRaw(event.value);
+            this.item.vh_st_payment_method_id = payment_method.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_order_status = status.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemType(event) {
+            let type = toRaw(event.value);
+            this.item.taxonomy_id_order_items_types = type.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemProduct(event) {
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemProductVariation(event) {
+            let product_variation = toRaw(event.value);
+            this.item.vh_st_product_variation_id = product_variation.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemVendor(event) {
+            let vendor = toRaw(event.value);
+            this.item.vh_st_vendor_id = vendor.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemCustomerGroup(event) {
+            let customer_group = toRaw(event.value);
+            this.item.vh_st_customer_group_id = customer_group.id;
+        },
+        //---------------------------------------------------------------------
+        setOrderItemStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_order_items_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -369,17 +414,7 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status_order;
-                this.item.vh_user_id = data.user;
 
-                this.item.taxonomy_id_order_items_types = data.type;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
-                this.item.status_notes_order = data.status_notes_order;
-                this.item.taxonomy_id_order_items_status = data.status_order_items;
-                this.item.vh_st_customer_group_id = data.customer_group;
-                this.item.vh_st_vendor_id = data.vendor;
             }else{
                 this.$router.push({name: 'orders.index'});
             }
@@ -564,17 +599,7 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_st_payment_method_id = data.payment_method;
-                this.item.taxonomy_id_order_status = data.status_order;
-                this.item.vh_user_id = data.user;
 
-                this.item.taxonomy_id_order_items_types = data.type;
-                this.item.taxonomy_id_order_items_status = data.status_order_items;
-                this.item.vh_st_product_id = data.product;
-                this.item.vh_st_product_variation_id = data.product_variation;
-                this.item.status_notes_order = data.status_notes_order;
-                this.item.vh_st_customer_group_id = data.customer_group;
-                this.item.vh_st_vendor_id = data.vendor;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

@@ -141,10 +141,6 @@ class CustomerGroup extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->name = $inputs['name'];
-        $item->taxonomy_id_customer_groups_status = $inputs['taxonomy_id_customer_groups_status']['id'];
-        $item->customer_count = $inputs['customer_count'];
-        $item->order_count = $inputs['order_count'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -466,10 +462,6 @@ class CustomerGroup extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->name = $inputs['name'];
-        $item->taxonomy_id_customer_groups_status = $inputs['taxonomy_id_customer_groups_status']['id'];
-        $item->order_count = $inputs['order_count'];
-        $item->customer_count = $inputs['customer_count'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

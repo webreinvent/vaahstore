@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -209,6 +209,21 @@ export const useWhishlistStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setUser(event) {
+            let user = toRaw(event.value);
+            this.item.vh_user_id = user.id;
+        },
+        //---------------------------------------------------------------------
+        setWhishlistsType(event) {
+            let whishlist_type = toRaw(event.value);
+            this.item.taxonomy_id_whishlists_types = whishlist_type.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_whishlists_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -275,9 +290,6 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_whishlists_status = data.status;
-                this.item.taxonomy_id_whishlists_types = data.type;
-                this.item.vh_user_id = data.user;
             }else{
                 this.$router.push({name: 'whishlists.index'});
             }
@@ -456,9 +468,6 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_whishlists_status = data.status;
-                this.item.taxonomy_id_whishlists_types = data.type;
-                this.item.vh_user_id = data.user;
 
                 await this.getList();
                 await this.formActionAfter();

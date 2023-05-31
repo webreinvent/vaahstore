@@ -141,9 +141,7 @@ class AttributeGroup extends Model
         }
 
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->description = $inputs['description'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -483,9 +481,7 @@ class AttributeGroup extends Model
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->description = $inputs['description'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 

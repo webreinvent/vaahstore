@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -209,6 +209,21 @@ export const useAddressStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setUser(event) {
+            let user = toRaw(event.value);
+            this.item.vh_user_id = user.id;
+        },
+        //---------------------------------------------------------------------
+        setAddressType(event) {
+            let address_type = toRaw(event.value);
+            this.item.taxonomy_id_address_types = address_type.id;
+        },
+        //---------------------------------------------------------------------
+        setStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_address_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -275,9 +290,6 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_user_id = data.user;
-                this.item.taxonomy_id_address_types = data.type;
-                this.item.taxonomy_id_address_status = data.status;
             }else{
                 this.$router.push({name: 'addresses.index'});
             }
@@ -456,9 +468,6 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.vh_user_id = data.user;
-                this.item.taxonomy_id_address_types = data.type;
-                this.item.taxonomy_id_address_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

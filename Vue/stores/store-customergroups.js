@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -181,6 +181,11 @@ export const useCustomerGroupStore = defineStore({
                 }
         },
         //---------------------------------------------------------------------
+        setStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_customer_groups_status = status.id;
+        },
+        //---------------------------------------------------------------------
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -245,7 +250,6 @@ export const useCustomerGroupStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_customer_groups_status = data.status;
             }else{
                 this.$router.push({name: 'customergroups.index'});
             }
@@ -424,7 +428,6 @@ export const useCustomerGroupStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_customer_groups_status = data.status;
                 await this.getList();
                 await this.formActionAfter();
                 this.getItemMenu();

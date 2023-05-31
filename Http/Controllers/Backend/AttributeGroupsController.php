@@ -46,7 +46,7 @@ class AttributeGroupsController extends Controller
                 $data['empty_item'][$column] = null;
             }
 
-            $data['attributes'] = Attribute::get();
+            $data['attributes'] = self::getAttributes();
 
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
@@ -67,6 +67,12 @@ class AttributeGroupsController extends Controller
 
         return $response;
     }
+    //----------------------------------------------------------
+    public static function getAttributes(){
+        $attributes = Attribute::where('is_active',1)->get(['id', 'name', 'type']);
+        return $attributes ?? null;
+    }
+
     //----------------------------------------------------------
     public function getList(Request $request)
     {

@@ -73,7 +73,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-    public function statusOrder()
+    public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
     }
@@ -145,14 +145,8 @@ class Order extends Model
         if($check){
             $check->fill($inputs);
             $check->vh_st_order_id = $inputs['id'];
-            $check->vh_user_id  = $inputs['vh_user_id']['id'];
-            $check->taxonomy_id_order_items_types = $inputs['types']['id'];
-            $check->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
-            $check->vh_st_product_id = $inputs['product']['id'];
-            $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
-            $check->vh_st_customer_group_id = $inputs['customer_group']['id'];
-            $check->vh_st_vendor_id = $inputs['vendor']['id'];
             $check->is_active = $inputs['is_active_order_item'];
+            $check->status_notes = $inputs['status_notes_order_item'];
             $check->save();
             $response['messages'][] = 'Saved successfully update.';
             return $response;
@@ -160,14 +154,8 @@ class Order extends Model
         $order_item = new OrderItem;
         $order_item->fill($inputs);
         $order_item->vh_st_order_id = $inputs['id'];
-        $order_item->vh_user_id  = $inputs['vh_user_id']['id'];
-        $order_item->taxonomy_id_order_items_types = $inputs['types']['id'];
-        $order_item->taxonomy_id_order_items_status = $inputs['status_order_items']['id'];
-        $order_item->vh_st_product_id = $inputs['product']['id'];
-        $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
-        $order_item->vh_st_customer_group_id = $inputs['customer_group']['id'];
-        $order_item->vh_st_vendor_id = $inputs['vendor']['id'];
         $order_item->is_active = $inputs['is_active_order_item'];
+        $order_item->status_notes = $inputs['status_notes_order_item'];
         $order_item->save();
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -183,32 +171,9 @@ class Order extends Model
             return $validation;
         }
 
-
-        // check if name exist
-        $item = self::where('vh_user_id', $inputs['vh_user_id']['id'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
         $item = new self();
         $item->fill($inputs);
-        $item->status_notes = $inputs['status_notes'];
-        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
-        $item->vh_user_id = $inputs['vh_user_id']['id'];
-        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        if($inputs['is_paid']==1 && $inputs['paid']==0){
-            $response['messages'][] = 'The paid should be more then 1';
-            return $response;
-        }else{
-            $item->paid = $inputs['paid'];
-            $item->is_paid = $inputs['is_paid'];
-        }
-        if($inputs['is_paid']==0){
-            $item->paid = 0;
-        }
+        $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -297,7 +262,7 @@ class Order extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('statusOrder','paymentMethod','user');
+        $list = self::getSorted($request->filter)->with('status','paymentMethod','user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -483,7 +448,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','statusOrder','paymentMethod','user','Items'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','Items'])
             ->withTrashed()
             ->first();
 
@@ -502,7 +467,7 @@ class Order extends Model
             $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
             $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
             $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
-            $item['status_notes_order'] = $array_item['items']['status_notes'];
+            $item['status_notes_order_item'] = $array_item['items']['status_notes'];
             $item['is_active_order_item'] = $array_item['items']['is_active'];
             $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
             $item['invoice_url'] = $array_item['items']['invoice_url'];
@@ -529,44 +494,9 @@ class Order extends Model
             return $validation;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('vh_user_id', $inputs['vh_user_id']['id'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-//
-//        // check if slug exist
-//        $item = self::where('id', '!=', $inputs['id'])
-//            ->withTrashed()
-//            ->where('slug', $inputs['slug'])->first();
-//
-//        if ($item) {
-//            $response['success'] = false;
-//            $response['messages'][] = "This slug is already exist.";
-//            return $response;
-//        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->taxonomy_id_order_status = $inputs['taxonomy_id_order_status']['id'];
-        $item->vh_user_id = $inputs['user']['id'];
-        $item->status_notes = $inputs['status_notes'];
-        $item->vh_st_payment_method_id = $inputs['vh_st_payment_method_id']['id'];
-        if($inputs['is_paid']==1 && $inputs['paid']==0){
-            $response['messages'][] = 'The paid should be more then 1';
-            return $response;
-        }else{
-            $item->paid = $inputs['paid'];
-            $item->is_paid = $inputs['is_paid'];
-        }
-        if($inputs['is_paid']==0){
-            $item->paid = 0;
-        }
+        $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
         $item->save();
 
         $response = self::getItem($item->id);
