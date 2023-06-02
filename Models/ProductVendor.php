@@ -179,7 +179,7 @@ class ProductVendor extends Model
 
             $item = new self();
             $item->fill($inputs);
-            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
+            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
             $item->save();
 
             $response = self::getItem($item->id);
@@ -505,9 +505,14 @@ class ProductVendor extends Model
 
             $item = self::where('id', $id)->withTrashed()->first();
             $item->fill($inputs);
-            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
-            $item->vh_st_product_id = $inputs['product']['id'];
-            $item->added_by = $inputs['added_by']['id'];
+
+            if(is_int($inputs['taxonomy_id_product_vendor_status'])) {
+                $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
+            }
+            if(is_array($inputs['taxonomy_id_product_vendor_status'])) {
+                $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
+            }
+            
             $item->save();
 
             $response = self::getItem($item->id);
