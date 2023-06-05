@@ -3,7 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\Modules\Store\\Models\\Warehouse';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Warehouse';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
@@ -36,13 +36,13 @@ export const useWarehouseStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        country_suggestion_list: null,
+        country_suggestion: null,
         vendors:null,
         countries:null,
         status:null,
-        vendor_suggestion_list: null,
+        vendor_suggestion: null,
         status_option: null,
-        status_suggestion_list:null,
+        status_suggestion:null,
         list: null,
         item: null,
         fillable:null,
