@@ -134,9 +134,10 @@ class StorePaymentMethod extends Model
 
 
         // check if exist
-        $item = self::where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
-            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])
-            ->withTrashed()->first();
+        $item = self::where('vh_st_store_id', $inputs['vh_st_store_id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id'])
+            ->withTrashed()
+            ->first();
 
         if ($item) {
             $response['success'] = false;
@@ -445,8 +446,9 @@ class StorePaymentMethod extends Model
         // check if exist
         $item = self::where('id', '!=', $inputs['id'])
             ->withTrashed()
-            ->where('vh_st_store_id', $inputs['vh_st_store_id']['id'])
-            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id']['id'])->first();
+            ->where('vh_st_store_id', $inputs['vh_st_store_id'])
+            ->where('vh_st_payment_method_id', $inputs['vh_st_payment_method_id'])
+            ->first();
 
         if ($item) {
             $response['success'] = false;

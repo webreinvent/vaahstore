@@ -64,6 +64,7 @@ class ProductVendorsController extends Controller
             $data['empty_item']['added_by_user'] = $this->getActiveUser();
             $data['actions'] = [];
 
+            $data['active_products'] = $this->getActiveProducts();
             $data['active_vendors'] = $this->getActiveVendor();
             $data['active_stores'] = $this->getActiveStore();
             $data['active_users'] = $this->getActiveUsers();
@@ -109,6 +110,22 @@ class ProductVendorsController extends Controller
     public function getActiveVendor(){
         try{
             return Vendor::where(['is_active'=>1,'deleted_at'=>null])->get();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //------------------------Get Product data for dropdown----------------------------------
+    public function getActiveProducts(){
+        try{
+            return Product::where(['is_active'=>1,'deleted_at'=>null])->get();
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

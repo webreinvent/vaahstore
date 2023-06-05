@@ -74,7 +74,9 @@ export const useProductVendorStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         auth_users:null,
+        active_products: null,
         status_suggestion:null,
+        status: null,
         product_variation_suggestion:null,
         disable_approved_by:true,
     }),
@@ -139,10 +141,10 @@ export const useProductVendorStore = defineStore({
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
-                    this.product_suggestion = this.product;
+                    this.product_suggestion = this.active_products;
                 }
                 else {
-                    this.product_suggestion= this.product.filter((product) => {
+                    this.product_suggestion= this.active_products.filter((product) => {
                         return product.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
                 }
@@ -271,7 +273,7 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         setVendor(event){
             let vendor = toRaw(event.value);
-            this.item.vh_st_store_id = vendor.id;
+            this.item.vh_st_vendor_id = vendor.id;
         },
         //---------------------------------------------------------------------
         setProduct(event){
@@ -280,8 +282,8 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         setAddedBy(event){
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
+            let user = toRaw(event.value);
+            this.item.added_by = user.id;
         },
         //---------------------------------------------------------------------
         setStatus(event){
@@ -306,8 +308,10 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status = data.taxonomy.status;
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
+                this.active_products = data.active_products;
 
                 if(data.rows)
                 {
