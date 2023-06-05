@@ -265,6 +265,9 @@ export const useProductStore = defineStore({
                     },{deep: true}
                 )
                 }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
         },
         setStore(event){
             let store = toRaw(event.value);
