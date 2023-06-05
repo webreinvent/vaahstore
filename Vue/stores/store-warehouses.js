@@ -3,7 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\Modules\Store\\Models\\Warehouse';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Warehouse';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
