@@ -16,17 +16,17 @@ const items = ref([
         items: [
             {
                 label: 'Stores',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-building',
                 to: "/store"
             },
             {
                 label: 'Store Payment Methods',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-credit-card',
                 to: "/storepaymentmethods"
             },
             {
                 label: 'Vendors',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-handshake',
                 to: "/vendors"
             },
             {
@@ -36,7 +36,7 @@ const items = ref([
             },
             {
                 label: 'Products',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-cube',
                 to: "/products"
             },
             {
@@ -51,12 +51,12 @@ const items = ref([
             },
             {
                 label: 'Product Medias',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-image',
                 to: "/productmedias"
             },
             {
                 label: 'Product Stocks',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-btc',
                 to: "/productstocks"
             },
             {
@@ -66,7 +66,7 @@ const items = ref([
             },
             {
                 label: 'Warehouses',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-book',
                 to: "/warehouses"
             },
             {
@@ -76,27 +76,27 @@ const items = ref([
             },
             {
                 label: 'Attributes-Group',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-cart-arrow-down',
                 to: "/attributegroups"
             },
             {
                 label: 'Orders',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-check-square',
                 to: "/orders"
             },
             {
                 label: 'Payment Methods',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-dollar',
                 to: "/paymentmethods"
             },
             {
                 label: 'Addresses',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-address-card',
                 to: "/addresses"
             },
             {
                 label: 'Customer Groups',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-user',
                 to: "/customergroups"
             },
             {

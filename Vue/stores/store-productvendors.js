@@ -315,6 +315,7 @@ export const useProductVendorStore = defineStore({
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
                 this.active_products = data.active_products;
+                this.product_variations = data.active_product_variations
 
                 if(data.rows)
                 {
