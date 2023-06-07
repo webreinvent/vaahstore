@@ -31,22 +31,22 @@ const items = ref([
             },
             {
                 label: 'Vendor Products',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-clone',
                 to: "/productvendors"
             },
             {
                 label: 'Products',
-                icon: 'fa-regular fa-cube',
+                icon: 'fa-regular fa-clone',
                 to: "/products"
             },
             {
                 label: 'Product Variations',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-clone',
                 to: "/productvariations"
             },
             {
                 label: 'Product-Attribute',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-clone',
                 to: "/productAttribute"
             },
             {
@@ -56,27 +56,27 @@ const items = ref([
             },
             {
                 label: 'Product Stocks',
-                icon: 'fa-regular fa-btc',
+                icon: 'fa-regular fa-chart-bar',
                 to: "/productstocks"
             },
             {
                 label: 'Brands',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-copyright',
                 to: "/brands"
             },
             {
                 label: 'Warehouses',
-                icon: 'fa-regular fa-book',
+                icon: 'fa-regular fa-building',
                 to: "/warehouses"
             },
             {
                 label: 'Attributes',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'fa-regular fa-folder',
                 to: "/attributes"
             },
             {
                 label: 'Attributes-Group',
-                icon: 'fa-regular fa-cart-arrow-down',
+                icon: 'fa-regular fa-folder-closed',
                 to: "/attributegroups"
             },
             {
