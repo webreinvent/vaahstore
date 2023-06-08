@@ -63,7 +63,7 @@ export const useVendorStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'vendors.',
+        route_prefix: '/vendors',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -142,8 +142,7 @@ export const useVendorStore = defineStore({
             //watch routes
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
-
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.path.includes(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
