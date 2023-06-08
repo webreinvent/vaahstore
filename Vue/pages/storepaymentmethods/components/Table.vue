@@ -70,7 +70,10 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-             <Column field="last_payment_at" header="Last Payment at"
+             <Column
+                    v-if="store.isViewLarge()"
+                    field="last_payment_at"
+                     header="Last Payment at"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"

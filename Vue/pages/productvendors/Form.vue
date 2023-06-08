@@ -100,6 +100,7 @@ const toggleFormMenu = (event) => {
             <div v-if="store.item">
 
                 <VhField label="Vendor">
+                    <span class="flex justify-content-between">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
@@ -112,7 +113,8 @@ const toggleFormMenu = (event) => {
                         name="productvendors-vendor"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-5" icon="pi pi-info-circle" />
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" icon="pi pi-info-circle" />
+                    </span>
                 </VhField>
 
                 <VhField label="Store"  v-if="!(store.item && store.item.id)">

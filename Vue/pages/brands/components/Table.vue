@@ -69,8 +69,11 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-             <Column field="approved_by_user" header="Approved By"
-                     :sortable="true">
+             <Column field="approved_by_user"
+                     header="Approved By"
+                     :sortable="true"
+                     v-if="store.isViewLarge()"
+             >
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
