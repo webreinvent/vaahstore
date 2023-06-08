@@ -38,60 +38,60 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store" header="Store"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+<!--             <Column field="store" header="Store"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.store == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.store.name}}
-                         </span>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-if="prop.data.store == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <span v-else>-->
+<!--                     {{prop.data.store.name}}-->
+<!--                         </span>-->
+<!--                 </template>-->
 
 
-             </Column>
+<!--             </Column>-->
 
-             <Column field="brand" header="Brand"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+<!--             <Column field="brand" header="Brand"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.brand == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.brand.name}}
-                         </span>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-if="prop.data.brand == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <span v-else>-->
+<!--                     {{prop.data.brand.name}}-->
+<!--                         </span>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
-             <Column field="type" header="Type"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+<!--             <Column field="type" header="Type"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.type == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.type.name}}
-                         </span>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-if="prop.data.type == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <span v-else>-->
+<!--                     {{prop.data.type.name}}-->
+<!--                         </span>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
              <Column field="in_stock" header="In Stock"
                      v-if="store.isViewLarge()"
@@ -172,7 +172,7 @@ const useVaah = vaah();
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+                        style="width:120px;"
                         :sortable="true">
 
                     <template #body="prop">

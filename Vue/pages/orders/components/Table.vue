@@ -26,8 +26,11 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
-                    :sortable="true">
+            <Column field="name"
+                    header="User"
+                    :sortable="true"
+                    v-if="store.isViewLarge()"
+            >
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
@@ -43,8 +46,11 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="order_items" header="Order Items"
-                     :sortable="false"  >
+             <Column field="order_items"
+                     header="Order Items"
+                     :sortable="false"
+                     style="width: 100px;"
+             >
 
 
                  <template #body="prop">
@@ -89,61 +95,63 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="delivery_fee" header="Delivery Fee"
-                     v-if="store.isViewLarge()"
-                    :sortable="true">
+<!--             <Column field="delivery_fee" header="Delivery Fee"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                    :sortable="true">-->
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.delivery_fee}}
-                </template>
+<!--                <template #body="prop">-->
+<!--                    <Badge v-if="prop.data.deleted_at"-->
+<!--                           value="Trashed"-->
+<!--                           severity="danger"></Badge>-->
+<!--                    {{prop.data.delivery_fee}}-->
+<!--                </template>-->
 
-            </Column>
+<!--            </Column>-->
 
-             <Column field="taxes" header="Taxes"
-                     v-if="store.isViewLarge()"
-                    :sortable="true">
+<!--             <Column field="taxes" header="Taxes"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                    :sortable="true">-->
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.taxes}}
-                </template>
+<!--                <template #body="prop">-->
+<!--                    <Badge v-if="prop.data.deleted_at"-->
+<!--                           value="Trashed"-->
+<!--                           severity="danger"></Badge>-->
+<!--                    {{prop.data.taxes}}-->
+<!--                </template>-->
 
-            </Column>
+<!--            </Column>-->
 
-             <Column field="discount" header="Discount"
-                     v-if="store.isViewLarge()"
-                    :sortable="true">
+<!--             <Column field="discount" header="Discount"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                    :sortable="true">-->
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.discount}}
-                </template>
+<!--                <template #body="prop">-->
+<!--                    <Badge v-if="prop.data.deleted_at"-->
+<!--                           value="Trashed"-->
+<!--                           severity="danger"></Badge>-->
+<!--                    {{prop.data.discount}}-->
+<!--                </template>-->
 
-            </Column>
+<!--            </Column>-->
 
-             <Column field="payable" header="Payable"
-                     v-if="store.isViewLarge()"
-                    :sortable="true">
+<!--             <Column field="payable" header="Payable"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                    :sortable="true">-->
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    {{prop.data.payable}}
-                </template>
+<!--                <template #body="prop">-->
+<!--                    <Badge v-if="prop.data.deleted_at"-->
+<!--                           value="Trashed"-->
+<!--                           severity="danger"></Badge>-->
+<!--                    {{prop.data.payable}}-->
+<!--                </template>-->
 
-            </Column>
+<!--            </Column>-->
 
              <Column field="paid" header="Paid"
                      v-if="store.isViewLarge()"
-                    :sortable="true">
+                    :sortable="true"
+                     style="width: 65px;"
+             >
 
                  <template #body="prop">
                      <Badge v-if="prop.data.paid == 0"
@@ -177,7 +185,7 @@ const useVaah = vaah();
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+                        style="width:120px;"
                         :sortable="true">
 
                     <template #body="prop">
