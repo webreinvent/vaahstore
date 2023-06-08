@@ -36,13 +36,13 @@ export const useWarehouseStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        country_suggestion: null,
+        country_suggestions: null,
         vendors:null,
         countries:null,
         status:null,
-        vendor_suggestion: null,
+        vendor_suggestions: null,
         status_option: null,
-        status_suggestion:null,
+        status_suggestions:null,
         list: null,
         item: null,
         fillable:null,
@@ -172,6 +172,9 @@ export const useWarehouseStore = defineStore({
                         },{deep: true}
                     )
                 }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {

@@ -165,6 +165,9 @@ export const usePaymentMethodStore = defineStore({
                         },{deep: true}
                     )
                 }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
         },
         //---------------------------------------------------------------------
         async getAssets() {

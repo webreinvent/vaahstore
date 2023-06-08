@@ -168,6 +168,9 @@ export const useAttributeStore = defineStore({
                         },{deep: true}
                     )
                 }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
         },
         //---------------------------------------------------------------------
         addAttributeNewValue(){
