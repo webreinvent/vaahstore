@@ -7,7 +7,7 @@ let model_namespace = 'VaahCms\\Modules\\Store\\Models\\StorePaymentMethod';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/storepaymentmethods";
+let ajax_url = base_url + "/store/storepaymentmethods";
 
 let empty_states = {
     query: {
