@@ -43,14 +43,14 @@ class ExtendController extends Controller
 
         $links[0] = [
             'link' => route('vh.backend.store'),
-            'icon'=> 'store',
+            'icon'=> 'table',
             'label'=> 'Store'
         ];
 
         $response['status'] = 'success';
         $response['data'] = $links;
 
-        return $response;
+        return vh_response($response);
     }
     //----------------------------------------------------------
 

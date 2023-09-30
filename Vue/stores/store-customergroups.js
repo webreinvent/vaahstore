@@ -7,7 +7,7 @@ let model_namespace = 'VaahCms\\Modules\\Store\\Models\\CustomerGroup';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/customergroups";
+let ajax_url = base_url + "/store/customergroups";
 
 let empty_states = {
     query: {

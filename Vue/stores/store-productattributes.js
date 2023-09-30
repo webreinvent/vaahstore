@@ -7,7 +7,7 @@ let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductAttribute';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/backend/store/productattributes";
+let ajax_url = base_url + "/store/productattributes";
 
 let empty_states = {
     query: {
