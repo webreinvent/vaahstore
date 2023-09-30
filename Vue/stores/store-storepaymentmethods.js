@@ -109,17 +109,24 @@ export const useStorePaymentMethodStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.active_payment_methods;
-                }
-                else {
-                    this.payment_method_suggestion= this.active_payment_methods.filter((payment_methods) => {
-                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchPaymentMethod(event){
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/payment/method',
+                this.searchPaymentMethodAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchPaymentMethodAfter(data,res){
+            if(data){
+                this.payment_method_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)

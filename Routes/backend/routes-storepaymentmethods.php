@@ -70,6 +70,12 @@ function () {
     Route::any('/search/store', 'StorePaymentMethodsController@searchStore')
         ->name('vh.backend.store.storepaymentmethods.search.store');
 
+    /**
+     * Search payment method
+     */
+    Route::any('/search/payment/method', 'StorePaymentMethodsController@searchPaymentMethod')
+        ->name('vh.backend.store.storepaymentmethods.search.payment');
+
     //---------------------------------------------------------
 
 });

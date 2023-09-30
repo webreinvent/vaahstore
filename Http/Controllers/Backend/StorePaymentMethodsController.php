@@ -310,6 +310,23 @@ class StorePaymentMethodsController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function searchPaymentMethod(Request $request)
+    {
+        try{
+            return StorePaymentMethod::searchPaymentMethod($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
 
 }

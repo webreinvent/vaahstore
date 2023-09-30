@@ -579,6 +579,19 @@ class StorePaymentMethod extends Model
 
     }
     //-------------------------------------------------
+    public static function searchPaymentMethod($request){
+
+        $store = PaymentMethod::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
 
 
 }
