@@ -139,7 +139,9 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by'
                         || column === 'status'|| column === 'stores'|| column === 'product'|| column === 'vendor'||
-                        column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'">
+                        column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'
+                        || column === 'product_variation'
+                         ">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -153,6 +155,17 @@ const toggleItemMenu = (event) => {
                         column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'meta'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
+                            />
+                            <VhViewRow label="Product Variation"
+                                       :value=store.item.product_variation
                                        type="user"
                             />
                         </template>
