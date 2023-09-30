@@ -76,17 +76,24 @@ export const useStorePaymentMethodStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestion = this.active_stores;
-                }
-                else {
-                    this.store_suggestion= this.active_stores.filter((stores) => {
-                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchStore(event) {
+           const query = event;
+           const options = {
+               params: query,
+               method: 'post',
+           };
+
+           await vaah().ajax(
+               this.ajax_url+'/search/store',
+               this.searchStoreAfter,
+               options
+           );
+        },
+        //---------------------------------------------------------------------
+        searchStoreAfter(data,res){
+            if(data){
+                this.store_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {

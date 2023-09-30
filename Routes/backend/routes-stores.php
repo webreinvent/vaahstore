@@ -63,6 +63,11 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'StoresController@itemAction')
         ->name('vh.backend.store.storescontroller.item.action');
+    /**
+     * Search store status
+     */
+    Route::post('/store/status/search', 'StoresController@searchStoreStatus')
+        ->name('vh.backend.store.storescontroller.status.search');
 
     //---------------------------------------------------------
 

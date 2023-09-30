@@ -723,6 +723,20 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+    public static function searchStoreStatus($request){
+
+        $query = $request->filter['q']['query'];
+        if(empty($query)) {
+            $customers = Taxonomy::getTaxonomyByType('store-status');
+        } else {
+            $customers = Taxonomy::getTaxonomyByType('store-status');
+        }
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 

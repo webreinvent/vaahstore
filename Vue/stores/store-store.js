@@ -262,17 +262,31 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
-                }
-                else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStatus(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/store/status/search',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //-----------------------------------------------------------------------
+
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion_list = data;
+            }
         },
         //---------------------------------------------------------------------
         searchCurrencyDefault(event) {
