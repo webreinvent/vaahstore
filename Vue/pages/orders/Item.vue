@@ -53,6 +53,8 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
+
+console.log('store',store);
 </script>
 <template>
 
@@ -143,7 +145,9 @@ const toggleItemMenu = (event) => {
                             column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
                             column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
                             column === 'status'|| column === 'status_order'|| column === 'items'||
-                            column === 'is_active_order_item' || column == 'is_invoice_available'">
+                            column === 'is_active_order_item' || column == 'is_invoice_available' || column === 'product_variation' ||
+                            column === 'product' ||  column === 'types'||  column === 'vendor'||  column === 'customer_group'||
+                             column === 'status_order_items'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -194,6 +198,52 @@ const toggleItemMenu = (event) => {
                                        type="yes-no"
                             />
                         </template>
+
+
+                        <template v-else-if="column === 'meta'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
+                            />
+                            <VhViewRow label="Product Variation"
+                                       :value=store.item.product_variation
+                                       type="user"
+                            />
+
+                            <VhViewRow label="Product"
+                                       :value=store.item.product
+                                       type="user"
+                            />
+
+                            <VhViewRow label="Payment Types"
+                                       :value=store.item.types
+                                       type="user"
+                            />
+
+                            <VhViewRow label="Vendor"
+                                       :value=store.item.vendor
+                                       type="user"
+                            />
+
+                            <VhViewRow label="Customer Group"
+                                       :value=store.item.customer_group
+                                       type="user"
+                            />
+
+                            <VhViewRow label="Status Order item"
+                                       :value=store.item.status_order_items
+                                       type="user"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'is_active'">
+                            <VhViewRow label="Types"
+                                       :value="store.item.product"
+                                       type="status"
+                            />
+                        </template>
+
+
 
                         <template v-else>
                             <VhViewRow :label="column"
