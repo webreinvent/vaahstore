@@ -90,6 +90,11 @@ const items = ref([
                 to: "/paymentmethods"
             },
             {
+                label: 'We Payment Methods',
+                icon: 'fa-regular fa-dollar',
+                to: "/wepaymentmethods"
+            },
+            {
                 label: 'Addresses',
                 icon: 'fa-regular fa-address-card',
                 to: "/addresses"
