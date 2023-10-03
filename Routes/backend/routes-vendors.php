@@ -72,4 +72,12 @@ function () {
 
     //---------------------------------------------------------
 
+    /**
+     * Search store status
+     */
+    Route::any('/search/store', 'VendorsController@searchStore')
+        ->name('vh.backend.store.vendors.search.store');
+
+    //---------------------------------------------------------
+
 });

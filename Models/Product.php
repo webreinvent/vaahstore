@@ -235,7 +235,7 @@ class Product extends Model
         }else{
             return [
                 'success' => false,
-                'errors' => 'Product Variation is empty.'
+                'errors' => ['Product Variation is empty.']
             ];
         }
     }

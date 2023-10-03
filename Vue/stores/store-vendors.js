@@ -247,6 +247,7 @@ export const useVendorStore = defineStore({
         },
         setStore(event){
             let store = toRaw(event.value);
+            console.log(event);
             this.item.vh_st_store_id = store.id;
 
         },
@@ -302,17 +303,24 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestions = this.active_stores;
-                }
-                else {
-                    this.store_suggestions = this.active_stores.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStore(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchStoreAfter(data,res){
+            if(data){
+                this.store_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {

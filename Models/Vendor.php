@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Entities\User;
+use VaahCms\Modules\Store\Models;
 
 class Vendor extends Model
 {
@@ -701,6 +702,23 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
+    //-------------------------------------------------
+    public static function searchStore($request){
+
+        $store = Store::select('id', 'name', 'slug');
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+            $store->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $store = $store->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 
