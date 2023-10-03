@@ -45,7 +45,7 @@ const items = ref([
                 to: "/productvariations"
             },
             {
-                label: 'Product-Attribute',
+                label: 'Product Attribute',
                 icon: 'fa-regular fa-clone',
                 to: "/productAttribute"
             },
@@ -75,7 +75,7 @@ const items = ref([
                 to: "/attributes"
             },
             {
-                label: 'Attributes-Group',
+                label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
                 to: "/attributegroups"
             },

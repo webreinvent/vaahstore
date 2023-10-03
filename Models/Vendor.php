@@ -702,24 +702,53 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
     public static function searchStore($request){
 
-        $store = Store::select('id', 'name', 'slug');
-        if ($request->has('query') && $request->input('query')) {
+        $search_store = Store::select('id', 'name', 'slug')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
-            $store->where(function($q) use ($query) {
+            $search_store->where(function($q) use ($query) {
                 $q->where('name', 'LIKE', '%' . $query . '%')
                     ->orWhere('slug', 'LIKE', '%' . $query . '%');
             });
         }
-        $store = $store->limit(10)->get();
+        $search_store = $search_store->limit(10)->get();
         $response['success'] = true;
-        $response['data'] = $store;
+        $response['data'] = $search_store;
         return $response;
 
     }
     //-------------------------------------------------
+    public static function searchApprovedBy($request)
+    {
+        $query = $request->input('query');
+        $search_approved = User::select('id', 'first_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
+
+    //-------------------------------------------------
+    public static function searchVenodrStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $vendor_status = Taxonomy::getTaxonomyByType('vendor-status');
+        } else {
+            $vendor_status = Taxonomy::getTaxonomyByType('vendor-status');
+        }
+
+        $response['success'] = true;
+        $response['data'] = $vendor_status;
+        return $response;
+    }
     //-------------------------------------------------
 
 

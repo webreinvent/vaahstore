@@ -348,5 +348,39 @@ class VendorsController extends Controller
     }
     //----------------------------------------------------------
 
+    public function searchApprovedBy(Request $request)
+    {
+        try{
+            return Vendor::searchApprovedBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
 
+    public function searchVenodrStatus(Request $request)
+    {
+        try{
+            return Vendor::searchVenodrStatus($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
 }

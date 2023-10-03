@@ -80,4 +80,20 @@ function () {
 
     //---------------------------------------------------------
 
+    /**
+     * Search ApprovedBy
+     */
+    Route::any('/search/approved/by', 'VendorsController@searchApprovedBy')
+        ->name('vh.backend.store.vendors.search.approvedBy');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'VendorsController@searchVenodrStatus')
+        ->name('vh.backend.store.vendors.search.status');
+
+    //---------------------------------------------------------
+
 });
