@@ -47,3 +47,4 @@ include_once __DIR__."/backend/routes-customergroups.php";
 include_once __DIR__."/backend/routes-whishlists.php";
 include_once __DIR__."/backend/routes-productattributes.php";
 include_once __DIR__."/backend/routes-attributegroups.php";
+include_once __DIR__."/backend/routes-groupcustomers.php";

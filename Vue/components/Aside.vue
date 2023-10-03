@@ -104,6 +104,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 to: "/whishlists"
             },
+            {
+                label: 'Group Customers',
+                icon: 'fa-regular fa-clone',
+                to: "/groupcustomers"
+            },
         ]
     },
 ]);
