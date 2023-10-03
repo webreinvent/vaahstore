@@ -573,6 +573,7 @@ class Store extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+//dd($request);
         $validation_result = self::storeInputValidator($request->all());
 
         if ($validation_result['success'] != true){
@@ -589,6 +590,12 @@ class Store extends Model
         $item->fill($inputs);
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->slug = Str::slug($inputs['slug']);
+
+        if (is_array($inputs['taxonomy_id_store_status'])) {
+            $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status']['id'];
+        } else {
+            $item->taxonomy_id_store_status = $inputs['taxonomy_id_store_status'];
+        }
         $item->save();
 
         if(!empty($inputs['currencies'])) {
