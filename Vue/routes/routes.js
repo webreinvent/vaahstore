@@ -19,6 +19,7 @@ import addresses from "./vue-routes-addresses";
 import customergroups from "./vue-routes-customergroups";
 import whishlists from "./vue-routes-whishlists";
 import productAttribute from "./vue-routes-productattributes";
+import groupcustomers from "./vue-routes-groupcustomers";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -39,5 +40,6 @@ routes = routes.concat(customergroups);
 routes = routes.concat(whishlists);
 routes = routes.concat(attributeGroups);
 routes = routes.concat(productAttribute);
+routes = routes.concat(groupcustomers);
 
 export default routes;
