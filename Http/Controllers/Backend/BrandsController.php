@@ -266,6 +266,23 @@ class BrandsController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function searchApprovedBy(Request $request)
+    {
+        try{
+            return Brand::searchApprovedBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
 
 
 }
