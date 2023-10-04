@@ -486,12 +486,13 @@ export const useCustomerGroupStore = defineStore({
         },
         //---------------------------------------------------------------------
         async getFaker () {
+
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
+            let url = this.ajax_url+'/fill';
             let options = {
                 params: params,
                 method: 'post',
@@ -691,15 +692,21 @@ export const useCustomerGroupStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Activate',
+                    label: 'Mark as Approved',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('approve')
                     }
                 },
                 {
-                    label: 'Deactivate',
+                    label: 'Mark as Rejected',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('reject')
+                    }
+                },
+                {
+                    label: 'Mark as Pending',
+                    command: async () => {
+                        await this.updateList('pending')
                     }
                 },
                 {
@@ -734,15 +741,21 @@ export const useCustomerGroupStore = defineStore({
         {
             this.list_bulk_menu = [
                 {
-                    label: 'Mark all as active',
+                    label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.listAction('pending-all')
                     }
                 },
                 {
-                    label: 'Mark all as inactive',
+                    label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.listAction('reject-all')
+                    }
+                },
+                {
+                    label: 'Mark all as approved',
+                    command: async () => {
+                        await this.listAction('approve-all')
                     }
                 },
                 {
