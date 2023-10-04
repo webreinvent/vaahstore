@@ -37,6 +37,7 @@ export const useBrandStore = defineStore({
         user:null,
         disable_approved_by:true,
         approved_by_user:null,
+        brand_status_details:null,
         suggestion:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
@@ -79,17 +80,24 @@ export const useBrandStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchRegisteredBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.registered_by_suggestion = this.active_users;
-                }
-                else {
-                    this.registered_by_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchRegisteredBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/registered/by',
+                this.searchRegisteredByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchRegisteredByAfter(data,res){
+            if(data){
+                this.registered_by_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------
@@ -112,20 +120,33 @@ export const useBrandStore = defineStore({
                 this.approved_by_suggestion = data;
             }
         },
+
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStatusBrands(event)
+        {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/brand/status',
+                this.searchStatusBrandsAfter,
+                options
+            );
+
         },
-        //---------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+
+        searchStatusBrandsAfter(data,res) {
+            if(data)
+            {
+                this.brand_status_details = data;
+            }
+        },
+
+       //---------------------------------------------------------------------
         async onLoad(route)
         {
             /**

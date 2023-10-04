@@ -282,6 +282,42 @@ class BrandsController extends Controller
             }
         }
     }
+
+    //----------------------------------------------------------
+    public function searchRegisteredBy(Request $request)
+    {
+        try{
+            return Brand::searchRegisteredBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function searchBrandStatus(Request $request)
+    {
+        try{
+            return Brand::searchBrandStatus($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
     //----------------------------------------------------------
 
 
