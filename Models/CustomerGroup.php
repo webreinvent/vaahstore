@@ -335,16 +335,23 @@ class CustomerGroup extends Model
                 ->toArray();
         }
 
+        $status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
 
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->update(['is_active' => null]);
+            case 'approve':
+                $items->update(['taxonomy_id_customer_groups_status' => $approve_id]);
                 break;
-            case 'activate':
-                $items->update(['is_active' => 1]);
+            case 'reject':
+                $items->update(['taxonomy_id_customer_groups_status' => $reject_id]);
+                break;
+            case 'pending':
+                $items->update(['taxonomy_id_customer_groups_status' => $pending_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -399,6 +406,11 @@ class CustomerGroup extends Model
     {
         $inputs = $request->all();
 
+        $status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
+
         if(isset($inputs['items']))
         {
             $items_id = collect($inputs['items'])
@@ -444,11 +456,14 @@ class CustomerGroup extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'activate-all':
-                $list->update(['is_active' => 1]);
+            case 'pending-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $pending_id]);
                 break;
-            case 'deactivate-all':
-                $list->update(['is_active' => null]);
+            case 'reject-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $reject_id]);
+                break;
+            case 'approve-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $approve_id]);
                 break;
             case 'trash-all':
                 $list->delete();
@@ -640,7 +655,7 @@ class CustomerGroup extends Model
         return $item;
     }
 
-    //-------------------------------------------------
+
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
@@ -674,13 +689,24 @@ class CustomerGroup extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
+        $inputs['customer_count'] = rand(20,50);
+        $inputs['order_count'] = rand(20,60);
+        $taxonomy_status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
 
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        
+        $inputs['taxonomy_id_customer_groups_status'] = $status_id;
+        $inputs['status']=$status;
         $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
+
+
 
         if(!$is_response_return){
             return $inputs;

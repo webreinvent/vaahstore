@@ -164,10 +164,14 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_customer_groups_status'">
-                            <VhViewRow label="Status"
-                                       :value="value"
-                                       type="status"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <Badge severity="info" v-if="store.item.status">{{store.item.status.name}}</Badge>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else>
