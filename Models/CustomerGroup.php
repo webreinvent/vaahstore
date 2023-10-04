@@ -456,11 +456,11 @@ class CustomerGroup extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'pending-all':
-                $list->update(['taxonomy_id_customer_groups_status' => $pending_id]);
+            case 'activate-all':
+                $list->update(['is_active' => 1]);
                 break;
-            case 'reject-all':
-                $list->update(['taxonomy_id_customer_groups_status' => $reject_id]);
+            case 'deactivate-all':
+                $list->update(['is_active' => null]);
                 break;
             case 'approve-all':
                 $list->update(['taxonomy_id_customer_groups_status' => $approve_id]);
@@ -678,6 +678,27 @@ class CustomerGroup extends Model
 
 
     //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
         $request = new Request([
@@ -689,24 +710,13 @@ class CustomerGroup extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-        $inputs['customer_count'] = rand(20,50);
-        $inputs['order_count'] = rand(20,60);
-        $taxonomy_status = Taxonomy::getTaxonomyByType('customer-groups-status');
-        $status_ids = $taxonomy_status->pluck('id')->toArray();
-        $status_id = $status_ids[array_rand($status_ids)];
 
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        
-        $inputs['taxonomy_id_customer_groups_status'] = $status_id;
-        $inputs['status']=$status;
         $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-
-
 
         if(!$is_response_return){
             return $inputs;

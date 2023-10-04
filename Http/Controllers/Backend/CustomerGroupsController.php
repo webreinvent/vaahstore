@@ -125,7 +125,6 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
-
         try{
             return CustomerGroup::fillItem($request);
         }catch (\Exception $e){

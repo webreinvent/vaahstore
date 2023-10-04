@@ -492,7 +492,7 @@ export const useCustomerGroupStore = defineStore({
                 except: this.assets.fillable.except,
             };
 
-            let url = this.ajax_url+'/fill';
+            let url = this.base_url+'/faker';
             let options = {
                 params: params,
                 method: 'post',
