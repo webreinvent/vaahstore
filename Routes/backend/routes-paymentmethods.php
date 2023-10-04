@@ -32,6 +32,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'PaymentMethodsController@fillItem')
+        ->name('vh.backend.store.paymentmethods.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'PaymentMethodsController@createItem')

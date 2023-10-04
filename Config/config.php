@@ -4,6 +4,7 @@ return [
     "name"=> "Store",
     "title"=> "Ecommerce for VaahCMS",
     "slug"=> "store",
+    "is_dev" => env('MODULE_STORE_ENV')?true:false,
     "thumbnail"=> "https://img.site/p/300/160",
     "excerpt"=> "Ecommerce for VaahCMS",
     "description"=> "Ecommerce for VaahCMS",
