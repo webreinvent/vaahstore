@@ -4,7 +4,6 @@ import { useBrandStore } from '../../../stores/store-brands'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useBrandStore();
-
 </script>
 
 <template>
@@ -12,6 +11,25 @@ const store = useBrandStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Brand Status">
+                    <MultiSelect
+                        v-model="store.query.filter.brand_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+            </VhFieldVertical>
+
+            <Divider/>
 
             <VhFieldVertical >
                 <template #label>

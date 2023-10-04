@@ -316,12 +316,27 @@ class Brand extends Model
 
     }
     //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+        if(!isset($filter['brand_status']))
+        {
+            return $query;
+        }
+        $search = $filter['brand_status'];
+        $query->whereHas('status', function ($q) use ($search) {
+            $q->whereIn('name', $search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
+
         $list = self::getSorted($request->filter);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
