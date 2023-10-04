@@ -29,13 +29,11 @@ class BrandsController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
+            $data['fillable']['columns'] = Brand::getFillableColumns();
+            $data['fillable']['except'] = Brand::getUnFillableColumns();
+            $data['empty_item'] = Brand::getEmptyItem();
 
+            $data['actions'] = [];
             $model = new Brand();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
@@ -59,13 +57,12 @@ class BrandsController extends Controller
             $get_user_data = self::getUserData();
             $data = array_merge($data, $get_user_data);
 
-
             $response['success'] = true;
             $response['data'] = $data;
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -76,7 +73,8 @@ class BrandsController extends Controller
 
         return $response;
     }
-    //------------------------Get User data for dropdown----------------------------------
+
+    //---------------------------------------------------------
     public function getUserData(){
         try{
             $data['active_users']=User::where(['is_active'=>1,'deleted_at'=>null])->get();
@@ -100,14 +98,14 @@ class BrandsController extends Controller
             return Brand::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -117,14 +115,15 @@ class BrandsController extends Controller
             return Brand::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
+
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -136,14 +135,15 @@ class BrandsController extends Controller
             return Brand::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
+
         }
     }
     //----------------------------------------------------------
@@ -153,14 +153,31 @@ class BrandsController extends Controller
             return Brand::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return Brand::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -170,14 +187,14 @@ class BrandsController extends Controller
             return Brand::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -187,14 +204,14 @@ class BrandsController extends Controller
             return Brand::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -204,14 +221,14 @@ class BrandsController extends Controller
             return Brand::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -221,14 +238,14 @@ class BrandsController extends Controller
             return Brand::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -238,14 +255,14 @@ class BrandsController extends Controller
             return Brand::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
