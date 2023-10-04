@@ -205,31 +205,46 @@ export const useWarehouseStore = defineStore({
         //---------------------------------------------------------------------
 
         searchStatus(event) {
-
-
-            this.status_suggestions = this.status.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion = this.status;
+                }
+                else {
+                    this.status_suggestion = this.status.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
 
         searchVendors(event) {
-
-            this.vendor_suggestions = this.vendors.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.vendor_suggestion = this.vendors;
+                }
+                else {
+                    this.vendor_suggestion = this.vendors.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
 
         searchCountry(event) {
-
-            this.country_suggestions = this.countries.filter((department) => {
-                return department.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.country_suggestion = this.countries;
+                }
+                else {
+                    this.country_suggestion = this.countries.filter((department) => {
+                        return department.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
