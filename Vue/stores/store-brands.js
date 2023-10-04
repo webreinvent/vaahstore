@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            brand_status: null,
         },
     },
     action: {
