@@ -5,7 +5,6 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\CustomerGroup;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
-
 class CustomerGroupsController extends Controller
 {
 
@@ -28,30 +27,10 @@ class CustomerGroupsController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new CustomerGroup();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
-
-            $data['empty_item'] = [
-                'status' => null,
-            ];
-
+            $data['fillable']['columns'] = CustomerGroup::getFillableColumns();
+            $data['fillable']['except'] = CustomerGroup::getUnFillableColumns();
+            $data['empty_item'] = CustomerGroup::getEmptyItem();
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('customer-groups-status');
-
             $data['actions'] = [];
 
             $response['success'] = true;
@@ -131,6 +110,23 @@ class CustomerGroupsController extends Controller
     {
         try{
             return CustomerGroup::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return CustomerGroup::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
