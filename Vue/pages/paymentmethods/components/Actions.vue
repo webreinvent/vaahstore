@@ -30,13 +30,13 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}">
+        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
 
             <!--left-->
             <div v-if="store.view === 'large'">
 
                 <!--selected_menu-->
-                <Button
+                <Button class="p-button-sm"
                     type="button"
                     @click="toggleSelectedMenuState"
                     data-testid="paymentmethods-actions-menu"
@@ -58,7 +58,7 @@ const toggleBulkMenuState = (event) => {
                     data-testid="paymentmethods-actions-bulk-menu"
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
-                    class="ml-1">
+                    class="ml-1 p-button-sm">
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>
                 <Menu ref="bulk_menu_state"
@@ -81,11 +81,13 @@ const toggleBulkMenuState = (event) => {
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
+                                       class="p-inputtext-sm"
                                        @keyup.enter.native="store.delayedSearch()"
                                        @keyup.13="store.delayedSearch()"
                                        data-testid="paymentmethods-actions-search"
                                        placeholder="Search"/>
                             <Button @click="store.delayedSearch()"
+                                    class="p-button-sm"
                                     data-testid="paymentmethods-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button

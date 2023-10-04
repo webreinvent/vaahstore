@@ -27,24 +27,10 @@ class PaymentMethodsController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
+            $data['fillable']['columns'] = PaymentMethod::getFillableColumns();
+            $data['fillable']['except'] = PaymentMethod::getUnFillableColumns();
+            $data['empty_item'] = PaymentMethod::getEmptyItem();
 
-            $model = new PaymentMethod();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
-            $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
 
             $response['success'] = true;
@@ -124,6 +110,23 @@ class PaymentMethodsController extends Controller
     {
         try{
             return PaymentMethod::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return PaymentMethod::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

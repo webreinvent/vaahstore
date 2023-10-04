@@ -26,7 +26,8 @@ class BackendController extends Controller
 
         $data['module'] = [
             'name' => config('store.name'),
-            'version' => config('store.version')
+            'version' => config('store.version'),
+            'is_dev' => config('store.is_dev'),
         ];
 
         $data['timezone'] = env("APP_TIMEZONE");
