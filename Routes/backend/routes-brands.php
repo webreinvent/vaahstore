@@ -75,7 +75,19 @@ function () {
      * Search ApprovedBy
      */
     Route::any('/search/approved/by', 'BrandsController@searchApprovedBy')
-        ->name('vh.backend.store.brands.search.approvedBy');
+        ->name('vh.backend.store.brands.search.approved');
+
+    /**
+     * Search Registered By
+     */
+    Route::any('/search/registered/by', 'BrandsController@searchRegisteredBy')
+        ->name('vh.backend.store.brands.search.Registered');
+
+    /**
+     * Search Brand Status
+     */
+    Route::any('/search/brand/status', 'BrandsController@searchBrandStatus')
+        ->name('vh.backend.store.brands.search.status');
 
     //---------------------------------------------------------
 

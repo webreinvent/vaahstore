@@ -226,6 +226,7 @@ class Brand extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->taxonomy_id_brand_status = $inputs['status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -580,6 +581,7 @@ class Brand extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->taxonomy_id_brand_status = $inputs['status']['id'];
         $item->save();
 
         $response = self::getItem($item->id);
@@ -729,7 +731,7 @@ class Brand extends Model
     public static function searchApprovedBy($request)
     {
         $query = $request->input('query');
-        $search_approved = User::select('id', 'first_name','email')->where('is_active', '1');
+        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_approved->where(function($q) use ($query) {
@@ -742,6 +744,37 @@ class Brand extends Model
         return $response;
     }
     //-------------------------------------------------
+
+    public static function searchRegisteredBy($request)
+    {
+        $query = $request->input('query');
+        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function searchBrandStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $vendor_status = Taxonomy::getTaxonomyByType('brand-status');
+        } else {
+            $vendor_status = Taxonomy::getTaxonomyByType('brand-status');
+        }
+
+        $response['success'] = true;
+        $response['data'] = $vendor_status;
+        return $response;
+    }
     //-------------------------------------------------
 
 
