@@ -24,6 +24,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+console.log(store);
 </script>
 <template>
 
@@ -129,7 +130,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
                         placeholder="Select Registered By"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
@@ -160,7 +161,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
                         placeholder="Select Approved by"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
 
@@ -178,19 +179,16 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
-                <VhField label="Status">
+
+                <VhField label="Brand Status">
                     <AutoComplete
                         v-model="store.item.status"
-                        @change="store.SetStatus($event)"
-                        class="w-full"
-                        value="id"
-                        name="brands-status"
-                        data-testid="brands-status"
-                        :suggestions="store.status_suggestion"
-                        @complete="store.searchStatus($event)"
-                        placeholder="Select Status"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                        dropdown
+                        optionLabel="name"
+                        :completeOnFocus="true"
+                        :suggestions="store.brand_status_details"
+                        @complete="(event) => store.searchStatusBrands(event)"
+                        class="w-full" />
                 </VhField>
 
                 <VhField label="Status Notes">
