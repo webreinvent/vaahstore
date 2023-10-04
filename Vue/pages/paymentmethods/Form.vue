@@ -67,9 +67,10 @@ const toggleFormMenu = (event) => {
                             class="p-button-sm"
                             data-testid="paymentmethods-create-and-new"
                             icon="pi pi-save"/>
-                    
+
                     <Button data-testid="paymentmethods-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
+                            class="p-button-sm"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
