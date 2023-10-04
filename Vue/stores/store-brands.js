@@ -93,17 +93,24 @@ export const useBrandStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchApprovedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.approved_by_suggestion = this.approved_by_users;
-                }
-                else {
-                    this.approved_by_suggestion= this.approved_by_users.filter((approved_by_users) => {
-                        return approved_by_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchApprovedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/approved/by',
+                this.searchApprovedByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchApprovedByAfter(data,res){
+            if(data){
+                this.approved_by_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
