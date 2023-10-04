@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/brands',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -69,6 +69,13 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'BrandsController@itemAction')
         ->name('vh.backend.store.brands.item.action');
+
+
+    /**
+     * Search ApprovedBy
+     */
+    Route::any('/search/approved/by', 'BrandsController@searchApprovedBy')
+        ->name('vh.backend.store.brands.search.approvedBy');
 
     //---------------------------------------------------------
 
