@@ -70,6 +70,7 @@ export const useAddressStore = defineStore({
         type_suggestion: null,
         status_suggestion: null,
         active_users:null,
+        types:null,
     }),
     getters: {
 
@@ -94,43 +95,28 @@ export const useAddressStore = defineStore({
             this.updateQueryFromUrl(route);
         },
         //---------------------------------------------------------------------
+
         searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.user_suggestion= this.active_users.filter((active_users) => {
+                return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
+
         //---------------------------------------------------------------------
         searchType(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion= this.types.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.type_suggestion= this.types.filter((types) => {
+                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.status_suggestion= this.status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
         },
         //---------------------------------------------------------------------
 
@@ -141,6 +127,7 @@ export const useAddressStore = defineStore({
 
         //---------------------------------------------------------------------
         setAddressType(event) {
+
             let address_type = toRaw(event.value);
             this.item.taxonomy_id_address_types = address_type.id;
         },

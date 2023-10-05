@@ -183,7 +183,6 @@ class Address extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -576,7 +575,7 @@ class Address extends Model
                 'vh_user_id' => 'required|max:150',
                 'taxonomy_id_address_types' => 'required|max:150',
                 'taxonomy_id_address_status' => 'required|max:150',
-                'status_notes' => 'required_if:taxonomy_id_address_status.slug,==,rejected',
+                'status_notes' => 'required_if:status.slug,==,rejected',
                 'address_line_1'=>'required|max:150',
                 'address_line_2'=>'required|max:150'
             ],
