@@ -178,7 +178,7 @@ const toggleItemMenu = (event) => {
                             </template>
 
 
-                        <template v-else-if="column === 'is_active'">
+                        <template v-else-if="column === 'is_default'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
