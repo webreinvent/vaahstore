@@ -24,7 +24,6 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-console.log(store);
 </script>
 <template>
 
@@ -130,7 +129,7 @@ console.log(store);
                         :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
                         placeholder="Select Registered By"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
@@ -161,7 +160,7 @@ console.log(store);
                         :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
                         placeholder="Select Approved by"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
                 </VhField>
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
@@ -746,7 +747,7 @@ class Brand extends Model
     public static function searchApprovedBy($request)
     {
         $query = $request->input('query');
-        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        $search_approved = User::select('id', 'first_name','last_name')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_approved->where(function($q) use ($query) {
@@ -763,16 +764,16 @@ class Brand extends Model
     public static function searchRegisteredBy($request)
     {
         $query = $request->input('query');
-        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        $search_register = User::select('id', 'first_name','last_name')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
-            $search_approved->where(function($q) use ($query) {
+            $search_register->where(function($q) use ($query) {
                 $q->where('first_name', 'LIKE', '%' . $query . '%');
             });
         }
-        $search_approved = $search_approved->limit(10)->get();
+        $search_register = $search_register->limit(10)->get();
         $response['success'] = true;
-        $response['data'] = $search_approved;
+        $response['data'] = $search_register;
         return $response;
     }
     //-------------------------------------------------
@@ -781,13 +782,22 @@ class Brand extends Model
     {
         $query = $request->input('query');
         if(empty($query)) {
-            $vendor_status = Taxonomy::getTaxonomyByType('brand-status');
+            $item = Taxonomy::getTaxonomyByType('brand-status');
         } else {
-            $vendor_status = Taxonomy::getTaxonomyByType('brand-status');
+            $tax_type = TaxonomyType::getFirstOrCreate('brand-status');
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
         }
 
         $response['success'] = true;
-        $response['data'] = $vendor_status;
+        $response['data'] = $item;
         return $response;
     }
     //-------------------------------------------------
