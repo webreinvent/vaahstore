@@ -6,7 +6,6 @@ use VaahCms\Modules\Store\Models\Address;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 
-
 class AddressesController extends Controller
 {
 
@@ -29,29 +28,9 @@ class AddressesController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new Address();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
-
-            $data['empty_item'] = [
-                'user' => null,
-                'address_type' => null,
-                'status' => null
-            ];
+            $data['fillable']['columns'] = Address::getFillableColumns();
+            $data['fillable']['except'] = Address::getUnFillableColumns();
+            $data['empty_item'] = Address::getEmptyItem();
             $data['active_users'] = User::where('is_active',1)->get();
             $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('address-types');
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('address-status');
@@ -135,6 +114,23 @@ class AddressesController extends Controller
     {
         try{
             return Address::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return Address::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
