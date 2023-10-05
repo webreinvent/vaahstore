@@ -175,6 +175,14 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
+                <VhField label="Is Default">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="addresses-active"
+                                 data-testid="addresses-active"
+                                 v-model="store.item.is_default"/>
+                </VhField>
+
             </div>
         </Panel>
 

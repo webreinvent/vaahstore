@@ -35,6 +35,7 @@ class Address extends Model
         'taxonomy_id_address_status',
         'address_line_1',
         'address_line_2',
+        'is_default',
         'status_notes',
         'created_by',
         'updated_by',
