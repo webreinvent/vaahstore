@@ -662,14 +662,18 @@ class Brand extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
-            'status_notes' => 'required_if:taxonomy_id_brand_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
             'registered_by'=> 'required',
             'approved_by'=> 'required'
         );
 
-        $validator = \Validator::make($inputs, $rules);
+        $customMessages = array(
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        );
+        
+        $validator = \Validator::make($inputs, $rules,$customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
