@@ -64,7 +64,7 @@ const useVaah = vaah();
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.registered_by_user.first_name}}
+                     {{prop.data.registered_by_user.name}}
                          </span>
                  </template>
              </Column>
@@ -79,7 +79,7 @@ const useVaah = vaah();
                             value="Trashed"
                             severity="danger"></Badge>
                      <span v-else>
-                     {{prop.data.approved_by_user.first_name}}
+                     {{prop.data.approved_by_user.name}}
                          </span>
                  </template>
              </Column>
