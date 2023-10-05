@@ -168,7 +168,21 @@ class WarehousesController extends Controller
     public function fillItem(Request $request)
     {
         try{
-            return Warehouse::fillItem($request);
+            $countries = array_column(VaahCountry::getList(), 'name');
+            $country_name=$countries[array_rand($countries)];
+            $taxonomy_status = Taxonomy::getTaxonomyByType('warehouse-status');
+
+            $status_ids = $taxonomy_status->pluck('id')->toArray();
+
+            $status_id = $status_ids[array_rand($status_ids)];
+
+            $status = $taxonomy_status->where('id',$status_id)->first();
+            $vendor_data = Vendor::where('is_active',1)->get();
+            $vendor_ids = Vendor::where('is_active',1)->pluck('id')->toArray();
+            $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+            $vendor_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
+
+            return Warehouse::fillItem($request,$country_name,$status_id,$status,$vendor_id,$vendor_data,);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/warehouses',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
