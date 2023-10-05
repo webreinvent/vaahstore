@@ -726,6 +726,31 @@ class Brand extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+
+        $start_date = Carbon::create(2022, 1, 1);
+        $end_date = Carbon::create(2023, 1, 1);
+        $random_timestamp = mt_rand($start_date->timestamp, $end_date->timestamp);
+        $random_date = Carbon::createFromTimestamp($random_timestamp);
+        $registered_date = $random_date->toDateTimeString();
+        $inputs['registered_at'] = $registered_date;
+
+        $random_approved = mt_rand($start_date->timestamp, $end_date->timestamp);
+        $approved_date = Carbon::createFromTimestamp($random_approved);
+        $approved_date = $approved_date->toDateTimeString();
+        $inputs['approved_at'] = $approved_date;
+
+        $inputs['is_active'] = rand(0,1);
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('brand-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_brand_status'] = $status_id;
+
+        $users_ids = User::where('is_active',1)->pluck('id')->toArray();
+        $users_id = $users_ids[array_rand($users_ids)];
+        $inputs['approved_by'] =$users_id;
+        $inputs['registered_by'] = $users_id;
+
         $faker = Factory::create();
 
         /*
@@ -742,7 +767,6 @@ class Brand extends Model
         return $response;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function searchApprovedBy($request)
     {
