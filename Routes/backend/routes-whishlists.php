@@ -32,6 +32,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'WhishlistsController@fillItem')
+        ->name('vh.backend.store.whishlists.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'WhishlistsController@createItem')

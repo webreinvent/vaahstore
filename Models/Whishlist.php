@@ -4,10 +4,13 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\Taxonomy;
 
 class Whishlist extends Model
 {
@@ -31,9 +34,16 @@ class Whishlist extends Model
         'taxonomy_id_whishlists_types',
         'is_default',
         'status_notes',
+        'name',
+        'slug',
+        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
     ];
 
     //-------------------------------------------------
@@ -50,13 +60,49 @@ class Whishlist extends Model
     public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
     }
+
     //-------------------------------------------------
     public function whishlistType(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
     }
+
     //-------------------------------------------------
     public function user(){
         return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
+    }
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -127,8 +173,28 @@ class Whishlist extends Model
             return $validation;
         }
 
+
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = new self();
         $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -175,9 +241,12 @@ class Whishlist extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -344,6 +413,14 @@ class Whishlist extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -372,20 +449,40 @@ class Whishlist extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -425,8 +522,31 @@ class Whishlist extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -467,7 +587,9 @@ class Whishlist extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -483,32 +605,21 @@ class Whishlist extends Model
     public static function validation($inputs)
     {
 
-        $rules = validator($inputs, [
-            'vh_user_id'=> 'required',
-            'taxonomy_id_whishlists_types'=> 'required',
-            'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
-                ],
-        [
-            'vh_user_id.required' => 'The User field is required',
-            'taxonomy_id_whishlists_types.required' => 'The Type variation field is required',
-            'taxonomy_id_whishlists_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+        $rules = array(
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
         );
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
+        $validator = \Validator::make($inputs, $rules);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
         }
-        $rules = $rules->validated();
 
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
+        $response['success'] = true;
+        return $response;
 
     }
 
@@ -516,8 +627,60 @@ class Whishlist extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
+    }
+
+    //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
     }
 
     //-------------------------------------------------

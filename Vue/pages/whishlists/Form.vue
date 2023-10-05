@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="whishlists-save"
                             @click="store.itemAction('save')"
@@ -63,19 +64,21 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="whishlists-create-and-new"
                             icon="pi pi-save"/>
 
                     <Button data-testid="whishlists-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
+                            class="p-button-sm"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
-
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="whishlists-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +89,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="whishlists-to-list"
                             @click="store.toList()">
@@ -98,7 +101,8 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
+
                 <VhField label="User">
                     <AutoComplete
                         value="id"
@@ -145,6 +149,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+
                 <VhField label="Status Notes">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
@@ -153,12 +158,13 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
-                <VhField label="Is Default">
+                <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 name="whishlists-is_default"
-                                 data-testid="whishlists-is_default"
-                                 v-model="store.item.is_default"/>
+                                 class="p-inputswitch-sm"
+                                 name="whishlists-active"
+                                 data-testid="whishlists-active"
+                                 v-model="store.item.is_active"/>
                 </VhField>
 
             </div>
