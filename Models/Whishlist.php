@@ -11,6 +11,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Whishlist extends Model
 {
@@ -34,9 +35,6 @@ class Whishlist extends Model
         'taxonomy_id_whishlists_types',
         'is_default',
         'status_notes',
-        'name',
-        'slug',
-        'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -173,28 +171,8 @@ class Whishlist extends Model
             return $validation;
         }
 
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -587,13 +565,14 @@ class Whishlist extends Model
             'vh_user_id'=> 'required',
             'taxonomy_id_whishlists_types'=> 'required',
             'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
         );
 
         $customMessages = array(
             'vh_user_id.required' => 'The user field is required.',
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',
             'taxonomy_id_whishlists_status.required' => 'The status field is required.',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         );
 
         $validator = \Validator::make($inputs, $rules, $customMessages);
@@ -686,6 +665,54 @@ class Whishlist extends Model
         return $response;
     }
     //-------------------------------------------------
+    public static function searchType($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('wishlists-types');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-types');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function searchStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('wishlists-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-status');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
     //-------------------------------------------------
 
 

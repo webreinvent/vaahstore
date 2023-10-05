@@ -73,8 +73,20 @@ function () {
     /**
      * Search vaah users
      */
-    Route::any('/search/users', 'BrandsController@searchVaahUsers')
+    Route::any('/search/users', 'WhishlistsController@searchVaahUsers')
         ->name('vh.backend.store.whishlists.search.users');
+
+    /**
+     * Search type
+     */
+    Route::any('/search/type', 'WhishlistsController@searchType')
+        ->name('vh.backend.store.whishlists.search.type');
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'WhishlistsController@searchStatus')
+        ->name('vh.backend.store.whishlists.search.type');
 
     //---------------------------------------------------------
 
