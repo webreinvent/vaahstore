@@ -11,8 +11,8 @@ use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-
-
+use WebReinvent\VaahExtend\Facades\VaahCountry;
+use VaahCms\Modules\Store\Models\Vendor;
 class Warehouse extends Model
 {
 
@@ -698,27 +698,6 @@ class Warehouse extends Model
 
 
     //-------------------------------------------------
-    public static function seedSampleItems($records=100)
-    {
-
-        $i = 0;
-
-        while($i < $records)
-        {
-            $inputs = self::fillItem(false);
-
-            $item =  new self();
-            $item->fill($inputs);
-            $item->save();
-
-            $i++;
-
-        }
-
-    }
-
-
-    //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
         $request = new Request([
@@ -729,8 +708,28 @@ class Warehouse extends Model
         if(!$fillable['success']){
             return $fillable;
         }
+        $countries = array_column(VaahCountry::getList(), 'name');
         $inputs = $fillable['data']['fill'];
 
+        $inputs['country'] = $countries[array_rand($countries)];
+        $inputs['is_active'] = rand(0,1);
+        $taxonomy_status = Taxonomy::getTaxonomyByType('warehouse-status');
+
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+
+        $status_id = $status_ids[array_rand($status_ids)];
+
+        $status = $taxonomy_status->where('id',$status_id)->first();
+
+        $inputs['taxonomy_id_warehouse_status'] = $status_id;
+        $inputs['status']=$status;
+
+        $vendor_data = Vendor::where('is_active',1)->get();
+        $vendor_ids = Vendor::where('is_active',1)->pluck('id')->toArray();
+        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+        $vendor_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
+        $inputs['vh_st_vendor_id'] =$vendor_id;
+        $inputs['vendor'] = $vendor_data;
         $faker = Factory::create();
 
         /*
