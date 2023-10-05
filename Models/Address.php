@@ -638,6 +638,7 @@ class Address extends Model
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
+
     {
         $request = new Request([
             'model_namespace' => self::class,
@@ -649,6 +650,26 @@ class Address extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('address-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_address_status'] = $status_id;
+        $inputs['status']=$status;
+
+        $user_ids= User::where('is_active',1)->pluck('id')->toArray();
+        $user_id = $user_ids[array_rand($user_ids)];
+        $user = User::where('id',$user_id)->first();
+        $inputs['user']=$user;
+
+        $address_types = Taxonomy::getTaxonomyByType('address-types');
+        $address_ids = $address_types->pluck('id')->toArray();
+        $address_id = $address_ids[array_rand($address_ids)];
+        $address_type = $address_types->where('id',$address_id)->first();
+        $inputs['taxonomy_id_address_types'] = $address_id;
+        $inputs['address_type']=$address_type;
+
+        $inputs['is_default']=rand(0,1);
         $faker = Factory::create();
 
         /*
