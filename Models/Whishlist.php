@@ -522,28 +522,6 @@ class Whishlist extends Model
             return $validation;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -606,11 +584,19 @@ class Whishlist extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'vh_user_id'=> 'required',
+            'taxonomy_id_whishlists_types'=> 'required',
+            'taxonomy_id_whishlists_status'=> 'required',
+            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
         );
 
-        $validator = \Validator::make($inputs, $rules);
+        $customMessages = array(
+            'vh_user_id.required' => 'The user field is required.',
+            'taxonomy_id_whishlists_types.required' => 'The type field is required.',
+            'taxonomy_id_whishlists_status.required' => 'The status field is required.',
+        );
+
+        $validator = \Validator::make($inputs, $rules, $customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -684,6 +670,21 @@ class Whishlist extends Model
     }
 
     //-------------------------------------------------
+    public static function searchVaahUsers($request)
+    {
+        $query = $request->input('query');
+        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 

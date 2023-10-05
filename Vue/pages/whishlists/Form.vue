@@ -110,7 +110,7 @@ const toggleFormMenu = (event) => {
                         @change="store.setUser($event)"
                         class="w-full"
                         :suggestions="store.user_suggestion"
-                        @complete="store.searchUser($event)"
+                        @complete="store.searchUsers($event)"
                         placeholder="Select User"
                         data-testid="whishlists-user"
                         name="whishlists-user"

@@ -32,8 +32,8 @@ class WhishlistsController extends Controller
             $data['fillable']['columns'] = Whishlist::getFillableColumns();
             $data['fillable']['except'] = Whishlist::getUnFillableColumns();
             $data['empty_item'] = Whishlist::getEmptyItem();
-            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
-            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('wishlists-status');
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('wishlists-types');
 
             $data['actions'] = [];
 
@@ -236,6 +236,23 @@ class WhishlistsController extends Controller
     {
         try{
             return Whishlist::itemAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchVaahUsers(Request $request)
+    {
+        try{
+            return Whishlist::searchVaahUsers($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

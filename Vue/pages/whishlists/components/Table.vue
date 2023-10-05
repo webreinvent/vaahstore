@@ -26,15 +26,19 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="user" header="User"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
-
+                    <Badge v-else-if="prop.data.user == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <template v-else>
+                        {{prop.data.user.first_name}}
+                    </template>
                 </template>
 
             </Column>

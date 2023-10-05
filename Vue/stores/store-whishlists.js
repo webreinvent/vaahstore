@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {watch,toRaw } from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -101,17 +101,25 @@ export const useWhishlistStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchUsers(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users',
+                this.searchUsersAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)

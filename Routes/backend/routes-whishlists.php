@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/whishlists',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -69,6 +69,12 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'WhishlistsController@itemAction')
         ->name('vh.backend.store.whishlists.item.action');
+
+    /**
+     * Search vaah users
+     */
+    Route::any('/search/users', 'BrandsController@searchVaahUsers')
+        ->name('vh.backend.store.whishlists.search.users');
 
     //---------------------------------------------------------
 
