@@ -744,12 +744,23 @@ class Brand extends Model
         $taxonomy_status = Taxonomy::getTaxonomyByType('brand-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
+        $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_brand_status'] = $status_id;
+        $inputs['status']=$status;
 
-        $users_ids = User::where('is_active',1)->pluck('id')->toArray();
-        $users_id = $users_ids[array_rand($users_ids)];
-        $inputs['approved_by'] =$users_id;
-        $inputs['registered_by'] = $users_id;
+        $registered_ids = User::where('is_active',1)->pluck('id')->toArray();
+        $registered_id = $registered_ids[array_rand($registered_ids)];
+        $registered_by_data = User::where('is_active',1)->where('id',$registered_id)->first();
+        $inputs['registered_by'] = $registered_id;
+        $inputs['registered_by_user'] = $registered_by_data;
+
+
+
+        $approved_ids = User::where('is_active',1)->pluck('id')->toArray();
+        $approved_id = $approved_ids[array_rand($approved_ids)];
+        $approved_by_data = User::where('is_active',1)->where('id',$approved_id)->first();
+        $inputs['approved_by'] =$approved_id;
+        $inputs['approved_by_user'] = $approved_by_data;
 
         $faker = Factory::create();
 
