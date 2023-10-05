@@ -69,6 +69,7 @@ export const useAddressStore = defineStore({
         user_suggestion: null,
         type_suggestion: null,
         status_suggestion: null,
+        active_users:null,
     }),
     getters: {
 

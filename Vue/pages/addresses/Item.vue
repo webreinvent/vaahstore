@@ -141,7 +141,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
                         column === 'status'|| column === 'address_type'">
-
+                        </template>
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
@@ -193,6 +193,7 @@ const toggleItemMenu = (event) => {
 
 
                     </template>
+
                     </tbody>
 
                 </table>
