@@ -298,7 +298,7 @@ class Warehouse extends Model
         }
 
         $status = $filter['status'];
-
+        
         $query->whereHas('status', function ($query) use ($status) {
             $query->where('slug', $status);
 
