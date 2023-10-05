@@ -611,12 +611,12 @@ class Warehouse extends Model
             'state' => 'required',
             'city' => 'required',
             'status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_warehouse_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'is_active' => 'required',
             'vh_st_vendor_id' => 'required'
         ],
             [
-                'status.required' => 'The Status field is required',
+                'taxonomy_id_warehouse_status' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
