@@ -11,8 +11,6 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use VaahCms\Modules\Store\Models\PaymentMethod;
-use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class StorePaymentMethod extends Model
 {
@@ -77,6 +75,37 @@ class StorePaymentMethod extends Model
     }
 
     //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
     public static function getUnFillableColumns()
     {
         return [
@@ -603,16 +632,7 @@ class StorePaymentMethod extends Model
             'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
         );
 
-        $customMessages = array(
-            'vh_st_store_id.required' => 'The Store field is required',
-            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-            'last_payment_at.required' => 'The Last Payment at field is required',
-            'taxonomy_id_payment_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        );
-
-
-        $validator = \Validator::make($inputs, $rules,$customMessages);
+        $validator = \Validator::make($inputs, $rules);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;

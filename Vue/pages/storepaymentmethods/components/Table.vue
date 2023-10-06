@@ -38,7 +38,8 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="payment_method" header="Payment Method" :sortable="true">
+             <Column field="payment_method" header="Payment Method"
+                     :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
