@@ -48,6 +48,7 @@ class Address extends Model
 
     //-------------------------------------------------
     protected $appends = [
+        'address'
     ];
 
     //-------------------------------------------------
@@ -58,6 +59,14 @@ class Address extends Model
     }
 
     //-------------------------------------------------
+
+    public function getAddressAttribute()
+    {
+        return $this->address_line_1 . ' ' . $this->address_line_2;
+    }
+
+    //-------------------------------------------------
+
     public static function getUnFillableColumns()
     {
         return [
@@ -199,8 +208,6 @@ class Address extends Model
             $item->is_default=1;
         }
         $item->save();
-
-
 
 
         $response = self::getItem($item->id);
@@ -626,6 +633,16 @@ class Address extends Model
         switch($type)
         {
             case 'make-default':
+                $address = Address::find($id);
+                $user_id = $address->user()->pluck('id')->first();
+                $user = User::find($user_id);
+                $addresses = $user->addresses()->get();
+                foreach ($addresses as $address) {
+
+                    $address->is_default = 0;
+                    $address->save();
+                }
+
                 self::where('id', $id)
                     ->withTrashed()
                     ->update(['is_default' => 1]);

@@ -77,35 +77,22 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="address_1" header="Address 1"
+
+             <Column field="address" header="Address"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_1 == null"
+                     <Badge v-else-if="prop.data.address == null"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <template v-else>
-                         {{prop.data.address_line_1}}
+                     <template v-else-if="prop.data.is_default == 1">
+                         {{ prop.data.address }}<Badge severity="primary">Default</Badge>
                      </template>
-                 </template>
-
-             </Column>
-
-             <Column field="address_2" header="Address 2"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_2 == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <template v-else>
-                         {{prop.data.address_line_2}}
+                          {{prop.data.address}}
                      </template>
                  </template>
 
