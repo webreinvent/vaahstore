@@ -262,12 +262,41 @@ class Whishlist extends Model
 
     }
     //-------------------------------------------------
+    public function scopeWishlistStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['wishlist_status']))
+        {
+            return $query;
+        }
+        $search = $filter['wishlist_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+                      $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopeWishlistTypeFilter($query, $filter)
+    {
+
+        if(!isset($filter['wishlist_type']))
+        {
+            return $query;
+        }
+        $search = $filter['wishlist_type'];
+        $query->whereHas('whishlistType',function ($q) use ($search) {
+                $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('user','status','whishlistType');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->wishlistStatusFilter($request->filter);
+        $list->wishlistTypeFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 

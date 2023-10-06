@@ -18,6 +18,8 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            wishlist_status: null,
+            wishlist_type:null,
         },
     },
     action: {
