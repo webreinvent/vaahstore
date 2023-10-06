@@ -4,9 +4,9 @@ stages:
 deploy_features:
   stage: features
   variables:
-    SSH_USERNAME: DEMO_SSH_USERNAME
+    SSH_USERNAME: $DEMO_SSH_USERNAME
     PROJECT_NAME: store-dev
-    FTP_IP: DEMO_FTP_IP
+    FTP_IP: $DEMO_FTP_IP
     DOMAIN: $DEMO_DOMAIN
 
     PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN
