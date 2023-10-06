@@ -130,7 +130,7 @@ class Address extends Model
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','vh_user_id')
+        return $this->belongsTo(User::class,'vh_user_id','id')
             ->select('id','first_name', 'email');
     }
     //-------------------------------------------------
@@ -184,7 +184,24 @@ class Address extends Model
 
         $item = new self();
         $item->fill($inputs);
+        $user_id = $inputs['vh_user_id'];
+        if(($inputs['is_default']) == 1)
+        {
+            $user = User::find($user_id);
+            $addresses = $user->addresses()->where('is_default',1)->get();
+
+            foreach ($addresses as $address) {
+
+                $address->is_default = 0;
+                $address->save();
+            }
+
+            $item->is_default=1;
+        }
         $item->save();
+
+
+
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -192,7 +209,32 @@ class Address extends Model
 
     }
 
+
     //-------------------------------------------------
+
+    public static function setDefaultAddress($user_id, $address_id)
+    {
+        $user = User::find($user_id);
+        dd($user);
+
+        if (!$user) {
+            throw new \Exception("User not found");
+        }
+
+        $user->addresses()->update(['is_default' => false]);
+
+        $address = $user->addresses()->find($address_id);
+
+        if (!$address) {
+            throw new \Exception("Address not found");
+        }
+
+        $address->is_default = true;
+        $address->save();
+    }
+
+    //-------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
@@ -444,6 +486,11 @@ class Address extends Model
             $list->searchFilter($request->filter);
         }
 
+        $status = Taxonomy::getTaxonomyByType('address-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
+
         switch ($type) {
             case 'deactivate':
                 if($items->count() > 0) {
@@ -470,11 +517,14 @@ class Address extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'activate-all':
-                $list->update(['is_active' => 1]);
+            case 'pending-all':
+                $list->update(['taxonomy_id_address_status' => $pending_id]);
                 break;
-            case 'deactivate-all':
-                $list->update(['is_active' => null]);
+            case 'reject-all':
+                $list->update(['taxonomy_id_address_status' => $reject_id]);
+                break;
+            case 'approve-all':
+                $list->update(['taxonomy_id_address_status' => $approve_id]);
                 break;
             case 'trash-all':
                 $list->delete();
@@ -575,15 +625,15 @@ class Address extends Model
     {
         switch($type)
         {
-            case 'activate':
+            case 'make-default':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_default' => 1]);
                 break;
-            case 'deactivate':
+            case 'remove-from-default':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_default' => 0]);
                 break;
             case 'trash':
                 self::where('id', $id)
