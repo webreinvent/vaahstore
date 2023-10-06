@@ -354,16 +354,23 @@ class Address extends Model
                 ->toArray();
         }
 
+        $status = Taxonomy::getTaxonomyByType('address-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
 
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->update(['is_active' => null]);
+            case 'pending':
+                $items->update(['taxonomy_id_address_status' => $pending_id]);
                 break;
-            case 'activate':
-                $items->update(['is_active' => 1]);
+            case 'reject':
+                $items->update(['taxonomy_id_address_status' => $reject_id]);
+                break;
+            case 'approve':
+                $items->update(['taxonomy_id_address_status' => $approve_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
