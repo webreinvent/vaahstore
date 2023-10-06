@@ -350,12 +350,21 @@ class Whishlist extends Model
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
+        $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
+        $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
+
+
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->update(['is_active' => null]);
+            case 'approved':
+                $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
-            case 'activate':
-                $items->update(['is_active' => 1]);
+            case 'pending':
+                $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                break;
+            case 'rejected':
+                $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -429,6 +438,11 @@ class Whishlist extends Model
             $list->searchFilter($request->filter);
         }
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
+        $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
+        $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
+
         switch ($type) {
             case 'deactivate':
                 if($items->count() > 0) {
@@ -455,11 +469,14 @@ class Whishlist extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'activate-all':
-                $list->update(['is_active' => 1]);
+            case 'approved-all':
+                $list->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
-            case 'deactivate-all':
-                $list->update(['is_active' => null]);
+            case 'pending-all':
+                $list->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                break;
+            case 'reject-all':
+                $list->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash-all':
                 $list->delete();

@@ -750,15 +750,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Activate',
+                    label: 'Approved',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('approved')
                     }
                 },
                 {
-                    label: 'Deactivate',
+                    label: 'Pending',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('pending')
+                    }
+                },
+                {
+                    label: 'Rejected',
+                    command: async () => {
+                        await this.updateList('rejected')
                     }
                 },
                 {
@@ -793,15 +799,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_bulk_menu = [
                 {
-                    label: 'Mark all as active',
+                    label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.listAction('approved-all')
                     }
                 },
                 {
-                    label: 'Mark all as inactive',
+                    label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.listAction('pending-all')
+                    }
+                },
+                {
+                    label: 'Mark all as rejected',
+                    command: async () => {
+                        await this.listAction('reject-all')
                     }
                 },
                 {
