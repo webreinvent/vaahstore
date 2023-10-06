@@ -718,15 +718,21 @@ export const useAddressStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Activate',
+                    label: 'Mark as Pending',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('pending')
                     }
                 },
                 {
-                    label: 'Deactivate',
+                    label: 'Mark as Approved',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('approve')
+                    }
+                },
+                {
+                    label: 'Mark as Rejected',
+                    command: async () => {
+                        await this.updateList('reject')
                     }
                 },
                 {
