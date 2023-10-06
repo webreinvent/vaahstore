@@ -38,7 +38,6 @@ export const useBrandStore = defineStore({
         user:null,
         disable_approved_by:true,
         approved_by_user:null,
-        brand_status_details:null,
         suggestion:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
@@ -143,7 +142,7 @@ export const useBrandStore = defineStore({
         searchStatusBrandsAfter(data,res) {
             if(data)
             {
-                this.brand_status_details = data;
+                this.status_suggestion = data;
             }
         },
 
