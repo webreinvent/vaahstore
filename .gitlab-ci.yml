@@ -26,7 +26,7 @@ deploy_features:
     - pwd
 
     #-----download Project Git6
-    - git clone -b $CI_COMMIT_BRANCH https://git6.webreinvent.com/vaah/store-dev.git
+    - git clone -b develop https://git6.webreinvent.com/vaah/store-dev.git
     - git ftp push --auto-init --user $LOCAL_GETDEMO_USERNAME --passwd $LOCAL_GETDEMO_PASSWORD $FTP_UPLOAD_PATH
     - composer install
     - php artisan down
