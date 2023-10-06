@@ -495,13 +495,13 @@ export const useAddressStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async toggleIsActive(item)
+        async toggleIsDefault(item)
         {
-            if(item.is_active)
+            if(item.is_default)
             {
-                await this.itemAction('activate', item);
+                await this.itemAction('make-default', item);
             } else{
-                await this.itemAction('deactivate', item);
+                await this.itemAction('remove-from-default', item);
             }
         },
         //---------------------------------------------------------------------
@@ -767,17 +767,25 @@ export const useAddressStore = defineStore({
         {
             this.list_bulk_menu = [
                 {
-                    label: 'Mark all as active',
+                    label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.listAction('pending-all')
                     }
                 },
                 {
-                    label: 'Mark all as inactive',
+                    label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.listAction('reject-all')
                     }
                 },
+                {
+                    label: 'Mark all as approved',
+                    command: async () => {
+                        await this.listAction('approve-all')
+                    }
+                },
+
+
                 {
                     separator: true
                 },
