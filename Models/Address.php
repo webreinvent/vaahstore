@@ -273,13 +273,39 @@ class Address extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeStatusFilter($query, $filter)
+    {
+
+
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('slug', $status);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('user','status','addressType');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
+        $list->statusFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -661,6 +687,7 @@ class Address extends Model
         $user_id = $user_ids[array_rand($user_ids)];
         $user = User::where('id',$user_id)->first();
         $inputs['user']=$user;
+        $inputs['vh_user_id'] = $user_id;
 
         $address_types = Taxonomy::getTaxonomyByType('address-types');
         $address_ids = $address_types->pluck('id')->toArray();
