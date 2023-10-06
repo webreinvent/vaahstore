@@ -714,8 +714,9 @@ class Address extends Model
         return $item;
     }
 
+
     //-------------------------------------------------
-    //-------------------------------------------------
+
     public static function seedSampleItems($records=100)
     {
 
@@ -769,8 +770,7 @@ class Address extends Model
         $address_type = $address_types->where('id',$address_id)->first();
         $inputs['taxonomy_id_address_types'] = $address_id;
         $inputs['address_type']=$address_type;
-
-        $inputs['is_default']=rand(0,1);
+        $inputs['is_default']= 0;
         $faker = Factory::create();
 
         /*
