@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                   class="p-datatable-sm"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -39,21 +39,21 @@ const useVaah = vaah();
             </Column>
 
              <Column field="payment_method" header="Payment Method"
-                    :sortable="true">
+                     :sortable="true">
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <Badge v-if="prop.data.payment_method == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.payment_method == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span v-else>
                      {{prop.data.payment_method.name}}
                          </span>
-                </template>
+                 </template>
 
-            </Column>
+             </Column>
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -80,13 +80,14 @@ const useVaah = vaah();
                  </template>
              </Column>
 
+
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                     </template>
 
                 </Column>
@@ -153,13 +154,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 

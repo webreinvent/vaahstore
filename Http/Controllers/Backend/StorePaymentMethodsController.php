@@ -31,23 +31,9 @@ class StorePaymentMethodsController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new StorePaymentMethod();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
+            $data['fillable']['columns'] = StorePaymentMethod::getFillableColumns();
+            $data['fillable']['except'] = StorePaymentMethod::getUnFillableColumns();
+            $data['empty_item'] = StorePaymentMethod::getEmptyItem();
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('payment-methods-status');
 
@@ -76,16 +62,8 @@ class StorePaymentMethodsController extends Controller
 
         return $response;
     }
-    //---------------------Get Default Data-------------------------------------
-    public function getDefaultRow($row){
-        foreach($row as $k=>$v)
-        {
-            if($v['is_default'] ==1)
-            {
-                return $v;
-            }
-        }
-    }
+
+    //----------------------------------------------------------
     //------------------------Get Store data for dropdown----------------------------------
     public function getActiveStores(){
         try{
@@ -102,8 +80,7 @@ class StorePaymentMethodsController extends Controller
             }
         }
     }
-
-    //------------------------Get Store data for dropdown----------------------------------
+    //----------------------------------------------------------
     public function getDefaultStore(){
         try{
             return  Store::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
@@ -119,19 +96,13 @@ class StorePaymentMethodsController extends Controller
             }
         }
     }
-    //------------------------Get Payment Method data for dropdown----------------------------------
-    public function getActivePaymentMethods(){
-        try{
-            return PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
+    //----------------------------------------------------------
+    public function getDefaultRow($row){
+        foreach($row as $k=>$v)
+        {
+            if($v['is_default'] ==1)
+            {
+                return $v;
             }
         }
     }
@@ -150,6 +121,22 @@ class StorePaymentMethodsController extends Controller
                 $response['errors'][] = 'Something went wrong.';
             }
             return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function getActivePaymentMethods(){
+        try{
+            return PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
         }
     }
     //----------------------------------------------------------
@@ -195,6 +182,23 @@ class StorePaymentMethodsController extends Controller
     {
         try{
             return StorePaymentMethod::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return StorePaymentMethod::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
