@@ -30,6 +30,25 @@ deploy_features:
     - rm -rf store-dev
     - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
     - cp -r ./store-dev/*  ./
+    - pwd
+    - composer install
+    - php artisan down
+    #- cp .env.develop .env.develop-backup
+    #- mv .env.develop-backup .env
+    - php artisan cache:clear
+    - php artisan config:cache
+    - php artisan view:clear
+    - php artisan storage:link
+    - chmod -R 777 $PROJECT_STORAGE_PATH
+    - chmod -R 777 $VAAHCMS_PUBLIC_PATH
+    - rm $VAAHCMS_CONFIG_PATH
+    #===== PROTECT ENV FILES
+    - chmod 640 $PROJECT_PATH/.env
+    - find $PROJECT_PATH/. -name ".env.*" | xargs chmod 640
+    - php artisan up
+    - echo "Visit following url:"
+    - echo $PROJECT_URL
+
 
 
 
