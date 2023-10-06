@@ -502,7 +502,6 @@ class Whishlist extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
@@ -632,6 +631,28 @@ class Whishlist extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $users_ids = User::where('is_active',1)->pluck('id')->toArray();
+        $users_id = $users_ids[array_rand($users_ids)];
+        $users_id_data = User::where('is_active',1)->where('id',$users_ids)->first();
+        $inputs['vh_user_id'] =$users_id;
+        $inputs['user'] = $users_id_data;
+
+        $taxonomy_type = Taxonomy::getTaxonomyByType('wishlists-types');
+        $taxonomy_type_ids = $taxonomy_type->pluck('id')->toArray();
+        $taxonomy_type_id = $taxonomy_type_ids[array_rand($taxonomy_type_ids)];
+        $taxonomy_type_name = $taxonomy_type->where('id',$taxonomy_type_id)->first();
+        $inputs['taxonomy_id_whishlists_types'] = $taxonomy_type_id;
+        $inputs['whishlist_type'] = $taxonomy_type_name;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_whishlists_status'] = $status_id;
+        $inputs['status']=$status;
+
+
+        $inputs['is_default'] = rand(0,1);
         $faker = Factory::create();
 
         /*
