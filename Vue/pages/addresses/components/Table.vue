@@ -43,22 +43,22 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="address_type" header="Types"
-                     :sortable="true">
+<!--             <Column field="address_type" header="Types"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_type == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else>
-                         {{prop.data.address_type.name}}
-                     </template>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-else-if="prop.data.address_type == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <template v-else>-->
+<!--                         {{prop.data.address_type.name}}-->
+<!--                     </template>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -122,6 +122,22 @@ const useVaah = vaah();
                     </template>
 
                 </Column>
+
+             <Column field="is_default" v-if="store.isViewLarge()"
+                     :sortable="true"
+                     style="width:100px;"
+                     header="Is Default">
+
+                 <template #body="prop">
+                     <InputSwitch v-model.bool="prop.data.is_default"
+                                  data-testid="addresses-table-is-active"
+                                  v-bind:false-value="0"  v-bind:true-value="1"
+                                  class="p-inputswitch-sm"
+                                  @input="store.toggleIsDefault(prop.data)">
+                     </InputSwitch>
+                 </template>
+
+             </Column>
 
 
             <Column field="actions" style="width:150px;"
