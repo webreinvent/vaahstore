@@ -31,7 +31,7 @@ deploy_features:
     - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
     - cp -r ./store-dev/.  ./
     - pwd
-    - cp .env.example .env
+    - cp .env.example.default .env
     - composer install
     - php artisan down
     #- mv .env.develop-backup .env
