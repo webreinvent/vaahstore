@@ -4,10 +4,13 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class StorePaymentMethod extends Model
 {
@@ -32,8 +35,13 @@ class StorePaymentMethod extends Model
         'is_active',
         'last_payment_at',
         'status_notes',
+        'created_by',
         'updated_by',
         'deleted_by',
+    ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
     ];
 
     //-------------------------------------------------
@@ -64,6 +72,42 @@ class StorePaymentMethod extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')
             ->select('id','name','slug');
     }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
+    }
+
     //-------------------------------------------------
 
     public function createdByUser()
@@ -193,9 +237,12 @@ class StorePaymentMethod extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -362,6 +409,14 @@ class StorePaymentMethod extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -390,20 +445,40 @@ class StorePaymentMethod extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -498,7 +573,9 @@ class StorePaymentMethod extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -514,34 +591,32 @@ class StorePaymentMethod extends Model
     public static function validation($inputs)
     {
 
-        $rules = validator($inputs, [
+        $rules = array(
             'vh_st_store_id'=> 'required',
             'vh_st_payment_method_id'=> 'required',
             'last_payment_at'=> 'required',
             'taxonomy_id_payment_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
-        ],
-            [
-                'vh_st_store_id.required' => 'The Store field is required',
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-                'last_payment_at.required' => 'The Last Payment at field is required',
-                'taxonomy_id_payment_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-            ]
         );
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
-        }
-        $rules = $rules->validated();
+        $customMessages = array(
+            'vh_st_store_id.required' => 'The Store field is required',
+            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+            'last_payment_at.required' => 'The Last Payment at field is required',
+            'taxonomy_id_payment_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        );
 
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
+        $validator = \Validator::make($inputs, $rules,$customMessages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
+        }
+
+        $response['success'] = true;
+        return $response;
 
     }
 
@@ -549,10 +624,63 @@ class StorePaymentMethod extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
+    //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
     //-------------------------------------------------
     public static function deleteStores($items_id){
         if($items_id){
