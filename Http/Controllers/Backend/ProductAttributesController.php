@@ -7,7 +7,6 @@ use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductVariation;
 
-
 class ProductAttributesController extends Controller
 {
 
@@ -30,38 +29,21 @@ class ProductAttributesController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new ProductAttribute();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
-
+            $data['fillable']['columns'] = ProductAttribute::getFillableColumns();
+            $data['fillable']['except'] = ProductAttribute::getUnFillableColumns();
+            $data['empty_item'] = ProductAttribute::getEmptyItem();
             $data['attributes'] = Attribute::get();
-
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
-
             $get_product_variation_data = self::getProductVariationData();
             $data = array_merge($data, $get_product_variation_data);
-
+            
             $response['success'] = true;
             $response['data'] = $data;
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -90,24 +72,9 @@ class ProductAttributesController extends Controller
             }
         }
     }
+
     //----------------------------------------------------------
-    public function getList(Request $request)
-    {
-        try{
-            return ProductAttribute::getList($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
-    }
-    //----------------------------------------------------------
+
     public function getAttributeValue($id){
         $item = AttributeValue::where('vh_st_attribute_id', $id)->get(['id', 'value']);
 
@@ -122,13 +89,30 @@ class ProductAttributesController extends Controller
         return $response;
     }
     //----------------------------------------------------------
+    public function getList(Request $request)
+    {
+        try{
+            return ProductAttribute::getList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
     public function updateList(Request $request)
     {
         try{
             return ProductAttribute::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -148,7 +132,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -166,7 +150,24 @@ class ProductAttributesController extends Controller
             return ProductAttribute::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return ProductAttribute::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -183,7 +184,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -200,7 +201,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -217,7 +218,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -234,7 +235,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -251,7 +252,7 @@ class ProductAttributesController extends Controller
             return ProductAttribute::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();

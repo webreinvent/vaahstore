@@ -66,6 +66,7 @@ export const useProductAttributeStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -156,24 +157,16 @@ export const useProductAttributeStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
+
         searchProductVariation(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -187,6 +180,7 @@ export const useProductAttributeStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
+
         searchAttribute(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -199,7 +193,9 @@ export const useProductAttributeStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
+
         async getAttributeValue(){
             console.log(this.item.vh_st_attribute_id)
             if (this.item.vh_st_attribute_id !== null){
@@ -209,9 +205,12 @@ export const useProductAttributeStore = defineStore({
                 );
             }
         },
+
         //---------------------------------------------------------------------
+
         afterGetAttributeValue(data, res){
             this.item.attribute_values = data;
+
         },
         //---------------------------------------------------------------------
         setAttribute(event){
@@ -224,6 +223,7 @@ export const useProductAttributeStore = defineStore({
             this.item.vh_st_product_variation_id = productVariation.id;
         },
         //---------------------------------------------------------------------
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -241,8 +241,6 @@ export const useProductAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.product_variations = data.product_variations;
-                this.attributes = data.attributes;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -381,6 +379,8 @@ export const useProductAttributeStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -466,14 +466,13 @@ export const useProductAttributeStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -487,10 +486,15 @@ export const useProductAttributeStore = defineStore({
                     this.$router.push({name: 'productattributes.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -512,6 +516,7 @@ export const useProductAttributeStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -520,27 +525,21 @@ export const useProductAttributeStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -846,6 +845,47 @@ export const useProductAttributeStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -929,7 +969,7 @@ export const useProductAttributeStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
