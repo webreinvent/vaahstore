@@ -33,7 +33,7 @@ deploy_features:
     - pwd
     - composer install
     - php artisan down
-    #- cp .env.develop .env.develop-backup
+    - cp .env.example .env
     #- mv .env.develop-backup .env
     - php artisan cache:clear
     - php artisan config:cache
