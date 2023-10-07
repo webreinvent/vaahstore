@@ -11,6 +11,8 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\PaymentMethod;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class StorePaymentMethod extends Model
 {
@@ -601,8 +603,16 @@ class StorePaymentMethod extends Model
             'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
         );
 
+        $customMessages = array(
+            'vh_st_store_id.required' => 'The Store field is required',
+            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+            'last_payment_at.required' => 'The Last Payment at field is required',
+            'taxonomy_id_payment_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+        );
 
-        $validator = \Validator::make($inputs, $rules);
+
+        $validator = \Validator::make($inputs, $rules,$customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
