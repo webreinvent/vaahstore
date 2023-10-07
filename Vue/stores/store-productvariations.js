@@ -111,30 +111,18 @@ export const useProductVariationStore = defineStore({
 
         //---------------------------------------------------------------------
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
+
                     this.status_suggestion= this.status.filter((status) => {
                         return status.name.toLowerCase().startsWith(event.query.toLowerCase());
                     });
-                }
-            }, 250);
         },
 
         //---------------------------------------------------------------------
         searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.active_products;
-                }
-                else {
-                    this.product_suggestion= this.active_products.filter((products) => {
-                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.product_suggestion= this.active_products.filter((products) => {
+                return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -193,7 +181,7 @@ export const useProductVariationStore = defineStore({
                   this.item.slug = vaah().strToSlug(name);
               }
           },
-        
+
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
