@@ -123,6 +123,7 @@ class StorePaymentMethodsController extends Controller
             return $response;
         }
     }
+
     //----------------------------------------------------------
     public function getActivePaymentMethods(){
         try{

@@ -73,8 +73,8 @@ class StorePaymentMethod extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')
             ->select('id','name','slug');
     }
-    //-------------------------------------------------
 
+    //-------------------------------------------------
     public static function getUnFillableColumns()
     {
         return [
@@ -609,6 +609,7 @@ class StorePaymentMethod extends Model
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
+
 
         $validator = \Validator::make($inputs, $rules);
         if ($validator->fails()) {
