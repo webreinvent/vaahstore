@@ -694,6 +694,58 @@ class StorePaymentMethod extends Model
 
     }
     //-------------------------------------------------
+    public static function searchStore($request){
+
+        $store = Store::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchPaymentMethod($request){
+
+        $store = PaymentMethod::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchStatus($request){
+
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('payment-methods-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('payment-methods-status');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
     //-------------------------------------------------
 
 
