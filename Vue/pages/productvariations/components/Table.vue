@@ -60,16 +60,16 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="in_stock" header="In Stock"
+             <Column field="in_stock" header="In Stock" :style="{width: store.getInStockWidth()}"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
+                     <Tag v-if="prop.data.in_stock == 0"
                             value="out of stock"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
+                            severity="danger"></Tag>
+                     <Tag v-else-if="prop.data.in_stock == 1"
                             value="in stock"
-                            severity="success"></Badge>
+                            severity="success"></Tag>
                  </template>
 
              </Column>
@@ -105,19 +105,19 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="sku" header="SKU"
-                     v-if="store.isViewLarge()"
-                     style="width:150px;"
-                     :sortable="true">
+<!--             <Column field="sku" header="SKU"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     style="width:150px;"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.sku}}
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     {{prop.data.sku}}-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
 
 

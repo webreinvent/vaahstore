@@ -203,6 +203,11 @@ class ProductVariation extends Model
             return $response;
         }
 
+        // handle if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -297,7 +302,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('status','product');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -638,7 +643,7 @@ class ProductVariation extends Model
             'slug' => 'required|max:150',
             'sku' => 'required|max:150',
             'taxonomy_id_variation_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_variation_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'vh_st_product_id'=> 'required',
             'quantity'  => 'required',
             'in_stock'=> 'required|numeric',
@@ -721,7 +726,22 @@ class ProductVariation extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
+        $product_ids = Product::where(['is_active'=>1,'deleted_at'=>null])->pluck('id')->toArray();
+        $product_id = $product_ids[array_rand($product_ids)];
+        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+        $inputs['vh_st_product_id'] = $product_id;
+        $inputs['product'] = $product;
+        $inputs['quantity'] = rand(1,500);
+        $inputs['in_stock'] = 1;
+        $inputs['is_active'] = rand(0,1);
+        $inputs['is_default'] = 0;
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-variation-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
 
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_variation_status'] = $status_id;
+        $inputs['status']=$status;
         $faker = Factory::create();
 
         /*
