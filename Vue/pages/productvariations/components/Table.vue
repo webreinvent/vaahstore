@@ -36,9 +36,10 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.name == null"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.name}}
+                    <span v-else-if="prop.data.is_default">
+                     {{prop.data.name}}<Badge severity="info">Default</Badge>
                          </span>
+                    <span v-else>{{prop.data.name}}</span>
                 </template>
 
             </Column>
@@ -64,12 +65,12 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Tag v-if="prop.data.in_stock == 0"
+                     <Badge v-if="prop.data.in_stock == 0"
                             value="out of stock"
-                            severity="danger"></Tag>
-                     <Tag v-else-if="prop.data.in_stock == 1"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.in_stock == 1"
                             value="in stock"
-                            severity="success"></Tag>
+                            severity="success"></Badge>
                  </template>
 
              </Column>
