@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                   class="p-datatable-sm"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -45,12 +45,12 @@ const useVaah = vaah();
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="!prop.data.status"
                             severity="primary"> null </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
                             severity="primary"> {{prop.data.status.name}} </Badge>
-
                  </template>
              </Column>
-
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
@@ -125,13 +125,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 

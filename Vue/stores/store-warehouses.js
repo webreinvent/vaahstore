@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            status:null,
         },
     },
     action: {
@@ -69,6 +70,7 @@ export const useWarehouseStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -159,72 +161,14 @@ export const useWarehouseStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = newVal;
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion = this.status.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchVendors(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendors;
-                }
-                else {
-                    this.vendor_suggestion = this.vendors.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchCountry(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.country_suggestion = this.countries;
-                }
-                else {
-                    this.country_suggestion = this.countries.filter((department) => {
-                        return department.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event){
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_warehouse_status = status.id;
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -257,7 +201,53 @@ export const useWarehouseStore = defineStore({
 
             }
         },
+
         //---------------------------------------------------------------------
+
+        searchStatus(event) {
+
+
+            this.status_suggestions = this.status.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchVendors(event) {
+
+            this.vendor_suggestions = this.vendors.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCountry(event) {
+
+            this.country_suggestions = this.countries.filter((department) => {
+                return department.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setVendor(event){
+            let vendor = toRaw(event.value);
+            this.item.vh_st_vendor_id = vendor.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_warehouse_status = status.id;
+        },
+
+        //---------------------------------------------------------------------
+
         async getList() {
             let options = {
                 query: vaah().clone(this.query)
@@ -384,6 +374,8 @@ export const useWarehouseStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -471,12 +463,12 @@ export const useWarehouseStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -490,10 +482,15 @@ export const useWarehouseStore = defineStore({
                     this.$router.push({name: 'warehouses.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -515,6 +512,7 @@ export const useWarehouseStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -523,27 +521,21 @@ export const useWarehouseStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -849,6 +841,47 @@ export const useWarehouseStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -932,7 +965,7 @@ export const useWarehouseStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

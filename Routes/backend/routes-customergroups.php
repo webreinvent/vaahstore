@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/customergroups',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -29,6 +29,8 @@ function () {
      */
     Route::delete('/', 'CustomerGroupsController@deleteList')
         ->name('vh.backend.store.customergroups.list.delete');
+
+
 
 
     /**
