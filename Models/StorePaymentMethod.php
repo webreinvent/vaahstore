@@ -280,12 +280,41 @@ class StorePaymentMethod extends Model
 
     }
     //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['payment_status']))
+        {
+            return $query;
+        }
+        $search = $filter['payment_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopePayTypeFilter($query, $filter)
+    {
+
+        if(!isset($filter['payment_type']))
+        {
+            return $query;
+        }
+        $search = $filter['payment_type'];
+        $query->whereHas('paymentMethod',function ($q) use ($search) {
+            $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('store','paymentMethod','status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->payTypeFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -664,31 +693,28 @@ class StorePaymentMethod extends Model
         }
         $inputs = $fillable['data']['fill'];
 
-        $store_ids = Store::where('is_active',1)->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store_id_data = Store::where('is_active',1)->where('id',$store_ids)->first();
+
+        $store_id = Store::where('is_active', 1)->inRandomOrder()->value('id');
+        $store_id_data = Store::where('is_active',1)->where('id',$store_id)->first();
         $inputs['vh_st_store_id'] =$store_id;
         $inputs['store'] = $store_id_data;
 
         $start_date = Carbon::create(2022, 1, 1);
-        $end_date = Carbon::create(2023, 1, 1);
-        $random_timestamp = mt_rand($start_date->timestamp, $end_date->timestamp);
-        $random_date = Carbon::createFromTimestamp($random_timestamp);
-        $registered_date = $random_date->toDateTimeString();
-        $inputs['last_payment_at'] = $registered_date;
+        $random_date = $start_date->copy()->addSeconds(mt_rand(0, Carbon::now()->diffInSeconds($start_date)));
+        $inputs['last_payment_at'] = $random_date->toDateTimeString();
 
-        $pay_ids = PaymentMethod::where('is_active',1)->pluck('id')->toArray();
-        $pay_id = $pay_ids[array_rand($pay_ids)];
-        $pay_id_data = PaymentMethod::where('is_active',1)->where('id',$pay_ids)->first();
+
+        $pay_id = PaymentMethod::where('is_active', 1)->inRandomOrder()->value('id');
+        $pay_id_data = PaymentMethod::where('is_active',1)->where('id',$pay_id)->first();
         $inputs['vh_st_payment_method_id'] =$pay_id;
         $inputs['payment_method'] = $pay_id_data;
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('payment-methods-status');
-        $status_ids = $taxonomy_status->pluck('id')->toArray();
-        $status_id = $status_ids[array_rand($status_ids)];
+        $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_payment_status'] = $status_id;
         $inputs['status']=$status;
+
 
 
         $inputs['is_active'] = rand(0,1);

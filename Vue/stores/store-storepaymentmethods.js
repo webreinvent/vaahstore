@@ -18,6 +18,9 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            payment_status:null,
+            payment_type:null,
+
         },
     },
     action: {

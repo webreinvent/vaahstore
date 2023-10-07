@@ -15,6 +15,48 @@ const store = useStorePaymentMethodStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.payment_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Payment Methods By:</b>
+                </template>
+                <VhField label="Payment Status">
+                    <MultiSelect
+                        v-model="store.query.filter.payment_type"
+                        :options="store.assets.active_payment_methods"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Method"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 
