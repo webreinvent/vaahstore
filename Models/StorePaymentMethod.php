@@ -106,37 +106,6 @@ class StorePaymentMethod extends Model
             $empty_item[$column] = null;
         }
 
-    public static function getUnFillableColumns()
-    {
-        return [
-            'uuid',
-            'created_by',
-            'updated_by',
-            'deleted_by',
-        ];
-    }
-    //-------------------------------------------------
-    public static function getFillableColumns()
-    {
-        $model = new self();
-        $except = $model->fill_except;
-        $fillable_columns = $model->getFillable();
-        $fillable_columns = array_diff(
-            $fillable_columns, $except
-        );
-        return $fillable_columns;
-    }
-    //-------------------------------------------------
-    public static function getEmptyItem()
-    {
-        $model = new self();
-        $fillable = $model->getFillable();
-        $empty_item = [];
-        foreach ($fillable as $column)
-        {
-            $empty_item[$column] = null;
-        }
-
         return $empty_item;
     }
 
@@ -631,6 +600,7 @@ class StorePaymentMethod extends Model
             'taxonomy_id_payment_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
         );
+
 
         $validator = \Validator::make($inputs, $rules);
         if ($validator->fails()) {
