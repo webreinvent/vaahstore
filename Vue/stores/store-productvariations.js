@@ -674,6 +674,23 @@ export const useProductVariationStore = defineStore({
             return width+'px';
         },
         //---------------------------------------------------------------------
+
+        getInStockWidth()
+        {
+            let width = 300;
+
+            if(this.list && this.list.total)
+            {
+                let chrs = this.list.total.toString();
+                chrs = chrs.length;
+                width = chrs*150;
+            }
+
+            return width+'px';
+        },
+
+        //---------------------------------------------------------------------
+
         getActionWidth()
         {
             let width = 100;
