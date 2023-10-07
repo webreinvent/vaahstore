@@ -4,18 +4,19 @@ stages:
 deploy_features:
   stage: features
   variables:
-    SSH_USERNAME: testlocal
+    SSH_USERNAME: $DEMO_SSH_USERNAME
     PROJECT_NAME: store-dev
-    FTP_IP: 185.132.179.197
-    DOMAIN: store.local.getdemo.dev
+    FTP_IP: $DEMO_FTP_IP
+    DOMAIN: $DEMO_DOMAIN
 
     PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN
+    MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN/VaahCms/Modules/Store
     PROJECT_STORAGE_PATH: $PROJECT_PATH/storage
     VAAHCMS_PUBLIC_PATH: $PROJECT_PATH/public
-    VAAHCMS_MODULE_PATH: $PROJECT_PATH/VaahCms/Modules
     VAAHCMS_CONFIG_PATH: $PROJECT_PATH/bootstrap/cache/config.php
-    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN
+    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN/VaahCms/Modules/Store
     PROJECT_URL: https://$DOMAIN/$PROJECT_NAME/$GITLAB_USER_LOGIN/public
+
 
   script:
     - echo "Gitlab User = $GITLAB_USER_LOGIN"
@@ -26,19 +27,15 @@ deploy_features:
     - pwd
     - cd $PROJECT_PATH
     - pwd
+    - rm -rf store-dev
+    - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
+    - rm -rf /store-dev/.git
+    - cp -r ./store-dev/.  ./
+    - pwd
+    - cp .env.example.default .env
     - composer install
     - php artisan down
-    #- cp .env.develop .env.develop-backup
     #- mv .env.develop-backup .env
-    #-----download Store Module from Git6
-    - cd $VAAHCMS_MODULE_PATH
-    - pwd
-    - rm -rf temp-store
-    - git clone -b $CI_COMMIT_BRANCH https://github.com/webreinvent/vaahcms-module-saas.git temp-store
-    - rm -rf Store
-    - mv temp-store Store
-    - rm -rf Store/.git
-    #-----other configuration
     - php artisan cache:clear
     - php artisan config:cache
     - php artisan view:clear
@@ -52,6 +49,10 @@ deploy_features:
     - php artisan up
     - echo "Visit following url:"
     - echo $PROJECT_URL
+
+
+
+
 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
