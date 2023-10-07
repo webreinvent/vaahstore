@@ -100,7 +100,7 @@ const items = ref([
                 to: "/customergroups"
             },
             {
-                label: 'Whishlists',
+                label: 'Wishlist',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/whishlists"
             },

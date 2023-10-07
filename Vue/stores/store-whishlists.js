@@ -1,4 +1,4 @@
-import {watch, toRaw} from 'vue'
+import {watch,toRaw } from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -18,6 +18,8 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            wishlist_status: null,
+            wishlist_type:null,
         },
     },
     action: {
@@ -62,6 +64,7 @@ export const useWhishlistStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         status_suggestion: null,
@@ -74,43 +77,67 @@ export const useWhishlistStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchType(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion = this.types.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+      async searchType(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/type',
+                this.searchTypeAfter,
+                options
+            );
+            },
+        //---------------------------------------------------------------------
+        searchTypeAfter(data,res) {
+            if(data)
+            {
+                this.type_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchUsers(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users',
+                this.searchUsersAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -194,23 +221,14 @@ export const useWhishlistStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         setUser(event) {
             let user = toRaw(event.value);
@@ -385,6 +403,8 @@ export const useWhishlistStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -470,15 +490,13 @@ export const useWhishlistStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
-
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -492,10 +510,15 @@ export const useWhishlistStore = defineStore({
                     this.$router.push({name: 'whishlists.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -517,6 +540,7 @@ export const useWhishlistStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -525,27 +549,21 @@ export const useWhishlistStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -732,15 +750,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Activate',
+                    label: 'Approved',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('approved')
                     }
                 },
                 {
-                    label: 'Deactivate',
+                    label: 'Pending',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('pending')
+                    }
+                },
+                {
+                    label: 'Rejected',
+                    command: async () => {
+                        await this.updateList('rejected')
                     }
                 },
                 {
@@ -775,15 +799,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_bulk_menu = [
                 {
-                    label: 'Mark all as active',
+                    label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.listAction('approved-all')
                     }
                 },
                 {
-                    label: 'Mark all as inactive',
+                    label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.listAction('pending-all')
+                    }
+                },
+                {
+                    label: 'Mark all as rejected',
+                    command: async () => {
+                        await this.listAction('reject-all')
                     }
                 },
                 {
@@ -850,6 +880,47 @@ export const useWhishlistStore = defineStore({
 
             this.item_menu_list = item_menu;
         },
+        //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
         //---------------------------------------------------------------------
         confirmDeleteItem()
         {
@@ -934,7 +1005,7 @@ export const useWhishlistStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
