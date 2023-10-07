@@ -3,9 +3,8 @@
 Route::group(
     [
         'prefix' => 'backend/store/storepaymentmethods',
-        
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -69,6 +68,24 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'StorePaymentMethodsController@itemAction')
         ->name('vh.backend.store.storepaymentmethods.item.action');
+
+    /**
+     * Search store
+     */
+    Route::any('/search/store', 'StorePaymentMethodsController@searchStore')
+        ->name('vh.backend.store.storepaymentmethods.search.store');
+
+    /**
+     * Search store
+     */
+    Route::any('/search/payment/method', 'StorePaymentMethodsController@searchPaymentMethod')
+        ->name('vh.backend.store.storepaymentmethods.search.payment');
+
+    /**
+     * Search store
+     */
+    Route::any('/search/status', 'StorePaymentMethodsController@searchStatus')
+        ->name('vh.backend.store.storepaymentmethods.search.status');
 
     //---------------------------------------------------------
 

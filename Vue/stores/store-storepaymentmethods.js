@@ -77,43 +77,68 @@ export const useStorePaymentMethodStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestion = this.active_stores;
-                }
-                else {
-                    this.store_suggestion= this.active_stores.filter((stores) => {
-                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchStore(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        searchStoreAfter(data,res){
+            if(data){
+                this.store_suggestion = data;
+            }
+        },
+       //---------------------------------------------------------------------
+
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.active_payment_methods;
-                }
-                else {
-                    this.payment_method_suggestion= this.active_payment_methods.filter((payment_methods) => {
-                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        searchStatusAfter(data,res){
+            if(data){
+                this.status_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchPaymentMethod(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/payment/method',
+                this.searchPaymentMethodAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        searchPaymentMethodAfter(data,res){
+            if(data){
+                this.payment_method_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)

@@ -11,6 +11,8 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\PaymentMethod;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class StorePaymentMethod extends Model
 {
@@ -171,7 +173,6 @@ class StorePaymentMethod extends Model
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -593,25 +594,25 @@ class StorePaymentMethod extends Model
 
     public static function validation($inputs)
     {
-
-        $rules = validator($inputs, [
+        
+        $rules = array(
             'vh_st_store_id'=> 'required',
             'vh_st_payment_method_id'=> 'required',
             'last_payment_at'=> 'required',
             'taxonomy_id_payment_status'=> 'required',
             'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
-        ],
-            [
-                'vh_st_store_id.required' => 'The Store field is required',
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-                'last_payment_at.required' => 'The Last Payment at field is required',
-                'taxonomy_id_payment_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-            ]
+        );
+
+        $customMessages = array(
+            'vh_st_store_id.required' => 'The Store field is required',
+            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+            'last_payment_at.required' => 'The Last Payment at field is required',
+            'taxonomy_id_payment_status.required' => 'The Status field is required',
+            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
         );
 
 
-        $validator = \Validator::make($inputs, $rules);
+        $validator = \Validator::make($inputs, $rules,$customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -697,7 +698,60 @@ class StorePaymentMethod extends Model
 
     }
     //-------------------------------------------------
+    public static function searchStore($request){
+
+        $store = Store::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
     //-------------------------------------------------
+    public static function searchPaymentMethod($request){
+
+        $store = PaymentMethod::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchStatus($request){
+
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('payment-methods-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('payment-methods-status');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
+    //-------------------------------------------------
+
 
 
 }
