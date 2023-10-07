@@ -15,29 +15,61 @@ const store = useAddressStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status:</b>
+                </template>
+
+                <div class="field-radiobutton">
+                    <RadioButton name="status-pending"
+                                 value="pending"
+                                 data-testid="addresses-filters-status-pending"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-pending">Pending</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-rejected"
+                                 data-testid="addresses-filters-status-rejected"
+                                 value="rejected"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-rejected">Rejected</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-approved"
+                                 data-testid="addresses-filters-status-approved"
+                                 value="approved"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-approved">Approved</label>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 
                 <div class="field-radiobutton">
                     <RadioButton name="sort-none"
+                                 inputId="sort-none"
                                  data-testid="addresses-filters-sort-none"
                                  value=""
                                  v-model="store.query.filter.sort" />
-                    <label for="sort-none">None</label>
+                    <label for="sort-none" class="cursor-pointer">None</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="sort-ascending"
+                                 inputId="sort-ascending"
                                  data-testid="addresses-filters-sort-ascending"
                                  value="updated_at"
                                  v-model="store.query.filter.sort" />
-                    <label for="sort-ascending">Updated (Ascending)</label>
+                    <label for="sort-ascending" class="cursor-pointer">Updated (Ascending)</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="sort-descending"
+                                 inputId="sort-descending"
                                  data-testid="addresses-filters-sort-descending"
                                  value="updated_at:desc"
                                  v-model="store.query.filter.sort" />
-                    <label for="sort-descending">Updated (Descending)</label>
+                    <label for="sort-descending" class="cursor-pointer">Updated (Descending)</label>
                 </div>
 
             </VhFieldVertical>
@@ -51,24 +83,27 @@ const store = useAddressStore();
 
                 <div class="field-radiobutton">
                     <RadioButton name="active-all"
+                                 inputId="active-all"
                                  value="null"
                                  data-testid="addresses-filters-active-all"
                                  v-model="store.query.filter.is_active" />
-                    <label for="active-all">All</label>
+                    <label for="active-all" class="cursor-pointer">All</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="active-true"
+                                 inputId="active-true"
                                  data-testid="addresses-filters-active-true"
                                  value="true"
                                  v-model="store.query.filter.is_active" />
-                    <label for="active-true">Only Active</label>
+                    <label for="active-true" class="cursor-pointer">Only Active</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="active-false"
+                                 inputId="active-false"
                                  data-testid="addresses-filters-active-false"
                                  value="false"
                                  v-model="store.query.filter.is_active" />
-                    <label for="active-false">Only Inactive</label>
+                    <label for="active-false" class="cursor-pointer">Only Inactive</label>
                 </div>
 
             </VhFieldVertical>
@@ -80,24 +115,27 @@ const store = useAddressStore();
 
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-exclude"
+                                 inputId="trashed-exclude"
                                  data-testid="addresses-filters-trashed-exclude"
                                  value=""
                                  v-model="store.query.filter.trashed" />
-                    <label for="trashed-exclude">Exclude Trashed</label>
+                    <label for="trashed-exclude" class="cursor-pointer">Exclude Trashed</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-include"
+                                 inputId="trashed-include"
                                  data-testid="addresses-filters-trashed-include"
                                  value="include"
                                  v-model="store.query.filter.trashed" />
-                    <label for="trashed-include">Include Trashed</label>
+                    <label for="trashed-include" class="cursor-pointer">Include Trashed</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-only"
+                                 inputId="trashed-only"
                                  data-testid="addresses-filters-trashed-only"
                                  value="only"
                                  v-model="store.query.filter.trashed" />
-                    <label for="trashed-only">Only Trashed</label>
+                    <label for="trashed-only" class="cursor-pointer">Only Trashed</label>
                 </div>
 
             </VhFieldVertical>
