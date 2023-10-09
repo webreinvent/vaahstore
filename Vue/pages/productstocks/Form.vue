@@ -207,6 +207,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
                         placeholder="Enter Quantity"
+                        class="w-full"
                         data-testid="productstocks-quantity"
                         :min="1"/>
                 </VhField>

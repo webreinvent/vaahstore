@@ -11,6 +11,8 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Product;
 
 class ProductStock extends Model
 {
@@ -682,6 +684,7 @@ class ProductStock extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
+
 
         $faker = Factory::create();
 
