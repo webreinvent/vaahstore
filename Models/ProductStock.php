@@ -741,7 +741,7 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function searchVendor($request){
 
-        $venodr = Vendor::select('id', 'name');
+        $venodr = Vendor::select('id', 'name','is_default');
         if ($request->has('query') && $request->input('query')) {
             $venodr->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
@@ -755,7 +755,7 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function searchProduct($request){
 
-        $product = Product::select('id', 'name');
+        $product = Product::select('id', 'name','is_default');
         if ($request->has('query') && $request->input('query')) {
             $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
@@ -769,7 +769,7 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function searchProductVariation($request){
 
-        $product_variation= ProductVariation::select('id', 'name');
+        $product_variation= ProductVariation::select('id', 'name','is_default');
         if ($request->has('query') && $request->input('query')) {
             $product_variation->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
