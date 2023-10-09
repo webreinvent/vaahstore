@@ -15,6 +15,25 @@ const store = useProductStockStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.product_stock_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 

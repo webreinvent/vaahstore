@@ -322,12 +322,27 @@ class ProductStock extends Model
 
     }
     //-------------------------------------------------
+    public function scopeProductStockFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_stock_status']))
+        {
+            return $query;
+        }
+        $search = $filter['product_stock_status'];
+        $query->whereHas('status',function ($q) use ($search) {
+            $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->productStockFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
