@@ -1,7 +1,11 @@
 {
     "name": "vaahcms/store",
     "description": "Ecommerce for VaahCMS",
+<<<<<<< develop
     "version": "0.0.31",
+=======
+    "version": "0.0.29",
+>>>>>>> updated: version
     "authors": [
         {
             "name": "vaah",
