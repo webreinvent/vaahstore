@@ -173,68 +173,90 @@ export const useProductStockStore = defineStore({
           },
         //---------------------------------------------------------------------
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion = this.status.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+                this.status_suggestion = this.status.filter((department) => {
+                      return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
         },
         //---------------------------------------------------------------------
-        searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendors_suggestion = this.vendors;
-                }
-                else {
-                    this.vendors_suggestion = this.vendors.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    })
-                }
-            }, 250);
+       async searchVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.products_suggestion = this.products;
-                }
-                else {
-                    this.products_suggestion = this.products.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchVendorAfter(data,res){
+            if(data){
+                console.log(data);
+                this.vendors_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variations_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variations_suggestion = this.product_variations.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchWarehouse(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.warehouses_suggestion = this.warehouses;
-                }
-                else {
-                    this.warehouses_suggestion = this.warehouses.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchProductAfter(data,res){
+            if(data){
+                this.products_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+         async searchProductVariation(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductVariationAfter(data,res){
+            if(data){
+                this.product_variations_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchWarehouse(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/warehouse',
+                this.searchWarehouseAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchWarehouseAfter(data,res){
+            if(data){
+                this.warehouses_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         setVendor(event){

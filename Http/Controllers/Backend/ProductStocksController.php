@@ -330,7 +330,76 @@ class ProductStocksController extends Controller
             return $response;
         }
     }
+
     //----------------------------------------------------------
+    public function searchProduct(Request $request)
+    {
+        try{
+            return ProductStock::searchProduct($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchProductVariation(Request $request)
+    {
+        try{
+            return ProductStock::searchProductVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchWarehouse(Request $request)
+    {
+        try{
+            return ProductStock::searchWarehouse($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function searchVendor(Request $request)
+    {
+        try{
+            return ProductStock::searchVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
 
 
 }

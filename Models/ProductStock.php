@@ -13,6 +13,8 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Warehouse;
 
 class ProductStock extends Model
 {
@@ -686,6 +688,29 @@ class ProductStock extends Model
         $inputs = $fillable['data']['fill'];
 
 
+           $store_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+           $store_id_data = Store::where('is_active',1)->where('id',$store_id)->first();
+           $inputs['vh_st_product_id'] =$store_id;
+           $inputs['product'] = $store_id_data;
+
+//        $start_date = Carbon::create(2022, 1, 1);
+//        $random_date = $start_date->copy()->addSeconds(mt_rand(0, Carbon::now()->diffInSeconds($start_date)));
+//        $inputs['last_payment_at'] = $random_date->toDateTimeString();
+//
+//
+//        $pay_id = PaymentMethod::where('is_active', 1)->inRandomOrder()->value('id');
+//        $pay_id_data = PaymentMethod::where('is_active',1)->where('id',$pay_id)->first();
+//        $inputs['vh_st_payment_method_id'] =$pay_id;
+//        $inputs['payment_method'] = $pay_id_data;
+//
+//        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-methods-status');
+//        $status_id = $taxonomy_status->pluck('id')->random();
+//        $status = $taxonomy_status->where('id',$status_id)->first();
+//        $inputs['taxonomy_id_payment_status'] = $status_id;
+//        $inputs['status']=$status;
+//
+//        $inputs['is_active'] = rand(0,1);
+
         $faker = Factory::create();
 
         /*
@@ -714,6 +739,61 @@ class ProductStock extends Model
 
     }
     //-------------------------------------------------
+    public static function searchVendor($request){
+
+        $venodr = Vendor::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $venodr->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $venodr = $venodr->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $venodr;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchProduct($request){
+
+        $product = Product::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product = $product->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchProductVariation($request){
+
+        $product_variation= ProductVariation::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $product_variation->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product_variation = $product_variation->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product_variation;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchWarehouse($request){
+
+        $warehouse = Warehouse::select('id', 'name');
+        if ($request->has('query') && $request->input('query')) {
+            $warehouse->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $warehouse = $warehouse->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $warehouse;
+        return $response;
+
+    }
     //-------------------------------------------------
 
 
