@@ -93,16 +93,11 @@ export const useCustomerGroupStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.status_suggestion= this.status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
         },
 
         //---------------------------------------------------------------------
