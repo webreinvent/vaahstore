@@ -685,33 +685,37 @@ class ProductStock extends Model
         if(!$fillable['success']){
             return $fillable;
         }
-        $inputs = $fillable['data']['fill'];
+          $inputs = $fillable['data']['fill'];
 
+           $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
+           $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
+           $inputs['vh_st_vendor_id'] =$vendor_id;
+           $inputs['vendor'] = $vendor_id_data;
 
-           $store_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-           $store_id_data = Store::where('is_active',1)->where('id',$store_id)->first();
-           $inputs['vh_st_product_id'] =$store_id;
-           $inputs['product'] = $store_id_data;
+           $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+           $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
+           $inputs['vh_st_product_id'] =$product_id;
+           $inputs['product'] = $product_id_data;
 
-//        $start_date = Carbon::create(2022, 1, 1);
-//        $random_date = $start_date->copy()->addSeconds(mt_rand(0, Carbon::now()->diffInSeconds($start_date)));
-//        $inputs['last_payment_at'] = $random_date->toDateTimeString();
-//
-//
-//        $pay_id = PaymentMethod::where('is_active', 1)->inRandomOrder()->value('id');
-//        $pay_id_data = PaymentMethod::where('is_active',1)->where('id',$pay_id)->first();
-//        $inputs['vh_st_payment_method_id'] =$pay_id;
-//        $inputs['payment_method'] = $pay_id_data;
-//
-//        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-methods-status');
-//        $status_id = $taxonomy_status->pluck('id')->random();
-//        $status = $taxonomy_status->where('id',$status_id)->first();
-//        $inputs['taxonomy_id_payment_status'] = $status_id;
-//        $inputs['status']=$status;
-//
-//        $inputs['is_active'] = rand(0,1);
+           $product_variation_id = ProductVariation::where('is_active', 1)->inRandomOrder()->value('id');
+           $product_variation_id_data = ProductVariation::where('is_active',1)->where('id',$product_variation_id)->first();
+           $inputs['vh_st_product_variation_id'] =$product_variation_id;
+           $inputs['product_variation'] = $product_variation_id_data;
 
-        $faker = Factory::create();
+           $warehouse_id = Warehouse::where('is_active', 1)->inRandomOrder()->value('id');
+           $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
+           $inputs['vh_st_warehouse_id'] =$warehouse_id;
+           $inputs['warehouse'] = $warehouse_id_data;
+
+           $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
+           $status_id = $taxonomy_status->pluck('id')->random();
+           $status = $taxonomy_status->where('id',$status_id)->first();
+           $inputs['taxonomy_id_product_stock_status'] = $status_id;
+           $inputs['status']=$status;
+
+           $inputs['quantity'] = rand(1,10);
+
+         $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.
