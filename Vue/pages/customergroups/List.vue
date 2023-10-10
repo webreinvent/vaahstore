@@ -3,11 +3,13 @@ import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
 import {useCustomerGroupStore} from '../../stores/store-customergroups'
+import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
 
 const store = useCustomerGroupStore();
+const root = useRootStore();
 const route = useRoute();
 
 import { useConfirm } from "primevue/useconfirm";
@@ -15,6 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
+    document.title = 'CustomerGroups - Store';
     /**
      * call onLoad action when List view loads
      */
@@ -43,7 +46,18 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
+
+    await store.getListCreateMenu();
+
 });
+
+//--------form_menu
+const create_menu = ref();
+const toggleCreateMenu = (event) => {
+    create_menu.value.toggle(event);
+};
+//--------/form_menu
+
 
 </script>
 <template>
@@ -51,13 +65,13 @@ onMounted(async () => {
     <div class="grid" v-if="store.assets">
 
         <div :class="'col-'+store.list_view_width">
-            <Panel>
+            <Panel class="is-small">
 
                 <template class="p-1" #header>
 
                     <div class="flex flex-row">
                         <div >
-                            <b class="mr-1">Customer Groups</b>
+                            <b class="mr-1">CustomerGroups</b>
                             <Badge v-if="store.list && store.list.total > 0"
                                    :value="store.list.total">
                             </Badge>
@@ -69,17 +83,43 @@ onMounted(async () => {
 
                 <template #icons>
 
-                    <Button data-testid="customergroups-list-create"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>
+                    <div class="p-inputgroup">
+
+                        <Button data-testid="customergroups-list-create"
+                                class="p-button-sm"
+                                @click="store.toForm()">
+                            <i class="pi pi-plus mr-1"></i>
+                            Create
+                        </Button>
+
+                        <Button data-testid="customergroups-list-reload"
+                                class="p-button-sm"
+                                @click="store.getList()">
+                            <i class="pi pi-refresh mr-1"></i>
+                        </Button>
+
+                        <!--form_menu-->
+
+                        <Button v-if="root.assets && root.assets.module
+                                                && root.assets.module.is_dev"
+                                type="button"
+                                @click="toggleCreateMenu"
+                                class="p-button-sm"
+                                data-testid="customergroups-create-menu"
+                                icon="pi pi-angle-down"
+                                aria-haspopup="true"/>
+
+                        <Menu ref="create_menu"
+                              :model="store.list_create_menu"
+                              :popup="true" />
+
+                        <!--/form_menu-->
+
+                    </div>
 
                 </template>
 
                 <Actions/>
-
-                <br/>
 
                 <Table/>
 
