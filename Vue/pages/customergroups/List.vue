@@ -89,7 +89,7 @@ const toggleCreateMenu = (event) => {
                                 class="p-button-sm"
                                 @click="store.toForm()">
                             <i class="pi pi-plus mr-1"></i>
-                            Create
+                            Create Records
                         </Button>
 
                         <Button data-testid="customergroups-list-reload"
