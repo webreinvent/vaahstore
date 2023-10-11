@@ -163,13 +163,37 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
+                            <template v-else-if="column === 'customer_count'">
+                                <tr>
+                                    <td :style="{width: label_width}">
+                                        <b>Customer Count</b>
+                                    </td>
+                                    <td  colspan="2" >
+                                        <Badge severity="info" v-if="store.item.customer_count">{{store.item.customer_count}}</Badge>
+                                    </td>
+                                </tr>
+                            </template>
+
+                            <template v-else-if="column === 'order_count'">
+                                <tr>
+                                    <td :style="{width: label_width}">
+                                        <b>Order Count</b>
+                                    </td>
+                                    <td  colspan="2" >
+                                        <Badge severity="info" v-if="store.item.order_count">{{store.item.order_count}}</Badge>
+                                    </td>
+                                </tr>
+                            </template>
+
                             <template v-else-if="column === 'taxonomy_id_customer_groups_status'">
                                 <tr>
                                     <td :style="{width: label_width}">
                                         <b>Status</b>
                                     </td>
                                     <td  colspan="2" >
-                                        <Badge severity="info" v-if="store.item.status">{{store.item.status.name}}</Badge>
+                                        <Badge severity="danger" v-if="store.item.status.name == 'Rejected'">{{store.item.status.name}}</Badge>
+                                        <Badge severity="success" v-if="store.item.status.name == 'Approved'">{{store.item.status.name}}</Badge>
+                                        <Badge severity="info" v-if="store.item.status.name == 'Pending'">{{store.item.status.name}}</Badge>
                                     </td>
                                 </tr>
                             </template>
