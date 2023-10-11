@@ -1,0 +1,60 @@
+stages:
+  - features
+
+deploy_features:
+  stage: features
+  variables:
+    SSH_USERNAME: $DEMO_SSH_USERNAME
+    PROJECT_NAME: store-dev
+    FTP_IP: $DEMO_FTP_IP
+    DOMAIN: $DEMO_DOMAIN
+
+    PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN
+    MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN/VaahCms/Modules/Store
+    PROJECT_STORAGE_PATH: $PROJECT_PATH/storage
+    VAAHCMS_PUBLIC_PATH: $PROJECT_PATH/public
+    VAAHCMS_CONFIG_PATH: $PROJECT_PATH/bootstrap/cache/config.php
+    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN/VaahCms/Modules/Store
+    PROJECT_URL: https://$DOMAIN/$PROJECT_NAME/$GITLAB_USER_LOGIN/public
+
+
+  script:
+    - echo "Gitlab User = $GITLAB_USER_LOGIN"
+    - echo "Project Path = $PROJECT_PATH"
+    - echo "FTP Path = $FTP_UPLOAD_PATH"
+    - git ftp push --auto-init --user $LOCAL_GETDEMO_USERNAME --passwd $LOCAL_GETDEMO_PASSWORD $FTP_UPLOAD_PATH
+    - whoami
+    - pwd
+    - cd $PROJECT_PATH
+    - pwd
+    - rm -rf store-dev
+    - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
+    - rm -rf /store-dev/.git
+    - cp -r ./store-dev/.  ./
+    - pwd
+    - cp .env.example.default .env
+    - composer install
+    - php artisan down
+    #- mv .env.develop-backup .env
+    - php artisan cache:clear
+    - php artisan config:cache
+    - php artisan view:clear
+    - php artisan storage:link
+    - chmod -R 777 $PROJECT_STORAGE_PATH
+    - chmod -R 777 $VAAHCMS_PUBLIC_PATH
+    - rm $VAAHCMS_CONFIG_PATH
+    #===== PROTECT ENV FILES
+    - chmod 640 $PROJECT_PATH/.env
+    - find $PROJECT_PATH/. -name ".env.*" | xargs chmod 640
+    - php artisan up
+    - echo "Visit following url:"
+    - echo $PROJECT_URL
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
+
+  tags:
+    - local.getdemo.dev.ssh
+
+
