@@ -640,8 +640,8 @@ class CustomerGroup extends Model
     {
 
         $rules = validator($inputs, [
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'customer_count'=> 'required',
             'order_count'=> 'required',
             'taxonomy_id_customer_groups_status'=> 'required',
