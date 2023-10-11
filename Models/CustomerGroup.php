@@ -280,13 +280,36 @@ class CustomerGroup extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('name', $status)
+                ->orwhere('slug',$status);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
+        $list->statusFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

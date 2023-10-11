@@ -15,6 +15,38 @@ const store = useCustomerGroupStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status:</b>
+                </template>
+
+                <div class="field-radiobutton">
+                    <RadioButton name="status-approved"
+                                 inputId="status-approved"
+                                 data-testid="customergroups-filters-status-approved"
+                                 value="approved"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-approved" class="cursor-pointer">Approved</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-pending"
+                                 inputId="status-pending"
+                                 data-testid="customergroups-filters-status-pending"
+                                 value="pending"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-pending" class="cursor-pointer">Pending</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-rejected"
+                                 inputId="status-rejected"
+                                 data-testid="customergroups-filters-status-rejected"
+                                 value="rejected"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-rejected" class="cursor-pointer">Rejected</label>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 
