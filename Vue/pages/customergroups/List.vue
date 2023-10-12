@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'CustomerGroups - Store';
+    document.title = 'Customer Groups - Store';
     /**
      * call onLoad action when List view loads
      */
@@ -89,7 +89,7 @@ const toggleCreateMenu = (event) => {
                                 class="p-button-sm"
                                 @click="store.toForm()">
                             <i class="pi pi-plus mr-1"></i>
-                            Create Records
+                            Create
                         </Button>
 
                         <Button data-testid="customergroups-list-reload"
