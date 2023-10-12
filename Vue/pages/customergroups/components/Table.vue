@@ -100,12 +100,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
