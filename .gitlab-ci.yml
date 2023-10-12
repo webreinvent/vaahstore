@@ -31,7 +31,7 @@ deploy_features:
     - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
     - rm -rf /store-dev/.git
     #- rm -rf /store-dev/././.git
-    - find . -name .git -exec rm -rf {} \;
+    - find ./ -type d -name '.git' -prune -exec rm -rf {} +
     - cp -r ./store-dev/.  ./
     - pwd
     - cp .env.example.default .env
