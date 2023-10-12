@@ -760,14 +760,14 @@ class ProductStock extends Model
     //-------------------------------------------------
     public static function searchVendor($request){
 
-        $venodr = Vendor::select('id', 'name','is_default');
+        $vendor = Vendor::select('id', 'name','is_default');
         if ($request->has('query') && $request->input('query')) {
-            $venodr->where('name', 'LIKE', '%' . $request->input('query') . '%');
+            $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
-        $venodr = $venodr->limit(10)->get();
+        $vendor = $vendor->limit(10)->get();
 
         $response['success'] = true;
-        $response['data'] = $venodr;
+        $response['data'] = $vendor;
         return $response;
 
     }
