@@ -12,7 +12,8 @@ const useVaah = vaah();
     <div v-if="store.list">
         <!--table-->
          <DataTable :value="store.list.data"
-                       dataKey="id"
+                   dataKey="id"
+                   :rowClass="(rowData) => rowData.id == store.item.id ?'bg-blue-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -95,6 +96,7 @@ const useVaah = vaah();
                                 data-testid="productstocks-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
+                                :disabled="prop.data.id===store.item.id"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
