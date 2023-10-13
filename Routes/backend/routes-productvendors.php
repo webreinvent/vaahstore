@@ -29,6 +29,7 @@ function () {
      */
     Route::delete('/', 'ProductVendorsController@deleteList')
         ->name('vh.backend.store.productvendors.list.delete');
+
     /**
      * POST create productPrice
      */
@@ -40,6 +41,11 @@ function () {
     Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductVendorsController@fillItem')
+        ->name('vh.backend.store.productvendors.fill');
 
     /**
      * Create Item

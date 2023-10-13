@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -54,7 +54,15 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="productvendors-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
+
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productvendors-save"
                             @click="store.itemAction('save')"
@@ -63,18 +71,22 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productvendors-create-and-new"
                             icon="pi pi-save"/>
 
                     <Button data-testid="productvendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
+                            class="p-button-sm"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productvendors-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +97,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productvendors-to-list"
                             @click="store.toList()">
@@ -97,7 +109,32 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="mt-2">
+
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Deleted {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
 
                 <VhField label="Vendor">
                     <AutoComplete
@@ -112,7 +149,7 @@ const toggleFormMenu = (event) => {
                         name="productvendors-vendor"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-5" icon="pi pi-info-circle" />
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
                 <VhField label="Store"  v-if="!(store.item && store.item.id)">
@@ -188,17 +225,19 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
+
                 <VhField label="Status Notes">
                     <Textarea  rows="3" class="w-full"
-                              placeholder="Enter a Status Note"
-                              name="productvendors-status_notes"
-                              data-testid="productvendors-status_notes"
-                              v-model="store.item.status_notes"/>
+                               placeholder="Enter a Status Note"
+                               name="productvendors-status_notes"
+                               data-testid="productvendors-status_notes"
+                               v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  name="productvendors-active"
                                  data-testid="productvendors-active"
                                  v-model="store.item.is_active"/>
