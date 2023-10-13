@@ -98,58 +98,92 @@ export const useProductVendorStore = defineStore({
                 }
             }, 250);
         },
-        searchAddeddBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.added_by_suggestion = this.active_users;
-                }
-                else {
-                    this.added_by_suggestion= this.active_users.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchAddedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/added/by',
+                this.searchAddedByAfter,
+                options
+            );
         },
 
         //---------------------------------------------------------------------
-        searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.active_vendors;
-                }
-                else {
-                    this.vendor_suggestion= this.active_vendors.filter((vendor) => {
-                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchAddedByAfter(data,res){
+            if(data){
+                this.added_by_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        searchStatusAfter(data,res){
+            if(data){
+                this.status_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------
-        searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.active_products;
-                }
-                else {
-                    this.product_suggestion= this.active_products.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchVendor(event) {
+           const query = event;
+           const options = {
+               params: query,
+               method: 'post',
+           };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchVendorAfter(data,res){
+            if(data){
+
+                this.vendor_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+       async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchProductAfter(data,res){
+            if(data){
+                this.product_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------

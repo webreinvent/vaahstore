@@ -202,7 +202,7 @@ const toggleFormMenu = (event) => {
                         id="added_by"
                         data-testid="productvendors-added_by"
                         :suggestions="store.added_by_suggestion"
-                        @complete="store.searchAddeddBy($event)"
+                        @complete="store.searchAddedBy($event)"
                         placeholder="Select Added by"
                         :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>

@@ -11,6 +11,9 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Product;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductVendor extends Model
 {
@@ -799,6 +802,69 @@ class ProductVendor extends Model
 
     }
     //-------------------------------------------------
+    public static function searchVendor($request){
 
+        $vendor = Vendor::select('id', 'name')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $vendor = $vendor->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $vendor;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function searchProduct($request){
+
+        $product = Product::select('id', 'name')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product = $product->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchAddedBy($request){
+        $addedBy = User::select('id', 'first_name','email')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('first_name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
+//-------------------------------------------------
+    public static function searchStatus($request){
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('product-vendor-status');
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('product-vendor-status');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
 
 }
