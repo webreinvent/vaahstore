@@ -59,6 +59,8 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                {{store.item.status_notes}}</Message>
 
             <template class="p-1" #header>
 
@@ -139,8 +141,8 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' ||
-                                    column === 'vendor'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' || column === 'status_notes' ||
+                                    column === 'vendor' || column === 'meta' || column === 'deleted_by' || column === 'deleted_at'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

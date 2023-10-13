@@ -298,7 +298,7 @@ class Warehouse extends Model
         }
 
         $status = $filter['status'];
-        
+
         $query->whereHas('status', function ($query) use ($status) {
             $query->where('slug', $status);
 
@@ -632,19 +632,24 @@ class Warehouse extends Model
 
 
         $validated_data = validator($inputs, [
-            'name' => 'required',
-            'slug' => 'required',
+            'name' => 'required |max:100',
+            'slug' => 'required | max:100',
             'country' => 'required',
-            'state' => 'required',
-            'city' => 'required',
+            'state' => 'required | max:100',
+            'city' => 'required | max:100',
             'status' => 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
             'is_active' => 'required',
             'vh_st_vendor_id' => 'required'
         ],
             [
                 'taxonomy_id_warehouse_status' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+
             ]
         );
 
