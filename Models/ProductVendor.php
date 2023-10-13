@@ -749,6 +749,27 @@ class ProductVendor extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $vendor_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+        $vendor_id_data = Product::where('is_active',1)->where('id',$vendor_id)->first();
+        $inputs['vh_st_vendor_id'] = $vendor_id;
+        $inputs['vendor'] = $vendor_id_data;
+
+        $store_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+        $store_id_data = Product::where('is_active',1)->where('id',$store_id)->first();
+        $inputs['vh_st_product_id'] = $store_id;
+        $inputs['product'] = $store_id_data;
+
+        $user_id = User::where('is_active', 1)->inRandomOrder()->value('id');
+        $user_id_data = User::where('is_active',1)->where('id',$user_id)->first();
+        $inputs['added_by'] = $store_id;
+        $inputs['added_by_user'] = $user_id_data;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-vendor-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_product_vendor_status'] = $status_id;
+        $inputs['status']=$status;
+
         $faker = Factory::create();
 
         /*
