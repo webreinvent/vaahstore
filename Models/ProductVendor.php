@@ -765,8 +765,8 @@ class ProductVendor extends Model
         }
         $inputs = $fillable['data']['fill'];
 
-        $vendor_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-        $vendor_id_data = Product::where('is_active',1)->where('id',$vendor_id)->first();
+        $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
+        $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
         $inputs['vh_st_vendor_id'] = $vendor_id;
         $inputs['vendor'] = $vendor_id_data;
 
