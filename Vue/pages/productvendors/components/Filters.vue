@@ -12,6 +12,24 @@ const store = useProductVendorStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.product_vendor_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>

@@ -313,12 +313,25 @@ class ProductVendor extends Model
 
     }
     //-------------------------------------------------
+    public function scopeProductVendorFilter($query, $filter)
+    {
+
+        if (!isset($filter['product_vendor_status'])) {
+            return $query;
+        }
+        $search = $filter['product_vendor_status'];
+        $query->whereHas('status', function ($q) use ($search) {
+            $q->whereIn('name', $search);
+        });
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('product','vendor','addedByUser','status','stores');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->productVendorFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -843,7 +856,7 @@ class ProductVendor extends Model
         return $response;
 
     }
-//-------------------------------------------------
+   //-------------------------------------------------
     public static function searchStatus($request){
         $query = $request->input('query');
         if(empty($query)) {
@@ -866,5 +879,8 @@ class ProductVendor extends Model
         return $response;
 
     }
+
+    //-------------------------------------------------
+
 
 }
