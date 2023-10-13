@@ -46,8 +46,12 @@ class ProductVendorsController extends Controller
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
             $data['empty_item']['vendor'] = $this->getDefaultVendor();
+            $data['empty_item']['vh_st_vendor_id'] = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
+                                                     ->pluck('id')->first();
             $data['empty_item']['product_variation'] = $this->getDefaultProductVariation();
             $data['empty_item']['added_by_user'] = $this->getActiveUser();
+            $data['empty_item']['added_by'] = auth()->user()->id;
+
 
             $data['actions'] = [];
 
