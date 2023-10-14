@@ -13,6 +13,7 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use VaahCms\Modules\Store\Models\Vendor;
+use Illuminate\Support\Facades\Auth;
 class Warehouse extends Model
 {
 
@@ -31,8 +32,8 @@ class Warehouse extends Model
     protected $fillable = [
         'uuid',
         'name',
-        'slug','vh_st_vendor_id','country','state',
-        'city','taxonomy_id_warehouse_status','status_notes',
+        'slug', 'vh_st_vendor_id', 'country', 'state',
+        'city', 'taxonomy_id_warehouse_status', 'status_notes',
         'is_active',
         'created_by',
         'updated_by',
@@ -48,6 +49,7 @@ class Warehouse extends Model
     ];
 
     //-------------------------------------------------
+
     protected function serializeDate(DateTimeInterface $date)
     {
         $date_time_format = config('settings.global.datetime_format');
@@ -64,6 +66,7 @@ class Warehouse extends Model
             'deleted_by',
         ];
     }
+
     //-------------------------------------------------
     public static function getFillableColumns()
     {
@@ -75,14 +78,14 @@ class Warehouse extends Model
         );
         return $fillable_columns;
     }
+
     //-------------------------------------------------
     public static function getEmptyItem()
     {
         $model = new self();
         $fillable = $model->getFillable();
         $empty_item = [];
-        foreach ($fillable as $column)
-        {
+        foreach ($fillable as $column) {
             $empty_item[$column] = null;
         }
 
@@ -90,17 +93,18 @@ class Warehouse extends Model
     }
 
 
-
     //-------------------------------------------------
-    public function status(){
+    public function status()
+    {
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_warehouse_status')
-            ->select(['id','name', 'slug']);
+            ->select(['id', 'name', 'slug']);
     }
 
     //-------------------------------------------------
 
-    public function vendor(){
-        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id','name']);
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id', 'name']);
     }
 
     //-------------------------------------------------
@@ -205,8 +209,7 @@ class Warehouse extends Model
     public function scopeGetSorted($query, $filter)
     {
 
-        if(!isset($filter['sort']))
-        {
+        if (!isset($filter['sort'])) {
             return $query->orderBy('id', 'desc');
         }
 
@@ -215,8 +218,7 @@ class Warehouse extends Model
 
         $direction = Str::contains($sort, ':');
 
-        if(!$direction)
-        {
+        if (!$direction) {
             return $query->orderBy($sort, 'asc');
         }
 
@@ -224,54 +226,52 @@ class Warehouse extends Model
 
         return $query->orderBy($sort[0], $sort[1]);
     }
+
     //-------------------------------------------------
     public function scopeIsActiveFilter($query, $filter)
     {
 
-        if(!isset($filter['is_active'])
+        if (!isset($filter['is_active'])
             || is_null($filter['is_active'])
             || $filter['is_active'] === 'null'
-        )
-        {
+        ) {
             return $query;
         }
         $is_active = $filter['is_active'];
 
-        if($is_active === 'true' || $is_active === true)
-        {
+        if ($is_active === 'true' || $is_active === true) {
             return $query->where('is_active', 1);
-        } else{
-            return $query->where(function ($q){
+        } else {
+            return $query->where(function ($q) {
                 $q->whereNull('is_active')
                     ->orWhere('is_active', 0);
             });
         }
 
     }
+
     //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
 
-        if(!isset($filter['trashed']))
-        {
+        if (!isset($filter['trashed'])) {
             return $query;
         }
         $trashed = $filter['trashed'];
 
-        if($trashed === 'include')
-        {
+        if ($trashed === 'include') {
             return $query->withTrashed();
-        } else if($trashed === 'only'){
+        } else if ($trashed === 'only') {
             return $query->onlyTrashed();
         }
 
     }
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
         $search = $filter['q'];
@@ -289,11 +289,10 @@ class Warehouse extends Model
 
         $status = null;
 
-        if(!isset($filter['status'])
+        if (!isset($filter['status'])
             || is_null($filter['status'])
             || $filter['status'] === 'null'
-        )
-        {
+        ) {
             return $query;
         }
 
@@ -307,8 +306,6 @@ class Warehouse extends Model
     }
 
 
-
-
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status');
@@ -318,8 +315,7 @@ class Warehouse extends Model
         $list->statusFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
@@ -357,8 +353,7 @@ class Warehouse extends Model
             return $response;
         }
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -377,9 +372,11 @@ class Warehouse extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -423,13 +420,13 @@ class Warehouse extends Model
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -440,7 +437,7 @@ class Warehouse extends Model
 
         $list = self::query();
 
-        if($request->has('filter')){
+        if ($request->has('filter')) {
             $list->getSorted($request->filter);
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
@@ -449,27 +446,29 @@ class Warehouse extends Model
 
         switch ($type) {
             case 'deactivate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => null]);
                 }
                 break;
             case 'activate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => 1]);
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -484,6 +483,7 @@ class Warehouse extends Model
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by' => null]);
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -493,21 +493,21 @@ class Warehouse extends Model
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if (!config('store.is_dev')) {
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if (count($matches) !== 2) {
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -516,6 +516,7 @@ class Warehouse extends Model
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function getItem($id)
     {
@@ -525,10 +526,9 @@ class Warehouse extends Model
             ->withTrashed()
             ->first();
 
-        if(!$item)
-        {
+        if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = 'Record not found with ID: ' . $id;
             return $response;
         }
         $response['success'] = true;
@@ -537,6 +537,7 @@ class Warehouse extends Model
         return $response;
 
     }
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
@@ -579,6 +580,7 @@ class Warehouse extends Model
         return $response;
 
     }
+
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
@@ -596,11 +598,11 @@ class Warehouse extends Model
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
-        switch($type)
-        {
+        switch ($type) {
             case 'activate':
                 self::where('id', $id)
                     ->withTrashed()
@@ -613,20 +615,28 @@ class Warehouse extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
         return self::getItem($id);
     }
-    //-------------------------------------------------
 
+//-------------------------------------------------
     public static function validation($inputs)
     {
 
@@ -643,7 +653,7 @@ class Warehouse extends Model
                 'max:100'
             ],
             'is_active' => 'required',
-            'vh_st_vendor_id' => 'required'
+            'vendor' => 'required'
         ],
             [
                 'taxonomy_id_warehouse_status' => 'The Status field is required',
