@@ -117,7 +117,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productstocks-slug"
                                data-testid="productstocks-slug"
-                               placeholder="Enetr Slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 

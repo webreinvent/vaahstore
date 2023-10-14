@@ -205,21 +205,17 @@ class ProductStock extends Model
         $validated_data = validator($requestData, [
             'name' => 'required',
             'slug' => 'required',
-            'vh_st_vendor_id' => 'required',
-            'vh_st_product_id' => 'required',
-            'vh_st_product_variation_id' => 'required',
+            'vendor' => 'required',
+            'product' => 'required',
+            'product_variation' => 'required',
             'vh_st_warehouse_id' => 'required',
             'quantity' => 'required',
             'status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_stock_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'is_active' => 'required',
         ],
             [
-                'vh_st_vendor_id.required' => 'The Vendor field is required',
-                'vh_st_product_id.required' => 'The Product field is required',
-                'vh_st_product_variation_id.required' => 'The Product variation field is required',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
-                'status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
