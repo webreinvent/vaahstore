@@ -558,7 +558,7 @@ export const useProductStockStore = defineStore({
                     break;
                 case 'trash':
                     this.item = null;
-                    this.toForm();
+                    this.toList();
                     break;
                 case 'restore':
                 case 'save':

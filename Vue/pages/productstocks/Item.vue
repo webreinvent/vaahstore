@@ -150,6 +150,41 @@ const toggleItemMenu = (event) => {
                                        :can_copy="true"
                             />
                         </template>
+                        <template v-else-if="column === 'name'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Name</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div class="word-overflow">
+                                        {{store.item.name}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'slug'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Slug</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div class="word-overflow">
+                                        {{store.item.slug}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'status_notes'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status Notes</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div class="word-overflow">
+                                        {{store.item.status_notes}}</div>
+                                </td>
+                            </tr>
+                        </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
@@ -220,3 +255,11 @@ const toggleItemMenu = (event) => {
     </div>
 
 </template>
+<style scoped>
+.word-overflow
+{
+    width:350px;
+    overflow-wrap: break-word;
+    word-wrap:break-word;
+}
+</style>
