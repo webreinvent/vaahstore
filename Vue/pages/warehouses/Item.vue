@@ -62,7 +62,7 @@ const toggleItemMenu = (event) => {
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <tr>
                     <td  colspan="2" >
-                        <div class="word-overflow">
+                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                             {{store.item.status_notes}}</div>
                     </td>
                 </tr>
@@ -164,7 +164,7 @@ const toggleItemMenu = (event) => {
                                     <b>Name</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -176,7 +176,7 @@ const toggleItemMenu = (event) => {
                                     <b>Slug</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
@@ -188,7 +188,7 @@ const toggleItemMenu = (event) => {
                                     <b>State</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.state}}</div>
                                 </td>
                             </tr>
@@ -200,7 +200,7 @@ const toggleItemMenu = (event) => {
                                     <b>City</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.city}}</div>
                                 </td>
                             </tr>
@@ -253,6 +253,5 @@ const toggleItemMenu = (event) => {
     </div>
 
 </template>
-
 
 
