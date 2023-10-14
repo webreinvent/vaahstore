@@ -34,7 +34,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name.length < 30 ? prop.data.name : prop.data.name.substring(0,30) + "..."}}
+                    <div style="word-break: break-word;">{{ prop.data.name }}</div>
                 </template>
 
             </Column>
