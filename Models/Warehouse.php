@@ -479,13 +479,13 @@ class Warehouse extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                $list->delete();
                 $user_id = auth()->user()->id;
                 $list->update(['deleted_by' => $user_id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                $list->restore();
                 $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
                 $list->forceDelete();
