@@ -988,15 +988,6 @@ export const useProductStockStore = defineStore({
                         }
                     },
                     {
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },
-                    {
                         label: 'Delete',
                         icon: 'pi pi-trash',
                         command: () => {
@@ -1004,6 +995,29 @@ export const useProductStockStore = defineStore({
                         }
                     },
                 ];
+                if(this.item.deleted_at)
+            {
+                form_menu.push({
+                    label: 'Restore',
+                    icon: 'pi pi-replay',
+                    command: () => {
+                        this.itemAction('restore');
+                        this.item = null;
+                        this.toList();
+                    }
+                },)
+            }
+            else {
+                form_menu.push({
+                    label: 'Trash',
+                    icon: 'pi pi-times',
+                    command: () => {
+                        this.itemAction('trash');
+                        this.item = null;
+                        this.toList();
+                    }
+                },)
+            }
 
             } else{
                 form_menu = [

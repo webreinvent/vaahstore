@@ -221,7 +221,7 @@ class ProductStock extends Model
     public static function productStockInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required',
+            'name' => 'required|max:100',
             'slug' => 'required',
             'vendor' => 'required',
             'product' => 'required',
@@ -525,7 +525,7 @@ class ProductStock extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                $list->update(['deleted_by'  => 1]);
+                $list->update(['deleted_by'  => auth()->user()->id]);
                 $list->delete();
                 break;
             case 'restore-all':
