@@ -195,7 +195,6 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
         searchVendorAfter(data,res){
             if(data){
-                console.log(data);
                 this.vendors_suggestion = data;
             }
         },
@@ -558,6 +557,8 @@ export const useProductStockStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    this.item = null;
+                    this.toForm();
                     break;
                 case 'restore':
                 case 'save':
