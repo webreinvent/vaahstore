@@ -487,8 +487,6 @@ export const useWarehouseStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
-                    this.toList();
                     break;
                 case 'restore':
                 case 'save':
@@ -924,6 +922,8 @@ export const useWarehouseStore = defineStore({
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
                     },
                     {
