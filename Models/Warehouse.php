@@ -480,7 +480,8 @@ class Warehouse extends Model
                 break;
             case 'trash-all':
                 $list->delete();
-                $list->update(['deleted_by' => auth()->user()->id]);
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 break;
             case 'restore-all':
                 $list->restore();
