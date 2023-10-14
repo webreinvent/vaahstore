@@ -511,7 +511,6 @@ class ProductStock extends Model
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
-                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -526,12 +525,12 @@ class ProductStock extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
+                $list->update(['deleted_by'  => 1]);
                 $list->delete();
-                $list->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore-all':
+                $list->update(['deleted_by'  => null]);
                 $list->restore();
-                $list->update(['deleted_by' => null]);
                 break;
             case 'delete-all':
                 $list->forceDelete();
