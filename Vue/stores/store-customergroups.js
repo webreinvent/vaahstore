@@ -421,6 +421,7 @@ export const useCustomerGroupStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
@@ -961,7 +962,7 @@ export const useCustomerGroupStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFormInputs();
+                    this.getFaker();
                 }
             },)
 
