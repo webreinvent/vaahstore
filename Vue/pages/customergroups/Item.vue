@@ -60,7 +60,9 @@ const toggleItemMenu = (event) => {
 
         <Panel class="is-small" v-if="store && store.item">
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                {{store.item.status_notes}}</Message>
+                <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                    {{store.item.status_notes}}</div>
+            </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -120,7 +122,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -140,7 +142,8 @@ const toggleItemMenu = (event) => {
                         <tbody class="p-datatable-tbody">
                         <template v-for="(value, column) in store.item ">
 
-                            <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status'|| column === 'status_notes'">
+                            <template v-if="column === 'created_by' || column === 'updated_by' ||
+                             column === 'deleted_by' ||  column === 'status'|| column === 'status_notes' || column === 'meta'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -150,18 +153,28 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
-                            <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
-                                <VhViewRow :label="column"
-                                           :value="value"
-                                           type="user"
-                                />
+                            <template v-else-if="column === 'name'">
+                                <tr>
+                                    <td :style="{width: label_width}">
+                                        <b>Name</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                            {{store.item.name}}</div>
+                                    </td>
+                                </tr>
                             </template>
 
-                            <template v-else-if="column === 'is_active'">
-                                <VhViewRow :label="column"
-                                           :value="value"
-                                           type="yes-no"
-                                />
+                            <template v-else-if="column === 'slug'">
+                                <tr>
+                                    <td :style="{width: label_width}">
+                                        <b>Slug</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                            {{store.item.slug}}</div>
+                                    </td>
+                                </tr>
                             </template>
 
                             <template v-else-if="column === 'customer_count'">
@@ -185,6 +198,22 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
                             </template>
+
+                            <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="user"
+                                />
+                            </template>
+
+                            <template v-else-if="column === 'is_active'">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="yes-no"
+                                />
+                            </template>
+
+
 
                             <template v-else-if="column === 'taxonomy_id_customer_groups_status'">
                                 <tr>
