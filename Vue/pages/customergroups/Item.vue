@@ -193,7 +193,7 @@ const toggleItemMenu = (event) => {
                                         <Badge severity="info" v-if="store.item.order_count">{{store.item.order_count}}</Badge>
                                     </td>
                                 </tr>
-                                
+
                             </template>
 
                             <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
