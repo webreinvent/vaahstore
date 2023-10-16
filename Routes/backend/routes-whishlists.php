@@ -30,6 +30,11 @@ function () {
     Route::delete('/', 'WhishlistsController@deleteList')
         ->name('vh.backend.store.whishlists.list.delete');
 
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'WhishlistsController@fillItem')
+        ->name('vh.backend.store.whishlists.fill');
 
     /**
      * Create Item
