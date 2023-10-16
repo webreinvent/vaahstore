@@ -86,7 +86,7 @@ function () {
      * Search status
      */
     Route::any('/search/status', 'WhishlistsController@searchStatus')
-        ->name('vh.backend.store.whishlists.search.type');
+        ->name('vh.backend.store.whishlists.search.status');
 
     //---------------------------------------------------------
 

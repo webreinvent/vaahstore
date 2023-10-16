@@ -4,8 +4,6 @@ import { useWhishlistStore } from '../../../stores/store-whishlists'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useWhishlistStore();
-
-console.log('store',store);
 </script>
 
 <template>
