@@ -646,6 +646,7 @@ class Warehouse extends Model
         $validated_data = validator($inputs, [
             'name' => 'required |max:100',
             'slug' => 'required | max:100',
+            'vendor' => 'required',
             'country' => 'required',
             'state' => 'required | max:100',
             'city' => 'required | max:100',
@@ -655,7 +656,7 @@ class Warehouse extends Model
                 'max:100'
             ],
             'is_active' => 'required',
-            'vendor' => 'required'
+
         ],
             [
                 'taxonomy_id_warehouse_status' => 'The Status field is required',

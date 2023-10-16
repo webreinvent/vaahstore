@@ -917,13 +917,7 @@ export const useWarehouseStore = defineStore({
 
                         }
                     },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
+
                 ];
                 if(this.item.deleted_at)
                 {
@@ -948,6 +942,14 @@ export const useWarehouseStore = defineStore({
                         }
                     },)
                 }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
 
 
             } else{

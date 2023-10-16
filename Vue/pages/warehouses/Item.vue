@@ -127,7 +127,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
