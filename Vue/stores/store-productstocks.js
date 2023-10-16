@@ -986,14 +986,7 @@ export const useProductStockStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
+                    }
                 ];
                 if(this.item.deleted_at)
             {
@@ -1005,7 +998,7 @@ export const useProductStockStore = defineStore({
                         this.item = null;
                         this.toList();
                     }
-                },)
+                })
             }
             else {
                 form_menu.push({
@@ -1016,7 +1009,7 @@ export const useProductStockStore = defineStore({
                         this.item = null;
                         this.toList();
                     }
-                },)
+                })
             }
 
             } else{
@@ -1048,12 +1041,19 @@ export const useProductStockStore = defineStore({
             }
 
             form_menu.push({
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: () => {
+                    this.confirmDeleteItem('delete');
+                }
+               },
+                {
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
                     this.getFormInputs();
                 }
-            },)
+            })
 
             this.form_menu_list = form_menu;
 
