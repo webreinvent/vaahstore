@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productstocks-save"
                             @click="store.itemAction('save')"
@@ -63,18 +64,22 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productstocks-create-and-new"
                             icon="pi pi-save"/>
 
                     <Button data-testid="productstocks-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
+                            class="p-button-sm"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
+
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productstocks-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +90,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productstocks-to-list"
                             @click="store.toList()">
@@ -97,13 +102,14 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
                 <VhField label="Name">
                     <InputText class="w-full"
                                name="productstocks-name"
                                data-testid="productstocks-name"
                                placeholder="Enter Name"
+                               @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -111,7 +117,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="productstocks-slug"
                                data-testid="productstocks-slug"
-                               placeholder="Enetr Slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -201,6 +207,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.quantity"
                         mode="decimal" showButtons
                         placeholder="Enter Quantity"
+                        class="w-full"
                         data-testid="productstocks-quantity"
                         :min="1"/>
                 </VhField>
@@ -225,9 +232,11 @@ const toggleFormMenu = (event) => {
                               rows="3" class="w-full" />
                 </VhField>
 
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  name="productstocks-active"
                                  data-testid="productstocks-active"
                                  v-model="store.item.is_active"/>

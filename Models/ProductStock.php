@@ -4,10 +4,17 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Warehouse;
 
 class ProductStock extends Model
 {
@@ -35,6 +42,10 @@ class ProductStock extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -45,6 +56,41 @@ class ProductStock extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -141,6 +187,24 @@ class ProductStock extends Model
 
         $inputs = $request->all();
 
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
 
         $item = new self();
         $item->fill($inputs);
@@ -157,23 +221,19 @@ class ProductStock extends Model
     public static function productStockInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required',
+            'name' => 'required|max:100',
             'slug' => 'required',
-            'vh_st_vendor_id' => 'required',
-            'vh_st_product_id' => 'required',
-            'vh_st_product_variation_id' => 'required',
+            'vendor' => 'required',
+            'product' => 'required',
+            'product_variation' => 'required',
             'vh_st_warehouse_id' => 'required',
             'quantity' => 'required',
             'status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_stock_status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected',
             'is_active' => 'required',
         ],
             [
-                'vh_st_vendor_id.required' => 'The Vendor field is required',
-                'vh_st_product_id.required' => 'The Product field is required',
-                'vh_st_product_variation_id.required' => 'The Product variation field is required',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
-                'status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
@@ -233,9 +293,12 @@ class ProductStock extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -273,12 +336,27 @@ class ProductStock extends Model
 
     }
     //-------------------------------------------------
+    public function scopeProductStockFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_stock_status']))
+        {
+            return $query;
+        }
+        $search = $filter['product_stock_status'];
+        $query->whereHas('status',function ($q) use ($search) {
+            $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->productStockFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -341,9 +419,11 @@ class ProductStock extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -373,8 +453,8 @@ class ProductStock extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -402,6 +482,14 @@ class ProductStock extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -417,6 +505,7 @@ class ProductStock extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
@@ -430,20 +519,42 @@ class ProductStock extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by'  => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -503,7 +614,7 @@ class ProductStock extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -530,12 +641,23 @@ class ProductStock extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                    $item = self::where('id',$id)->withTrashed()->first();
+                    $item->deleted_by = null;
+                    $item->save();
+
                 break;
         }
 
@@ -555,7 +677,7 @@ class ProductStock extends Model
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
-            $response['messages'] = $messages->all();
+            $response['errors'] = $messages->all();
             return $response;
         }
 
@@ -568,10 +690,89 @@ class ProductStock extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
+    //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+          $inputs = $fillable['data']['fill'];
+
+           $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
+           $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
+           $inputs['vh_st_vendor_id'] =$vendor_id;
+           $inputs['vendor'] = $vendor_id_data;
+
+           $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+           $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
+           $inputs['vh_st_product_id'] =$product_id;
+           $inputs['product'] = $product_id_data;
+
+           $product_variation_id = ProductVariation::where('is_active', 1)->inRandomOrder()->value('id');
+           $product_variation_id_data = ProductVariation::where('is_active',1)->where('id',$product_variation_id)->first();
+           $inputs['vh_st_product_variation_id'] =$product_variation_id;
+           $inputs['product_variation'] = $product_variation_id_data;
+
+           $warehouse_id = Warehouse::where('is_active', 1)->inRandomOrder()->value('id');
+           $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
+           $inputs['vh_st_warehouse_id'] =$warehouse_id;
+           $inputs['warehouse'] = $warehouse_id_data;
+
+           $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
+           $status_id = $taxonomy_status->pluck('id')->random();
+           $status = $taxonomy_status->where('id',$status_id)->first();
+           $inputs['taxonomy_id_product_stock_status'] = $status_id;
+           $inputs['status']=$status;
+
+           $inputs['quantity'] = rand(1,10);
+
+         $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
     //-------------------------------------------------
     public static function deleteProducts($items_id){
         if($items_id){
@@ -585,6 +786,61 @@ class ProductStock extends Model
 
     }
     //-------------------------------------------------
+    public static function searchVendor($request){
+
+        $vendor = Vendor::select('id', 'name','is_default')->where('is_active',1);;
+        if ($request->has('query') && $request->input('query')) {
+            $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $vendor = $vendor->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $vendor;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchProduct($request){
+
+        $product = Product::select('id', 'name','is_default')->where('is_active',1);;
+        if ($request->has('query') && $request->input('query')) {
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product = $product->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchProductVariation($request){
+
+        $product_variation= ProductVariation::select('id', 'name','is_default')->where('is_active',1);;
+        if ($request->has('query') && $request->input('query')) {
+            $product_variation->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product_variation = $product_variation->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product_variation;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchWarehouse($request){
+
+        $warehouse = Warehouse::select('id', 'name')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $warehouse->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $warehouse = $warehouse->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $warehouse;
+        return $response;
+
+    }
     //-------------------------------------------------
 
 

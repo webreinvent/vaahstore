@@ -32,23 +32,9 @@ class ProductStocksController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new ProductStock();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
+            $data['fillable']['columns'] = ProductStock::getFillableColumns();
+            $data['fillable']['except'] = ProductStock::getUnFillableColumns();
+            $data['empty_item'] = ProductStock::getEmptyItem();
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 
@@ -81,7 +67,7 @@ class ProductStocksController extends Controller
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -177,7 +163,7 @@ class ProductStocksController extends Controller
             return ProductStock::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -194,7 +180,7 @@ class ProductStocksController extends Controller
             return ProductStock::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -214,7 +200,7 @@ class ProductStocksController extends Controller
             return ProductStock::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -232,7 +218,24 @@ class ProductStocksController extends Controller
             return ProductStock::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return ProductStock::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -249,7 +252,7 @@ class ProductStocksController extends Controller
             return ProductStock::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -266,7 +269,7 @@ class ProductStocksController extends Controller
             return ProductStock::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -283,7 +286,7 @@ class ProductStocksController extends Controller
             return ProductStock::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -300,7 +303,7 @@ class ProductStocksController extends Controller
             return ProductStock::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -317,7 +320,25 @@ class ProductStocksController extends Controller
             return ProductStock::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchProduct(Request $request)
+    {
+        try{
+            return ProductStock::searchProduct($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -328,6 +349,57 @@ class ProductStocksController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function searchProductVariation(Request $request)
+    {
+        try{
+            return ProductStock::searchProductVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchWarehouse(Request $request)
+    {
+        try{
+            return ProductStock::searchWarehouse($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function searchVendor(Request $request)
+    {
+        try{
+            return ProductStock::searchVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
 
 
 }
