@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/warehouses',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -30,6 +30,12 @@ function () {
     Route::delete('/', 'WarehousesController@deleteList')
         ->name('vh.backend.store.warehouses.list.delete');
 
+
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'WarehousesController@fillItem')
+        ->name('vh.backend.store.warehouses.fill');
 
     /**
      * Create Item
