@@ -465,8 +465,9 @@ class CustomerGroup extends Model
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
@@ -489,6 +490,8 @@ class CustomerGroup extends Model
                 $list->update(['taxonomy_id_customer_groups_status' => $approve_id]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
@@ -624,6 +627,11 @@ class CustomerGroup extends Model
                 self::where('id', $id)
                     ->withTrashed()
                     ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -645,12 +653,15 @@ class CustomerGroup extends Model
             'customer_count'=> 'required',
             'order_count'=> 'required',
             'taxonomy_id_customer_groups_status'=> 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected |max:255',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         ],
             [
                 'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.*.max' => 'The Status notes field must not exceed :max characters',
+                'status_notes.max' => 'The Status notes field must not exceed :max characters',
             ]
         );
 
