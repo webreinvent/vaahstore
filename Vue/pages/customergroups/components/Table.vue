@@ -11,9 +11,10 @@ const useVaah = vaah();
 
     <div v-if="store.list">
         <!--table-->
-         <DataTable :value="store.list.data"
-                       dataKey="id"
-                   class="p-datatable-sm"
+        <DataTable :value="store.list.data"
+                   dataKey="id"
+                   :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -33,61 +34,50 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <div style="word-break: break-word;">{{ prop.data.name }}</div>
                 </template>
 
             </Column>
 
-             <Column field="customer_count" header="Customer Count"
-                     :sortable="true">
+            <Column field="customer_count" header="Customer Count"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.customer_count}}
-                 </template>
+                <template #body="prop">
+                    <Badge severity="info" v-if="prop.data.customer_count">{{prop.data.customer_count}}</Badge>
+                </template>
 
-             </Column>
+            </Column>
 
-             <Column field="order_count" header="Order Count"
-                     :sortable="true">
+            <Column field="order_count" header="Order Count"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.order_count}}
-                 </template>
+                <template #body="prop">
+                    <Badge severity="info" v-if="prop.data.order_count">{{prop.data.order_count}}</Badge>
+                </template>
 
-             </Column>
+            </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+            <Column field="status" header="Status">
+                <template #body="prop">
+                    <Badge v-if="prop.data.status.slug === 'approved'"
+                           severity="success"> {{prop.data.status.name}} </Badge>
+                    <Badge v-else-if="prop.data.status.slug === 'rejected'"
+                           severity="danger"> {{prop.data.status.name}} </Badge>
+                    <Badge v-else
+                           severity="warning"> {{prop.data.status.name}} </Badge>
+                </template>
+            </Column>
 
-                 </template>
-             </Column>
+            <Column field="updated_at" header="Updated"
+                    v-if="store.isViewLarge()"
+                    style="width:150px;"
+                    :sortable="true">
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+                <template #body="prop">
+                    {{useVaah.ago(prop.data.updated_at)}}
+                </template>
 
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
+            </Column>
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
@@ -99,12 +89,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -135,16 +127,21 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 
     </div>
 
 </template>
+<style scoped>
+.surface-200 {
+    background-colour : yellow;
+}
+</style>

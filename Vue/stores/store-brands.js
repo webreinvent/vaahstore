@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            brand_status: null,
         },
     },
     action: {
@@ -48,7 +49,7 @@ export const useBrandStore = defineStore({
         query: vaah().clone(empty_states.query),
         action: vaah().clone(empty_states.action),
         search: {
-            delay_time: 600, //time delay in milliseconds
+            delay_time: 600, // time delay in milliseconds
             delay_timer: 0 // time delay in milliseconds
         },
         route: null,
@@ -66,6 +67,7 @@ export const useBrandStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         status_suggestion:null,
@@ -78,47 +80,73 @@ export const useBrandStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchRegisteredBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.registered_by_suggestion = this.active_users;
-                }
-                else {
-                    this.registered_by_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchRegisteredBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/registered/by',
+                this.searchRegisteredByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchRegisteredByAfter(data,res){
+            if(data){
+                this.registered_by_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------
-        searchApprovedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.approved_by_suggestion = this.approved_by_users;
-                }
-                else {
-                    this.approved_by_suggestion= this.approved_by_users.filter((approved_by_users) => {
-                        return approved_by_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchApprovedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/approved/by',
+                this.searchApprovedByAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchApprovedByAfter(data,res){
+            if(data){
+                this.approved_by_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------
+        async searchStatusBrands(event)
+        {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/brand/status',
+                this.searchStatusBrandsAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchStatusBrandsAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
+        },
+
+       //---------------------------------------------------------------------
         async onLoad(route)
         {
             /**
@@ -182,10 +210,7 @@ export const useBrandStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
-                        this.disable_approved_by = false;
                         this.getItem(newVal.params.id);
-                    }else{
-                        this.disable_approved_by = true;
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -203,23 +228,14 @@ export const useBrandStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name =newVal;
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         setApprovedBy(event){
             let approved_by = toRaw(event.value);
@@ -235,6 +251,7 @@ export const useBrandStore = defineStore({
             let status = toRaw(event.value);
             this.item.taxonomy_id_brand_status = status.id;
         },
+
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -252,6 +269,7 @@ export const useBrandStore = defineStore({
         {
             if(data)
             {
+                this.assets = data;
                 this.assets = data;
                 this.active_users = data.active_users
                 this.approved_by_users = data.auth_approved_by
@@ -395,6 +413,8 @@ export const useBrandStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -480,15 +500,14 @@ export const useBrandStore = defineStore({
         {
             if(data)
             {
-                console.log(data)
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -502,10 +521,15 @@ export const useBrandStore = defineStore({
                     this.$router.push({name: 'brands.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -527,6 +551,7 @@ export const useBrandStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -535,27 +560,21 @@ export const useBrandStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -861,6 +880,47 @@ export const useBrandStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -944,7 +1004,7 @@ export const useBrandStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

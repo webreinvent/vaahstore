@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                   class="p-datatable-sm"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -26,39 +26,39 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User"
-                    :sortable="true">
-
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <Badge v-else-if="prop.data.user.first_name == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.user.first_name}}
-                    </template>
-                </template>
-
-            </Column>
-
-             <Column field="address_type" header="Types"
+             <Column field="user" header="User"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_type == null"
+                     <Badge v-else-if="prop.data.user.first_name == null"
                             value="Trashed"
                             severity="danger"></Badge>
                      <template v-else>
-                         {{prop.data.address_type.name}}
+                         {{prop.data.user.first_name}}
                      </template>
                  </template>
 
              </Column>
+
+<!--             <Column field="address_type" header="Types"-->
+<!--                     :sortable="true">-->
+
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.deleted_at"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-else-if="prop.data.address_type == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <template v-else>-->
+<!--                         {{prop.data.address_type.name}}-->
+<!--                     </template>-->
+<!--                 </template>-->
+
+<!--             </Column>-->
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -77,34 +77,22 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="address_1" header="Address 1"
+
+             <Column field="address" header="Address"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_1 == null"
+                     <Badge v-else-if="prop.data.address == null"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <template v-else>
-                         {{prop.data.address_line_1}}
+                     <template v-else-if="prop.data.is_default == 1">
+                         {{ prop.data.address }}<Badge severity="primary">Default</Badge>
                      </template>
-                 </template>
-
-             </Column>
-             <Column field="address_2" header="Address 2"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_2 == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <template v-else>
-                         {{prop.data.address_line_2}}
+                          {{prop.data.address}}
                      </template>
                  </template>
 
@@ -121,6 +109,23 @@ const useVaah = vaah();
                     </template>
 
                 </Column>
+
+             <Column field="is_default" v-if="store.isViewLarge()"
+                     :sortable="true"
+                     style="width:100px;"
+                     header="Is Default">
+
+                 <template #body="prop">
+                     <InputSwitch v-model.bool="prop.data.is_default"
+                                  data-testid="addresses-table-is-active"
+                                  v-bind:false-value="0"  v-bind:true-value="1"
+                                  class="p-inputswitch-sm"
+                                  @input="store.toggleIsDefault(prop.data)">
+                     </InputSwitch>
+                 </template>
+
+             </Column>
+
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
@@ -168,13 +173,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 

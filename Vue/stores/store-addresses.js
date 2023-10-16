@@ -62,56 +62,20 @@ export const useAddressStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
+        form_menu_list: [],
         user_suggestion: null,
         type_suggestion: null,
         status_suggestion: null,
-        form_menu_list: []
+        active_users:null,
+        types:null,
     }),
     getters: {
 
     },
     actions: {
-        //---------------------------------------------------------------------
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchType(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion= this.types.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -131,6 +95,52 @@ export const useAddressStore = defineStore({
             this.updateQueryFromUrl(route);
         },
         //---------------------------------------------------------------------
+
+        searchUser(event) {
+
+            this.user_suggestion= this.active_users.filter((active_users) => {
+                return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+        searchType(event) {
+
+            this.type_suggestion= this.types.filter((types) => {
+                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+        //---------------------------------------------------------------------
+        searchStatus(event) {
+
+            this.status_suggestion= this.status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
+        //---------------------------------------------------------------------
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            this.item.vh_user_id = user.id;
+        },
+
+        //---------------------------------------------------------------------
+        setAddressType(event) {
+
+            let address_type = toRaw(event.value);
+            this.item.taxonomy_id_address_types = address_type.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        setStatus(event) {
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_address_status = status.id;
+        },
+
+        //---------------------------------------------------------------------
+
         setViewAndWidth(route_name)
         {
             switch(route_name)
@@ -194,38 +204,14 @@ export const useAddressStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
-        //---------------------------------------------------------------------
-        setUser(event) {
-            let user = toRaw(event.value);
-            this.item.vh_user_id = user.id;
-        },
-        //---------------------------------------------------------------------
-        setAddressType(event) {
-            let address_type = toRaw(event.value);
-            this.item.taxonomy_id_address_types = address_type.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event) {
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_address_status = status.id;
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -385,6 +371,8 @@ export const useAddressStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -470,14 +458,13 @@ export const useAddressStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -491,10 +478,15 @@ export const useAddressStore = defineStore({
                     this.$router.push({name: 'addresses.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -503,19 +495,20 @@ export const useAddressStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async toggleIsActive(item)
+        async toggleIsDefault(item)
         {
-            if(item.is_active)
+            if(item.is_default)
             {
-                await this.itemAction('activate', item);
+                await this.itemAction('make-default', item);
             } else{
-                await this.itemAction('deactivate', item);
+                await this.itemAction('remove-from-default', item);
             }
         },
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -524,27 +517,21 @@ export const useAddressStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -731,15 +718,21 @@ export const useAddressStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Activate',
+                    label: 'Mark as Pending',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('pending')
                     }
                 },
                 {
-                    label: 'Deactivate',
+                    label: 'Mark as Approved',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('approve')
+                    }
+                },
+                {
+                    label: 'Mark as Rejected',
+                    command: async () => {
+                        await this.updateList('reject')
                     }
                 },
                 {
@@ -774,17 +767,25 @@ export const useAddressStore = defineStore({
         {
             this.list_bulk_menu = [
                 {
-                    label: 'Mark all as active',
+                    label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.listAction('pending-all')
                     }
                 },
                 {
-                    label: 'Mark all as inactive',
+                    label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.listAction('reject-all')
                     }
                 },
+                {
+                    label: 'Mark all as approved',
+                    command: async () => {
+                        await this.listAction('approve-all')
+                    }
+                },
+
+
                 {
                     separator: true
                 },
@@ -849,6 +850,47 @@ export const useAddressStore = defineStore({
 
             this.item_menu_list = item_menu;
         },
+        //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
         //---------------------------------------------------------------------
         confirmDeleteItem()
         {
@@ -933,7 +975,7 @@ export const useAddressStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

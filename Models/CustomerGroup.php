@@ -4,10 +4,13 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class CustomerGroup extends Model
 {
@@ -36,6 +39,10 @@ class CustomerGroup extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -46,6 +53,43 @@ class CustomerGroup extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+        $data['empty_item'] = [
+            'status' => null,
+        ];
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -85,12 +129,16 @@ class CustomerGroup extends Model
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
+
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_customer_groups_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_customer_groups_status')
+            ->select('id','name','slug');
     }
+
     //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -119,6 +167,7 @@ class CustomerGroup extends Model
         if (!$validation['success']) {
             return $validation;
         }
+
 
 
         // check if name exist
@@ -188,9 +237,12 @@ class CustomerGroup extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -228,13 +280,36 @@ class CustomerGroup extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('name', $status)
+                ->orwhere('slug',$status);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
+        $list->statusFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -283,22 +358,31 @@ class CustomerGroup extends Model
                 ->toArray();
         }
 
+        $status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
 
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->update(['is_active' => null]);
+            case 'approve':
+                $items->update(['taxonomy_id_customer_groups_status' => $approve_id]);
                 break;
-            case 'activate':
-                $items->update(['is_active' => 1]);
+            case 'reject':
+                $items->update(['taxonomy_id_customer_groups_status' => $reject_id]);
+                break;
+            case 'pending':
+                $items->update(['taxonomy_id_customer_groups_status' => $pending_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -346,6 +430,10 @@ class CustomerGroup extends Model
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
+        $status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $approve_id = $status->where('name','Approved')->pluck('id')->first();
+        $reject_id = $status->where('name','Rejected')->pluck('id')->first();
+        $pending_id =$status->where('name','Pending')->pluck('id')->first();
 
         if(isset($inputs['items']))
         {
@@ -357,6 +445,14 @@ class CustomerGroup extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -370,13 +466,17 @@ class CustomerGroup extends Model
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
+                    $user_id = auth()->user()->id;
+                    $items->update(['deleted_by' => $user_id]);
                     self::whereIn('id', $items_id)->delete();
+
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -384,20 +484,46 @@ class CustomerGroup extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+            case 'pending-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $pending_id]);
                 break;
-            case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+            case 'reject-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $reject_id]);
+                break;
+            case 'approve-all':
+                $list->update(['taxonomy_id_customer_groups_status' => $approve_id]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
+                break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
+
+                    return $response;
+                }
+
+                preg_match('/-(.*?)-/', $type, $matches);
+
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
         }
 
@@ -439,7 +565,7 @@ class CustomerGroup extends Model
         }
 
         // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('name', $inputs['name'])->first();
 
@@ -450,7 +576,7 @@ class CustomerGroup extends Model
         }
 
         // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('slug', $inputs['slug'])->first();
 
@@ -503,12 +629,22 @@ class CustomerGroup extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -520,17 +656,21 @@ class CustomerGroup extends Model
     {
 
         $rules = validator($inputs, [
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'customer_count'=> 'required',
             'order_count'=> 'required',
             'taxonomy_id_customer_groups_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_customer_groups_status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         ],
-        [
-            'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+            [
+                'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field must not exceed :max characters',
+            ]
         );
 
         if($rules->fails()){
@@ -546,14 +686,78 @@ class CustomerGroup extends Model
             'data' => $rules
         ];
 
+
     }
 
     //-------------------------------------------------
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
+    }
+
+
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+        $inputs['customer_count'] = rand(20,50);
+        $inputs['order_count'] = rand(20,60);
+        $taxonomy_status = Taxonomy::getTaxonomyByType('customer-groups-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+
+        $status = $taxonomy_status->where('id',$status_id)->first();
+
+        $inputs['taxonomy_id_customer_groups_status'] = $status_id;
+        $inputs['status']=$status;
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
     }
 
     //-------------------------------------------------
