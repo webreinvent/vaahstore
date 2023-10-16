@@ -313,6 +313,7 @@ export const useCustomerGroupStore = defineStore({
         //---------------------------------------------------------------------
         async listAction(type = null){
 
+
             if(!type && this.action.type)
             {
                 type = this.action.type;

@@ -143,7 +143,8 @@ const toggleItemMenu = (event) => {
                         <template v-for="(value, column) in store.item ">
 
                             <template v-if="column === 'created_by' || column === 'updated_by' ||
-                             column === 'deleted_by' ||  column === 'status'|| column === 'status_notes' || column === 'meta'">
+                             column === 'deleted_by' ||  column === 'status'||column === 'customer_count'
+                             || column === 'order_count' ||  column === 'status_notes' || column === 'meta'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -175,9 +176,6 @@ const toggleItemMenu = (event) => {
                                             {{store.item.slug}}</div>
                                     </td>
                                 </tr>
-                            </template>
-
-                            <template v-else-if="column === 'customer_count'">
                                 <tr>
                                     <td :style="{width: label_width}">
                                         <b>Customer Count</b>
@@ -186,9 +184,7 @@ const toggleItemMenu = (event) => {
                                         <Badge severity="info" v-if="store.item.customer_count">{{store.item.customer_count}}</Badge>
                                     </td>
                                 </tr>
-                            </template>
 
-                            <template v-else-if="column === 'order_count'">
                                 <tr>
                                     <td :style="{width: label_width}">
                                         <b>Order Count</b>
@@ -197,6 +193,7 @@ const toggleItemMenu = (event) => {
                                         <Badge severity="info" v-if="store.item.order_count">{{store.item.order_count}}</Badge>
                                     </td>
                                 </tr>
+                                
                             </template>
 
                             <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">

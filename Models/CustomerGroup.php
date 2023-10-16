@@ -378,9 +378,11 @@ class CustomerGroup extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -428,7 +430,6 @@ class CustomerGroup extends Model
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
-
         $status = Taxonomy::getTaxonomyByType('customer-groups-status');
         $approve_id = $status->where('name','Approved')->pluck('id')->first();
         $reject_id = $status->where('name','Rejected')->pluck('id')->first();
@@ -466,13 +467,16 @@ class CustomerGroup extends Model
                 break;
             case 'trash':
                 if (isset($items_id) && count($items_id) > 0) {
+                    $user_id = auth()->user()->id;
+                    $items->update(['deleted_by' => $user_id]);
                     self::whereIn('id', $items_id)->delete();
-                    $items->update(['deleted_by' => auth()->user()->id]);
+
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -495,6 +499,7 @@ class CustomerGroup extends Model
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -637,6 +642,9 @@ class CustomerGroup extends Model
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
