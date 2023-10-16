@@ -645,11 +645,12 @@ class CustomerGroup extends Model
             'customer_count'=> 'required',
             'order_count'=> 'required',
             'taxonomy_id_customer_groups_status'=> 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'status_notes' => 'required_if:status.slug,==,rejected |max:255',
         ],
             [
                 'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.*.max' => 'The Status notes field must not exceed :max characters',
             ]
         );
 
