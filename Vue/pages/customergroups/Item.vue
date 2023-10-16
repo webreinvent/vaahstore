@@ -223,7 +223,7 @@ const toggleItemMenu = (event) => {
                                     <td  colspan="2" >
                                         <Badge severity="danger" v-if="store.item.status.name == 'Rejected'">{{store.item.status.name}}</Badge>
                                         <Badge severity="success" v-if="store.item.status.name == 'Approved'">{{store.item.status.name}}</Badge>
-                                        <Badge severity="info" v-if="store.item.status.name == 'Pending'">{{store.item.status.name}}</Badge>
+                                        <Badge severity="warning" v-if="store.item.status.name == 'Pending'">{{store.item.status.name}}</Badge>
                                     </td>
                                 </tr>
                             </template>

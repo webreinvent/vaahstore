@@ -74,7 +74,7 @@ const useVaah = vaah();
                     <Badge v-else-if="prop.data.status.slug === 'rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
                     <Badge v-else
-                           severity="primary"> {{prop.data.status.name}} </Badge>
+                           severity="warning"> {{prop.data.status.name}} </Badge>
 
                 </template>
             </Column>
@@ -100,14 +100,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-view"
                                 v-tooltip.top="'View'"
-                                :disabled="prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
