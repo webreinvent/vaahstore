@@ -11,7 +11,7 @@ return [
     "download_link"=> "",
     "author_name"=> "store",
     "author_website"=> "https://vaah.dev",
-    "version"=> "0.0.33",
+    "version"=> "0.0.32",
     "is_migratable"=> true,
     "is_sample_data_available"=> true,
     "db_table_prefix"=> "vh_store_",
