@@ -222,7 +222,6 @@ class Address extends Model
     public static function setDefaultAddress($user_id, $address_id)
     {
         $user = User::find($user_id);
-        dd($user);
 
         if (!$user) {
             throw new \Exception("User not found");
