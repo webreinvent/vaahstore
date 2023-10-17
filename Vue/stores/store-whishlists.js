@@ -969,7 +969,14 @@ export const useWhishlistStore = defineStore({
                             this.item = null;
                             this.toList();
                         }
-                    })
+                    },
+                     {
+                    label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
                 }
                 else{
                     form_menu.push({
@@ -980,7 +987,14 @@ export const useWhishlistStore = defineStore({
                             this.item = null;
                             this.toList();
                         }
-                    })
+                    } ,
+                      {
+                        label: 'Delete',
+                            icon: 'pi pi-trash',
+                            command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },)
 
                 }
 
@@ -1013,13 +1027,6 @@ export const useWhishlistStore = defineStore({
             }
 
             form_menu.push(
-                {
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },
                 {
                 label: 'Fill',
                 icon: 'pi pi-pencil',

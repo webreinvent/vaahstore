@@ -34,12 +34,12 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-else-if="prop.data.user == null"
+                    <Badge v-if="prop.data.user == null"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.user.first_name}}
-                    </template>
+                    <span v-else style="padding-left: 5px;">
+                        {{prop.data.user.name}}
+                    </span>
                 </template>
 
             </Column>
@@ -51,12 +51,12 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.whishlist_type == null"
+                     <Badge v-if="prop.data.whishlist_type == null"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <template v-else>
+                     <span v-else style="padding-left: 5px;">
                          {{prop.data.whishlist_type.name}}
-                     </template>
+                      </span>
 
                  </template>
 
@@ -66,9 +66,6 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
