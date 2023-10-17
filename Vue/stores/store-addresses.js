@@ -687,7 +687,7 @@ export const useAddressStore = defineStore({
             {
                 let chrs = this.list.total.toString();
                 chrs = chrs.length;
-                width = chrs*40;
+                width = chrs*20;
             }
 
             return width+'px';
@@ -927,21 +927,40 @@ export const useAddressStore = defineStore({
 
                         }
                     },
-                    {
+
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
+                    },)
+                }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
+
 
             } else{
                 form_menu = [
@@ -982,6 +1001,7 @@ export const useAddressStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
         //---------------------------------------------------------------------
     }
 });

@@ -422,9 +422,11 @@ class Address extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -509,13 +511,15 @@ class Address extends Model
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -533,10 +537,14 @@ class Address extends Model
                 $list->update(['taxonomy_id_address_status' => $approve_id]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by' => null]);
+
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -653,13 +661,21 @@ class Address extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
