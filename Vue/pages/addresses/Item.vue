@@ -59,7 +59,14 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <tr>
+                    <td  colspan="2" >
+                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                            {{store.item.status_notes}}</div>
+                    </td>
+                </tr>
+            </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -119,7 +126,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -140,7 +147,8 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
-                        column === 'status'|| column === 'address_type'">
+                        column === 'status'|| column === 'address_type' || column === 'address_line_1' || column === 'address_line_2' ||
+                        column === 'meta' || column === 'status_notes' || column === 'deleted_by' || column === 'address'">
                         </template>
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
@@ -161,6 +169,15 @@ const toggleItemMenu = (event) => {
                                            :value="store.item.user"
                                            type="user"
                                 />
+                                <tr>
+                                    <td :style="{width: label_width}">
+                                        <b>Address</b>
+                                    </td>
+                                    <td  colspan="2" >
+                                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                            {{store.item.address}}</div>
+                                    </td>
+                                </tr>
                             </template>
 
                             <template v-else-if="column === 'taxonomy_id_address_types'">
