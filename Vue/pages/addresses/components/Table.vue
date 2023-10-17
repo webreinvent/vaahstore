@@ -38,6 +38,21 @@ const useVaah = vaah();
 
              </Column>
 
+             <Column field="address" header="Address"
+                     :sortable="true">
+
+                 <template #body="prop">
+
+                     <template v-if="prop.data.is_default == 1">
+                            <Badge severity="primary">Default</Badge>
+                            <div style="word-break: break-word;">{{ prop.data.address }}</div>
+                     </template>
+                     <template v-else>
+                         <div style="word-break: break-word;">{{ prop.data.address }}</div>
+                     </template>
+                 </template>
+
+             </Column>
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -53,24 +68,6 @@ const useVaah = vaah();
                  </template>
 
              </Column>
-
-
-             <Column field="address" header="Address"
-                     :sortable="true">
-
-                 <template #body="prop">
-
-                     <template v-if="prop.data.is_default == 1">
-                            <Badge severity="primary">Default</Badge>
-                            <div style="word-break: break-word;">{{ prop.data.address }}</div>
-                     </template>
-                     <template v-else>
-                          {{prop.data.address}}
-                     </template>
-                 </template>
-
-             </Column>
-
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
