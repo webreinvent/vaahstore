@@ -43,22 +43,6 @@ const useVaah = vaah();
 
              </Column>
 
-<!--             <Column field="address_type" header="Types"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <Badge v-else-if="prop.data.address_type == null"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <template v-else>-->
-<!--                         {{prop.data.address_type.name}}-->
-<!--                     </template>-->
-<!--                 </template>-->
-
-<!--             </Column>-->
 
              <Column field="status" header="Status"
                      :sortable="true">
@@ -72,7 +56,7 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
@@ -85,11 +69,9 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else-if="prop.data.is_default == 1">
-                         {{ prop.data.address }}<Badge severity="primary">Default</Badge>
+                     <template v-if="prop.data.is_default == 1">
+                            <Badge severity="primary">Default</Badge>
+                            <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                      <template v-else>
                           {{prop.data.address}}
@@ -160,8 +142,7 @@ const useVaah = vaah();
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
-
-
+                        
                     </div>
 
                 </template>
