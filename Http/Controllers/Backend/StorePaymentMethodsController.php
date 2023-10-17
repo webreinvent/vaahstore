@@ -44,6 +44,9 @@ class StorePaymentMethodsController extends Controller
 
             $data['active_stores'] = $this->getActiveStores();
             $data['empty_item']['store'] = $this->getDefaultStore();
+            $data['empty_item']['vh_st_store_id'] = Store::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
+                ->pluck('id')->first();
+
             $data['active_payment_methods'] = $this->getActivePaymentMethods();
 
             $response['success'] = true;
