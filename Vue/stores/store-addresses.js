@@ -457,7 +457,7 @@ export const useAddressStore = defineStore({
         async itemActionAfter(data, res)
         {
             if(data)
-            {
+            {   this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
