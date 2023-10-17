@@ -495,6 +495,7 @@ export const useStorePaymentMethodStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
@@ -859,6 +860,7 @@ export const useStorePaymentMethodStore = defineStore({
                     icon: 'pi pi-times',
                     command: () => {
                         this.itemAction('trash');
+
                     }
                 });
             }
@@ -949,22 +951,31 @@ export const useStorePaymentMethodStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    },
-                    {
+                    }
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    })
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
+                    })
+                }
 
             } else{
                 form_menu = [
@@ -994,7 +1005,15 @@ export const useStorePaymentMethodStore = defineStore({
                 ];
             }
 
-            form_menu.push({
+            form_menu.push(
+                {
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },
+                {
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
