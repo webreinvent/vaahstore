@@ -15,7 +15,7 @@ const useVaah = vaah();
                    dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
-                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-blue-100':''"
+                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    stripedRows
                    responsiveLayout="scroll">
 
@@ -27,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User"
+            <Column field="user.name" header="User"
                     :sortable="true">
 
                 <template #body="prop">
@@ -44,7 +44,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="whishlist_type" header="Type"
+             <Column field="whishlist_type.name" header="Type"
                      :sortable="true">
 
                  <template #body="prop">
@@ -62,7 +62,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
@@ -97,12 +97,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
