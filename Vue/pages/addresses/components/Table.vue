@@ -59,9 +59,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+
                      <template v-if="prop.data.is_default == 1">
                             <Badge severity="primary">Default</Badge>
                             <div style="word-break: break-word;">{{ prop.data.address }}</div>
@@ -135,7 +133,7 @@ const useVaah = vaah();
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
-                        
+
                     </div>
 
                 </template>
