@@ -13,7 +13,8 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                   class="p-datatable-sm"
+                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -26,49 +27,41 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
-                    :sortable="true">
+            <Column field="name" header="Name" :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.name == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.name}}
+                    <span v-if="prop.data.is_default">
+                        <Badge severity="info">Default</Badge>
+                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
+                    <span v-else>
+                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                    </span>
                 </template>
 
             </Column>
 
              <Column field="product" header="Product"
-                    :sortable="true">
+                     :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.product == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
                      {{prop.data.product.name}}
-                         </span>
                  </template>
 
-            </Column>
+             </Column>
 
-             <Column field="in_stock" header="In Stock"
+             <Column field="in_stock" header="In Stock" :style="{width: store.getInStockWidth()}"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.in_stock == 0"
-                            value="out of stock"
+                            value="No"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.in_stock == 1"
-                            value="in stock"
+                            value="Yes"
                             severity="success"></Badge>
                  </template>
 
@@ -83,7 +76,7 @@ const useVaah = vaah();
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.quantity > 0"
                             :value="prop.data.quantity"
-                            severity="success"></Badge>
+                            severity="info"></Badge>
                  </template>
 
              </Column>
@@ -92,34 +85,20 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
+
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
+
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
 
-                <Column field="sku" header="SKU"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
 
-                    <template #body="prop">
-                        <Badge v-if="prop.data.deleted_at"
-                               value="Trashed"
-                               severity="danger"></Badge>
-                        {{prop.data.sku}}
-                    </template>
-
-                </Column>
-
-             <Column field="updated_at" header="Updated"
+                <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
                         :sortable="true">
@@ -156,12 +135,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -192,13 +173,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 
