@@ -185,7 +185,6 @@ class Address extends Model
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -610,6 +609,20 @@ class Address extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
+        $user_id = $inputs['vh_user_id'];
+        if(($inputs['is_default']) == 1)
+        {
+            $user = User::find($user_id);
+            $addresses = $user->addresses()->where('is_default',1)->get();
+
+            foreach ($addresses as $address) {
+
+                $address->is_default = 0;
+                $address->save();
+            }
+
+            $item->is_default=1;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -690,16 +703,20 @@ class Address extends Model
             [
                 'vh_user_id' => 'required|max:150',
                 'taxonomy_id_address_types' => 'required|max:150',
-                'taxonomy_id_address_status' => 'required|max:150',
-                'status_notes' => 'required_if:status.slug,==,rejected',
                 'address_line_1'=>'required|max:150',
-                'address_line_2'=>'required|max:150'
+                'address_line_2'=>'required|max:150',
+                'taxonomy_id_address_status' => 'required|max:150',
+                'status_notes' => [
+                    'required_if:status.slug,==,rejected',
+                    'max:100'
+                ],
             ],
             [
                 'vh_user_id.required' => 'The User field is required',
                 'taxonomy_id_address_types.required' => 'The Type field is required',
                 'taxonomy_id_address_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
 
         );
@@ -731,7 +748,6 @@ class Address extends Model
 
 
     //-------------------------------------------------
-
     public static function seedSampleItems($records=100)
     {
 
@@ -750,7 +766,6 @@ class Address extends Model
         }
 
     }
-
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
