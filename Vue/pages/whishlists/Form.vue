@@ -114,7 +114,7 @@ const toggleFormMenu = (event) => {
                         placeholder="Select User"
                         data-testid="whishlists-user"
                         name="whishlists-user"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
 
