@@ -149,6 +149,17 @@ const toggleItemMenu = (event) => {
                                        :can_copy="true"
                             />
                         </template>
+                        <template v-else-if="column === 'status_notes'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status Notes</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.status_notes}}</div>
+                                </td>
+                            </tr>
+                        </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
