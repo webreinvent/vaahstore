@@ -635,14 +635,18 @@ class Whishlist extends Model
             'vh_user_id'=> 'required',
             'taxonomy_id_whishlists_types'=> 'required',
             'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => 'required_if:status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         );
 
         $customMessages = array(
             'vh_user_id.required' => 'The user field is required.',
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',
             'taxonomy_id_whishlists_status.required' => 'The status field is required.',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'Keyword must not exceed :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules, $customMessages);
