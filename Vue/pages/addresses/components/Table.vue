@@ -33,12 +33,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.user.first_name == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else>
                          {{prop.data.user.first_name}}
-                     </template>
                  </template>
 
              </Column>
@@ -48,9 +43,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
@@ -66,9 +59,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+
                      <template v-if="prop.data.is_default == 1">
                             <Badge severity="primary">Default</Badge>
                             <div style="word-break: break-word;">{{ prop.data.address }}</div>
@@ -142,7 +133,7 @@ const useVaah = vaah();
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
-                        
+
                     </div>
 
                 </template>
