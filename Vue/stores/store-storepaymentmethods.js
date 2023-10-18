@@ -963,7 +963,14 @@ export const useStorePaymentMethodStore = defineStore({
                             this.item = null;
                             this.toList();
                         }
-                    })
+                    },
+                      {
+                            label: 'Delete',
+                            icon: 'pi pi-trash',
+                            command: () => {
+                                this.confirmDeleteItem('delete');
+                            }
+                        })
                 }
                 else {
                     form_menu.push({
@@ -973,6 +980,13 @@ export const useStorePaymentMethodStore = defineStore({
                             this.itemAction('trash');
                             this.item = null;
                             this.toList();
+                        }
+                    },
+                     {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
                         }
                     })
                 }
@@ -1005,15 +1019,7 @@ export const useStorePaymentMethodStore = defineStore({
                 ];
             }
 
-            form_menu.push(
-                {
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },
-                {
+            form_menu.push({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {

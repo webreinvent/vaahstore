@@ -39,7 +39,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="payment_method.name" header="Payment Method"
+             <Column field="payment_method.name" header="Method"
                      :sortable="true">
 
                  <template #body="prop">

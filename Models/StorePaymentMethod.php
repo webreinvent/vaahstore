@@ -640,7 +640,10 @@ class StorePaymentMethod extends Model
             'vh_st_payment_method_id'=> 'required',
             'last_payment_at'=> 'required',
             'taxonomy_id_payment_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         );
 
         $customMessages = array(
@@ -648,7 +651,8 @@ class StorePaymentMethod extends Model
             'vh_st_payment_method_id.required' => 'The Payment Method field is required',
             'last_payment_at.required' => 'The Last Payment at field is required',
             'taxonomy_id_payment_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules,$customMessages);
