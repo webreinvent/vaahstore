@@ -652,7 +652,7 @@ class StorePaymentMethod extends Model
             'last_payment_at.required' => 'The Last Payment at field is required',
             'taxonomy_id_payment_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-            'status_notes.max' => 'Keyword must not exceed :max characters.',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules,$customMessages);
