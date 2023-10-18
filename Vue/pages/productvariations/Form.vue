@@ -151,7 +151,8 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="productvariations-quantity"
                         v-model="store.item.quantity"
-                        mode="decimal" showButtons
+                        @input = "store.checkQuantity($event)"
+                        showButtons
                         :min="0"
                         data-testid="productvariations-quantity"/>
                 </VhField>
@@ -160,7 +161,7 @@ const toggleFormMenu = (event) => {
                     <InputSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
-                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        @change="store.checkInStock()"
                         name="productvariations-in_stock"
                         data-testid="productvariations-in_stock"
                         v-model="store.item.in_stock"/>

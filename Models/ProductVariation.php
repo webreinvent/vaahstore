@@ -194,6 +194,7 @@ class ProductVariation extends Model
             return $response;
         }
 
+
         // check if slug exist
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
@@ -201,6 +202,16 @@ class ProductVariation extends Model
             $response['success'] = false;
             $response['messages'][] = "This slug is already exist.";
             return $response;
+        }
+
+        if($inputs['in_stock'] == 1)
+        {
+            if($inputs['quantity'] < 1)
+            {
+                $response['success'] = false;
+                $response['messages'][] = "Please Enter Quantity.";
+                return $response;
+            }
         }
 
         // handle if current record is default
@@ -608,6 +619,16 @@ class ProductVariation extends Model
             self::where('is_default',1)->update(['is_default' => 0]);
         }
 
+        if($inputs['in_stock'] == 1)
+        {
+            if($inputs['quantity'] < 1)
+            {
+                $response['success'] = false;
+                $response['messages'][] = "Please Enter Quantity.";
+                return $response;
+            }
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -621,6 +642,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
@@ -628,9 +650,8 @@ class ProductVariation extends Model
             return $response;
         }
         $item->forceDelete();
-        ProductMedia::deleteProductVariations($item->id);
-        ProductMedia::deleteProductVariations($item->id);
-        ProductAttribute::deleteProductVariations($item->id);
+        ProductMedia::deleteProductVariation($item->id);
+        ProductAttribute::deleteProductVariation($item->id);
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Record has been deleted';
