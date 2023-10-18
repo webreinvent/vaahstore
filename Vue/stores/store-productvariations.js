@@ -173,18 +173,29 @@ export const useProductVariationStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-         watchItem(name)
-          {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              }
-              if(name == "")
-              {
-                  this.item.slug="";
-              }
-          },
+        watchItem()
+        {
+            if(this.item){
+                watch(() => [this.item.name, this.item.in_stock],
+                    ([newName, newInStock], [oldName, oldInStock]) =>
+                    {
+                        if(newName && newName !== "")
+                        {
+                            this.item.name = newName;
+                            this.item.slug = vaah().strToSlug(newName);
+                        }
+                        if(newName == "")
+                        {
+                            this.item.slug="";
+                        }
+
+                    },{deep: true}
+                )
+            }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
+        },
 
         //---------------------------------------------------------------------
         setProduct(event){
@@ -891,6 +902,31 @@ export const useProductVariationStore = defineStore({
             this.itemAction('delete', this.item);
         },
         //---------------------------------------------------------------------
+        checkQuantity(event)
+        {
+            this.item.quantity = event.value;
+            if(this.item.quantity > 0)
+            {
+                this.item.in_stock = 1;
+            }
+            else {
+                this.item.in_stock = 0;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        checkInStock(event)
+        {
+
+            if(this.item.in_stock == 0)
+            {
+                this.item.quantity = 0;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async getFormMenu()
         {
             let form_menu = [];

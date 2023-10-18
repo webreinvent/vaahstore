@@ -702,8 +702,9 @@ class ProductMedia extends Model
     }
     //-------------------------------------------------
     public static function deleteProductVariations($items_id){
+
         if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
+            self::whereIn('vh_st_product_variation_id',$items_id)->forcedelete();
             $response['success'] = true;
             $response['data'] = true;
         }else{
@@ -714,5 +715,17 @@ class ProductMedia extends Model
     }
     //-------------------------------------------------
 
+    public static function deleteProductVariation($items_id){
+
+        if($items_id){
+            self::where('vh_st_product_variation_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
 
 }

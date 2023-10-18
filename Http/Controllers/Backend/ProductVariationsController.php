@@ -237,6 +237,7 @@ class ProductVariationsController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+
         try{
             return ProductVariation::deleteItem($request,$id);
         }catch (\Exception $e){
