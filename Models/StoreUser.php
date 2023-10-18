@@ -1,8 +1,9 @@
 <?php
-namespace WebReinvent\VaahCms\Models;
+namespace VaahCms\Modules\Store\Models;
 
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Models\Address;
+use WebReinvent\VaahCms\Models\UserBase;
 
 class StoreUser extends UserBase
 {
