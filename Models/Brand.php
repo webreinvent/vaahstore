@@ -346,7 +346,7 @@ class Brand extends Model
             $rows = $request->rows;
         }
 
-        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate($rows);
 
         $response['success'] = true;
         $response['data'] = $list;
