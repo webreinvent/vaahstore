@@ -274,7 +274,7 @@ class StorePaymentMethod extends Model
             return $query;
         }
         $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
+        $query->whereHas('store',function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
                 ->orWhere('slug', 'LIKE', '%' . $search . '%');
         });

@@ -15,6 +15,7 @@ const useVaah = vaah();
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
+                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    stripedRows
                    responsiveLayout="scroll">
 
@@ -26,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User"
+            <Column field="store.name" header="User"
                     :sortable="true">
 
                 <template #body="prop">
@@ -38,7 +39,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="payment_method" header="Payment Method"
+             <Column field="payment_method.name" header="Payment Method"
                      :sortable="true">
 
                  <template #body="prop">
@@ -48,14 +49,14 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.payment_method == null"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <span v-else>
+                     <span v-else style="padding: 5px;">
                      {{prop.data.payment_method.name}}
-                         </span>
+                     </span>
                  </template>
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
