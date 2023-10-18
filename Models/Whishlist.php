@@ -646,7 +646,7 @@ class Whishlist extends Model
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',
             'taxonomy_id_whishlists_status.required' => 'The status field is required.',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-            'status_notes.max' => 'Keyword must not exceed :max characters.',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules, $customMessages);
