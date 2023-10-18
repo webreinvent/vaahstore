@@ -4,10 +4,14 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\Taxonomy;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Whishlist extends Model
 {
@@ -35,6 +39,10 @@ class Whishlist extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -50,13 +58,49 @@ class Whishlist extends Model
     public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
     }
+
     //-------------------------------------------------
     public function whishlistType(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
     }
+
     //-------------------------------------------------
     public function user(){
         return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
+    }
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -127,6 +171,12 @@ class Whishlist extends Model
             return $validation;
         }
 
+        // Check if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
+
         $item = new self();
         $item->fill($inputs);
         $item->save();
@@ -175,9 +225,12 @@ class Whishlist extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -208,9 +261,36 @@ class Whishlist extends Model
             return $query;
         }
         $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+        $query->whereHas('user' , function ($q) use ($search){
+            $q->where('first_name', 'LIKE', '%' . $search . '%');
+        });
+
+
+    }
+    //-------------------------------------------------
+    public function scopeWishlistStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['wishlist_status']))
+        {
+            return $query;
+        }
+        $search = $filter['wishlist_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+                      $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopeWishlistTypeFilter($query, $filter)
+    {
+
+        if(!isset($filter['wishlist_type']))
+        {
+            return $query;
+        }
+        $search = $filter['wishlist_type'];
+        $query->whereHas('whishlistType',function ($q) use ($search) {
+                $q->whereIn('name',$search);
         });
 
     }
@@ -221,6 +301,8 @@ class Whishlist extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->wishlistStatusFilter($request->filter);
+        $list->wishlistTypeFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -274,18 +356,29 @@ class Whishlist extends Model
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
+        $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
+        $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
+
+
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->update(['is_active' => null]);
+            case 'approved':
+                $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
-            case 'activate':
-                $items->update(['is_active' => 1]);
+            case 'pending':
+                $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                break;
+            case 'rejected':
+                $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -344,6 +437,19 @@ class Whishlist extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
+        $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
+        $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
 
         switch ($type) {
             case 'deactivate':
@@ -359,11 +465,13 @@ class Whishlist extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -371,21 +479,46 @@ class Whishlist extends Model
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
-            case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+            case 'approved-all':
+                $list->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
-            case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+            case 'pending-all':
+                $list->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                break;
+            case 'reject-all':
+                $list->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->update(['deleted_by' => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -423,6 +556,11 @@ class Whishlist extends Model
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
+        }
+
+        // Check default
+        if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+            self::where('is_default',1)->update(['is_default' => 0]);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
@@ -467,12 +605,22 @@ class Whishlist extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
+                $item = self::where('id', $id)->withTrashed()->first();
+                if($item->delete()){
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -483,32 +631,34 @@ class Whishlist extends Model
     public static function validation($inputs)
     {
 
-        $rules = validator($inputs, [
+        $rules = array(
             'vh_user_id'=> 'required',
             'taxonomy_id_whishlists_types'=> 'required',
             'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_whishlists_status.slug,==,rejected',
-                ],
-        [
-            'vh_user_id.required' => 'The User field is required',
-            'taxonomy_id_whishlists_types.required' => 'The Type variation field is required',
-            'taxonomy_id_whishlists_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         );
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
-        }
-        $rules = $rules->validated();
+        $customMessages = array(
+            'vh_user_id.required' => 'The user field is required.',
+            'taxonomy_id_whishlists_types.required' => 'The type field is required.',
+            'taxonomy_id_whishlists_status.required' => 'The status field is required.',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+        );
 
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
+        $validator = \Validator::make($inputs, $rules, $customMessages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
+        }
+
+        $response['success'] = true;
+        return $response;
 
     }
 
@@ -516,12 +666,149 @@ class Whishlist extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
     //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $users_ids = User::where('is_active',1)->pluck('id')->toArray();
+        $users_id = $users_ids[array_rand($users_ids)];
+        $users_id_data = User::where('is_active',1)->where('id',$users_id)->first();
+        $inputs['vh_user_id'] =$users_id;
+        $inputs['user'] = $users_id_data;
+
+        $taxonomy_type = Taxonomy::getTaxonomyByType('wishlists-types');
+        $taxonomy_type_ids = $taxonomy_type->pluck('id')->toArray();
+        $taxonomy_type_id = $taxonomy_type_ids[array_rand($taxonomy_type_ids)];
+        $taxonomy_type_name = $taxonomy_type->where('id',$taxonomy_type_id)->first();
+        $inputs['taxonomy_id_whishlists_types'] = $taxonomy_type_id;
+        $inputs['whishlist_type'] = $taxonomy_type_name;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_whishlists_status'] = $status_id;
+        $inputs['status']=$status;
+
+
+        $inputs['is_default'] = 0;
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
+    public static function searchVaahUsers($request)
+    {
+        $query = $request->input('query');
+        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function searchType($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('wishlists-types');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-types');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function searchStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('wishlists-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-status');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
     //-------------------------------------------------
 
 
