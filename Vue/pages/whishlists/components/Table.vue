@@ -97,7 +97,6 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-view"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
