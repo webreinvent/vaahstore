@@ -39,7 +39,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="registered_by_user" header="Registered By"
+             <Column field="registered_by_user.display_name" header="Registered By"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
@@ -54,7 +54,7 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-             <Column field="approved_by_user" header="Approved By"
+             <Column field="approved_by_user.first_name" header="Approved By"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
@@ -70,7 +70,7 @@ const useVaah = vaah();
              </Column>
 
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
