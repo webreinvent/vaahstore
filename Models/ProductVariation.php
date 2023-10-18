@@ -657,10 +657,8 @@ class ProductVariation extends Model
                 ->withTrashed()
                 ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
-                if($item->delete()) {
-                    $item->deleted_by = auth()->user()->id;
-                    $item->save();
-                }
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
