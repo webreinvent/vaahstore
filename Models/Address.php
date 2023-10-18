@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\StoreUser;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
@@ -195,7 +196,7 @@ class Address extends Model
         $user_id = $inputs['vh_user_id'];
         if(($inputs['is_default']) == 1)
         {
-            $user = User::find($user_id);
+            $user = StoreUser::find($user_id);
             $addresses = $user->addresses()->where('is_default',1)->get();
 
             foreach ($addresses as $address) {
@@ -220,7 +221,7 @@ class Address extends Model
 
     public static function setDefaultAddress($user_id, $address_id)
     {
-        $user = User::find($user_id);
+        $user = StoreUser::find($user_id);
 
         if (!$user) {
             throw new \Exception("User not found");
@@ -612,7 +613,7 @@ class Address extends Model
         $user_id = $inputs['vh_user_id'];
         if(($inputs['is_default']) == 1)
         {
-            $user = User::find($user_id);
+            $user = StoreUser::find($user_id);
             $addresses = $user->addresses()->where('is_default',1)->get();
 
             foreach ($addresses as $address) {
@@ -655,7 +656,7 @@ class Address extends Model
             case 'make-default':
                 $address = Address::find($id);
                 $user_id = $address->user()->pluck('id')->first();
-                $user = User::find($user_id);
+                $user = StoreUser::find($user_id);
                 $addresses = $user->addresses()->get();
                 foreach ($addresses as $address) {
 
