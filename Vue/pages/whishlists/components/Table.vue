@@ -12,9 +12,10 @@ const useVaah = vaah();
     <div v-if="store.list">
         <!--table-->
          <DataTable :value="store.list.data"
-                       dataKey="id"
-                   class="p-datatable-sm"
+                   dataKey="id"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
+                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    stripedRows
                    responsiveLayout="scroll">
 
@@ -26,55 +27,51 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User"
+            <Column field="user.name" header="User"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-else-if="prop.data.user == null"
+                    <Badge v-if="prop.data.user == null"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.user.first_name}}
-                    </template>
-
+                    <span v-else style="padding-left: 5px;">
+                        {{prop.data.user.name}}
+                    </span>
                 </template>
 
             </Column>
 
-             <Column field="whishlist_type" header="Type"
-                    :sortable="true">
-
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <Badge v-else-if="prop.data.whishlist_type == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.whishlist_type.name}}
-                    </template>
-
-                </template>
-
-            </Column>
-
-             <Column field="status" header="Status"
+             <Column field="whishlist_type.name" header="Type"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
+                     <Badge v-if="prop.data.whishlist_type == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span v-else style="padding-left: 5px;">
+                         {{prop.data.whishlist_type.name}}
+                      </span>
+
+                 </template>
+
+             </Column>
+
+             <Column field="status.name" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
@@ -86,11 +83,10 @@ const useVaah = vaah();
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                     </template>
 
                 </Column>
-
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
@@ -101,12 +97,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -137,13 +135,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 

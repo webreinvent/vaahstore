@@ -58,7 +58,7 @@ const toggleItemMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -77,6 +77,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Edit"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="whishlists-item-to-edit"
                             icon="pi pi-save"/>
@@ -84,6 +85,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="whishlists-item-menu"
                         icon="pi pi-angle-down"
@@ -94,7 +96,7 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="whishlists-item-to-list"
                             @click="store.toList()"/>
@@ -106,7 +108,7 @@ const toggleItemMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div class="mt-2" v-if="store.item">
 
                 <Message severity="error"
                          class="p-container-message"
@@ -117,10 +119,10 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
-                        <div class="">
+                        <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="whishlists-item-restore"
@@ -138,7 +140,7 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
-                                column === 'status'|| column === 'whishlist_type'">
+                                column === 'status'|| column === 'whishlist_type' || column ==='deleted_by'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -146,6 +148,17 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        :can_copy="true"
                             />
+                        </template>
+                        <template v-else-if="column === 'status_notes'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status Notes</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.status_notes}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
@@ -181,6 +194,12 @@ const toggleItemMenu = (event) => {
                             <VhViewRow label="Status"
                                        :value="store.item.status"
                                        type="status"
+                            />
+                        </template>
+                        <template v-else-if="column === 'is_default'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
                             />
                         </template>
 
