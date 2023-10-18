@@ -304,9 +304,11 @@ class ProductVariation extends Model
             return $query;
         }
         $search = $filter['q'];
+
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id','LIKE','%'.$search.'%');
         });
 
     }
