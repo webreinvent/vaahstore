@@ -17,8 +17,9 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'Product Variations - Store';
+    document.title = 'Product Variations - Store ';
     /**
+     *
      * call onLoad action when List view loads
      */
     await store.onLoad(route);
@@ -48,7 +49,6 @@ onMounted(async () => {
     await store.getList();
 
     await store.getListCreateMenu();
-
 });
 
 //--------form_menu
