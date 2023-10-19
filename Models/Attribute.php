@@ -617,10 +617,10 @@ class Attribute extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-            'type' => 'required|max:50',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'value' => 'required',
+            'type' => 'required|max:50',
         );
 
         $validator = \Validator::make($inputs, $rules);
