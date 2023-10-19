@@ -58,7 +58,7 @@ const toggleItemMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -76,7 +76,9 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
                     <Button label="Edit"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="attributes-item-to-edit"
                             icon="pi pi-save"/>
@@ -84,9 +86,24 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="attributes-item-menu"
                         icon="pi pi-angle-down"
+                        aria-haspopup="true"/>
+
+                    <Button
+                        type="button"
+                        data-testid="attributes-form-menu"
+                        icon="pi pi-angle-left"
+                        @click="store.getPreviousItem(store.item)"
+                        aria-haspopup="true"/>
+
+                    <Button
+                        type="button"
+                        data-testid="attributes-form-menu"
+                        icon="pi pi-angle-right"
+                        @click="store.getNextItem(store.item)"
                         aria-haspopup="true"/>
 
                     <Menu ref="item_menu_state"
@@ -94,7 +111,7 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="attributes-item-to-list"
                             @click="store.toList()"/>
@@ -106,7 +123,7 @@ const toggleItemMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div class="mt-2" v-if="store.item">
 
                 <Message severity="error"
                          class="p-container-message"
@@ -120,7 +137,7 @@ const toggleItemMenu = (event) => {
                             Deleted {{store.item.deleted_at}}
                         </div>
 
-                        <div class="">
+                        <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="attributes-item-restore"
@@ -137,7 +154,9 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation' || column === 'attribute_value' || column === 'status'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation'
+                         || column === 'attribute_value' || column === 'status' || column === 'meta' || column === 'deleted_by'
+                            || column === 'deleted_at'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -147,7 +166,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
+                        column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -173,7 +193,6 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        />
                         </template>
-
 
                     </template>
                     </tbody>
