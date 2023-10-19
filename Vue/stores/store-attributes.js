@@ -514,14 +514,12 @@ export const useAttributeStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
-                    this.attribute_new_value = null;
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
                 case 'save':
                     this.item = data;
-                    this.attribute_new_value = null;
                     break;
                 case 'delete':
                     this.item = null;

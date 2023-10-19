@@ -634,19 +634,11 @@ class Attribute extends Model
     public static function validation($inputs)
     {
 
-        $validated_data = validator($inputs, [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
-            'value' => 'required|max:50',
-            'value.*.value' => 'max:50',
+        $rules = array(
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
             'type' => 'required|max:50',
-
-        ],
-            [
-
-                'value.*.value' => 'The Value field may not be greater than :max characters.',
-
-            ]
+            'value' => 'required',
         );
 
         if($validated_data->fails()){
@@ -699,14 +691,7 @@ class Attribute extends Model
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            foreach ($inputs['value'] as $key=>$value) {
-                if ($value['is_active'] == 1) {
-                    $item1 = new AttributeValue();
-                    $item1->vh_st_attribute_id = $item->id;
-                    $item1->value = $value['value'];
-                    $item1->save();
-                }
-            }
+
             $i++;
 
         }
@@ -725,13 +710,8 @@ class Attribute extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-
         $faker = Factory::create();
-        $inputs['value'][]= [
-            'value' => $faker->name(10),
-            'is_active' => 1
-        ];
-        $inputs['is_active'] = 1;
+
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
