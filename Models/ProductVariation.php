@@ -711,7 +711,7 @@ class ProductVariation extends Model
                 'max:100'
             ],
 
-            'quantity'  => 'required|numeric',
+            'quantity'  => 'required|digits_between:1,15',
             'in_stock'=> 'required|numeric',
         ],
             [
@@ -719,7 +719,7 @@ class ProductVariation extends Model
                 'taxonomy_id_variation_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-
+                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
             ]
         );
         if($rules->fails()){

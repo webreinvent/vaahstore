@@ -154,6 +154,7 @@ const toggleFormMenu = (event) => {
                         @input = "store.checkQuantity($event)"
                         showButtons
                         :min="0"
+
                         data-testid="productvariations-quantity"/>
                 </VhField>
 
