@@ -156,7 +156,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation'
                          || column === 'attribute_value' || column === 'status' || column === 'meta' || column === 'deleted_by'
-                            || column === 'deleted_at' || column === 'value'">
+                            || column === 'deleted_at'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
