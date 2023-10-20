@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-use VaahCms\Modules\Store\Models\PaymentMethod;
+
 use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -76,6 +76,8 @@ class Order extends Model
     }
     //-------------------------------------------------
 
+
+
     public static function getFillableColumns()
     {
         $model = new self();
@@ -86,7 +88,6 @@ class Order extends Model
         );
         return $fillable_columns;
     }
-
     //-------------------------------------------------
     public static function getEmptyItem()
     {
@@ -100,14 +101,7 @@ class Order extends Model
         $empty_item['is_active'] = null;
         $empty_item['is_active_order_item'] = null;
         $empty_item['is_paid'] = null;
-        $empty_item['paid'] = 0;
-        $empty_item['amount'] = 0;
-        $empty_item['paid'] = 0;
-        $empty_item['delivery_fee'] = 0;
-        $empty_item['taxes'] = 0;
-        $empty_item['discount'] = 0;
-        $empty_item['paid'] = 0;
-        $empty_item['payable'] = 0;
+        $empty_item['paid'] = null;
         $empty_item['user'] = null;
         $empty_item['types'] = null;
         $empty_item['product'] = null;
@@ -153,9 +147,9 @@ class Order extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
     //-------------------------------------------------
-    public function items()
+    public function Items()
     {
-        return $this->hasMany(OrderItem::class,'vh_st_order_id','id');
+        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
     }
 
     //-------------------------------------------------
@@ -213,11 +207,11 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-
     public static function createItem($request)
     {
 
         $inputs = $request->all();
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -257,153 +251,8 @@ class Order extends Model
 
     //-------------------------------------------------
 
-    public static function searchProduct($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $products = Product::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $products = Product::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $products;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-    public static function searchUser($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $users = User::where('is_active',1)
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $users = User::where('is_active',1)
-                ->where('first_name','like', "%$query%")
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $users;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function searchProductVariation($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $product_variations = ProductVariation::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $product_variations = ProductVariation::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $product_variations;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-    public static function searchCustomerGroup($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $customer_groups = CustomerGroup::select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $customer_groups = CustomerGroup::where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $customer_groups;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
 
 
-    public static function searchVendor($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $vendors = Vendor::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $vendors = Vendor::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
     {
@@ -664,12 +513,9 @@ class Order extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                $user_id = auth()->user()->id;
-                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
                 $list->restore();
                 OrderItem::deleteOrder($items_id);
                 break;
@@ -778,17 +624,16 @@ class Order extends Model
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
-        $item->forceDelete();
-        OrderItem::deleteOrder($item->id);
+    $item->forceDelete();
+    OrderItem::deleteOrder($item->id);
 
     $response['success'] = true;
     $response['data'] = [];
     $response['messages'][] = 'Record has been deleted';
 
     return $response;
-    }
-
-    //-------------------------------------------------
+}
+//-------------------------------------------------
 
     public static function itemAction($request, $id, $type): array
     {
@@ -809,9 +654,6 @@ class Order extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
-                $item = self::where('id',$id)->withTrashed()->first();
-                $item->deleted_by = auth()->user()->id;
-                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -831,44 +673,22 @@ class Order extends Model
     {
 
         $rules = validator($inputs, [
-            'vh_user_id' => 'required',
-            'amount' => 'required|numeric|min:1|digits_between:1,10',
-            'delivery_fee' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'taxes' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'discount' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'payable' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'paid' => [
-                'required',
-                'numeric',
-                'regex:/^\d{1,10}(\.\d{1,2})?$/',
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($value > $inputs['payable']) {
-                        $fail('The '.$attribute.' amount must not exceed the payable amount.');
-                    }
-                },
-            ],
-            'vh_st_payment_method_id' => 'required',
-            'taxonomy_id_order_status' => 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
+            'taxonomy_id_order_status' => 'required|max:150',
+            'vh_user_id' => 'required|max:150',
+            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
+            'vh_st_payment_method_id' => 'required|max:150',
+            'amount' => 'required|min:1|numeric',
+            'delivery_fee' => 'required|min:0|numeric',
+            'taxes' => 'required|min:0|numeric',
+            'discount' => 'required|min:0|numeric',
+            'payable' => 'required|min:0|numeric',
+            'paid' => 'required|min:0|numeric'
         ],
             [
-                'vh_user_id.required' => 'The User field is required',
-                'amount.min' => 'The Amount field is required',
-                'payable.min' => 'The Payable field is required',
-                'taxonomy_id_order_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'amount.digits_between' => 'amount must be between 1 to 10 digits',
-                'delivery_fee.regex' => 'delivery charges must be between 1 to 10 digits',
-                'taxes.regex' => 'tax amount must be between 1 to 10 digits',
-                'discount.regex' => 'discount value must be between 1 to 10 digits',
-                'payable.regex' => 'payable amount must be between 1 to 10 digits',
-                'paid.regex' => 'paid amount must be between 1 to 10 digits',
-                'paid.max' => 'paid amount must be less than payable amount',
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-
+                'vh_user_id.required' => 'The User field is required',
+                'taxonomy_id_order_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 
@@ -897,7 +717,6 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-
     public static function seedSampleItems($records=100)
     {
 
@@ -917,8 +736,8 @@ class Order extends Model
 
     }
 
-    //-------------------------------------------------
 
+    //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
         $request = new Request([
@@ -930,113 +749,13 @@ class Order extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
+
         $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-
-
-        // fill the user field with any random user here
-        $users = User::where(['is_active'=>1,'deleted_at'=>null]);
-        $user_ids = $users->pluck('id')->toArray();
-        $user_id = $user_ids[array_rand($user_ids)];
-        $user = $users->where('id',$user_id)->first();
-        $inputs['vh_user_id']=$user_id;
-        $inputs['user']=$user;
-
-        $inputs['amount'] = rand(1,10000000);
-        $inputs['delivery_fee'] = rand(1,1000);
-        $inputs['taxes'] = rand(1,1000);
-        $inputs['discount'] = rand(1,1000);
-        $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] - $inputs['discount'];
-        $inputs['payable'] = $payable_amount;
-        $inputs['paid'] = rand(1,$payable_amount);
-        $inputs['status_notes']=$faker->text(rand(1,250));
-
-        // fill the payment method column here
-        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null]);
-        $payment_method_ids = $payment_methods->pluck('id')->toArray();
-        $payment_method_id = $payment_method_ids[array_rand($payment_method_ids)];
-        $payment_method = $payment_methods->where('id',$payment_method_id)->first();
-        $inputs['vh_st_payment_method_id']=$payment_method_id;
-        $inputs['payment_method']=$payment_method;
-
-        // fill the taxonomy status field here
-        $taxonomy_status = Taxonomy::getTaxonomyByType('order-status');
-        $status_ids = $taxonomy_status->pluck('id')->toArray();
-        $status_id = $status_ids[array_rand($status_ids)];
-        $inputs['taxonomy_id_order_status'] = $status_id;
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        $inputs['status']=$status;
-        $inputs['is_active'] = 0;
-
-        if($status['name'] == 'Approved')
-        {
-            $inputs['is_active'] = 1;
-
-        }
-
-        // fill the taxonomy status while placing order
-        $taxonomy_order_item_status = Taxonomy::getTaxonomyByType('order-items-status');
-        $status_order_item_ids = $taxonomy_order_item_status->pluck('id')->toArray();
-        $status_order_item_id = $status_order_item_ids[array_rand($status_order_item_ids)];
-        $inputs['taxonomy_id_order_items_status'] = $status_order_item_id;
-        $status_order_item = $taxonomy_order_item_status->where('id',$status_order_item_id)->first();
-        $inputs['status_order_items']=$status_order_item;
-        $inputs['is_active_order_item'] = 0;
-        if($status_order_item['name'] == 'Approved')
-        {
-            $inputs['is_active_order_item'] = 1;
-        }
-
-        $number_of_characters = rand(5,250);
-        $inputs['status_notes_order_item']=$faker->text($number_of_characters);
-
-        // fill the types field here
-        $types = Taxonomy::getTaxonomyByType('order-items-types');
-        $type_ids = $types->pluck('id')->toArray();
-        $type_id = $type_ids[array_rand($type_ids)];
-        $type = $types->where('id',$type_id)->first();
-        $inputs['types'] = $type;
-        $inputs['taxonomy_id_order_items_types'] = $type_id ;
-
-        // fill the product field here
-        $products = Product::where('is_active',1);
-        $product_ids = $products->pluck('id')->toArray();
-        $product_id = $product_ids[array_rand($product_ids)];
-        $product = $products->where('id',$product_id)->first();
-        $inputs['product'] = $product;
-        $inputs['vh_st_product_id'] = $product_id ;
-
-        // fill the product variation field here
-        $product_variations = ProductVariation::where('is_active',1);
-        $product_variation_ids = $product_variations->pluck('id')->toArray();
-        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-        $product_variation = $product_variations->where('id',$product_variation_id)->first();
-        $inputs['product_variation'] = $product_variation;
-        $inputs['vh_st_product_variation_id'] = $product_variation_id;
-
-        // fill the vendor field here
-        $vendors = Vendor::where('is_active',1);
-        $vendor_ids = $vendors->pluck('id')->toArray();
-        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
-        $vendor = $vendors->where('id',$vendor_id)->first();
-        $inputs['vendor'] = $vendor;
-        $inputs['vh_st_vendor_id'] = $vendor_id;
-
-        // fill the Customer Group field here
-        $customer_groups = CustomerGroup::all();
-        $customer_group_ids = $customer_groups->pluck('id')->toArray();
-        $customer_group_id = $customer_group_ids[array_rand($customer_group_ids)];
-        $customer_group = $customer_groups->where('id',$customer_group_id)->first();
-        $inputs['customer_group'] = $customer_group;
-        $inputs['vh_st_customer_group_id'] = $customer_group_id;
-        $inputs['invoice_url'] = $faker->url;
-        $inputs['tracking'] = $faker->url;
-        $inputs['is_invoice_available'] = 1;
-
 
         if(!$is_response_return){
             return $inputs;
@@ -1053,21 +772,19 @@ class Order extends Model
     {
         $rules = validator($inputs,
             [
-                'types' => 'required',
-                'product' => 'required',
-                'product_variation' => 'required',
+                'types' => 'required|max:150',
+                'product_variation' => 'required|max:150',
+                'product' => 'required|max:150',
                 'vendor' => 'required',
                 'customer_group' => 'required',
                 'invoice_url' => 'required',
                 'tracking' => 'required',
-                'status_notes_order_item' => [
-                    'required_if:status_order_items.slug,==,rejected',
-                    'max:250'
-                ],
+                'status_order_items' => 'required',
+                'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
             ],
             [
-                'status_notes_order_item.required_if' => 'The Status field is required for rejected status',
-                'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
+                'status_order_items.required' => 'The Status field is required',
+                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
             ]);
         if($rules->fails()){
             return [
@@ -1085,6 +802,6 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-
+    
 
 }

@@ -107,6 +107,20 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        searchType(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.types;
+                }
+                else {
+                    this.type_suggestion= this.type.filter((types) => {
+                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+
+        //---------------------------------------------------------------------
 
         searchType(event) {
 
@@ -116,6 +130,7 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
         searchStatusOrderItems(event) {
 
             this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
@@ -125,54 +140,47 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchProduct(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-
+        searchCustomerGroup(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.customer_group_suggestion = this.customer_groups;
+                }
+                else {
+                    this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
+                        return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
 
-        searchProductAfter(data,res) {
-            if(data)
-            {
-                this.products = data;
-            }
+        searchProduct(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_suggestion = this.products;
+                }
+                else {
+                    this.product_suggestion= this.products.filter((products) => {
+                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
 
-        async searchProductVariation(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchProductVariationAfter,
-                options
-            );
+        searchVendor(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.vendor_suggestion = this.vendors;
+                }
+                else {
+                    this.vendor_suggestion= this.vendors.filter((vendors) => {
+                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
@@ -260,24 +268,17 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchUser(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/user',
-                this.searchUserAfter,
-                options
-            );
-
+        searchUser(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.user_suggestion = this.active_users;
+                }
+                else {
+                    this.user_suggestion= this.active_users.filter((active_users) => {
+                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
@@ -287,16 +288,6 @@ export const useOrderStore = defineStore({
             {
                 this.filtered_users = data;
             }
-        },
-
-        //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-
-            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
         },
 
 
@@ -392,40 +383,15 @@ export const useOrderStore = defineStore({
 
 
         //---------------------------------------------------------------------
-        updateAmount(event)
-        {
-            this.item.amount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
-        updateDeliveryFee(event)
-        {
-            this.item.delivery_fee = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
-        updateTaxAmount(event)
-        {
-            this.item.taxes = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDiscountAmount(event)
-        {
-            this.item.discount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
 
         setUser(event) {
             let user = toRaw(event.value);
@@ -497,20 +463,6 @@ export const useOrderStore = defineStore({
                 this.item.is_active_order_item = 0;
             }
         },
-        //---------------------------------------------------------------------
-
-        checkPaidAmount(event)
-        {
-            this.item.paid = event.value;
-            if(this.item.paid > 0)
-            {
-                this.item.is_paid = 1;
-            }
-            else {
-                this.item.is_paid = 0;
-            }
-        },
-
         //---------------------------------------------------------------------
 
         async getAssets() {
@@ -771,7 +723,7 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
-                case 'order-items':
+                case 'save-orderitems':
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/items'
@@ -868,7 +820,6 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-
         async getFormInputs () {
             let params = {
                 model_namespace: this.model,
