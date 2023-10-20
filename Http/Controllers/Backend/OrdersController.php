@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Order;
+use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\OrderItem;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Product;
@@ -11,8 +11,6 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
-
-
 class OrdersController extends Controller
 {
 
@@ -35,56 +33,15 @@ class OrdersController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new Order();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
-
+            $data['fillable']['columns'] = Order::getFillableColumns();
+            $data['fillable']['except'] = Order::getUnFillableColumns();
+            $data['empty_item'] = Order::getEmptyItem();
             $data['taxonomy'] = [
                 'status_orders' => Taxonomy::getTaxonomyByType('order-status'),
                 'status_order_items' => Taxonomy::getTaxonomyByType('order-items-status'),
                 'types' =>  Taxonomy::getTaxonomyByType('order-items-types')
             ];
-
-            $data['empty_item'] = [
-                'is_active' => 1,
-                'is_active_order_item' => 1,
-                'is_paid' => 0,
-                'paid' => 0,
-                'user' => null,
-                'types' => null,
-                'product' => null,
-                'product_variation' => null,
-                'vendor' => null,
-                'customer_group' => null,
-                'status_order_items' => null,
-                'status_notes_order_item' => null,
-                'taxonomy_id_order_items_types' => null,
-                'vh_st_product_id' => null,
-                'vh_st_product_variation_id' => null,
-                'vh_st_vendor_id' => null,
-                'vh_st_customer_group_id' => null,
-                'taxonomy_id_order_items_status' => null,
-                'is_invoice_available' => null,
-                'invoice_url' => null,
-                'tracking' => null,
-            ];
-
             $data['actions'] = [];
-
             $data['customer_groups'] = self::getCustomerGroups();
             $data['payment_methods'] = self::getPaymentMethods();
             $data['active_users'] = self::getUsers();
@@ -97,7 +54,7 @@ class OrdersController extends Controller
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -108,13 +65,52 @@ class OrdersController extends Controller
 
         return $response;
     }
+
     //----------------------------------------------------------
+    public function getList(Request $request)
+    {
+        try{
+            return Order::getList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function updateList(Request $request)
+    {
+        try{
+            return Order::updateList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
     public static function getCustomerGroups(){
         $customer_groups = CustomerGroup::get();
         return $customer_groups ?? null;
     }
 
     //----------------------------------------------------------
+
     public static function getPaymentMethods(){
         $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
         return $payment_methods ?? null;
@@ -145,6 +141,30 @@ class OrdersController extends Controller
     }
 
     //----------------------------------------------------------
+
+
+    public function listAction(Request $request, $type)
+    {
+
+
+        try{
+            return Order::listAction($request, $type);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+
+        }
+    }
+
+    //----------------------------------------------------------
+
     public function createOrderItems(Request $request)
     {
         try{
@@ -161,69 +181,33 @@ class OrdersController extends Controller
             }
         }
     }
-    //----------------------------------------------------------
-    public function getList(Request $request)
-    {
-        try{
-            return Order::getList($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
-    }
-    //----------------------------------------------------------
-    public function updateList(Request $request)
-    {
-        try{
-            return Order::updateList($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
 
-            }
-            return $response;
-        }
-    }
     //----------------------------------------------------------
-    public function listAction(Request $request, $type)
-    {
 
-
-        try{
-            return Order::listAction($request, $type);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-
-        }
-    }
-    //----------------------------------------------------------
     public function deleteList(Request $request)
     {
         try{
             return Order::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return Order::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -240,7 +224,7 @@ class OrdersController extends Controller
             return Order::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -257,7 +241,7 @@ class OrdersController extends Controller
             return Order::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -274,7 +258,7 @@ class OrdersController extends Controller
             return Order::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -291,7 +275,7 @@ class OrdersController extends Controller
             return Order::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -308,7 +292,7 @@ class OrdersController extends Controller
             return Order::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
