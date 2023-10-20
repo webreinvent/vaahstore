@@ -315,8 +315,9 @@ class Address extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('address_line_1', 'LIKE', '%' . $search . '%')
+                ->orWhere('address_line_2', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
