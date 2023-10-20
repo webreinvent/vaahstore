@@ -14,6 +14,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
 
     }
+
     await store.getFormMenu();
 });
 
@@ -133,7 +134,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="User*">
+                <VhField label="User">
                     <AutoComplete
                         value="id"
                         v-model="store.item.user"
@@ -275,7 +276,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 class="p-inputswitch"
+                                 class="p-inputswitch-sm"
                                  name="orders-active"
                                  @change="store.selectStatus()"
                                  data-testid="orders-active"
