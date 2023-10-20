@@ -103,7 +103,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         v-model="store.item.user"
                         @change="store.setUser($event)"
@@ -119,7 +119,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Type">
+                <VhField label="Type*">
                     <AutoComplete
                         v-model="store.item.address_type"
                         @change="store.setAddressType($event)"
@@ -135,7 +135,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Address line 1">
+                <VhField label="Address line 1*">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 1"
                               name="addresses-address_line_1"
@@ -143,7 +143,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_1"/>
                 </VhField>
 
-                <VhField label="Address line 2">
+                <VhField label="Address line 2*">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 2"
                               name="addresses-address_line_2"
@@ -151,7 +151,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_2"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
