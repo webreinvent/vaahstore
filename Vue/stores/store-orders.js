@@ -1,4 +1,4 @@
-import {toRaw, watch} from 'vue'
+import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -62,6 +62,7 @@ export const useOrderStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
@@ -81,6 +82,25 @@ export const useOrderStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
+        async onLoad(route)
+        {
+            /**
+             * Set initial routes
+             */
+            this.route = route;
+
+            /**
+             * Update with view and list css column number
+             */
+            this.setViewAndWidth(route.name);
+
+            /**
+             * Update query state with the query parameters of url
+             */
+            this.updateQueryFromUrl(route);
+        },
+
+        //---------------------------------------------------------------------
         searchType(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -93,6 +113,7 @@ export const useOrderStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
         searchProductVariation(event) {
             setTimeout(() => {
@@ -106,7 +127,9 @@ export const useOrderStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
+
         searchStatusOrderItems(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -119,7 +142,9 @@ export const useOrderStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
+
         searchCustomerGroup(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -133,6 +158,7 @@ export const useOrderStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
+
         searchProduct(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -146,6 +172,7 @@ export const useOrderStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
+
         searchVendor(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -173,6 +200,7 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
         searchUser(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -199,25 +227,9 @@ export const useOrderStore = defineStore({
                 }
             }, 250);
         },
-        //---------------------------------------------------------------------
-        async onLoad(route)
-        {
-            /**
-             * Set initial routes
-             */
-            this.route = route;
 
-            /**
-             * Update with view and list css column number
-             */
-            this.setViewAndWidth(route.name);
 
-            /**
-             * Update query state with the query parameters of url
-             */
-            this.updateQueryFromUrl(route);
-        },
-        //---------------------------------------------------------------------
+
         setViewAndWidth(route_name)
         {
             switch(route_name)
@@ -281,24 +293,16 @@ export const useOrderStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
+
         setUser(event) {
             let user = toRaw(event.value);
             this.item.vh_user_id = user.id;
@@ -344,6 +348,7 @@ export const useOrderStore = defineStore({
             this.item.taxonomy_id_order_items_status = status.id;
         },
         //---------------------------------------------------------------------
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -417,7 +422,6 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-
             }else{
                 this.$router.push({name: 'orders.index'});
             }
@@ -510,6 +514,8 @@ export const useOrderStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -564,7 +570,6 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
-
                 case 'save-orderitems':
                     options.method = 'POST';
                     options.params = item;
@@ -601,15 +606,14 @@ export const useOrderStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
-
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -623,10 +627,14 @@ export const useOrderStore = defineStore({
                     this.$router.push({name: 'orders.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -648,6 +656,7 @@ export const useOrderStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -656,27 +665,21 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -813,6 +816,7 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.orderitems', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+
         toView(item)
         {
             this.item = vaah().clone(item);
@@ -988,6 +992,47 @@ export const useOrderStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -1005,6 +1050,7 @@ export const useOrderStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1024,10 +1070,10 @@ export const useOrderStore = defineStore({
                         }
                     },
                     {
-                        label: 'Trash',
-                        icon: 'pi pi-times',
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
-                            this.itemAction('trash');
+                            this.itemAction(is_deleted ? 'restore': 'trash');
                         }
                     },
                     {
@@ -1071,7 +1117,7 @@ export const useOrderStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

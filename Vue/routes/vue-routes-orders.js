@@ -6,6 +6,7 @@ import Form from '../pages/orders/Form.vue'
 import Item from '../pages/orders/Item.vue'
 import OrderItems from '../pages/orders/OrderItem.vue'
 
+
 routes_list = {
 
     path: '/orders',
