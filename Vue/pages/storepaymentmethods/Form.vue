@@ -121,7 +121,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Payment Method">
+                <VhField label="Payment Method*">
 
                     <AutoComplete
                         value="id"
@@ -138,7 +138,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Last Payment at" >
+                <VhField label="Last Payment at*" >
                     <Calendar tabindex="0"
                               :showIcon="true"
                               name="storepaymentmethods-last_payment_at"
@@ -152,7 +152,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.last_payment_at"></Calendar>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
 
                     <AutoComplete
                         value="id"

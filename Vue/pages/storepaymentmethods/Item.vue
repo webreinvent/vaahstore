@@ -169,17 +169,27 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'vh_st_store_id'">
-                            <VhViewRow label="Store"
-                                       :value="store.item.store"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Store</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.store.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
-                            <VhViewRow label="Payment Method"
-                                       :value="store.item.payment_method"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Payment Method</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.payment_method.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_payment_status'">
