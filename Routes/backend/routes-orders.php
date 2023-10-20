@@ -32,6 +32,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'OrdersController@fillItem')
+        ->name('vh.backend.store.orders.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'OrdersController@createItem')
@@ -47,6 +53,7 @@ function () {
      */
     Route::post('/items', 'OrdersController@createOrderItems')
         ->name('vh.backend.store.products.createOrderItems');
+
     /**
      * Update Item
      */
