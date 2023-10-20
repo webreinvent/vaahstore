@@ -186,7 +186,7 @@ class StorePaymentMethod extends Model
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['errors'][] = "This payment method is already exist for this store.";
             return $response;
         }
 
@@ -268,7 +268,6 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
-
         if(!isset($filter['q']))
         {
             return $query;
@@ -563,7 +562,7 @@ class StorePaymentMethod extends Model
 
         if ($item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = "This payment method is already exist for this store.";
             return $response;
         }
 
