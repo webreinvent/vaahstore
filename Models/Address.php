@@ -426,7 +426,7 @@ class Address extends Model
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
-                $items->update(['deleted_by' => null]);
+                $items->update(['deleted_by' => null,'is_default' => 0]);
                 break;
         }
 
@@ -519,7 +519,7 @@ class Address extends Model
             case 'restore':
                 if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
-                    $items->update(['deleted_by' => null]);
+                    $items->update(['deleted_by' => null,'is_default' => 0]);
                 }
                 break;
             case 'delete':
@@ -543,7 +543,7 @@ class Address extends Model
                 break;
             case 'restore-all':
                 $list->restore();
-                $list->update(['deleted_by' => null]);
+                $list->update(['deleted_by' => null,'is_default' => 0]);
 
                 break;
             case 'delete-all':
@@ -689,6 +689,7 @@ class Address extends Model
                     ->restore();
                 $item = self::where('id',$id)->first();
                 $item->deleted_by = null;
+                $item->is_default = 0;
                 $item->save();
                 break;
         }
@@ -702,11 +703,11 @@ class Address extends Model
 
         $rules = validator($inputs,
             [
-                'vh_user_id' => 'required|max:150',
-                'taxonomy_id_address_types' => 'required|max:150',
-                'address_line_1'=>'required|max:150',
-                'address_line_2'=>'required|max:150',
-                'taxonomy_id_address_status' => 'required|max:150',
+                'vh_user_id' => 'required',
+                'taxonomy_id_address_types' => 'required',
+                'address_line_1'=>'required|max:100',
+                'address_line_2'=>'required|max:100',
+                'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
                     'max:100'
