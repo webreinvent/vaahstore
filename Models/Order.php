@@ -4,10 +4,14 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class Order extends Model
 {
@@ -45,6 +49,11 @@ class Order extends Model
     ];
 
     //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
+
+    //-------------------------------------------------
     protected $appends = [
     ];
 
@@ -53,6 +62,65 @@ class Order extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+
+
+
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+        $empty_item['is_active'] = null;
+        $empty_item['is_active_order_item'] = null;
+        $empty_item['is_paid'] = null;
+        $empty_item['paid'] = null;
+        $empty_item['user'] = null;
+        $empty_item['types'] = null;
+        $empty_item['product'] = null;
+        $empty_item['product_variation'] = null;
+        $empty_item['vendor'] = null;
+        $empty_item['customer_group'] = null;
+        $empty_item['status_order_items'] = null;
+        $empty_item['status_notes_order_item'] = null;
+        $empty_item['taxonomy_id_order_items_types'] = null;
+        $empty_item['vh_st_product_id'] = null;
+        $empty_item['vh_st_product_variation_id'] = null;
+        $empty_item['vh_st_vendor_id'] = null;
+        $empty_item['vh_st_customer_group_id'] = null;
+        $empty_item['taxonomy_id_order_items_status'] = null;
+        $empty_item['is_invoice_available'] = null;
+        $empty_item['invoice_url'] = null;
+        $empty_item['tracking'] = null;
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -73,6 +141,19 @@ class Order extends Model
     }
 
     //-------------------------------------------------
+
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
+    public function Items()
+    {
+        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
+    }
+
+    //-------------------------------------------------
+
     public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
@@ -85,16 +166,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-    public function paymentMethod()
-    {
-        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
-    }
-    //-------------------------------------------------
-    public function Items()
-    {
-        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
-    }
-    //-------------------------------------------------
+
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -133,7 +205,31 @@ class Order extends Model
 
         $query->whereBetween('updated_at', [$from, $to]);
     }
-    //-----------------To save and update data of order items--------------------------------
+
+    //-------------------------------------------------
+    public static function createItem($request)
+    {
+
+        $inputs = $request->all();
+
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+
+        $item = new self();
+        $item->fill($inputs);
+        $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
+        $item->save();
+
+        $response = self::getItem($item->id);
+        $response['messages'][] = 'Saved successfully.';
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public static function createOrderItem($request){
         $inputs = $request->all();
 
@@ -161,28 +257,10 @@ class Order extends Model
         return $response;
     }
     //-------------------------------------------------
-    public static function createItem($request)
-    {
 
-        $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
 
-        $item = new self();
-        $item->fill($inputs);
-        $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
-        $item->save();
 
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
-        return $response;
-
-    }
-
-    //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
     {
 
@@ -220,9 +298,12 @@ class Order extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -360,14 +441,13 @@ class Order extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
-        OrderItem::deleteOrder($items_id);
 
         $response['success'] = true;
         $response['data'] = true;
@@ -390,6 +470,14 @@ class Order extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -419,22 +507,41 @@ class Order extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
-                break;
-            case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
+                $list->restore();
                 OrderItem::deleteOrder($items_id);
                 break;
+            case 'delete-all':
+                $list->forceDelete();
+                break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -484,9 +591,11 @@ class Order extends Model
         return $response;
 
     }
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -504,8 +613,10 @@ class Order extends Model
         return $response;
 
     }
+
     //-------------------------------------------------
-    public static function deleteItem($request, $id): array
+
+    public static function deleteItem($request, $id)
     {
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
@@ -513,16 +624,17 @@ class Order extends Model
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
-        $item->forceDelete();
-        OrderItem::deleteOrder($item->id);
+    $item->forceDelete();
+    OrderItem::deleteOrder($item->id);
 
-        $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+    $response['success'] = true;
+    $response['data'] = [];
+    $response['messages'][] = 'Record has been deleted';
 
-        return $response;
-    }
-    //-------------------------------------------------
+    return $response;
+}
+//-------------------------------------------------
+
     public static function itemAction($request, $id, $type): array
     {
         switch($type)
@@ -538,7 +650,9 @@ class Order extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -565,47 +679,15 @@ class Order extends Model
             'discount' => 'required|min:0|numeric',
             'payable' => 'required|min:0|numeric',
             'paid' => 'required|min:0|numeric'
-                ],
-        [
-            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-            'vh_user_id.required' => 'The User field is required',
-            'taxonomy_id_order_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+        ],
+            [
+                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+                'vh_user_id.required' => 'The User field is required',
+                'taxonomy_id_order_status.required' => 'The Status field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
         );
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
-        }
-        $rules = $rules->validated();
 
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
-
-    }
-    //-----------------validation for product price--------------------------------
-    public static function validationOrderItem($inputs)
-    {
-        $rules = validator($inputs,
-            [
-            'types' => 'required|max:150',
-            'product_variation' => 'required|max:150',
-            'product' => 'required|max:150',
-            'vendor' => 'required',
-            'customer_group' => 'required',
-            'invoice_url' => 'required',
-            'tracking' => 'required',
-            'status_order_items' => 'required',
-            'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
-                ],
-            [
-                'status_order_items.required' => 'The Status field is required',
-                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
-                ]);
         if($rules->fails()){
             return [
                 'success' => false,
@@ -625,13 +707,96 @@ class Order extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
-    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
 
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-----------------validation for product price--------------------------------
+    public static function validationOrderItem($inputs)
+    {
+        $rules = validator($inputs,
+            [
+                'types' => 'required|max:150',
+                'product_variation' => 'required|max:150',
+                'product' => 'required|max:150',
+                'vendor' => 'required',
+                'customer_group' => 'required',
+                'invoice_url' => 'required',
+                'tracking' => 'required',
+                'status_order_items' => 'required',
+                'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
+            ],
+            [
+                'status_order_items.required' => 'The Status field is required',
+                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
+            ]);
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
+    }
+
+    //-------------------------------------------------
+    
 
 }
