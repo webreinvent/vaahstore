@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productvariations-save"
                             @click="store.itemAction('save')"
@@ -63,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productvariations-create-and-new"
                             icon="pi pi-save"/>
 
@@ -75,6 +77,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productvariations-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +88,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productvariations-to-list"
                             @click="store.toList()">
@@ -97,9 +100,9 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
-                <VhField label="Product">
+                <VhField label="Product*">
 
                     <AutoComplete
                         value="id"
@@ -116,15 +119,17 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Name">
+
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="productvariations-name"
                                data-testid="productvariations-name"
                                placeholder="Enter Name"
+                               @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="productvariations-slug"
                                data-testid="productvariations-slug"
@@ -132,7 +137,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="SKU">
+                <VhField label="SKU*">
                     <InputText class="w-full"
                                name="productvariations-sku"
                                data-testid="productvariations-sku"
@@ -146,8 +151,10 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="productvariations-quantity"
                         v-model="store.item.quantity"
-                        mode="decimal" showButtons
+                        @input = "store.checkQuantity($event)"
+                        showButtons
                         :min="0"
+
                         data-testid="productvariations-quantity"/>
                 </VhField>
 
@@ -155,13 +162,13 @@ const toggleFormMenu = (event) => {
                     <InputSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
-                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        @change="store.checkInStock()"
                         name="productvariations-in_stock"
                         data-testid="productvariations-in_stock"
                         v-model="store.item.in_stock"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
