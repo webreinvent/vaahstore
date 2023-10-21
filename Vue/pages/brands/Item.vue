@@ -159,23 +159,36 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_brand_status'">
-                            <VhViewRow label="status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.status.name}}
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'registered_by'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.registered_by_user"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Registered by</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.registered_by_user.username}}
+                                </td>
+                            </tr>
                         </template>
+
                         <template v-else-if="column === 'approved_by'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.approved_by_user"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Store</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.approved_by_user.username}}
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_active'">
