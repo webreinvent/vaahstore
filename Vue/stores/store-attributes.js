@@ -172,6 +172,7 @@ export const useAttributeStore = defineStore({
         //---------------------------------------------------------------------
 
         addAttributeNewValue(){
+
             if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
                 let new_array = {};
                 new_array.value = this.attribute_new_value;
