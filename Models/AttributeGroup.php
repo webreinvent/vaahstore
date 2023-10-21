@@ -10,6 +10,7 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Attribute;
 
 class AttributeGroup extends Model
 {
@@ -155,7 +156,6 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -276,7 +276,8 @@ class AttributeGroup extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -349,9 +350,11 @@ class AttributeGroup extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -398,6 +401,7 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -433,11 +437,13 @@ class AttributeGroup extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -453,9 +459,12 @@ class AttributeGroup extends Model
                 break;
             case 'trash-all':
                 $list->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -615,11 +624,19 @@ class AttributeGroup extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                    $item = self::where('id',$id)->withTrashed()->first();
+                    $item->deleted_by = null;
+                    $item->save();
                 break;
         }
 
@@ -694,6 +711,12 @@ class AttributeGroup extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
+
+        $attributeIds = Attribute::where('is_active',1)->pluck('id')->toArray();
+        $attributeId = $attributeIds[array_rand($attributeIds)];
+        $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
+        $inputs['active_attributes'] =$attributeId;
+        $inputs['active_attributes'] = $attributeId_data;
 
         $faker = Factory::create();
 
