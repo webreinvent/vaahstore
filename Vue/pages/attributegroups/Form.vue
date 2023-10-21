@@ -170,8 +170,8 @@ const toggleFormMenu = (event) => {
                         </template>
                         <template #footer>
                             <div class="py-2 px-3">
-                                <b>{{ store.item.attributes ? store.item.attributes.length : 0 }}</b>
-                                item{{ (store.item.attributes ? store.item.attributes.length : 0) > 1 ? 's' : '' }} selected.
+                                <b>{{ store.item.active_attributes ? store.item.active_attributes.length : 0 }}</b>
+                                item{{ (store.item.active_attributes ? store.item.active_attributes.length : 0) > 1 ? 's' : '' }} selected.
                             </div>
                         </template>
                     </MultiSelect>
