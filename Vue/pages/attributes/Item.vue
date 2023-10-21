@@ -198,6 +198,18 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
+                        <template v-else-if="column === 'type'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Type</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.type}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"
                                        :value="value"
