@@ -134,7 +134,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="attributes-name"
                                data-testid="attributes-name"
