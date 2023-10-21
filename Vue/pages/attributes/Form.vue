@@ -134,7 +134,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="attributes-name"
                                data-testid="attributes-name"
@@ -143,7 +143,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="attributes-slug"
                                data-testid="attributes-slug"
@@ -151,7 +151,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <vhField label="value">
+                <vhField label="Value*">
                     <div class="p-inputgroup flex-1">
                         <InputText placeholder="Enter Attribute Value" v-model="store.attribute_new_value" v-on:keyup.enter="store.addAttributeNewValue()"/>
                         <Button severity="Primary" @click="store.addAttributeNewValue()">Add</Button>
@@ -171,7 +171,7 @@ const toggleFormMenu = (event) => {
                 <!--                               v-model="store.item.value"/>-->
                 <!--                </VhField>-->
 
-                <VhField label="Type">
+                <VhField label="Type*">
                     <InputText class="w-full"
                                name="attributes-type"
                                data-testid="attributes-type"
