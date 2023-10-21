@@ -156,7 +156,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation'
                          || column === 'attribute_value' || column === 'status' || column === 'meta' || column === 'deleted_by'
-                            || column === 'deleted_at'">
+                            || column === 'deleted_at' || column === 'value'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -194,18 +194,6 @@ const toggleItemMenu = (event) => {
                                 <td colspan="2" >
                                     <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template v-else-if="column === 'type'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Type</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        {{store.item.type}}</div>
                                 </td>
                             </tr>
                         </template>
