@@ -731,7 +731,7 @@ class Attribute extends Model
             'value' => $faker->name(10),
             'is_active' => 1
         ];
-
+        $inputs['is_active'] = 1;
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
