@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\StoreUser;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
@@ -185,7 +186,6 @@ class Address extends Model
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -196,7 +196,7 @@ class Address extends Model
         $user_id = $inputs['vh_user_id'];
         if(($inputs['is_default']) == 1)
         {
-            $user = User::find($user_id);
+            $user = StoreUser::find($user_id);
             $addresses = $user->addresses()->where('is_default',1)->get();
 
             foreach ($addresses as $address) {
@@ -221,8 +221,7 @@ class Address extends Model
 
     public static function setDefaultAddress($user_id, $address_id)
     {
-        $user = User::find($user_id);
-        dd($user);
+        $user = StoreUser::find($user_id);
 
         if (!$user) {
             throw new \Exception("User not found");
@@ -316,8 +315,9 @@ class Address extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('address_line_1', 'LIKE', '%' . $search . '%')
+                ->orWhere('address_line_2', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -423,9 +423,11 @@ class Address extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null,'is_default' => 0]);
                 break;
         }
 
@@ -510,13 +512,15 @@ class Address extends Model
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null,'is_default' => 0]);
                 }
                 break;
             case 'delete':
@@ -534,10 +538,14 @@ class Address extends Model
                 $list->update(['taxonomy_id_address_status' => $approve_id]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by' => null,'is_default' => 0]);
+
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -603,6 +611,20 @@ class Address extends Model
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
+        $user_id = $inputs['vh_user_id'];
+        if(($inputs['is_default']) == 1)
+        {
+            $user = StoreUser::find($user_id);
+            $addresses = $user->addresses()->where('is_default',1)->get();
+
+            foreach ($addresses as $address) {
+
+                $address->is_default = 0;
+                $address->save();
+            }
+
+            $item->is_default=1;
+        }
         $item->save();
 
         $response = self::getItem($item->id);
@@ -635,7 +657,7 @@ class Address extends Model
             case 'make-default':
                 $address = Address::find($id);
                 $user_id = $address->user()->pluck('id')->first();
-                $user = User::find($user_id);
+                $user = StoreUser::find($user_id);
                 $addresses = $user->addresses()->get();
                 foreach ($addresses as $address) {
 
@@ -654,13 +676,22 @@ class Address extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->first();
+                $item->deleted_by = null;
+                $item->is_default = 0;
+                $item->save();
                 break;
         }
 
@@ -673,18 +704,22 @@ class Address extends Model
 
         $rules = validator($inputs,
             [
-                'vh_user_id' => 'required|max:150',
-                'taxonomy_id_address_types' => 'required|max:150',
-                'taxonomy_id_address_status' => 'required|max:150',
-                'status_notes' => 'required_if:status.slug,==,rejected',
-                'address_line_1'=>'required|max:150',
-                'address_line_2'=>'required|max:150'
+                'vh_user_id' => 'required',
+                'taxonomy_id_address_types' => 'required',
+                'address_line_1'=>'required|max:100',
+                'address_line_2'=>'required|max:100',
+                'taxonomy_id_address_status' => 'required',
+                'status_notes' => [
+                    'required_if:status.slug,==,rejected',
+                    'max:100'
+                ],
             ],
             [
                 'vh_user_id.required' => 'The User field is required',
                 'taxonomy_id_address_types.required' => 'The Type field is required',
                 'taxonomy_id_address_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
 
         );
@@ -716,7 +751,6 @@ class Address extends Model
 
 
     //-------------------------------------------------
-
     public static function seedSampleItems($records=100)
     {
 
@@ -735,7 +769,6 @@ class Address extends Model
         }
 
     }
-
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)

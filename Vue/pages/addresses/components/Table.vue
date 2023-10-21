@@ -14,6 +14,7 @@ const useVaah = vaah();
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
+                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -33,71 +34,41 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.user.first_name == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else>
                          {{prop.data.user.first_name}}
-                     </template>
                  </template>
 
              </Column>
-
-<!--             <Column field="address_type" header="Types"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <Badge v-else-if="prop.data.address_type == null"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <template v-else>-->
-<!--                         {{prop.data.address_type.name}}-->
-<!--                     </template>-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-             <Column field="status" header="Status"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
-                 </template>
-
-             </Column>
-
 
              <Column field="address" header="Address"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else-if="prop.data.is_default == 1">
-                         {{ prop.data.address }}<Badge severity="primary">Default</Badge>
+
+                     <template v-if="prop.data.is_default == 1">
+                            <Badge severity="primary">Default</Badge>
+                            <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                      <template v-else>
-                          {{prop.data.address}}
+                         <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                  </template>
 
              </Column>
 
+             <Column field="status" header="Status"
+                     :sortable="true">
+
+                 <template #body="prop">
+
+                     <Badge v-if="prop.data.status.slug == 'approved'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else
+                            severity="warning"> {{prop.data.status.name}} </Badge>
+                 </template>
+
+             </Column>
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
@@ -137,12 +108,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -160,7 +133,6 @@ const useVaah = vaah();
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
-
 
                     </div>
 
