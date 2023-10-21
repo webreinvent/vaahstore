@@ -285,8 +285,7 @@ class Store extends Model
                 'notes.required' => 'The Store Notes field is required',
                 'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
                 'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
             ]
         );
 
