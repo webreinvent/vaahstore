@@ -176,9 +176,15 @@ export const useAttributeStore = defineStore({
             if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
                 let new_array = {};
                 new_array.value = this.attribute_new_value;
-                new_array.is_active = 1;
-                this.item.value.push(new_array);
-                this.attribute_new_value = null;
+
+                if (!this.item.value.some(item => item.value === new_array.value)) {
+                    const new_value = { value: new_array.value , is_active :1 };
+                    this.item.value.push(new_value);
+                }
+                else {
+                    throw new Error('Value already added');
+                }
+
             }
         },
 
@@ -221,7 +227,7 @@ export const useAttributeStore = defineStore({
         deleteAttributeValue(value_name){
             this.item.value.forEach((element, index)=>{
                 if (element.value == value_name){
-                    element.is_active = 0;
+                    this.item.value.splice(index, 1);
                 }
             })
         },
@@ -496,6 +502,7 @@ export const useAttributeStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
+                    this.attribute_new_value = null;
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
@@ -507,12 +514,14 @@ export const useAttributeStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.attribute_new_value = null;
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
                 case 'save':
                     this.item = data;
+                    this.attribute_new_value = null;
                     break;
                 case 'delete':
                     this.item = null;
@@ -568,8 +577,6 @@ export const useAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
         onItemSelection(items)
         {
             this.action.items = items;
@@ -578,6 +585,7 @@ export const useAttributeStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.attribute_new_value = null;
         },
         //---------------------------------------------------------------------
         confirmDelete()
