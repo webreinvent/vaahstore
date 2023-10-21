@@ -6,7 +6,6 @@ use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
-
 class StoresController extends Controller
 {
 
@@ -22,55 +21,42 @@ class StoresController extends Controller
     public function getAssets(Request $request)
     {
 
-        $data = [];
+        try{
 
+            $data = [];
 
+            $data['permission'] = [];
+            $data['rows'] = config('vaahcms.per_page');
 
-        $data['permission'] = [];
+            $data['fillable']['columns'] = Store::getFillableColumns();
+            $data['fillable']['except'] = Store::getUnFillableColumns();
+            $data['taxonomy']['store_status'] = Taxonomy::getTaxonomyByType('store-status');
 
-        $data['fillable']['except'] = [
-            'uuid',
-            'created_by',
-            'updated_by',
-            'deleted_by',
-            'is_multi_currency',
-            'is_multi_lingual',
-            'is_multi_vendor',
-            'is_default',
-            'is_active',
-        ];
+            $data['currencies'] = $this->getCurrencies();
+            $data['languages'] = $this->getLanguages();
+            $data['empty_item'] = Store::getEmptyItem();
 
-        $model = new Store();
-        $fillable = $model->getFillable();
-        $data['fillable']['columns'] = array_diff(
-            $fillable, $data['fillable']['except']
-        );
+            $data['actions'] = [];
 
-        foreach ($data['fillable']['columns'] as $column)
-        {
-            $data['empty_item'][$column] = null;
+            $response['success'] = true;
+            $response['data'] = $data;
+
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
         }
-
-        $data['taxonomy']['store_status'] = Taxonomy::getTaxonomyByType('store-status');
-
-        $data['currencies'] = $this->getCurrencies();
-        $data['languages'] = $this->getLanguages();
-
-        $data['empty_item']['is_multi_currency'] = 0;
-        $data['empty_item']['is_multi_lingual'] = 0;
-        $data['empty_item']['is_multi_vendor'] = 0;
-        $data['empty_item']['is_default'] = 0;
-        $data['empty_item']['is_active'] = true;
-        $data['empty_item']['status'] = null;
-        $data['actions'] = [];
-
-        $response['success'] = true;
-        $response['data'] = $data;
 
         return $response;
     }
 
     //----------------------------------------------------------
+
     public function getCurrencies()
     {
         if (method_exists('VaahCountry', 'getListWithCurrency')){
@@ -88,6 +74,7 @@ class StoresController extends Controller
     }
 
     //----------------------------------------------------------
+
     public function getLanguages()
     {
         if (method_exists('VaahCountry', 'getListWithLanguage')){
@@ -106,45 +93,181 @@ class StoresController extends Controller
     }
 
     //----------------------------------------------------------
+
+    
+
     public function getList(Request $request)
     {
-        return Store::getList($request);
+        try{
+            return Store::getList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
-        return Store::updateList($request);
+        try{
+            return Store::updateList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function listAction(Request $request, $type)
+    {
+
+
+        try{
+            return Store::listAction($request, $type);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+
+        }
     }
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
-        return Store::deleteList($request);
+        try{
+            return Store::deleteList($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return Store::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
-        return Store::createItem($request);
+        try{
+            return Store::createItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
-    public function getItem(Request $request, $id): array
+    public function getItem(Request $request, $id)
     {
-        return Store::getItem($id);
+        try{
+            return Store::getItem($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
-
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
-        return Store::updateItem($request,$id);
+        try{
+            return Store::updateItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
-        return Store::deleteItem($request,$id);
+        try{
+            return Store::deleteItem($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
-        return Store::itemAction($request,$id,$action);
+        try{
+            return Store::itemAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
     }
     //----------------------------------------------------------
 
