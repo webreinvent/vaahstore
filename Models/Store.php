@@ -270,7 +270,10 @@ class Store extends Model
             'allowed_ips' => 'required',
             'is_default' => 'required',
             'taxonomy_id_store_status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
             'is_active' => 'required',
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
@@ -282,7 +285,8 @@ class Store extends Model
                 'notes.required' => 'The Store Notes field is required',
                 'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
                 'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
         );
 
@@ -379,7 +383,8 @@ class Store extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
