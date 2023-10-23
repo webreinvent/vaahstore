@@ -61,6 +61,14 @@ class AttributeValue extends Model
     }
 
     //-------------------------------------------------
+
+    public function attribute()
+    {
+        return $this->belongsTo(Attribute::class,'vh_st_attribute_id','id');
+    }
+
+    //-------------------------------------------------
+
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
