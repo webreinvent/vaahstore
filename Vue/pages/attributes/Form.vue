@@ -157,7 +157,7 @@ const toggleFormMenu = (event) => {
                         <Button severity="Primary" @click="store.addAttributeNewValue()">Add</Button>
                     </div>
                     <div v-for="item in store.item.value">
-                        <div class="p-inputgroup flex-1 p-1">
+                        <div class="p-inputgroup flex-1 p-1" v-if="item.is_active == 1">
                             <InputText placeholder="Enter Attribute Value" disabled="" :value="item.value"/>
                             <Button class="danger" @click="store.deleteAttributeValue(item.value)">Remove</Button>
                         </div>

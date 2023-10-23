@@ -219,7 +219,7 @@ const toggleItemMenu = (event) => {
                                        :value="store.item.value"
                                        type="multipleValues"
                             />
-
+                                
                         </template>
 
                         <template v-else>

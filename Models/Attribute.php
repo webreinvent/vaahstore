@@ -194,7 +194,18 @@ class Attribute extends Model
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
+        $new_array = null;
+        foreach ($inputs['value'] as $value) {
+            if ($value['is_active']) {
+                $new_array[] = $value;
+            }
+        }
+        if(!$new_array)
+        {
+            $response['success'] = false;
+            $response['messages'][] = "Please enter value.";
+            return $response;
+        }
         foreach ($inputs['value'] as $key=>$value) {
             if ($value['is_active'] == 1) {
                 $item1 = new AttributeValue();
@@ -542,6 +553,19 @@ class Attribute extends Model
             return $validation;
         }
 
+        $new_array = null;
+        foreach ($inputs['value'] as $value) {
+            if ($value['is_active']) {
+                $new_array[] = $value;
+            }
+        }
+        if(!$new_array)
+        {
+            $response['success'] = false;
+            $response['messages'][] = "Please enter value.";
+            return $response;
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];
         $item->type = $inputs['type'];
@@ -551,7 +575,6 @@ class Attribute extends Model
         $existing_attribute_values = $item->value()->get()->toArray();
         foreach ($inputs['value'] as $key=>$value){
 
-            foreach
             if ($value['is_active'] == 1){
                 if(isset($value['vh_st_attribute_id'])){
                     $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();
