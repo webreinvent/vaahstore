@@ -1,4 +1,4 @@
- <script setup>
+<script setup>
 import {onMounted, ref, watch} from "vue";
 import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
 
@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="storepaymentmethods-save"
                             @click="store.itemAction('save')"
@@ -63,12 +64,14 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="storepaymentmethods-create-and-new"
                             icon="pi pi-save"/>
 
                     <Button data-testid="storepaymentmethods-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
+                            class="p-button-sm"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
 
@@ -76,6 +79,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="storepaymentmethods-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +90,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="storepaymentmethods-to-list"
                             @click="store.toList()">
@@ -98,7 +102,7 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
                 <VhField label="Store">
 
@@ -117,7 +121,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Payment Method">
+                <VhField label="Payment Method*">
 
                     <AutoComplete
                         value="id"
@@ -134,11 +138,12 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Last Payment at" >
+                <VhField label="Last Payment at*" >
                     <Calendar tabindex="0"
                               :showIcon="true"
                               name="storepaymentmethods-last_payment_at"
                               id="last_payment_at"
+                              class="w-full"
                               value="last_payment_at"
                               data-testid="storepaymentmethods-last_payment_at"
                               dateFormat="yy-mm-dd"
@@ -147,7 +152,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.last_payment_at"></Calendar>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
 
                     <AutoComplete
                         value="id"
@@ -172,9 +177,11 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  name="storepaymentmethods-active"
                                  data-testid="storepaymentmethods-active"
                                  v-model="store.item.is_active"/>

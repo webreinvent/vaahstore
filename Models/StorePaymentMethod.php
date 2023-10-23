@@ -4,10 +4,14 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class StorePaymentMethod extends Model
 {
@@ -32,8 +36,13 @@ class StorePaymentMethod extends Model
         'is_active',
         'last_payment_at',
         'status_notes',
+        'created_by',
         'updated_by',
         'deleted_by',
+    ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
     ];
 
     //-------------------------------------------------
@@ -64,6 +73,42 @@ class StorePaymentMethod extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')
             ->select('id','name','slug');
     }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
+    }
+
     //-------------------------------------------------
 
     public function createdByUser()
@@ -141,7 +186,7 @@ class StorePaymentMethod extends Model
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['errors'][] = "This payment method is already exist for this store.";
             return $response;
         }
 
@@ -193,9 +238,12 @@ class StorePaymentMethod extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -220,15 +268,44 @@ class StorePaymentMethod extends Model
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
-
         if(!isset($filter['q']))
         {
             return $query;
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('id', 'LIKE', '%' . $search . '%')
+                ->orWhereHas('store', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
+        });
+
+    }
+    //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['payment_status']))
+        {
+            return $query;
+        }
+        $search = $filter['payment_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopePayTypeFilter($query, $filter)
+    {
+
+        if(!isset($filter['payment_type']))
+        {
+            return $query;
+        }
+        $search = $filter['payment_type'];
+        $query->whereHas('paymentMethod',function ($q) use ($search) {
+            $q->whereIn('name',$search);
         });
 
     }
@@ -239,6 +316,8 @@ class StorePaymentMethod extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->payTypeFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -301,9 +380,11 @@ class StorePaymentMethod extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -362,6 +443,14 @@ class StorePaymentMethod extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -377,11 +466,13 @@ class StorePaymentMethod extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -390,20 +481,42 @@ class StorePaymentMethod extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -452,7 +565,7 @@ class StorePaymentMethod extends Model
 
         if ($item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = "This payment method is already exist for this store.";
             return $response;
         }
 
@@ -498,12 +611,22 @@ class StorePaymentMethod extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                    $item = self::where('id',$id)->withTrashed()->first();
+                    $item->deleted_by = null;
+                    $item->save();
                 break;
         }
 
@@ -514,34 +637,36 @@ class StorePaymentMethod extends Model
     public static function validation($inputs)
     {
 
-        $rules = validator($inputs, [
+        $rules = array(
             'vh_st_store_id'=> 'required',
             'vh_st_payment_method_id'=> 'required',
             'last_payment_at'=> 'required',
             'taxonomy_id_payment_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_payment_status.slug,==,rejected',
-        ],
-            [
-                'vh_st_store_id.required' => 'The Store field is required',
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-                'last_payment_at.required' => 'The Last Payment at field is required',
-                'taxonomy_id_payment_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-            ]
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         );
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
-        }
-        $rules = $rules->validated();
+        $customMessages = array(
+            'vh_st_store_id.required' => 'The Store field is required',
+            'vh_st_payment_method_id.required' => 'The Payment Method field is required',
+            'last_payment_at.required' => 'The Last Payment at field is required',
+            'taxonomy_id_payment_status.required' => 'The Status field is required',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+        );
 
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
+        $validator = \Validator::make($inputs, $rules,$customMessages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
+        }
+
+        $response['success'] = true;
+        return $response;
 
     }
 
@@ -549,10 +674,89 @@ class StorePaymentMethod extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
+    //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+
+        $store_id = Store::where('is_active', 1)->inRandomOrder()->value('id');
+        $store_id_data = Store::where('is_active',1)->where('id',$store_id)->first();
+        $inputs['vh_st_store_id'] =$store_id;
+        $inputs['store'] = $store_id_data;
+
+        $start_date = Carbon::create(2022, 1, 1);
+        $random_date = $start_date->copy()->addSeconds(mt_rand(0, Carbon::now()->diffInSeconds($start_date)));
+        $inputs['last_payment_at'] = $random_date->toDateTimeString();
+
+
+        $pay_id = PaymentMethod::where('is_active', 1)->inRandomOrder()->value('id');
+        $pay_id_data = PaymentMethod::where('is_active',1)->where('id',$pay_id)->first();
+        $inputs['vh_st_payment_method_id'] =$pay_id;
+        $inputs['payment_method'] = $pay_id_data;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-methods-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_payment_status'] = $status_id;
+        $inputs['status']=$status;
+
+
+
+        $inputs['is_active'] = rand(0,1);
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
     //-------------------------------------------------
     public static function deleteStores($items_id){
         if($items_id){
@@ -566,6 +770,58 @@ class StorePaymentMethod extends Model
 
     }
     //-------------------------------------------------
+    public static function searchStore($request){
+
+        $store = Store::select('id', 'name')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchPaymentMethod($request){
+
+        $store = PaymentMethod::select('id', 'name')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $store->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $store = $store->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $store;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchStatus($request){
+
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('payment-methods-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('payment-methods-status');
+
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
     //-------------------------------------------------
 
 
