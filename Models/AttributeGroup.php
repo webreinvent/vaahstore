@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\Attribute;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use VaahCms\Modules\Store\Models\Attribute;
+
 
 class AttributeGroup extends Model
 {
@@ -711,12 +712,19 @@ class AttributeGroup extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-
         $attributeIds = Attribute::where('is_active',1)->pluck('id')->toArray();
         $attributeId = $attributeIds[array_rand($attributeIds)];
         $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
-        $inputs['active_attributes'] =$attributeId;
-        $inputs['active_attributes'] = $attributeId_data;
+        $inputs['active_attributes'][] = $attributeId_data;
+        $last_entry = self::orderBy('id', 'desc')->first();
+        $attribute_group_id = $last_entry->id;
+
+        foreach ( $inputs['active_attributes'] as $key=>$value){
+            $item1 = new AttributeGroupItem();
+            $item1->vh_st_attribute_id = $attributeId;
+            $item1->vh_st_attribute_group_id = $attribute_group_id;
+            $item1->save();
+        }
 
         $faker = Factory::create();
 
