@@ -677,15 +677,20 @@ class Brand extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
-            'status_notes' => 'required_if:status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
             'registered_by'=> 'required',
-            'approved_by'=> 'required'
+            'approved_by'=> 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
+
         );
 
         $customMessages = array(
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules,$customMessages);

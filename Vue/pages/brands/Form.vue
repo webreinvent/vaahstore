@@ -129,7 +129,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
                         placeholder="Select Registered By"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
@@ -160,7 +160,7 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
                         placeholder="Select Approved by"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
 
