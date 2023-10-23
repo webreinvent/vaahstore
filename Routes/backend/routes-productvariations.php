@@ -32,6 +32,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductVariationsController@fillItem')
+        ->name('vh.backend.store.productvariations.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'ProductVariationsController@createItem')
