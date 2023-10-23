@@ -60,11 +60,6 @@ const toggleItemMenu = (event) => {
 
         <Panel class="is-small" v-if="store && store.item">
 
-            <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                    {{store.item.status_notes}}</div>
-            </Message>
-
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -146,7 +141,7 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by' ||
-                        column === 'status' || column === 'status_notes' || column === 'currencies_data' || column === 'lingual_data'">
+                        column === 'status' || column === 'currencies_data' || column === 'lingual_data'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
