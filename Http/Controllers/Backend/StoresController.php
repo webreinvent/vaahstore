@@ -94,7 +94,7 @@ class StoresController extends Controller
 
     //----------------------------------------------------------
 
-    
+
 
     public function getList(Request $request)
     {

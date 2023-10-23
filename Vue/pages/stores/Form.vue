@@ -1,0 +1,357 @@
+<script setup>
+import {onMounted, ref, watch} from "vue";
+import { useStoreStore } from '../../stores/store-stores'
+
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import {useRoute} from 'vue-router';
+
+
+const store = useStoreStore();
+const route = useRoute();
+
+onMounted(async () => {
+    if(route.params && route.params.id)
+    {
+        await store.getItem(route.params.id);
+    }
+
+    await store.getFormMenu();
+});
+
+//--------form_menu
+const form_menu = ref();
+const toggleFormMenu = (event) => {
+    form_menu.value.toggle(event);
+};
+//--------/form_menu
+
+</script>
+<template>
+
+    <div class="col-6" >
+
+        <Panel class="is-small">
+
+            <template class="p-1" #header>
+
+
+                <div class="flex flex-row">
+                    <div class="p-panel-title">
+                        <span v-if="store.item && store.item.id">
+                            Update
+                        </span>
+                        <span v-else>
+                            Create
+                        </span>
+                    </div>
+
+                </div>
+
+
+            </template>
+
+            <template #icons>
+
+
+                <div class="p-inputgroup">
+
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="stores-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
+
+                    <Button label="Save"
+                            class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="stores-save"
+                            @click="store.itemAction('save')"
+                            icon="pi pi-save"/>
+
+                    <Button label="Create & New"
+                            v-else
+                            @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
+                            data-testid="stores-create-and-new"
+                            icon="pi pi-save"/>
+
+
+                    <!--form_menu-->
+                    <Button
+                        type="button"
+                        @click="toggleFormMenu"
+                        class="p-button-sm"
+                        data-testid="stores-form-menu"
+                        icon="pi pi-angle-down"
+                        aria-haspopup="true"/>
+
+                    <Menu ref="form_menu"
+                          :model="store.form_menu_list"
+                          :popup="true" />
+                    <!--/form_menu-->
+
+
+                    <Button class="p-button-primary p-button-sm"
+                            icon="pi pi-times"
+                            data-testid="stores-to-list"
+                            @click="store.toList()">
+                    </Button>
+                </div>
+
+
+
+            </template>
+
+
+            <div v-if="store.item" class="mt-2">
+
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Deleted {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
+
+                <VhField label="Name">
+                    <InputText class="w-full"
+                               placeholder="Enter Name"
+                               name="stores-name"
+                               data-testid="stores-name"
+                               @update:modelValue="store.watchItem"
+                               v-model="store.item.name"/>
+                </VhField>
+
+                <VhField label="Slug">
+                    <InputText class="w-full"
+                               placeholder="Enter Slug"
+                               name="stores-slug"
+                               data-testid="stores-slug"
+                               v-model="store.item.slug"/>
+                </VhField>
+
+                <VhField label="Is Multi Currency">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_currency_no"
+                                     @click="store.item.is_multi_currency = 0;  store.item.currencies = null;"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_currency == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_currency_yes"
+                                     @click="store.item.is_multi_currency = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_currency == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8">
+                            <Dropdown v-model="store.item.currency_default"
+                                      :options="store.item.currencies"
+                                      data-testid="store-currency_default"
+                                      filter
+                                      optionLabel="code"
+                                      placeholder="Select Default Currencys"
+                                      class="w-full">
+                                <template #option="slotProps">
+                                    <div class="flex align-items-center">
+                                        <div>{{ slotProps.option.code }}  </div>
+                                        <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
+                                        (<b>{{slotProps.option.symbol}}</b>)
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
+                    </div>
+
+                </VhField>
+
+                <VhField label="Currencies" v-show="store.item.is_multi_currency == 1">
+                    <MultiSelect v-model="store.item.currencies"
+                                 filter
+                                 :options="store.currencies_list"
+                                 data-testid="store-currencies"
+                                 optionLabel="code"
+                                 placeholder="Select Currencys"
+                                 display="chip"
+                                 class="w-full">
+                        <template #option="slotProps">
+                            <div class="flex align-items-center">
+                                <div>{{ slotProps.option.code }}  </div>
+                                <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
+                                (<b>{{slotProps.option.symbol}}</b>)
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="py-2 px-3">
+                                <b>{{ store.item.currencies ? store.item.currencies.length : 0 }}</b>
+                                item{{ (store.item.currencies ? store.item.currencies.length : 0) > 1 ? 's' : '' }} selected.
+                            </div>
+                        </template>
+                    </MultiSelect>
+                </VhField>
+                <VhField label="Is Multi Lingual">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_no"
+                                     @click="store.item.is_multi_lingual = 0;  store.item.languages = null;"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_lingual == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_yes"
+                                     @click="store.item.is_multi_lingual = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_lingual == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label" >yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8">
+                            <Dropdown v-model="store.item.language_default"
+                                      :options="store.item.languages"
+                                      data-testid="store-language_default"
+                                      filter
+                                      optionLabel="name"
+                                      placeholder="Select Default Language"
+                                      class="w-full">
+                                <template #option="slotProps">
+                                    <div class="flex align-items-center">
+                                        <span>{{slotProps.option.name}}</span>
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
+                    </div>
+                </VhField>
+                <VhField label="Languages" v-show="store.item.is_multi_lingual == 1">
+                    <MultiSelect v-model="store.item.languages"
+                                 filter
+                                 :options="store.languages_list"
+                                 data-testid="store-languages"
+                                 optionLabel="name"
+                                 placeholder="Select Languages"
+                                 display="chip"
+                                 class="w-full">
+                        <template #option="slotProps">
+                            <div class="flex align-items-center">
+                                <span>{{slotProps.option.name}}</span>
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="py-2 px-3">
+                                <b>{{ store.item.languages ? store.item.languages.length : 0 }}</b>
+                                item{{ (store.item.languages ? store.item.languages.length : 0) > 1 ? 's' : '' }} selected.
+                            </div>
+                        </template>
+                    </MultiSelect>
+                </VhField>
+                <VhField label="Is Multi Vendor">
+                    <div class="flex flex-row">
+                        <div class="col-4">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_no"
+                                     @click="store.item.is_multi_vendor = 0"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_vendor == 0 ? 'p-danger' : ''">
+                                    <span class="p-button-label">no</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                                <div role="radio"
+                                     class="p-button p-component"
+                                     data-testid="store-is_multi_lingual_yes"
+                                     @click="store.item.is_multi_vendor = 1"
+                                     style="border: none;"
+                                     :class="store.item.is_multi_vendor == 1 ? 'p-highlight' : ''">
+                                    <span class="p-button-label">yes</span>
+                                    <span class="p-ink" role="presentation" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </VhField>
+                <VhField label="Allowed Ips">
+                    <Chips class="w-full"
+                           v-model="store.item.allowed_ips"
+                           separator=","
+                           placeholder="Enter Ips"
+                           data-testid="store-allowed-ips"
+                           type="number" />
+
+                </VhField>
+                <VhField label="Status">
+                    <AutoComplete v-model="store.item.status"
+                                  @change="store.setStatus($event)"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="store-taxonomy_status"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  placeholder="Select Status"
+                                  optionLabel="name"
+                                  forceSelection />
+                </VhField>
+                <VhField label="Status Notes">
+                    <Textarea placeholder="Enter Status Note"
+                              v-model="store.item.status_notes"
+                              data-testid="store-taxonomy_status_notes"
+                              :autoResize="true" rows="3" class="w-full" />
+                </VhField>
+                <VhField label="Is Default">
+                    <InputSwitch v-model="store.item.is_default" data-testid="store-is_default" />
+
+                </VhField>
+                <VhField label="Is Active">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
+                                 name="stores-active"
+                                 data-testid="stores-active"
+                                 v-model="store.item.is_active"/>
+                </VhField>
+
+            </div>
+        </Panel>
+
+    </div>
+
+</template>
