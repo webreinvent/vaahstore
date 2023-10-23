@@ -175,7 +175,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td colspan="2" >
                                     <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.store.name}}</div>
+                                        {{store.item.store ?.name}}</div>
                                 </td>
                             </tr>
                         </template>
@@ -187,16 +187,21 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td colspan="2" >
                                     <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.payment_method.name}}</div>
+                                        {{store.item.payment_method ?.name}}</div>
                                 </td>
                             </tr>
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_payment_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2" >
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.status ?.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_active'">
