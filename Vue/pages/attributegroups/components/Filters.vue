@@ -15,6 +15,25 @@ const store = useAttributeGroupStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Attributes By:</b>
+                </template>
+                <VhField label="Attributes">
+                    <MultiSelect
+                        v-model="store.query.filter.attributes_filter"
+                        :options="store.assets.attributes"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Attributes"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 

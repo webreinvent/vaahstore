@@ -283,13 +283,26 @@ class AttributeGroup extends Model
 
     }
     //-------------------------------------------------
+    public function scopeAttributesFilter($query, $filter)
+    {
+
+        if(!isset($filter['attributes_filter']))
+        {
+            return $query;
+        }
+        $search = $filter['attributes_filter'];
+        $query->whereHas('attributesList' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('attributesList');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
+        $list->attributesFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

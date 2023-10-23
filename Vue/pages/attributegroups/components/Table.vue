@@ -39,6 +39,18 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="attributes_list.name" header="Attributes">
+                 <template #body="prop">
+                     <td>
+                     <template v-for="attributes in prop.data.attributes_list">
+                             <ul>
+                                 <li>{{ attributes.name }}</li>
+                             </ul>
+                     </template>
+                     </td>
+                 </template>
+             </Column>
+
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
