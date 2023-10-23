@@ -692,7 +692,12 @@ class AttributeGroup extends Model
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-
+            foreach ($inputs['active_attributes'] as $key=>$value){
+                $item1 = new AttributeGroupItem();
+                $item1->vh_st_attribute_id = $value['id'];
+                $item1->vh_st_attribute_group_id = $item->id;
+                $item1->save();
+            }
             $i++;
 
         }
@@ -703,6 +708,7 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
+
         $request = new Request([
             'model_namespace' => self::class,
             'except' => self::getUnFillableColumns()
@@ -716,15 +722,6 @@ class AttributeGroup extends Model
         $attributeId = $attributeIds[array_rand($attributeIds)];
         $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
         $inputs['active_attributes'][] = $attributeId_data;
-        $last_entry = self::orderBy('id', 'desc')->first();
-        $attribute_group_id = $last_entry->id;
-
-        foreach ( $inputs['active_attributes'] as $key=>$value){
-            $item1 = new AttributeGroupItem();
-            $item1->vh_st_attribute_id = $attributeId;
-            $item1->vh_st_attribute_group_id = $attribute_group_id;
-            $item1->save();
-        }
 
         $faker = Factory::create();
 
@@ -743,6 +740,10 @@ class AttributeGroup extends Model
     }
 
     //-------------------------------------------------
+    public static function fillItemPivot($is_response_return = true){
+
+    }
+
     //-------------------------------------------------
     //-------------------------------------------------
 
