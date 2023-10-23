@@ -548,8 +548,10 @@ class Attribute extends Model
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
+        $existing_attribute_values = $item->value()->get()->toArray();
         foreach ($inputs['value'] as $key=>$value){
+
+            foreach
             if ($value['is_active'] == 1){
                 if(isset($value['vh_st_attribute_id'])){
                     $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();

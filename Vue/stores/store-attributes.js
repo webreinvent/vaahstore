@@ -225,6 +225,7 @@ export const useAttributeStore = defineStore({
         //----------------------------------------------------------------------
 
         deleteAttributeValue(value_name){
+
             this.item.value.forEach((element, index)=>{
                 if (element.value == value_name){
                     this.item.value.splice(index, 1);
