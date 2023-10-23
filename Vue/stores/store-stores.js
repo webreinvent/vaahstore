@@ -167,6 +167,10 @@ export const useStoreStore = defineStore({
                              this.item.name = vaah().capitalising(newVal);
                              this.item.slug = vaah().strToSlug(newVal);
                          }
+                         if(newVal == "")
+                         {
+                             this.item.slug="";
+                         };
                      },{deep: true}
                  )
 
