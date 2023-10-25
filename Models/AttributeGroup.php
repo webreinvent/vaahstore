@@ -4,9 +4,14 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Faker\Factory;
+use VaahCms\Modules\Store\Models\Attribute;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+
 
 class AttributeGroup extends Model
 {
@@ -33,6 +38,10 @@ class AttributeGroup extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -43,6 +52,41 @@ class AttributeGroup extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -113,7 +157,6 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -196,9 +239,12 @@ class AttributeGroup extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -231,18 +277,32 @@ class AttributeGroup extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
     //-------------------------------------------------
+    public function scopeAttributesFilter($query, $filter)
+    {
+
+        if(!isset($filter['attributes_filter']))
+        {
+            return $query;
+        }
+        $search = $filter['attributes_filter'];
+        $query->whereHas('attributesList' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('attributesList');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-
+        $list->attributesFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -304,9 +364,11 @@ class AttributeGroup extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -336,8 +398,8 @@ class AttributeGroup extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -353,6 +415,7 @@ class AttributeGroup extends Model
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -365,6 +428,14 @@ class AttributeGroup extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -380,11 +451,13 @@ class AttributeGroup extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -393,20 +466,43 @@ class AttributeGroup extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -459,24 +555,24 @@ class AttributeGroup extends Model
         }
 
         // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['errors'][] = "This name is already exist.";
             return $response;
         }
 
         // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['errors'][] = "This slug is already exist.";
             return $response;
         }
 
@@ -512,7 +608,7 @@ class AttributeGroup extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -539,12 +635,22 @@ class AttributeGroup extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                    $item = self::where('id',$id)->withTrashed()->first();
+                    $item->deleted_by = null;
+                    $item->save();
                 break;
         }
 
@@ -556,10 +662,10 @@ class AttributeGroup extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required',
+            'description' => 'required|max:250',
             'is_active' => 'required'
         );
 
@@ -580,11 +686,77 @@ class AttributeGroup extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            foreach ($inputs['active_attributes'] as $key=>$value){
+                $item1 = new AttributeGroupItem();
+                $item1->vh_st_attribute_id = $value['id'];
+                $item1->vh_st_attribute_group_id = $item->id;
+                $item1->save();
+            }
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+        $attributeIds = Attribute::where('is_active',1)->pluck('id')->toArray();
+        $attributeId = $attributeIds[array_rand($attributeIds)];
+        $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
+        $inputs['active_attributes'][] = $attributeId_data;
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
+    public static function fillItemPivot($is_response_return = true){
+
+    }
+
     //-------------------------------------------------
     //-------------------------------------------------
 
