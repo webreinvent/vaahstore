@@ -75,7 +75,21 @@ class ProductAttributesController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchProductVariation(Request $request)
+    public function getAttributeValue($id){
+        $item = AttributeValue::where('vh_st_attribute_id', $id)->get(['id', 'value']);
+
+        $data = [];
+        foreach ($item as $key=>$value){
+            $data[$key]['id'] = $value['id'];
+            $data[$key]['default_value'] = $value['value'];
+            $data[$key]['new_value'] = $value['value'];
+        }
+        $response['success'] = true;
+        $response['data'] = $data;
+        return $response;
+    }
+    //----------------------------------------------------------
+    public function getList(Request $request)
     {
         try {
 
@@ -96,61 +110,6 @@ class ProductAttributesController extends Controller
 
     }
 
-    //----------------------------------------------------------
-
-    public function searchAttribute(Request $request)
-    {
-        try {
-
-            return ProductAttribute::searchAttribute($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-    public function getAttributeValue($id){
-        $item = AttributeValue::where('vh_st_attribute_id', $id)->get(['id', 'value']);
-
-        $data = [];
-        foreach ($item as $key=>$value){
-            $data[$key]['id'] = $value['id'];
-            $data[$key]['default_value'] = $value['value'];
-            $data[$key]['new_value'] = $value['value'];
-        }
-        $response['success'] = true;
-        $response['data'] = $data;
-        return $response;
-    }
-    //----------------------------------------------------------
-    public function getList(Request $request)
-    {
-        try{
-            return ProductAttribute::getList($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
-    }
     //----------------------------------------------------------
     public function updateList(Request $request)
     {

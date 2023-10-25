@@ -167,63 +167,20 @@ export const useProductAttributeStore = defineStore({
           },
         //---------------------------------------------------------------------
 
-       async searchProductVariation(event) {
+        searchProductVariation(event) {
 
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchProductVariationAfter,
-                options
-            );
+            this.product_variation_suggestion = this.product_variation.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
-
         //-----------------------------------------------------------------------
 
-        searchProductVariationAfter(data,res) {
+        searchAttribute(event) {
 
-            if(data)
-            {
-                this.filtered_product_variations = data;
-            }
-        },
+            this.attribute_suggestion = this.attribute.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
 
-        //-----------------------------------------------------------------------
-
-        async searchAttribute(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/attribute',
-                this.searchAttributeAfter,
-                options
-            );
-        },
-
-        //-----------------------------------------------------------------------
-
-        searchAttributeAfter(data,res) {
-            if(data)
-            {
-                this.filtered_attributes = data;
-            }
         },
 
         //---------------------------------------------------------------------
@@ -502,7 +459,6 @@ export const useProductAttributeStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
