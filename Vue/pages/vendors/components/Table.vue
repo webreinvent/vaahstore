@@ -33,8 +33,11 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <div style=" width:150px; overflow-wrap: break-word; word-wrap:break-word;">
+                        {{prop.data.name}}
+                    </div>
                 </template>
+
 
             </Column>
 
@@ -43,9 +46,10 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    <Badge>{{prop.data.store.name}}
-                        <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
-                    </Badge>
+                    {{prop.data.store.name}}
+                    <span v-if="prop.data.store.is_default == 1">
+                         <badge>&nbsp;(Default)</badge>
+                     </span>
                 </template>
 
             </Column>

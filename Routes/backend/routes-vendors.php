@@ -32,6 +32,12 @@ Route::group(
 
 
         /**
+         * Create Product
+         */
+        Route::post('/product', 'VendorsController@createProduct')
+            ->name('vh.backend.store.vendors.createProduct');
+
+        /**
          * Fill Form Inputs
          */
         Route::any('/fill', 'VendorsController@fillItem')
@@ -71,5 +77,28 @@ Route::group(
             ->name('vh.backend.store.vendors.item.action');
 
         //---------------------------------------------------------
+        /**
+         * Search store
+         */
+        Route::any('/search/store', 'VendorsController@searchStore')
+            ->name('vh.backend.store.vendors.search.store');
+
+        /**
+         * Search approved by
+         */
+        Route::any('/search/approved/by', 'VendorsController@searchApprovedBy')
+            ->name('vh.backend.store.vendors.search.approved');
+
+        /**
+         * Search owned by
+         */
+        Route::any('/search/owned/by', 'VendorsController@searchOwnedBy')
+            ->name('vh.backend.store.vendors.search.owned');
+
+        /**
+         * Search status
+         */
+        Route::any('/search/status', 'VendorsController@searchStatus')
+            ->name('vh.backend.store.vendors.search.status');
 
     });

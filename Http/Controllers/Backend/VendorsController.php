@@ -55,7 +55,11 @@ class VendorsController extends Controller
             // set default value's
             $data['default_product'] = $this->getDefaultProduct();
             $data['empty_item']['store'] = $this->getDefaultStore();
+            $data['empty_item']['vh_st_store_id'] = Store::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
+                ->pluck('id')->first();
             $data['empty_item']['approved_by_user'] = $this->getActiveUser();
+            $data['empty_item']['approved_by'] = User::where(['is_active'=>1,'deleted_at'=>null])
+                ->pluck('id')->first();
 
             // get taxonomy data's
             $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
@@ -334,6 +338,76 @@ class VendorsController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function searchStore(Request $request)
+    {
+        try{
+            return Vendor::searchStore($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function searchApprovedBy(Request $request)
+    {
+        try{
+            return Vendor::searchApprovedBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
+    public function searchOwnedBy(Request $request)
+    {
+        try{
+            return Vendor::searchOwnedBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchStatus(Request $request)
+    {
+        try{
+            return Vendor::searchStatus($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //--------------------------------------------------------
+
 
 
 }

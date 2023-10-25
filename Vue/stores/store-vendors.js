@@ -296,56 +296,88 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestions = this.active_stores;
-                }
-                else {
-                    this.store_suggestions = this.active_stores.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStore(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchStoreAfter(data,res) {
+            if(data)
+            {
+                this.store_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_status_suggestions = this.vendor_status;
-                }
-                else {
-                    this.vendor_status_suggestions = this.vendor_status.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchApprovedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.approved_by_suggestions = this.active_users;
-                }
-                else {
-                    this.approved_by_suggestions = this.active_users.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.vendor_status_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchOwnedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.owned_by_suggestions = this.active_users;
-                }
-                else {
-                    this.owned_by_suggestions = this.active_users.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchApprovedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/approved/by',
+                this.searchApprovedByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchApprovedByAfter(data,res){
+            if(data){
+                this.approved_by_suggestions = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchOwnedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/owned/by',
+                this.searchOwnedByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchOwnedByAfter(data,res){
+            if(data){
+                this.owned_by_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
         async getList() {
