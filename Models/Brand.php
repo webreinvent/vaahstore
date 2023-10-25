@@ -312,7 +312,8 @@ class Brand extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -346,7 +347,7 @@ class Brand extends Model
             $rows = $request->rows;
         }
 
-        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate(config('vaahcms.per_page'));
+        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate($rows);
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -402,9 +403,11 @@ class Brand extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by'=> auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -486,11 +489,13 @@ class Brand extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null ]);
                 }
                 break;
             case 'delete':
@@ -505,10 +510,12 @@ class Brand extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
+                $list->update(['deleted_by' => auth()->user()->id]);
                 $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by' => null]);
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -641,11 +648,19 @@ class Brand extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id' , $id)->withTrashed()->first();
+                if($item->delete()){
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                    $item = self::where('id',$id)->withTrashed()->first();
+                    $item->deleted_by = null;
+                    $item->save();
                 break;
         }
 
@@ -662,17 +677,22 @@ class Brand extends Model
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
             'status'=> 'required|max:150',
-            'status_notes' => 'required_if:status.slug,==,rejected',
             'registered_at'=> 'required',
             'approved_at'=> 'required',
             'registered_by'=> 'required',
-            'approved_by'=> 'required'
+            'approved_by'=> 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
+
         );
 
         $customMessages = array(
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
-        
+
         $validator = \Validator::make($inputs, $rules,$customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();

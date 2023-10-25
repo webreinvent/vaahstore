@@ -99,7 +99,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="brands-name"
                                data-testid="brands-name"
@@ -108,7 +108,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="brands-slug"
                                data-testid="brands-slug"
@@ -116,7 +116,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Registered By ">
+                <VhField label="Registered By*">
 
                     <AutoComplete
                         value="id"
@@ -129,12 +129,12 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.registered_by_suggestion"
                         @complete="store.searchRegisteredBy($event)"
                         placeholder="Select Registered By"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
 
                 </VhField>
 
-                <VhField label="Registered at">
+                <VhField label="Registered at*">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
@@ -148,7 +148,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
-                <VhField label="Approved By">
+                <VhField label="Approved By*">
                     <AutoComplete
                         v-model="store.item.approved_by_user"
                         @change="store.setApprovedBy($event)"
@@ -160,11 +160,11 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.approved_by_suggestion"
                         @complete="store.searchApprovedBy($event)"
                         placeholder="Select Approved by"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Approved at">
+                <VhField label="Approved at*">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
@@ -179,7 +179,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         v-model="store.item.status"
                         class="w-full"
@@ -200,14 +200,6 @@ const toggleFormMenu = (event) => {
                               :autoResize="true"
                               placeholder="Enter Status Note"
                               v-model="store.item.status_notes"/>
-                </VhField>
-
-                <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="brands-default"
-                                 data-testid="brands-default"
-                                 v-model="store.item.is_default"/>
                 </VhField>
 
                 <VhField label="Is Active">

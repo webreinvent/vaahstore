@@ -1,4 +1,4 @@
-import {toRaw, watch} from 'vue'
+import {watch,toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -18,6 +18,9 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            payment_status:null,
+            payment_type:null,
+
         },
     },
     action: {
@@ -62,6 +65,7 @@ export const useStorePaymentMethodStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         active_stores: null,
@@ -76,45 +80,71 @@ export const useStorePaymentMethodStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestion = this.active_stores;
-                }
-                else {
-                    this.store_suggestion= this.active_stores.filter((stores) => {
-                        return stores.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStore(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        searchStoreAfter(data,res){
+            if(data){
+                this.store_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.active_payment_methods;
-                }
-                else {
-                    this.payment_method_suggestion= this.active_payment_methods.filter((payment_methods) => {
-                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
+
+        searchStatusAfter(data,res){
+            if(data){
+                this.status_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchPaymentMethod(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/payment/method',
+                this.searchPaymentMethodAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        searchPaymentMethodAfter(data,res){
+            console.log('120',data);
+            if(data){
+                this.payment_method_suggestion = data;
+            }
+        },
+        //------------------------------------------------------------------------
         async onLoad(route)
         {
             /**
@@ -196,23 +226,14 @@ export const useStorePaymentMethodStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = newVal;
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         setStore(event){
             let store = toRaw(event.value);
@@ -387,6 +408,8 @@ export const useStorePaymentMethodStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -474,12 +497,12 @@ export const useStorePaymentMethodStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -493,10 +516,15 @@ export const useStorePaymentMethodStore = defineStore({
                     this.$router.push({name: 'storepaymentmethods.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -518,6 +546,7 @@ export const useStorePaymentMethodStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -526,27 +555,21 @@ export const useStorePaymentMethodStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -837,6 +860,7 @@ export const useStorePaymentMethodStore = defineStore({
                     icon: 'pi pi-times',
                     command: () => {
                         this.itemAction('trash');
+
                     }
                 });
             }
@@ -851,6 +875,47 @@ export const useStorePaymentMethodStore = defineStore({
 
             this.item_menu_list = item_menu;
         },
+        //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
         //---------------------------------------------------------------------
         confirmDeleteItem()
         {
@@ -886,22 +951,45 @@ export const useStorePaymentMethodStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
+                    }
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
                     },
-                    {
+                      {
+                            label: 'Delete',
+                            icon: 'pi pi-trash',
+                            command: () => {
+                                this.confirmDeleteItem('delete');
+                            }
+                        })
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
                     },
-                    {
+                     {
                         label: 'Delete',
                         icon: 'pi pi-trash',
                         command: () => {
                             this.confirmDeleteItem('delete');
                         }
-                    },
-                ];
+                    })
+                }
 
             } else{
                 form_menu = [
@@ -935,7 +1023,7 @@ export const useStorePaymentMethodStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
