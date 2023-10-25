@@ -175,6 +175,8 @@ export const useCustomerGroupStore = defineStore({
             {
                 this.item.name = vaah().capitalising(name);
                 this.item.slug = vaah().strToSlug(name);
+            }else{
+                this.item.slug = "";
             }
         },
         //---------------------------------------------------------------------
