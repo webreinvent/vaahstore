@@ -13,7 +13,6 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -34,7 +33,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <div style="word-break: break-word;">{{prop.data.product_variation.name}}</div>
+                     {{prop.data.product_variation.name}}
                  </template>
 
              </Column>
@@ -50,6 +49,11 @@ const useVaah = vaah();
                  </template>
 
              </Column>
+
+             <Column field="updated_at" header="Updated"
+                     v-if="store.isViewLarge()"
+                     style="width:150px;"
+                     :sortable="true">
 
              <Column field="updated_at" header="Updated"
                      v-if="store.isViewLarge()"
