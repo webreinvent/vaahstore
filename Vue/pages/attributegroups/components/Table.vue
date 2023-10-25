@@ -43,13 +43,9 @@ const useVaah = vaah();
 
              <Column field="attributes_list.name" header="Attributes">
                  <template #body="prop">
-                     <td>
                      <template v-for="attributes in prop.data.attributes_list">
-                             <ul>
                                  <li>{{ attributes.name }}</li>
-                             </ul>
                      </template>
-                     </td>
                  </template>
              </Column>
 

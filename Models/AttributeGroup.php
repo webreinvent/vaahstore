@@ -665,7 +665,7 @@ class AttributeGroup extends Model
             'name' => 'required|max:100',
             'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required|max:150',
+            'description' => 'required|max:250',
             'is_active' => 'required'
         );
 
