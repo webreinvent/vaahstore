@@ -147,7 +147,9 @@ const toggleFormMenu = (event) => {
                 <vhField label="Attribute Values" v-if="store.item.attribute_values">
                     <div v-for="item in store.item.attribute_values">
                         <div class="p-inputgroup flex-1 p-1">
-                            <span class="p-inputgroup-addon" v-tooltip="item.default_value" >{{ item.default_value.substring(0, 4) + '...' }}</span>
+                            <span class="p-inputgroup-addon" v-tooltip="item.default_value" >
+                                {{ item.default_value.length > 6 ? item.default_value.substring(0, 6) + '...' : item.default_value }}
+                            </span>
                             <InputText v-model="item.new_value" :placeholder="item.default_value" />
                         </div>
                     </div>
