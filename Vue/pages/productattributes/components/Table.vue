@@ -44,9 +44,6 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <div style="word-break: break-word;" v-if="prop.data.attribute && prop.data.attribute.name">
                          {{prop.data.attribute.name}}</div>
                  </template>
