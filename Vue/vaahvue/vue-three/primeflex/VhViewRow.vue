@@ -189,7 +189,7 @@ const props = defineProps({
             <td colspan="2">
                 <template v-if="typeof value === 'object' && value !== null">
                     <span v-for="data in value">
-                        <Button  @click="vaah().copy(data.id)"  class="p-button-outlined p-button-secondary p-button-sm">
+                        <Button class="p-button-outlined p-button-secondary p-button-sm">
                             {{data.value}}
                         </Button>&nbsp;
                     </span>
