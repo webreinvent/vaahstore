@@ -458,6 +458,7 @@ export const useProductAttributeStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
