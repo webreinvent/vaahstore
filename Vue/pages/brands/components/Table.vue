@@ -14,6 +14,7 @@ const useVaah = vaah();
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
+                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -38,7 +39,38 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="status" header="Status"
+             <Column field="registered_by_user.display_name" header="Registered By"
+                     :sortable="true">
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.approved_by_user == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span v-else>
+                     {{prop.data.registered_by_user.first_name}}
+                         </span>
+                 </template>
+             </Column>
+
+             <Column field="approved_by_user.first_name" header="Approved By"
+                     :sortable="true">
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <Badge v-if="prop.data.approved_by_user == null"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span v-else>
+                     {{prop.data.approved_by_user.first_name}}
+                         </span>
+                 </template>
+             </Column>
+
+
+             <Column field="status.name" header="Status"
                      :sortable="true">
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
@@ -49,38 +81,8 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
 
-                 </template>
-             </Column>
-
-             <Column field="registered_by_user" header="Registered By"
-                     :sortable="true">
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by_user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.registered_by_user.name}}
-                         </span>
-                 </template>
-             </Column>
-
-             <Column field="approved_by_user" header="Approved By"
-                     :sortable="true">
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by_user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.approved_by_user.name}}
-                         </span>
                  </template>
              </Column>
 
@@ -121,12 +123,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="brands-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="brands-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
