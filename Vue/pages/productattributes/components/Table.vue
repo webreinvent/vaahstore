@@ -13,7 +13,6 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -34,21 +33,27 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
-                         {{prop.data.product_variation.name}}</div>
+                     {{prop.data.product_variation.name}}
                  </template>
 
              </Column>
 
-             <Column field="attribute" header="Attribute"
+             <Column field="attribute.name" header="Attributes"
                      :sortable="true">
 
                  <template #body="prop">
-                     <div style="word-break: break-word;" v-if="prop.data.attribute && prop.data.attribute.name">
-                         {{prop.data.attribute.name}}</div>
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     {{prop.data.attribute.name}}
                  </template>
 
              </Column>
+
+             <Column field="updated_at" header="Updated"
+                     v-if="store.isViewLarge()"
+                     style="width:150px;"
+                     :sortable="true">
 
              <Column field="updated_at" header="Updated"
                      v-if="store.isViewLarge()"
@@ -61,7 +66,7 @@ const useVaah = vaah();
 
              </Column>
 
-            <Column field="actions"
+            <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
