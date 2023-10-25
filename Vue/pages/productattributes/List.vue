@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'ProductAttributes - Store';
+    document.title = 'Product Attributes - Store';
     /**
      * call onLoad action when List view loads
      */
@@ -71,7 +71,7 @@ const toggleCreateMenu = (event) => {
 
                     <div class="flex flex-row">
                         <div >
-                            <b class="mr-1">ProductAttributes</b>
+                            <b class="mr-1">Product Attributes</b>
                             <Badge v-if="store.list && store.list.total > 0"
                                    :value="store.list.total">
                             </Badge>
