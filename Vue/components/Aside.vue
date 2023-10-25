@@ -47,7 +47,7 @@ const items = ref([
             {
                 label: 'Product-Attribute',
                 icon: 'fa-regular fa-clone',
-                to: "/productAttribute"
+                to: "/productattributes"
             },
             {
                 label: 'Product Medias',
