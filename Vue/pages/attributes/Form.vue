@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -54,7 +54,15 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="attributes-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
+
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="attributes-save"
                             @click="store.itemAction('save')"
@@ -63,6 +71,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="attributes-create-and-new"
                             icon="pi pi-save"/>
 
@@ -75,6 +84,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="attributes-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +95,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="attributes-to-list"
                             @click="store.toList()">
@@ -97,17 +107,43 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="mt-2">
 
-                <VhField label="Name">
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Deleted {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
+
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="attributes-name"
                                data-testid="attributes-name"
                                placeholder="Enter Name"
+                               @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="attributes-slug"
                                data-testid="attributes-slug"
@@ -115,7 +151,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <vhField label="value">
+                <vhField label="Value*">
                     <div class="p-inputgroup flex-1">
                         <InputText placeholder="Enter Attribute Value" v-model="store.attribute_new_value" v-on:keyup.enter="store.addAttributeNewValue()"/>
                         <Button severity="Primary" @click="store.addAttributeNewValue()">Add</Button>
@@ -128,14 +164,14 @@ const toggleFormMenu = (event) => {
                     </div>
                 </vhField>
 
-<!--                <VhField label="Value">-->
-<!--                    <InputText class="w-full"-->
-<!--                               name="attributes-value"-->
-<!--                               data-testid="attributes-value"-->
-<!--                               v-model="store.item.value"/>-->
-<!--                </VhField>-->
+                <!--                <VhField label="Value">-->
+                <!--                    <InputText class="w-full"-->
+                <!--                               name="attributes-value"-->
+                <!--                               data-testid="attributes-value"-->
+                <!--                               v-model="store.item.value"/>-->
+                <!--                </VhField>-->
 
-                <VhField label="Type">
+                <VhField label="Type*">
                     <InputText class="w-full"
                                name="attributes-type"
                                data-testid="attributes-type"
@@ -143,9 +179,11 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.type"/>
                 </VhField>
 
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  name="attributes-active"
                                  data-testid="attributes-active"
                                  v-model="store.item.is_active"/>
