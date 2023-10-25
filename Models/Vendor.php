@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Store;
 
 class Vendor extends Model
 {
@@ -295,21 +297,26 @@ class Vendor extends Model
     public static function vendorInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'vh_st_store_id' => 'required',
             'owned_by' => 'required',
             'auto_approve_products' => 'required',
             'approved_by' => 'required',
             'is_default' => 'required',
             'taxonomy_id_vendor_status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
-            'is_active' => 'required'
+            'is_active' => 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
+
         ],
             [
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
         );
 
@@ -796,6 +803,24 @@ class Vendor extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $store = Store::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['vh_st_store_id'] = $store->id;
+        $inputs['store'] = $store;
+
+        $user = User::where('is_active',1)->inRandomOrder()->first();
+        $inputs['vh_user_id'] =$user->id;
+        $inputs['approved_by_user'] = $user;
+
+        $owned_by = User::where('is_active',1)->inRandomOrder()->first();
+        $inputs['owned_by'] =$owned_by->id;
+        $inputs['owned_by_user'] = $owned_by;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_vendor_status'] = $status_id;
+        $inputs['status']=$status;
+
         $faker = Factory::create();
 
         /*
@@ -825,6 +850,78 @@ class Vendor extends Model
 
     }
     //-------------------------------------------------
+    public static function searchStore($request)
+    {
+
+        $search_store = Store::select('id', 'name','slug')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_store->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('slug', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_store = $search_store->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_store;
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function searchApprovedBy($request)
+    {
+        $search_approved = User::select('id', 'first_name','last_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('email', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
+
+    //-------------------------------------------------
+    public static function searchOwnedBy($request)
+    {
+        $search_owned_by = User::select('id', 'first_name','last_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_owned_by->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('email', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_owned_by = $search_owned_by->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_owned_by;
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function searchStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('vendor-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('vendor-status');
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
     //-------------------------------------------------
 
 

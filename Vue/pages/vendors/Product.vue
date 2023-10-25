@@ -55,15 +55,17 @@ const toggleSelectedMenuState = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="products-save"
+                            class="p-button-sm"
                             @click="store.itemAction('save-product')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
+                            class="p-button-sm"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="products-to-list"
                             @click="store.toList()">
@@ -99,7 +101,9 @@ const toggleSelectedMenuState = (event) => {
                     </div>
 
                     <div class="p-1">
-                        <Button type="button" label="Add" @click="store.addProduct()" />
+                        <Button type="button"
+                                label="Add"
+                                @click="store.addProduct()" />
                     </div>
                 </div>
 
@@ -124,7 +128,10 @@ const toggleSelectedMenuState = (event) => {
                         <!--/selected_menu-->
                     </div>
                     <div class="pr-1">
-                        <Button label="Remove All" @click="store.bulkRemoveProduct(true)" class="btn-danger" size="small" />
+                        <Button label="Remove All"
+                                @click="store.bulkRemoveProduct(true)"
+                                class="p-button-sm"
+                                size="small" />
                     </div>
                 </div>
 
@@ -166,7 +173,7 @@ const toggleSelectedMenuState = (event) => {
                             </td>
                             <td>
                                 <Button label="Remove"
-                                        class="btn-danger"
+                                        class="p-button-sm"
                                         size="small"
                                         @click="store.removeProduct(item)" />
                             </td>
