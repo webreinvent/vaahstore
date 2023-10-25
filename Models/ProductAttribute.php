@@ -172,8 +172,8 @@ class ProductAttribute extends Model
         $item = new self();
         $item->fill($inputs);
         $item->save();
-
         foreach ($inputs['attribute_values'] as $key=>$value){
+
             $item1 = new ProductAttributeValue();
             $item1->vh_st_product_attribute_id = $item->id;
             $item1->vh_st_attribute_value_id = $value['id'];
@@ -194,10 +194,12 @@ class ProductAttribute extends Model
             'vh_st_product_variation_id' => 'required',
             'vh_st_attribute_id' => 'required',
             'attribute_values' => '',
+            'attribute_values.*.new_value' => 'max:50'
         ],
             [
                 'vh_st_product_variation_id.required' => 'The Product Variation field is required',
                 'vh_st_attribute_id.required' => 'The Attribute field is required',
+                'attribute_values.*.new_value' => 'The Attribute Value field should not exceed :max characters',
             ]
         );
 
