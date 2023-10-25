@@ -7,7 +7,7 @@ import Item from '../pages/productattributes/Item.vue'
 
 routes_list = {
 
-    path: '/productAttribute',
+    path: '/productattributes',
     name: 'productattributes.index',
     component: List,
     props: true,
