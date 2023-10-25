@@ -308,8 +308,13 @@ class ProductAttribute extends Model
             return $query;
         }
         $search = $filter['q'];
-        return $query->whereHas('productVariation', function ($query) use ($search) {
-            $query->where('name','LIKE', '%'.$search.'%');
+
+        $query->where(function ($query) use ($search) {
+            $query->where('id', 'LIKE', '%' . $search . '%')
+                ->orwhereHas('productVariation', function ($query) use ($search) {
+                    $query->where('name','LIKE', '%'.$search.'%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
         });
 
     }
