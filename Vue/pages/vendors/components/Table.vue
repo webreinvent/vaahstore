@@ -11,9 +11,9 @@ const useVaah = vaah();
 
     <div v-if="store.list">
         <!--table-->
-         <DataTable :value="store.list.data"
-                       dataKey="id"
-                   class="p-datatable-sm"
+        <DataTable :value="store.list.data"
+                   dataKey="id"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -38,76 +38,76 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store.name" header="Store"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+            <Column field="store.name" header="Store"
+                    v-if="store.isViewLarge()"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge>{{prop.data.store.name}}
-                         <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
-                     </Badge>
-                 </template>
+                <template #body="prop">
+                    <Badge>{{prop.data.store.name}}
+                        <span v-if="prop.data.store.is_default == 1">&nbsp;(Default)</span>
+                    </Badge>
+                </template>
 
-             </Column>
+            </Column>
 
-             <Column field="product" header="Product"
-                     :sortable="false">
+            <Column field="product" header="Product"
+                    :sortable="false">
 
-                 <template #body="prop">
-                     <div class="p-inputgroup flex-1">
+                <template #body="prop">
+                    <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon">
                             <b v-if="prop.data.vendor_products && prop.data.vendor_products.length">{{prop.data.vendor_products.length}}</b>
                             <b v-else>0</b>
                         </span>
-                         <button @click="store.toProduct(prop.data)"><b>+</b></button>
-                     </div>
-                 </template>
+                        <button @click="store.toProduct(prop.data)"><b>+</b></button>
+                    </div>
+                </template>
 
-             </Column>
+            </Column>
 
-             <Column field="status" header="Status"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+            <Column field="status" header="Status"
+                    v-if="store.isViewLarge()"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
-                 </template>
+                <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <Badge v-if="prop.data.status.slug == 'approved'"
+                           severity="success"> {{prop.data.status.name}} </Badge>
+                    <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                           severity="danger"> {{prop.data.status.name}} </Badge>
+                    <Badge v-else
+                           severity="primary"> {{prop.data.status.name}} </Badge>
+                </template>
 
-             </Column>
+            </Column>
 
-             <Column field="owned_by_user.name" header="Owned By"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+            <Column field="owned_by_user.name" header="Owned By"
+                    v-if="store.isViewLarge()"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.owned_by_user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
+                <template #body="prop">
+                    <Badge v-if="prop.data.owned_by_user == null"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <span v-else>
                      {{prop.data.owned_by_user.name}}
                          </span>
-                 </template>
-             </Column>
+                </template>
+            </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+            <Column field="updated_at" header="Updated"
+                    v-if="store.isViewLarge()"
+                    style="width:150px;"
+                    :sortable="true">
 
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
+                <template #body="prop">
+                    {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                </template>
 
-                </Column>
+            </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"
@@ -134,12 +134,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="vendors-table-to-view"
+                                :disabled="store.item && store.item.id === prop.data.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="vendors-table-to-edit"
+                                :disabled="store.item && store.item.id === prop.data.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
@@ -171,13 +173,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 
