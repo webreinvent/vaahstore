@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productattributes-save"
                             @click="store.itemAction('save')"
@@ -63,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productattributes-create-and-new"
                             icon="pi pi-save"/>
 
@@ -76,6 +78,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productattributes-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +89,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productattributes-to-list"
                             @click="store.toList()">
@@ -98,7 +101,7 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
                 <VhField label="Product variation">
                     <AutoComplete v-model="store.item.product_variation"
@@ -120,6 +123,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+
                 <VhField label="Attributes">
                     <AutoComplete v-model="store.item.attribute"
                                   value="id"
@@ -134,7 +138,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
-                                <div>{{ slotProps.option.name }}<b>(slotProps.option.type)</b></div>
+                                <div>{{ slotProps.option.name }}<b>({{slotProps.option.type}})</b></div>
                             </div>
                         </template>
                     </AutoComplete>
