@@ -308,13 +308,8 @@ class ProductAttribute extends Model
             return $query;
         }
         $search = $filter['q'];
-
-        $query->where(function ($query) use ($search) {
-            $query->where('id', 'LIKE', '%' . $search . '%')
-                ->orwhereHas('productVariation', function ($query) use ($search) {
-                    $query->where('name','LIKE', '%'.$search.'%')
-                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
-                });
+        return $query->whereHas('productVariation', function ($query) use ($search) {
+            $query->where('name','LIKE', '%'.$search.'%');
         });
 
     }
@@ -495,9 +490,12 @@ class ProductAttribute extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -658,8 +656,11 @@ class ProductAttribute extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -763,7 +764,7 @@ class ProductAttribute extends Model
         $inputs['vh_st_attribute_id'] = $attribute_id;
 
         $attribute_values = AttributeValue::where('vh_st_attribute_id', $attribute_id)->get(['id', 'value']);
-        
+
         $attribute_value = [];
         foreach ($attribute_values as $key=>$value){
             $attribute_value[$key]['id'] = $value['id'];
