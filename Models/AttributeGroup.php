@@ -662,10 +662,10 @@ class AttributeGroup extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required',
+            'description' => 'required|max:150',
             'is_active' => 'required'
         );
 

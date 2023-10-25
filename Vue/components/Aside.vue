@@ -75,7 +75,7 @@ const items = ref([
                 to: "/attributes"
             },
             {
-                label: 'Attributes-Group',
+                label: 'Attribute Groups',
                 icon: 'fa-regular fa-folder-closed',
                 to: "/attributegroups"
             },

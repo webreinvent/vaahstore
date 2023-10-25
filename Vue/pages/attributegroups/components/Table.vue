@@ -34,7 +34,9 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <div style=" width:250px; overflow-wrap: break-word; word-wrap:break-word;">
+                        {{prop.data.name}}
+                    </div>
                 </template>
 
             </Column>
