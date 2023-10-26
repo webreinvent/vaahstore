@@ -209,7 +209,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-//dd($request);
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -235,7 +235,7 @@ class ProductVendor extends Model
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
             $item->save();
 
-            // Save associations in the pivot table
+            // Save value in the pivot table
             if (isset($inputs['stores']) && is_array($inputs['stores'])) {
                   foreach ($inputs['stores'] as $store) {
                   $item->storeVendorProduct()->attach($store['id']);
@@ -447,6 +447,13 @@ class ProductVendor extends Model
             return $response;
         }
 
+        // delete value from pivot table
+        $item_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach ($item_id as $key => $value) {
+            $item = self::find($value);
+            $item->storeVendorProduct()->detach();
+        }
+
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
 
@@ -552,9 +559,10 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getItem($id)
     {
-
+        $get_stores = [];
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor','addedByUser','status','stores'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor',
+                'addedByUser','status','stores','storeVendorProduct'])
             ->withTrashed()
             ->first();
         $itemProduct = Product::where('id',$item->vh_st_product_id)->first();
@@ -580,17 +588,28 @@ class ProductVendor extends Model
         }
 
 
+        if ($item['storeVendorProduct']) {
+            foreach ($item['storeVendorProduct'] as $key => $value) {
+                $stores = [
+                    'id' => $value['id'],
+                    'name' => $value['name'],
+                    'slug' => $value['slug']
+                ];
+                array_push($get_stores, $stores);
+            }
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
-
+        $response['data']['stores_test'] = $get_stores;
         return $response;
 
     }
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
 
+        $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -619,6 +638,14 @@ class ProductVendor extends Model
             }
             $item->save();
 
+           // Update the relationship with the stores
+            $storeData = $inputs['stores'];
+            $storeIds = [];
+            foreach ($storeData as $store) {
+                $storeIds[] = $store['id'];
+            }
+            $item->storeVendorProduct()->sync($storeIds);
+
             $response = self::getItem($item->id);
             $response['messages'][] = 'Saved successfully.';
             return $response;
@@ -626,12 +653,17 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+
+        // Detach the record from the storeVendorProduct relationship
+        $item->storeVendorProduct()->detach();
+
         $item->forceDelete();
 
         $response['success'] = true;
