@@ -872,6 +872,13 @@ class Store extends Model
         $inputs = $fillable['data']['fill'];
         $faker = Factory::create();
         $inputs['allowed_ips'] = $faker->randomNumber(5, false);
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_store_status'] = $status_id;
+        $inputs['status']=$status;
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here

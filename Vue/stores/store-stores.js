@@ -103,14 +103,6 @@ export const useStoreStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
-                case 'stores.form':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                case 'stores.view':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
@@ -276,16 +268,10 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
 
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
-                }
-                else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.status_suggestion_list = this.status_option.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
