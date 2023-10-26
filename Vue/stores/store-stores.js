@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            status : null,
         },
     },
     action: {
@@ -102,10 +103,18 @@ export const useStoreStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+                case 'stores.form':
+                    this.view = 'small';
+                    this.list_view_width = 6;
+                    break;
+                case 'stores.view':
+                    this.view = 'small';
+                    this.list_view_width = 6;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
-                    break
+                    break;
             }
         },
         //---------------------------------------------------------------------
@@ -141,7 +150,6 @@ export const useStoreStore = defineStore({
                     if(newVal.params.id){
                         this.getItem(newVal.params.id);
                     }
-
                     this.setViewAndWidth(newVal.name);
 
                 }, { deep: true }

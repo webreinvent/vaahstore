@@ -92,11 +92,11 @@ class Store extends Model
         {
             $empty_item[$column] = null;
         }
-        $empty_item['is_multi_currency'] = null;
-        $empty_item['is_multi_lingual'] = null;
-        $empty_item['is_multi_vendor'] = null;
-        $empty_item['is_default'] = null;
-        $empty_item['is_active'] = null;
+        $empty_item['is_multi_currency'] = 0;
+        $empty_item['is_multi_lingual'] = 0;
+        $empty_item['is_multi_vendor'] = 0;
+        $empty_item['is_default'] = 0;
+        $empty_item['is_active'] = 1;
         $empty_item['status'] = null;
         return $empty_item;
     }
@@ -187,15 +187,13 @@ class Store extends Model
     public static function createItem($request)
     {
 
-        $validation_result = self::storeInputValidator($request->all());
-
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $inputs = $request->all();
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
-
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+        if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
         }
 
@@ -249,32 +247,29 @@ class Store extends Model
         $response['messages'][] = 'Saved successfully.';
         return $response;
 
-
     }
 
     //-------------------------------------------------
 
     public static function removePreviousDefaults(){
+
         self::where('is_default', 1)
             ->update(['is_default' => 0]);
+
     }
     //-------------------------------------------------
-    public static function storeInputValidator($requestData){
 
-        $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
-            'is_multi_currency' => 'required',
-            'is_multi_lingual' => 'required',
-            'is_multi_vendor' => 'required',
-            'allowed_ips' => 'required',
-            'is_default' => 'required',
+    public static function validation($inputs){
+
+        $validated_data = validator($inputs,[
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'allowed_ips' => 'required|digits_between:1,15',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:100'
             ],
-            'is_active' => 'required',
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
             'languages' => 'required_if:is_multi_lingual,1',
@@ -287,6 +282,7 @@ class Store extends Model
                 'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'allowed_ips.digits_between' => 'The quantity field must not be greater than 15 digits',
             ]
         );
 
@@ -355,6 +351,30 @@ class Store extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeStatusFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('name', $status)
+                ->orWhere('slug',$status);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -395,6 +415,7 @@ class Store extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -457,9 +478,12 @@ class Store extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $user_id = auth()->user()->id;
+                $items->update(['deleted_by' => $user_id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -547,11 +571,13 @@ class Store extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -569,9 +595,12 @@ class Store extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -674,15 +703,13 @@ class Store extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::storeInputValidator($request->all());
-
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $inputs = $request->all();
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
-
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+        if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
         }
 
@@ -745,7 +772,6 @@ class Store extends Model
         return $response;
 
     }
-
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
@@ -786,37 +812,21 @@ class Store extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
         return self::getItem($id);
-    }
-    //-------------------------------------------------
-
-    public static function validation($inputs)
-    {
-
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
-        }
-
-        $response['success'] = true;
-        return $response;
-
     }
 
     //-------------------------------------------------
@@ -829,7 +839,7 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
+
     public static function seedSampleItems($records=100)
     {
 
@@ -848,7 +858,6 @@ class Store extends Model
         }
 
     }
-
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
@@ -880,8 +889,5 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
-    //-------------------------------------------------
-
 
 }
