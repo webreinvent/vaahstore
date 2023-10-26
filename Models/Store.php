@@ -188,6 +188,7 @@ class Store extends Model
     {
 
         $inputs = $request->all();
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -688,8 +689,6 @@ class Store extends Model
             $item->languages = $languages;
         }
 
-        $item->is_default = $item->is_default == 1 ? true :false;
-        $item->is_active = $item->is_active == 1 ? true :false;
         $item->allowed_ips = json_decode($item->allowed_ips);
 
         $response['success'] = true;

@@ -277,7 +277,7 @@ const toggleFormMenu = (event) => {
                            placeholder="Enter Ips"
                            data-testid="store-allowed-ips"
                            type="number" />
-
+                    
                 </VhField>
                 <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"

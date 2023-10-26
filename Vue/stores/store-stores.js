@@ -55,7 +55,7 @@ export const useStoreStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'store.',
+        route_prefix: 'stores.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -316,7 +316,6 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
                 this.item.currency_default = data.currency_default;
                 let temp = data.currency_default;
             }else{
