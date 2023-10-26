@@ -301,7 +301,6 @@ class Store extends Model
         ];
 
     }
-
     //-------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
@@ -871,9 +870,8 @@ class Store extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-
         $faker = Factory::create();
-
+        $inputs['allowed_ips'] = $faker->randomNumber(5, false);
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here

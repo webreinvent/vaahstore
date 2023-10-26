@@ -46,7 +46,7 @@ const useVaah = vaah();
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}}</Badge>
-                     <Badge v-else
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'pending'"
                             severity="warning"> {{prop.data.status.name}}</Badge>
                  </template>
              </Column>
