@@ -152,7 +152,7 @@ const toggleFormMenu = (event) => {
                     <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
 
-                <VhField label="Store"  v-if="!(store.item && store.item.id)">
+                <VhField label="Store">
                     <MultiSelect class="w-full" v-model="store.item.stores" display="chip"
                                  data-testid="productvendors-stores"
                                  name="productvendors-stores"

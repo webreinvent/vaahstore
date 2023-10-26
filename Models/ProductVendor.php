@@ -71,6 +71,11 @@ class ProductVendor extends Model
         ];
     }
     //-------------------------------------------------
+    public function storeVendorProduct()
+    {
+        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id');
+    }
+    //-------------------------------------------------
     public static function getFillableColumns()
     {
         $model = new self();
@@ -204,7 +209,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-
+//dd($request);
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -213,8 +218,11 @@ class ProductVendor extends Model
         }
 
 
-        // check if product vendor exist
-            $item = self::where('vh_st_vendor_id', $inputs['vendor']['id'])->where('vh_st_product_id', $inputs['product']['id'])->withTrashed()->first();
+           //  check if product vendor exist
+            $item = self::where('vh_st_vendor_id', $inputs['vendor']['id'])
+            ->where('vh_st_product_id', $inputs['product']['id'])
+            ->withTrashed()
+            ->first();
 
             if ($item) {
                 $response['success'] = false;
@@ -226,6 +234,14 @@ class ProductVendor extends Model
             $item->fill($inputs);
             $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
             $item->save();
+
+            // Save associations in the pivot table
+            if (isset($inputs['stores']) && is_array($inputs['stores'])) {
+                  foreach ($inputs['stores'] as $store) {
+                  $item->storeVendorProduct()->attach($store['id']);
+                  }
+            }
+
 
             $response = self::getItem($item->id);
             $response['messages'][] = 'Saved successfully.';
