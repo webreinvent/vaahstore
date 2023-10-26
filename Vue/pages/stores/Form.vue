@@ -148,7 +148,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
-                <VhField label="Is Multi Currency*">
+                <VhField label="Is Multi Currency">
 
                     <div class="flex flex-row">
                         <div class="col-4">
@@ -205,7 +205,7 @@ const toggleFormMenu = (event) => {
                     </MultiSelect>
                 </VhField>
 
-                <VhField label="Is Multi Lingual*">
+                <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
                         <div class="col-4">
                             <InputSwitch v-bind:false-value="0"
@@ -257,7 +257,7 @@ const toggleFormMenu = (event) => {
                     </MultiSelect>
                 </VhField>
 
-                <VhField label="Is Multi Vendor*">
+                <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
                         <div class="col-4">
                             <InputSwitch v-bind:false-value="0"
@@ -270,7 +270,7 @@ const toggleFormMenu = (event) => {
 
                     </div>
                 </VhField>
-                
+
                 <VhField label="Allowed Ips*">
                     <InputNumber class="w-full"
                            v-model="store.item.allowed_ips"
@@ -299,10 +299,17 @@ const toggleFormMenu = (event) => {
                               :autoResize="true" rows="3" class="w-full" />
                 </VhField>
                 <VhField label="Is Default">
-                    <InputSwitch v-model="store.item.is_default" data-testid="store-is_default" />
+                    <InputSwitch    v-bind:false-value="0"
+                                    v-bind:true-value="1"
+                                    class="p-inputswitch"
+                                    name="stores-is_default"
+                                    data-testid="store-is_default"
+                                    v-model="store.item.is_default" />
 
                 </VhField>
-                <VhField label="Is Active*">
+
+
+                <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"

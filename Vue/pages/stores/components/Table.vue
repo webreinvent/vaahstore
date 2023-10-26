@@ -13,6 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
+                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -43,11 +44,10 @@ const useVaah = vaah();
                  <template #body="prop">
                      <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="!prop.data.status"
-                            severity="primary"> null </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                            severity="danger"> {{prop.data.status.name}}</Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
-
+                            severity="warning"> {{prop.data.status.name}}</Badge>
                  </template>
              </Column>
 
@@ -87,14 +87,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="stores-table-to-view"
-                                :disabled="store.item && store.item.id === prop.data.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="stores-table-to-edit"
-                                :disabled="store.item && store.item.id === prop.data.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />

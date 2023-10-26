@@ -145,8 +145,9 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' ||
-                        column === 'status' || column === 'status_notes' || column === 'currencies_data' || column === 'lingual_data'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
+                        || column === 'status' || column === 'status_notes' || column === 'currencies_data'
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -180,7 +181,6 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="column === 'allowed_ips'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       type="allowedIps"
                             />
                         </template>
 
@@ -191,7 +191,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'currency_default'">
+                        <template v-else-if="column === 'currency_default' && store.item.is_multi_currency">
                             <VhViewRow label="Default currency"
                                        :value="value"
                                        type="defaultCurrency"
