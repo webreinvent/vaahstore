@@ -156,7 +156,8 @@ const toggleFormMenu = (event) => {
                     <MultiSelect class="w-full" v-model="store.item.stores" display="chip"
                                  data-testid="productvendors-stores"
                                  name="productvendors-stores"
-                                 :options="store.assets.active_stores" optionLabel="name" placeholder="Select Stores"
+                                 :options="store.assets.active_stores"
+                                 optionLabel="name" placeholder="Select Stores"
                                  :maxSelectedLabels="3" @change="store.getProductsListForStore()" />
                 </VhField>
 
