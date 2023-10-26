@@ -1,50 +1,16 @@
-<?php namespace VaahCms\Modules\Store\Models;
+<?php
+namespace VaahCms\Modules\Store\Models;
 
-use Carbon\Carbon;
-use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use VaahCms\Modules\Store\Models\Address;
+use WebReinvent\VaahCms\Models\UserBase;
 
-class AttributeValue extends Model
+class StoreUser extends UserBase
 {
 
-    use SoftDeletes;
-    use CrudWithUuidObservantTrait;
-
     //-------------------------------------------------
-    protected $table = 'vh_st_attribute_values';
+    protected $connection= 'mysql';
     //-------------------------------------------------
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-    //-------------------------------------------------
-    protected $fillable = [
-        'uuid',
-        'vh_st_attribute_id',
-        'value',
-        'created_by',
-        'updated_by',
-        'deleted_by',
-    ];
-
-    //-------------------------------------------------
-    protected $appends = [
-    ];
-
-    //-------------------------------------------------
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        $date_time_format = config('settings.global.datetime_format');
-        return $date->format($date_time_format);
-    }
-
-    //-------------------------------------------------
-
     public function createdByUser()
     {
         return $this->belongsTo(User::class,
@@ -61,10 +27,9 @@ class AttributeValue extends Model
     }
 
     //-------------------------------------------------
-
-    public function attribute()
+    public function addresses()
     {
-        return $this->belongsTo(Attribute::class,'vh_st_attribute_id','id');
+        return $this->hasMany(Address::class,'vh_user_id','id');
     }
 
     //-------------------------------------------------
@@ -84,173 +49,74 @@ class AttributeValue extends Model
     }
 
     //-------------------------------------------------
+    public function getNameAttribute() {
+
+        if($this->display_name)
+        {
+            return $this->display_name;
+        }
+
+        $name = $this->first_name;
+
+        if($this->middle_name)
+        {
+            $name .= " ".$this->middle_name;
+        }
+
+        if($this->last_name)
+        {
+            $name .= " ".$this->last_name;
+        }
+
+        return $name;
+    }
+    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
-
     //-------------------------------------------------
-    public function scopeBetweenDates($query, $from, $to)
+    public function getMetaAttribute($value)
     {
-
-        if ($from) {
-            $from = \Carbon::parse($from)
-                ->startOfDay()
-                ->toDateTimeString();
+        if($value && $value!='null'){
+            $meta_data = json_decode($value);
+        }else{
+            $meta_data = json_decode('{}');
         }
 
-        if ($to) {
-            $to = \Carbon::parse($to)
-                ->endOfDay()
-                ->toDateTimeString();
-        }
-
-        $query->whereBetween('updated_at', [$from, $to]);
-    }
-
-    //-------------------------------------------------
-    public static function createItem($request)
-    {
-
-        $inputs = $request->all();
-
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
-
-        $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public function scopeGetSorted($query, $filter)
-    {
-
-        if(!isset($filter['sort']))
-        {
-            return $query->orderBy('id', 'desc');
-        }
-
-        $sort = $filter['sort'];
-
-
-        $direction = Str::contains($sort, ':');
-
-        if(!$direction)
-        {
-            return $query->orderBy($sort, 'asc');
-        }
-
-        $sort = explode(':', $sort);
-
-        return $query->orderBy($sort[0], $sort[1]);
-    }
-    //-------------------------------------------------
-    public function scopeIsActiveFilter($query, $filter)
-    {
-
-        if(!isset($filter['is_active'])
-            || is_null($filter['is_active'])
-            || $filter['is_active'] === 'null'
-        )
-        {
-            return $query;
-        }
-        $is_active = $filter['is_active'];
-
-        if($is_active === 'true' || $is_active === true)
-        {
-            return $query->whereNotNull('is_active');
-        } else{
-            return $query->whereNull('is_active');
-        }
+        return $this->setCustomFieldsInMeta($meta_data);
 
     }
     //-------------------------------------------------
-    public function scopeTrashedFilter($query, $filter)
+    public function setCustomFieldsInMeta($meta_data)
     {
-
-        if(!isset($filter['trashed']))
-        {
-            return $query;
+        if(!is_array($meta_data)){
+            $meta_data = (array) $meta_data;
         }
-        $trashed = $filter['trashed'];
 
-        if($trashed === 'include')
-        {
-            return $query->withTrashed();
-        } else if($trashed === 'only'){
-            return $query->onlyTrashed();
+        if(!isset($meta_data['custom_fields'])){
+            $meta_data['custom_fields'] = [];
         }
+
+        $meta_data['custom_fields'] = (array) $meta_data['custom_fields'];
+
+        $custom_fields = Setting::query()->where('category','user_setting')
+            ->where('label','custom_fields')->first();
+
+
+        if ($custom_fields) {
+            foreach ($custom_fields['value'] as $custom_field) {
+
+                if(!isset($meta_data['custom_fields'][$custom_field->slug])){
+                    $meta_data['custom_fields'][$custom_field->slug] = null;
+                }
+
+            }
+        }
+
+        return $meta_data;
 
     }
-    //-------------------------------------------------
-    public function scopeSearchFilter($query, $filter)
-    {
-
-        if(!isset($filter['q']))
-        {
-            return $query;
-        }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
-        });
-
-    }
-    //-------------------------------------------------
-    public static function getList($request)
-    {
-        $list = self::getSorted($request->filter);
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-
-        $rows = config('vaahcms.per_page');
-
-        if($request->has('rows'))
-        {
-            $rows = $request->rows;
-        }
-
-        $list = $list->paginate($rows);
-
-        $response['success'] = true;
-        $response['data'] = $list;
-
-        return $response;
-
-
-    }
-
     //-------------------------------------------------
     public static function updateList($request)
     {
@@ -328,12 +194,20 @@ class AttributeValue extends Model
 
             $errors = errorsToArray($validator->errors());
             $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['errors'] = $errors;
             return $response;
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
+
+        foreach($items_id as $id) {
+            $item = self::query()->where('id', $id)->withTrashed()->first();
+
+            if ($item) {
+                $item->roles()->detach();
+                $item->forceDelete();
+            }
+        }
 
         $response['success'] = true;
         $response['data'] = true;
@@ -407,67 +281,109 @@ class AttributeValue extends Model
         return $response;
     }
     //-------------------------------------------------
-    public static function getItem($id)
-    {
-
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
-            ->withTrashed()
-            ->first();
-
-        if(!$item)
-        {
-            $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
-            return $response;
-        }
-        $response['success'] = true;
-        $response['data'] = $item;
-
-        return $response;
-
-    }
-    //-------------------------------------------------
-    public static function updateItem($request, $id)
+    public static function updateItem($request)
     {
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
+        $validate = self::validation($inputs);
+
+        if(isset($validate['success']) && !$validate['success'])
+        {
+            return $validate;
         }
 
-        // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+        if(isset($inputs['phone']))
+        {
+            $rules['phone'] = 'integer';
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
-            return $response;
+            $validator = \Validator::make( $request->all(), $rules);
+            if ( $validator->fails() ) {
+
+                $errors             = errorsToArray($validator->errors());
+                $response['success']  = false;
+                $response['errors'] = $errors;
+                return $response;
+            }
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
+
+
+        if($request->has('birth'))
+        {
+            $inputs['birth'] = \Illuminate\Support\Carbon::parse($request->birth)->format('Y-m-d');
         }
 
-        $item = self::where('id', $id)->withTrashed()->first();
+        if($request->has('id'))
+        {
+
+            // check if already exist
+            $user = self::where('id', '!=', $inputs['id'])
+                ->where('email',$inputs['email'])->first();
+
+            if ($user) {
+                $response['success']  = false;
+                $response['errors'][] = trans('vaahcms-user.email_already_registered');
+                return $response;
+            }
+
+            // check if already exist
+            $user = self::where('id', '!=', $inputs['id'])
+                ->where('username',$inputs['username'])->first();
+
+            if($user)
+            {
+                $response['success']  = false;
+                $response['errors'][] = trans('vaahcms-user.username_already_registered');
+                return $response;
+            }
+
+            $item = User::find($request->id);
+        } else
+        {
+            $validation = self::userValidation($request);
+            if(isset($validation['status']) && $validation['status'] == 'failed')
+            {
+                return $validation;
+            } else if(isset($validation['status'])
+                && $validation['status'] == 'registration-exist')
+            {
+                $item = $validation['data'];
+            } else
+            {
+                $item = new User();
+                $item->password = generate_password();
+                $item->is_active = 1;
+                $item->status = 'active';
+                $item->activated_at = date('Y-m-d H:i:s');
+                $item->uuid = Str::uuid();
+            }
+        }
+        if($inputs['is_active'] == '1'){
+            $inputs['is_active'] = 1;
+        }else{
+            $inputs['is_active'] = 0;
+        }
+
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
+        if($request->has('password'))
+        {
+            $item->password = $request->password;
+        }
+
         $item->save();
 
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
-        return $response;
+        if(!$request->has('id'))
+        {
+            Role::syncRolesWithUsers();
+        }
 
+
+        $response['success'] = true;
+        $response['messages'][] = 'Saved';
+        $response['data'] = $item;
+
+        return $response;
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
@@ -475,9 +391,11 @@ class AttributeValue extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+
+        $item->roles()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
@@ -509,6 +427,15 @@ class AttributeValue extends Model
                     ->withTrashed()
                     ->restore();
                 break;
+            case 'generate-new-token':
+
+                $token = Str::random(60);
+
+
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->update(['api_token' => hash('sha256', $token)]);
+                break;
         }
 
         return self::getItem($id);
@@ -517,22 +444,30 @@ class AttributeValue extends Model
 
     public static function validation($inputs)
     {
-
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+
+            'email' => 'required|email|max:150',
+            'first_name' => 'required|max:150',
+            'status' => 'required',
+            'is_active' => 'required',
+            'foreign_user_id' => 'nullable|numeric|min:1',
+
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        if(isset($inputs['username']))
+        {
+            $rules['username'] = 'required';
         }
 
-        $response['success'] = true;
-        return $response;
+        $validator = \Validator::make($inputs,$rules);
+
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['success']  = false;
+            $response['errors'] = $errors;
+            return $response;
+        }
 
     }
 
@@ -544,6 +479,73 @@ class AttributeValue extends Model
         return $item;
     }
 
+    //-------------------------------------------------
+    public static function create($request)
+    {
+        $inputs = $request->all();
+
+        $validate = self::validation($inputs);
+
+        if (isset($validate['success']) && !$validate['success']) {
+            return $validate;
+        }
+
+        $rules = array(
+            'password' => 'required',
+        );
+
+        $validator = \Validator::make( $inputs, $rules);
+
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['success'] = false;
+            $response['errors'] = $errors;
+            return $response;
+        }
+
+        // check if already exist
+        $user = self::withTrashed()->where('email',$inputs['email'])->first();
+
+        if ($user) {
+            $response['success'] = false;
+            $response['errors'][] = trans('vaahcms-user.email_already_registered');
+            return $response;
+        }
+
+        // check if username already exist
+        $user = self::withTrashed()->where('username',$inputs['username'])->first();
+
+        if ($user) {
+            $response['success'] = false;
+            $response['errors'][] = trans('vaahcms-user.username_already_registered');
+            return $response;
+        }
+
+        if (!isset($inputs['username'])) {
+            $inputs['username'] = Str::slug($inputs['email']);
+        }
+
+        if ($inputs['is_active'] === '1' || $inputs['is_active'] === 1 ) {
+            $inputs['is_active'] = 1;
+        } else {
+            $inputs['is_active'] = 0;
+        }
+
+        $inputs['created_ip'] = request()->ip();
+
+        $reg = new static();
+        $reg->fill($inputs);
+        $reg->save();
+
+        Role::syncRolesWithUsers();
+
+        $response['success'] = true;
+        $response['data']['item'] = $reg;
+        $response['messages'][] = trans('vaahcms-general.saved_successfully');
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
     //-------------------------------------------------

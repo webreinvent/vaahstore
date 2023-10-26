@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="customergroups-save"
                             @click="store.itemAction('save')"
@@ -63,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="customergroups-create-and-new"
                             icon="pi pi-save"/>
 
@@ -72,10 +74,12 @@ const toggleFormMenu = (event) => {
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
 
+
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="customergroups-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +90,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="customergroups-to-list"
                             @click="store.toList()">
@@ -98,20 +102,21 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
                 <VhField label="Name">
                     <InputText class="w-full"
                                placeholder="Enter a Name"
                                name="customergroups-name"
                                data-testid="customergroups-name"
+                               @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Slug">
                     <InputText class="w-full"
-                               placeholder="Enter a Slug"
                                name="customergroups-slug"
+                               placeholder="Enter a Slug"
                                data-testid="customergroups-slug"
                                v-model="store.item.slug"/>
                 </VhField>
@@ -127,14 +132,14 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Order Count">
-                <InputNumber
-                    placeholder="Enter a Order Count"
-                    name="customergroups-order_count"
-                    v-model="store.item.order_count"
-                    :min=0
-                    inputId="minmaxfraction" showButtons
-                    data-testid="customergroups-order_count"/>
-            </VhField>
+                    <InputNumber
+                        placeholder="Enter a Order Count"
+                        name="customergroups-order_count"
+                        v-model="store.item.order_count"
+                        :min=0
+                        inputId="minmaxfraction" showButtons
+                        data-testid="customergroups-order_count"/>
+                </VhField>
 
                 <VhField label="Status">
                     <AutoComplete

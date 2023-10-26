@@ -13,7 +13,8 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                   class="p-datatable-sm"
+                   class="p-datatable-sm p-datatable-hoverable-rows"
+                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -26,35 +27,29 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User"
-                    :sortable="true">
-
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <Badge v-else-if="prop.data.user.first_name == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <template v-else>
-                        {{prop.data.user.first_name}}
-                    </template>
-                </template>
-
-            </Column>
-
-             <Column field="address_type" header="Types"
+             <Column field="user" header="User"
                      :sortable="true">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_type == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
+                         {{prop.data.user.first_name}}
+                 </template>
+
+             </Column>
+
+             <Column field="address" header="Address"
+                     :sortable="true">
+
+                 <template #body="prop">
+
+                     <template v-if="prop.data.is_default == 1">
+                            <Badge severity="primary">Default</Badge>
+                            <div style="word-break: break-word;">{{ prop.data.address }}</div>
+                     </template>
                      <template v-else>
-                         {{prop.data.address_type.name}}
+                         <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                  </template>
 
@@ -64,52 +59,16 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+
                      <Badge v-if="prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
-
-             <Column field="address_1" header="Address 1"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_1 == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else>
-                         {{prop.data.address_line_1}}
-                     </template>
-                 </template>
-
-             </Column>
-             <Column field="address_2" header="Address 2"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.address_line_2 == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <template v-else>
-                         {{prop.data.address_line_2}}
-                     </template>
-                 </template>
-
-             </Column>
-
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
@@ -122,6 +81,23 @@ const useVaah = vaah();
 
                 </Column>
 
+             <Column field="is_default" v-if="store.isViewLarge()"
+                     :sortable="true"
+                     style="width:100px;"
+                     header="Is Default">
+
+                 <template #body="prop">
+                     <InputSwitch v-model.bool="prop.data.is_default"
+                                  data-testid="addresses-table-is-active"
+                                  v-bind:false-value="0"  v-bind:true-value="1"
+                                  class="p-inputswitch-sm"
+                                  @input="store.toggleIsDefault(prop.data)">
+                     </InputSwitch>
+                 </template>
+
+             </Column>
+
+
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
@@ -132,12 +108,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-view"
                                 v-tooltip.top="'View'"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-edit"
                                 v-tooltip.top="'Update'"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -156,7 +134,6 @@ const useVaah = vaah();
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
 
-
                     </div>
 
                 </template>
@@ -168,13 +145,13 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
-        <Divider />
-
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
+                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
-                   :rowsPerPageOptions="store.rows_per_page">
+                   :rowsPerPageOptions="store.rows_per_page"
+                   class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
 

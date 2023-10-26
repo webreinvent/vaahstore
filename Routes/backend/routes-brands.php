@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/brands',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -30,6 +30,12 @@ function () {
     Route::delete('/', 'BrandsController@deleteList')
         ->name('vh.backend.store.brands.list.delete');
 
+
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'BrandsController@fillItem')
+        ->name('vh.backend.store.brands.fill');
 
     /**
      * Create Item
@@ -63,6 +69,25 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'BrandsController@itemAction')
         ->name('vh.backend.store.brands.item.action');
+
+
+    /**
+     * Search ApprovedBy
+     */
+    Route::any('/search/approved/by', 'BrandsController@searchApprovedBy')
+        ->name('vh.backend.store.brands.search.approved');
+
+    /**
+     * Search Registered By
+     */
+    Route::any('/search/registered/by', 'BrandsController@searchRegisteredBy')
+        ->name('vh.backend.store.brands.search.Registered');
+
+    /**
+     * Search Brand Status
+     */
+    Route::any('/search/brand/status', 'BrandsController@searchBrandStatus')
+        ->name('vh.backend.store.brands.search.status');
 
     //---------------------------------------------------------
 

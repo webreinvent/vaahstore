@@ -4,9 +4,12 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class Attribute extends Model
 {
@@ -26,11 +29,16 @@ class Attribute extends Model
     protected $fillable = [
         'uuid',
         'name',
-        'slug','type',
+        'slug',
+        'type',
         'is_active',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
     ];
 
     //-------------------------------------------------
@@ -42,6 +50,41 @@ class Attribute extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -85,14 +128,17 @@ class Attribute extends Model
     //-------------------------------------------------
     public function productVariation()
     {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_attributes', 'vh_st_attribute_id', 'vh_st_product_variation_id')
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_attributes',
+            'vh_st_attribute_id', 'vh_st_product_variation_id')
             ->select('vh_st_product_variations.id','vh_st_product_variations.name');
     }
 
     //-------------------------------------------------
     public function value(){
-        return $this->hasMany(AttributeValue::class, 'vh_st_attribute_id', 'id')->select('id','value','vh_st_attribute_id');
+        return $this->hasMany(AttributeValue::class, 'vh_st_attribute_id',
+            'id')->select('id','value','vh_st_attribute_id');
     }
+
 
     //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
@@ -124,15 +170,44 @@ class Attribute extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         $item = new self();
         $item->name = $inputs['name'];
         $item->type = $inputs['type'];
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        foreach ($inputs['value'] as $key=>$value){
-            if ($value['is_active'] == 1){
+        $new_array = null;
+        foreach ($inputs['value'] as $value) {
+            if ($value['is_active']) {
+                $new_array[] = $value;
+            }
+        }
+        if(!$new_array)
+        {
+            $response['success'] = false;
+            $response['messages'][] = "Please enter value.";
+            return $response;
+        }
+        foreach ($inputs['value'] as $key=>$value) {
+            if ($value['is_active'] == 1) {
                 $item1 = new AttributeValue();
                 $item1->vh_st_attribute_id = $item->id;
                 $item1->value = $value['value'];
@@ -184,9 +259,12 @@ class Attribute extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -219,7 +297,8 @@ class Attribute extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id','LIKE','%'.$search.'%');
         });
 
     }
@@ -292,9 +371,11 @@ class Attribute extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -324,8 +405,8 @@ class Attribute extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -353,6 +434,14 @@ class Attribute extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -366,13 +455,15 @@ class Attribute extends Model
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -381,20 +472,43 @@ class Attribute extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -439,6 +553,18 @@ class Attribute extends Model
             return $validation;
         }
 
+        $new_array = null;
+        foreach ($inputs['value'] as $value) {
+            if ($value['is_active']) {
+                $new_array[] = $value;
+            }
+        }
+        if(!$new_array)
+        {
+            $response['success'] = false;
+            $response['messages'][] = "Please enter value.";
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->name = $inputs['name'];
@@ -446,8 +572,9 @@ class Attribute extends Model
         $item->is_active = $inputs['is_active'];
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
+        $existing_attribute_values = $item->value()->get()->toArray();
         foreach ($inputs['value'] as $key=>$value){
+
             if ($value['is_active'] == 1){
                 if(isset($value['vh_st_attribute_id'])){
                     $item1 = AttributeValue::where(['id' => $value['id'], 'vh_st_attribute_id' => $item->id])->withTrashed()->first();
@@ -479,7 +606,7 @@ class Attribute extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -491,6 +618,7 @@ class Attribute extends Model
         return $response;
     }
     //-------------------------------------------------
+
     public static function itemAction($request, $id, $type): array
     {
         switch($type)
@@ -506,53 +634,141 @@ class Attribute extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
         return self::getItem($id);
     }
+
     //-------------------------------------------------
 
     public static function validation($inputs)
     {
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-            'type' => 'required',
-            'value' => 'required',
+        $validated_data = validator($inputs, [
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'value' => 'required|max:50',
+            'value.*.value' => 'max:50',
+            'type' => 'required|max:50',
+
+        ],
+            [
+
+                'value.*.value' => 'The Value field may not be greater than :max characters.',
+
+            ]
         );
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        if($validated_data->fails()){
+            $errors = $validated_data->errors()->all();
+            if (isset($inputs['value'])) {
+                foreach ($inputs['value'] as $key => $value) {
+
+                    if (in_array("value.{$key}.value", $errors)) {
+                        unset($inputs['value'][$key]);
+                    }
+                }
+            }
+            return [
+                'success' => false,
+                'errors' => $validated_data->errors()->all()
+
+            ];
         }
 
-        $response['success'] = true;
-        return $response;
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
+
 
     }
+
 
     //-------------------------------------------------
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
-    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
 
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            foreach ($inputs['value'] as $key=>$value) {
+                if ($value['is_active'] == 1) {
+                    $item1 = new AttributeValue();
+                    $item1->vh_st_attribute_id = $item->id;
+                    $item1->value = $value['value'];
+                    $item1->save();
+                }
+            }
+            $i++;
+
+        }
+
+    }
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $faker = Factory::create();
+        $inputs['value'][]= [
+            'value' => $faker->name(10),
+            'is_active' => 1
+        ];
+        $inputs['is_active'] = 1;
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
 
 }

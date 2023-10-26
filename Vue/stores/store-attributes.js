@@ -65,6 +65,7 @@ export const useAttributeStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -155,35 +156,76 @@ export const useAttributeStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = newVal;
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+              if(name == "")
+              {
+                  this.item.slug = "";
+              }
+          },
+
         //---------------------------------------------------------------------
+
         addAttributeNewValue(){
+
             if(this.attribute_new_value && this.attribute_new_value.trim().length > 0){
                 let new_array = {};
                 new_array.value = this.attribute_new_value;
-                new_array.is_active = 1;
-                this.item.value.push(new_array);
-                this.attribute_new_value = null;
+
+                if (!this.item.value.some(item => item.value === new_array.value)) {
+                    const new_value = { value: new_array.value , is_active :1 };
+                    this.item.value.push(new_value);
+                }
+                else {
+                    throw new Error('Value already added');
+                }
+
             }
         },
+
         //---------------------------------------------------------------------
+
+        async getPreviousItem(item){
+            const temp_item = vaah().findInArrayByKey(this.list.data,'id',item.id)
+            let index = this.list.data.indexOf(temp_item);
+
+            if(index){
+
+                let previous_item = vaah().clone(this.list.data[index-1]);
+                this.$router.push({name: 'attributes.view', params:{id:previous_item.id}})
+
+            }else{
+
+                vaah().toastErrors(['Record not exists']);
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+        async getNextItem(item){
+
+            const temp_item = vaah().findInArrayByKey(this.list.data,'id',item.id)
+            let index = this.list.data.indexOf(temp_item);
+
+            if(this.list.data[index+1]){
+                let next_item = vaah().clone(this.list.data[index+1]);
+                this.$router.push({name: 'attributes.view', params:{id:next_item.id}})
+            }else{
+
+                vaah().toastErrors(['Record not exists']);
+            }
+
+        },
+
+        //----------------------------------------------------------------------
+
         deleteAttributeValue(value_name){
+
             this.item.value.forEach((element, index)=>{
                 if (element.value == value_name){
                     element.is_active = 0;
@@ -203,7 +245,9 @@ export const useAttributeStore = defineStore({
                 }
             }, 250);
         },
+
         //---------------------------------------------------------------------
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -360,6 +404,8 @@ export const useAttributeStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -445,18 +491,19 @@ export const useAttributeStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
                 case 'create-and-new':
+                    this.attribute_new_value = null;
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
@@ -466,10 +513,16 @@ export const useAttributeStore = defineStore({
                     this.$router.push({name: 'attributes.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    this.attribute_new_value = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
+                    this.attribute_new_value = null;
                     break;
                 case 'delete':
                     this.item = null;
@@ -491,6 +544,7 @@ export const useAttributeStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -499,27 +553,21 @@ export const useAttributeStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -530,8 +578,6 @@ export const useAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
         onItemSelection(items)
         {
             this.action.items = items;
@@ -540,6 +586,7 @@ export const useAttributeStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.attribute_new_value = null;
         },
         //---------------------------------------------------------------------
         confirmDelete()
@@ -825,6 +872,47 @@ export const useAttributeStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -860,21 +948,40 @@ export const useAttributeStore = defineStore({
 
                         }
                     },
-                    {
+
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
+                    },)
+                }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
+
 
             } else{
                 form_menu = [
@@ -908,7 +1015,7 @@ export const useAttributeStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

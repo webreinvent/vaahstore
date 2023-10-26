@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="addresses-save"
                             @click="store.itemAction('save')"
@@ -63,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="addresses-create-and-new"
                             icon="pi pi-save"/>
 
@@ -76,6 +78,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="addresses-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +89,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="addresses-to-list"
                             @click="store.toList()">
@@ -98,9 +101,9 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         v-model="store.item.user"
                         @change="store.setUser($event)"
@@ -116,7 +119,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Type">
+                <VhField label="Type*">
                     <AutoComplete
                         v-model="store.item.address_type"
                         @change="store.setAddressType($event)"
@@ -132,7 +135,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Address line 1">
+                <VhField label="Address line 1*">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 1"
                               name="addresses-address_line_1"
@@ -140,7 +143,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_1"/>
                 </VhField>
 
-                <VhField label="Address line 2">
+                <VhField label="Address line 2*">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 2"
                               name="addresses-address_line_2"
@@ -148,7 +151,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_2"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
@@ -170,6 +173,14 @@ const toggleFormMenu = (event) => {
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
                               v-model="store.item.status_notes"/>
+                </VhField>
+
+                <VhField label="Is Default">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 name="addresses-active"
+                                 data-testid="addresses-active"
+                                 v-model="store.item.is_default"/>
                 </VhField>
 
             </div>

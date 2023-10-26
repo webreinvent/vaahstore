@@ -58,7 +58,7 @@ const toggleItemMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -77,6 +77,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Edit"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="brands-item-to-edit"
                             icon="pi pi-save"/>
@@ -84,6 +85,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="brands-item-menu"
                         icon="pi pi-angle-down"
@@ -94,7 +96,7 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="brands-item-to-list"
                             @click="store.toList()"/>
@@ -106,7 +108,7 @@ const toggleItemMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div class="mt-2" v-if="store.item">
 
                 <Message severity="error"
                          class="p-container-message"
@@ -117,10 +119,10 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
-                        <div class="">
+                        <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="brands-item-restore"
@@ -155,24 +157,38 @@ const toggleItemMenu = (event) => {
                                        type="user"
                             />
                         </template>
+
                         <template v-else-if="column === 'taxonomy_id_brand_status'">
-                            <VhViewRow label="status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.status.name}}
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'registered_by'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.registered_by_user"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Registered by</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.registered_by_user.username}}
+                                </td>
+                            </tr>
                         </template>
+
                         <template v-else-if="column === 'approved_by'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.approved_by_user"
-                                       type="user"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Store</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.approved_by_user.username}}
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_active'">

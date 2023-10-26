@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/whishlists',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -30,6 +30,11 @@ function () {
     Route::delete('/', 'WhishlistsController@deleteList')
         ->name('vh.backend.store.whishlists.list.delete');
 
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'WhishlistsController@fillItem')
+        ->name('vh.backend.store.whishlists.fill');
 
     /**
      * Create Item
@@ -63,6 +68,25 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'WhishlistsController@itemAction')
         ->name('vh.backend.store.whishlists.item.action');
+
+
+    /**
+     * Search vaah users
+     */
+    Route::any('/search/users', 'WhishlistsController@searchVaahUsers')
+        ->name('vh.backend.store.whishlists.search.users');
+
+    /**
+     * Search type
+     */
+    Route::any('/search/type', 'WhishlistsController@searchType')
+        ->name('vh.backend.store.whishlists.search.type');
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'WhishlistsController@searchStatus')
+        ->name('vh.backend.store.whishlists.search.status');
 
     //---------------------------------------------------------
 
