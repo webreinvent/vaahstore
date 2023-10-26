@@ -70,7 +70,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="status" header="Status"
+            <Column field="status.name" header="Status"
                     v-if="store.isViewLarge()"
                     :sortable="true">
 
