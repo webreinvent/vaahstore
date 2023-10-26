@@ -272,11 +272,16 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-
+        $inputs = $request->all();
         $validation_result = self::vendorInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
+        }
+
+        // Check if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
         }
 
         $inputs = $validation_result['data'];
