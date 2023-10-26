@@ -18,6 +18,8 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            store:null,
+            vendor_status:null,
         },
     },
     action: {
