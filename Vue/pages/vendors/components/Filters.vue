@@ -4,7 +4,7 @@ import { useVendorStore } from '../../../stores/store-vendors'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useVendorStore();
-
+console.log(store);
 </script>
 
 <template>
@@ -12,6 +12,44 @@ const store = useVendorStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+            <VhFieldVertical >
+                <template #label>
+                    <b>Store By:</b>
+                </template>
+                <VhField label="Payment Status">
+                    <MultiSelect
+                        v-model="store.query.filter.store"
+                        :options="store.assets.active_stores"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Store"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.vendor_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+            <Divider/>
+
 
             <VhFieldVertical >
                 <template #label>

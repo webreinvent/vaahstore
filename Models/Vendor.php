@@ -412,7 +412,35 @@ class Vendor extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
+        });
+
+    }
+    //-------------------------------------------------
+    public function scopeSearchStore($query, $filter)
+    {
+
+        if(!isset($filter['vendor_status']))
+        {
+            return $query;
+        }
+        $search = $filter['vendor_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+
+    }
+    //-------------------------------------------------
+    public function scopeVendorStatus($query, $filter)
+    {
+        if(!isset($filter['store']))
+        {
+            return $query;
+        }
+        $search = $filter['store'];
+        $query->whereHas('store',function ($q) use ($search) {
+            $q->whereIn('name',$search);
         });
 
     }
@@ -423,6 +451,8 @@ class Vendor extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->searchStore($request->filter);
+        $list->vendorStatus($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -821,9 +851,9 @@ class Vendor extends Model
         $inputs['vh_st_store_id'] = $store->id;
         $inputs['store'] = $store;
 
-        $user = User::where('is_active',1)->inRandomOrder()->first();
-        $inputs['vh_user_id'] =$user->id;
-        $inputs['approved_by_user'] = $user;
+        $approved_by = User::where('is_active',1)->inRandomOrder()->first();
+        $inputs['approved_by'] =$approved_by->id;
+        $inputs['approved_by_user'] = $approved_by;
 
         $owned_by = User::where('is_active',1)->inRandomOrder()->first();
         $inputs['owned_by'] =$owned_by->id;
