@@ -296,7 +296,6 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.item.product = null;
                 this.product = data;
             }
         },

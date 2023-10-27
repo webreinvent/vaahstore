@@ -698,15 +698,19 @@ class ProductVendor extends Model
             'vh_st_vendor_id'=> 'required',
             'vh_st_product_id'=> 'required',
             'taxonomy_id_product_vendor_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_vendor_status.slug,==,rejected',
             'added_by'=> 'required|max:150',
             'can_update'=> 'required|max:150',
-                ],
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+                             ],
+            ],
         [
             'vh_st_vendor_id.required' => 'The vendor field is required',
             'vh_st_product_id.required' => 'The product field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         ]
         );
 
