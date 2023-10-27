@@ -59,6 +59,10 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                    {{store.item.status_notes}}</div>
+            </Message>
 
             <template class="p-1" #header>
 
@@ -143,7 +147,7 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'store_vendor_product'
                         || column === 'status'|| column === 'stores'|| column === 'product'|| column === 'vendor'||
                         column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'
-                        || column === 'product_variation'">
+                        || column === 'product_variation' || column === 'status_notes'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -194,19 +198,6 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td colspan="2">
                                     {{store.item.status?.name}}
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template v-else-if="column === 'status_notes'">
-                            <tr>
-                                <td>
-                                    <b>Status notes</b>
-                                </td>
-                                <td colspan="2">
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.status_notes}}
-                                    </div>
                                 </td>
                             </tr>
                         </template>
