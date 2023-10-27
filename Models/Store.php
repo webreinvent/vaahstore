@@ -194,9 +194,28 @@ class Store extends Model
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
         if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
         }
+
 
         $item = new self();
         $item->fill($inputs);
@@ -707,6 +726,28 @@ class Store extends Model
 
         if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
+        }
+
+        // check if name exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This slug is already exist.";
+            return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();

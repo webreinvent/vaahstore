@@ -67,7 +67,7 @@ class StoresController extends Controller
                 array("name" => "Barbadian Dollar", "code" => "BBD", "symbol" => "Bds$"),
                 array("name" => "Bitcoin", "code" => "BTC", "symbol" => "฿"),
                 array("name" => "Cambodian Riel", "code" => "KHR", "symbol" => "KHR"),
-                array("name" => "Danish Krone", "code" => "DKK", "symbol" => "Kr."),
+                array("name" => "Danish Krone", "code" => "DKK", "symbol" => "Kr"),
                 array("name" => "Indian Rupee", "code" => "INR", "symbol" => "₹")
             );
         }
@@ -83,11 +83,11 @@ class StoresController extends Controller
             return array(
                 array("name" => "Acoli"),
                 array("name" => "Adangme"),
-                array("name" => "Adyghe; Adygei"),
-                array("name" => "Blin; Bilin"),
+                array("name" => "Adyghe"),
+                array("name" => "Bilin"),
                 array("name" => "Western Frisian"),
                 array("name" => "Gbaya"),
-                array("name" => "Haida")
+                array("name" => "Haida"),
             );
         }
     }
