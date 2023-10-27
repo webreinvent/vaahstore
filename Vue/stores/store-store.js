@@ -1,13 +1,13 @@
-import {watch,toRaw} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductStock';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Store';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/store/productstocks";
+let ajax_url = base_url + "/store/stores";
 
 let empty_states = {
     query: {
@@ -18,7 +18,6 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
-            product_stock_status:null,
         },
     },
     action: {
@@ -27,27 +26,22 @@ let empty_states = {
     }
 };
 
-export const useProductStockStore = defineStore({
-    id: 'productstocks',
+export const useStoreStore = defineStore({
+    id: 'store',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
         model: model_namespace,
         assets_is_fetching: true,
         app: null,
+        status_option:null,
+        showCurrencyDefault:false,
+        currencies_list:null,
+        status_suggestion_list:null,
+        currency_suggestion_list:null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
-        status_suggestion: null,
-        status_option: null,
-        vendors_suggestion: null,
-        vendors: null,
-        products_suggestion: null,
-        products: null,
-        product_variations_suggestion: null,
-        product_variations: null,
-        warehouses_suggestion: null,
-        warehouses: null,
         item: null,
         fillable:null,
         empty_query:empty_states.query,
@@ -60,7 +54,7 @@ export const useProductStockStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'productstocks.',
+        route_prefix: 'store.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -73,7 +67,6 @@ export const useProductStockStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
-        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -105,7 +98,7 @@ export const useProductStockStore = defineStore({
         {
             switch(route_name)
             {
-                case 'productstocks.index':
+                case 'store.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -164,124 +157,53 @@ export const useProductStockStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-         watchItem(name)
-          {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              }
-          },
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-                this.status_suggestion = this.status.filter((department) => {
-                      return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                });
-        },
-        //---------------------------------------------------------------------
-       async searchVendor(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
+        watchItem()
+        {
+            if(this.item){
+                    watch(() => this.item.name, (newVal,oldVal) =>
+                        {
+                            if(newVal && newVal !== "")
+                            {
+                                this.item.name = vaah().capitalising(newVal);
+                                this.item.slug = vaah().strToSlug(newVal);
+                            }
+                        },{deep: true}
+                    )
 
-            await vaah().ajax(
-                this.ajax_url+'/search/vendor',
-                this.searchVendorAfter,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        searchVendorAfter(data,res){
-            if(data){
-                this.vendors_suggestion = data;
+                watch(() => this.item.currencies, (newVal,oldVal) =>
+                    {
+                        let flag = 1;
+                        if (this.item.currency_default && this.item.currency_default.length > 1) {
+                            this.item.currencies.forEach((value) => {
+                                if (this.item.currency_default.code == value.code) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.currency_default = null;
+                            }
+                        }
+                    }, {deep: true}
+                )
+                watch(() => this.item.languages, (newVal,oldVal) =>
+                    {
+                        let flag = 1;
+                        if (this.item.language_default && this.item.language_default.length > 1) {
+                            this.item.languages.forEach((value) => {
+                                if (this.item.language_default.name == value.name) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.language_default = null;
+                            }
+                        }
+                    }, {deep: true}
+                )
             }
-        },
-        //---------------------------------------------------------------------
-       async searchProduct(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        searchProductAfter(data,res){
-            if(data){
-                this.products_suggestion = data;
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
             }
-        },
-        //---------------------------------------------------------------------
-         async searchProductVariation(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        searchProductVariationAfter(data,res){
-            if(data){
-                this.product_variations_suggestion = data;
-            }
-        },
-        //---------------------------------------------------------------------
-       async searchWarehouse(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/warehouse',
-                this.searchWarehouseAfter,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        searchWarehouseAfter(data,res){
-            if(data){
-                this.warehouses_suggestion = data;
-            }
-        },
-        //---------------------------------------------------------------------
-        setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
-        },
-        //---------------------------------------------------------------------
-        setProduct(event){
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-        },
-        //---------------------------------------------------------------------
-        setProductVariation(event){
-            let productVariation = toRaw(event.value);
-            this.item.vh_st_product_variation_id = productVariation.id;
-        },
-        //---------------------------------------------------------------------
-        setWarehouse(event){
-            let warehouse = toRaw(event.value);
-            this.item.vh_st_warehouse_id = warehouse.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event){
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_product_stock_status = status.id;
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -301,21 +223,24 @@ export const useProductStockStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status;
-                this.vendors = data.vendors;
-                this.products = data.products;
-                this.warehouses = data.warehouses;
-                this.product_variations = data.product_variations;
+                this.status_option = data.taxonomy.store_status;
+                this.currencies_list = data.currencies;
+                this.languages_list = data.languages;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
-                    this.item = vaah().clone(data.empty_item);
+                    this.setActiveItemAsEmpty();
                 }
 
             }
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_store_status = status.id;
         },
         //---------------------------------------------------------------------
         async getList() {
@@ -337,6 +262,45 @@ export const useProductStockStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        searchStatus(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.status_suggestion_list = this.status_option;
+                }
+                else {
+                    this.status_suggestion_list = this.status_option.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCurrencyDefault(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.currency_default_suggestion_list = this.item.currencies;
+                }
+                else {
+                    this.currency_default_suggestion_list = this.item.currencies.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
+        searchCurrency(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.currency_suggestion_list = this.currencies_list;
+                }
+                else {
+                    this.currency_suggestion_list = this.currencies.filter((department) => {
+                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
+        },
+        //---------------------------------------------------------------------
 
         async getItem(id) {
             if(id){
@@ -352,8 +316,11 @@ export const useProductStockStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.taxonomy_id_store_status = data.status;
+                this.item.currency_default = data.currency_default;
+                let temp = data.currency_default;
             }else{
-                this.$router.push({name: 'productstocks.index'});
+                this.$router.push({name: 'store.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -444,8 +411,6 @@ export const useProductStockStore = defineStore({
                     break;
             }
 
-            this.action.filter = this.query.filter;
-
             let options = {
                 params: this.action,
                 method: method,
@@ -533,12 +498,12 @@ export const useProductStockStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter(data);
+                await this.formActionAfter();
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter (data)
+        async formActionAfter ()
         {
             switch (this.form.action)
             {
@@ -549,18 +514,13 @@ export const useProductStockStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'productstocks.index'});
+                    this.$router.push({name: 'store.index'});
                     break;
                 case 'save-and-clone':
-                case 'create-and-clone':
                     this.item.id = null;
-                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    break;
-                case 'restore':
-                case 'save':
-                    this.item = data;
+                    this.item = null;
                     break;
                 case 'delete':
                     this.item = null;
@@ -582,7 +542,6 @@ export const useProductStockStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
-            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -591,21 +550,27 @@ export const useProductStockStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFormInputs () {
+        async getFaker () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.ajax_url+'/fill';
+            let url = this.base_url+'/faker';
+
+            let options = {
+                params: params,
+                method: 'post',
+            };
 
             await vaah().ajax(
                 url,
-                this.getFormInputsAfter,
+                this.getFakerAfter,
+                options
             );
         },
         //---------------------------------------------------------------------
-        getFormInputsAfter: function (data, res) {
+        getFakerAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -720,32 +685,32 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'productstocks.index'})
+            this.$router.push({name: 'store.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'productstocks.index'})
+            this.setActiveItemAsEmpty();
+            this.$router.push({name: 'store.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
-            this.item = vaah().clone(this.assets.empty_item);
+            this.setActiveItemAsEmpty();
             this.getFormMenu();
-            this.$router.push({name: 'productstocks.form'})
+            this.$router.push({name: 'store.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'productstocks.view', params:{id:item.id}})
+            this.$router.push({name: 'store.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'productstocks.form', params:{id:item.id}})
+            this.$router.push({name: 'store.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -911,47 +876,6 @@ export const useProductStockStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
-        async getListCreateMenu()
-        {
-            let form_menu = [];
-
-            form_menu.push(
-                {
-                    label: 'Create 100 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-100-records');
-                    }
-                },
-                {
-                    label: 'Create 1000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-1000-records');
-                    }
-                },
-                {
-                    label: 'Create 5000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-5000-records');
-                    }
-                },
-                {
-                    label: 'Create 10,000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-10000-records');
-                    }
-                },
-
-            )
-
-            this.list_create_menu = form_menu;
-
-        },
-
-        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -986,31 +910,22 @@ export const useProductStockStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+                    {
+                        label: 'Trash',
+                        icon: 'pi pi-times',
+                        command: () => {
+                            this.itemAction('trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-            {
-                form_menu.push({
-                    label: 'Restore',
-                    icon: 'pi pi-replay',
-                    command: () => {
-                        this.itemAction('restore');
-                        this.item = null;
-                        this.toList();
-                    }
-                })
-            }
-            else {
-                form_menu.push({
-                    label: 'Trash',
-                    icon: 'pi pi-times',
-                    command: () => {
-                        this.itemAction('trash');
-                        this.item = null;
-                        this.toList();
-                    }
-                })
-            }
 
             } else{
                 form_menu = [
@@ -1041,19 +956,12 @@ export const useProductStockStore = defineStore({
             }
 
             form_menu.push({
-                label: 'Delete',
-                icon: 'pi pi-trash',
-                command: () => {
-                    this.confirmDeleteItem('delete');
-                }
-               },
-                {
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFormInputs();
+                    this.getFaker();
                 }
-            })
+            },)
 
             this.form_menu_list = form_menu;
 
@@ -1066,5 +974,5 @@ export const useProductStockStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useProductStockStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useStoreStore, import.meta.hot))
 }
