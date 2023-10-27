@@ -157,7 +157,7 @@ export const useStoreStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-         watchItem(name)
+         watchItem()
          {
              if(this.item){
                  watch(() => this.item.name, (newVal,oldVal) =>
@@ -173,7 +173,16 @@ export const useStoreStore = defineStore({
                          };
                      },{deep: true}
                  )
+                 watch(() => this.item.allowed_ips, (newVal,oldVal) =>
+                     {
 
+                         let ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                         if(!newVal.match(ipformat))
+                         {
+                             alert("invalid format for ip address");
+                         }
+                     },{deep: true}
+                 )
                  watch(() => this.item.currencies, (newVal,oldVal) =>
                      {
                          let flag = 1;
@@ -247,6 +256,12 @@ export const useStoreStore = defineStore({
             this.item.taxonomy_id_store_status = status.id;
         },
         //---------------------------------------------------------------------
+        checkIpAddress(event)
+        {
+            console.log(event.target.value);
+        },
+        //---------------------------------------------------------------------
+
         async getList() {
             let options = {
                 query: vaah().clone(this.query)
@@ -752,7 +767,9 @@ export const useStoreStore = defineStore({
 
             return text;
         },
+
         //---------------------------------------------------------------------
+
         async getListSelectedMenu()
         {
             this.list_selected_menu = [
