@@ -271,14 +271,16 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Allowed Ips*">
-                    <InputNumber class="w-full"
+                <VhField label="Allowed Ips">
+                    <Chips class="w-full"
                            v-model="store.item.allowed_ips"
+                           separator=","
                            placeholder="Enter Ips"
                            data-testid="store-allowed-ips"
                            type="number" />
-                    
+
                 </VhField>
+
                 <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
