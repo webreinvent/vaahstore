@@ -14,7 +14,6 @@ onMounted(async () => {
     {
         await store.getItem(route.params.id);
     }
-
     await store.getFormMenu();
 });
 
@@ -274,8 +273,9 @@ const toggleFormMenu = (event) => {
                 <VhField label="Allowed Ips">
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
+                           @keydown.enter="store.checkIpAddress"
                            separator=","
-                           placeholder="Enter Ips"
+                           placeholder="e.g. 192.168.1.1"
                            data-testid="store-allowed-ips"
                            type="number" />
 

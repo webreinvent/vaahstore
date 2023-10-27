@@ -265,7 +265,6 @@ class Store extends Model
         $validated_data = validator($inputs,[
             'name' => 'required|max:100',
             'slug' => 'required|max:100',
-            'allowed_ips' => 'required|digits_between:1,15',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -283,7 +282,6 @@ class Store extends Model
                 'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'allowed_ips.digits_between' => 'The quantity field must not be greater than 15 digits',
             ]
         );
 
