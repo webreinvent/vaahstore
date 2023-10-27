@@ -45,7 +45,7 @@ const items = ref([
                 to: "/productvariations"
             },
             {
-                label: 'Product-Attribute',
+                label: 'Product Attributes',
                 icon: 'fa-regular fa-clone',
                 to: "/productattributes"
             },
