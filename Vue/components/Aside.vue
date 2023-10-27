@@ -75,7 +75,7 @@ const items = ref([
                 to: "/attributes"
             },
             {
-                label: 'Attributes-Group',
+                label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
                 to: "/attributegroups"
             },
@@ -100,7 +100,7 @@ const items = ref([
                 to: "/customergroups"
             },
             {
-                label: 'Whishlists',
+                label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
                 to: "/whishlists"
             },

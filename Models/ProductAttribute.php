@@ -582,7 +582,22 @@ class ProductAttribute extends Model
 
         $inputs = $validation_result['data'];
 
+        // check if product variation and attribute value already  exist in the table
+
+        $product_variation_id = $inputs['vh_st_product_variation_id'];
+        $attribute_id = $inputs['vh_st_attribute_id'];
+
+        $item = self::where('id','!=', $id)->where('vh_st_product_variation_id',$product_variation_id)
+            ->where('vh_st_attribute_id',$attribute_id)->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This record is already exist.";
+            return $response;
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
         $item->save();
 
         $all_active_attribute_values_ids = [];

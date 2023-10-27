@@ -144,7 +144,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <vhField label="Attribute Values" v-if="store.item.attribute_values">
+                <vhField label="Attribute Values" v-if="store.item.attribute && store.item.attribute_values">
                     <div v-for="item in store.item.attribute_values">
                         <div class="p-inputgroup flex-1 p-1">
                             <span class="p-inputgroup-addon" v-tooltip="item.default_value" >
