@@ -151,10 +151,10 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                     <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
                 </VhField>
-              
+
                 <VhField label="Store">
                     <MultiSelect class="w-full"
-                                 v-model="store.item.stores"
+                                 v-model="store.item.store_vendor_product"
                                  display="chip"
                                  data-testid="productvendors-stores"
                                  name="productvendors-stores"
@@ -211,7 +211,9 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.added_by_suggestion"
                         @complete="store.searchAddedBy($event)"
                         placeholder="Select Added by"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        :dropdown="true"
+                        optionLabel="first_name"
+                        forceSelection>
                     </AutoComplete>
                 </VhField>
 
@@ -227,7 +229,9 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true"
+                        optionLabel="name"
+                        forceSelection>
                     </AutoComplete>
 
                 </VhField>

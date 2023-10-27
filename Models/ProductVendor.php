@@ -209,7 +209,6 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -236,8 +235,8 @@ class ProductVendor extends Model
             $item->save();
 
             // Save value in the pivot table
-            if (isset($inputs['stores']) && is_array($inputs['stores'])) {
-                  foreach ($inputs['stores'] as $store) {
+            if (isset($inputs['store_vendor_product']) && is_array($inputs['store_vendor_product'])) {
+                  foreach ($inputs['store_vendor_product'] as $store) {
                   $item->storeVendorProduct()->attach($store['id']);
                   }
             }
@@ -559,7 +558,6 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function getItem($id)
     {
-        $get_stores = [];
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor',
                 'addedByUser','status','stores','storeVendorProduct'])
@@ -587,21 +585,12 @@ class ProductVendor extends Model
             $item['is_active_product_price'] = 1;
         }
 
-
-        if ($item['storeVendorProduct']) {
-            foreach ($item['storeVendorProduct'] as $key => $value) {
-                $stores = [
-                    'id' => $value['id'],
-                    'name' => $value['name'],
-                    'slug' => $value['slug']
-                ];
-                array_push($get_stores, $stores);
-            }
-        }
+        $item->storeVendorProduct->each(function ($store_vendor) {
+            unset($store_vendor->pivot);
+        });
 
         $response['success'] = true;
         $response['data'] = $item;
-        $response['data']['stores_test'] = $get_stores;
         return $response;
 
     }
@@ -639,7 +628,7 @@ class ProductVendor extends Model
             $item->save();
 
            // Update the relationship with the stores
-            $storeData = $inputs['stores'];
+            $storeData = $inputs['store_vendor_product'];
             $storeIds = [];
             foreach ($storeData as $store) {
                 $storeIds[] = $store['id'];
@@ -793,6 +782,12 @@ class ProductVendor extends Model
             $item->fill($inputs);
             $item->save();
 
+            // Save value in the pivot table
+            if (isset($inputs['store_vendor_product']) && is_array($inputs['store_vendor_product'])) {
+                foreach ($inputs['store_vendor_product'] as $store) {
+                    $item->storeVendorProduct()->attach($store['id']);
+                }
+            }
             $i++;
 
         }
@@ -813,20 +808,20 @@ class ProductVendor extends Model
         }
         $inputs = $fillable['data']['fill'];
 
-        $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
-        $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] = $vendor_id;
-        $inputs['vendor'] = $vendor_id_data;
+        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['vh_st_vendor_id'] = $vendor->id;
+        $inputs['vendor'] = $vendor;
 
-        $store_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-        $store_id_data = Product::where('is_active',1)->where('id',$store_id)->first();
-        $inputs['vh_st_product_id'] = $store_id;
-        $inputs['product'] = $store_id_data;
+        $store = Store::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['store_vendor_product'][] = $store;
 
-        $user_id = User::where('is_active', 1)->inRandomOrder()->value('id');
-        $user_id_data = User::where('is_active',1)->where('id',$user_id)->first();
-        $inputs['added_by'] = $store_id;
-        $inputs['added_by_user'] = $user_id_data;
+        $store = Product::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['vh_st_product_id'] = $store->id;
+        $inputs['product'] = $store;
+
+        $user = User::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['added_by'] = $user->id;
+        $inputs['added_by_user'] = $user;
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();
