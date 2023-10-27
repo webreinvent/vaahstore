@@ -87,17 +87,25 @@ export const useProductVendorStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
-                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchProductVariation(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchProductVariationAfter(data,res){
+            if(data){
+                this.product_variation_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
        async searchAddedBy(event) {

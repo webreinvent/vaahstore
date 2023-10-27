@@ -104,6 +104,12 @@ function () {
     Route::any('/search/status', 'ProductVendorsController@searchStatus')
         ->name('vh.backend.store.productvendors.search.status');
 
+    /**
+     * Product variation status
+     */
+    Route::any('/search/product/variation', 'ProductVendorsController@searchProductVariation')
+        ->name('vh.backend.store.productvendors.search.variation');
+
     //---------------------------------------------------------
 
 });

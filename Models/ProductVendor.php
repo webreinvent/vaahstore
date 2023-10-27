@@ -928,6 +928,20 @@ class ProductVendor extends Model
     }
 
     //-------------------------------------------------
+    public static function searchProductVariation($request){
+        $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orwhere('slug', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
+    //-------------------------------------------------
 
 
 }

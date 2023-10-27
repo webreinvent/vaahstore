@@ -141,17 +141,63 @@ console.log('store',store);
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by'
-                        || column === 'status'|| column === 'stores'|| column === 'product'|| column === 'vendor'||
+                        || column === 'status'|| column === 'stores' || column === 'product'|| column === 'vendor'||
                         column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       :can_copy="true"
+                                       :can_copy="false"
                             />
                         </template>
 
+                        <template v-else-if="column === 'vh_st_vendor_id'">
+                            <tr>
+                                <td>
+                                    <b>Vendor</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.vendor?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_product_id'">
+                            <tr>
+                                <td>
+                                    <b>Product</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.product?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
+
+                        <template v-else-if="column === 'added_by'">
+                            <tr>
+                                <td>
+                                    <b>Added by</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.updated_by_user?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
+
+                        <template v-else-if="column === 'taxonomy_id_product_vendor_status'">
+                            <tr>
+                                <td>
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.status?.name}}
+                                </td>
+                            </tr>
+                        </template>
+                        
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
                         column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
@@ -160,38 +206,10 @@ console.log('store',store);
                             />
                         </template>
 
-                        <template v-else-if="column === 'vh_st_vendor_id'">
-                            <VhViewRow label="Vendor"
-                                       :value="store.item.vendor"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_product_id'">
-                            <VhViewRow label="Product"
-                                       :value="store.item.product"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'added_by'">
-                            <VhViewRow :label="column"
-                                       :value="store.item.updated_by_user"
-                                       type="user"
-                            />
-                        </template>
-
                         <template v-else-if="column === 'can_update'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_product_vendor_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
                             />
                         </template>
 
