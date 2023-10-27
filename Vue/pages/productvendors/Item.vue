@@ -53,7 +53,6 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
-console.log('store',store);
 </script>
 <template>
 
@@ -138,11 +137,13 @@ console.log('store',store);
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                 <table class="p-datatable-table">
                     <tbody class="p-datatable-tbody">
+
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'
-                        || column === 'status'|| column === 'stores' || column === 'product'|| column === 'vendor'||
-                        column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'store_vendor_product'
+                        || column === 'status'|| column === 'stores'|| column === 'product'|| column === 'vendor'||
+                        column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'
+                        || column === 'product_variation'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -186,18 +187,30 @@ console.log('store',store);
                             </tr>
                         </template>
 
-
                         <template v-else-if="column === 'taxonomy_id_product_vendor_status'">
                             <tr>
                                 <td>
                                     <b>Status</b>
                                 </td>
-                                <td colspan="2" >
+                                <td colspan="2">
                                     {{store.item.status?.name}}
                                 </td>
                             </tr>
                         </template>
-                        
+
+                        <template v-else-if="column === 'status_notes'">
+                            <tr>
+                                <td>
+                                    <b>Status notes</b>
+                                </td>
+                                <td colspan="2">
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        {{store.item.status_notes}}
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
                         column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
@@ -211,8 +224,32 @@ console.log('store',store);
                                        :value="value"
                                        type="yes-no"
                             />
+
+                            <VhViewRow label="Product Variation"
+                                       :value=store.item.product_variation?.name
+                                       type="email"
+                            />
+
+                            <tr>
+                                <td>
+                                    <b>Store</b>
+                                </td>
+                                <td colspan="2">
+                                    <li v-for="product in store.item.store_vendor_product" :key="product.id">
+                                        {{ product.name }}
+                                    </li>
+
+                                </td>
+                            </tr>
                         </template>
 
+
+                        <template v-else-if="column === 'is_active'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
 
                         <template v-else>
                             <VhViewRow :label="column"
