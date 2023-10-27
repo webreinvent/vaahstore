@@ -131,7 +131,7 @@ export const useStoreStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -173,16 +173,7 @@ export const useStoreStore = defineStore({
                          };
                      },{deep: true}
                  )
-                 watch(() => this.item.allowed_ips, (newVal,oldVal) =>
-                     {
 
-                         let ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-                         if(!newVal.match(ipformat))
-                         {
-                             alert("invalid format for ip address");
-                         }
-                     },{deep: true}
-                 )
                  watch(() => this.item.currencies, (newVal,oldVal) =>
                      {
                          let flag = 1;
@@ -512,10 +503,10 @@ export const useStoreStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
-                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
