@@ -177,9 +177,13 @@ const toggleItemMenu = (event) => {
 
 
                         <template v-else-if="column === 'vh_st_attribute_id'">
-                            <VhViewRow label="Attribute"
-                                       :value="value.name"
-                            />
+                            <tr>
+                                <td><b>Attribute</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.attribute.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'attribute_values'">
