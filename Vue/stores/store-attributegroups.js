@@ -127,7 +127,7 @@ export const useAttributeGroupStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
