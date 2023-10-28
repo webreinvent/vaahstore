@@ -332,58 +332,6 @@ class ProductMediasController extends Controller
         }
     }
     //----------------------------------------------------------
-    public function searchProductVariation(Request $request)
-    {
-        try{
-            return ProductMedia::searchProductVariation($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
-    }
-    //----------------------------------------------------------
-    public function searchStatus(Request $request)
-    {
-        try{
-            return ProductMedia::searchStatus($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-            }
-            return $response;
-        }
-    }
-    //----------------------------------------------------------
-    public function singleProductRemove(Request $request,$id)
-    {
-        try{
-            return ProductMedia::singleProductRemove($request,$id);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
-    //----------------------------------------------------------
-    //----------------------------------------------------------
 
 
 }

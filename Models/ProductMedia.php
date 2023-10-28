@@ -939,6 +939,18 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
+    public static function searchProduct($request){
+        $addedBy = Product::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
     //-------------------------------------------------
 
 

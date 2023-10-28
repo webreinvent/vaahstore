@@ -170,14 +170,9 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Image">
                     <FileUpload customUpload
-                                name="demo[]"
-                                @upload="store.onImageUpload($event)"
-                                @select="store.onImageUpload"
+                                @uploader="store.onImageUpload($event)"
                                 :multiple="!route.params.id"
                                 accept="image/*"
-                                :pt="{
-                                    root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
-                                }"
                                 :maxFileSize="1000000">
                         <template #empty>
 

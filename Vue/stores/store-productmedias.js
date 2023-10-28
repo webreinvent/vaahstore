@@ -94,13 +94,6 @@ export const useProductMediaStore = defineStore({
             );
         },
         //---------------------------------------------------------------------
-        searchStatusAfter(data,res) {
-            if(data)
-            {
-                this.status_suggestion = data;
-            }
-        },
-        //---------------------------------------------------------------------
        async searchProduct(event) {
             const query = event;
             const options = {
@@ -113,6 +106,26 @@ export const useProductMediaStore = defineStore({
                 this.searchProductAfter,
                 options
             );
+        },
+        //---------------------------------------------------------------------
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.product_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        searchProductVariation(event) {
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.product_variation_suggestion = this.active_product_variations;
+                }
+                else {
+                    this.product_variation_suggestion= this.active_product_variations.filter((product_variation) => {
+                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
         //---------------------------------------------------------------------
         searchProductAfter(data,res) {
