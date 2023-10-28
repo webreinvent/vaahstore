@@ -26,14 +26,13 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="product" header="Product"
+            <Column field="product.name" header="Product"
                     :sortable="true">
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
                     <Badge v-if="prop.data.product == null"
                            value="Trashed"
                            severity="danger"></Badge>
@@ -44,7 +43,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="product_variation" header="Product Variation"
+             <Column field="product_variation.name" header="Product Variation"
                      :sortable="true">
 
                  <template #body="prop">
@@ -77,7 +76,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
