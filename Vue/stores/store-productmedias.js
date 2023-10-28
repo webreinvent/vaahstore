@@ -91,17 +91,25 @@ export const useProductMediaStore = defineStore({
             }, 250);
         },
         //---------------------------------------------------------------------
-        searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.active_products;
-                }
-                else {
-                    this.product_suggestion= this.active_products.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.product_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         searchProductVariation(event) {

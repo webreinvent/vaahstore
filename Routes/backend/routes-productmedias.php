@@ -75,6 +75,12 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductMediasController@itemAction')
         ->name('vh.backend.store.productmedias.item.action');
 
+    /**
+     * Search product
+     */
+    Route::any('/search/product', 'ProductMediasController@searchProduct')
+        ->name('vh.backend.store.productmedias.search.product');
+
     //---------------------------------------------------------
 
 });
