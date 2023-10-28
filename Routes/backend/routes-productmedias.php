@@ -36,6 +36,11 @@ function () {
     Route::post('/image/upload', 'ProductMediasController@uploadImage')
         ->name('vh.backend.store.productmedias.list.uploadImage');
 
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductMediasController@fillItem')
+        ->name('vh.backend.store.productmedias.fill');
 
     /**
      * Create Item

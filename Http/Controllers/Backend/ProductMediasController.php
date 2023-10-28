@@ -30,23 +30,9 @@ class ProductMediasController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new ProductMedia();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
+            $data['fillable']['columns'] = ProductMedia::getFillableColumns();
+            $data['fillable']['except'] = ProductMedia::getUnFillableColumns();
+            $data['empty_item'] = ProductMedia::getEmptyItem();
 
             $data['empty_item']['base_path'] = url('');
             $data['empty_item']['images'] = [];
@@ -69,7 +55,7 @@ class ProductMediasController extends Controller
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -77,6 +63,7 @@ class ProductMediasController extends Controller
                 $response['errors'][] = 'Something went wrong.';
             }
         }
+
         return $response;
     }
 
@@ -98,7 +85,6 @@ class ProductMediasController extends Controller
             ];
         }
     }
-
     //----------------------------------------------------------
     public function getActiveProductVariations(){
         $active_product_variations = ProductVariation::Where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','deleted_at','is_active']);
@@ -112,7 +98,6 @@ class ProductMediasController extends Controller
             ];
         }
     }
-
     //----------------------------------------------------------
     public function uploadImage(Request $request){
         try{
@@ -155,7 +140,6 @@ class ProductMediasController extends Controller
             return $response;
         }
     }
-
     //----------------------------------------------------------
     public function getList(Request $request)
     {
@@ -163,7 +147,7 @@ class ProductMediasController extends Controller
             return ProductMedia::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -180,7 +164,7 @@ class ProductMediasController extends Controller
             return ProductMedia::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -200,7 +184,7 @@ class ProductMediasController extends Controller
             return ProductMedia::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -218,7 +202,24 @@ class ProductMediasController extends Controller
             return ProductMedia::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return ProductMedia::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -235,7 +236,7 @@ class ProductMediasController extends Controller
             return ProductMedia::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -252,7 +253,7 @@ class ProductMediasController extends Controller
             return ProductMedia::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -269,7 +270,7 @@ class ProductMediasController extends Controller
             return ProductMedia::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -286,7 +287,7 @@ class ProductMediasController extends Controller
             return ProductMedia::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -303,7 +304,7 @@ class ProductMediasController extends Controller
             return ProductMedia::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
