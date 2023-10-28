@@ -14,7 +14,6 @@ const useVaah = vaah();
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
-                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -34,6 +33,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
+                    {{prop.data.name}}
                     <Badge v-if="prop.data.product == null"
                            value="Trashed"
                            severity="danger"></Badge>
@@ -130,14 +130,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productmedias-table-to-view"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
+                                :disabled="store.item && store.item.id === prop.data.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productmedias-table-to-edit"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
+                                :disabled="store.item && store.item.id === prop.data.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />

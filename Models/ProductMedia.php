@@ -15,7 +15,6 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductMedia extends Model
 {
@@ -525,27 +524,18 @@ class ProductMedia extends Model
                 }
                 break;
             case 'activate-all':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
-                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
-                $list->update(['is_active' => 1,'taxonomy_id_product_media_status' => $approved_id['0']]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
-                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
-                $list->update(['is_active' => null, 'taxonomy_id_product_media_status' => $rejected_id['0']]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                $list->update(['deleted_by'  => auth()->user()->id]);
                 $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
-                ProductMediaImage::deleteImages($items_id);
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -803,13 +793,8 @@ class ProductMedia extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                    ->withTrashed()
-                    ->delete();
-                $item = self::where('id',$id)->withTrashed()->first();
-                if($item->delete()) {
-                    $item->deleted_by = auth()->user()->id;
-                    $item->save();
-                }
+                ->withTrashed()
+                ->delete();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -924,21 +909,6 @@ class ProductMedia extends Model
         }
         $inputs = $fillable['data']['fill'];
 
-        $user = Product::where('is_active',1)->inRandomOrder()->first();
-        $inputs['vh_st_product_id'] =$user->id;
-        $inputs['product'] = $user;
-
-        $owned_by = ProductVariation::where('is_active',1)->inRandomOrder()->first();
-        $inputs['vh_st_product_variation_id'] =$owned_by->id;
-        $inputs['product_variation'] = $owned_by;
-
-        $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
-        $status_id = $taxonomy_status->pluck('id')->random();
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        $inputs['taxonomy_id_product_media_status'] = $status_id;
-        $inputs['status']=$status;
-        $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
-
         $faker = Factory::create();
 
         /*
@@ -969,62 +939,6 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
-    public static function searchProduct($request){
-        $addedBy = Product::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $addedBy = $addedBy->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $addedBy;
-        return $response;
-
-    }
-    //-------------------------------------------------
-    public static function searchProductVariation($request){
-        $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $addedBy = $addedBy->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $addedBy;
-        return $response;
-
-    }
-    //-------------------------------------------------
-    public static function searchStatus($request){
-        $query = $request->input('query');
-        if(empty($query)) {
-            $item = Taxonomy::getTaxonomyByType('product-medias-status');
-        } else {
-            $status = TaxonomyType::getFirstOrCreate('product-medias-status');
-            $item =array();
-
-            if(!$status){
-                return $item;
-            }
-            $item = Taxonomy::whereNotNull('is_active')
-                ->where('vh_taxonomy_type_id',$status->id)
-                ->where('name', 'LIKE', '%' . $query . '%')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $item;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function singleProductRemove($request ,$id){
-        ProductMediaImage::where('id', $id)->delete();
-        $response['messages'][] = 'Removed successfully.';
-        return $response;
-
-    }
     //-------------------------------------------------
 
 
