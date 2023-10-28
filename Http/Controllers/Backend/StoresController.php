@@ -57,6 +57,53 @@ class StoresController extends Controller
 
     //----------------------------------------------------------
 
+    public function searchCurrencies(Request $request)
+    {
+        try {
+
+            return Store::searchCurrencies($request);
+
+        }
+
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function searchLanguages(Request $request)
+    {
+        try {
+                return Store::searchLanguages($request);
+            }
+
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
     public function getCurrencies()
     {
         if (method_exists('VaahCountry', 'getListWithCurrency')){

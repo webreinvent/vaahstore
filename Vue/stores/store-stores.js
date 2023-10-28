@@ -40,6 +40,7 @@ export const useStoreStore = defineStore({
         currencies_list:null,
         status_suggestion_list:null,
         currency_suggestion_list:null,
+        language_suggestion_list : null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -77,8 +78,7 @@ export const useStoreStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        async onLoad(route)
-        {
+        async onLoad(route) {
             /**
              * Set initial routes
              */
@@ -95,10 +95,8 @@ export const useStoreStore = defineStore({
             this.updateQueryFromUrl(route);
         },
         //---------------------------------------------------------------------
-        setViewAndWidth(route_name)
-        {
-            switch(route_name)
-            {
+        setViewAndWidth(route_name) {
+            switch (route_name) {
                 case 'stores.index':
                     this.view = 'large';
                     this.list_view_width = 12;
@@ -110,14 +108,10 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async updateQueryFromUrl(route)
-        {
-            if(route.query)
-            {
-                if(Object.keys(route.query).length > 0)
-                {
-                    for(let key in route.query)
-                    {
+        async updateQueryFromUrl(route) {
+            if (route.query) {
+                if (Object.keys(route.query).length > 0) {
+                    for (let key in route.query) {
                         this.query[key] = route.query[key]
                     }
                     this.countFilters(route.query);
@@ -125,13 +119,11 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        watchRoutes(route)
-        {
+        watchRoutes(route) {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
-                {
+            this.watch_stopper = watch(route, (newVal, oldVal) => {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if (this.watch_stopper && !newVal.name.startsWith(this.route_prefix)) {
                         this.watch_stopper();
 
                         return false;
@@ -139,109 +131,183 @@ export const useStoreStore = defineStore({
 
                     this.route = newVal;
 
-                    if(newVal.params.id){
+                    if (newVal.params.id) {
                         this.getItem(newVal.params.id);
                     }
                     this.setViewAndWidth(newVal.name);
 
-                }, { deep: true }
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-        watchStates()
-        {
-            watch(this.query.filter, (newVal,oldVal) =>
-                {
+        watchStates() {
+            watch(this.query.filter, (newVal, oldVal) => {
                     this.delayedSearch();
-                },{deep: true}
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-         watchItem()
-         {
-             if(this.item){
-                 watch(() => this.item.name, (newVal,oldVal) =>
-                     {
-                         if(newVal && newVal !== "")
-                         {
-                             this.item.name = vaah().capitalising(newVal);
-                             this.item.slug = vaah().strToSlug(newVal);
-                         }
-                         if(newVal == "")
-                         {
-                             this.item.slug="";
-                         };
-                     },{deep: true}
-                 )
+        watchItem() {
+            if (this.item) {
+                watch(() => this.item.name, (newVal, oldVal) => {
+                        if (newVal && newVal !== "") {
+                            this.item.name = vaah().capitalising(newVal);
+                            this.item.slug = vaah().strToSlug(newVal);
+                        }
+                        if (newVal == "") {
+                            this.item.slug = "";
+                        }
+                        ;
+                    }, {deep: true}
+                )
 
-                 watch(() => this.item.currencies, (newVal,oldVal) =>
-                     {
-                         let flag = 1;
-                         if (this.item.currency_default && this.item.currency_default.length > 1) {
-                             this.item.currencies.forEach((value) => {
-                                 if (this.item.currency_default.code == value.code) {
-                                     flag = 0;
-                                 }
-                             })
-                             if (flag == 1) {
-                                 this.item.currency_default = null;
-                             }
-                         }
-                     }, {deep: true}
-                 )
-                 watch(() => this.item.languages, (newVal,oldVal) =>
-                     {
-                         let flag = 1;
-                         if (this.item.language_default && this.item.language_default.length > 1) {
-                             this.item.languages.forEach((value) => {
-                                 if (this.item.language_default.name == value.name) {
-                                     flag = 0;
-                                 }
-                             })
-                             if (flag == 1) {
-                                 this.item.language_default = null;
-                             }
-                         }
-                     }, {deep: true}
-                 )
-             }
-             if (this.form_menu_list.length === 0) {
-                 this.getFormMenu();
-             }
-         },
+                watch(() => this.item.currencies, (newVal, oldVal) => {
+                        let flag = 1;
+                        if (this.item.currency_default && this.item.currency_default.length > 1) {
+                            this.item.currencies.forEach((value) => {
+                                if (this.item.currency_default.code == value.code) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.currency_default = null;
+                            }
+                        }
+                    }, {deep: true}
+                )
+                watch(() => this.item.languages, (newVal, oldVal) => {
+                        let flag = 1;
+                        if (this.item.language_default && this.item.language_default.length > 1) {
+                            this.item.languages.forEach((value) => {
+                                if (this.item.language_default.name == value.name) {
+                                    flag = 0;
+                                }
+                            })
+                            if (flag == 1) {
+                                this.item.language_default = null;
+                            }
+                        }
+                    }, {deep: true}
+                )
+            }
+            if (this.form_menu_list.length === 0) {
+                this.getFormMenu();
+            }
+        },
         //---------------------------------------------------------------------
         async getAssets() {
 
-            if(this.assets_is_fetching === true){
+            if (this.assets_is_fetching === true) {
                 this.assets_is_fetching = false;
 
                 await vaah().ajax(
-                    this.ajax_url+'/assets',
+                    this.ajax_url + '/assets',
                     this.afterGetAssets,
                 );
             }
         },
         //---------------------------------------------------------------------
-        afterGetAssets(data, res)
-        {
-            if(data)
-            {
+        afterGetAssets(data, res) {
+            if (data) {
                 this.assets = data;
                 this.status_option = data.taxonomy.store_status;
                 this.currencies_list = data.currencies;
                 this.languages_list = data.languages;
-                if(data.rows)
-                {
+                if (data.rows) {
                     this.query.rows = data.rows;
                 }
 
-                if(this.route.params && !this.route.params.id){
+                if (this.route.params && !this.route.params.id) {
                     this.setActiveItemAsEmpty();
                 }
 
             }
         },
         //---------------------------------------------------------------------
+
+        async searchCurrencies(event) {
+
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/currencies',
+                this.searchCurrenciesAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCurrenciesAfter(data,res)
+        {
+
+            if (data) {
+                this.currency_suggestion_list = data;
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addCurrencies() {
+
+
+            const unique_currencies = [];
+            const check_ids = new Set();
+
+            for (const currency of this.item.currencies) {
+                if (!check_ids.has(currency.id)) {
+                    unique_currencies.push(currency);
+                    check_ids.add(currency.id);
+                }
+            }
+            this.item.currencies = unique_currencies;
+
+        },
+
+        //---------------------------------------------------------------------
+
+
+        async searchLanguages(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/languages',
+                this.searchLanguagesAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchLanguagesAfter(data, res) {
+
+            if (data) {
+                this.language_suggestion_list = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_store_status = status.id;
