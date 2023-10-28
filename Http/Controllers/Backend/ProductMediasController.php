@@ -332,6 +332,23 @@ class ProductMediasController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function searchProductVariation(Request $request)
+    {
+        try{
+            return ProductMedia::searchProductVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
 
 }
