@@ -94,6 +94,13 @@ export const useProductMediaStore = defineStore({
             );
         },
         //---------------------------------------------------------------------
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
        async searchProduct(event) {
             const query = event;
             const options = {
