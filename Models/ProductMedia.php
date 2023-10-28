@@ -910,6 +910,20 @@ class ProductMedia extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $user = Product::where('is_active',1)->inRandomOrder()->first();
+        $inputs['vh_st_product_id'] =$user->id;
+        $inputs['product'] = $user;
+
+        $owned_by = ProductVariation::where('is_active',1)->inRandomOrder()->first();
+        $inputs['vh_st_product_variation_id'] =$owned_by->id;
+        $inputs['product_variation'] = $owned_by;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_product_media_status'] = $status_id;
+        $inputs['status']=$status;
+
         $faker = Factory::create();
 
         /*
