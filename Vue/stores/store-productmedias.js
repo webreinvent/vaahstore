@@ -112,17 +112,25 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.active_product_variations;
-                }
-                else {
-                    this.product_variation_suggestion= this.active_product_variations.filter((product_variation) => {
-                        return product_variation.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchProductVariation(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductVariationAfter(data,res) {
+            if(data)
+            {
+                this.product_variation_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
         async onImageUpload(event){
