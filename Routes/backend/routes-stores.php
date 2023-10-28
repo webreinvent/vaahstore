@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/stores',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -71,5 +71,19 @@ function () {
         ->name('vh.backend.store.stores.item.action');
 
     //---------------------------------------------------------
+
+    /**
+     * Search Currencies
+     */
+    Route::post('/search/currencies', 'StoresController@searchCurrencies')
+        ->name('vh.backend.store.stores.search.currencies');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Languages
+     */
+    Route::post('/search/languages', 'StoresController@searchLanguages')
+        ->name('vh.backend.store.stores.search.languages');
 
 });

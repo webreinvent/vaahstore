@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -41,10 +41,10 @@ class Store extends Model
     ];
     //-------------------------------------------------
     protected $fill_except = [
-
     ];
 
     //-------------------------------------------------
+
     protected $appends = [
     ];
 
@@ -102,6 +102,7 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+
 
     public function status(){
         return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')
@@ -184,6 +185,7 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+
     public static function createItem($request)
     {
 
@@ -228,10 +230,10 @@ class Store extends Model
 
                 $record = new currencie();
                 $record->vh_st_store_id = $item->id;
-                $record->fill($value);
+                $record->name = $value['name'];
 
                 if (!empty($inputs['currency_default'])) {
-                    if ($inputs['currency_default']['code'] == $value['code']) {
+                    if ($inputs['currency_default']['name'] == $value['name']) {
                         $record->is_default = 1;
                     }
                 } else {
@@ -248,7 +250,7 @@ class Store extends Model
 
                 $record = new Lingual();
                 $record->vh_st_store_id = $item->id;
-                $record->fill($value);
+                $record->name = $value['name'];
 
                 if (!empty($inputs['language_default'])) {
                     if ($inputs['language_default']['name'] == $value['name']) {
@@ -265,6 +267,60 @@ class Store extends Model
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchCurrencies($request){
+
+        $query = $request['filter']['q']['query'];
+
+        if(empty($query)) {
+            $currency = Taxonomy::getTaxonomyByType('Currency')->take(5);
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('Currency');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $currency = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $currency;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchLanguages($request){
+
+        $query = $request['filter']['q']['query'];
+
+        if(empty($query)) {
+            $language = Taxonomy::getTaxonomyByType('Language')->take(5);
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('Language');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $language = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $language;
         return $response;
 
     }
@@ -675,7 +731,7 @@ class Store extends Model
         if ($item->currenciesData->isNotEmpty()){
 
             $currency_default_record = $item->currenciesData()->where('is_default',1)
-                ->select('name','code','symbol')->get();
+                ->select('name',)->get();
             if($currency_default_record->isNotEmpty()){
                 $item->currency_default = $currency_default_record[0];
             }
@@ -683,8 +739,6 @@ class Store extends Model
             $currencies = [];
             foreach ($item->currenciesData as $key => $value) {
                 $currencies[$key]['name'] = $value['name'];
-                $currencies[$key]['code'] = $value['code'];
-                $currencies[$key]['symbol'] = $value['symbol'];
             }
             $item->currencies = $currencies;
 
@@ -762,14 +816,14 @@ class Store extends Model
             foreach ($inputs['currencies'] as $key => $v) {
 
                 currencie::updateOrInsert(
-                    ['vh_st_store_id' => $item->id, 'name' => $v['name'], 'code' => $v['code'], 'symbol' => $v['symbol']],
+                    ['vh_st_store_id' => $item->id, 'name' => $v['name']],
                     ['is_active' => 1]
                 );
 
             }
 
             if (!empty($inputs['currency_default'])){
-                currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'],
+                currencie::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
             }else{
                 $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
@@ -909,7 +963,6 @@ class Store extends Model
         }
         $inputs = $fillable['data']['fill'];
         $faker = Factory::create();
-        $inputs['allowed_ips'] = $faker->randomNumber(5, false);
         $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];

@@ -70,7 +70,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        {{data.code}}<b>({{data.symbol}})</b>
+                        {{data.name}}
                         <span v-if="data.is_default == 1">
                             <badge value="Default" severity="Default"></badge>
                         </span>&nbsp;&nbsp;
@@ -84,7 +84,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
                     <span>
-                        {{value.code}}<b>({{value.symbol}})</b>
+                        <b>{{value.name}}</b>
                      </span>
                 </template>
             </td>
@@ -105,7 +105,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
                     <span>
-                        {{value.name}}
+                        <b>{{value.name}}</b>
                      </span>
                 </template>
             </td>

@@ -186,7 +186,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'currencies'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Currencies"
                                        :value="value"
                                        type="multipleCurrency"
                             />
@@ -200,14 +200,14 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'languages'">
-                            <VhViewRow label="Linguals"
+                            <VhViewRow label="Languages"
                                        :value="value"
                                        type="multipleLingual"
                             />
                         </template>
 
-                        <template v-else-if="column === 'language_default'">
-                            <VhViewRow label="Default Lingual"
+                        <template v-else-if="column === 'language_default' && store.item.is_multi_lingual">
+                            <VhViewRow label="Default Language"
                                        :value="value"
                                        type="defaultLingual"
                             />

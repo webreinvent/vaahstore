@@ -164,14 +164,12 @@ const toggleFormMenu = (event) => {
                                       :options="store.item.currencies"
                                       data-testid="store-currency_default"
                                       filter
-                                      optionLabel="code"
-                                      placeholder="Select Default Currencys"
+                                      optionLabel="name"
+                                      placeholder="Select Default Currency"
                                       class="w-full">
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
-                                        <div>{{ slotProps.option.code }}  </div>
-                                        <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
-                                        (<b>{{slotProps.option.symbol}}</b>)
+                                        <span>&nbsp;&nbsp&nbsp;{{slotProps.option.name}}</span>
                                     </div>
                                 </template>
                             </Dropdown>
@@ -179,29 +177,22 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Currencies*" v-show="store.item.is_multi_currency == 1">
-                    <MultiSelect v-model="store.item.currencies"
-                                 filter
-                                 :options="store.currencies_list"
-                                 data-testid="store-currencies"
-                                 optionLabel="code"
-                                 placeholder="Select Currencies"
-                                 display="chip"
-                                 class="w-full">
-                        <template #option="slotProps">
-                            <div class="flex align-items-center">
-                                <div>{{ slotProps.option.code }}  </div>
-                                <span>&nbsp;-&nbsp;{{slotProps.option.name}}</span>
-                                (<b>{{slotProps.option.symbol}}</b>)
-                            </div>
-                        </template>
-                        <template #footer>
-                            <div class="py-2 px-3">
-                                <b>{{ store.item.currencies ? store.item.currencies.length : 0 }}</b>
-                                item{{ (store.item.currencies ? store.item.currencies.length : 0) > 1 ? 's' : '' }} selected.
-                            </div>
-                        </template>
-                    </MultiSelect>
+                <VhField label="Currencies" v-show="store.item.is_multi_currency == 1">
+
+                    <AutoComplete name="store-currencies"
+                                  data-testid="store-currencies"
+                                  v-model="store.item.currencies"
+                                  option-label ="name"
+                                  multiple
+                                  placeholder="Select Currencies"
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.currency_suggestion_list"
+                                  @change = "store.addCurrencies()"
+                                  @complete="store.searchCurrencies"
+                                  class="w-full"
+                    />
+
+
                 </VhField>
 
                 <VhField label="Is Multi Lingual">
@@ -234,26 +225,19 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Languages*" v-show="store.item.is_multi_lingual == 1">
-                    <MultiSelect v-model="store.item.languages"
-                                 filter
-                                 :options="store.languages_list"
-                                 data-testid="store-languages"
-                                 optionLabel="name"
-                                 placeholder="Select Languages"
-                                 display="chip"
-                                 class="w-full">
-                        <template #option="slotProps">
-                            <div class="flex align-items-center">
-                                <span>{{slotProps.option.name}}</span>
-                            </div>
-                        </template>
-                        <template #footer>
-                            <div class="py-2 px-3">
-                                <b>{{ store.item.languages ? store.item.languages.length : 0 }}</b>
-                                item{{ (store.item.languages ? store.item.languages.length : 0) > 1 ? 's' : '' }} selected.
-                            </div>
-                        </template>
-                    </MultiSelect>
+                    <AutoComplete name="store-languages"
+                                  data-testid="store-languages"
+                                  v-model="store.item.languages"
+                                  option-label = "name"
+                                  multiple
+                                  placeholder="Select Languages"
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.language_suggestion_list"
+                                  @change = "store.addLanguages()"
+                                  @complete="store.searchLanguages"
+                                  class="w-full"
+                    />
+
                 </VhField>
 
                 <VhField label="Is Multi Vendor">
