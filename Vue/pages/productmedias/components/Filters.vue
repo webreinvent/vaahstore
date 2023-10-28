@@ -12,6 +12,47 @@ const store = useProductMediaStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.media_status"
+                        :options="store.assets.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Variation By:</b>
+                </template>
+                <VhField label="Product Variation">
+                    <MultiSelect
+                        v-model="store.query.filter.product_variation"
+                        :options="store.assets.active_product_variations"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Product Variation"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -48,6 +89,8 @@ const store = useProductMediaStore();
             <Divider/>
 
             <VhFieldVertical >
+
+
                 <template #label>
                     <b>Is Active:</b>
                 </template>

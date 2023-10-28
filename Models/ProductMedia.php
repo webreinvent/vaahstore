@@ -297,12 +297,41 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['media_status']))
+        {
+            return $query;
+        }
+        $search = $filter['media_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variation']))
+        {
+            return $query;
+        }
+        $search = $filter['product_variation'];
+        $query->whereHas('productVariation',function ($q) use ($search) {
+            $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','product','productVariation');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->productVariationFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
