@@ -114,6 +114,11 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                        {{store.item.status_notes}}</div>
+                </Message>
+
                 <Message severity="error"
                          class="p-container-message"
                          :closable="false"
@@ -204,22 +209,13 @@ const toggleItemMenu = (event) => {
                                        type="yes-no"
                             />
 
-                                <tr>
-                                    <td>
-                                        <b>Product Images</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
-                                               class="pt-2"
-                                               v-for="(item) in store.item.product_media_images"
-                                               :src="store.item.base_path+'/'+item['url']"
-                                               preview
-                                               alt="Image"
-                                               width="150" />
-                                    </td>
-                                </tr>
-                        </template>
 
+                        <template v-else-if="column === 'url'">
+                            <VhViewRow label="image"
+                                       :value="store.item.base_path+'/'+store.item.url"
+                                       type="image_preview"
+                            />
+                        </template>
 
                         <template v-else>
                             <VhViewRow :label="column"

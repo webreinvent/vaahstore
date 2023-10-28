@@ -33,7 +33,6 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
                     <Badge v-if="prop.data.product == null"
                            value="Trashed"
                            severity="danger"></Badge>
