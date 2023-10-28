@@ -87,6 +87,13 @@ function () {
     Route::any('/search/product/variation', 'ProductMediasController@searchProductVariation')
         ->name('vh.backend.store.productmedias.search.variation');
 
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'ProductMediasController@searchStatus')
+        ->name('vh.backend.store.productmedias.search.status');
+
     //---------------------------------------------------------
 
 });

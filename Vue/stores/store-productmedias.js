@@ -78,17 +78,25 @@ export const useProductMediaStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
         },
         //---------------------------------------------------------------------
        async searchProduct(event) {

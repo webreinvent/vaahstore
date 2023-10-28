@@ -15,6 +15,7 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductMedia extends Model
 {
@@ -876,6 +877,30 @@ class ProductMedia extends Model
         return $response;
 
     }
+    //-------------------------------------------------
+    public static function searchStatus($request){
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('product-medias-status');
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('product-medias-status');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
+
     //-------------------------------------------------
 
 
