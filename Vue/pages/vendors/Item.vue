@@ -110,6 +110,11 @@ const toggleItemMenu = (event) => {
 
 
             <div class="mt-2" v-if="store.item">
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                        {{store.item.status_notes}}</div>
+                </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
@@ -174,18 +179,6 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
                             </template>
-
-                       <template v-else-if="column === 'status_notes'">
-                            <tr>
-                                <td>
-                                    <b>Description</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.status_notes}}</div>
-                                </td>
-                            </tr>
-                        </template>
                        <template v-else-if="column === 'vh_st_store_id'">
                             <tr>
                                 <td>
