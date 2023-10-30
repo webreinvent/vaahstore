@@ -221,7 +221,11 @@ class Store extends Model
 
         $item = new self();
         $item->fill($inputs);
-        $item->allowed_ips =json_encode($inputs['allowed_ips']);
+        if($item->allowed_ips)
+        {
+            $item->allowed_ips = json_encode($inputs['allowed_ips']);
+        }
+        
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -943,6 +947,49 @@ class Store extends Model
             $item =  new self();
             $item->fill($inputs);
             $item->save();
+            $item->allowed_ips =json_encode($inputs['allowed_ips']);
+            $item->slug = Str::slug($inputs['slug']);
+            $item->save();
+
+            if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
+                foreach ($inputs['currencies'] as $key => $value) {
+
+                    $record = new currencie();
+                    $record->vh_st_store_id = $item->id;
+                    $record->name = $value['name'];
+
+                    if (!empty($inputs['currency_default'])) {
+                        if ($inputs['currency_default']['name'] == $value['name']) {
+                            $record->is_default = 1;
+                        }
+                    } else {
+                        $record->is_default = $key == 0 ? 1 : 0;
+                    }
+
+                    $record->is_active = 1;
+                    $record->save();
+                }
+            }
+
+            if(!empty($inputs['languages']) && $item->is_multi_lingual == 1) {
+                foreach ($inputs['languages'] as $key => $value) {
+
+                    $record = new Lingual();
+                    $record->vh_st_store_id = $item->id;
+                    $record->name = $value['name'];
+
+                    if (!empty($inputs['language_default'])) {
+                        if ($inputs['language_default']['name'] == $value['name']) {
+                            $record->is_default = 1;
+                        }
+                    } else {
+                        $record->is_default = $key == 0 ? 1 : 0;
+                    }
+
+                    $record->is_active = 1;
+                    $record->save();
+                }
+            }
 
             $i++;
 
@@ -970,6 +1017,46 @@ class Store extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
+        $inputs['is_multi_currency'] = rand(0,1);
+        $inputs['is_multi_lingual'] = rand(0,1);
+
+        $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
+        $random_currencies = array_rand($currency_list, 3);
+        $selected_currencies = [];
+        foreach ($random_currencies as $index) {
+            $selected_currencies[] = $currency_list[$index];
+        }
+        if($inputs['is_multi_currency'] == 1)
+        {
+
+            foreach ($selected_currencies as $currency)
+            {
+
+                $inputs['currencies'][] = $currency;
+            }
+
+        }
+
+
+
+        $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
+        $random_languages = array_rand($language_list, 3);
+        $selected_languages = [];
+        foreach ($random_languages as $index) {
+            $selected_languages[] = $language_list[$index];
+        }
+        if($inputs['is_multi_lingual'] == 1)
+        {
+
+            foreach ($selected_languages as $language)
+            {
+
+                $inputs['languages'][] = $language;
+            }
+
+        }
+        $inputs['is_multi_vendor'] = 1;
+        $inputs['is_active'] = 1;
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here

@@ -276,6 +276,23 @@ export const useStoreStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        addLanguages() {
+
+
+            const unique_languages = [];
+            const check_ids = new Set();
+
+            for (const language of this.item.languages) {
+                if (!check_ids.has(language.id)) {
+                    unique_languages.push(language);
+                    check_ids.add(language.id);
+                }
+            }
+            this.item.languages = unique_languages;
+
+        },
+
+        //---------------------------------------------------------------------
 
         async searchLanguages(event) {
 
@@ -949,6 +966,18 @@ export const useStoreStore = defineStore({
 
             this.item_menu_list = item_menu;
         },
+        //---------------------------------------------------------------------
+
+        handleNewIP(event)
+        {
+
+            const ipaddress = '1.2.1.1';
+            if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+                return (true)
+            }
+
+        },
+
         //---------------------------------------------------------------------
         async getListCreateMenu()
         {
