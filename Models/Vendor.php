@@ -764,7 +764,7 @@ class Vendor extends Model
             return $response;
         }
         $item->forceDelete();
-        ProductVendor::deleteVendors($item->id);
+        ProductVendor::deleteVendors([$item->id]);
 
         $response['success'] = true;
         $response['data'] = [];
