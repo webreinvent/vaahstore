@@ -677,7 +677,7 @@ class Order extends Model
             'vh_user_id' => 'required|max:150',
             'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
             'vh_st_payment_method_id' => 'required|max:150',
-            'amount' => 'required|min:1|numeric',
+            'amount' => 'required|digits_between:1,10',
             'delivery_fee' => 'required|min:0|numeric',
             'taxes' => 'required|min:0|numeric',
             'discount' => 'required|min:0|numeric',
@@ -717,6 +717,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
+
     public static function seedSampleItems($records=100)
     {
 
@@ -736,7 +737,6 @@ class Order extends Model
 
     }
 
-
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
@@ -749,7 +749,7 @@ class Order extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-
+        $inputs['amount'] =
         $faker = Factory::create();
 
         /*
