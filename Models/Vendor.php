@@ -737,6 +737,11 @@ class Vendor extends Model
 
         $inputs = $validation_result['data'];
 
+        // Check if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
