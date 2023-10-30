@@ -186,8 +186,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
-                                <div>{{ slotProps.option.name }}  </div>
-                                <span>&nbsp;-&nbsp;{{slotProps.option.email}}</span>
+                                <div>{{ slotProps.option.first_name }}  </div>
                             </div>
                         </template>
                     </AutoComplete>
@@ -204,13 +203,12 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.owned_by_suggestions"
                                   @complete="store.searchOwnedBy($event)"
                                   :dropdown="true"
-                                  optionLabel="name"
+                                  optionLabel="first_name"
                                   placeholder="Select Owned By"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
-                                <div>{{ slotProps.option.name }}  </div>
-                                <span>&nbsp;-&nbsp;{{slotProps.option.email}}</span>
+                                <div>{{ slotProps.option.first_name }}  </div>
                             </div>
                         </template>
                     </AutoComplete>
