@@ -34,13 +34,14 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
+                     <Badge v-if="prop.data.product_variation.is_default">Default</Badge>
                      <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
                          {{prop.data.product_variation.name}}</div>
                  </template>
 
              </Column>
 
-             <Column field="attribute" header="Attribute"
+             <Column field="attribute.name" header="Attribute"
                      :sortable="true">
 
                  <template #body="prop">
