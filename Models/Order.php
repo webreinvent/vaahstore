@@ -673,22 +673,23 @@ class Order extends Model
     {
 
         $rules = validator($inputs, [
-            'taxonomy_id_order_status' => 'required|max:150',
-            'vh_user_id' => 'required|max:150',
-            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
-            'vh_st_payment_method_id' => 'required|max:150',
+            'vh_user_id' => 'required',
             'amount' => 'required|digits_between:1,10',
-            'delivery_fee' => 'required|min:0|numeric',
-            'taxes' => 'required|min:0|numeric',
+            'delivery_fee' => 'required|min:0|digits_between:1,15',
+            'taxes' => 'required|min:0|digits_between:1,15',
             'discount' => 'required|min:0|numeric',
-            'payable' => 'required|min:0|numeric',
-            'paid' => 'required|min:0|numeric'
+            'payable' => 'required|min:0|digits_between:1,15',
+            'paid' => 'required|min:0|numeric',
+            'vh_st_payment_method_id' => 'required',
+            'taxonomy_id_order_status' => 'required|max:250',
+            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
         ],
             [
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',
                 'vh_user_id.required' => 'The User field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'delivery_fee.digits_between' => 'delivery fee amount must be between 1 to 15 digits'
             ]
         );
 
@@ -749,7 +750,6 @@ class Order extends Model
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-        $inputs['amount'] =
         $faker = Factory::create();
 
         /*
@@ -757,6 +757,13 @@ class Order extends Model
          * You should also return relationship from here
          */
 
+        $inputs['amount'] = rand(1,10000000);
+        $inputs['delivery_fee'] = rand(1,100);
+        $inputs['taxes'] = rand(1,10000);
+        $inputs['discount'] = rand(1,1000);
+        $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] + $inputs['discount'];
+        $inputs['payable'] = $payable_amount;
+        $inputs['paid'] = rand(1,$payable_amount);
         if(!$is_response_return){
             return $inputs;
         }
