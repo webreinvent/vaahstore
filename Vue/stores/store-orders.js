@@ -75,13 +75,9 @@ export const useOrderStore = defineStore({
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
-        order_product_menu_list : [],
         types : null,
-        filtered_product_variations : null,
-        filtered_venders :null,
+        product_variations : null,
         vendors : null,
-        filtered_customer_groups : null,
-        filtered_users : null,
     }),
     getters: {
 
@@ -107,20 +103,6 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchType(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion= this.type.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
 
         searchType(event) {
 
@@ -130,7 +112,14 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        searchProductVariation(event) {
 
+            this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
+                return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
         searchStatusOrderItems(event) {
 
             this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
@@ -156,31 +145,21 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
 
         searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.products;
-                }
-                else {
-                    this.product_suggestion= this.products.filter((products) => {
-                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.product_suggestion= this.products.filter((products) => {
+                return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
         },
 
         //---------------------------------------------------------------------
 
         searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendors;
-                }
-                else {
-                    this.vendor_suggestion= this.vendors.filter((vendors) => {
-                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.vendor_suggestion= this.vendors.filter((vendors) => {
+                return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
         },
 
         //---------------------------------------------------------------------
