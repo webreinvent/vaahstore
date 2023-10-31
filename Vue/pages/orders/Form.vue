@@ -134,7 +134,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.user"
