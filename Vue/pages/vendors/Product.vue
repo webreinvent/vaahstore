@@ -128,7 +128,7 @@ const toggleSelectedMenuState = (event) => {
                     </div>
                     <div class="pr-1">
                         <Button label="Remove All"
-                                @click="store.bulkRemoveProduct(true,store.item.id)"
+                                @click="store.bulkRemoveProduct(store.item.id,true)"
                                 class="p-button-sm"
                                 size="small" />
                     </div>
@@ -153,7 +153,9 @@ const toggleSelectedMenuState = (event) => {
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
                         <tr v-for="(item, index) in store.item.products">
-                            <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
+                            <th class="col-1">
+                                <Checkbox v-model="item['is_selected']" :binary="true" />
+                            </th>
                             <td>
                                 <InputText v-model="item['product']['name']" class="w-full" />
                             </td>

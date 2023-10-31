@@ -181,6 +181,24 @@ class VendorsController extends Controller
     }
 
     //----------------------------------------------------------
+    public function singleProductRemove(Request $request,$id)
+    {
+        try{
+            return Vendor::singleProductRemove($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
     public function getList(Request $request)
     {
         try{
