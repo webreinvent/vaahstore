@@ -272,7 +272,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
+                                 class="p-inputswitch"
                                  name="orders-active"
                                  data-testid="orders-active"
                                  v-model="store.item.is_active"/>

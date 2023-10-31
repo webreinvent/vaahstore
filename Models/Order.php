@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use VaahCms\Modules\Store\Models\PaymentMethod;
 use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -513,9 +513,12 @@ class Order extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 OrderItem::deleteOrder($items_id);
                 break;
@@ -654,6 +657,9 @@ class Order extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -739,6 +745,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
+
     public static function fillItem($is_response_return = true)
     {
         $request = new Request([
@@ -757,6 +764,14 @@ class Order extends Model
          * You should also return relationship from here
          */
 
+        // fill the user field with any random user here
+        $users = User::where(['is_active'=>1,'deleted_at'=>null]);
+        $user_ids = $users->pluck('id')->toArray();
+        $user_id = $user_ids[array_rand($user_ids)];
+        $user = $users->where('id',$user_id)->first();
+        $inputs['vh_user_id']=$user_id;
+        $inputs['user']=$user;
+
         $inputs['amount'] = rand(1,10000000);
         $inputs['delivery_fee'] = rand(1,100);
         $inputs['taxes'] = rand(1,10000);
@@ -764,6 +779,24 @@ class Order extends Model
         $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] + $inputs['discount'];
         $inputs['payable'] = $payable_amount;
         $inputs['paid'] = rand(1,$payable_amount);
+
+        // fill the payment method column here
+        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null]);
+        $payment_method_ids = $payment_methods->pluck('id')->toArray();
+        $payment_method_id = $payment_method_ids[array_rand($payment_method_ids)];
+        $payment_method = $payment_methods->where('id',$payment_method_id)->first();
+        $inputs['vh_st_payment_method_id']=$payment_method_id;
+        $inputs['payment_method']=$payment_method;
+
+        // fill the taxonomy status field here
+        $taxonomy_status = Taxonomy::getTaxonomyByType('order-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_order_status'] = $status_id;
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['status']=$status;
+
+        $inputs['is_active'] = 1;
         if(!$is_response_return){
             return $inputs;
         }
