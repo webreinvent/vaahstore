@@ -280,16 +280,70 @@ export const useOrderStore = defineStore({
                 },{deep: true}
             )
         },
+        // //---------------------------------------------------------------------
+        //  watchItem(amount)
+        //   {
+        //       if(amount && amount !== "")
+        //       {
+        //          alert(amount);
+        //       }
+        //   },
+        // //---------------------------------------------------------------------
+
+        // watchAmount()
+        // {
+        //     if(this.item){
+        //         watch(() => [this.item.amount, this.item.delivery_fee,this.item.taxes, this.item.discount],
+        //             ([newAmount, newDeliveryFee,newTaxes, newDiscount], [oldAmount, oldDeliveryFee,oldTaxes, oldDiscount]) =>
+        //             {
+        //
+        //                 let payable = newAmount + newDeliveryFee + newTaxes - newDiscount;
+        //                     this.item.payable = payable;
+        //
+        //             },{deep: true}
+        //         )
+        //     }
+        //     if (this.form_menu_list.length === 0) {
+        //         this.getFormMenu();
+        //     }
+        // },
+
+
         //---------------------------------------------------------------------
-         watchItem(name)
-          {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              }
-          },
+        updateAmount(event)
+        {
+            this.item.amount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
         //---------------------------------------------------------------------
+        updateDeliveryFee(event)
+        {
+            this.item.delivery_fee = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
+        updateTaxAmount(event)
+        {
+            this.item.taxes = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+        updateDiscountAmount(event)
+        {
+            this.item.discount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
 
         setUser(event) {
             let user = toRaw(event.value);
