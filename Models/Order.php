@@ -244,7 +244,16 @@ class Order extends Model
         if (!$validation['success']) {
             return $validation;
         }
-
+        $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
+        if($check){
+            $check->fill($inputs);
+            $check->vh_st_order_id = $inputs['id'];
+            $check->is_active = $inputs['is_active_order_item'];
+            $check->status_notes = $inputs['status_notes_order_item'];
+            $check->save();
+            $response['messages'][] = 'Saved successfully';
+            return $response;
+        }
         $order_item = new OrderItem;
         $order_item->fill($inputs);
         $order_item->vh_st_order_id = $inputs['id'];
@@ -257,8 +266,6 @@ class Order extends Model
     }
 
     //-------------------------------------------------
-
-
 
 
     public function scopeGetSorted($query, $filter)
@@ -819,7 +826,7 @@ class Order extends Model
     {
         $rules = validator($inputs,
             [
-                'types' => 'required|max:150',
+                'types' => 'required',
                 'product_variation' => 'required|max:150',
                 'product' => 'required|max:150',
                 'vendor' => 'required',

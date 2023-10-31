@@ -14,7 +14,6 @@ onMounted(async () => {
         await store.getItem(route.params.id);
 
     }
-    await store.watchAmount();
     await store.getFormMenu();
 });
 
