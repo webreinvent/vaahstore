@@ -50,7 +50,6 @@ const toggleSelectedMenuState = (event) => {
 
             <template #icons>
 
-
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
@@ -129,7 +128,7 @@ const toggleSelectedMenuState = (event) => {
                     </div>
                     <div class="pr-1">
                         <Button label="Remove All"
-                                @click="store.bulkRemoveProduct(true)"
+                                @click="store.bulkRemoveProduct(true,store.item.id)"
                                 class="p-button-sm"
                                 size="small" />
                     </div>

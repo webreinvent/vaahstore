@@ -37,6 +37,13 @@ Route::group(
         Route::post('/product', 'VendorsController@createProduct')
             ->name('vh.backend.store.vendors.createProduct');
 
+
+        /**
+         * Create Product
+         */
+        Route::any('/bulk/product/remove', 'VendorsController@bulkProductRemove')
+            ->name('vh.backend.store.vendors.bulkProductRemove');
+
         /**
          * Fill Form Inputs
          */

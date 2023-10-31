@@ -227,13 +227,11 @@ class Vendor extends Model
             return $validation;
         }
         $product_data = $input['products'];
-
         $active_user = auth()->user();
         ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
         foreach ($product_data as $key=>$value){
 
             $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
-
             if (isset($value['id']) && !empty($value['id'])){
                 $item = ProductVendor::where('id',$value['id'])->first();
                 $item->vh_st_vendor_id = $vendor_id;
@@ -267,6 +265,40 @@ class Vendor extends Model
         $response = self::getItem($vendor_id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
+
+    }
+    //-------------------------------------------------
+    public static function bulkProductRemove($request ,$id){
+
+        dd($request ,$id);
+        $inputs = $request->all();
+
+        if(isset($inputs['items']))
+        {
+            $items_id = collect($inputs['items'])
+                ->pluck('id')
+                ->toArray();
+
+            $items = self::whereIn('id', $items_id)
+                ->withTrashed();
+        }
+        $list = self::query();
+        dd('list',$list);
+
+        $vendor_id = $input['id'];
+        $validation = self::validatedProduct($input['products']);
+        if (!$validation['success']) {
+            return $validation;
+        }
+
+        ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
+        $response['success'] = true;
+        $response['data'] = true;
+        $response['messages'][] = 'Action was successful.';
+        return $response;
+
+//        $response['messages'][] = 'Removed successfully.';
+//        return $response;
 
     }
 
