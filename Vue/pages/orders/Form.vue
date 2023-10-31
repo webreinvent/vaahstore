@@ -12,8 +12,9 @@ onMounted(async () => {
     if(route.params && route.params.id)
     {
         await store.getItem(route.params.id);
-    }
 
+    }
+    await store.watchAmount();
     await store.getFormMenu();
 });
 
@@ -154,6 +155,7 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="orders-quantity"
                         v-model="store.item.amount"
+                        @input = "store.updateAmount($event)"
                         mode="decimal" showButtons
                         data-testid="orders-amount"/>
                 </VhField>
@@ -163,6 +165,7 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Delivery Fee"
                         name="orders-delivery_fee"
                         v-model="store.item.delivery_fee"
+                        @input = "store.updateDeliveryFee($event)"
                         inputId="minmaxfraction" :minFractionDigits="2"
                         showButtons
                         data-testid="orders-delivery_fee"/>
@@ -173,6 +176,7 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Tax amount"
                         name="orders-taxes"
                         v-model="store.item.taxes"
+                        @input = "store.updateTaxAmount($event)"
                         inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         data-testid="orders-taxes"/>
                 </VhField>
@@ -182,6 +186,7 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Discount Amount"
                         name="orders-discount"
                         v-model="store.item.discount"
+                        @input = "store.updateDiscountAmount($event)"
                         inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         data-testid="orders-discount"/>
                 </VhField>
