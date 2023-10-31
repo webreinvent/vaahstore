@@ -14,7 +14,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
 
     }
-
+    await store.watchAmount();
     await store.getFormMenu();
 });
 
@@ -156,10 +156,8 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="orders-quantity"
                         v-model="store.item.amount"
-                        mode="decimal"
-                        :min="0"
                         @input = "store.updateAmount($event)"
-                        showButtons
+                        mode="decimal" showButtons
                         data-testid="orders-amount"/>
                 </VhField>
 
@@ -168,9 +166,8 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Delivery Fee"
                         name="orders-delivery_fee"
                         v-model="store.item.delivery_fee"
-                        mode="decimal"
-                        :min="0"
                         @input = "store.updateDeliveryFee($event)"
+                        inputId="minmaxfraction" :minFractionDigits="2"
                         showButtons
                         data-testid="orders-delivery_fee"/>
                 </VhField>
@@ -180,9 +177,8 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Tax amount"
                         name="orders-taxes"
                         v-model="store.item.taxes"
-                        mode="decimal"
-                        :min="0"
-                        @input ="store.updateTaxAmount($event)"
+                        @input = "store.updateTaxAmount($event)"
+                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         data-testid="orders-taxes"/>
                 </VhField>
 
@@ -191,9 +187,8 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Discount Amount"
                         name="orders-discount"
                         v-model="store.item.discount"
-                        mode="decimal"
-                        :min="0"
-                        @input ="store.updateDiscountAmount($event)"
+                        @input = "store.updateDiscountAmount($event)"
+                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         data-testid="orders-discount"/>
                 </VhField>
 
