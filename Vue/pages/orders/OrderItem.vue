@@ -18,6 +18,14 @@ store.getOrderProductMenu();
 //
 // });
 
+onMounted(async () => {
+    if(route.params && route.params.id)
+    {
+        await store.getItem(route.params.id);
+    }
+
+});
+
 //--------form_menu
 const order_product_menu = ref(null);
 const toggleOrderProductMenu = (event) => {
