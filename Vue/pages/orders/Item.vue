@@ -111,6 +111,15 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <tr>
+                        <td  colspan="2" >
+                            <div  style="width:300px;word-break: break-word;">
+                                {{store.item.status_notes}}</div>
+                        </td>
+                    </tr>
+                </Message>
+
                 <Message severity="error"
                          class="p-container-message"
                          :closable="false"
@@ -120,7 +129,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -146,9 +155,10 @@ const toggleItemMenu = (event) => {
                             column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
                             column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
                             column === 'status'|| column === 'status_order'|| column === 'items'||
-                            column === 'is_active_order_item' || column == 'is_invoice_available'">
+                            column === 'is_active_order_item' || column == 'is_invoice_available'
+                            || column == 'meta' || column == 'deleted_by' || column == 'status_notes' ">
                         </template>
-                        
+
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
@@ -156,7 +166,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -172,8 +183,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
                             <VhViewRow label="Payment Method"
-                                       :value="store.item.payment_method"
-                                       type="user"
+                                       :value="store.item.payment_method.name"
                             />
                         </template>
 
@@ -186,8 +196,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_user_id'">
                             <VhViewRow label="User"
-                                       :value="store.item.user"
-                                       type="user"
+                                       :value="store.item.user.first_name"
                             />
                         </template>
 
