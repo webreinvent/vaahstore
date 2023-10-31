@@ -133,7 +133,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.user"
@@ -149,7 +149,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Amount">
+                <VhField label="Amount*">
                     <InputNumber
                         placeholder="Enter a Amount"
                         inputId="minmax-buttons"
@@ -191,7 +191,7 @@ const toggleFormMenu = (event) => {
                         data-testid="orders-discount"/>
                 </VhField>
 
-                <VhField label="Payable">
+                <VhField label="Payable*">
                     <InputNumber
                         placeholder="Enter Payable amount"
                         name="orders-payable"
@@ -238,7 +238,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
