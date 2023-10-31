@@ -122,16 +122,10 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
         searchStatusOrderItems(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_order_items_suggestion = this.status_order_items;
-                }
-                else {
-                    this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
+
+            this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
                         return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+            });
         },
 
         //---------------------------------------------------------------------
