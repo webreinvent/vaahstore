@@ -5,7 +5,6 @@ import { useOrderStore } from '../../stores/store-orders'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-
 const store = useOrderStore();
 const route = useRoute();
 
@@ -161,7 +160,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Delivery Fee">
                     <InputNumber
-                        placeholder="Enter a Delivery Fee"
+                        placeholder="Enter Delivery Fee"
                         name="orders-delivery_fee"
                         v-model="store.item.delivery_fee"
                         inputId="minmaxfraction" :minFractionDigits="2"
@@ -171,7 +170,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Taxes">
                     <InputNumber
-                        placeholder="Enter a Taxes"
+                        placeholder="Enter Tax amount"
                         name="orders-taxes"
                         v-model="store.item.taxes"
                         inputId="minmaxfraction" :minFractionDigits="2" showButtons
@@ -180,7 +179,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Discount">
                     <InputNumber
-                        placeholder="Enter a Discount"
+                        placeholder="Enter Discount Amount"
                         name="orders-discount"
                         v-model="store.item.discount"
                         inputId="minmaxfraction" :minFractionDigits="2" showButtons
@@ -189,7 +188,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Payable">
                     <InputNumber
-                        placeholder="Enter a Payable"
+                        placeholder="Enter Payable amount"
                         name="orders-payable"
                         v-model="store.item.payable"
                         inputId="minmaxfraction" :minFractionDigits="2" showButtons
@@ -198,12 +197,13 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Paid">
                     <InputNumber
-                        placeholder="Enter a Paid"
+                        placeholder="Enter Paid Amount"
                         inputId="minmax-buttons"
                         name="orders-paid"
                         v-model="store.item.paid"
                         mode="decimal" showButtons
                         :min="0"
+                        @input ="store.checkPaidAmount($event)"
                         data-testid="orders-paid"/>
                 </VhField>
 
@@ -211,7 +211,7 @@ const toggleFormMenu = (event) => {
                     <InputSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
-                        v-bind="store.item.paid == 0 ? store.item.is_paid = 0 : store.item.is_paid = 1"
+                        v-bind="store.item.paid <= 0 ? store.item.is_paid = 0 : store.item.is_paid = 1"
                         name="products-is_paid"
                         data-testid="products-is_paid"
                         v-model="store.item.is_paid"/>
