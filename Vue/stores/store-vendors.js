@@ -219,21 +219,34 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProduct(attribute){
-            this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+            console.log('1000',attribute);
+            this.item.products = this.item.products.filter(function(item){
+                return item['product']['id'] != attribute['product']['id'] })
         },
         //---------------------------------------------------------------------
         selectAllProduct(){
+            console.log('2000');
             this.item.products.forEach((i)=>{
-                i['is_selected'] = !this.select_all_product;
+                return  i['is_selected'] = !this.select_all_product;
             })
         },
 
         //---------------------------------------------------------------------
-        bulkRemoveProduct(all = null){
+        bulkRemoveProduct(all = null,$id){
             if (all){
-                this.item.products = [];
-                this.select_all_product = false;
+                const options = {
+                    query: $id,
+                    method: 'post',
+                };
+
+                 vaah().ajax(
+                    this.ajax_url+'/bulk/product/remove',
+                    options
+                );
+                // this.item.products = [];
+                // this.select_all_product = false;
             }else{
+                console.log('5000')
                 let temp = null;
                 temp = this.item.products.filter((item) => {
                     return item['is_selected'] != true;
@@ -243,21 +256,25 @@ export const useVendorStore = defineStore({
                 this.select_all_product = false;
             }
         },
+        //---------------------------------------------------------------------
         setStore(event){
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
 
         },
+        //---------------------------------------------------------------------
         setApprovedBy(event){
             let user = toRaw(event.value);
             this.item.approved_by = user.id;
 
         },
+        //---------------------------------------------------------------------
         setOwnedBy(event){
             let user = toRaw(event.value);
             this.item.owned_by = user.id;
 
         },
+        //---------------------------------------------------------------------
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_vendor_status = status.id;
