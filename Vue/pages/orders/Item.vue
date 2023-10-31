@@ -155,9 +155,10 @@ const toggleItemMenu = (event) => {
                             column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
                             column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
                             column === 'status'|| column === 'status_order'|| column === 'items'||
-                            column === 'is_active_order_item' || column == 'is_invoice_available'">
+                            column === 'is_active_order_item' || column == 'is_invoice_available'
+                            || column == 'meta' || column == 'deleted_by' || column == 'status_notes' ">
                         </template>
-                        
+
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
@@ -165,7 +166,8 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
