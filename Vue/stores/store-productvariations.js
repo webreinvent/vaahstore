@@ -112,9 +112,9 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         searchStatus(event) {
 
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
+            this.status_suggestion= this.status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
