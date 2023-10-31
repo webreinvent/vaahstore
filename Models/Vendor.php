@@ -269,36 +269,23 @@ class Vendor extends Model
     }
     //-------------------------------------------------
     public static function bulkProductRemove($request ,$id){
-
-        dd($request ,$id);
-        $inputs = $request->all();
-
-        if(isset($inputs['items']))
-        {
-            $items_id = collect($inputs['items'])
-                ->pluck('id')
-                ->toArray();
-
-            $items = self::whereIn('id', $items_id)
-                ->withTrashed();
-        }
-        $list = self::query();
-        dd('list',$list);
-
-        $vendor_id = $input['id'];
-        $validation = self::validatedProduct($input['products']);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-        ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
+        ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
         return $response;
 
-//        $response['messages'][] = 'Removed successfully.';
-//        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function singleProductRemove($request ,$id){
+
+        ProductVendor::where('id', $id)->update(['is_active'=>0]);
+        $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
+        $response = self::getItem($vendor->vh_st_vendor_id);
+        $response['messages'][] = 'Removed successfully.';
+        return $response;
+
 
     }
 

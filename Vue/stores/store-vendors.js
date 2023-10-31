@@ -218,42 +218,66 @@ export const useVendorStore = defineStore({
             },time);
         },
         //---------------------------------------------------------------------
-        removeProduct(attribute){
-            console.log('1000',attribute);
-            this.item.products = this.item.products.filter(function(item){
-                return item['product']['id'] != attribute['product']['id'] })
+       async removeProduct(attribute){
+            const options = {
+                method: 'get',
+            };
+            const id = attribute.id
+            await vaah().ajax(
+                this.ajax_url+'/single/product/remove/'+id,
+                this.removeProductAfter,
+                options
+            );
+
         },
         //---------------------------------------------------------------------
         selectAllProduct(){
-            console.log('2000');
+            console.log('selectAllProduct');
             this.item.products.forEach((i)=>{
                 return  i['is_selected'] = !this.select_all_product;
             })
         },
 
         //---------------------------------------------------------------------
-        bulkRemoveProduct(all = null,$id){
+       async bulkRemoveProduct(id,all = null){
             if (all){
                 const options = {
-                    query: $id,
-                    method: 'post',
+                    method: 'get',
                 };
 
-                 vaah().ajax(
-                    this.ajax_url+'/bulk/product/remove',
-                    options
+                await vaah().ajax(
+                    this.ajax_url+'/bulk/product/remove/'+id,
+                     this.bulkRemoveProductAfter,
+                     options
                 );
+
                 // this.item.products = [];
                 // this.select_all_product = false;
             }else{
-                console.log('5000')
+                console.log('5000');
                 let temp = null;
                 temp = this.item.products.filter((item) => {
-                    return item['is_selected'] != true;
+                    return item['is_selected'] == true;
                 });
                 this.item.products = temp;
 
                 this.select_all_product = false;
+            }
+        },
+        //---------------------------------------------------------------------
+       async bulkRemoveProductAfter(){
+             await this.getList();
+             this.item.products = [];
+        },
+        //---------------------------------------------------------------------
+        async removeProductAfter(data,res){
+            if(data)
+            {
+                this.item = data;
+                await this.getList();
+                await this.formActionAfter(data);
+                this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
