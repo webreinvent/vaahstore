@@ -282,12 +282,11 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        searchPaymentMethod(event) {
 
-        searchUserAfter(data,res) {
-            if(data)
-            {
-                this.filtered_users = data;
-            }
+            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
 
@@ -486,6 +485,20 @@ export const useOrderStore = defineStore({
                 this.item.is_active_order_item = 0;
             }
         },
+        //---------------------------------------------------------------------
+
+        checkPaidAmount(event)
+        {
+            this.item.paid = event.value;
+            if(this.item.paid > 0)
+            {
+                this.item.is_paid = 1;
+            }
+            else {
+                this.item.is_paid = 0;
+            }
+        },
+
         //---------------------------------------------------------------------
 
         async getAssets() {

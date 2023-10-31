@@ -166,7 +166,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Delivery Fee">
                     <InputNumber
                         placeholder="Enter Delivery Fee"
-                        inputId="minmaxfraction" :minFractionDigits="2"
                         name="orders-delivery_fee"
                         v-model="store.item.delivery_fee"
                         mode="decimal"
@@ -179,7 +178,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Taxes">
                     <InputNumber
                         placeholder="Enter Tax amount"
-                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         name="orders-taxes"
                         v-model="store.item.taxes"
                         mode="decimal"
@@ -191,7 +189,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Discount">
                     <InputNumber
                         placeholder="Enter Discount Amount"
-                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         name="orders-discount"
                         v-model="store.item.discount"
                         mode="decimal"
@@ -203,7 +200,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Payable*">
                     <InputNumber
                         placeholder="Enter Payable amount"
-                        inputId="minmaxfraction" :minFractionDigits="2"
                         name="orders-payable"
                         v-model="store.item.payable"
                         mode="decimal" showButtons
@@ -214,7 +210,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Paid">
                     <InputNumber
                         placeholder="Enter Paid Amount"
-                        inputId="minmaxfraction" :min-fraction-digits="2"
+                        inputId="minmax-buttons"
                         name="orders-paid"
                         v-model="store.item.paid"
                         mode="decimal" showButtons
