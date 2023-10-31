@@ -187,16 +187,10 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status_orders;
-                }
-                else {
-                    this.status_suggestion= this.status_orders.filter((status_orders) => {
-                        return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.status_suggestion= this.status_orders.filter((status_orders) => {
+                return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
@@ -216,16 +210,10 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
         searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_methods;
-                }
-                else {
-                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
 
@@ -347,6 +335,20 @@ export const useOrderStore = defineStore({
             let status = toRaw(event.value);
             this.item.taxonomy_id_order_items_status = status.id;
         },
+        //---------------------------------------------------------------------
+
+        checkPaidAmount(event)
+        {
+            this.item.paid = event.value;
+            if(this.item.paid > 0)
+            {
+                this.item.is_paid = 1;
+            }
+            else {
+                this.item.is_paid = 0;
+            }
+        },
+
         //---------------------------------------------------------------------
 
         async getAssets() {
