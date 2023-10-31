@@ -101,7 +101,14 @@ class Order extends Model
         $empty_item['is_active'] = null;
         $empty_item['is_active_order_item'] = null;
         $empty_item['is_paid'] = null;
-        $empty_item['paid'] = null;
+        $empty_item['paid'] = 0;
+        $empty_item['amount'] = 0;
+        $empty_item['paid'] = 0;
+        $empty_item['delivery_fee'] = 0;
+        $empty_item['taxes'] = 0;
+        $empty_item['discount'] = 0;
+        $empty_item['paid'] = 0;
+        $empty_item['payable'] = 0;
         $empty_item['user'] = null;
         $empty_item['types'] = null;
         $empty_item['product'] = null;
@@ -802,10 +809,10 @@ class Order extends Model
         $inputs['user']=$user;
 
         $inputs['amount'] = rand(1,10000000);
-        $inputs['delivery_fee'] = rand(1,100);
-        $inputs['taxes'] = rand(1,10000);
+        $inputs['delivery_fee'] = rand(1,1000);
+        $inputs['taxes'] = rand(1,1000);
         $inputs['discount'] = rand(1,1000);
-        $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] + $inputs['discount'];
+        $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] - $inputs['discount'];
         $inputs['payable'] = $payable_amount;
         $inputs['paid'] = rand(1,$payable_amount);
 

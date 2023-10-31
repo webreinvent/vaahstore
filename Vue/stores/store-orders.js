@@ -382,15 +382,40 @@ export const useOrderStore = defineStore({
 
 
         //---------------------------------------------------------------------
-         watchItem(name)
-          {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              }
-          },
+        updateAmount(event)
+        {
+            this.item.amount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
         //---------------------------------------------------------------------
+        updateDeliveryFee(event)
+        {
+            this.item.delivery_fee = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
+        updateTaxAmount(event)
+        {
+            this.item.taxes = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+        updateDiscountAmount(event)
+        {
+            this.item.discount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
 
         setUser(event) {
             let user = toRaw(event.value);
