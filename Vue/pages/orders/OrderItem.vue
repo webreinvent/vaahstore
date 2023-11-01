@@ -117,7 +117,7 @@ const toggleOrderProductMenu = (event) => {
                         class="w-full"
                         name="orderitems-product"
                         :suggestions="store.products"
-                        @complete="store.searchProduct"
+                        @complete="store.searchProducts"
                         placeholder="Select Types"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-product"
