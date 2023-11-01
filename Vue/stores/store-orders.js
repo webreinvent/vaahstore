@@ -79,6 +79,7 @@ export const useOrderStore = defineStore({
         filtered_product_variations : null,
         filtered_venders :null,
         vendors : null,
+        filtered_customer_groups : null,
     }),
     getters: {
 
@@ -122,16 +123,6 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchCustomerGroup(event) {
-
-            this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
-                return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-
-        },
-
-        //---------------------------------------------------------------------
-
         async searchProduct(event)
         {
             const query = {
@@ -145,7 +136,7 @@ export const useOrderStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url+'/search/products',
+                this.ajax_url+'/search/product',
                 this.searchProductAfter,
                 options
             );
@@ -176,7 +167,7 @@ export const useOrderStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url+'/search/product-variations',
+                this.ajax_url+'/search/product-variation',
                 this.searchProductVariationAfter,
                 options
             );
@@ -224,7 +215,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchCustomerGroups(event) {
+        async searchCustomerGroup(event) {
 
             const query = {
                 filter: {
@@ -237,8 +228,8 @@ export const useOrderStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url+'/search/vendor',
-                this.searchCustomerGroupsAfter,
+                this.ajax_url+'/search/customer-group',
+                this.searchCustomerGroupAfter,
                 options
             );
 
@@ -246,17 +237,18 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchCustomerGroupsAfter(data,res) {
+        searchCustomerGroupAfter(data,res) {
+
             if(data)
             {
-                this.filtered_venders = data;
+                this.filtered_customer_groups = data;
+                console.log(data);
             }
-        },
 
+        },
 
         //---------------------------------------------------------------------
 
-        
         searchStatus(event) {
 
             this.status_suggestion= this.status_orders.filter((status_orders) => {
@@ -856,6 +848,7 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
+        
         async getFormInputs () {
             let params = {
                 model_namespace: this.model,
