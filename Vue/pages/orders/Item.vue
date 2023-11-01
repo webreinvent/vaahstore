@@ -156,7 +156,8 @@ const toggleItemMenu = (event) => {
                             column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
                             column === 'status'|| column === 'status_order'|| column === 'items'||
                             column === 'is_active_order_item' || column == 'is_invoice_available'
-                            || column == 'meta' || column == 'deleted_by' || column == 'status_notes' ">
+                            || column == 'meta' || column == 'deleted_by' || column == 'status_notes'
+                             || column == 'slug' || column == 'status_notes_order_item'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

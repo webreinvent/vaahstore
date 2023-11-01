@@ -76,8 +76,6 @@ class Order extends Model
     }
     //-------------------------------------------------
 
-
-
     public static function getFillableColumns()
     {
         $model = new self();
@@ -88,6 +86,7 @@ class Order extends Model
         );
         return $fillable_columns;
     }
+
     //-------------------------------------------------
     public static function getEmptyItem()
     {
@@ -245,6 +244,7 @@ class Order extends Model
             return $validation;
         }
         $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
+
         if($check){
             $check->fill($inputs);
             $check->vh_st_order_id = $inputs['id'];
@@ -267,6 +267,36 @@ class Order extends Model
 
     //-------------------------------------------------
 
+    public static function searchProducts($request)
+    {
+
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $products = Product::where('is_active',1)->select('id','name')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+
+        }
+
+        else{
+
+            $products = Product::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
     {
@@ -702,13 +732,16 @@ class Order extends Model
             'paid' => 'required|min:0|numeric',
             'vh_st_payment_method_id' => 'required',
             'taxonomy_id_order_status' => 'required|max:250',
-            'status_notes' => 'required_if:taxonomy_id_order_status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         ],
             [
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',
                 'vh_user_id.required' => 'The User field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'delivery_fee.digits_between' => 'delivery fee amount must be between 1 to 15 digits'
             ]
         );
