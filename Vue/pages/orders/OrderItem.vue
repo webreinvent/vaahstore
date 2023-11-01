@@ -156,8 +156,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setOrderItemCustomerGroup($event)"
                         class="w-full"
                         name="orderitems-customer_group"
-                        :suggestions="store.customer_group_suggestion"
-                        @complete="store.searchCustomerGroups"
+                        :suggestions="store.filtered_customer_groups"
+                        @complete="store.searchCustomerGroup"
                         placeholder="Select Customer Group"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-customer_group"
@@ -214,6 +214,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Active">
+
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="orders-active"
