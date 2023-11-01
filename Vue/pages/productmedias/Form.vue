@@ -177,49 +177,21 @@ const toggleFormMenu = (event) => {
                                 accept="image/*"
                                 :maxFileSize="1000000">
                         <template #empty>
-
-
-                            <div v-if="store.item.product_media_images && store.item.product_media_images.length > 0">
-                                <div class="flex flex-wrap sm:p-5 gap-5">
-                                    <div v-for="(file, index) of store.item.product_media_images" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column align-items-center gap-3">
-                                        <div>
-                                            <Image role="presentation"
-                                                 :alt="file.name"
-                                                 :src="file.url"
-                                                 width="150"
-                                                 preview
-                                                 height="150"
-                                                 class="shadow-2" />
-                                        </div>
-                                        <span severity="success">{{ file.name }}</span>
-
-                                        <Button icon="pi pi-times"
-                                                @click="store.onRemoveTemplatingFile(store.item.product_media_images,index)"
-                                                outlined
-                                                rounded
-                                                severity="danger" />
-                                    </div>
-                                </div>
-                            </div>
-
-
-<!--                            <div>-->
-<!--                            <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"-->
-<!--                                   class="p-1"-->
-<!--                                   v-for="(item) in store.item.product_media_images"-->
-<!--                                   :src="store.item.base_path+'/'+item['url']"-->
-<!--                                   preview-->
-<!--                                   alt="Image"-->
-<!--                                   width="150" />-->
-<!--                            <Image v-else-if="store.item.url"-->
-<!--                                    :src="store.item.base_path+'/'+store.item.url"-->
-<!--                                   preview-->
-<!--                                   alt="Image"-->
-<!--                                   width="150" />-->
-<!--                            <template v-else>-->
-<!--                                <p>Drag and drop files to here to upload.</p>-->
-<!--                            </template>-->
-<!--                            </div>-->
+                            <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
+                                   class="p-1"
+                                   v-for="(item) in store.item.product_media_images"
+                                   :src="store.item.base_path+'/'+item['url']"
+                                   preview
+                                   alt="Image"
+                                   width="150" />
+                            <Image v-else-if="store.item.url"
+                                    :src="store.item.base_path+'/'+store.item.url"
+                                   preview
+                                   alt="Image"
+                                   width="150" />
+                            <template v-else>
+                                <p>Drag and drop files to here to upload.</p>
+                            </template>
                         </template>
                     </FileUpload>
                 </VhField>

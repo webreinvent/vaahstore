@@ -209,6 +209,7 @@ class ProductMedia extends Model
 
             $item = new self();
             $item->fill($inputs);
+            // $item->fill($image);
             $item->save();
 
              foreach ($inputs['images'] as $image_details)
