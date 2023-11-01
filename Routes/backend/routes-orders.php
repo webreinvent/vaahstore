@@ -83,8 +83,8 @@ function () {
      * Search Products
      */
 
-    Route::post('/search/products', 'OrdersController@searchProducts')
-        ->name('vh.backend.store.orders.search.products');
+    Route::post('/search/product', 'OrdersController@searchProduct')
+        ->name('vh.backend.store.orders.search.product');
 
     //---------------------------------------------------------
 
@@ -92,8 +92,8 @@ function () {
      * Search Product Variations
      */
 
-    Route::post('/search/product-variations', 'OrdersController@searchProductVariations')
-        ->name('vh.backend.store.orders.search.product-variations');
+    Route::post('/search/product-variation','OrdersController@searchProductVariation')
+        ->name('vh.backend.store.orders.search.product-variation');
 
     //---------------------------------------------------------
 
@@ -103,5 +103,15 @@ function () {
 
     Route::post('/search/vendor', 'OrdersController@searchVendor')
         ->name('vh.backend.store.orders.search.vendor');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Customer Groups
+     */
+
+    Route::post('/search/customer-group', 'OrdersController@searchCustomerGroup')
+        ->name('vh.backend.store.orders.search.customer-group');
+
 
 });
