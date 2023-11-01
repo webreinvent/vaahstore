@@ -254,6 +254,53 @@ class OrdersController extends Controller
 
     //----------------------------------------------------------
 
+    public function searchProductVariations(Request $request)
+    {
+        try {
+
+            return Order::searchProductVariations($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
+    public function searchVendor(Request $request)
+    {
+        try {
+
+            return Order::searchVendor($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
+
     public function fillItem(Request $request)
     {
         try {
