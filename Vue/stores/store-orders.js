@@ -848,7 +848,7 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        
+
         async getFormInputs () {
             let params = {
                 model_namespace: this.model,
