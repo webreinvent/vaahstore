@@ -213,6 +213,7 @@ class Order extends Model
     }
 
     //-------------------------------------------------
+
     public static function createItem($request)
     {
 
@@ -284,6 +285,66 @@ class Order extends Model
         else{
 
             $products = Product::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchProductVariations($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $products = ProductVariation::where('is_active',1)->select('id','name')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+
+        }
+
+        else{
+
+            $products = ProductVariation::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVendor($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $products = Vendor::where('is_active',1)->select('id','name')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+
+        }
+
+        else{
+
+            $products = Vendor::where('is_active',1)
                 ->where('name', 'like', "%$query%")
                 ->select('id','name')
                 ->get();
