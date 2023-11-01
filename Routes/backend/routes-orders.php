@@ -79,4 +79,12 @@ function () {
 
     //---------------------------------------------------------
 
+    /**
+     * Search Products
+     */
+
+    Route::post('/search/products', 'OrdersController@searchProducts')
+        ->name('vh.backend.store.orders.search.products');
+
+
 });
