@@ -86,5 +86,22 @@ function () {
     Route::post('/search/products', 'OrdersController@searchProducts')
         ->name('vh.backend.store.orders.search.products');
 
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Variations
+     */
+
+    Route::post('/search/product-variations', 'OrdersController@searchProductVariations')
+        ->name('vh.backend.store.orders.search.product-variations');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Vendor
+     */
+
+    Route::post('/search/vendor', 'OrdersController@searchVendor')
+        ->name('vh.backend.store.orders.search.vendor');
 
 });

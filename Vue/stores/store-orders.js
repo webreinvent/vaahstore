@@ -69,7 +69,6 @@ export const useOrderStore = defineStore({
         status_suggestion: null,
         status_order_items_suggestion: null,
         payment_method_suggestion: null,
-        product_variation_suggestion: null,
         user_suggestion: null,
         type_suggestion: null,
         products: null,
@@ -77,7 +76,8 @@ export const useOrderStore = defineStore({
         customer_group_suggestion: null,
         form_menu_list: [],
         types : null,
-        product_variations : null,
+        filtered_product_variations : null,
+        filtered_venders :null,
         vendors : null,
     }),
     getters: {
@@ -113,14 +113,6 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-
-            this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
-                return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
         searchStatusOrderItems(event) {
 
             this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
@@ -139,7 +131,7 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async searchProducts(event)
+        async searchProduct(event)
         {
             const query = {
                 filter: {
@@ -153,7 +145,7 @@ export const useOrderStore = defineStore({
             };
             await vaah().ajax(
                 this.ajax_url+'/search/products',
-                this.searchProductsAfter,
+                this.searchProductAfter,
                 options
             );
 
@@ -161,7 +153,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchProductsAfter(data,res) {
+        searchProductAfter(data,res) {
             if(data)
             {
                 this.products = data;
@@ -170,14 +162,100 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchVendor(event) {
+        async searchProductVariation(event)
+        {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
 
-            this.vendor_suggestion= this.vendors.filter((vendors) => {
-                return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variations',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVariationAfter(data,res) {
+            if(data)
+            {
+                this.filtered_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchVendor(event) {
+
+                const query = {
+                    filter: {
+                        q: event,
+                    },
+                };
+
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+                await vaah().ajax(
+                    this.ajax_url+'/search/vendor',
+                    this.searchVendorAfter,
+                    options
+                );
 
         },
+
         //---------------------------------------------------------------------
+
+        searchVendorAfter(data,res) {
+            if(data)
+            {
+                this.filtered_venders = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchCustomerGroups(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchCustomerGroupsAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCustomerGroupsAfter(data,res) {
+            if(data)
+            {
+                this.filtered_venders = data;
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
+        
         searchStatus(event) {
 
             this.status_suggestion= this.status_orders.filter((status_orders) => {
