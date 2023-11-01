@@ -15,6 +15,7 @@ class VhStProductMediasImages extends Migration
     {
         Schema::create('vh_st_product_medias_images', function (Blueprint $table) {
             $table->increments('id');
+            $table->uuid('uuid')->nullable()->index();
             $table->integer('vh_st_product_media_id')->nullable()->index();
 
             $table->string('name')->nullable();

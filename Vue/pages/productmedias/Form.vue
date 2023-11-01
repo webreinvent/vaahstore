@@ -177,9 +177,9 @@ const toggleFormMenu = (event) => {
                                 accept="image/*"
                                 :maxFileSize="1000000">
                         <template #empty>
-                            <Image v-if="store.item.images && store.item.images.length > 0"
+                            <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
                                    class="p-1"
-                                   v-for="(item) in store.item.images"
+                                   v-for="(item) in store.item.product_media_images"
                                    :src="store.item.base_path+'/'+item['url']"
                                    preview
                                    alt="Image"

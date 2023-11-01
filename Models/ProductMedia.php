@@ -129,6 +129,11 @@ class ProductMedia extends Model
         return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
     }
     //-------------------------------------------------
+    public function productMediaImages()
+    {
+        return $this->hasMany(ProductMediaImage::class, 'vh_st_product_media_id','id');
+    }
+    //-------------------------------------------------
     public function updatedByUser()
     {
         return $this->belongsTo(User::class,
@@ -201,13 +206,28 @@ class ProductMedia extends Model
                 $response['messages'][] = "This product and Product Variation is already exist.";
                 return $response;
             }
-        foreach ($inputs['images'] as $image)
-        {
+
             $item = new self();
             $item->fill($inputs);
-            $item->fill($image);
+            // $item->fill($image);
             $item->save();
-        }
+
+             foreach ($inputs['images'] as $image_details)
+              {
+                 $image = new ProductMediaImage;
+                 $image->vh_st_product_media_id = $item->id;
+                 $image->name = $image_details['name'];
+                 $image->slug = $image_details['slug'];
+                 $image->url = $image_details['url'];
+                 $image->path = $image_details['path'];
+                 $image->size  = $image_details['size'];
+                 $image->type = $image_details['type'];
+                 $image->extension = $image_details['extension'];
+                 $image->mime_type = $image_details['mime_type'];
+                 $image->url_thumbnail = $image_details['url_thumbnail'];
+                 $image->thumbnail_size  = $image_details['thumbnail_size'];
+                 $image->save();
+              }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -536,7 +556,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation','productMediaImages'])
             ->withTrashed()
             ->first();
 
