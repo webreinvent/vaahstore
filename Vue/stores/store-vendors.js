@@ -219,20 +219,11 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
        async removeProduct(attribute){
-            const options = {
-                method: 'get',
-            };
-            const id = attribute.id
-            await vaah().ajax(
-                this.ajax_url+'/single/product/remove/'+id,
-                this.removeProductAfter,
-                options
-            );
+           this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
 
         },
         //---------------------------------------------------------------------
         selectAllProduct(){
-            console.log('selectAllProduct');
             this.item.products.forEach((i)=>{
                 return  i['is_selected'] = !this.select_all_product;
             })
@@ -259,12 +250,10 @@ export const useVendorStore = defineStore({
                 });
 
                 if(temp_select.length  === this.item.products.length){
-                    console.log('in');
                     let temp_select = null;
                     temp_select = this.item.products.filter((item) => {
                         return item['is_selected'] == true;
                     });
-                    console.log('asdfasdf',temp_select);
                     this.item.products = temp_select;
                     this.select_all_product = false;
                     let id = this.route.params.id;
