@@ -898,6 +898,7 @@ class Order extends Model
          * You should also return relationship from here
          */
 
+
         // fill the user field with any random user here
         $users = User::where(['is_active'=>1,'deleted_at'=>null]);
         $user_ids = $users->pluck('id')->toArray();
@@ -929,6 +930,31 @@ class Order extends Model
         $inputs['taxonomy_id_order_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
+
+        // fill the product field here
+        $products = Product::where('is_active',1);
+        $product_ids = $products->pluck('id')->toArray();
+        $product_id = $product_ids[array_rand($product_ids)];
+        $product = $products->where('id',$product_id)->first();
+        $inputs['product'] = $product;
+        $inputs['vh_st_product_id'] = $product_id ;
+
+        // fill the product variation field here
+        $product_variations = ProductVariation::where('is_active',1);
+        $product_variation_ids = $product_variations->pluck('id')->toArray();
+        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+        $product_variation = $product_variations->where('id',$product_variation_id)->first();
+        $inputs['product_variation'] = $product_variation;
+        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+
+        // fill the vendor field here
+        $vendors = Vendor::where('is_active',1);
+        $vendor_ids = $vendors->pluck('id')->toArray();
+        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+        $vendor = $vendors->where('id',$vendor_id)->first();
+        $inputs['vendor'] = $vendor;
+        $inputs['vh_st_vendor_id'] = $vendor_id;
+
 
         $inputs['is_active'] = 1;
         if(!$is_response_return){
