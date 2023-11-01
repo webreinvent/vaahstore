@@ -76,7 +76,8 @@ export const useOrderStore = defineStore({
         customer_group_suggestion: null,
         form_menu_list: [],
         types : null,
-        product_variations : null,
+        filtered_product_variations : null,
+        filtered_venders :null,
         vendors : null,
     }),
     getters: {
@@ -112,14 +113,6 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-
-            this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
-                return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
         searchStatusOrderItems(event) {
 
             this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
@@ -139,7 +132,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchProducts(event)
+        async searchProduct(event)
         {
             const query = {
                 filter: {
@@ -153,7 +146,7 @@ export const useOrderStore = defineStore({
             };
             await vaah().ajax(
                 this.ajax_url+'/search/products',
-                this.searchProductsAfter,
+                this.searchProductAfter,
                 options
             );
 
@@ -161,7 +154,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchProductsAfter(data,res) {
+        searchProductAfter(data,res) {
             if(data)
             {
                 this.products = data;
@@ -170,12 +163,23 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchVendor(event) {
+        async searchProductVariation(event)
+        {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
 
-            this.vendor_suggestion= this.vendors.filter((vendors) => {
-                return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variations',
+                this.searchProductVariationAfter,
+                options
+            );
         },
 
         //---------------------------------------------------------------------
@@ -220,7 +224,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchCustomerGroup(event) {
+        async searchCustomerGroups(event) {
 
             const query = {
                 filter: {
@@ -233,8 +237,8 @@ export const useOrderStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url+'/search/customer-group',
-                this.searchCustomerGroupAfter,
+                this.ajax_url+'/search/vendor',
+                this.searchCustomerGroupsAfter,
                 options
             );
 
@@ -242,18 +246,17 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchCustomerGroupAfter(data,res) {
-
+        searchCustomerGroupsAfter(data,res) {
             if(data)
             {
-                this.filtered_customer_groups = data;
-                console.log(data);
+                this.filtered_venders = data;
             }
-
         },
+
 
         //---------------------------------------------------------------------
 
+        
         searchStatus(event) {
 
             this.status_suggestion= this.status_orders.filter((status_orders) => {
