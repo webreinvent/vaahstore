@@ -231,11 +231,11 @@ class OrdersController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchProducts(Request $request)
+    public function searchProduct(Request $request)
     {
         try {
 
-            return Order::searchProducts($request);
+            return Order::searchProduct($request);
         }
         catch (\Exception $e){
             $response = [];
@@ -254,11 +254,36 @@ class OrdersController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchProductVariations(Request $request)
+    public function searchCustomerGroup(Request $request)
+    {
+
+        try {
+
+            return Order::searchCustomerGroup($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
+
+    public function searchProductVariation(Request $request)
     {
         try {
 
-            return Order::searchProductVariations($request);
+            return Order::searchProductVariation($request);
         }
         catch (\Exception $e){
             $response = [];
