@@ -12,7 +12,7 @@ class ProductMediaImage extends Model {
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_product_medias_images';
+    protected $table = 'ProductMediaImage';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -21,7 +21,6 @@ class ProductMediaImage extends Model {
     ];
     //-------------------------------------------------
     protected $fillable = [
-        'id',
         'uuid',
         'vh_st_product_media_id',
         'name',
@@ -45,79 +44,67 @@ class ProductMediaImage extends Model {
     protected $appends  = [
     ];
     //-------------------------------------------------
-    public static function deleteImages($items_id){
-        if($items_id){
-            self::whereIn('vh_st_product_media_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
-            $response['error'] = true;
-            $response['data'] = false;
-        }
-
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        $date_time_format = config('settings.global.datetime_format');
+        return $date->format($date_time_format);
     }
     //-------------------------------------------------
-//    protected function serializeDate(DateTimeInterface $date)
-//    {
-//        $date_time_format = config('settings.global.datetime_format');
-//        return $date->format($date_time_format);
-//    }
-//    //-------------------------------------------------
-//
-//    public function createdByUser()
-//    {
-//        return $this->belongsTo(User::class,
-//            'created_by', 'id'
-//        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-//    }
-//
-//    //-------------------------------------------------
-//    public function updatedByUser()
-//    {
-//        return $this->belongsTo(User::class,
-//            'updated_by', 'id'
-//        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-//    }
-//
-//    //-------------------------------------------------
-//    public function deletedByUser()
-//    {
-//        return $this->belongsTo(User::class,
-//            'deleted_by', 'id'
-//        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-//    }
-//    //-------------------------------------------------
-//    public function getTableColumns()
-//        {
-//            return $this->getConnection()
-//                ->getSchemaBuilder()
-//                ->getColumnListing($this->getTable());
-//        }
-//
-//        //-------------------------------------------------
-//        public function scopeExclude($query, $columns)
-//        {
-//            return $query->select(array_diff($this->getTableColumns(), $columns));
-//        }
-//
-//        //-------------------------------------------------
-//        public function scopeBetweenDates($query, $from, $to)
-//        {
-//
-//            if ($from) {
-//                $from = \Carbon::parse($from)
-//                    ->startOfDay()
-//                    ->toDateTimeString();
-//            }
-//
-//            if ($to) {
-//                $to = \Carbon::parse($to)
-//                    ->endOfDay()
-//                    ->toDateTimeString();
-//            }
-//
-//            $query->whereBetween('updated_at', [$from, $to]);
-//        }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class,
+            'created_by', 'id'
+        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+
+    //-------------------------------------------------
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class,
+            'updated_by', 'id'
+        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+
+    //-------------------------------------------------
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class,
+            'deleted_by', 'id'
+        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
+    }
+    //-------------------------------------------------
+    public function getTableColumns()
+        {
+            return $this->getConnection()
+                ->getSchemaBuilder()
+                ->getColumnListing($this->getTable());
+        }
+
+        //-------------------------------------------------
+        public function scopeExclude($query, $columns)
+        {
+            return $query->select(array_diff($this->getTableColumns(), $columns));
+        }
+
+        //-------------------------------------------------
+        public function scopeBetweenDates($query, $from, $to)
+        {
+
+            if ($from) {
+                $from = \Carbon::parse($from)
+                    ->startOfDay()
+                    ->toDateTimeString();
+            }
+
+            if ($to) {
+                $to = \Carbon::parse($to)
+                    ->endOfDay()
+                    ->toDateTimeString();
+            }
+
+            $query->whereBetween('updated_at', [$from, $to]);
+        }
 
     //-------------------------------------------------
 
