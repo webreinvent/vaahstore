@@ -44,12 +44,6 @@ Route::group(
             ->name('vh.backend.store.vendors.bulkProductRemove');
 
         /**
-         * Remove All Product
-         */
-        Route::get('/single/product/remove/{id}', 'VendorsController@singleProductRemove')
-            ->name('vh.backend.store.vendors.singleProductRemove');
-        
-        /**
          * Fill Form Inputs
          */
         Route::any('/fill', 'VendorsController@fillItem')
