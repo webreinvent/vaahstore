@@ -57,6 +57,6 @@ deploy_features:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
 
   tags:
-    - local.getdemo.dev.ssh
+    - test.dev.getdemo.dev
 
 
