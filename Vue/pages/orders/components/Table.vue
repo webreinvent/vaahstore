@@ -156,7 +156,7 @@ const useVaah = vaah();
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.paid > 0"
                             :value="prop.data.paid"
-                            severity="success"></Badge>
+                            severity="info"></Badge>
                  </template>
 
              </Column>
@@ -173,7 +173,7 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
