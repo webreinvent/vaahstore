@@ -72,7 +72,7 @@ export const useOrderStore = defineStore({
         product_variation_suggestion: null,
         user_suggestion: null,
         type_suggestion: null,
-        product_suggestion: null,
+        products: null,
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
@@ -131,26 +131,43 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
 
         searchCustomerGroup(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.customer_group_suggestion = this.customer_groups;
-                }
-                else {
-                    this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
-                        return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
 
-        searchProduct(event) {
-
-            this.product_suggestion= this.products.filter((products) => {
-                return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+            this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
+                return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
 
         },
+        //---------------------------------------------------------------------
+
+        async searchProducts(event)
+        {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/products',
+                this.searchProductsAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductsAfter(data,res) {
+            if(data)
+            {
+                this.products = data;
+            }
+        },
+
         //---------------------------------------------------------------------
 
         searchVendor(event) {
@@ -560,6 +577,7 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
         async itemAction(type, item=null){
+
             if(!item)
             {
                 item = this.item;
