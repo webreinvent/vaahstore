@@ -251,17 +251,41 @@ export const useVendorStore = defineStore({
                      options
                 );
 
-                // this.item.products = [];
-                // this.select_all_product = false;
             }else{
-                console.log('5000');
-                let temp = null;
-                temp = this.item.products.filter((item) => {
+
+                let temp_select = null;
+                temp_select = this.item.products.filter((item) => {
                     return item['is_selected'] == true;
                 });
-                this.item.products = temp;
 
-                this.select_all_product = false;
+                if(temp_select.length  === this.item.products.length){
+                    console.log('in');
+                    let temp_select = null;
+                    temp_select = this.item.products.filter((item) => {
+                        return item['is_selected'] == true;
+                    });
+                    console.log('asdfasdf',temp_select);
+                    this.item.products = temp_select;
+                    this.select_all_product = false;
+                    let id = this.route.params.id;
+                    const options = {
+                        method: 'get',
+                    };
+
+                    await vaah().ajax(
+                        this.ajax_url+'/bulk/product/remove/'+id,
+                        this.bulkRemoveProductAfter,
+                        options
+                    );
+                }else{
+                    let temp = null;
+                    temp = this.item.products.filter((item) => {
+                        return item['is_selected'] != true;
+                    });
+                    this.item.products = temp;
+                    this.select_all_product = false;
+                    await this.itemAction('save-product');
+                }
             }
         },
         //---------------------------------------------------------------------
