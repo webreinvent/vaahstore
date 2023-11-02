@@ -80,6 +80,7 @@ export const useOrderStore = defineStore({
         filtered_venders :null,
         vendors : null,
         filtered_customer_groups : null,
+        filtered_users : null,
     }),
     getters: {
 
@@ -258,18 +259,36 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchUser(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUserAfter,
+                options
+            );
+
         },
+
+        //---------------------------------------------------------------------
+
+        searchUserAfter(data,res) {
+            if(data)
+            {
+                this.filtered_users = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
         searchPaymentMethod(event) {

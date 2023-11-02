@@ -245,7 +245,6 @@ class Order extends Model
             return $validation;
         }
         $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
-
         if($check){
             $check->fill($inputs);
             $check->vh_st_order_id = $inputs['id'];
@@ -298,6 +297,34 @@ class Order extends Model
 
     //-------------------------------------------------
 
+    public static function searchUser($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $users = User::where('is_active',1)
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+
+        }
+
+        else{
+
+            $users = User::where('is_active',1)
+                ->where('first_name','like', "%$query%")
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
     public static function searchProductVariation($request)
     {
 
@@ -844,13 +871,13 @@ class Order extends Model
         $rules = validator($inputs, [
             'vh_user_id' => 'required',
             'amount' => 'required|digits_between:1,10',
-            'delivery_fee' => 'required|min:0|digits_between:1,15',
-            'taxes' => 'required|min:0|digits_between:1,15',
-            'discount' => 'required|min:0|numeric',
-            'payable' => 'required|min:0|digits_between:1,15',
-            'paid' => 'required|min:0|numeric',
+            'delivery_fee' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'taxes' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'discount' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'payable' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'paid' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'vh_st_payment_method_id' => 'required',
-            'taxonomy_id_order_status' => 'required|max:250',
+            'taxonomy_id_order_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:100'
@@ -861,7 +888,13 @@ class Order extends Model
                 'vh_user_id.required' => 'The User field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'delivery_fee.digits_between' => 'delivery fee amount must be between 1 to 15 digits'
+                'amount.digits_between' => 'amount must be between 1 to 10 digits',
+                'delivery_fee.regex' => 'delivery charges must be between 1 to 10 digits',
+                'taxes.regex' => 'tax amount must be between 1 to 10 digits',
+                'discount.regex' => 'discount value must be between 1 to 10 digits',
+                'payable.regex' => 'payable amount must be between 1 to 10 digits',
+                'paid.regex' => 'paid amount must be between 1 to 10 digits',
+
             ]
         );
 
