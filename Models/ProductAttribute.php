@@ -341,7 +341,7 @@ class ProductAttribute extends Model
                 ->take(10)
                 ->get();
         }
-        
+
         else{
 
             $attributes = Attribute::where('name', 'like', "%$query%")->get();
