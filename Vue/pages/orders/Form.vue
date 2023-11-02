@@ -139,8 +139,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setUser($event)"
                         class="w-full"
                         name="orders-user"
-                        :suggestions="store.user_suggestion"
-                        @complete="store.searchUser($event)"
+                        :suggestions="store.filtered_users"
+                        @complete="store.searchUser"
                         placeholder="Select User"
                         :dropdown="true" optionLabel="first_name"
                         data-testid="orders-user"
@@ -154,18 +154,22 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="orders-quantity"
                         v-model="store.item.amount"
+                        mode="decimal"
+                        :min="0"
                         @input = "store.updateAmount($event)"
-                        mode="decimal" showButtons
+                        showButtons
                         data-testid="orders-amount"/>
                 </VhField>
 
                 <VhField label="Delivery Fee">
                     <InputNumber
                         placeholder="Enter Delivery Fee"
+                        inputId="minmaxfraction" :minFractionDigits="2"
                         name="orders-delivery_fee"
                         v-model="store.item.delivery_fee"
+                        mode="decimal"
+                        :min="0"
                         @input = "store.updateDeliveryFee($event)"
-                        inputId="minmaxfraction" :minFractionDigits="2"
                         showButtons
                         data-testid="orders-delivery_fee"/>
                 </VhField>
@@ -173,36 +177,42 @@ const toggleFormMenu = (event) => {
                 <VhField label="Taxes">
                     <InputNumber
                         placeholder="Enter Tax amount"
+                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         name="orders-taxes"
                         v-model="store.item.taxes"
-                        @input = "store.updateTaxAmount($event)"
-                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
+                        mode="decimal"
+                        :min="0"
+                        @input ="store.updateTaxAmount($event)"
                         data-testid="orders-taxes"/>
                 </VhField>
 
                 <VhField label="Discount">
                     <InputNumber
                         placeholder="Enter Discount Amount"
+                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
                         name="orders-discount"
                         v-model="store.item.discount"
-                        @input = "store.updateDiscountAmount($event)"
-                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
+                        mode="decimal"
+                        :min="0"
+                        @input ="store.updateDiscountAmount($event)"
                         data-testid="orders-discount"/>
                 </VhField>
 
                 <VhField label="Payable*">
                     <InputNumber
                         placeholder="Enter Payable amount"
+                        inputId="minmaxfraction" :minFractionDigits="2"
                         name="orders-payable"
                         v-model="store.item.payable"
-                        inputId="minmaxfraction" :minFractionDigits="2" showButtons
+                        mode="decimal" showButtons
+                        :min="0"
                         data-testid="orders-payable"/>
                 </VhField>
 
                 <VhField label="Paid">
                     <InputNumber
                         placeholder="Enter Paid Amount"
-                        inputId="minmax-buttons"
+                        inputId="minmaxfraction" :min-fraction-digits="2"
                         name="orders-paid"
                         v-model="store.item.paid"
                         mode="decimal" showButtons

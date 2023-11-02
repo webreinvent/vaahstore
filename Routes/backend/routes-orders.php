@@ -107,11 +107,18 @@ function () {
     //---------------------------------------------------------
 
     /**
-     * Search Customer Groups
+     * Search Customer Group
      */
 
     Route::post('/search/customer-group', 'OrdersController@searchCustomerGroup')
         ->name('vh.backend.store.orders.search.customer-group');
 
+    //---------------------------------------------------------
 
+    /**
+     * Search User
+     */
+
+    Route::post('/search/user', 'OrdersController@searchUser')
+        ->name('vh.backend.store.orders.search.user');
 });
