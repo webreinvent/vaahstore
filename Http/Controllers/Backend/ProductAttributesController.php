@@ -75,6 +75,52 @@ class ProductAttributesController extends Controller
 
     //----------------------------------------------------------
 
+    public function searchProductVariation(Request $request)
+    {
+        try {
+
+            return ProductAttribute::searchProductVariation($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
+    public function searchAttribute(Request $request)
+    {
+        try {
+
+            return ProductAttribute::searchAttribute($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
     public function getAttributeValue($id){
         $item = AttributeValue::where('vh_st_attribute_id', $id)->get(['id', 'value']);
 
