@@ -9,13 +9,14 @@ import {useRoute} from 'vue-router';
 const store = useOrderStore();
 const route = useRoute();
 
-onMounted(async () => {
-    if(route.params && route.params.id)
-    {
-        await store.getItem(route.params.id);
-    }
-
-});
+// onMounted(async () => {
+//
+//     if(route.params && route.params.id)
+//     {
+//         await store.getItem(route.params.id);
+//     }
+//
+// });
 
 //--------form_menu
 const form_menu = ref();
