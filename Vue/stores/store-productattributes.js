@@ -36,9 +36,9 @@ export const useProductAttributeStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        product_variation_suggestion: null,
+        filtered_product_variations: null,
         product_variation: null,
-        attribute_suggestion: null,
+        filtered_attributes: null,
         attribute: null,
         list: null,
         item: null,
@@ -167,21 +167,65 @@ export const useProductAttributeStore = defineStore({
           },
         //---------------------------------------------------------------------
 
-        searchProductVariation(event) {
+       async searchProductVariation(event) {
 
-            this.product_variation_suggestion = this.product_variation.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variation',
+                this.searchProductVariationAfter,
+                options
+            );
         },
+
         //-----------------------------------------------------------------------
 
-        searchAttribute(event) {
+        searchProductVariationAfter(data,res) {
 
-            this.attribute_suggestion = this.attribute.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-
+            if(data)
+            {
+                this.filtered_product_variations = data;
+            }
         },
+
+        //-----------------------------------------------------------------------
+
+        async searchAttribute(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/attribute',
+                this.searchAttributeAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        searchAttributeAfter(data,res) {
+            if(data)
+            {
+                this.filtered_attributes = data;
+            }
+        },
+
         //---------------------------------------------------------------------
         async getAttributeValue(){
 

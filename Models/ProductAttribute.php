@@ -300,6 +300,61 @@ class ProductAttribute extends Model
     }
     //-------------------------------------------------
 
+    public static function searchProductVariation($request)
+    {
+
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $product_variations = ProductVariation::select('id','name')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $product_variations = ProductVariation::where('name', 'like', "%$query%")
+                ->select('id','name')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchAttribute($request)
+    {
+
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $attributes = Attribute::inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+        
+        else{
+
+            $attributes = Attribute::where('name', 'like', "%$query%")->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attributes;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeSearchFilter($query, $filter)
     {
 
