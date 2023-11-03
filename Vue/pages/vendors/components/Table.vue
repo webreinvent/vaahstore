@@ -69,8 +69,9 @@ const useVaah = vaah();
                             </b>
                             <b v-else>0</b>
                         </span>
-                        <button @click="store.toProduct(prop.data)"  style="cursor: pointer;  border-width : 0; background: #22c55e; color: black;"  >
-                           <i class="pi pi-plus" style="color: #708090"></i>
+                        <button @click="store.toProduct(prop.data)"
+                                style="cursor: pointer;  border-width : 0; background: #4f46e5;"  >
+                           <i class="pi pi-plus" style="color: white"></i>
                         </button>
                     </div>
                 </template>

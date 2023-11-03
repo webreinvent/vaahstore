@@ -219,7 +219,20 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
        async removeProduct(attribute){
-           this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+            console.log(attribute.id);
+            if(attribute.id){
+                const options = {
+                    method: 'get',
+                };
+                const id = attribute.id
+                await vaah().ajax(
+                    this.ajax_url+'/single/product/remove/'+id,
+                    this.removeProductAfter,
+                    options
+                );
+            }else{
+                 this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+            }
 
         },
         //---------------------------------------------------------------------
