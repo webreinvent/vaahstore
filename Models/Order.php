@@ -479,7 +479,10 @@ class Order extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('id', 'LIKE', '%' . $search . '%');
+            $q->where('id', 'LIKE', '%' . $search . '%')
+                ->orwhereHas('user', function ($query) use ($search) {
+                    $query->where('first_name','LIKE', '%'.$search.'%');
+                });
         });
 
     }
