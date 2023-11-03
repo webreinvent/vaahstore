@@ -51,15 +51,15 @@ const useVaah = vaah();
                  <template #body="prop">
                      {{prop.data.name}}
                      <div class="p-inputgroup">
-<!--                         <span class="p-inputgroup-addon">-->
-<!--                             <b>-->
-<!--                                {{prop.data.name}}-->
-<!--                            </b>-->
-<!--                         </span>-->
+                         <span class="p-inputgroup-addon">
+                             <b>
+                                {{prop.data.items.length}}
+                            </b>
+                         </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
-                                 v-tooltip.top="'Add Order Item'"
-                                 @click="store.toOrderItem(prop.data)" />
+                                 v-tooltip.top="'Add Products'"
+                                 @click="store.toOrderItem(prop.data.id)" />
                      </div>
                  </template>
 
@@ -138,10 +138,8 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     {{prop.data.payable}}
+                     <Badge severity="info">{{prop.data.payable}}</Badge>
+
                  </template>
 
              </Column>

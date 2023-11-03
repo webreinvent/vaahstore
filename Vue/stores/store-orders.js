@@ -770,7 +770,7 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
-                case 'save-orderitems':
+                case 'order-items':
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/items'
