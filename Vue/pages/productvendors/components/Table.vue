@@ -65,13 +65,14 @@ const useVaah = vaah();
 
 
                  <template #body="prop">
-                     <Button class="p-button-tiny p-button-text"
+                     <Button class="p-button-tiny"
                              v-tooltip.top="'Add Price Item'"
+                             icon="pi pi-plus" severity="success"
                              @click="store.toProductPrice(prop.data)"
-                             icon="pi pi-eye" ><b>+</b></Button>
-                     <!--                     <div class="p-inputgroup flex-1">-->
-                     <!--                         <button v-tooltip.top="'Add Order Item'" @click="store.toOrderItem(prop.data)"><b>+</b></button>-->
-                     <!--                     </div>-->
+                         >
+
+                     </Button>
+
                  </template>
 
              </Column>

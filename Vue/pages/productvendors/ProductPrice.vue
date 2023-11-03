@@ -72,17 +72,17 @@ const toggleFormMenu = (event) => {
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
-                    <Button
-                        type="button"
-                        class="p-button-sm"
-                        @click="toggleFormMenu"
-                        data-testid="productvendors-form-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>
+<!--                    <Button-->
+<!--                        type="button"-->
+<!--                        class="p-button-sm"-->
+<!--                        @click="toggleFormMenu"-->
+<!--                        data-testid="productvendors-form-menu"-->
+<!--                        icon="pi pi-angle-down"-->
+<!--                        aria-haspopup="true"/>-->
 
-                    <Menu ref="form_menu"
-                          :model="store.form_menu_list"
-                          :popup="true" />
+<!--                    <Menu ref="form_menu"-->
+<!--                          :model="store.form_menu_list"-->
+<!--                          :popup="true" />-->
                     <!--/form_menu-->
 
 
