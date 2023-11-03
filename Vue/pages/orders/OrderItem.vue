@@ -38,7 +38,7 @@ const toggleFormMenu = (event) => {
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span>
-                            Add Order Item
+                            Order Products
                         </span>
                     </div>
 
