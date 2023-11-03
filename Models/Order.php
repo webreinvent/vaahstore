@@ -479,10 +479,7 @@ class Order extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('id', 'LIKE', '%' . $search . '%')
-                ->orwhereHas('user', function ($query) use ($search) {
-                    $query->where('first_name','LIKE', '%'.$search.'%');
-                });
+            $q->where('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -870,7 +867,7 @@ class Order extends Model
             'taxonomy_id_order_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
         ],
             [
@@ -969,6 +966,7 @@ class Order extends Model
         $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] - $inputs['discount'];
         $inputs['payable'] = $payable_amount;
         $inputs['paid'] = rand(1,$payable_amount);
+        $inputs['status_notes']=$faker->text(rand(1,250));
 
         // fill the payment method column here
         $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null]);
@@ -985,6 +983,11 @@ class Order extends Model
         $inputs['taxonomy_id_order_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
+
+        // fill the taxonomy status while placing order
+        $inputs['taxonomy_id_order_items_status'] = $status_id;
+        $inputs['status_order_items']=$status;
+        $inputs['status_notes_order_item']=$faker->text(rand(1,250));
 
         // fill the types field here
         $types = Taxonomy::getTaxonomyByType('order-items-types');
@@ -1054,7 +1057,7 @@ class Order extends Model
                 'tracking' => 'required',
                 'status_notes_order_item' => [
                     'required_if:status_order_items.slug,==,rejected',
-                    'max:100'
+                    'max:250'
                 ],
             ],
             [
