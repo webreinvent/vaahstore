@@ -276,6 +276,16 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
+    public static function singleProductRemove($request ,$id){
+
+        ProductVendor::where('id', $id)->update(['is_active'=>0]);
+        $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
+        $response = self::getItem($vendor->vh_st_vendor_id);
+        $response['messages'][] = 'Removed successfully.';
+        return $response;
+        
+    }
+    //-------------------------------------------------
     public static function createItem($request)
     {
         $inputs = $request->all();
