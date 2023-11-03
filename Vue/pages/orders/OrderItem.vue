@@ -8,7 +8,7 @@ import {useRoute} from 'vue-router';
 
 const store = useOrderStore();
 const route = useRoute();
-
+store.getFormMenu();
 // onMounted(async () => {
 //
 //     if(route.params && route.params.id)
@@ -50,10 +50,9 @@ const toggleFormMenu = (event) => {
             <template #icons>
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
-                            v-if="store.item && store.item.id"
+                    <Button label="Add Product"
                             data-testid="orderitems-save"
-                            @click="store.itemAction('save-orderitems')"
+                            @click="store.createOrder()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="orderitems-document" icon="pi pi-info-circle"
