@@ -343,7 +343,6 @@ export const useOrderStore = defineStore({
                     }
 
                     this.route = newVal;
-
                     if(newVal.params.id){
                         this.getItem(newVal.params.id);
                     }
@@ -665,7 +664,43 @@ export const useOrderStore = defineStore({
                 options
             );
         },
+
         //---------------------------------------------------------------------
+
+        async createOrder()
+        {
+           let item = this.item;
+           let id = this.route.params.order_id;
+           item.id = id;
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+            };
+
+            options.params = item;
+            ajax_url += '/items';
+            await vaah().ajax(
+                ajax_url,
+                this.createOrderAfter,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+
+        async createOrderAfter(data)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.setActiveItemAsEmpty();
+                this.getItemMenu();
+                this.getFormMenu();
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async itemAction(type, item=null){
 
             if(!item)
@@ -709,7 +744,7 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
-                case 'save-orderitems':
+                case 'order-items':
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/items'
@@ -756,8 +791,10 @@ export const useOrderStore = defineStore({
         {
             switch (this.form.action)
             {
+
                 case 'create-and-new':
                 case 'save-and-new':
+                case 'order-items':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -950,10 +987,10 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.form'})
         },
         //---------------------------------------------------------------------
-        toOrderItem(item)
+        toOrderItem(id)
         {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'orders.orderitems', params:{id:item.id}})
+            this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
+
         },
         //---------------------------------------------------------------------
 

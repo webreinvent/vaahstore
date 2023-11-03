@@ -153,9 +153,9 @@ class Order extends Model
         return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
     }
     //-------------------------------------------------
-    public function Items()
+    public function items()
     {
-        return $this->hasOne(OrderItem::class,'vh_st_order_id','id')->select();
+        return $this->hasMany(OrderItem::class,'vh_st_order_id','id');
     }
 
     //-------------------------------------------------
@@ -218,7 +218,6 @@ class Order extends Model
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -244,23 +243,15 @@ class Order extends Model
         if (!$validation['success']) {
             return $validation;
         }
-        $check = OrderItem::where('vh_st_order_id',$inputs['id'])->first();
-        if($check){
-            $check->fill($inputs);
-            $check->vh_st_order_id = $inputs['id'];
-            $check->is_active = $inputs['is_active_order_item'];
-            $check->status_notes = $inputs['status_notes_order_item'];
-            $check->save();
-            $response['messages'][] = 'Saved successfully';
-            return $response;
-        }
+
         $order_item = new OrderItem;
         $order_item->fill($inputs);
         $order_item->vh_st_order_id = $inputs['id'];
         $order_item->is_active = $inputs['is_active_order_item'];
         $order_item->status_notes = $inputs['status_notes_order_item'];
         $order_item->save();
-        $response['messages'][] = 'Saved successfully.';
+        $response['data'] = true;
+        $response['messages'][] = 'order placed successfully.';
         return $response;
     }
 
@@ -717,7 +708,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','Items'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user'])
             ->withTrashed()
             ->first();
 
@@ -729,23 +720,23 @@ class Order extends Model
         }
         //To get data for dropdown of order items
         $array_item = $item->toArray();
-        if($item['items']!=null){
-            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
-            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
-            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
-            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
-            $item['status_notes_order_item'] = $array_item['items']['status_notes'];
-            $item['is_active_order_item'] = $array_item['items']['is_active'];
-            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
-            $item['invoice_url'] = $array_item['items']['invoice_url'];
-            $item['tracking'] = $array_item['items']['tracking'];
-        }
-        else{
-            $item['is_invoice_available'] = 1;
-            $item['is_active_order_item'] = 1;
-        }
+//        if($item['items']!=null){
+//            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
+//            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+//            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
+//            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
+//            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
+//            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
+//            $item['status_notes_order_item'] = $array_item['items']['status_notes'];
+//            $item['is_active_order_item'] = $array_item['items']['is_active'];
+//            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
+//            $item['invoice_url'] = $array_item['items']['invoice_url'];
+//            $item['tracking'] = $array_item['items']['tracking'];
+//        }
+//        else{
+//            $item['is_invoice_available'] = 1;
+//            $item['is_active_order_item'] = 1;
+//        }
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -964,6 +955,14 @@ class Order extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
 
+        // fill the types field here
+        $types = Taxonomy::getTaxonomyByType('order-items-types');
+        $type_ids = $types->pluck('id')->toArray();
+        $type_id = $type_ids[array_rand($type_ids)];
+        $type = $types->where('id',$type_id)->first();
+        $inputs['types'] = $type;
+        $inputs['taxonomy_id_order_items_types'] = $type_id ;
+
         // fill the product field here
         $products = Product::where('is_active',1);
         $product_ids = $products->pluck('id')->toArray();
@@ -988,7 +987,17 @@ class Order extends Model
         $inputs['vendor'] = $vendor;
         $inputs['vh_st_vendor_id'] = $vendor_id;
 
-
+        // fill the Customer Group field here
+        $customer_groups = CustomerGroup::all();
+        $customer_group_ids = $customer_groups->pluck('id')->toArray();
+        $customer_group_id = $customer_group_ids[array_rand($customer_group_ids)];
+        $customer_group = $customer_groups->where('id',$customer_group_id)->first();
+        $inputs['customer_group'] = $customer_group;
+        $inputs['vh_st_customer_group_id'] = $customer_group_id;
+        $inputs['invoice_url'] = $faker->url;
+        $inputs['tracking'] = $faker->url;
+        $inputs['is_invoice_available'] = 1;
+        $inputs['is_active_order_item'] = 1;
         $inputs['is_active'] = 1;
         if(!$is_response_return){
             return $inputs;
@@ -1012,12 +1021,14 @@ class Order extends Model
                 'customer_group' => 'required',
                 'invoice_url' => 'required',
                 'tracking' => 'required',
-                'status_order_items' => 'required',
-                'status_notes_order' => 'required_if:status_order_items.slug,==,rejected',
+                'status_notes_order_item' => [
+                    'required_if:status_order_items.slug,==,rejected',
+                    'max:100'
+                ],
             ],
             [
-                'status_order_items.required' => 'The Status field is required',
-                'status_notes_order.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes_order_item.required_if' => 'The Status field is required for rejected status',
+                'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
             ]);
         if($rules->fails()){
             return [
