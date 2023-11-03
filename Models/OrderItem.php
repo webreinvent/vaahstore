@@ -114,7 +114,7 @@ class OrderItem extends Model
     //-------------------------------------------------
     public function order()
     {
-        return $this->hasOne(Order::class,'id','vh_st_order_id')->select('id');
+        return $this->belongsTo(Order::class,'vh_st_order_id','id');
     }
     //-------------------------------------------------
     public function ProductVariation()

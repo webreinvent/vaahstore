@@ -27,7 +27,7 @@ routes_list = {
             props: true,
         },
         {
-            path: 'items/:id?',
+            path: 'items/:order_id?',
             name: 'orders.orderitems',
             component: OrderItems,
             props: true,
