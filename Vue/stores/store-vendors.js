@@ -195,11 +195,14 @@ export const useVendorStore = defineStore({
                     }
                 })
                 if (exist == 0){
+                    let approved_status = this.product_vendor_status.find((item) => item.name === "Approved");
+                    this.item.status =approved_status;
+                    this.item.taxonomy_id_vendor_status = approved_status.id;
                     let new_product = {
                         product: this.selected_product,
                         is_selected : false,
                         can_update : false,
-                        status : null,
+                        status : approved_status,
                         status_notes : null,
                     };
                     this.item.products.push(new_product);
