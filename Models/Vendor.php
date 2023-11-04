@@ -547,10 +547,14 @@ class Vendor extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $items->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -629,13 +633,17 @@ class Vendor extends Model
 
         switch ($type) {
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 }
                 break;
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
                 }
                 break;
             case 'trash':
@@ -656,10 +664,14 @@ class Vendor extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $list->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $list->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
                 $list->update(['deleted_by'  => auth()->user()->id]);
