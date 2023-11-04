@@ -157,7 +157,7 @@ const toggleSelectedMenuState = (event) => {
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
                             <td>
-                                <InputText v-model="item['product']['name']" class="w-full" />
+                                <InputText v-model="item['product']['name']" class="w-full" disabled="" />
                             </td>
                             <td>
                                 <InputSwitch v-model="item['can_update']" />
