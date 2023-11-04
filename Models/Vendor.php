@@ -268,9 +268,9 @@ class Vendor extends Model
     }
     //-------------------------------------------------
     public static function bulkProductRemove($request ,$id){
-        ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
-        $response['messages'][] = 'Removed successfully.';
-        return $response;
+            ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
+            $response['messages'][] = 'Removed all product successfully.';
+            return $response;
 
 
     }
