@@ -96,7 +96,7 @@ class Store extends Model
         $empty_item['is_multi_lingual'] = 0;
         $empty_item['is_multi_vendor'] = 0;
         $empty_item['is_default'] = 0;
-        $empty_item['is_active'] = 1;
+        $empty_item['is_active'] = 0;
         $empty_item['status'] = null;
         return $empty_item;
     }
@@ -225,7 +225,7 @@ class Store extends Model
         {
             $item->allowed_ips = json_encode($inputs['allowed_ips']);
         }
-        
+
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -891,12 +891,22 @@ class Store extends Model
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+
+
         switch($type)
         {
             case 'activate':
+
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status]);
                 break;
             case 'deactivate':
                 self::where('id', $id)
@@ -1017,6 +1027,13 @@ class Store extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
+        $inputs['is_active'] = 0;
+
+        if($status['name'] == 'Approved')
+        {
+            $inputs['is_active'] = 1;
+        }
+
         $inputs['is_multi_currency'] = rand(0,1);
         $inputs['is_multi_lingual'] = rand(0,1);
 
@@ -1056,7 +1073,7 @@ class Store extends Model
 
         }
         $inputs['is_multi_vendor'] = 1;
-        $inputs['is_active'] = 1;
+
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
