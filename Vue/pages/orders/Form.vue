@@ -276,6 +276,7 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="orders-active"
+                                 @change="store.selectStatus()"
                                  data-testid="orders-active"
                                  v-model="store.item.is_active"/>
                 </VhField>

@@ -792,6 +792,7 @@ class Order extends Model
 
     public static function itemAction($request, $id, $type): array
     {
+        
         switch($type)
         {
             case 'activate':
@@ -957,6 +958,11 @@ class Order extends Model
         $inputs['taxonomy_id_order_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
+        $inputs['is_active'] = 0;
+        if($status['name'] == 'Approved')
+        {
+            $inputs['is_active'] = 1;
+        }
 
         // fill the taxonomy status while placing order
         $inputs['taxonomy_id_order_items_status'] = $status_id;
@@ -1006,7 +1012,7 @@ class Order extends Model
         $inputs['tracking'] = $faker->url;
         $inputs['is_invoice_available'] = 1;
         $inputs['is_active_order_item'] = 1;
-        $inputs['is_active'] = 1;
+
         if(!$is_response_return){
             return $inputs;
         }
