@@ -260,14 +260,13 @@ export const useStoreStore = defineStore({
 
         addCurrencies() {
 
-
             const unique_currencies = [];
-            const check_ids = new Set();
+            const check_names = new Set();
 
             for (const currency of this.item.currencies) {
-                if (!check_ids.has(currency.id)) {
+                if (!check_names.has(currency.name)) {
                     unique_currencies.push(currency);
-                    check_ids.add(currency.id);
+                    check_names.add(currency.name);
                 }
             }
             this.item.currencies = unique_currencies;
@@ -278,18 +277,16 @@ export const useStoreStore = defineStore({
 
         addLanguages() {
 
-
             const unique_languages = [];
-            const check_ids = new Set();
+            const check_names = new Set();
 
             for (const language of this.item.languages) {
-                if (!check_ids.has(language.id)) {
+                if (!check_names.has(language.name)) {
                     unique_languages.push(language);
-                    check_ids.add(language.id);
+                    check_names.add(language.name);
                 }
             }
             this.item.languages = unique_languages;
-
         },
 
         //---------------------------------------------------------------------

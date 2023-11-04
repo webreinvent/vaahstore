@@ -39,7 +39,7 @@ const props = defineProps({
             <td colspan="2" >
 
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Button  @click="vaah().copy(value.id)"  class="p-button-outlined p-button-secondary p-button-sm">
+                    <Button  @click="vaah().copy(value.name)"  class="p-button-outlined p-button-secondary p-button-sm">
                         {{value.name}}
                     </Button>
                 </template>
