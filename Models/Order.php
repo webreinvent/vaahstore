@@ -528,7 +528,7 @@ class Order extends Model
         $rules = array(
             'type' => 'required',
         );
-
+        
         $messages = array(
             'type.required' => 'Action type is required',
         );
@@ -810,7 +810,17 @@ class Order extends Model
 
     public static function itemAction($request, $id, $type): array
     {
-        
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
+
         switch($type)
         {
             case 'activate':
