@@ -283,7 +283,7 @@ class Vendor extends Model
         $response = self::getItem($vendor->vh_st_vendor_id);
         $response['messages'][] = 'Removed successfully.';
         return $response;
-        
+
     }
     //-------------------------------------------------
     public static function createItem($request)
@@ -793,14 +793,18 @@ class Vendor extends Model
         switch($type)
         {
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'trash':
                 self::where('id', $id)
@@ -905,9 +909,12 @@ class Vendor extends Model
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();
-        $status = $taxonomy_status->where('id',$status_id)->first();
+        $status = $taxonomy_status->where('id', $status_id)->first();
+
         $inputs['taxonomy_id_vendor_status'] = $status_id;
-        $inputs['status']=$status;
+        $inputs['status'] = $status;
+        $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
+
 
         $faker = Factory::create();
 

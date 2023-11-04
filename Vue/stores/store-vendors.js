@@ -328,6 +328,26 @@ export const useVendorStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_vendor_status = status.id;
+            if(status.name == 'Approved')
+            {
+                this.item.is_active = 1;
+            }else{
+                this.item.is_active = 0;
+            }
+
+
+        },
+        //---------------------------------------------------------------------
+        setVendorStatus(){
+            if(this.item.is_active == '1'){
+                let approved_status = this.vendor_status.find((item) => item.name === "Approved");
+                this.item.status =approved_status;
+                this.item.taxonomy_id_vendor_status = approved_status.id;
+            }else {
+                let pending_status = this.vendor_status.find((item) => item.name === "Rejected");
+                this.item.status =pending_status;
+                this.item.taxonomy_id_vendor_status = pending_status.id;
+            }
 
         },
         //---------------------------------------------------------------------
