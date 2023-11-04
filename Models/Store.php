@@ -12,7 +12,7 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-
+use VaahCms\Modules\Store\Models\Currencie;
 class Store extends Model
 {
 
@@ -111,7 +111,7 @@ class Store extends Model
 
     //-------------------------------------------------
     public function currenciesData(){
-        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')
+        return $this->hasMany(Currencie::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
             ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
                 'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
@@ -190,7 +190,6 @@ class Store extends Model
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -232,7 +231,7 @@ class Store extends Model
         if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
             foreach ($inputs['currencies'] as $key => $value) {
 
-                $record = new currencie();
+                $record = new Currencie();
                 $record->vh_st_store_id = $item->id;
                 $record->name = $value['name'];
 
@@ -517,6 +516,15 @@ class Store extends Model
 
         $inputs = $request->all();
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
         $rules = array(
             'type' => 'required',
         );
@@ -548,10 +556,10 @@ class Store extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $items->update(['is_active' => null,'taxonomy_id_store_status' => $rejected_status_id]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $items->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -614,6 +622,15 @@ class Store extends Model
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
 
         if(isset($inputs['items']))
         {
@@ -637,12 +654,12 @@ class Store extends Model
         switch ($type) {
             case 'deactivate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'taxonomy_id_store_status'=>$rejected_status_id]);
                 }
                 break;
             case 'activate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1,'taxonomy_id_store_status'=>$approved_status_id]);
                 }
                 break;
             case 'trash':
@@ -666,10 +683,10 @@ class Store extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $list->update(['is_active' => 1,'taxonomy_id_store_status'=>$approved_status_id]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $list->update(['is_active' => null,'taxonomy_id_store_status'=>$rejected_status_id]);
                 break;
             case 'trash-all':
                 $user_id = auth()->user()->id;
@@ -815,11 +832,11 @@ class Store extends Model
         $item->save();
 
         if(!empty($inputs['currencies'])) {
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+            Currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
 
             foreach ($inputs['currencies'] as $key => $v) {
 
-                currencie::updateOrInsert(
+                Currencie::updateOrInsert(
                     ['vh_st_store_id' => $item->id, 'name' => $v['name']],
                     ['is_active' => 1]
                 );
@@ -827,15 +844,15 @@ class Store extends Model
             }
 
             if (!empty($inputs['currency_default'])){
-                currencie::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
+                Currencie::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
             }else{
-                $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
+                $first_active_currencies = Currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
                 $first_active_currencies->is_default = 1;
                 $first_active_currencies->save();
             }
         }else{
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+            Currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         if(!empty($inputs['languages'])) {
@@ -895,10 +912,11 @@ class Store extends Model
         $approved_status = $taxonomy_status->filter(function ($taxonomy) {
             return $taxonomy['name'] === 'Approved';
         });
+        $approved_status_id = $approved_status->pluck('id')->first();
         $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
             return $taxonomy['name'] === 'Rejected';
         });
-
+        $rejected_status_id = $rejected_status->pluck('id')->first();
 
         switch($type)
         {
@@ -906,12 +924,12 @@ class Store extends Model
 
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status]);
+                    ->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status_id]);
                 break;
             case 'deactivate':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null,'taxonomy_id_store_status' => $rejected_status_id]);
                 break;
             case 'trash':
                 self::where('id', $id)
@@ -964,7 +982,7 @@ class Store extends Model
             if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
                 foreach ($inputs['currencies'] as $key => $value) {
 
-                    $record = new currencie();
+                    $record = new Currencie();
                     $record->vh_st_store_id = $item->id;
                     $record->name = $value['name'];
 
