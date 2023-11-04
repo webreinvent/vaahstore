@@ -328,6 +328,16 @@ export const useStoreStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_store_status = status.id;
+            if(status.name == 'Approved')
+            {
+
+                this.item.is_active = 1;
+            }
+            else
+            {
+                this.item.is_active = 0;
+            }
+
         },
         //---------------------------------------------------------------------
         checkIpAddress(event)
@@ -364,6 +374,26 @@ export const useStoreStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        selectStatus()
+        {
+
+            if(this.item.is_active == '1')
+            {
+
+                let active_status = this.status_option.find((item) => item.name === "Approved");
+                this.item.taxonomy_id_store_status = active_status.id;
+                this.item.status = active_status;
+            }
+            else {
+                    let rejected_status = this.status_option.find((item) => item.name === "Rejected");
+                    this.item.taxonomy_id_store_status = rejected_status.id;
+                    this.item.status = rejected_status;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         searchCurrencyDefault(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
