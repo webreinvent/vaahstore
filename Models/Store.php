@@ -12,7 +12,8 @@ use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use VaahCms\Modules\Store\Models\Currencie;
+use VaahCms\Modules\Store\Models\Currency;
+
 class Store extends Model
 {
 
@@ -111,7 +112,7 @@ class Store extends Model
 
     //-------------------------------------------------
     public function currenciesData(){
-        return $this->hasMany(Currencie::class, 'vh_st_store_id', 'id')
+        return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
             ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
                 'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
@@ -231,7 +232,7 @@ class Store extends Model
         if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
             foreach ($inputs['currencies'] as $key => $value) {
 
-                $record = new Currencie();
+                $record = new Currency();
                 $record->vh_st_store_id = $item->id;
                 $record->name = $value['name'];
 
@@ -832,11 +833,11 @@ class Store extends Model
         $item->save();
 
         if(!empty($inputs['currencies'])) {
-            Currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
 
             foreach ($inputs['currencies'] as $key => $v) {
 
-                Currencie::updateOrInsert(
+                Currency::updateOrInsert(
                     ['vh_st_store_id' => $item->id, 'name' => $v['name']],
                     ['is_active' => 1]
                 );
@@ -844,15 +845,15 @@ class Store extends Model
             }
 
             if (!empty($inputs['currency_default'])){
-                Currencie::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
+                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
             }else{
-                $first_active_currencies = Currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
+                $first_active_currencies = Currency::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
                 $first_active_currencies->is_default = 1;
                 $first_active_currencies->save();
             }
         }else{
-            Currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         if(!empty($inputs['languages'])) {
@@ -982,7 +983,7 @@ class Store extends Model
             if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
                 foreach ($inputs['currencies'] as $key => $value) {
 
-                    $record = new Currencie();
+                    $record = new Currency();
                     $record->vh_st_store_id = $item->id;
                     $record->name = $value['name'];
 
