@@ -1060,8 +1060,79 @@ class Product extends Model
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
-        
 
+        // fill the taxonomy status field here
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_store_status'] = $status_id;
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['status']=$status;
+        $inputs['is_active'] = 0;
+
+        if($status['name'] == 'Approved')
+        {
+            $inputs['is_active'] = 1;
+
+        }
+
+        // fill the taxonomy status while placing order
+        $taxonomy_order_item_status = Taxonomy::getTaxonomyByType('order-items-status');
+        $status_order_item_ids = $taxonomy_order_item_status->pluck('id')->toArray();
+        $status_order_item_id = $status_order_item_ids[array_rand($status_order_item_ids)];
+        $inputs['taxonomy_id_order_items_status'] = $status_order_item_id;
+        $status_order_item = $taxonomy_order_item_status->where('id',$status_order_item_id)->first();
+        $inputs['status_order_items']=$status_order_item;
+        $inputs['is_active_order_item'] = 0;
+        if($status_order_item['name'] == 'Approved')
+        {
+            $inputs['is_active_order_item'] = 1;
+        }
+
+        $number_of_characters = rand(5,250);
+        $inputs['status_notes_order_item']=$faker->text($number_of_characters);
+
+        // fill the types field here
+        $types = Taxonomy::getTaxonomyByType('order-items-types');
+        $type_ids = $types->pluck('id')->toArray();
+        $type_id = $type_ids[array_rand($type_ids)];
+        $type = $types->where('id',$type_id)->first();
+        $inputs['types'] = $type;
+        $inputs['taxonomy_id_order_items_types'] = $type_id ;
+
+        // fill the product field here
+        $products = Product::where('is_active',1);
+        $product_ids = $products->pluck('id')->toArray();
+        $product_id = $product_ids[array_rand($product_ids)];
+        $product = $products->where('id',$product_id)->first();
+        $inputs['product'] = $product;
+        $inputs['vh_st_product_id'] = $product_id ;
+
+        // fill the product variation field here
+        $product_variations = ProductVariation::where('is_active',1);
+        $product_variation_ids = $product_variations->pluck('id')->toArray();
+        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+        $product_variation = $product_variations->where('id',$product_variation_id)->first();
+        $inputs['product_variation'] = $product_variation;
+        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+
+        // fill the vendor field here
+        $vendors = Vendor::where('is_active',1);
+        $vendor_ids = $vendors->pluck('id')->toArray();
+        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+        $vendor = $vendors->where('id',$vendor_id)->first();
+        $inputs['vendor'] = $vendor;
+        $inputs['vh_st_vendor_id'] = $vendor_id;
+
+        // fill the Customer Group field here
+        $customer_groups = CustomerGroup::all();
+        $customer_group_ids = $customer_groups->pluck('id')->toArray();
+        $customer_group_id = $customer_group_ids[array_rand($customer_group_ids)];
+        $customer_group = $customer_groups->where('id',$customer_group_id)->first();
+        $inputs['customer_group'] = $customer_group;
+        $inputs['vh_st_customer_group_id'] = $customer_group_id;
+        $inputs['invoice_url'] = $faker->url;
+        $inputs['tracking'] = $faker->url;
 
         /*
          * You can override the filled variables below this line.
