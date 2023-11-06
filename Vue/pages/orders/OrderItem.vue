@@ -8,7 +8,7 @@ import {useRoute} from 'vue-router';
 
 const store = useOrderStore();
 const route = useRoute();
-store.getFormMenu();
+store.getOrderProductMenu();
 // onMounted(async () => {
 //
 //     if(route.params && route.params.id)
@@ -19,9 +19,9 @@ store.getFormMenu();
 // });
 
 //--------form_menu
-const form_menu = ref();
-const toggleFormMenu = (event) => {
-    form_menu.value.toggle(event);
+const order_product_menu = ref(null);
+const toggleOrderProductMenu = (event) => {
+    order_product_menu.value.toggle(event);
 };
 //--------/form_menu
 
@@ -50,7 +50,7 @@ const toggleFormMenu = (event) => {
             <template #icons>
 
                 <div class="p-inputgroup">
-                    <Button label="Add Product"
+                    <Button label="Add"
                             data-testid="orderitems-save"
                             @click="store.createOrder()"
                             icon="pi pi-save"/>
@@ -63,13 +63,13 @@ const toggleFormMenu = (event) => {
                     <!--form_menu-->
                     <Button
                         type="button"
-                        @click="toggleFormMenu"
-                        data-testid="orderitems-form-menu"
+                        @click="toggleOrderProductMenu"
+                        data-testid="orderproduct-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
-                    <Menu ref="form_menu"
-                          :model="store.form_menu_list"
+                    <Menu ref="order_product_menu"
+                          :model="store.order_product_menu_list"
                           :popup="true" />
                     <!--/form_menu-->
 
@@ -219,6 +219,7 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="orders-active"
                                  data-testid="orders-active"
+                                 @change="store.selectOrderStatus()"
                                  v-model="store.item.is_active_order_item"/>
                 </VhField>
 
