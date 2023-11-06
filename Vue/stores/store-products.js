@@ -330,9 +330,11 @@ export const useProductStore = defineStore({
         setProductStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_status = status.id;
-            if (status.name == 'Approved') {
+            if(status.name == 'Approved')
+            {
                 this.item.is_active = 1;
-            } else {
+            }
+            else {
                 this.item.is_active = 0;
             }
         },
