@@ -962,7 +962,7 @@ class Product extends Model
             'vh_st_brand_id'=> 'required',
             'vh_st_store_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
-            'quantity'  => 'required'
+            'quantity'  => 'required|digits_between:1,15',
         ],
             [
                 'taxonomy_id_product_status.required' => 'The Status field is required',
@@ -972,6 +972,7 @@ class Product extends Model
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
             ]
         );
 
@@ -1035,6 +1036,8 @@ class Product extends Model
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
+        
+
 
         /*
          * You can override the filled variables below this line.
