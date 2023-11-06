@@ -105,6 +105,12 @@ function () {
     Route::post('/search/store', 'ProductsController@searchStore')
         ->name('vh.backend.store.products.search.store');
 
+    /**
+     * Search Brand
+     */
+    Route::post('/search/brand', 'ProductsController@searchBrand')
+        ->name('vh.backend.store.products.search.brand');
+
     //---------------------------------------------------------
 
 });
