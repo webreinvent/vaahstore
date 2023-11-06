@@ -1,13 +1,17 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+
 
 class Product extends Model
 {
@@ -24,6 +28,7 @@ class Product extends Model
         'deleted_at'
     ];
     //-------------------------------------------------
+
     protected $fillable = [
         'uuid',
         'id',
@@ -40,6 +45,11 @@ class Product extends Model
     ];
 
     //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
+
+    //-------------------------------------------------
     protected $appends = [
     ];
 
@@ -48,6 +58,41 @@ class Product extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -68,12 +113,22 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function brand()
+    public function deletedByUser()
     {
-        return $this->hasOne(Brand::class,'id','vh_st_brand_id')->select('id','name','slug','is_default');
+        return $this->belongsTo(User::class,
+            'deleted_by', 'id'
+        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
 
     //-------------------------------------------------
+
+    public function brand()
+    {
+        return $this->hasOne(Brand::class,'id','vh_st_brand_id')
+                    ->select('id','name','slug','is_default');
+    }
+    //-------------------------------------------------
+
     public function store()
     {
         return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug', 'is_default');
@@ -117,14 +172,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function deletedByUser()
-    {
-        return $this->belongsTo(User::class,
-            'deleted_by', 'id'
-        )->select('id', 'uuid', 'first_name', 'last_name', 'email');
-    }
 
-    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -138,25 +186,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-    public function scopeBetweenDates($query, $from, $to)
-    {
 
-        if ($from) {
-            $from = \Carbon::parse($from)
-                ->startOfDay()
-                ->toDateTimeString();
-        }
-
-        if ($to) {
-            $to = \Carbon::parse($to)
-                ->endOfDay()
-                ->toDateTimeString();
-        }
-
-        $query->whereBetween('updated_at', [$from, $to]);
-    }
-
-    //-------------------------------------------------
     public static function createVariation($request)
     {
         $input = $request->all();
@@ -333,6 +363,25 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+    public function scopeBetweenDates($query, $from, $to)
+    {
+
+        if ($from) {
+            $from = \Carbon::parse($from)
+                ->startOfDay()
+                ->toDateTimeString();
+        }
+
+        if ($to) {
+            $to = \Carbon::parse($to)
+                ->endOfDay()
+                ->toDateTimeString();
+        }
+
+        $query->whereBetween('updated_at', [$from, $to]);
+    }
+
+    //-------------------------------------------------
     public static function createItem($request)
     {
 
@@ -365,7 +414,6 @@ class Product extends Model
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -412,9 +460,12 @@ class Product extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -455,6 +506,7 @@ class Product extends Model
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
+
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -552,8 +604,8 @@ class Product extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -586,6 +638,14 @@ class Product extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -619,16 +679,16 @@ class Product extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
@@ -639,6 +699,26 @@ class Product extends Model
                 ProductPrice::deleteProducts($items_id);
                 ProductStock::deleteProducts($items_id);
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -682,7 +762,6 @@ class Product extends Model
             $item['vendors'] = [];
         }
 
-
         $item['product_variation'] = null;
         $item['all_variation'] = [];
         $response['success'] = true;
@@ -702,24 +781,24 @@ class Product extends Model
         }
 
         // check if name exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['errors'][] = "This name is already exist.";
             return $response;
         }
 
         // check if slug exist
-        $item = self::where('id', '!=', $inputs['id'])
+        $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['errors'][] = "This slug is already exist.";
             return $response;
         }
 
@@ -727,7 +806,6 @@ class Product extends Model
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
-
         $item->save();
 
         $response = self::getItem($item->id);
@@ -741,7 +819,7 @@ class Product extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -750,7 +828,6 @@ class Product extends Model
         ProductMedia::deleteProducts($item->id);
         ProductPrice::deleteProducts($item->id);
         ProductStock::deleteProducts($item->id);
-
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Record has been deleted';
@@ -773,7 +850,9 @@ class Product extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -798,14 +877,14 @@ class Product extends Model
             'vh_st_store_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
             'quantity'  => 'required'
-       ],
-       [
-            'taxonomy_id_product_status.required' => 'The Status field is required',
-            'vh_st_brand_id.required' => 'The Brand field is required',
-            'vh_st_store_id.required' => 'The Store field is required',
-            'taxonomy_id_product_type.required' => 'The Type field is required',
-           'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-       ]
+        ],
+            [
+                'taxonomy_id_product_status.required' => 'The Status field is required',
+                'vh_st_brand_id.required' => 'The Brand field is required',
+                'vh_st_store_id.required' => 'The Store field is required',
+                'taxonomy_id_product_type.required' => 'The Type field is required',
+                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            ]
         );
 
         if($rules->fails()){
@@ -827,12 +906,65 @@ class Product extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
     //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
     public static function deleteStores($items_id){
         if($items_id){
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
@@ -845,7 +977,7 @@ class Product extends Model
 
     }
     //-------------------------------------------------
-    //-------------------------------------------------
+
 
 
 }
