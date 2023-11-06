@@ -449,6 +449,13 @@ class ProductMedia extends Model
             return $response;
         }
 
+        // delete value from pivot table
+        $item_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach ($item_id as $key => $value) {
+            $item = self::find($value);
+            $item->productMediaImages()->detach();
+        }
+
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
 
@@ -699,7 +706,6 @@ class ProductMedia extends Model
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -733,6 +739,8 @@ class ProductMedia extends Model
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+
+//        ProductMediaImage::find($item->id)->delete();
         $item->forceDelete();
 
         $response['success'] = true;

@@ -176,6 +176,14 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        onRemoveTemplatingFile(removeUploadedFileCallback, index){
+           console.log('file', removeUploadedFileCallback,index);
+            if(removeUploadedFileCallback){
+                removeUploadedFileCallback(index);
+            }
+
+        },
+        //---------------------------------------------------------------------
         async onLoad(route)
         {
             /**
