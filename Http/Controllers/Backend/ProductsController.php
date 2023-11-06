@@ -498,52 +498,6 @@ class ProductsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function searchStore(Request $request)
-    {
-        try {
-
-            return Product::searchStore($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-    public function searchBrand(Request $request)
-    {
-        try {
-
-            return Product::searchBrand($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
     public function getItem(Request $request, $id)
     {
         try{
