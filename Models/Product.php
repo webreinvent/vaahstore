@@ -907,31 +907,6 @@ class Product extends Model
 
     //-------------------------------------------------
 
-    public static function searchBrand($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $brands = Brand::take(10)
-                ->get();
-        }
-
-        else{
-
-            $brands = Brand::where('name', 'like', "%$query%")
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $brands;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
     public static function itemAction($request, $id, $type): array
     {
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
@@ -1021,27 +996,6 @@ class Product extends Model
             ->withTrashed()
             ->first();
         return $item;
-    }
-
-    //-------------------------------------------------
-
-    public static function seedSampleItems($records=100)
-    {
-
-        $i = 0;
-
-        while($i < $records)
-        {
-            $inputs = self::fillItem(false);
-
-            $item =  new self();
-            $item->fill($inputs);
-            $item->save();
-
-            $i++;
-
-        }
-
     }
 
     //-------------------------------------------------
