@@ -42,7 +42,7 @@ class ProductsController extends Controller
 
             $data['empty_item']['in_stock'] = 0;
             $data['empty_item']['quantity'] = 0;
-            $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['is_active'] = 0;
             $data['empty_item']['all_variation'] = [];
             $data['empty_item']['vendors'] = [];
             $data['empty_item']['type'] = null;
@@ -121,6 +121,7 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
     public function getDefaultStore(){
+
         return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
     }
 

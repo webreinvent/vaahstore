@@ -82,7 +82,7 @@ export const useProductStore = defineStore({
         vendor_selected_menu: [],
         suggestion:null,
         product_status:null,
-        status_suggestion:null,
+        filtered_status:null,
         filtered_stores:null,
         filtered_brands:null,
         type_suggestion:null,
@@ -98,19 +98,13 @@ export const useProductStore = defineStore({
 
     },
     actions: {
-        //---------------------------------------------------------------------
 
+        //---------------------------------------------------------------------
         searchTaxonomyProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion= this.types.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.type_suggestion= this.types.filter((product) => {
+                return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
@@ -144,17 +138,12 @@ export const useProductStore = defineStore({
             },
 
          //--------------------------------------------------------------------
+
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.product_status;
-                }
-                else {
-                    this.status_suggestion= this.product_status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.filtered_status = this.product_status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
@@ -305,6 +294,31 @@ export const useProductStore = defineStore({
         setStore(event){
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        checkQuantity(event)
+        {
+            this.item.quantity = event.value;
+            if(this.item.quantity > 0)
+            {
+                this.item.in_stock = 1;
+            }
+            else {
+                this.item.in_stock = 0;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        checkInStock(event)
+        {
+
+            if(this.item.in_stock == 0)
+            {
+                this.item.quantity = 0;
+            }
         },
 
         //---------------------------------------------------------------------
