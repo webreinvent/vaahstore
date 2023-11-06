@@ -100,31 +100,18 @@ export const useProductStore = defineStore({
     actions: {
 
         //---------------------------------------------------------------------
+
         searchTaxonomyProduct(event) {
-
-            this.type_suggestion = this.types.filter((product) => {
-                return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchBrand(event) {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url + '/search/brand',
-                this.searchBrandAfter,
-                options
-            );
+            setTimeout(() => {
+                if (!event.query.trim().length) {
+                    this.type_suggestion = this.types;
+                }
+                else {
+                    this.type_suggestion= this.types.filter((product) => {
+                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                    });
+                }
+            }, 250);
         },
 
         //---------------------------------------------------------------------
@@ -164,18 +151,8 @@ export const useProductStore = defineStore({
             );
         },
 
-        //---------------------------------------------------------------------
-
-        searchStoreAfter(data, res) {
-
-            if (data) {
-                this.filtered_stores = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async onLoad(route) {
+        async onLoad(route)
+        {
             /**
              * Set initial routes
              */
@@ -250,17 +227,22 @@ export const useProductStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem() {
-            if (this.item) {
-                watch(() => this.item.name, (newVal, oldVal) => {
-                        if (newVal && newVal !== "") {
+        watchItem()
+        {
+            if(this.item){
+                watch(() => this.item.name, (newVal,oldVal) =>
+                    {
+                        if(newVal && newVal !== "")
+                        {
                             this.item.name = newVal;
                             this.item.slug = vaah().strToSlug(newVal);
                         }
-                    }, {deep: true}
+                    },{deep: true}
                 )
-                watch(() => this.variation_item.attribute_option_type, (newVal, oldVal) => {
-                        if (newVal != oldVal) {
+                watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
+                    {
+                        if(newVal != oldVal)
+                        {
                             this.getAttributeList();
                         }
                     }, {deep: true}
@@ -1256,7 +1238,7 @@ export const useProductStore = defineStore({
                 },
             ]
         },
-
+        
         //---------------------------------------------------------------------
 
         getListBulkMenu()
