@@ -362,7 +362,6 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -714,12 +713,9 @@ class Product extends Model
                 $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                $user_id = auth()->user()->id;
-                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -938,9 +934,6 @@ class Product extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
-                $item = self::where('id',$id)->withTrashed()->first();
-                $item->deleted_by = auth()->user()->id;
-                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
@@ -969,18 +962,17 @@ class Product extends Model
                 'max:250'
             ],
             'in_stock'=> 'required|numeric',
-            'quantity'  => 'required|digits_between:1,15',
+            'vh_st_brand_id'=> 'required',
+            'vh_st_store_id'=> 'required',
+            'taxonomy_id_product_type'=> 'required',
+            'quantity'  => 'required'
         ],
-            [    'name.required' => 'The Name field is required',
-                'slug.required' => 'The Slug field is required',
+            [
                 'taxonomy_id_product_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'vh_st_brand_id.required' => 'The Brand field is required',
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-                'quantity.digits_between' => 'The Quantity field must not be greater than 15 digits',
             ]
         );
 
@@ -1009,7 +1001,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
-
+    //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
 
@@ -1029,6 +1021,7 @@ class Product extends Model
 
     }
 
+
     //-------------------------------------------------
 
     public static function fillItem($is_response_return = true)
@@ -1044,48 +1037,6 @@ class Product extends Model
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
-
-       // fill the name field here
-        $max_chars = rand(5,250);
-        $inputs['name']=$faker->text($max_chars);
-
-        // fill the store field here
-        $stores = Store::where('is_active',1)->get();
-        $store_ids = $stores->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id',$store_id)->first();
-        $inputs['store'] = $store;
-        $inputs['vh_st_store_id'] = $store_id ;
-
-        // fill the Brand field here
-        $brands = Brand::where('is_active',1);
-        $brand_ids = $brands->pluck('id')->toArray();
-        $brand_id = $brand_ids[array_rand($brand_ids)];
-        $brand = $brands->where('id',$brand_id)->first();
-        $inputs['brand'] = $brand;
-        $inputs['vh_st_brand_id'] = $brand_id;
-
-        // fill the taxonomy status field here
-        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
-        $status_ids = $taxonomy_status->pluck('id')->toArray();
-        $status_id = $status_ids[array_rand($status_ids)];
-        $inputs['taxonomy_id_product_status'] = $status_id;
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        $inputs['status']=$status;
-
-        $inputs['is_active'] = 1;
-        $inputs['quantity'] = rand(1,10000000);
-        $inputs['in_stock'] = 1;
-        // fill the product type field here
-        $types = Taxonomy::getTaxonomyByType('product-types');
-        $type_ids = $types->pluck('id')->toArray();
-        $type_id = $type_ids[array_rand($type_ids)];
-        $type = $types->where('id',$type_id)->first();
-        $inputs['type'] = $type;
-        $inputs['taxonomy_id_product_type'] = $type_id ;
-
-        $number_of_characters = rand(5,250);
-        $inputs['status_notes']=$faker->text($number_of_characters);
 
         /*
          * You can override the filled variables below this line.

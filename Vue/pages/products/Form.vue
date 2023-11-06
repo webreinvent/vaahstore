@@ -135,12 +135,11 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name*">
+                <VhField label="Name">
                     <InputText class="w-full"
                                name="products-name"
                                data-testid="products-name"
                                @update:modelValue="store.watchItem"
-                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
@@ -252,7 +251,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 class="p-inputswitch"
+                                 class="p-inputswitch-sm"
                                  name="products-active"
                                  data-testid="products-active"
                                  v-model="store.item.is_active"/>
