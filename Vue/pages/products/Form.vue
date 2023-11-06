@@ -135,22 +135,24 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="products-name"
                                data-testid="products-name"
                                @update:modelValue="store.watchItem"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="products-slug"
                                data-testid="products-slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Store">
+                <VhField label="Store*">
 
                     <AutoComplete
                         value="id"
@@ -167,7 +169,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Brand">
+                <VhField label="Brand*">
 
                     <AutoComplete
                         value="id"
@@ -184,7 +186,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Type">
+                <VhField label="Type*">
 
                     <AutoComplete
                         value="id"
@@ -201,13 +203,14 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Quantity">
+                <VhField label="Quantity*">
                     <InputNumber
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
                         name="products-quantity"
                         v-model="store.item.quantity"
-                        mode="decimal" showButtons
+                        @input = "store.checkQuantity($event)"
+                        showButtons
                         :min="0"
                         data-testid="products-quantity"/>
                 </VhField>
@@ -216,7 +219,7 @@ const toggleFormMenu = (event) => {
                     <InputSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
-                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        @change="store.checkInStock()"
                         name="products-in_stock"
                         data-testid="products-in_stock"
                         v-model="store.item.in_stock"/>
@@ -229,7 +232,7 @@ const toggleFormMenu = (event) => {
                         @change="store.setProductStatus($event)"
                         class="w-full"
                         name="products-status"
-                        :suggestions="store.status_suggestion"
+                        :suggestions="store.filtered_status"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
