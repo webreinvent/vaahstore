@@ -528,7 +528,7 @@ class Order extends Model
         $rules = array(
             'type' => 'required',
         );
-        
+
         $messages = array(
             'type.required' => 'Action type is required',
         );
@@ -677,10 +677,10 @@ class Order extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $list->update(['is_active' => 1,'taxonomy_id_order_status' => $approved_status_id]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $list->update(['is_active' => null,'taxonomy_id_order_status' => $rejected_status_id]);
                 break;
             case 'trash-all':
                 $user_id = auth()->user()->id;
@@ -860,12 +860,21 @@ class Order extends Model
 
         $rules = validator($inputs, [
             'vh_user_id' => 'required',
-            'amount' => 'required|digits_between:1,10',
+            'amount' => 'required|numeric|min:1|digits_between:1,10',
             'delivery_fee' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'taxes' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'discount' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'payable' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'paid' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'payable' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'paid' => [
+                'required',
+                'numeric',
+                'regex:/^\d{1,10}(\.\d{1,2})?$/',
+                function ($attribute, $value, $fail) use ($inputs) {
+                    if ($value > $inputs['payable']) {
+                        $fail('The '.$attribute.' amount must not exceed the payable amount.');
+                    }
+                },
+            ],
             'vh_st_payment_method_id' => 'required',
             'taxonomy_id_order_status' => 'required',
             'status_notes' => [
@@ -874,8 +883,9 @@ class Order extends Model
             ],
         ],
             [
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
                 'vh_user_id.required' => 'The User field is required',
+                'amount.min' => 'The Amount field is required',
+                'payable.min' => 'The Payable field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'amount.digits_between' => 'amount must be between 1 to 10 digits',
@@ -884,6 +894,8 @@ class Order extends Model
                 'discount.regex' => 'discount value must be between 1 to 10 digits',
                 'payable.regex' => 'payable amount must be between 1 to 10 digits',
                 'paid.regex' => 'paid amount must be between 1 to 10 digits',
+                'paid.max' => 'paid amount must be less than payable amount',
+                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
 
             ]
         );
@@ -987,15 +999,28 @@ class Order extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
         $inputs['is_active'] = 0;
+
         if($status['name'] == 'Approved')
         {
             $inputs['is_active'] = 1;
+
         }
 
         // fill the taxonomy status while placing order
-        $inputs['taxonomy_id_order_items_status'] = $status_id;
-        $inputs['status_order_items']=$status;
-        $inputs['status_notes_order_item']=$faker->text(rand(1,250));
+        $taxonomy_order_item_status = Taxonomy::getTaxonomyByType('order-items-status');
+        $status_order_item_ids = $taxonomy_order_item_status->pluck('id')->toArray();
+        $status_order_item_id = $status_order_item_ids[array_rand($status_order_item_ids)];
+        $inputs['taxonomy_id_order_items_status'] = $status_order_item_id;
+        $status_order_item = $taxonomy_order_item_status->where('id',$status_order_item_id)->first();
+        $inputs['status_order_items']=$status_order_item;
+        $inputs['is_active_order_item'] = 0;
+        if($status_order_item['name'] == 'Approved')
+        {
+            $inputs['is_active_order_item'] = 1;
+        }
+
+        $number_of_characters = rand(5,250);
+        $inputs['status_notes_order_item']=$faker->text($number_of_characters);
 
         // fill the types field here
         $types = Taxonomy::getTaxonomyByType('order-items-types');
@@ -1039,7 +1064,7 @@ class Order extends Model
         $inputs['invoice_url'] = $faker->url;
         $inputs['tracking'] = $faker->url;
         $inputs['is_invoice_available'] = 1;
-        $inputs['is_active_order_item'] = 1;
+
 
         if(!$is_response_return){
             return $inputs;
@@ -1057,8 +1082,8 @@ class Order extends Model
         $rules = validator($inputs,
             [
                 'types' => 'required',
-                'product_variation' => 'required|max:150',
                 'product' => 'required|max:150',
+                'product_variation' => 'required|max:150',
                 'vendor' => 'required',
                 'customer_group' => 'required',
                 'invoice_url' => 'required',
