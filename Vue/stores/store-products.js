@@ -84,7 +84,7 @@ export const useProductStore = defineStore({
         product_status:null,
         status_suggestion:null,
         filtered_stores:null,
-        brand_suggestion:null,
+        filtered_brands:null,
         type_suggestion:null,
         name:null,
         list_selected_menu: [],
@@ -116,15 +116,35 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchBrandAfter(data, res) {
+            async searchBrand(event) {
+                const query = {
+                    filter: {
+                        q: event,
+                    },
+                };
 
-            if (data) {
-                this.filtered_brands = data;
-            }
-        },
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+                await vaah().ajax(
+                    this.ajax_url+'/search/brand',
+                    this.searchBrandAfter,
+                    options
+                );
+            },
 
-        //--------------------------------------------------------------------
+            //---------------------------------------------------------------------
 
+            searchBrandAfter(data,res) {
+
+                if(data)
+                {
+                    this.filtered_brands = data;
+                }
+            },
+
+         //--------------------------------------------------------------------
         searchStatus(event) {
 
             this.filtered_status = this.product_status.filter((status) => {
@@ -280,7 +300,7 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         setType(event){
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
