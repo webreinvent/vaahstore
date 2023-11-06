@@ -835,6 +835,32 @@ class Product extends Model
         return $response;
     }
     //-------------------------------------------------
+
+    public static function searchStore($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $stores = Store::take(10)
+                ->get();
+        }
+
+        else{
+
+            $stores = Store::where('name', 'like', "%$query%")
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $stores;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public static function itemAction($request, $id, $type): array
     {
         switch($type)
@@ -911,7 +937,6 @@ class Product extends Model
         return $item;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {

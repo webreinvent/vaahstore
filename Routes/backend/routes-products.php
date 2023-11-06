@@ -99,6 +99,12 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductsController@itemAction')
         ->name('vh.backend.store.products.item.action');
 
+    /**
+     * Search Store
+     */
+    Route::post('/search/store', 'ProductsController@searchStore')
+        ->name('vh.backend.store.products.search.store');
+
     //---------------------------------------------------------
 
 });
