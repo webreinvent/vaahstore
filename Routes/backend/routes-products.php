@@ -105,23 +105,6 @@ function () {
     Route::post('/search/store', 'ProductsController@searchStore')
         ->name('vh.backend.store.products.search.store');
 
-    /**
-     * Search Brand
-     */
-    Route::post('/search/brand', 'ProductsController@searchBrand')
-        ->name('vh.backend.store.products.search.brand');
-
-    /** Remove vendor
-    */
-        Route::get('/{id}/remove/vendor', 'ProductsController@removeVendor')
-            ->name('vh.backend.store.products.remove.vendor');
-
-    /**
-     * Remove All Vendor
-     */
-    Route::get('/{id}/bulk-remove/vendor', 'ProductsController@bulkRemoveVendor')
-        ->name('vh.backend.store.products.remove.bulk.vendor');
-
     //---------------------------------------------------------
 
 });

@@ -889,31 +889,6 @@ class Product extends Model
 
     //-------------------------------------------------
 
-    public static function searchBrand($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $brands = Brand::take(10)
-                ->get();
-        }
-
-        else{
-
-            $brands = Brand::where('name', 'like', "%$query%")
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $brands;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
     public static function itemAction($request, $id, $type): array
     {
 
@@ -1000,7 +975,6 @@ class Product extends Model
         return $item;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
