@@ -83,7 +83,7 @@ export const useProductStore = defineStore({
         suggestion:null,
         product_status:null,
         status_suggestion:null,
-        store_suggestion:null,
+        filtered_stores:null,
         brand_suggestion:null,
         type_suggestion:null,
         name:null,
@@ -142,18 +142,35 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestion = this.active_stores;
-                }
-                else {
-                    this.store_suggestion= this.active_stores.filter((store) => {
-                        return store.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchStore(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
         },
+
+        //---------------------------------------------------------------------
+
+        searchStoreAfter(data,res) {
+
+            if(data)
+            {
+                this.filtered_stores = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
 
         async onLoad(route)
         {
@@ -266,18 +283,30 @@ export const useProductStore = defineStore({
                 this.getFormMenu();
             }
         },
+
+        //---------------------------------------------------------------------
+
         setStore(event){
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
         },
+
+        //---------------------------------------------------------------------
+
         setBrand(event){
             let brand = toRaw(event.value);
             this.item.vh_st_brand_id = brand.id;
         },
+
+        //---------------------------------------------------------------------
+        
         setType(event){
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
         },
+
+        //---------------------------------------------------------------------
+
         setProductStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_status = status.id;
@@ -1125,7 +1154,7 @@ export const useProductStore = defineStore({
                 },
             ]
         },
-        
+
         //---------------------------------------------------------------------
 
         getListBulkMenu()
