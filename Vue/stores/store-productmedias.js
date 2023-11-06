@@ -204,36 +204,12 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async onRemoveTemplatingFile(productMediaImages,index){
-            const details = productMediaImages[index];
-            if (productMediaImages.length > index) {
-                productMediaImages.splice(index, 1);
+        onRemoveTemplatingFile(removeUploadedFileCallback, index){
+           console.log('file', removeUploadedFileCallback,index);
+            if(removeUploadedFileCallback){
+                removeUploadedFileCallback(index);
             }
 
-            if(details.id){
-                const options = {
-                    method: 'get',
-                };
-                const id = details.id
-                await vaah().ajax(
-                    this.ajax_url+'/single/product/remove/'+id,
-                    this.onRemoveTemplatingFileAfter,
-                    options
-                );
-            }
-
-        },
-        //---------------------------------------------------------------------
-        //---------------------------------------------------------------------
-        async onRemoveTemplatingFileAfter(data,res){
-            if(data)
-            {
-                this.item = data;
-                await this.getList();
-                await this.formActionAfter(data);
-                this.getItemMenu();
-                this.getFormMenu();
-            }
         },
         //---------------------------------------------------------------------
         async onLoad(route)

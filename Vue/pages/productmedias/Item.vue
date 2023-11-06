@@ -215,7 +215,7 @@ console.log('pro_med_item', store);
                                     </td>
                                     <td colspan="2" >
                                         <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
-                                               class="p-1"
+                                               class="pt-2"
                                                v-for="(item) in store.item.product_media_images"
                                                :src="store.item.base_path+'/'+item['url']"
                                                preview

@@ -457,7 +457,10 @@ class ProductMedia extends Model
 
         // delete value from pivot table
         $item_id = collect($inputs['items'])->pluck('id')->toArray();
-        ProductMediaImage::whereIn('vh_st_product_media_id', $item_id)->forceDelete();
+        foreach ($item_id as $key => $value) {
+            $item = self::find($value);
+            $item->productMediaImages()->detach();
+        }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
@@ -764,8 +767,7 @@ class ProductMedia extends Model
             return $response;
         }
 
-        $ids = $item->productMediaImages->pluck('id')->toArray();
-        ProductMediaImage::whereIn('id', $ids)->forceDelete();
+//        ProductMediaImage::find($item->id)->delete();
         $item->forceDelete();
 
         $response['success'] = true;
