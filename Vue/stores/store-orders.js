@@ -75,6 +75,7 @@ export const useOrderStore = defineStore({
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
+        order_product_menu_list : [],
         types : null,
         filtered_product_variations : null,
         filtered_venders :null,
@@ -465,6 +466,22 @@ export const useOrderStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        selectOrderStatus()
+        {
+            if(this.item.is_active_order_item == '1')
+            {
+                let active_status = this.assets.taxonomy.status_order_items.find((item) => item.name === "Approved");
+                this.item.taxonomy_id_order_items_status = active_status.id;
+                this.item.status_order_items = active_status;
+            }
+            else {
+                let rejected_status = this.assets.taxonomy.status_order_items.find((item) => item.name === "Rejected");
+                this.item.taxonomy_id_order_items_status = rejected_status.id;
+                this.item.status_order_items = rejected_status;
+            }
+        },
+
 
         setOrderItemType(event) {
             let type = toRaw(event.value);
