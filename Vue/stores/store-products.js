@@ -82,9 +82,9 @@ export const useProductStore = defineStore({
         vendor_selected_menu: [],
         suggestion:null,
         product_status:null,
-        filtered_status:null,
+        status_suggestion:null,
         filtered_stores:null,
-        filtered_brands:null,
+        brand_suggestion:null,
         type_suggestion:null,
         name:null,
         list_selected_menu: [],
@@ -133,7 +133,7 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        async searchStore(event) {
+       async searchStore(event) {
             const query = {
                 filter: {
                     q: event,
@@ -145,11 +145,23 @@ export const useProductStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url + '/search/store',
+                this.ajax_url+'/search/store',
                 this.searchStoreAfter,
                 options
             );
         },
+
+        //---------------------------------------------------------------------
+
+        searchStoreAfter(data,res) {
+
+            if(data)
+            {
+                this.filtered_stores = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
 
         async onLoad(route)
         {
@@ -255,48 +267,28 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setStore(event) {
+        setStore(event){
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
         },
 
         //---------------------------------------------------------------------
 
-        checkQuantity(event) {
-            this.item.quantity = event.value;
-            if (this.item.quantity > 0) {
-                this.item.in_stock = 1;
-            } else {
-                this.item.in_stock = 0;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        checkInStock(event) {
-
-            if (this.item.in_stock == 0) {
-                this.item.quantity = 0;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        setBrand(event) {
+        setBrand(event){
             let brand = toRaw(event.value);
             this.item.vh_st_brand_id = brand.id;
         },
 
         //---------------------------------------------------------------------
-
-        setType(event) {
+        
+        setType(event){
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
         },
 
         //---------------------------------------------------------------------
 
-        setProductStatus(event) {
+        setProductStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_status = status.id;
             if (status.name == 'Approved') {
@@ -1238,7 +1230,7 @@ export const useProductStore = defineStore({
                 },
             ]
         },
-        
+
         //---------------------------------------------------------------------
 
         getListBulkMenu()
