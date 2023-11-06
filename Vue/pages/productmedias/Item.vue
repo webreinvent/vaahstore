@@ -53,7 +53,7 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
-
+console.log('pro_med_item', store);
 </script>
 <template>
 
@@ -209,13 +209,22 @@ const toggleItemMenu = (event) => {
                                        type="yes-no"
                             />
 
-
-                        <template v-else-if="column === 'url'">
-                            <VhViewRow label="image"
-                                       :value="store.item.base_path+'/'+store.item.url"
-                                       type="image_preview"
-                            />
+                                <tr>
+                                    <td>
+                                        <b>Product Images</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
+                                               class="p-1"
+                                               v-for="(item) in store.item.product_media_images"
+                                               :src="store.item.base_path+'/'+item['url']"
+                                               preview
+                                               alt="Image"
+                                               width="150" />
+                                    </td>
+                                </tr>
                         </template>
+
 
                         <template v-else>
                             <VhViewRow :label="column"
