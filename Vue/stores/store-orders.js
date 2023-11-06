@@ -75,6 +75,7 @@ export const useOrderStore = defineStore({
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
+        order_product_menu_list : [],
         types : null,
         filtered_product_variations : null,
         filtered_venders :null,
@@ -466,6 +467,22 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        selectOrderStatus()
+        {
+            if(this.item.is_active_order_item == '1')
+            {
+                let active_status = this.assets.taxonomy.status_order_items.find((item) => item.name === "Approved");
+                this.item.taxonomy_id_order_items_status = active_status.id;
+                this.item.status_order_items = active_status;
+            }
+            else {
+                let rejected_status = this.assets.taxonomy.status_order_items.find((item) => item.name === "Rejected");
+                this.item.taxonomy_id_order_items_status = rejected_status.id;
+                this.item.status_order_items = rejected_status;
+            }
+        },
+
+
         setOrderItemType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_order_items_types = type.id;
@@ -492,8 +509,16 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
         setOrderItemStatus(event) {
+
             let status = toRaw(event.value);
             this.item.taxonomy_id_order_items_status = status.id;
+            if(status.name == 'Approved')
+            {
+                this.item.is_active_order_item = 1;
+            }
+            else {
+                this.item.is_active_order_item = 0;
+            }
         },
         //---------------------------------------------------------------------
 
@@ -1327,6 +1352,33 @@ export const useOrderStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async getOrderProductMenu()
+        {
+            let order_product_menu = [];
+
+            order_product_menu = [
+
+                    {
+                        label: 'Reset',
+                        icon: 'pi pi-refresh',
+                        command: () => {
+                            this.setActiveItemAsEmpty();
+                        }
+                    },
+                    {
+                        label: 'Fill',
+                        icon: 'pi pi-pencil',
+                        command: () => {
+                            this.getFormInputs();
+                        }
+                    },
+
+
+                ];
+
+            this.order_product_menu_list = order_product_menu;
+
+        },
     }
 });
 
