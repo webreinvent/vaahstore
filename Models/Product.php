@@ -948,18 +948,15 @@ class Product extends Model
         return self::getItem($id);
     }
     //-------------------------------------------------
-    public static function  validation($inputs)
+    public static function validation($inputs)
     {
         $rules = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
-            'vh_st_store_id'=> 'required',
-            'vh_st_brand_id'=> 'required',
-            'taxonomy_id_product_type'=> 'required',
+            'name' => 'required|max:255',
+            'slug' => 'required|max:255',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
             'in_stock'=> 'required|numeric',
             'vh_st_brand_id'=> 'required',
@@ -969,6 +966,8 @@ class Product extends Model
         ],
             [
                 'taxonomy_id_product_status.required' => 'The Status field is required',
+                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'vh_st_brand_id.required' => 'The Brand field is required',
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
