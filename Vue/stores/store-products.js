@@ -84,7 +84,7 @@ export const useProductStore = defineStore({
         product_status:null,
         status_suggestion:null,
         filtered_stores:null,
-        brand_suggestion:null,
+        filtered_brands:null,
         type_suggestion:null,
         name:null,
         list_selected_menu: [],
@@ -114,20 +114,36 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchBrand(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.brand_suggestion = this.active_brands;
-                }
-                else {
-                    this.brand_suggestion= this.active_brands.filter((brand) => {
-                        return brand.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
 
-        //---------------------------------------------------------------------
+            async searchBrand(event) {
+                const query = {
+                    filter: {
+                        q: event,
+                    },
+                };
+
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+                await vaah().ajax(
+                    this.ajax_url+'/search/brand',
+                    this.searchBrandAfter,
+                    options
+                );
+            },
+
+            //---------------------------------------------------------------------
+
+            searchBrandAfter(data,res) {
+
+                if(data)
+                {
+                    this.filtered_brands = data;
+                }
+            },
+
+         //--------------------------------------------------------------------
         searchStatus(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -299,7 +315,7 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         setType(event){
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
