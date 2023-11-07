@@ -58,8 +58,8 @@ const props = defineProps({
                     </Tag>
                     <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                         {{value.name}}
-                    </Badge>
-                    <Badge v-else @click="vaah().copy(value.name)" severity="primary">
+                    </Tag>
+                    <Tag v-else @click="vaah().copy(value.name)" severity="primary">
                         {{value.name}}
                     </Badge>
                 </template>
