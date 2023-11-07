@@ -880,7 +880,7 @@ export const useProductStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
 
             }
