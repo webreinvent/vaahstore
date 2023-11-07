@@ -190,6 +190,9 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
+
+
+
     public function getAttributeList(Request $request){
         $input = $request->all();
         switch ($input['attribute_type']){

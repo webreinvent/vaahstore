@@ -111,6 +111,10 @@ function () {
     Route::post('/search/brand', 'ProductsController@searchBrand')
         ->name('vh.backend.store.products.search.brand');
 
+    /** Remove vendor
+    */
+        Route::get('/{id}/remove/vendor', 'ProductsController@removeVendor')
+            ->name('vh.backend.store.products.remove.vendor');
     //---------------------------------------------------------
 
 });
