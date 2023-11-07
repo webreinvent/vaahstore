@@ -731,9 +731,12 @@ class Product extends Model
                 $list->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -960,6 +963,9 @@ class Product extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
