@@ -533,7 +533,15 @@ class Product extends Model
     {
 
         $inputs = $request->all();
-
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
         $rules = array(
             'type' => 'required',
         );
@@ -565,10 +573,10 @@ class Product extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $items->update(['is_active' => null,'taxonomy_id_product_status'=>$rejected_status_id]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $items->update(['is_active' => 1,'taxonomy_id_product_status'=>$approved_status_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -627,7 +635,15 @@ class Product extends Model
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
-
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
         if(isset($inputs['items']))
         {
             $items_id = collect($inputs['items'])
@@ -650,12 +666,12 @@ class Product extends Model
         switch ($type) {
             case 'deactivate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 }
                 break;
             case 'activate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1,'taxonomy_id_product_status' => $approved_status_id]);
                 }
                 break;
             case 'trash':
@@ -679,10 +695,10 @@ class Product extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $list->update(['is_active' => 1,'taxonomy_id_product_status' => $approved_status_id]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $list->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 break;
             case 'trash-all':
                 $list->delete();
@@ -888,17 +904,27 @@ class Product extends Model
 
     public static function itemAction($request, $id, $type): array
     {
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
+
         switch($type)
         {
             case 'activate':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_product_status' => $approved_status_id]);
                 break;
             case 'deactivate':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 break;
             case 'trash':
                 self::where('id', $id)
