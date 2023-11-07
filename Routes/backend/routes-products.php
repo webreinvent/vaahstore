@@ -115,6 +115,13 @@ function () {
     */
         Route::get('/{id}/remove/vendor', 'ProductsController@removeVendor')
             ->name('vh.backend.store.products.remove.vendor');
+
+    /**
+     * Remove All Vendor
+     */
+    Route::get('/{id}/bulk-remove/vendor', 'ProductsController@bulkRemoveVendor')
+        ->name('vh.backend.store.products.remove.bulk.vendor');
+
     //---------------------------------------------------------
 
 });
