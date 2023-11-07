@@ -718,7 +718,6 @@ class ProductMedia extends Model
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
-//        dd($inputs);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;

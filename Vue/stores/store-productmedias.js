@@ -181,9 +181,6 @@ export const useProductMediaStore = defineStore({
                 this.item.product_media_images.splice(index, 1);
 
             }
-            // let images_data = this.item.product_media_images;
-            // console.log(images_data);
-            // this.onImageUpload(this.item.product_media_images);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -295,6 +292,19 @@ export const useProductMediaStore = defineStore({
             }else{
                 this.item.is_active = 0;
             }
+        },
+        //---------------------------------------------------------------------
+        setMediaStatus(){
+            if(this.item.is_active == '1'){
+                let approved_status = this.status_suggestion.find((item) => item.name === "Approved");
+                this.item.status =approved_status;
+                this.item.taxonomy_id_product_media_status = approved_status.id;
+            }else {
+                let pending_status = this.status_suggestion.find((item) => item.name === "Rejected");
+                this.item.status =pending_status;
+                this.item.taxonomy_id_product_media_status = pending_status.id;
+            }
+
         },
         //---------------------------------------------------------------------
         async getAssets() {
