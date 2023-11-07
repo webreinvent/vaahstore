@@ -387,6 +387,7 @@ export const useProductStore = defineStore({
             })
         },
         //---------------------------------------------------------------------
+
         async removeVendor(attribute){
             if(attribute.id){
                 const options = {
@@ -407,7 +408,7 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async removeProductAfter(data,res){
+        async removeVendorAfter(data,res){
             if(data)
             {
                 this.item = data;
