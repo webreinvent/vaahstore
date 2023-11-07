@@ -176,12 +176,14 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        onRemoveTemplatingFile(removeUploadedFileCallback, index){
-           console.log('file', removeUploadedFileCallback,index);
-            if(removeUploadedFileCallback){
-                removeUploadedFileCallback(index);
-            }
+        onRemoveTemplatingFile(index){
+            if (this.item.product_media_images && this.item.product_media_images.length > index) {
+                this.item.product_media_images.splice(index, 1);
 
+            }
+            // let images_data = this.item.product_media_images;
+            // console.log(images_data);
+            // this.onImageUpload(this.item.product_media_images);
         },
         //---------------------------------------------------------------------
         async onLoad(route)

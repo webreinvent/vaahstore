@@ -209,7 +209,6 @@ class ProductMedia extends Model
 
             $item = new self();
             $item->fill($inputs);
-            // $item->fill($image);
             $item->save();
 
              foreach ($inputs['images'] as $image_details)
@@ -706,6 +705,7 @@ class ProductMedia extends Model
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
+//        dd($inputs);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -716,8 +716,22 @@ class ProductMedia extends Model
             foreach ($inputs['images'] as $image){
                 $item = self::where('id', $id)->withTrashed()->first();
                 $item->fill($inputs);
-                $item->fill($image);
                 $item->save();
+
+                // Update or create the associated image
+                $imageModel = new ProductMediaImage;
+                $imageModel->vh_st_product_media_id = $item->id;
+                $imageModel->name = $image['name'];
+                $imageModel->slug = $image['slug'];
+                $imageModel->url = $image['url'];
+                $imageModel->path = $image['path'];
+                $imageModel->size = $image['size'];
+                $imageModel->type = $image['type'];
+                $imageModel->extension = $image['extension'];
+                $imageModel->mime_type = $image['mime_type'];
+                $imageModel->url_thumbnail = $image['url_thumbnail'];
+                $imageModel->thumbnail_size = $image['thumbnail_size'];
+                $imageModel->save();
             }
         }else{
             $item = self::where('id', $id)->withTrashed()->first();
