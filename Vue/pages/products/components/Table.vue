@@ -33,7 +33,13 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <span v-if="prop.data.is_default">
+                        <Badge severity="info">Default</Badge>
+                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                         </span>
+                    <span v-else>
+                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                    </span>
                 </template>
 
             </Column>
