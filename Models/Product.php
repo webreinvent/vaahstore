@@ -723,10 +723,10 @@ class Product extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $list->update(['is_active' => 1,'taxonomy_id_product_status' => $approved_status_id]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $list->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 break;
             case 'trash-all':
                 $list->delete();
