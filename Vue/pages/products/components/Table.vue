@@ -43,51 +43,8 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.store == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
+                     <span v-if="prop.data.store && prop.data.store.name">
                      {{prop.data.store.name}}
-                         </span>
-                 </template>
-
-
-             </Column>
-
-             <Column field="brand" header="Brand"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.brand == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.brand.name}}
-                         </span>
-                 </template>
-
-             </Column>
-
-             <Column field="type" header="Type"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.type == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.type.name}}
                          </span>
                  </template>
 
@@ -99,10 +56,10 @@ const useVaah = vaah();
 
                  <template #body="prop">
                      <Badge v-if="prop.data.in_stock == 0"
-                            value="out of stock"
+                            value="No"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.in_stock == 1"
-                            value="in stock"
+                            value="yes"
                             severity="success"></Badge>
                  </template>
 
@@ -232,7 +189,6 @@ const useVaah = vaah();
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
-
 
                     </div>
 
