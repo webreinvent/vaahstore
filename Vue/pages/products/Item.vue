@@ -163,6 +163,26 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
+                        <template v-else-if="column === 'name'">
+                            <tr>
+                                <td><b>Name</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.name}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'slug'">
+                            <tr>
+                                <td><b>Slug</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.slug}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
