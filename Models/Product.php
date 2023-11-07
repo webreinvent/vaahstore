@@ -975,12 +975,12 @@ class Product extends Model
     public static function validation($inputs)
     {
         $rules = validator($inputs, [
-            'name' => 'required|max:255',
-            'slug' => 'required|max:255',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
             'in_stock'=> 'required|numeric',
             'vh_st_brand_id'=> 'required',
@@ -1061,32 +1061,45 @@ class Product extends Model
 
         $faker = Factory::create();
 
+       // fill the name field here
+        $max_chars = rand(5,250);
+        $inputs['name']=$faker->text($max_chars);
+
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
-        dd($stores);
         $store_ids = $stores->pluck('id')->toArray();
-
         $store_id = $store_ids[array_rand($store_ids)];
         $store = $stores->where('id',$store_id)->first();
         $inputs['store'] = $store;
         $inputs['vh_st_store_id'] = $store_id ;
 
-        // fill the product variation field here
-        $product_variations = ProductVariation::where('is_active',1);
-        $product_variation_ids = $product_variations->pluck('id')->toArray();
-        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-        $product_variation = $product_variations->where('id',$product_variation_id)->first();
-        $inputs['product_variation'] = $product_variation;
-        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+        // fill the Brand field here
+        $brands = Brand::where('is_active',1);
+        $brand_ids = $brands->pluck('id')->toArray();
+        $brand_id = $brand_ids[array_rand($brand_ids)];
+        $brand = $brands->where('id',$brand_id)->first();
+        $inputs['brand'] = $brand;
+        $inputs['vh_st_brand_id'] = $brand_id;
 
         // fill the taxonomy status field here
         $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
-        $inputs['taxonomy_id_store_status'] = $status_id;
+        $inputs['taxonomy_id_product_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
+
         $inputs['is_active'] = 0;
+        $inputs['quantity'] = rand(1,10000000);
+        $inputs['in_stock'] = 1;
+        // fill the product type field here
+        $types = Taxonomy::getTaxonomyByType('product-types');
+        $type_ids = $types->pluck('id')->toArray();
+        $type_id = $type_ids[array_rand($type_ids)];
+        $type = $types->where('id',$type_id)->first();
+        $inputs['type'] = $type;
+        $inputs['taxonomy_id_product_type'] = $type_id ;
+
 
         if($status['name'] == 'Approved')
         {
@@ -1095,16 +1108,7 @@ class Product extends Model
         }
 
         $number_of_characters = rand(5,250);
-        $inputs['status_notes_order_item']=$faker->text($number_of_characters);
-
-        // fill the types field here
-        $types = Taxonomy::getTaxonomyByType('order-items-types');
-        $type_ids = $types->pluck('id')->toArray();
-        $type_id = $type_ids[array_rand($type_ids)];
-        $type = $types->where('id',$type_id)->first();
-        $inputs['types'] = $type;
-        $inputs['taxonomy_id_order_items_types'] = $type_id ;
-
+        $inputs['status_notes']=$faker->text($number_of_characters);
 
         /*
          * You can override the filled variables below this line.
