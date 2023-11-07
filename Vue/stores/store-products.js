@@ -341,8 +341,25 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        addVendor() {
-            if (this.selected_vendor != null) {
+        selectStatus()
+        {
+            if(this.item.is_active == '1')
+            {
+                let active_status = this.product_status.find((item) => item.name === "Approved");
+                this.item.taxonomy_id_product_status = active_status.id;
+                this.item.status = active_status;
+            }
+            else {
+                let rejected_status = this.product_status.find((item) => item.name === "Rejected");
+                this.item.taxonomy_id_product_status = rejected_status.id;
+                this.item.status = rejected_status;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        addVendor(){
+            if (this.selected_vendor != null){
                 let exist = 0;
                 this.item.vendors.forEach((item) => {
                     if (item['vendor']['id'] == this.selected_vendor['id']) {
