@@ -211,6 +211,25 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
 
+    public function bulkRemoveVendor(Request $request,$id)
+    {
+        try{
+            return Product::bulkRemoveVendor($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
     public function getAttributeList(Request $request){
         $input = $request->all();
         switch ($input['attribute_type']){

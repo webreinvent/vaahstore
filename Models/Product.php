@@ -433,6 +433,17 @@ class Product extends Model
 
     }
 
+    //------------------------------------------------
+
+    public static function bulkRemoveVendor($request ,$id){
+
+        ProductVendor::where('vh_st_product_id', $id)->update(['is_active'=>0]);
+        $response['messages'][] = 'Removed all vendor successfully.';
+        return $response;
+    }
+
+    //------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
