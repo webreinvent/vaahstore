@@ -424,25 +424,14 @@ class Product extends Model
     //-------------------------------------------------
 
     public static function removeVendor($request ,$id){
-
+        
         ProductVendor::where('id', $id)->update(['is_active'=>0]);
-        $product = ProductVendor::select('vh_st_product_id')->where('id', $id)->first();
-        $response = self::getItem($product->vh_st_product_id);
-        $response['messages'][] = 'Action Successful.';
+        $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
+        $response = self::getItem($vendor->vh_st_vendor_id);
+        $response['messages'][] = 'Removed successfully.';
         return $response;
 
     }
-
-    //------------------------------------------------
-
-    public static function bulkRemoveVendor($request ,$id){
-
-        ProductVendor::where('vh_st_product_id', $id)->update(['is_active'=>0]);
-        $response['messages'][] = 'Action Successful';
-        return $response;
-    }
-
-    //------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
     {
