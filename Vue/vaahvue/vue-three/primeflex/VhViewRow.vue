@@ -39,7 +39,7 @@ const props = defineProps({
             <td colspan="2" >
 
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Button  @click="vaah().copy(value.id)"  class="p-button-outlined p-button-secondary p-button-sm">
+                    <Button  @click="vaah().copy(value.name)"  class="p-button-outlined p-button-secondary p-button-sm">
                         {{value.name}}
                     </Button>
                 </template>
@@ -50,16 +50,16 @@ const props = defineProps({
         <template v-else-if="type==='status'">
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.id)" severity="success">
+                    <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.name)" severity="success">
                         {{value.name}}
                     </Tag>
-                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.id)" severity="warning">
+                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warning">
                         {{value.name}}
                     </Tag>
-                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.id)" severity="danger">
+                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                         {{value.name}}
                     </Tag>
-                    <Tag v-else @click="vaah().copy(value.id)" severity="primary">
+                    <Tag v-else @click="vaah().copy(value.name)" severity="primary">
                         {{value.name}}
                     </Tag>
                 </template>

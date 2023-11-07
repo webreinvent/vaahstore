@@ -111,6 +111,15 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <tr>
+                        <td  colspan="2" >
+                            <div  style="width:300px;word-break: break-word;">
+                                {{store.item.status_notes}}</div>
+                        </td>
+                    </tr>
+                </Message>
+
                 <Message severity="error"
                          class="p-container-message"
                          :closable="false"
@@ -143,7 +152,8 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by'|| column === 'updated_by'|| column === 'all_variation'
                             || column === 'product_attributes'|| column === 'product_vendors'|| column === 'brand'
                             || column === 'store'|| column === 'type'|| column === 'status'||
-                            column === 'product_variation'|| column === 'vendors'">
+                            column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
+                            || column === 'status_notes' || column === 'vh_cms_content_form_field_id'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -151,6 +161,26 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        :can_copy="true"
                             />
+                        </template>
+
+                        <template v-else-if="column === 'name'">
+                            <tr>
+                                <td><b>Name</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.name}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'slug'">
+                            <tr>
+                                <td><b>Slug</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.slug}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
@@ -162,8 +192,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'taxonomy_id_product_type'">
                             <VhViewRow label="Type"
-                                       :value="store.item.type"
-                                       type="user"
+                                       :value="store.item.type.name"
                             />
                         </template>
 

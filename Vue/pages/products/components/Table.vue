@@ -13,6 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
+                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -80,7 +81,8 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.variation_count && prop.data.variation_count.length">{{prop.data.variation_count.length}}</b>
+                            <b v-if="prop.data.variation_count && prop.data.variation_count.length">
+                                {{prop.data.variation_count.length}}</b>
                             <b v-else>0</b>
                         </span>
                          <button @click="store.toVariation(prop.data)"><b>+</b></button>
@@ -95,7 +97,8 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">{{prop.data.product_vendors.length}}</b>
+                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
+                                {{prop.data.product_vendors.length}}</b>
                             <b v-else>0</b>
                         </span>
                          <button @click="store.toVendor(prop.data)"><b>+</b></button>
@@ -157,14 +160,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-view"
-                                :disabled="store.item && store.item.id === prop.data.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-edit"
-                                :disabled="store.item && store.item.id === prop.data.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />

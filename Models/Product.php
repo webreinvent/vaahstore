@@ -488,6 +488,7 @@ class Product extends Model
 
     }
     //-------------------------------------------------
+
     public function scopeSearchFilter($query, $filter)
     {
 
@@ -498,7 +499,8 @@ class Product extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -580,9 +582,12 @@ class Product extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $user_id = auth()->user()->id;
+                $items->update(['deleted_by' => $user_id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -677,11 +682,13 @@ class Product extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -701,9 +708,12 @@ class Product extends Model
                 $list->update(['is_active' => null,'taxonomy_id_product_status' => $rejected_status_id]);
                 break;
             case 'trash-all':
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -930,11 +940,17 @@ class Product extends Model
                 self::where('id', $id)
                 ->withTrashed()
                 ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
