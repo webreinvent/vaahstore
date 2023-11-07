@@ -424,11 +424,11 @@ class Product extends Model
     //-------------------------------------------------
 
     public static function removeVendor($request ,$id){
-        
+
         ProductVendor::where('id', $id)->update(['is_active'=>0]);
         $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
         $response = self::getItem($vendor->vh_st_vendor_id);
-        $response['messages'][] = 'Removed successfully.';
+        $response['messages'][] = 'Vendor Removed successfully.';
         return $response;
 
     }
