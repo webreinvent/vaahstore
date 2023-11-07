@@ -525,10 +525,14 @@ class ProductMedia extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $list->update(['is_active' => 1,'taxonomy_id_product_media_status' => $approved_id['0']]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $list->update(['is_active' => null, 'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
                 $list->delete();
@@ -537,6 +541,9 @@ class ProductMedia extends Model
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
+                self::withTrashed()->forceDelete();
+                ProductMediaImage::deleteImages($items_id);
                 $list->forceDelete();
                 break;
             case 'create-100-records':

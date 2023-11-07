@@ -21,6 +21,7 @@ class ProductMediaImage extends Model {
     ];
     //-------------------------------------------------
     protected $fillable = [
+        'id',
         'uuid',
         'vh_st_product_media_id',
         'name',
@@ -43,6 +44,18 @@ class ProductMediaImage extends Model {
     //-------------------------------------------------
     protected $appends  = [
     ];
+    //-------------------------------------------------
+    public static function deleteImages($items_id){
+        if($items_id){
+            self::whereIn('vh_st_product_media_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
     //-------------------------------------------------
 //    protected function serializeDate(DateTimeInterface $date)
 //    {
