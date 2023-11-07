@@ -38,18 +38,6 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="store" header="Store"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
-
-                 <template #body="prop">
-                     <span v-if="prop.data.store && prop.data.store.name">
-                     {{prop.data.store.name}}
-                         </span>
-                 </template>
-
-             </Column>
-
              <Column field="in_stock" header="In Stock"
                      v-if="store.isViewLarge()"
                      :sortable="true">
