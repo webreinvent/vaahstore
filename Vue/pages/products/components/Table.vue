@@ -70,40 +70,58 @@ const useVaah = vaah();
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.quantity > 0"
                             :value="prop.data.quantity"
-                            severity="success"></Badge>
+                            severity="info"></Badge>
                  </template>
-
              </Column>
 
              <Column field="variations" header="Variations"
                      :sortable="false">
 
                  <template #body="prop">
-                     <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.variation_count && prop.data.variation_count.length">
-                                {{prop.data.variation_count.length}}</b>
-                            <b v-else>0</b>
-                        </span>
-                         <button @click="store.toVariation(prop.data)"><b>+</b></button>
+                     <div class="p-inputgroup">
+                         <span class="p-inputgroup-addon">
+                             <b v-if="prop.data.variation_count && prop.data.variation_count.length">
+                                 {{prop.data.variation_count.length}}
+                            </b>
+                              <b v-else>0</b>
+                         </span>
+                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                                 size="small"
+                                 v-tooltip.top="'Add Variations'"
+                                 @click="store.toVariation(prop.data)" />
                      </div>
                  </template>
-
              </Column>
 
              <Column field="vendors" header="Vendors"
                      :sortable="false">
 
+<!--                 <template #body="prop">-->
+<!--                     <div class="p-inputgroup flex-1">-->
+<!--                        <span class="p-inputgroup-addon">-->
+<!--                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">-->
+<!--                                {{prop.data.product_vendors.length}}</b>-->
+<!--                            <b v-else>0</b>-->
+<!--                        </span>-->
+<!--                         <button @click="store.toVendor(prop.data)"><b>+</b></button>-->
+<!--                     </div>-->
+<!--                 </template>-->
+
                  <template #body="prop">
-                     <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
-                                {{prop.data.product_vendors.length}}</b>
-                            <b v-else>0</b>
-                        </span>
-                         <button @click="store.toVendor(prop.data)"><b>+</b></button>
+                     <div class="p-inputgroup">
+                         <span class="p-inputgroup-addon">
+                             <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
+                                 {{prop.data.product_vendors.length}}
+                            </b>
+                              <b v-else>0</b>
+                         </span>
+                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                                 size="small"
+                                 v-tooltip.top="'Add Vendors'"
+                                 @click="store.toVendor(prop.data)" />
                      </div>
                  </template>
+
 
              </Column>
 
@@ -119,7 +137,7 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
