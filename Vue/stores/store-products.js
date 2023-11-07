@@ -421,11 +421,20 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        bulkRemoveVendor(all = null){
-            if (all){
-                this.item.vendors = [];
-                this.select_all_vendor = false;
-            }else{
+       async bulkRemoveVendor(id,all = null){
+
+                if (all){
+                    const options = {
+                        method: 'get',
+                    };
+                    await vaah().ajax(
+                        this.ajax_url+ '/' + id + '/bulk-remove/vendor',
+                        this.bulkRemoveProductAfter,
+                        options
+                    );
+
+                }
+            else{
                 let temp = null;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] == true;
