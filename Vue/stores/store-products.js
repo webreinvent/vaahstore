@@ -388,14 +388,8 @@ export const useProductStore = defineStore({
             })
         },
         //---------------------------------------------------------------------
-
-        async removeVendor(attribute) {
-
-            this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
-            })
-
-            if (attribute.id) {
+        async removeVendor(attribute){
+            if(attribute.id){
                 const options = {
                     method: 'get',
                 };
@@ -406,13 +400,17 @@ export const useProductStore = defineStore({
                     options
                 );
             }
-
+            this.item.vendors = this.item.vendors.filter(function(item)
+            {
+                return item['vendor']['id'] != attribute['vendor']['id']
+            })
         },
 
         //---------------------------------------------------------------------
 
-        async removeVendorAfter(data, res) {
-            if (data) {
+        async removeProductAfter(data,res){
+            if(data)
+            {
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
@@ -423,19 +421,11 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async bulkRemoveVendor(id, all = null) {
-
-            if (all) {
-                const options = {
-                    method: 'get',
-                };
-                await vaah().ajax(
-                    this.ajax_url + '/' + id + '/bulk-remove/vendor',
-                    this.bulkRemoveVendorAfter,
-                    options
-                );
-            } else {
-
+        bulkRemoveVendor(all = null){
+            if (all){
+                this.item.vendors = [];
+                this.select_all_vendor = false;
+            }else{
                 let temp = null;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] == true;
