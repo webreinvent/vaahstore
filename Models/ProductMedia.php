@@ -404,10 +404,14 @@ class ProductMedia extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $items->update(['is_active' => null, 'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $items->update(['is_active' => 1, 'taxonomy_id_product_media_status' => $approved_id['0']]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
@@ -487,13 +491,18 @@ class ProductMedia extends Model
 
         switch ($type) {
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 }
                 break;
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $items->update(['is_active' => 1, ]);
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1,'taxonomy_id_product_media_status' => $approved_id['0']]);
                 }
                 break;
             case 'trash':
@@ -512,10 +521,14 @@ class ProductMedia extends Model
                 }
                 break;
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $list->update(['is_active' => 1,'taxonomy_id_product_media_status' => $approved_id['0']]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $list->update(['is_active' => null, 'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
                 $list->delete();
@@ -524,6 +537,9 @@ class ProductMedia extends Model
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
+                self::withTrashed()->forceDelete();
+                ProductMediaImage::deleteImages($items_id);
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -767,14 +783,18 @@ class ProductMedia extends Model
         switch($type)
         {
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_product_media_status' => $approved_id['0']]);
                 break;
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null,'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 break;
             case 'trash':
                 self::where('id', $id)

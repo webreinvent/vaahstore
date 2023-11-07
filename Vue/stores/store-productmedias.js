@@ -289,6 +289,12 @@ export const useProductMediaStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_media_status = status.id;
+            if(status.name == 'Approved')
+            {
+                this.item.is_active = 1;
+            }else{
+                this.item.is_active = 0;
+            }
         },
         //---------------------------------------------------------------------
         async getAssets() {
