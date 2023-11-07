@@ -194,7 +194,7 @@ const toggleFormMenu = (event) => {
                                         <span severity="success">{{ file.name }}</span>
 
                                         <Button icon="pi pi-times"
-                                                @click="store.onRemoveTemplatingFile(null,index)"
+                                                @click="store.onRemoveTemplatingFile(index)"
                                                 outlined
                                                 rounded
                                                 severity="danger" />

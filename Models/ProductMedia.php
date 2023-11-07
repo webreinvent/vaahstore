@@ -209,7 +209,6 @@ class ProductMedia extends Model
 
             $item = new self();
             $item->fill($inputs);
-            // $item->fill($image);
             $item->save();
 
              foreach ($inputs['images'] as $image_details)
@@ -719,6 +718,7 @@ class ProductMedia extends Model
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
+//        dd($inputs);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
