@@ -439,22 +439,51 @@ export const useProductStore = defineStore({
                     };
                     await vaah().ajax(
                         this.ajax_url+ '/' + id + '/bulk-remove/vendor',
-                        this.bulkRemoveProductAfter,
+                        this.bulkRemoveVendorAfter,
                         options
                     );
-
                 }
             else{
                 let temp = null;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] != true;
                 });
-                this.item.vendors = temp;
 
-                this.select_all_vendor = false;
+                if(temp.length === this.item.vendors.length)
+                {
+                        let temp = null;
+                        temp = this.item.vendors.filter((item) => {
+                            return item['is_selected'] == true;
+                        });
+                        this.item.vendors = temp;
+                        this.select_all_product = false;
+                        let id = this.route.params.id;
+                        const options = {
+                            method:'get',
+                        };
+
+                    await vaah().ajax(
+                        this.ajax_url+ '/' + id + '/bulk-remove/vendor',
+                        this.bulkRemoveVendorAfter,
+                        options
+                    );
+                }
+                else {
+                    let temp = null;
+                    temp = this.item.vendors.filter((item)=>
+                    {
+                        return item['is_selected'] !=true;
+                    })
+                    this.item.vendors = temp;
+                    this.select_all_vendor = false;
+                    await this.itemAction('save-vendor')
+                }
+
             }
         },
         //---------------------------------------------------------------------
+        
+
         async getAttributeList(callback= null, get_attribute_from_group = false) {
 
             let params = {
