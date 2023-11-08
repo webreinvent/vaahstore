@@ -176,10 +176,35 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        onRemoveTemplatingFile(index){
-            if (this.item.product_media_images && this.item.product_media_images.length > index) {
-                this.item.product_media_images.splice(index, 1);
+        async onRemoveTemplatingFile(productMediaImages,index){
+            const details = productMediaImages[index];
+            if (productMediaImages.length > index) {
+                productMediaImages.splice(index, 1);
+            }
 
+            if(details.id){
+                const options = {
+                    method: 'get',
+                };
+                const id = details.id
+                await vaah().ajax(
+                    this.ajax_url+'/single/product/remove/'+id,
+                    this.onRemoveTemplatingFileAfter,
+                    options
+                );
+            }
+
+        },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
+        async onRemoveTemplatingFileAfter(data,res){
+            if(data)
+            {
+                this.item = data;
+                await this.getList();
+                await this.formActionAfter(data);
+                this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------

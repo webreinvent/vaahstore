@@ -37,6 +37,12 @@ function () {
         ->name('vh.backend.store.productmedias.list.uploadImage');
 
     /**
+     * Remove Single Product image
+     */
+    Route::get('/single/product/remove/{id}', 'ProductMediasController@singleProductRemove')
+        ->name('vh.backend.store.productmedias.singleProductRemove');
+
+    /**
      * Fill Form Inputs
      */
     Route::any('/fill', 'ProductMediasController@fillItem')
