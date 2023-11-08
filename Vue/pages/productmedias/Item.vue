@@ -53,12 +53,13 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
+
 </script>
 <template>
 
     <div class="col-6" >
 
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -76,7 +77,9 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
                     <Button label="Edit"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="productmedias-item-to-edit"
                             icon="pi pi-save"/>
@@ -84,6 +87,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="productmedias-item-menu"
                         icon="pi pi-angle-down"
@@ -94,19 +98,20 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productmedias-item-to-list"
                             @click="store.toList()"/>
 
                 </div>
 
-
-
             </template>
+            <div class="mt-2" v-if="store.item">
 
-
-            <div v-if="store.item">
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                        {{store.item.status_notes}}</div>
+                </Message>
 
                 <Message severity="error"
                          class="p-container-message"
@@ -117,10 +122,10 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
-                        <div class="">
+                        <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="productmedias-item-restore"
@@ -137,11 +142,11 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' ||column === 'product_variation' ||
-                        column === 'updated_by'|| column === 'product' ||column === 'name'|| column === 'slug' ||
+                        <template v-if="column === 'created_by' ||column === 'product_variation' || column === 'status_notes'
+                        || column === 'updated_by'|| column === 'product' ||column === 'name'|| column === 'slug' ||
                         column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
-                        || column === 'base_path'|| column === 'images'|| column === 'status'|| column === 'size'||
-                        column === 'type'|| column === 'extension'">
+                        || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'|| column === 'size'||
+                        column === 'type'|| column === 'extension'|| column === 'product_media_images'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -151,8 +156,41 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
+                        <template v-else-if="column === 'vh_st_product_id'">
+                            <tr>
+                                <td>
+                                    <b>Product</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.product?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'vh_st_product_variation_id'">
+                            <tr>
+                                <td>
+                                    <b>Product Variation</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.product_variation?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'taxonomy_id_product_media_status'">
+                            <tr>
+                                <td>
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.status?.name}}
+                                </td>
+                            </tr>
+                        </template>
+
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
-                        || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        || column === 'deleted_by_user'|| column === 'product_media_images' ) && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
@@ -164,35 +202,23 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="yes-no"
                             />
+
+                                <tr>
+                                    <td>
+                                        <b>Product Images</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
+                                               class="pt-2"
+                                               v-for="(item) in store.item.product_media_images"
+                                               :src="store.item.base_path+'/'+item['url']"
+                                               preview
+                                               alt="Image"
+                                               width="150" />
+                                    </td>
+                                </tr>
                         </template>
 
-                        <template v-else-if="column === 'taxonomy_id_product_media_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_product_id'">
-                            <VhViewRow label="Product"
-                                       :value="store.item.product"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_product_variation_id'">
-                            <VhViewRow label="Product Variation"
-                                       :value="store.item.product_variation"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'url'">
-                            <VhViewRow label="image"
-                                       :value="store.item.base_path+'/'+store.item.url"
-                                       type="image_preview"
-                            />
-                        </template>
 
                         <template v-else>
                             <VhViewRow :label="column"

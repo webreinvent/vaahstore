@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -54,7 +54,15 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="productmedias-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
+
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productmedias-save"
                             @click="store.itemAction('save')"
@@ -63,11 +71,13 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productmedias-create-and-new"
                             icon="pi pi-save"/>
 
                     <Button data-testid="productmedias-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
+                            class="p-button-sm"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
@@ -75,6 +85,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productmedias-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +96,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productmedias-to-list"
                             @click="store.toList()">
@@ -97,7 +108,31 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="mt-2">
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Trashed {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
 
                 <VhField label="Product">
 
@@ -133,26 +168,61 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="image">
+                <VhField label="Image">
                     <FileUpload customUpload
-                                @uploader="store.onImageUpload($event)"
-                                :multiple="!route.params.id" accept="image/*" :maxFileSize="1000000">
+                                name="demo[]"
+                                @upload="store.onImageUpload($event)"
+                                @select="store.onImageUpload"
+                                :multiple="!route.params.id"
+                                accept="image/*"
+                                :pt="{
+                                    root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
+                                }"
+                                :maxFileSize="1000000">
                         <template #empty>
-                            <Image v-if="store.item.images && store.item.images.length > 0"
-                                   class="p-1"
-                                   v-for="(item) in store.item.images"
-                                   :src="store.item.base_path+'/'+item['url']"
-                                   preview
-                                   alt="Image"
-                                   width="150" />
-                            <Image v-else-if="store.item.url"
-                                    :src="store.item.base_path+'/'+store.item.url"
-                                   preview
-                                   alt="Image"
-                                   width="150" />
-                            <template v-else>
-                                <p>Drag and drop files to here to upload.</p>
-                            </template>
+
+
+                            <div v-if="store.item.product_media_images && store.item.product_media_images.length > 0">
+                                <div class="flex flex-wrap sm:p-5 gap-5">
+                                    <div v-for="(file, index) of store.item.product_media_images" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column align-items-center gap-3">
+                                        <div>
+                                            <Image role="presentation"
+                                                 :alt="file.name"
+                                                 :src="file.url"
+                                                 width="150"
+                                                 preview
+                                                 height="150"
+                                                 class="shadow-2" />
+                                        </div>
+                                        <span severity="success">{{ file.name }}</span>
+
+                                        <Button icon="pi pi-times"
+                                                @click="store.onRemoveTemplatingFile(store.item.product_media_images,index)"
+                                                outlined
+                                                rounded
+                                                severity="danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+<!--                            <div>-->
+<!--                            <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"-->
+<!--                                   class="p-1"-->
+<!--                                   v-for="(item) in store.item.product_media_images"-->
+<!--                                   :src="store.item.base_path+'/'+item['url']"-->
+<!--                                   preview-->
+<!--                                   alt="Image"-->
+<!--                                   width="150" />-->
+<!--                            <Image v-else-if="store.item.url"-->
+<!--                                    :src="store.item.base_path+'/'+store.item.url"-->
+<!--                                   preview-->
+<!--                                   alt="Image"-->
+<!--                                   width="150" />-->
+<!--                            <template v-else>-->
+<!--                                <p>Drag and drop files to here to upload.</p>-->
+<!--                            </template>-->
+<!--                            </div>-->
                         </template>
                     </FileUpload>
                 </VhField>
@@ -185,6 +255,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  name="productmedias-active"
                                  data-testid="productmedias-active"
                                  v-model="store.item.is_active"/>
