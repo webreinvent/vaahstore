@@ -371,6 +371,11 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         async removeVendor(attribute) {
+
+            this.item.vendors = this.item.vendors.filter(function (item) {
+                return item['vendor']['id'] != attribute['vendor']['id']
+            })
+
             if (attribute.id) {
                 const options = {
                     method: 'get',
@@ -382,9 +387,7 @@ export const useProductStore = defineStore({
                     options
                 );
             }
-            this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
-            })
+
         },
 
         //---------------------------------------------------------------------
@@ -512,7 +515,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         addNewProductAttribute(data = null){
-            
+
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
@@ -534,6 +537,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         generateProductVariation(){
+
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
                 this.getAttributeValues(this.afterGenerateVariations, 'generate');
             }
@@ -555,6 +559,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterCreateVariation(data, res){
             if (data){
+
                 this.variation_item.create_variation_data = data;
                 this.variation_item.show_create_form = true;
                 this.variation_item.new_variation = [];
@@ -603,6 +608,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         addNewProductVariation(new_record){
+
             if (this.variation_item.new_variation
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
@@ -630,8 +636,6 @@ export const useProductStore = defineStore({
                         }
                     })
 
-                    console.log(error_message);
-                    console.log(variation_match_key);
                     if(error_message && error_message.length == 0){
                         this.item.all_variation.structured_variation.push(Object.assign({},this.variation_item.new_variation));
                         this.variation_item.create_variation_data = null;
@@ -921,6 +925,7 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
+                console.log(data);
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
@@ -931,6 +936,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
+           
             switch (this.form.action)
             {
                 case 'create-and-new':

@@ -112,6 +112,7 @@ const toggleSelectedMenuState = (event) => {
                 </div>
 
 <!--                Product Attributes-->
+
                 <div class="col-12 ">
                     <div class="flex flex-wrap">
                         <span class="p-1" style="width: 80%">
