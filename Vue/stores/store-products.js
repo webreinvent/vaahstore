@@ -372,6 +372,11 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         async removeVendor(attribute) {
+
+            this.item.vendors = this.item.vendors.filter(function (item) {
+                return item['vendor']['id'] != attribute['vendor']['id']
+            })
+
             if (attribute.id) {
                 const options = {
                     method: 'get',
@@ -383,9 +388,7 @@ export const useProductStore = defineStore({
                     options
                 );
             }
-            this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
-            })
+
         },
 
         //---------------------------------------------------------------------
@@ -513,7 +516,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         addNewProductAttribute(data = null){
-            
+
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
@@ -934,7 +937,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
-
+           
             switch (this.form.action)
             {
                 case 'create-and-new':
