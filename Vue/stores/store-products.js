@@ -435,6 +435,7 @@ export const useProductStore = defineStore({
                     );
                 }
             else{
+
                 let temp = null;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] == true;
@@ -442,6 +443,7 @@ export const useProductStore = defineStore({
 
                 if(temp.length === this.item.vendors.length)
                 {
+
                         let temp = null;
                         temp = this.item.vendors.filter((item) => {
                             return item['is_selected'] == true;
@@ -473,6 +475,7 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
         
 
         async getAttributeList(callback= null, get_attribute_from_group = false) {
