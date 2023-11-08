@@ -118,7 +118,7 @@ const toggleFormMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -175,6 +175,9 @@ const toggleFormMenu = (event) => {
                                 @select="store.onImageUpload"
                                 :multiple="!route.params.id"
                                 accept="image/*"
+                                :pt="{
+                                    root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
+                                }"
                                 :maxFileSize="1000000">
                         <template #empty>
 
