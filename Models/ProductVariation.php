@@ -128,7 +128,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')
+        return $this->belongsTo(Product::class,'vh_st_product_id','id')
             ->select('id','name','slug');
     }
 

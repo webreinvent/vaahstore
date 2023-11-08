@@ -313,7 +313,7 @@ class ProductsController extends Controller
                         $temp = [];
                         $temp[$k]['value'] = $value['value'];
                         $temp[$k]['vh_st_attribute_id'] = $value['vh_st_attribute_id'];
-                        $temp[$k]['vh_st_attribute_values_id'] = $value['id'];
+                        $temp[$k]['id'] = $value['id'];
                         array_push($temp_result, $temp);
                     }
                     $combination = $temp_result;
@@ -323,7 +323,7 @@ class ProductsController extends Controller
                             $temp = [];
                             $temp[$k]['value'] = $value['value'];
                             $temp[$k]['vh_st_attribute_id'] = $value['vh_st_attribute_id'];
-                            $temp[$k]['vh_st_attribute_values_id'] = $value['id'];
+                            $temp[$k]['id'] = $value['id'];
                             foreach ($n_value as $c_key => $c_value){
                                 $temp[$c_key] = $c_value;
                             }

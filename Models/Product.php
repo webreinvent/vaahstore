@@ -200,7 +200,6 @@ class Product extends Model
         $all_attribute = $input['all_variation']['all_attribute_name'];
 
         foreach ($all_variation as $key => $value) {
-
             $item = new ProductVariation();
             $item->name = $value['variation_name'];
             $item->slug = Str::slug($value['variation_name']);
@@ -208,7 +207,6 @@ class Product extends Model
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
             $item->save();
-
             foreach ($all_attribute as $k => $v) {
                 $item2 = new ProductAttribute();
                 $item2->vh_st_product_variation_id = $item->id;
@@ -217,7 +215,7 @@ class Product extends Model
 
                 $item3 = new ProductAttributeValue();
                 $item3->vh_st_product_attribute_id = $item2->id;
-                $item3->vh_st_attribute_value_id = $value[$v]['vh_st_attribute_values_id'];
+                $item3->vh_st_attribute_value_id = $value[$v]['id'];
                 $item3->value = $value[$v]['value'];
                 $item3->save();
             }
