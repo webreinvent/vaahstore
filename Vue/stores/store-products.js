@@ -352,7 +352,7 @@ export const useProductStore = defineStore({
                         vendor: this.selected_vendor,
                         is_selected: false,
                         can_update: false,
-                        status:this.selected_vendor.status,
+                        status: null,
                         status_notes: null,
                     };
                     this.item.vendors.push(new_vendor);
