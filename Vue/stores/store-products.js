@@ -352,7 +352,7 @@ export const useProductStore = defineStore({
                         vendor: this.selected_vendor,
                         is_selected: false,
                         can_update: false,
-                        status: null,
+                        status:this.selected_vendor.status,
                         status_notes: null,
                     };
                     this.item.vendors.push(new_vendor);
@@ -512,6 +512,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         addNewProductAttribute(data = null){
+            
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
