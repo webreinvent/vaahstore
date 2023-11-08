@@ -1019,6 +1019,13 @@ class ProductMedia extends Model
     }
 
     //-------------------------------------------------
+    public static function singleProductRemove($request ,$id){
+        ProductMediaImage::where('id', $id)->delete();
+        $response['messages'][] = 'Removed successfully.';
+        return $response;
+
+    }
+    //-------------------------------------------------
 
 
 }
