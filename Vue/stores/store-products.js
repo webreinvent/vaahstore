@@ -430,10 +430,9 @@ export const useProductStore = defineStore({
                     };
                     await vaah().ajax(
                         this.ajax_url+ '/' + id + '/bulk-remove/vendor',
-                        this.bulkRemoveProductAfter,
+                        this.bulkRemoveVendorAfter,
                         options
                     );
-
                 }
             else{
                 let temp = null;
@@ -441,28 +440,30 @@ export const useProductStore = defineStore({
                     return item['is_selected'] == true;
                 });
 
-                if (temp.length === this.item.vendors.length) {
-
-                    let temp = null;
-                    temp = this.item.vendors.filter((item) => {
-                        return item['is_selected'] == true;
-                    });
-                    this.item.vendors = temp;
-                    this.select_all_product = false;
-                    let id = this.route.params.id;
-                    const options = {
-                        method: 'get',
-                    };
+                if(temp.length === this.item.vendors.length)
+                {
+                        let temp = null;
+                        temp = this.item.vendors.filter((item) => {
+                            return item['is_selected'] == true;
+                        });
+                        this.item.vendors = temp;
+                        this.select_all_product = false;
+                        let id = this.route.params.id;
+                        const options = {
+                            method:'get',
+                        };
 
                     await vaah().ajax(
-                        this.ajax_url + '/' + id + '/bulk-remove/vendor',
+                        this.ajax_url+ '/' + id + '/bulk-remove/vendor',
                         this.bulkRemoveVendorAfter,
                         options
                     );
-                } else {
+                }
+                else {
                     let temp = null;
-                    temp = this.item.vendors.filter((item) => {
-                        return item['is_selected'] != true;
+                    temp = this.item.vendors.filter((item)=>
+                    {
+                        return item['is_selected'] !=true;
                     })
                     this.item.vendors = temp;
                     this.select_all_vendor = false;
@@ -472,13 +473,7 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-
-        async bulkRemoveVendorAfter() {
-            await this.getList();
-            this.item.vendors = [];
-        },
-
-        //---------------------------------------------------------------------
+        
 
         async getAttributeList(callback= null, get_attribute_from_group = false) {
 
