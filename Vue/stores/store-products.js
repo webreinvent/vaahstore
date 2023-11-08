@@ -102,52 +102,14 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         searchTaxonomyProduct(event) {
 
-            this.type_suggestion= this.types.filter((product) => {
+            this.type_suggestion = this.types.filter((product) => {
                 return product.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
         },
 
         //---------------------------------------------------------------------
 
-            async searchBrand(event) {
-                const query = {
-                    filter: {
-                        q: event,
-                    },
-                };
-
-                const options = {
-                    params: query,
-                    method: 'post',
-                };
-                await vaah().ajax(
-                    this.ajax_url+'/search/brand',
-                    this.searchBrandAfter,
-                    options
-                );
-            },
-
-            //---------------------------------------------------------------------
-
-            searchBrandAfter(data,res) {
-
-                if(data)
-                {
-                    this.filtered_brands = data;
-                }
-            },
-
-         //--------------------------------------------------------------------
-
-        searchStatus(event) {
-
-            this.filtered_status = this.product_status.filter((status) => {
-                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-       async searchStore(event) {
+        async searchBrand(event) {
             const query = {
                 filter: {
                     q: event,
@@ -159,7 +121,44 @@ export const useProductStore = defineStore({
                 method: 'post',
             };
             await vaah().ajax(
-                this.ajax_url+'/search/store',
+                this.ajax_url + '/search/brand',
+                this.searchBrandAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchBrandAfter(data, res) {
+
+            if (data) {
+                this.filtered_brands = data;
+            }
+        },
+
+        //--------------------------------------------------------------------
+
+        searchStatus(event) {
+
+            this.filtered_status = this.product_status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+        async searchStore(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/store',
                 this.searchStoreAfter,
                 options
             );
@@ -167,18 +166,16 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchStoreAfter(data,res) {
+        searchStoreAfter(data, res) {
 
-            if(data)
-            {
+            if (data) {
                 this.filtered_stores = data;
             }
         },
 
         //---------------------------------------------------------------------
 
-        async onLoad(route)
-        {
+        async onLoad(route) {
             /**
              * Set initial routes
              */
@@ -195,10 +192,8 @@ export const useProductStore = defineStore({
             this.updateQueryFromUrl(route);
         },
         //---------------------------------------------------------------------
-        setViewAndWidth(route_name)
-        {
-            switch(route_name)
-            {
+        setViewAndWidth(route_name) {
+            switch (route_name) {
                 case 'products.index':
                     this.view = 'large';
                     this.list_view_width = 12;
@@ -215,14 +210,10 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async updateQueryFromUrl(route)
-        {
-            if(route.query)
-            {
-                if(Object.keys(route.query).length > 0)
-                {
-                    for(let key in route.query)
-                    {
+        async updateQueryFromUrl(route) {
+            if (route.query) {
+                if (Object.keys(route.query).length > 0) {
+                    for (let key in route.query) {
                         this.query[key] = route.query[key]
                     }
                     this.countFilters(route.query);
@@ -230,13 +221,11 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        watchRoutes(route)
-        {
+        watchRoutes(route) {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
-                {
+            this.watch_stopper = watch(route, (newVal, oldVal) => {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if (this.watch_stopper && !newVal.name.includes(this.route_prefix)) {
                         this.watch_stopper();
 
                         return false;
@@ -244,44 +233,37 @@ export const useProductStore = defineStore({
 
                     this.route = newVal;
 
-                    if(newVal.params.id){
+                    if (newVal.params.id) {
                         this.getItem(newVal.params.id);
                     }
 
                     this.setViewAndWidth(newVal.name);
 
-                }, { deep: true }
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-        watchStates()
-        {
-            watch(this.query.filter, (newVal,oldVal) =>
-                {
+        watchStates() {
+            watch(this.query.filter, (newVal, oldVal) => {
                     this.delayedSearch();
-                },{deep: true}
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                watch(() => this.item.name, (newVal,oldVal) =>
-                    {
-                        if(newVal && newVal !== "")
-                        {
+        watchItem() {
+            if (this.item) {
+                watch(() => this.item.name, (newVal, oldVal) => {
+                        if (newVal && newVal !== "") {
                             this.item.name = newVal;
                             this.item.slug = vaah().strToSlug(newVal);
                         }
-                    },{deep: true}
+                    }, {deep: true}
                 )
-                watch(() => this.variation_item.attribute_option_type, (newVal,oldVal) =>
-                    {
-                        if(newVal != oldVal)
-                        {
+                watch(() => this.variation_item.attribute_option_type, (newVal, oldVal) => {
+                        if (newVal != oldVal) {
                             this.getAttributeList();
                         }
-                    },{deep: true}
+                    }, {deep: true}
                 )
             }
             if (this.form_menu_list.length === 0) {
@@ -291,74 +273,64 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setStore(event){
+        setStore(event) {
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
         },
 
         //---------------------------------------------------------------------
 
-        checkQuantity(event)
-        {
+        checkQuantity(event) {
             this.item.quantity = event.value;
-            if(this.item.quantity > 0)
-            {
+            if (this.item.quantity > 0) {
                 this.item.in_stock = 1;
-            }
-            else {
+            } else {
                 this.item.in_stock = 0;
             }
         },
 
         //---------------------------------------------------------------------
 
-        checkInStock(event)
-        {
+        checkInStock(event) {
 
-            if(this.item.in_stock == 0)
-            {
+            if (this.item.in_stock == 0) {
                 this.item.quantity = 0;
             }
         },
 
         //---------------------------------------------------------------------
 
-        setBrand(event){
+        setBrand(event) {
             let brand = toRaw(event.value);
             this.item.vh_st_brand_id = brand.id;
         },
 
         //---------------------------------------------------------------------
 
-        setType(event){
+        setType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
         },
 
         //---------------------------------------------------------------------
 
-        setProductStatus(event){
+        setProductStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_status = status.id;
-            if(status.name == 'Approved')
-            {
+            if (status.name == 'Approved') {
                 this.item.is_active = 1;
-            }
-            else {
+            } else {
                 this.item.is_active = 0;
             }
         },
         //---------------------------------------------------------------------
 
-        selectStatus()
-        {
-            if(this.item.is_active == '1')
-            {
+        selectStatus() {
+            if (this.item.is_active == '1') {
                 let active_status = this.product_status.find((item) => item.name === "Approved");
                 this.item.taxonomy_id_product_status = active_status.id;
                 this.item.status = active_status;
-            }
-            else {
+            } else {
                 let rejected_status = this.product_status.find((item) => item.name === "Rejected");
                 this.item.taxonomy_id_product_status = rejected_status.id;
                 this.item.status = rejected_status;
@@ -367,39 +339,39 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        addVendor(){
-            if (this.selected_vendor != null){
+        addVendor() {
+            if (this.selected_vendor != null) {
                 let exist = 0;
-                this.item.vendors.forEach((item)=>{
-                    if (item['vendor']['id'] == this.selected_vendor['id']){
+                this.item.vendors.forEach((item) => {
+                    if (item['vendor']['id'] == this.selected_vendor['id']) {
                         exist = 1;
                     }
                 })
-                if (exist == 0){
+                if (exist == 0) {
                     let new_vendor = {
                         vendor: this.selected_vendor,
-                        is_selected : false,
-                        can_update : false,
-                        status : null,
-                        status_notes : null,
+                        is_selected: false,
+                        can_update: false,
+                        status: null,
+                        status_notes: null,
                     };
                     this.item.vendors.push(new_vendor);
-                }else{
+                } else {
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
                 }
 
             }
         },
         //---------------------------------------------------------------------
-        selectAllVendor(){
-            this.item.vendors.forEach((i)=>{
+        selectAllVendor() {
+            this.item.vendors.forEach((i) => {
                 i['is_selected'] = !this.select_all_vendor;
             })
         },
         //---------------------------------------------------------------------
 
-        async removeVendor(attribute){
-            if(attribute.id){
+        async removeVendor(attribute) {
+            if (attribute.id) {
                 const options = {
                     method: 'get',
                 };
@@ -410,17 +382,15 @@ export const useProductStore = defineStore({
                     options
                 );
             }
-            this.item.vendors = this.item.vendors.filter(function(item)
-            {
+            this.item.vendors = this.item.vendors.filter(function (item) {
                 return item['vendor']['id'] != attribute['vendor']['id']
             })
         },
 
         //---------------------------------------------------------------------
 
-        async removeVendorAfter(data,res){
-            if(data)
-            {
+        async removeVendorAfter(data, res) {
+            if (data) {
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
@@ -431,50 +401,46 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-       async bulkRemoveVendor(id,all = null){
+        async bulkRemoveVendor(id, all = null) {
 
-                if (all){
-                    const options = {
-                        method: 'get',
-                    };
-                    await vaah().ajax(
-                        this.ajax_url+ '/' + id + '/bulk-remove/vendor',
-                        this.bulkRemoveVendorAfter,
-                        options
-                    );
-                }
-            else{
+            if (all) {
+                const options = {
+                    method: 'get',
+                };
+                await vaah().ajax(
+                    this.ajax_url + '/' + id + '/bulk-remove/vendor',
+                    this.bulkRemoveVendorAfter,
+                    options
+                );
+            } else {
 
                 let temp = null;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] == true;
                 });
 
-                if(temp.length === this.item.vendors.length)
-                {
+                if (temp.length === this.item.vendors.length) {
 
-                        let temp = null;
-                        temp = this.item.vendors.filter((item) => {
-                            return item['is_selected'] == true;
-                        });
-                        this.item.vendors = temp;
-                        this.select_all_product = false;
-                        let id = this.route.params.id;
-                        const options = {
-                            method:'get',
-                        };
+                    let temp = null;
+                    temp = this.item.vendors.filter((item) => {
+                        return item['is_selected'] == true;
+                    });
+                    this.item.vendors = temp;
+                    this.select_all_product = false;
+                    let id = this.route.params.id;
+                    const options = {
+                        method: 'get',
+                    };
 
                     await vaah().ajax(
-                        this.ajax_url+ '/' + id + '/bulk-remove/vendor',
+                        this.ajax_url + '/' + id + '/bulk-remove/vendor',
                         this.bulkRemoveVendorAfter,
                         options
                     );
-                }
-                else {
+                } else {
                     let temp = null;
-                    temp = this.item.vendors.filter((item)=>
-                    {
-                        return item['is_selected'] !=true;
+                    temp = this.item.vendors.filter((item) => {
+                        return item['is_selected'] != true;
                     })
                     this.item.vendors = temp;
                     this.select_all_vendor = false;
@@ -485,7 +451,12 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        
+        async bulkRemoveVendorAfter() {
+            await this.getList();
+            this.item.vendors = [];
+        },
+
+        //---------------------------------------------------------------------
 
         async getAttributeList(callback= null, get_attribute_from_group = false) {
 
