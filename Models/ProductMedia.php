@@ -415,9 +415,11 @@ class ProductMedia extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -508,11 +510,13 @@ class ProductMedia extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -531,10 +535,12 @@ class ProductMedia extends Model
                 $list->update(['is_active' => null, 'taxonomy_id_product_media_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
+                $list->update(['deleted_by'  => auth()->user()->id]);
                 $list->delete();
                 break;
             case 'restore-all':
                 $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
@@ -797,13 +803,21 @@ class ProductMedia extends Model
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -923,6 +937,7 @@ class ProductMedia extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_product_media_status'] = $status_id;
         $inputs['status']=$status;
+        $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
 
         $faker = Factory::create();
 
