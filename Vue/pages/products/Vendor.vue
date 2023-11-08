@@ -98,7 +98,7 @@ const toggleSelectedMenuState = (event) => {
                         </Dropdown>
                     </div>
 
-                    <div class="p-1">
+                    <div class="p-2">
                         <Button type="button" label="Add" @click="store.addVendor()" />
                     </div>
                 </div>
