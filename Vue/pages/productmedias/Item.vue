@@ -53,7 +53,7 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
-console.log('pro_med_item', store);
+
 </script>
 <template>
 
