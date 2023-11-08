@@ -18,6 +18,8 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            store:null,
+            vendor_status:null,
         },
     },
     action: {
@@ -76,6 +78,7 @@ export const useVendorStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -172,21 +175,14 @@ export const useVendorStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
+        watchItem(name)
         {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = newVal;
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
+            if(name && name !== "")
+            {
+                this.item.name = vaah().capitalising(name);
+                this.item.slug = vaah().strToSlug(name);
+            }else{
+                this.item.slug = " ";
             }
         },
         //---------------------------------------------------------------------
@@ -199,11 +195,14 @@ export const useVendorStore = defineStore({
                     }
                 })
                 if (exist == 0){
+                    let approved_status = this.product_vendor_status.find((item) => item.name === "Approved");
+                    this.item.status =approved_status;
+                    this.item.taxonomy_id_vendor_status = approved_status.id;
                     let new_product = {
                         product: this.selected_product,
                         is_selected : false,
                         can_update : false,
-                        status : null,
+                        status : approved_status,
                         status_notes : null,
                     };
                     this.item.products.push(new_product);
@@ -213,6 +212,7 @@ export const useVendorStore = defineStore({
 
             }
         },
+
         //---------------------------------------------------------------------
         showUserErrorMessage(message, time = 2500){
             this.user_error_message = message;
@@ -221,48 +221,136 @@ export const useVendorStore = defineStore({
             },time);
         },
         //---------------------------------------------------------------------
-        removeProduct(attribute){
-            this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+       async removeProduct(attribute){
+            console.log(attribute.id);
+            if(attribute.id){
+                const options = {
+                    method: 'get',
+                };
+                const id = attribute.id
+                await vaah().ajax(
+                    this.ajax_url+'/single/product/remove/'+id,
+                    this.removeProductAfter,
+                    options
+                );
+            }else{
+                 this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
+            }
+
         },
         //---------------------------------------------------------------------
         selectAllProduct(){
             this.item.products.forEach((i)=>{
-                i['is_selected'] = !this.select_all_product;
+                return  i['is_selected'] = !this.select_all_product;
             })
         },
-        //---------------------------------------------------------------------
-        bulkRemoveProduct(all = null){
-            if (all){
-                this.item.products = [];
-                this.select_all_product = false;
-            }else{
-                let temp = null;
-                temp = this.item.products.filter((item) => {
-                    return item['is_selected'] != true;
-                });
-                this.item.products = temp;
 
-                this.select_all_product = false;
+        //---------------------------------------------------------------------
+       async bulkRemoveProduct(id,all = null){
+            if (all){
+                const options = {
+                    method: 'get',
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/bulk/product/remove/'+id,
+                     this.bulkRemoveProductAfter,
+                     options
+                );
+
+            }else{
+
+                let temp_select = null;
+                temp_select = this.item.products.filter((item) => {
+                    return item['is_selected'] == true;
+                });
+
+                if(temp_select.length  === this.item.products.length){
+                    let temp_select = null;
+                    temp_select = this.item.products.filter((item) => {
+                        return item['is_selected'] == true;
+                    });
+                    this.item.products = temp_select;
+                    this.select_all_product = false;
+                    let id = this.route.params.id;
+                    const options = {
+                        method: 'get',
+                    };
+
+                    await vaah().ajax(
+                        this.ajax_url+'/bulk/product/remove/'+id,
+                        this.bulkRemoveProductAfter,
+                        options
+                    );
+                }else{
+                    let temp = null;
+                    temp = this.item.products.filter((item) => {
+                        return item['is_selected'] != true;
+                    });
+                    this.item.products = temp;
+                    this.select_all_product = false;
+                    await this.itemAction('save-product');
+                }
             }
         },
+        //---------------------------------------------------------------------
+       async bulkRemoveProductAfter(){
+             await this.getList();
+             this.item.products = [];
+        },
+        //---------------------------------------------------------------------
+        async removeProductAfter(data,res){
+            if(data)
+            {
+                this.item = data;
+                await this.getList();
+                await this.formActionAfter(data);
+                this.getItemMenu();
+                this.getFormMenu();
+            }
+        },
+        //---------------------------------------------------------------------
         setStore(event){
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
 
         },
+        //---------------------------------------------------------------------
         setApprovedBy(event){
             let user = toRaw(event.value);
             this.item.approved_by = user.id;
 
         },
+        //---------------------------------------------------------------------
         setOwnedBy(event){
             let user = toRaw(event.value);
             this.item.owned_by = user.id;
 
         },
+        //---------------------------------------------------------------------
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_vendor_status = status.id;
+            if(status.name == 'Approved')
+            {
+                this.item.is_active = 1;
+            }else{
+                this.item.is_active = 0;
+            }
+
+
+        },
+        //---------------------------------------------------------------------
+        setVendorStatus(){
+            if(this.item.is_active == '1'){
+                let approved_status = this.vendor_status.find((item) => item.name === "Approved");
+                this.item.status =approved_status;
+                this.item.taxonomy_id_vendor_status = approved_status.id;
+            }else {
+                let pending_status = this.vendor_status.find((item) => item.name === "Rejected");
+                this.item.status =pending_status;
+                this.item.taxonomy_id_vendor_status = pending_status.id;
+            }
 
         },
         //---------------------------------------------------------------------
@@ -302,56 +390,88 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStore(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.store_suggestions = this.active_stores;
-                }
-                else {
-                    this.store_suggestions = this.active_stores.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStore(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/store',
+                this.searchStoreAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchStoreAfter(data,res) {
+            if(data)
+            {
+                this.store_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_status_suggestions = this.vendor_status;
-                }
-                else {
-                    this.vendor_status_suggestions = this.vendor_status.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
         },
         //---------------------------------------------------------------------
-        searchApprovedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.approved_by_suggestions = this.active_users;
-                }
-                else {
-                    this.approved_by_suggestions = this.active_users.filter((et) => {
-                        return et.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.vendor_status_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
-        searchOwnedBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.owned_by_suggestions = this.active_users;
-                }
-                else {
-                    this.owned_by_suggestions = this.active_users.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        async searchApprovedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/approved/by',
+                this.searchApprovedByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchApprovedByAfter(data,res){
+            if(data){
+                this.approved_by_suggestions = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchOwnedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/owned/by',
+                this.searchOwnedByAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchOwnedByAfter(data,res){
+            if(data){
+                this.owned_by_suggestions = data;
+            }
         },
         //---------------------------------------------------------------------
         async getList() {
@@ -480,6 +600,8 @@ export const useVendorStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -573,12 +695,13 @@ export const useVendorStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -592,10 +715,14 @@ export const useVendorStore = defineStore({
                     this.$router.push({name: 'vendors.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -617,6 +744,7 @@ export const useVendorStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -625,27 +753,21 @@ export const useVendorStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -967,6 +1089,47 @@ export const useVendorStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -988,6 +1151,7 @@ export const useVendorStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1007,10 +1171,10 @@ export const useVendorStore = defineStore({
                         }
                     },
                     {
-                        label: 'Trash',
-                        icon: 'pi pi-times',
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
-                            this.itemAction('trash');
+                            this.itemAction(is_deleted ? 'restore': 'trash');
                         }
                     },
                     {
@@ -1054,7 +1218,7 @@ export const useVendorStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
