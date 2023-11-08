@@ -362,6 +362,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 
