@@ -271,6 +271,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+
     public static function validatedVendor($data){
         if (isset($data) && !empty($data)){
             $error_message = [];
@@ -363,6 +364,7 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 

@@ -160,7 +160,8 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
     public function getVendors(){
-        $vendors = Vendor::where('is_active', 1)->get(['id','name','slug','is_default']);
+        $vendors = Vendor::with('status')->where('is_active', 1)
+            ->get(['id','name','slug','is_default']);
         if ($vendors){
             return [
                 'active_vendors' =>$vendors
