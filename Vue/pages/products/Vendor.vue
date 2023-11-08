@@ -124,11 +124,11 @@ const toggleSelectedMenuState = (event) => {
                         <!--/selected_menu-->
                     </div>
                     <div class="pr-1">
-                        <Button label="Remove All" @click="store.bulkRemoveVendor(true)" class="btn-danger" size="small" />
+                        <Button label="Remove All" @click="store.bulkRemoveVendor(store.item.id,true)" class="btn-danger" size="small" />
                     </div>
                 </div>
 
-<!--                added vendor's list-->
+                <!--added vendor's list-->
                 <div class="col-12"
                      v-if="store.item.vendors && store.item.vendors.length > 0">
                     <table class="table col-12 table-scroll table-striped">
