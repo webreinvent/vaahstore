@@ -120,7 +120,7 @@ const toggleFormMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -136,20 +136,22 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Vendor">
+                <VhField label="Vendor" >
+                    <div class="p-inputgroup">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
                         @change="store.setVendor($event)"
-                        class="w-10"
                         :suggestions="store.vendor_suggestion"
                         @complete="store.searchVendor($event)"
                         placeholder="Select Vendor"
                         data-testid="productvendors-vendor"
                         name="productvendors-vendor"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true" optionLabel="name" forceSelection
+                    >
                     </AutoComplete>
-                    <Button v-tooltip.left="'Vendor will be able to manage store'" class="ml-4" icon="pi pi-info-circle" />
+                    <Button v-tooltip.left="'Vendor will be able to manage store'" icon="pi pi-info-circle" />
+                    </div>
                 </VhField>
 
                 <VhField label="Store">

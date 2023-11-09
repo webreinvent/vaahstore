@@ -123,7 +123,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -147,7 +147,8 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'store_vendor_product'
                         || column === 'status'|| column === 'stores'|| column === 'product'|| column === 'vendor'||
                         column === 'productList' || column === 'vh_st_product_variation_id'|| column === 'added_by_user'
-                        || column === 'product_variation' || column === 'status_notes'">
+                        || column === 'product_variation' || column === 'status_notes'|| column === 'deleted_by'
+                         || column === 'is_active_product_price'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
