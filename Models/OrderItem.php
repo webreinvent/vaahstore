@@ -549,7 +549,7 @@ class OrderItem extends Model
 //-------------------------------------------------
     public static function deleteOrder($items_id){
         if($items_id){
-            self::whereIn('vh_st_order_id',$items_id)->forcedelete();
+            self::where('vh_st_order_id',$items_id)->forcedelete();
             $response['success'] = true;
             $response['data'] = true;
         }else{
