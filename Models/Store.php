@@ -744,7 +744,7 @@ class Store extends Model
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData'])
             ->withTrashed()
             ->first();
-        
+
         if(!$item)
         {
             $response['success'] = false;

@@ -185,7 +185,7 @@ const toggleItemMenu = (event) => {
                                        type="user"
                             />
                         </template>
-                        
+
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"
                                        :value="value"
@@ -201,7 +201,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'allowed_ips'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Allowed IP"
                                        :value="value"
                                        type="allowedIps"
                             />
