@@ -99,6 +99,7 @@ class Store extends Model
         $empty_item['is_default'] = 0;
         $empty_item['is_active'] = 0;
         $empty_item['status'] = null;
+        $empty_item['allowed_ips'] =[];
         return $empty_item;
     }
 
@@ -221,9 +222,11 @@ class Store extends Model
 
         $item = new self();
         $item->fill($inputs);
-        if($item->allowed_ips)
+
+        if(isset($item->allowed_ips))
         {
             $item->allowed_ips = json_encode($inputs['allowed_ips']);
+
         }
 
         $item->slug = Str::slug($inputs['slug']);
