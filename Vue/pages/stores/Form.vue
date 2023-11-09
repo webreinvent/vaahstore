@@ -159,7 +159,7 @@ const toggleFormMenu = (event) => {
                                          v-model="store.item.is_multi_currency"/>
                         </div>
 
-                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8">
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-6 flex flex-row">
                             <Dropdown v-model="store.item.currency_default"
                                       :options="store.item.currencies"
                                       data-testid="store-currency_default"
@@ -173,6 +173,13 @@ const toggleFormMenu = (event) => {
                                     </div>
                                 </template>
                             </Dropdown>
+                            <Button
+                                    v-if="store.item && store.item.currency_default"
+                                    @click="store.item.currency_default = null"
+                                    class="p-button-sm p-button-lg"
+                                    data-testid="store-remove-default-currency"
+                                    icon="pi pi-times"
+                                    />
                         </div>
                     </div>
                 </VhField>
@@ -206,7 +213,7 @@ const toggleFormMenu = (event) => {
                                          v-model="store.item.is_multi_lingual"/>
                         </div>
 
-                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8">
+                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-6 flex flex-row">
                             <Dropdown v-model="store.item.language_default"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
@@ -220,6 +227,12 @@ const toggleFormMenu = (event) => {
                                     </div>
                                 </template>
                             </Dropdown>
+                            <Button
+                                v-if="store.item && store.item.language_default"
+                                @click="store.item.language_default = null"
+                                class="p-button-sm"
+                                data-testid="store-remove-default-currency"
+                                icon="pi pi-times"/>
                         </div>
                     </div>
                 </VhField>
