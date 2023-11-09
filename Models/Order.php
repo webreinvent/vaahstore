@@ -728,7 +728,7 @@ class Order extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','items'])
             ->withTrashed()
             ->first();
 
@@ -797,8 +797,8 @@ class Order extends Model
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
-    $item->forceDelete();
-    OrderItem::deleteOrder($item->id);
+        $item->forceDelete();
+        OrderItem::deleteOrder($item->id);
 
     $response['success'] = true;
     $response['data'] = [];
