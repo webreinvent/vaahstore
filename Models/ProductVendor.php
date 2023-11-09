@@ -142,7 +142,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public function vendor()
     {
-        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug');
+        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug','is_default');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -322,8 +322,11 @@ class ProductVendor extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('id', 'LIKE', '%' . $search . '%')
+                ->orWhereHas('vendor', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
         });
 
     }

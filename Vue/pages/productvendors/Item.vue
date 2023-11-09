@@ -187,7 +187,7 @@ const toggleItemMenu = (event) => {
                                     <b>Added by</b>
                                 </td>
                                 <td colspan="2" >
-                                    {{store.item.updated_by_user?.name}}
+                                    {{store.item.added_by_user?.first_name}}
                                 </td>
                             </tr>
                         </template>
@@ -198,7 +198,9 @@ const toggleItemMenu = (event) => {
                                     <b>Status</b>
                                 </td>
                                 <td colspan="2">
-                                    {{store.item.status?.name}}
+                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                 </td>
                             </tr>
                         </template>
