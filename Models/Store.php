@@ -342,8 +342,8 @@ class Store extends Model
     public static function validation($inputs){
 
         $validated_data = validator($inputs,[
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'name' => 'required|max:100|regex:/^[a-zA-Z\.\s]+$/',
+            'slug' => 'required|regex:/^[a-zA-Z\-\.]+$/',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -352,15 +352,19 @@ class Store extends Model
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
             'languages' => 'required_if:is_multi_lingual,1',
-            'language_default' => ''
+            'language_default' => '',
+            'allowed_ips.*' => 'ip',
         ],
             [
+                'name.regex' => 'The Name field should only contain alphabets',
+                'slug.regex' => 'The Slug field should only contain alphabets',
                 'taxonomy_id_store_status.required' => 'The Status field is required',
                 'notes.required' => 'The Store Notes field is required',
                 'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
                 'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'allowed_ips.*.ip' => 'The Allowed IP address field must contain valid ip address'
             ]
         );
 
@@ -740,7 +744,7 @@ class Store extends Model
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData'])
             ->withTrashed()
             ->first();
-
+        
         if(!$item)
         {
             $response['success'] = false;
@@ -886,7 +890,7 @@ class Store extends Model
 
     }
     //-------------------------------------------------
-    public static function deleteItem($request, $id): array
+    public static function deleteItem($request, $id)
     {
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {

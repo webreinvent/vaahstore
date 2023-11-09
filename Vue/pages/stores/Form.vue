@@ -254,7 +254,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Allowed Ips">
+                <VhField label="Allowed IP">
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
                            placeholder="e.g. 192.168.1.1"
