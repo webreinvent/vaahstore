@@ -151,6 +151,19 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        setVendorProductStatus(){
+            if(this.item.is_active == '1'){
+                let approved_status = this.status.find((item) => item.name === "Approved");
+                this.item.status =approved_status;
+                this.item.taxonomy_id_product_vendor_status = approved_status.id;
+            }else {
+                let pending_status = this.status.find((item) => item.name === "Rejected");
+                this.item.status =pending_status;
+                this.item.taxonomy_id_product_vendor_status = pending_status.id;
+            }
+
+        },
+        //---------------------------------------------------------------------
        async searchVendor(event) {
            const query = event;
            const options = {
@@ -326,6 +339,12 @@ export const useProductVendorStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_vendor_status = status.id;
+            if(status.name == 'Approved')
+            {
+                this.item.is_active = 1;
+            }else{
+                this.item.is_active = 0;
+            }
         },
         //---------------------------------------------------------------------
         async getAssets() {
