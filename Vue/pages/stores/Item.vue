@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
                         || column === 'status' || column === 'status_notes' || column === 'currencies_data'
-                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default' ||  column === 'language_default'">
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -214,7 +214,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'currency_default' && store.item.is_multi_currency && store.item.currency_default !=null">
+                        <template v-else-if="column === 'currency_default'">
                             <VhViewRow label="Default currency"
                                        :value="value"
                                        type="defaultCurrency"
@@ -228,8 +228,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'language_default' && store.item.is_multi_lingual && store.item.language_default !=null">
-">
+                        <template v-else-if="column === 'language_default'">
                             <VhViewRow label="Default Language"
                                        :value="value"
                                        type="defaultLingual"
