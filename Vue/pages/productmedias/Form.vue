@@ -204,6 +204,9 @@ const toggleFormMenu = (event) => {
                                     </div>
                                 </div>
                             </div>
+                            <div  v-else>
+                                <p>Drag and drop files to here to upload.</p>
+                            </div>
 
 
 <!--                            <div>-->
