@@ -87,6 +87,7 @@ const props = defineProps({
                         <b>{{value.name}}</b>
                      </span>
                 </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -108,6 +109,7 @@ const props = defineProps({
                         <b>{{value.name}}</b>
                      </span>
                 </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
