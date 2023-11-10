@@ -913,7 +913,7 @@ class ProductVendor extends Model
     //-------------------------------------------------
     public static function searchProduct($request){
 
-        $product = Product::select('id', 'name')->where('is_active',1);
+        $product = Product::with('store')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
             $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }

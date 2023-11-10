@@ -180,6 +180,11 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   forceSelection>
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }} - {{ slotProps.option.store.name }}</div>
+                            </div>
+                        </template>
                     </AutoComplete>
                 </VhField>
 
