@@ -304,7 +304,7 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         async getProductsListForStore(){
             let options = {
-                params: this.item.stores,
+                params: this.item.store_vendor_product,
                 method: 'POST'
             };
             await vaah().ajax(
@@ -317,7 +317,7 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.product = data;
+                this.product_suggestion = data;
             }
         },
         //---------------------------------------------------------------------

@@ -154,7 +154,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Store">
+                <VhField label="Store" v-if="!(store.item && store.item.id)">
                     <MultiSelect class="w-full"
                                  v-model="store.item.store_vendor_product"
                                  display="chip"
