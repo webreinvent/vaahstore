@@ -832,13 +832,17 @@ class ProductMedia extends Model
             'vh_st_product_id'=> 'required',
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:100'
+            ],
         ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'vh_st_product_variation_id.required' => 'The Product variation field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         ]
         );
         if($rules->fails()){

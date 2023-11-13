@@ -145,8 +145,9 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by' ||column === 'product_variation' || column === 'status_notes'
                         || column === 'updated_by'|| column === 'product' ||column === 'name'|| column === 'slug' ||
                         column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
-                        || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'|| column === 'size'||
-                        column === 'type'|| column === 'extension'|| column === 'product_media_images'">
+                        || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'||
+                        column === 'size'||column === 'meta'|| column === 'type'|| column === 'extension'||
+                        column === 'product_media_images'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -183,8 +184,10 @@ const toggleItemMenu = (event) => {
                                 <td>
                                     <b>Status</b>
                                 </td>
-                                <td colspan="2" >
-                                    {{store.item.status?.name}}
+                                <td colspan="2">
+                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                 </td>
                             </tr>
                         </template>

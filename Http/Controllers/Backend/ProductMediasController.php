@@ -40,7 +40,7 @@ class ProductMediasController extends Controller
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['status'] = null;
             $data['actions'] = [];
-            $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['is_active'] = 0;
 
             $active_products = $this->getActiveProducts();
             $active_product_variations = $this->getActiveProductVariations();
