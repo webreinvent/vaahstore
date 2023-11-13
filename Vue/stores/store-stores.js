@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            status : null,
         },
     },
     action: {
@@ -27,7 +28,7 @@ let empty_states = {
 };
 
 export const useStoreStore = defineStore({
-    id: 'store',
+    id: 'stores',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -39,6 +40,7 @@ export const useStoreStore = defineStore({
         currencies_list:null,
         status_suggestion_list:null,
         currency_suggestion_list:null,
+        language_suggestion_list : null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
         list: null,
@@ -54,7 +56,7 @@ export const useStoreStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'store.',
+        route_prefix: 'stores.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -76,8 +78,7 @@ export const useStoreStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        async onLoad(route)
-        {
+        async onLoad(route) {
             /**
              * Set initial routes
              */
@@ -94,29 +95,23 @@ export const useStoreStore = defineStore({
             this.updateQueryFromUrl(route);
         },
         //---------------------------------------------------------------------
-        setViewAndWidth(route_name)
-        {
-            switch(route_name)
-            {
-                case 'store.index':
+        setViewAndWidth(route_name) {
+            switch (route_name) {
+                case 'stores.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
-                    break
+                    break;
             }
         },
         //---------------------------------------------------------------------
-        async updateQueryFromUrl(route)
-        {
-            if(route.query)
-            {
-                if(Object.keys(route.query).length > 0)
-                {
-                    for(let key in route.query)
-                    {
+        async updateQueryFromUrl(route) {
+            if (route.query) {
+                if (Object.keys(route.query).length > 0) {
+                    for (let key in route.query) {
                         this.query[key] = route.query[key]
                     }
                     this.countFilters(route.query);
@@ -124,13 +119,11 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        watchRoutes(route)
-        {
+        watchRoutes(route) {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
-                {
+            this.watch_stopper = watch(route, (newVal, oldVal) => {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if (this.watch_stopper && !newVal.name.startsWith(this.route_prefix)) {
                         this.watch_stopper();
 
                         return false;
@@ -138,40 +131,37 @@ export const useStoreStore = defineStore({
 
                     this.route = newVal;
 
-                    if(newVal.params.id){
+                    if (newVal.params.id) {
                         this.getItem(newVal.params.id);
                     }
-
                     this.setViewAndWidth(newVal.name);
 
-                }, { deep: true }
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-        watchStates()
-        {
-            watch(this.query.filter, (newVal,oldVal) =>
-                {
+        watchStates() {
+            watch(this.query.filter, (newVal, oldVal) => {
                     this.delayedSearch();
-                },{deep: true}
+                }, {deep: true}
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
+        watchItem() {
+            if (this.item) {
+                watch(() => this.item.name, (newVal, oldVal) => {
+                        if (newVal && newVal !== "") {
+                            this.item.name = vaah().capitalising(newVal);
+                            this.item.slug = vaah().strToSlug(newVal);
+                        }
+                        if (newVal == "") {
+                            this.item.slug = "";
+                        }
+                        ;
+                    }, {deep: true}
+                )
 
-                watch(() => this.item.currencies, (newVal,oldVal) =>
-                    {
+                watch(() => this.item.currencies, (newVal, oldVal) => {
                         let flag = 1;
                         if (this.item.currency_default && this.item.currency_default.length > 1) {
                             this.item.currencies.forEach((value) => {
@@ -185,8 +175,7 @@ export const useStoreStore = defineStore({
                         }
                     }, {deep: true}
                 )
-                watch(() => this.item.languages, (newVal,oldVal) =>
-                    {
+                watch(() => this.item.languages, (newVal, oldVal) => {
                         let flag = 1;
                         if (this.item.language_default && this.item.language_default.length > 1) {
                             this.item.languages.forEach((value) => {
@@ -208,41 +197,152 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         async getAssets() {
 
-            if(this.assets_is_fetching === true){
+            if (this.assets_is_fetching === true) {
                 this.assets_is_fetching = false;
 
                 await vaah().ajax(
-                    this.ajax_url+'/assets',
+                    this.ajax_url + '/assets',
                     this.afterGetAssets,
                 );
             }
         },
         //---------------------------------------------------------------------
-        afterGetAssets(data, res)
-        {
-            if(data)
-            {
+        afterGetAssets(data, res) {
+            if (data) {
                 this.assets = data;
                 this.status_option = data.taxonomy.store_status;
                 this.currencies_list = data.currencies;
                 this.languages_list = data.languages;
-                if(data.rows)
-                {
+                if (data.rows) {
                     this.query.rows = data.rows;
                 }
 
-                if(this.route.params && !this.route.params.id){
+                if (this.route.params && !this.route.params.id) {
                     this.setActiveItemAsEmpty();
                 }
 
             }
         },
         //---------------------------------------------------------------------
+
+        async searchCurrencies(event) {
+
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/currencies',
+                this.searchCurrenciesAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCurrenciesAfter(data,res)
+        {
+
+            if (data) {
+                this.currency_suggestion_list = data;
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addCurrencies() {
+
+            const unique_currencies = [];
+            const check_names = new Set();
+
+            for (const currency of this.item.currencies) {
+                if (!check_names.has(currency.name)) {
+                    unique_currencies.push(currency);
+                    check_names.add(currency.name);
+                }
+            }
+            this.item.currencies = unique_currencies;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addLanguages() {
+
+            const unique_languages = [];
+            const check_names = new Set();
+
+            for (const language of this.item.languages) {
+                if (!check_names.has(language.name)) {
+                    unique_languages.push(language);
+                    check_names.add(language.name);
+                }
+            }
+            this.item.languages = unique_languages;
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchLanguages(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/languages',
+                this.searchLanguagesAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchLanguagesAfter(data, res) {
+
+            if (data) {
+                this.language_suggestion_list = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_store_status = status.id;
+            if(status.name == 'Approved')
+            {
+
+                this.item.is_active = 1;
+            }
+            else
+            {
+                this.item.is_active = 0;
+            }
+
         },
         //---------------------------------------------------------------------
+        checkIpAddress(event)
+        {
+            console.log(event.target.value);
+        },
+        //---------------------------------------------------------------------
+
         async getList() {
             let options = {
                 query: vaah().clone(this.query)
@@ -262,19 +362,35 @@ export const useStoreStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
         searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion_list = this.status_option;
-                }
-                else {
-                    this.status_suggestion_list = this.status_option.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+            this.status_suggestion_list = this.status_option.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
+
         //---------------------------------------------------------------------
+
+        selectStatus()
+        {
+
+            if(this.item.is_active == '1')
+            {
+
+                let active_status = this.status_option.find((item) => item.name === "Approved");
+                this.item.taxonomy_id_store_status = active_status.id;
+                this.item.status = active_status;
+            }
+            else {
+                    let rejected_status = this.status_option.find((item) => item.name === "Rejected");
+                    this.item.taxonomy_id_store_status = rejected_status.id;
+                    this.item.status = rejected_status;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         searchCurrencyDefault(event) {
             setTimeout(() => {
                 if (!event.query.trim().length) {
@@ -316,7 +432,6 @@ export const useStoreStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.taxonomy_id_store_status = data.status;
                 this.item.currency_default = data.currency_default;
                 let temp = data.currency_default;
             }else{
@@ -411,6 +526,8 @@ export const useStoreStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -498,12 +615,12 @@ export const useStoreStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -514,13 +631,17 @@ export const useStoreStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'store.index'});
+                    this.$router.push({name: 'stores.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -542,6 +663,7 @@ export const useStoreStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -550,27 +672,21 @@ export const useStoreStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -685,32 +801,32 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'store.index'})
+            this.$router.push({name: 'stores.index'})
         },
         //---------------------------------------------------------------------
         toList()
         {
-            this.setActiveItemAsEmpty();
-            this.$router.push({name: 'store.index'})
+            this.item = vaah().clone(this.assets.empty_item);
+            this.$router.push({name: 'stores.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
-            this.setActiveItemAsEmpty();
+            this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'store.form'})
+            this.$router.push({name: 'stores.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'store.view', params:{id:item.id}})
+            this.$router.push({name: 'stores.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'store.form', params:{id:item.id}})
+            this.$router.push({name: 'stores.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -752,7 +868,9 @@ export const useStoreStore = defineStore({
 
             return text;
         },
+
         //---------------------------------------------------------------------
+
         async getListSelectedMenu()
         {
             this.list_selected_menu = [
@@ -876,6 +994,59 @@ export const useStoreStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+
+        handleNewIP(event)
+        {
+
+            const ipaddress = '1.2.1.1';
+            if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+                return (true)
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -893,6 +1064,7 @@ export const useStoreStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -912,10 +1084,10 @@ export const useStoreStore = defineStore({
                         }
                     },
                     {
-                        label: 'Trash',
-                        icon: 'pi pi-times',
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
-                            this.itemAction('trash');
+                            this.itemAction(is_deleted ? 'restore': 'trash');
                         }
                     },
                     {
@@ -959,7 +1131,7 @@ export const useStoreStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

@@ -4,10 +4,15 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\TaxonomyType;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Currency;
 
 class Store extends Model
 {
@@ -35,8 +40,12 @@ class Store extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+    ];
 
     //-------------------------------------------------
+
     protected $appends = [
     ];
 
@@ -48,6 +57,79 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+            'is_multi_currency',
+            'is_multi_lingual',
+            'is_multi_vendor',
+            'is_default',
+            'is_active',
+
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+        $empty_item['is_multi_currency'] = 0;
+        $empty_item['is_multi_lingual'] = 0;
+        $empty_item['is_multi_vendor'] = 0;
+        $empty_item['is_default'] = 0;
+        $empty_item['is_active'] = 0;
+        $empty_item['status'] = null;
+        $empty_item['allowed_ips'] =[];
+        return $empty_item;
+    }
+
+    //-------------------------------------------------
+
+
+    public function status(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')
+            ->select(['id','name', 'slug']);
+    }
+
+    //-------------------------------------------------
+    public function currenciesData(){
+        return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
+            ->where('is_active', 1)
+            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
+                'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
+    }
+
+    //-------------------------------------------------
+    public function lingualData(){
+        return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
+            ->where('is_active', 1)
+            ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.is_default']);
+    }
+
+    //-------------------------------------------------
+
+
+
 
     public function createdByUser()
     {
@@ -86,27 +168,6 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-    public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_store_status')
-            ->select(['id','name', 'slug']);
-    }
-
-    //-------------------------------------------------
-    public function currenciesData(){
-        return $this->hasMany(currencie::class, 'vh_st_store_id', 'id')
-            ->where('is_active', 1)
-            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
-                'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
-    }
-
-    //-------------------------------------------------
-    public function lingualData(){
-        return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
-            ->where('is_active', 1)
-            ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.is_default']);
-    }
-
-    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -126,39 +187,65 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+
     public static function createItem($request)
     {
-        $validation_result = self::storeInputValidator($request->all());
 
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $inputs = $request->all();
+
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
+        if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
         }
 
+
         $item = new self();
         $item->fill($inputs);
-        $item->allowed_ips =json_encode($inputs['allowed_ips']);
+
+        if(isset($item->allowed_ips))
+        {
+            $item->allowed_ips = json_encode($inputs['allowed_ips']);
+
+        }
+
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
             foreach ($inputs['currencies'] as $key => $value) {
 
-                $record = new currencie();
+                $record = new Currency();
                 $record->vh_st_store_id = $item->id;
-                $record->fill($value);
+                $record->name = $value['name'];
 
                 if (!empty($inputs['currency_default'])) {
-                    if ($inputs['currency_default']['code'] == $value['code']) {
+                    if ($inputs['currency_default']['name'] == $value['name']) {
                         $record->is_default = 1;
                     }
                 } else {
-                    $record->is_default = $key == 0 ? 1 : 0;
+                    $record->is_default = 0;
                 }
 
                 $record->is_active = 1;
@@ -171,14 +258,14 @@ class Store extends Model
 
                 $record = new Lingual();
                 $record->vh_st_store_id = $item->id;
-                $record->fill($value);
+                $record->name = $value['name'];
 
                 if (!empty($inputs['language_default'])) {
                     if ($inputs['language_default']['name'] == $value['name']) {
                         $record->is_default = 1;
                     }
                 } else {
-                    $record->is_default = $key == 0 ? 1 : 0;
+                    $record->is_default =0;
                 }
 
                 $record->is_active = 1;
@@ -193,36 +280,96 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+
+    public static function searchCurrencies($request){
+
+        $query = $request['filter']['q']['query'];
+
+        if(empty($query)) {
+            $currency = Taxonomy::getTaxonomyByType('Currency')->take(5);
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('Currency');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $currency = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $currency;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchLanguages($request){
+
+        $query = $request['filter']['q']['query'];
+
+        if(empty($query)) {
+            $language = Taxonomy::getTaxonomyByType('Language')->take(5);
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('Language');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $language = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $language;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public static function removePreviousDefaults(){
+
         self::where('is_default', 1)
             ->update(['is_default' => 0]);
+
     }
     //-------------------------------------------------
-    public static function storeInputValidator($requestData){
 
-        $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
-            'is_multi_currency' => 'required',
-            'is_multi_lingual' => 'required',
-            'is_multi_vendor' => 'required',
-            'allowed_ips' => 'required',
-            'is_default' => 'required',
+    public static function validation($inputs){
+
+        $validated_data = validator($inputs,[
+            'name' => 'required|max:250|regex:/^[a-zA-Z\.\s]+$/',
+            'slug' => 'required|max:250|regex:/^[a-zA-Z\-\.]+$/',
             'taxonomy_id_store_status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
-            'is_active' => 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:250'
+            ],
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
             'languages' => 'required_if:is_multi_lingual,1',
-            'language_default' => ''
+            'language_default' => '',
+            'allowed_ips.*' => 'ip',
         ],
-        [
-            'taxonomy_id_store_status.required' => 'The Status field is required',
-            'notes.required' => 'The Store Notes field is required',
-            'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
-            'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
-             'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-        ]
+            [
+                'name.regex' => 'The Name field should only contain alphabets',
+                'slug.regex' => 'The Slug field should only contain alphabets',
+                'taxonomy_id_store_status.required' => 'The Status field is required',
+                'notes.required' => 'The Store Notes field is required',
+                'currencies.required_if' => 'The currencies field is required when is multi currency is "Yes".',
+                'languages.required_if' => 'The languages field is required when is multi lingual is "Yes".',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'allowed_ips.*.ip' => 'The Allowed IP address field must contain valid ip address'
+            ]
         );
 
         if($validated_data->fails()){
@@ -240,8 +387,8 @@ class Store extends Model
         ];
 
     }
-
     //-------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
@@ -279,13 +426,40 @@ class Store extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
     //-------------------------------------------------
+
+    public function scopeStatusFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('name', $status)
+                ->orWhere('slug',$status);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -314,7 +488,8 @@ class Store extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
 
     }
@@ -325,6 +500,7 @@ class Store extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -349,6 +525,15 @@ class Store extends Model
 
         $inputs = $request->all();
 
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
         $rules = array(
             'type' => 'required',
         );
@@ -380,16 +565,19 @@ class Store extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $items->update(['is_active' => null,'taxonomy_id_store_status' => $rejected_status_id]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $items->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $user_id = auth()->user()->id;
+                $items->update(['deleted_by' => $user_id,'is_default' => null]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -436,10 +624,22 @@ class Store extends Model
 
         return $response;
     }
+
     //-------------------------------------------------
+
+
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
 
         if(isset($inputs['items']))
         {
@@ -451,26 +651,36 @@ class Store extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'taxonomy_id_store_status'=>$rejected_status_id]);
                 }
                 break;
             case 'activate':
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1,'taxonomy_id_store_status'=>$approved_status_id]);
                 }
                 break;
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id,'is_default' => null]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -482,24 +692,46 @@ class Store extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1,'taxonomy_id_store_status'=>$approved_status_id]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null,'taxonomy_id_store_status'=>$rejected_status_id]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id,'is_default' => null]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 StorePaymentMethod::deleteStores($items_id);
                 Vendor::deleteStores($items_id);
                 Product::deleteStores($items_id);
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -524,32 +756,33 @@ class Store extends Model
             return $response;
         }
 
-        $item->currency_default = [];
+        $item->currency_default = null;
         $item->currencies = [];
         if ($item->currenciesData->isNotEmpty()){
 
             $currency_default_record = $item->currenciesData()->where('is_default',1)
-                ->select('name','code','symbol')->get();
+                ->select('name',)->get();
             if($currency_default_record->isNotEmpty()){
+
                 $item->currency_default = $currency_default_record[0];
             }
 
             $currencies = [];
             foreach ($item->currenciesData as $key => $value) {
                 $currencies[$key]['name'] = $value['name'];
-                $currencies[$key]['code'] = $value['code'];
-                $currencies[$key]['symbol'] = $value['symbol'];
             }
             $item->currencies = $currencies;
 
         }
 
-        $item->language_default = [];
+        $item->language_default = null;
         $item->languages = [];
         if ($item->lingualData->isNotEmpty()){
 
             $language_default_record = $item->lingualData()->where('is_default',1)->select('name')->get();
+
             if($language_default_record->isNotEmpty()){
+
                 $item->language_default = $language_default_record[0];
             }
 
@@ -560,8 +793,6 @@ class Store extends Model
             $item->languages = $languages;
         }
 
-        $item->is_default = $item->is_default == 1 ? true :false;
-        $item->is_active = $item->is_active == 1 ? true :false;
         $item->allowed_ips = json_decode($item->allowed_ips);
 
         $response['success'] = true;
@@ -570,49 +801,66 @@ class Store extends Model
         return $response;
 
     }
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::storeInputValidator($request->all());
-
-        if ($validation_result['success'] != true){
-            return $validation_result;
+        $inputs = $request->all();
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
 
-        $inputs = $validation_result['data'];
-
-        if ($inputs['is_default'] == 1 || $inputs['is_default'] == true){
+        if ($inputs['is_default'] == 1){
             self::removePreviousDefaults();
+        }
+
+        // check if name exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This slug is already exist.";
+            return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
+
         $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         if(!empty($inputs['currencies'])) {
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-
+            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
             foreach ($inputs['currencies'] as $key => $v) {
 
-                currencie::updateOrInsert(
-                    ['vh_st_store_id' => $item->id, 'name' => $v['name'], 'code' => $v['code'], 'symbol' => $v['symbol']],
+                Currency::updateOrInsert(
+                    ['vh_st_store_id' => $item->id, 'name' => $v['name']],
                     ['is_active' => 1]
                 );
 
             }
 
             if (!empty($inputs['currency_default'])){
-                currencie::where(['vh_st_store_id' => $item->id, 'code' => $inputs['currency_default']['code'],
+                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
-            }else{
-                $first_active_currencies = currencie::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
-                $first_active_currencies->is_default = 1;
-                $first_active_currencies->save();
             }
         }else{
-            currencie::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         if(!empty($inputs['languages'])) {
@@ -630,10 +878,6 @@ class Store extends Model
             if (!empty($inputs['language_default'])){
                 Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['language_default']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
-            }else{
-                $first_active_lingual = Lingual::where(['vh_st_store_id' => $item->id, 'is_active' => 1])->first();
-                $first_active_lingual->is_default = 1;
-                $first_active_lingual->save();
             }
         }else{
             Lingual::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
@@ -645,7 +889,7 @@ class Store extends Model
 
     }
     //-------------------------------------------------
-    public static function deleteItem($request, $id): array
+    public static function deleteItem($request, $id)
     {
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
@@ -664,67 +908,209 @@ class Store extends Model
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $approved_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Approved';
+        });
+        $approved_status_id = $approved_status->pluck('id')->first();
+        $rejected_status = $taxonomy_status->filter(function ($taxonomy) {
+            return $taxonomy['name'] === 'Rejected';
+        });
+        $rejected_status_id = $rejected_status->pluck('id')->first();
+
         switch($type)
         {
             case 'activate':
+
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_store_status' => $approved_status_id]);
                 break;
             case 'deactivate':
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null,'taxonomy_id_store_status' => $rejected_status_id]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                ->withTrashed()
+                ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->is_default = null;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
         return self::getItem($id);
-    }
-    //-------------------------------------------------
-
-    public static function validation($inputs)
-    {
-
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['messages'] = $messages->all();
-            return $response;
-        }
-
-        $response['success'] = true;
-        return $response;
-
     }
 
     //-------------------------------------------------
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
-    //-------------------------------------------------
 
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            $item->allowed_ips =json_encode($inputs['allowed_ips']);
+            $item->slug = Str::slug($inputs['slug']);
+            $item->save();
+
+            if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
+                foreach ($inputs['currencies'] as $key => $value) {
+
+                    $record = new Currency();
+                    $record->vh_st_store_id = $item->id;
+                    $record->name = $value['name'];
+
+                    if (!empty($inputs['currency_default'])) {
+                        if ($inputs['currency_default']['name'] == $value['name']) {
+                            $record->is_default = 1;
+                        }
+                    } else {
+                        $record->is_default = $key == 0 ? 1 : 0;
+                    }
+
+                    $record->is_active = 1;
+                    $record->save();
+                }
+            }
+
+            if(!empty($inputs['languages']) && $item->is_multi_lingual == 1) {
+                foreach ($inputs['languages'] as $key => $value) {
+
+                    $record = new Lingual();
+                    $record->vh_st_store_id = $item->id;
+                    $record->name = $value['name'];
+
+                    if (!empty($inputs['language_default'])) {
+                        if ($inputs['language_default']['name'] == $value['name']) {
+                            $record->is_default = 1;
+                        }
+                    } else {
+                        $record->is_default = $key == 0 ? 1 : 0;
+                    }
+
+                    $record->is_active = 1;
+                    $record->save();
+                }
+            }
+
+            $i++;
+
+        }
+
+    }
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+        $faker = Factory::create();
+        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_store_status'] = $status_id;
+        $inputs['status']=$status;
+        $inputs['is_active'] = 0;
+
+        if($status['name'] == 'Approved')
+        {
+            $inputs['is_active'] = 1;
+        }
+
+        $inputs['is_multi_currency'] = rand(0,1);
+        $inputs['is_multi_lingual'] = rand(0,1);
+
+        $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
+        $random_currencies = array_rand($currency_list, 3);
+        $selected_currencies = [];
+        foreach ($random_currencies as $index) {
+            $selected_currencies[] = $currency_list[$index];
+        }
+        if($inputs['is_multi_currency'] == 1)
+        {
+
+            foreach ($selected_currencies as $currency)
+            {
+
+                $inputs['currencies'][] = $currency;
+            }
+
+        }
+
+
+
+        $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
+        $random_languages = array_rand($language_list, 3);
+        $selected_languages = [];
+        foreach ($random_languages as $index) {
+            $selected_languages[] = $language_list[$index];
+        }
+        if($inputs['is_multi_lingual'] == 1)
+        {
+
+            foreach ($selected_languages as $language)
+            {
+
+                $inputs['languages'][] = $language;
+            }
+
+        }
+        $inputs['is_multi_vendor'] = 1;
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
 
 }

@@ -1,27 +1,26 @@
 let routes= [];
 let routes_list= [];
 
-import List from '../pages/store/List.vue'
-import Form from '../pages/store/Form.vue'
-import Item from '../pages/store/Item.vue'
+import List from '../pages/stores/List.vue'
+import Form from '../pages/stores/Form.vue'
+import Item from '../pages/stores/Item.vue'
 
 routes_list = {
 
-    path: '/store',
-    alias: ['/'],
-    name: 'store.index',
+    path: '/stores',
+    name: 'stores.index',
     component: List,
     props: true,
     children:[
         {
             path: 'form/:id?',
-            name: 'store.form',
+            name: 'stores.form',
             component: Form,
             props: true,
         },
         {
             path: 'view/:id?',
-            name: 'store.view',
+            name: 'stores.view',
             component: Item,
             props: true,
         }

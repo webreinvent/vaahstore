@@ -97,6 +97,9 @@ export const vaah = defineStore({
                 .then(function (response) {
                     self.show_progress_bar = false;
                     if(show_toast){
+                        if(self.toast){
+                            self.toast.removeAllGroups();
+                        }
                         self.processResponse(response);
                     }
                     if(callback)
@@ -110,6 +113,7 @@ export const vaah = defineStore({
                     }
                     return response;
                 }).catch(function (error) {
+
                     self.show_progress_bar = false;
                     self.processError(error);
                     if(callback)
@@ -179,7 +183,7 @@ export const vaah = defineStore({
             }
 
             let chars = list_html.length
-            let readable = 10; // readable character per second.
+            let readable = 55; // readable character per second.
 
             duration = duration*(chars/readable);
 
@@ -216,6 +220,7 @@ export const vaah = defineStore({
             let data = this.getMessageAndDuration(messages);
             if(data && data.html !== "")
             {
+                console.log('data.duration',data);
                 this.toast.add({
                     severity: 'error',
                     detail: data.html,
