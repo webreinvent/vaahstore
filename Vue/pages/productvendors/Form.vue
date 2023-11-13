@@ -191,12 +191,12 @@ const toggleFormMenu = (event) => {
                 <VhField label="Can Update">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single">
-                                <div role="radio" class="p-button p-component" style="border: none; color:white" :class="store.item.can_update == 0 ? 'p-danger' : ''">
+                            <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single" style="box-shadow: none;">
+                                <div role="radio" class="p-button p-component" :class="store.item.can_update == 0 ? 'p-danger' : ''">
                                     <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
-                                <div role="radio" class="p-button p-component" style="border: none;" :class="store.item.can_update == 1 ? 'p-highlight' : ''">
+                                <div role="radio" class="p-button p-component"  :class="store.item.can_update == 1 ? 'p-highlight' : ''">
                                     <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
