@@ -255,7 +255,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 @change="store.setVendorProductStatus()"
                                  class="p-inputswitch-sm"
                                  name="productvendors-active"
                                  data-testid="productvendors-active"
