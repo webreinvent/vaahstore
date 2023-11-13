@@ -573,11 +573,11 @@ class Store extends Model
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
                 $user_id = auth()->user()->id;
-                $items->update(['deleted_by' => $user_id]);
+                $items->update(['deleted_by' => $user_id,'is_default' => null]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
-                $items->update(['deleted_by' => null,'is_default' => null]);
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -674,13 +674,13 @@ class Store extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
-                    $items->update(['deleted_by' => auth()->user()->id]);
+                    $items->update(['deleted_by' => auth()->user()->id,'is_default' => null]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
-                    $items->update(['deleted_by' => null,'is_default' => null]);
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -699,11 +699,11 @@ class Store extends Model
                 break;
             case 'trash-all':
                 $user_id = auth()->user()->id;
-                $list->update(['deleted_by' => $user_id]);
+                $list->update(['deleted_by' => $user_id,'is_default' => null]);
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null,'is_default' => null]);
+                $list->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -941,6 +941,7 @@ class Store extends Model
                 ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
+                $item->is_default = null;
                 $item->save();
                 break;
             case 'restore':
@@ -949,7 +950,6 @@ class Store extends Model
                     ->restore();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = null;
-                $item->is_default = null;
                 $item->save();
                 break;
         }
