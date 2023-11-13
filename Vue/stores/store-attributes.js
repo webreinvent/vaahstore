@@ -234,18 +234,12 @@ export const useAttributeStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion = this.product_variations.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
 
+            this.product_variation_suggestion = this.product_variations.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
         //---------------------------------------------------------------------
 
         async getAssets() {

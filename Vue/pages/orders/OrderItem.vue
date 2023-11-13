@@ -8,20 +8,20 @@ import {useRoute} from 'vue-router';
 
 const store = useOrderStore();
 const route = useRoute();
-
-onMounted(async () => {
-    if(route.params && route.params.id)
-    {
-        await store.getItem(route.params.id);
-    }
-
-    await store.watchItem();
-});
+store.getOrderProductMenu();
+// onMounted(async () => {
+//
+//     if(route.params && route.params.id)
+//     {
+//         await store.getItem(route.params.id);
+//     }
+//
+// });
 
 //--------form_menu
-const form_menu = ref();
-const toggleFormMenu = (event) => {
-    form_menu.value.toggle(event);
+const order_product_menu = ref(null);
+const toggleOrderProductMenu = (event) => {
+    order_product_menu.value.toggle(event);
 };
 //--------/form_menu
 
@@ -38,7 +38,7 @@ const toggleFormMenu = (event) => {
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span>
-                            Add Order Item
+                            Order Products
                         </span>
                     </div>
 
@@ -50,10 +50,9 @@ const toggleFormMenu = (event) => {
             <template #icons>
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
-                            v-if="store.item && store.item.id"
+                    <Button label="Add"
                             data-testid="orderitems-save"
-                            @click="store.itemAction('save-orderitems')"
+                            @click="store.createOrder()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="orderitems-document" icon="pi pi-info-circle"
@@ -64,13 +63,13 @@ const toggleFormMenu = (event) => {
                     <!--form_menu-->
                     <Button
                         type="button"
-                        @click="toggleFormMenu"
-                        data-testid="orderitems-form-menu"
+                        @click="toggleOrderProductMenu"
+                        data-testid="orderproduct-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
-                    <Menu ref="form_menu"
-                          :model="store.form_menu_list"
+                    <Menu ref="order_product_menu"
+                          :model="store.order_product_menu_list"
                           :popup="true" />
                     <!--/form_menu-->
 
@@ -109,8 +108,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setOrderItemProduct($event)"
                         class="w-full"
                         name="orderitems-product"
-                        :suggestions="store.product_suggestion"
-                        @complete="store.searchProduct($event)"
+                        :suggestions="store.products"
+                        @complete="store.searchProduct"
                         placeholder="Select Types"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-product"
@@ -125,8 +124,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setOrderItemProductVariation($event)"
                         class="w-full"
                         name="orderitems-product_variation"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
+                        :suggestions="store.filtered_product_variations"
+                        @complete="store.searchProductVariation"
                         placeholder="Select Product Variation"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-product_variation"
@@ -141,8 +140,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setOrderItemVendor($event)"
                         class="w-full"
                         name="orderitems-vendor"
-                        :suggestions="store.vendor_suggestion"
-                        @complete="store.searchVendor($event)"
+                        :suggestions="store.filtered_venders"
+                        @complete="store.searchVendor"
                         placeholder="Select vendor"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-vendor"
@@ -157,8 +156,8 @@ const toggleFormMenu = (event) => {
                         @change="store.setOrderItemCustomerGroup($event)"
                         class="w-full"
                         name="orderitems-customer_group"
-                        :suggestions="store.customer_group_suggestion"
-                        @complete="store.searchCustomerGroup($event)"
+                        :suggestions="store.filtered_customer_groups"
+                        @complete="store.searchCustomerGroup"
                         placeholder="Select Customer Group"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-customer_group"
@@ -215,10 +214,12 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Active">
+
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="orders-active"
                                  data-testid="orders-active"
+                                 @change="store.selectOrderStatus()"
                                  v-model="store.item.is_active_order_item"/>
                 </VhField>
 
