@@ -577,7 +577,7 @@ class Store extends Model
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
-                $items->update(['deleted_by' => null]);
+                $items->update(['deleted_by' => null,'is_default' => null]);
                 break;
         }
 
@@ -680,7 +680,7 @@ class Store extends Model
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
-                    $items->update(['deleted_by' => null]);
+                    $items->update(['deleted_by' => null,'is_default' => null]);
                 }
                 break;
             case 'delete':
@@ -703,7 +703,7 @@ class Store extends Model
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->update(['deleted_by' => null,'is_default' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -949,6 +949,7 @@ class Store extends Model
                     ->restore();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = null;
+                $item->is_default = null;
                 $item->save();
                 break;
         }
