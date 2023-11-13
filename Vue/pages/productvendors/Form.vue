@@ -154,7 +154,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Store" v-if="!(store.item && store.item.id)">
+                <VhField label="Store">
                     <MultiSelect class="w-full"
                                  v-model="store.item.store_vendor_product"
                                  display="chip"
@@ -167,7 +167,7 @@ const toggleFormMenu = (event) => {
                                  @change="store.getProductsListForStore()" />
                 </VhField>
 
-                <VhField label="Product">
+                <VhField label="Product" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"

@@ -729,6 +729,7 @@ class ProductVendor extends Model
     {
         $rules = validator($inputs, [
             'vh_st_vendor_id'=> 'required',
+            'store_vendor_product' => 'required',
             'vh_st_product_id'=> 'required',
             'taxonomy_id_product_vendor_status'=> 'required',
             'added_by'=> 'required|max:150',
@@ -740,6 +741,7 @@ class ProductVendor extends Model
             ],
         [
             'vh_st_vendor_id.required' => 'The vendor field is required',
+            'store_vendor_product.required' => 'The store field is required',
             'vh_st_product_id.required' => 'The product field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',

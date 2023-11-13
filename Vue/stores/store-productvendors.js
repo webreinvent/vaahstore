@@ -188,10 +188,11 @@ export const useProductVendorStore = defineStore({
 
         //---------------------------------------------------------------------
         searchProduct(event) {
-
-            this.product_suggestion= this.product.filter((product) => {
-                return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            if (this.product && this.product.length > 0) {
+                this.product_suggestion = this.product.filter((product) => {
+                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
+            }
         },
 
         //---------------------------------------------------------------------
@@ -406,7 +407,7 @@ export const useProductVendorStore = defineStore({
                 this.item.taxonomy_id_product_vendor_status = data.status;
 
                 this.item.vh_st_product_variation_id = data.product_variation;
-                if(data.stores.length != 0){
+                if(data.store_vendor_product.length != 0){
                     this.getProductsListForStore();
                 }
             }else{

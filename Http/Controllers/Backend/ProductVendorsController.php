@@ -238,6 +238,8 @@ class ProductVendorsController extends Controller
             $ids = array_column($inputs, 'id');
             $data = Product::where('is_active', 1)->whereIn( 'vh_st_store_id', $ids)
                 ->with('store')
+                ->orderBy('vh_st_store_id')
+                ->orderBy('id')
                 ->get(['id','name','slug','vh_st_store_id']);
             $response['success'] = true;
             $response['data']= $data;
