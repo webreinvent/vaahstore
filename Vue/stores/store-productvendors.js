@@ -187,25 +187,11 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-       async searchProduct(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
+        searchProduct(event) {
 
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-        },
-
-        //---------------------------------------------------------------------
-        searchProductAfter(data,res){
-            if(data){
-                this.product_suggestion = data;
-            }
+            this.product_suggestion= this.product.filter((product) => {
+                return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
 
         //---------------------------------------------------------------------
@@ -317,7 +303,7 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.product_suggestion = data;
+                this.product = data;
             }
         },
         //---------------------------------------------------------------------
