@@ -232,7 +232,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.is_paid"/>
                 </VhField>
 
-                <VhField label="Payment Method">
+                <VhField label="Payment Method*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.payment_method"
@@ -277,7 +277,6 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="orders-active"
-                                 @change="store.selectStatus()"
                                  data-testid="orders-active"
                                  v-model="store.item.is_active"/>
                 </VhField>

@@ -225,7 +225,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.in_stock"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"

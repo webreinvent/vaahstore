@@ -440,31 +440,8 @@ export const useOrderStore = defineStore({
         setStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_order_status = status.id;
-            if(status.name == 'Approved')
-            {
-                this.item.is_active = 1;
-            }
-            else {
-                this.item.is_active = 0;
-            }
-        },
-        //---------------------------------------------------------------------
 
-        selectStatus()
-        {
-            if(this.item.is_active == '1')
-            {
-                let active_status = this.assets.taxonomy.status_orders.find((item) => item.name === "Approved");
-                this.item.taxonomy_id_order_status = active_status.id;
-                this.item.status = active_status;
-            }
-            else {
-                let rejected_status = this.assets.taxonomy.status_orders.find((item) => item.name === "Rejected");
-                this.item.taxonomy_id_order_status = rejected_status.id;
-                this.item.status = rejected_status;
-            }
         },
-
         //---------------------------------------------------------------------
 
         selectOrderStatus()
