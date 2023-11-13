@@ -1082,8 +1082,8 @@ class Order extends Model
         $rules = validator($inputs,
             [
                 'types' => 'required',
-                'product' => 'required|max:150',
-                'product_variation' => 'required|max:150',
+                'product' => 'required',
+                'product_variation' => 'required',
                 'vendor' => 'required',
                 'customer_group' => 'required',
                 'invoice_url' => 'required',
