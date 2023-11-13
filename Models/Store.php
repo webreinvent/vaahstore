@@ -346,12 +346,12 @@ class Store extends Model
     public static function validation($inputs){
 
         $validated_data = validator($inputs,[
-            'name' => 'required|max:100|regex:/^[a-zA-Z\.\s]+$/',
-            'slug' => 'required|regex:/^[a-zA-Z\-\.]+$/',
+            'name' => 'required|max:250|regex:/^[a-zA-Z\.\s]+$/',
+            'slug' => 'required|max:250|regex:/^[a-zA-Z\-\.]+$/',
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
             'currencies' => 'required_if:is_multi_currency,1',
             'currency_default' => '',
