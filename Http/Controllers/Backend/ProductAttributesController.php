@@ -137,11 +137,9 @@ class ProductAttributesController extends Controller
     //----------------------------------------------------------
     public function getList(Request $request)
     {
-        try {
-
-            return ProductAttribute::searchProductVariation($request);
-        }
-        catch (\Exception $e){
+        try{
+            return ProductAttribute::getList($request);
+        }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
             if(env('APP_DEBUG')){
@@ -149,13 +147,10 @@ class ProductAttributesController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-
             }
             return $response;
         }
-
     }
-
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
