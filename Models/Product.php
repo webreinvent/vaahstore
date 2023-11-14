@@ -960,15 +960,15 @@ class Product extends Model
         $rules = validator($inputs, [
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
+            'vh_st_store_id'=> 'required',
+            'vh_st_brand_id'=> 'required',
+            'taxonomy_id_product_type'=> 'required',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:250'
             ],
             'in_stock'=> 'required|numeric',
-            'vh_st_brand_id'=> 'required',
-            'vh_st_store_id'=> 'required',
-            'taxonomy_id_product_type'=> 'required',
             'quantity'  => 'required|digits_between:1,15',
         ],
             [    'name.required' => 'The Name field is required',
@@ -980,7 +980,7 @@ class Product extends Model
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'quantity.digits_between' => 'The Quantity field must not be greater than 15 digits',
             ]
         );
 
@@ -1073,7 +1073,7 @@ class Product extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
 
-        $inputs['is_active'] = 0;
+        $inputs['is_active'] = 1;
         $inputs['quantity'] = rand(1,10000000);
         $inputs['in_stock'] = 1;
         // fill the product type field here
@@ -1083,13 +1083,6 @@ class Product extends Model
         $type = $types->where('id',$type_id)->first();
         $inputs['type'] = $type;
         $inputs['taxonomy_id_product_type'] = $type_id ;
-
-
-        if($status['name'] == 'Approved')
-        {
-            $inputs['is_active'] = 1;
-
-        }
 
         $number_of_characters = rand(5,250);
         $inputs['status_notes']=$faker->text($number_of_characters);
