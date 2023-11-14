@@ -25,6 +25,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+console.log('from',store);
 </script>
 <template>
 
@@ -172,7 +173,6 @@ const toggleFormMenu = (event) => {
                     <FileUpload customUpload
                                 name="demo[]"
                                 @upload="store.onImageUpload($event)"
-                                @select="store.onImageUpload"
                                 :multiple="!route.params.id"
                                 accept="image/*"
                                 :pt="{

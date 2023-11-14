@@ -54,6 +54,9 @@ const useVaah = vaah();
                      <span v-else>
                      {{prop.data.product_variation.name}}
                          </span>
+                     <span v-if="prop.data.product_variation.is_default == 1">
+                         <badge>&nbsp;(Default)</badge>
+                     </span>
                  </template>
 
              </Column>

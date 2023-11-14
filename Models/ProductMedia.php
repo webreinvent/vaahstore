@@ -126,7 +126,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public function productVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug','is_default');
     }
     //-------------------------------------------------
     public function productMediaImages()
