@@ -154,7 +154,7 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
-                                       :can_copy="false"
+                                       :can_copy="true"
                             />
                         </template>
 

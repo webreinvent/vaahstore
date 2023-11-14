@@ -122,33 +122,33 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-       async searchProductVariation(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
+       // async searchProductVariation(event) {
+       //      const query = event;
+       //      const options = {
+       //          params: query,
+       //          method: 'post',
+       //      };
+       //
+       //      await vaah().ajax(
+       //          this.ajax_url+'/search/product/variation',
+       //          this.searchProductVariationAfter,
+       //          options
+       //      );
+       //  },
+       //  //---------------------------------------------------------------------
+       //  searchProductVariationAfter(data,res) {
+       //      if(data)
+       //      {
+       //          this.product_variation_suggestion = data;
+       //      }
+       //  },
         //---------------------------------------------------------------------
-        searchProductVariationAfter(data,res) {
-            if(data)
-            {
-                this.product_variation_suggestion = data;
-            }
-        },
-        //---------------------------------------------------------------------
-        searchProductAfter(data,res) {
-            if(data)
-            {
-                this.product_suggestion = data;
-            }
-        },
+        // searchProductAfter(data,res) {
+        //     if(data)
+        //     {
+        //         this.product_suggestion = data;
+        //     }
+        // },
         //---------------------------------------------------------------------
        async searchProductVariation(event) {
             const query = event;
@@ -339,12 +339,6 @@ export const useProductMediaStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_media_status = status.id;
-            if(status.name == 'Approved')
-            {
-                this.item.is_active = 1;
-            }else{
-                this.item.is_active = 0;
-            }
         },
         //---------------------------------------------------------------------
         setMediaStatus(){

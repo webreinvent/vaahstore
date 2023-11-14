@@ -14,6 +14,7 @@ const useVaah = vaah();
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
+                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -51,9 +52,6 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
                     <Badge v-if="prop.data.product == null"
                            value="Trashed"
                            severity="danger"></Badge>
@@ -86,9 +84,6 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <Badge v-if="prop.data.added_by == null"
                             value="Trashed"
                             severity="danger"></Badge>
@@ -103,9 +98,6 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
                      <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"

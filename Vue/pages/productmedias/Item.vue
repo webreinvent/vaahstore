@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
                         column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
                         || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'||
                         column === 'size'||column === 'meta'|| column === 'type'|| column === 'extension'||
-                        column === 'product_media_images'">
+                        column === 'product_media_images' || column === 'deleted_by' ">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
