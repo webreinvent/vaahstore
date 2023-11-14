@@ -71,6 +71,7 @@ const useVaah = vaah();
                              v-tooltip.top="'Add Price Item'"
                              icon="pi pi-plus" severity="success"
                              @click="store.toProductPrice(prop.data)"
+                             :disabled="$route.path.includes('price') && prop.data.id===store.item?.id"
                          >
 
                      </Button>

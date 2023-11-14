@@ -183,6 +183,7 @@ class ProductVendor extends Model
 
     //--------------------Add and update product price-----------------------------
     public static function createProductPrice($request){
+
         $inputs = $request->all();
 
         $validation = self::validationProductPrice($inputs);
@@ -190,12 +191,14 @@ class ProductVendor extends Model
             return $validation;
         }
         $check = ProductPrice::where(['vh_st_vendor_id'=>$inputs['vh_st_vendor_id'],'vh_st_product_id'=>$inputs['vh_st_product_id']])->first();
+
         if($check){
             $check->fill($inputs);
             $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
             $check->is_active = $inputs['is_active_product_price'];
+            $check->amount = $inputs['amount'];
             $check->save();
-            $response['messages'][] = 'Saved successfully update.';
+            $response['messages'][] = 'Updated successfully.';
             return $response;
         }
         $order_item = new ProductPrice;
@@ -761,7 +764,7 @@ class ProductVendor extends Model
         $rules = validator($inputs,
             [
                 'product_variation' => 'required|max:150',
-                'amount' => 'required|max:150',
+                'amount' => 'required|min:0|digits_between:1,15',
             ]);
         if($rules->fails()){
             return [
