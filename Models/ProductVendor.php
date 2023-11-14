@@ -761,11 +761,12 @@ class ProductVendor extends Model
     //-------------------validation for product price------------------------------
     public static function validationProductPrice($inputs)
     {
-        $rules = validator($inputs,
-            [
-                'product_variation' => 'required|max:150',
-                'amount' => 'required|min:0|digits_between:1,15',
-            ]);
+        $rules = validator($inputs, [
+            'product_variation' => 'required|max:150',
+            'amount' => 'nullable|numeric|min:0|digits_between:1,15',
+        ], [
+            'amount.digits_between' => 'The amount must be between 1 to 15 digits',
+        ]);
         if($rules->fails()){
             return [
                 'success' => false,
