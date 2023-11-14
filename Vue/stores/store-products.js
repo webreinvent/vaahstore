@@ -317,24 +317,6 @@ export const useProductStore = defineStore({
         setProductStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_status = status.id;
-            if (status.name == 'Approved') {
-                this.item.is_active = 1;
-            } else {
-                this.item.is_active = 0;
-            }
-        },
-        //---------------------------------------------------------------------
-
-        selectStatus() {
-            if (this.item.is_active == '1') {
-                let active_status = this.product_status.find((item) => item.name === "Approved");
-                this.item.taxonomy_id_product_status = active_status.id;
-                this.item.status = active_status;
-            } else {
-                let rejected_status = this.product_status.find((item) => item.name === "Rejected");
-                this.item.taxonomy_id_product_status = rejected_status.id;
-                this.item.status = rejected_status;
-            }
         },
 
         //---------------------------------------------------------------------
@@ -936,7 +918,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
-           
+
             switch (this.form.action)
             {
                 case 'create-and-new':
