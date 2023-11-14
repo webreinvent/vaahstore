@@ -50,16 +50,16 @@ const props = defineProps({
         <template v-else-if="type==='status'">
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.name)" severity="success">
+                    <Badge v-if="value.slug == 'approved'"  @click="vaah().copy(value.name)" severity="success">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warning">
+                    </Badge>
+                    <Badge v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warning">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
+                    </Badge>
+                    <Badge v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else @click="vaah().copy(value.name)" severity="primary">
+                    </Badge>
+                    <Badge v-else @click="vaah().copy(value.name)" severity="primary">
                         {{value.name}}
                     </Badge>
                 </template>
