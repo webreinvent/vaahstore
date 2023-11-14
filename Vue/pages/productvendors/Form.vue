@@ -192,7 +192,7 @@ const toggleFormMenu = (event) => {
                     <div class="flex flex-row">
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single" style="box-shadow: none;">
-                                <div role="radio" class="p-button p-component" :class="store.item.can_update == 0 ? 'p-danger' : ''">
+                                <div role="radio" class="p-button p-component" :class="store.item.can_update == 0 ? 'bg-red-500 text-white' : ''">
                                     <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">no</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
