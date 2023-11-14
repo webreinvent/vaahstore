@@ -36,9 +36,9 @@ export const useProductAttributeStore = defineStore({
         app: null,
         assets: null,
         rows_per_page: [10,20,30,50,100,500],
-        product_variation_suggestion: null,
+        filtered_product_variations: null,
         product_variation: null,
-        attribute_suggestion: null,
+        filtered_attributes: null,
         attribute: null,
         list: null,
         item: null,
@@ -66,6 +66,7 @@ export const useProductAttributeStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: []
@@ -129,7 +130,7 @@ export const useProductAttributeStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -156,52 +157,78 @@ export const useProductAttributeStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
+        //---------------------------------------------------------------------
+
+       async searchProductVariation(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        searchProductVariationAfter(data,res) {
+
+            if(data)
+            {
+                this.filtered_product_variations = data;
             }
         },
-        //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion = this.product_variations.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        //-----------------------------------------------------------------------
+
+        async searchAttribute(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/attribute',
+                this.searchAttributeAfter,
+                options
+            );
         },
-        //---------------------------------------------------------------------
-        searchAttribute(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.attribute_suggestion = this.attributes;
-                }
-                else {
-                    this.attribute_suggestion = this.attributes.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+
+        //-----------------------------------------------------------------------
+
+        searchAttributeAfter(data,res) {
+            if(data)
+            {
+                this.filtered_attributes = data;
+            }
         },
+
         //---------------------------------------------------------------------
         async getAttributeValue(){
-            console.log(this.item.vh_st_attribute_id)
+
             if (this.item.vh_st_attribute_id !== null){
                 await vaah().ajax(
                     this.ajax_url+'/getAttributeValue/'+this.item.vh_st_attribute_id,
@@ -210,20 +237,26 @@ export const useProductAttributeStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
         afterGetAttributeValue(data, res){
             this.item.attribute_values = data;
+
         },
         //---------------------------------------------------------------------
+
         setAttribute(event){
             let attribute = toRaw(event.value);
             this.item.vh_st_attribute_id = attribute.id;
+
         },
+
         //---------------------------------------------------------------------
         setProductVariation(event){
             let productVariation = toRaw(event.value);
             this.item.vh_st_product_variation_id = productVariation.id;
         },
         //---------------------------------------------------------------------
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -241,8 +274,9 @@ export const useProductAttributeStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.product_variations = data.product_variations;
-                this.attributes = data.attributes;
+                this.product_variation = data.product_variations;
+                this.attribute = data.attributes;
+
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -381,6 +415,8 @@ export const useProductAttributeStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -468,12 +504,12 @@ export const useProductAttributeStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -487,10 +523,15 @@ export const useProductAttributeStore = defineStore({
                     this.$router.push({name: 'productattributes.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                    break;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -512,6 +553,7 @@ export const useProductAttributeStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -520,27 +562,21 @@ export const useProductAttributeStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -596,13 +632,12 @@ export const useProductAttributeStore = defineStore({
         {
             //remove reactivity from source object
             query = vaah().clone(query)
-
+            console.log(query);
             //create query string
             let query_string = qs.stringify(query, {
                 skipNulls: true,
             });
             let query_object = qs.parse(query_string);
-
             if(query_object.filter){
                 query_object.filter = vaah().cleanObject(query_object.filter);
             }
@@ -726,21 +761,7 @@ export const useProductAttributeStore = defineStore({
         async getListSelectedMenu()
         {
             this.list_selected_menu = [
-                {
-                    label: 'Activate',
-                    command: async () => {
-                        await this.updateList('activate')
-                    }
-                },
-                {
-                    label: 'Deactivate',
-                    command: async () => {
-                        await this.updateList('deactivate')
-                    }
-                },
-                {
-                    separator: true
-                },
+
                 {
                     label: 'Trash',
                     icon: 'pi pi-times',
@@ -769,21 +790,7 @@ export const useProductAttributeStore = defineStore({
         getListBulkMenu()
         {
             this.list_bulk_menu = [
-                {
-                    label: 'Mark all as active',
-                    command: async () => {
-                        await this.listAction('activate-all')
-                    }
-                },
-                {
-                    label: 'Mark all as inactive',
-                    command: async () => {
-                        await this.listAction('deactivate-all')
-                    }
-                },
-                {
-                    separator: true
-                },
+
                 {
                     label: 'Trash All',
                     icon: 'pi pi-times',
@@ -846,6 +853,47 @@ export const useProductAttributeStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -881,21 +929,40 @@ export const useProductAttributeStore = defineStore({
 
                         }
                     },
-                    {
+
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
+                    },)
+                }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
+
 
             } else{
                 form_menu = [
@@ -929,13 +996,18 @@ export const useProductAttributeStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
             this.form_menu_list = form_menu;
 
         },
+
+
+
+
+
         //---------------------------------------------------------------------
     }
 });

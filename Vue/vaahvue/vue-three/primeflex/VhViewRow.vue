@@ -160,7 +160,7 @@ const props = defineProps({
                     <table class="table">
                         <tbody>
                             <tr v-for="data in value">
-                                <td>{{data.new_value}}</td>
+                                <td><div style="word-break: break-word;">{{data.new_value}}</div></td>
                             </tr>
                         </tbody>
                     </table>
