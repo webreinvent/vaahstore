@@ -910,7 +910,7 @@ class Order extends Model
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            
+
             $i++;
 
         }
