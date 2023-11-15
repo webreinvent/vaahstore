@@ -263,7 +263,7 @@ class Product extends Model
         }else{
             return [
                 'success' => false,
-                'errors' => 'Product Variation is empty.'
+                'errors' => ['Product Variation is empty']
             ];
         }
     }
@@ -324,7 +324,6 @@ class Product extends Model
         foreach ($vendor_data as $key=>$value){
 
             $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
-
             if (isset($value['id']) && !empty($value['id'])){
                 $item = ProductVendor::where('id',$value['id'])->first();
                 $item->vh_st_product_id = $product_id;

@@ -353,11 +353,9 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         async removeVendor(attribute) {
-
             this.item.vendors = this.item.vendors.filter(function (item) {
                 return item['vendor']['id'] != attribute['vendor']['id']
             })
-
             if (attribute.id) {
                 const options = {
                     method: 'get',
@@ -410,6 +408,7 @@ export const useProductStore = defineStore({
                     temp = this.item.vendors.filter((item) => {
                         return item['is_selected'] == true;
                     });
+
                     this.item.vendors = temp;
                     this.select_all_product = false;
                     let id = this.route.params.id;

@@ -76,11 +76,6 @@ const toggleFormMenu = (event) => {
                             data-testid="products-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="products-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'Documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
-
                     <!--form_menu-->
                     <Button
                         type="button"

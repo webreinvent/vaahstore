@@ -55,17 +55,13 @@ const toggleOrderProductMenu = (event) => {
                             @click="store.createOrder()"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="orderitems-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'Documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
-
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleOrderProductMenu"
                         data-testid="orderproduct-form-menu"
                         icon="pi pi-angle-down"
+                        class = "p-button-sm"
                         aria-haspopup="true"/>
 
                     <Menu ref="order_product_menu"
@@ -74,7 +70,7 @@ const toggleOrderProductMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-sm"
                             icon="pi pi-times"
                             data-testid="orderitems-to-list"
                             @click="store.toList()">
@@ -85,7 +81,7 @@ const toggleOrderProductMenu = (event) => {
 
 
             <div v-if="store.item">
-                <VhField label="Types">
+                <VhField label="Types*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.types"
@@ -101,7 +97,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product">
+                <VhField label="Product*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.product"
@@ -117,7 +113,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product Variation">
+                <VhField label="Product Variation*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.product_variation"
@@ -133,7 +129,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Vendor">
+                <VhField label="Vendor*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
@@ -149,7 +145,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Customer Groups">
+                <VhField label="Customer Groups*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.customer_group"
@@ -165,7 +161,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Invoice Url">
+                <VhField label="Invoice Url*">
                     <InputText class="w-full"
                                placeholder="Enter a URL"
                                name="orderitems-invoice_url"
@@ -173,7 +169,7 @@ const toggleOrderProductMenu = (event) => {
                                v-model="store.item.invoice_url"/>
                 </VhField>
 
-                <VhField label="Tracking">
+                <VhField label="Tracking*">
                     <InputText class="w-full"
                                placeholder="Enter a Tracking"
                                name="orderitems-tracking"
@@ -181,7 +177,7 @@ const toggleOrderProductMenu = (event) => {
                                v-model="store.item.tracking"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status_order_items"
