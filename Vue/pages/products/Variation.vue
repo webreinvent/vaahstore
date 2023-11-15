@@ -138,7 +138,9 @@ const toggleSelectedMenuState = (event) => {
                             </div>
                         </div>
                         <div v-else>
-                            <small>no <b>Attribute</b> or <b>Attribute Group</b> is added</small>
+                            <div class="pb-1">
+                                <small>No <b>Attribute</b> or <b>Attribute Group</b> is added</small>
+                            </div>
                         </div>
                     </div>
                 </div>

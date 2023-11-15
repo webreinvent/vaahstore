@@ -648,6 +648,7 @@ class ProductVendor extends Model
             if(is_array($inputs['taxonomy_id_product_vendor_status'])) {
                 $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             }
+
             $item->save();
 
            // Update the relationship with the stores
@@ -807,82 +808,18 @@ class ProductVendor extends Model
 
     }
     //-------------------------------------------------
-    public static function seedSampleItems($records=100)
-    {
+    public static function deleteProduct($items_id){
 
-        $i = 0;
-
-        while($i < $records)
-        {
-            $inputs = self::fillItem(false);
-
-            $item =  new self();
-            $item->fill($inputs);
-            $item->save();
-
-            // Save value in the pivot table
-            if (isset($inputs['store_vendor_product']) && is_array($inputs['store_vendor_product'])) {
-                foreach ($inputs['store_vendor_product'] as $store) {
-                    $item->storeVendorProduct()->attach($store['id']);
-                }
-            }
-            $i++;
-
+        if($items_id){
+            self::where('vh_st_product_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
         }
 
     }
-
-
-    //-------------------------------------------------
-    public static function fillItem($is_response_return = true)
-    {
-        $request = new Request([
-            'model_namespace' => self::class,
-            'except' => self::getUnFillableColumns()
-        ]);
-        $fillable = VaahSeeder::fill($request);
-        if(!$fillable['success']){
-            return $fillable;
-        }
-        $inputs = $fillable['data']['fill'];
-
-        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['vh_st_vendor_id'] = $vendor->id;
-        $inputs['vendor'] = $vendor;
-
-        $store = Store::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['store_vendor_product'][] = $store;
-
-        $store = Product::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['vh_st_product_id'] = $store->id;
-        $inputs['product'] = $store;
-
-        $user = User::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['added_by'] = $user->id;
-        $inputs['added_by_user'] = $user;
-
-        $taxonomy_status = Taxonomy::getTaxonomyByType('product-vendor-status');
-        $status_id = $taxonomy_status->pluck('id')->random();
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        $inputs['taxonomy_id_product_vendor_status'] = $status_id;
-        $inputs['status']=$status;
-
-        $faker = Factory::create();
-
-        /*
-         * You can override the filled variables below this line.
-         * You should also return relationship from here
-         */
-
-        if(!$is_response_return){
-            return $inputs;
-        }
-
-        $response['success'] = true;
-        $response['data']['fill'] = $inputs;
-        return $response;
-    }
-
     //-------------------------------------------------
     public static function deleteProducts($items_id){
         if($items_id){
@@ -895,87 +832,5 @@ class ProductVendor extends Model
         }
 
     }
-    //-------------------------------------------------
-    public static function searchVendor($request){
-
-        $vendor = Vendor::select('id', 'name')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $vendor = $vendor->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $vendor;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function searchProduct($request){
-
-        $product = Product::with('store')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $product = $product->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $product;
-        return $response;
-
-    }
-    //-------------------------------------------------
-    public static function searchAddedBy($request){
-        $addedBy = User::select('id', 'first_name','email')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('first_name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $addedBy = $addedBy->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $addedBy;
-        return $response;
-
-    }
-   //-------------------------------------------------
-    public static function searchStatus($request){
-        $query = $request->input('query');
-        if(empty($query)) {
-            $item = Taxonomy::getTaxonomyByType('product-vendor-status');
-        } else {
-            $status = TaxonomyType::getFirstOrCreate('product-vendor-status');
-            $item =array();
-
-            if(!$status){
-                return $item;
-            }
-            $item = Taxonomy::whereNotNull('is_active')
-                ->where('vh_taxonomy_type_id',$status->id)
-                ->where('name', 'LIKE', '%' . $query . '%')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $item;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function searchProductVariation($request){
-        $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orwhere('slug', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $addedBy = $addedBy->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $addedBy;
-        return $response;
-
-    }
-    //-------------------------------------------------
-
 
 }

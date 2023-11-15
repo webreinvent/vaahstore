@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
+                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -46,8 +46,7 @@ const useVaah = vaah();
             </Column>
 
              <Column field="in_stock" header="In Stock"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+                     v-if="store.isViewLarge()">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.in_stock == 0"
@@ -125,7 +124,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
@@ -152,7 +151,6 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
