@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                    :rowClass="(rowData) => rowData.id == store.item.id || rowData.id == store.route.params.order_id ?'bg-yellow-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -188,7 +188,6 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 

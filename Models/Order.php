@@ -832,7 +832,7 @@ class Order extends Model
 
         $rules = validator($inputs, [
             'vh_user_id' => 'required',
-            'amount' => 'required|numeric|min:1|digits_between:1,10',
+            'amount' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'delivery_fee' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'taxes' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
             'discount' => 'required|regex:/^\d{1,10}(\.\d{1,2})?$/',
@@ -860,13 +860,13 @@ class Order extends Model
                 'payable.min' => 'The Payable field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'amount.digits_between' => 'amount must be between 1 to 10 digits',
-                'delivery_fee.regex' => 'delivery charges must be between 1 to 10 digits',
-                'taxes.regex' => 'tax amount must be between 1 to 10 digits',
-                'discount.regex' => 'discount value must be between 1 to 10 digits',
-                'payable.regex' => 'payable amount must be between 1 to 10 digits',
-                'paid.regex' => 'paid amount must be between 1 to 10 digits',
-                'paid.max' => 'paid amount must be less than payable amount',
+                'amount.regex' => 'amount must be between 1 to 10 digits',
+                'delivery_fee.regex' => 'The Delivery charges must be between 1 to 10 digits',
+                'taxes.regex' => 'The Tax amount must be between 1 to 10 digits',
+                'discount.regex' => 'The Discount value must be between 1 to 10 digits',
+                'payable.regex' => 'The Payable amount must be between 1 to 10 digits',
+                'paid.regex' => 'The Paid amount must be between 1 to 10 digits',
+                'paid.max' => 'The Paid amount must be less than payable amount',
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',
 
             ]
