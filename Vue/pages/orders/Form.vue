@@ -210,7 +210,7 @@ const toggleFormMenu = (event) => {
                         data-testid="orders-payable"/>
                 </VhField>
 
-                <VhField label="Paid">
+                <VhField label="Paid*">
                     <InputNumber
                         placeholder="Enter Paid Amount"
                         inputId="minmaxfraction" :min-fraction-digits="2"

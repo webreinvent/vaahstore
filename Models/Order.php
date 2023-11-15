@@ -840,6 +840,7 @@ class Order extends Model
             'paid' => [
                 'required',
                 'numeric',
+                'min:1',
                 'regex:/^\d{1,10}(\.\d{1,2})?$/',
                 function ($attribute, $value, $fail) use ($inputs) {
                     if ($value > $inputs['payable']) {
@@ -858,6 +859,7 @@ class Order extends Model
                 'vh_user_id.required' => 'The User field is required',
                 'amount.min' => 'The Amount field is required',
                 'payable.min' => 'The Payable field is required',
+                'paid.min' => 'The Paid field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'amount.regex' => 'amount must be between 1 to 10 digits',
@@ -1050,15 +1052,25 @@ class Order extends Model
                 'customer_group' => 'required',
                 'invoice_url' => 'required',
                 'tracking' => 'required',
+                'status_order_items' => 'required',
                 'status_notes_order_item' => [
                     'required_if:status_order_items.slug,==,rejected',
                     'max:250'
                 ],
             ],
             [
-                'status_notes_order_item.required_if' => 'The Status field is required for rejected status',
+                'types.required' => 'The Type field is required',
+                'product.required' => 'The Product field is required',
+                'product_variation.required' => 'The Product Variation field is required',
+                'vendor.required' => 'The Vendor field is required',
+                'customer_group.required' => 'The Customer Group field is required',
+                'invoice_url.required' => 'The Invoice URL field is required',
+                'status_order_items.required' => 'The Status field is required',
+                'tracking.required' => 'The Tracking field is required',
+                'status_notes_order_item.required_if' => 'The Status Notes is required for rejected status',
                 'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
             ]);
+
         if($rules->fails()){
             return [
                 'success' => false,

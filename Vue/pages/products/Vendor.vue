@@ -54,16 +54,18 @@ const toggleSelectedMenuState = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
+                            class="p-button-sm"
                             data-testid="products-save"
                             @click="store.itemAction('save-vendor')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
+                            class="p-button-sm"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-sm"
                             icon="pi pi-times"
                             data-testid="products-to-list"
                             @click="store.toList()">
