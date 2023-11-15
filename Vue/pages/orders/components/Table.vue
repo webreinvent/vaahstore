@@ -159,7 +159,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
+             <Column field="status.name" header="Status"
                      :sortable="true">
 
                  <template #body="prop">
