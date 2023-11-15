@@ -209,7 +209,7 @@ const toggleFormMenu = (event) => {
                         :min="0"
                         data-testid="orders-payable"/>
                 </VhField>
-
+                    
                 <VhField label="Paid*">
                     <InputNumber
                         placeholder="Enter Paid Amount"
