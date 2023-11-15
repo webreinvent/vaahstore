@@ -953,7 +953,7 @@ class Order extends Model
         $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] - $inputs['discount'];
         $inputs['payable'] = $payable_amount;
         $inputs['paid'] = rand(1,$payable_amount);
-        $inputs['status_notes']=$faker->text(rand(1,250));
+        $inputs['status_notes']=$faker->text(rand(5,250));
 
         // fill the payment method column here
         $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null]);
