@@ -129,7 +129,7 @@ class ProductMedia extends Model
         return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug','is_default');
     }
     //-------------------------------------------------
-    public function productMediaImages()
+    public function images()
     {
         return $this->hasMany(ProductMediaImage::class, 'vh_st_product_media_id','id');
     }
@@ -569,7 +569,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation','productMediaImages'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation','images'])
             ->withTrashed()
             ->first();
 
@@ -711,7 +711,7 @@ class ProductMedia extends Model
      //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        //dd('$request',$request, $id);
+
         $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -730,33 +730,39 @@ class ProductMedia extends Model
             return $response;
         }
 
-        // if new image is updated
-        if (isset($inputs['images']) && !empty($inputs['images'])){
-            foreach ($inputs['images'] as $image){
-                $item = self::where('id', $id)->withTrashed()->first();
-                $item->fill($inputs);
-                $item->save();
-
-                // Update or create the associated image
-                $imageModel = new ProductMediaImage;
-                $imageModel->vh_st_product_media_id = $item->id;
-                $imageModel->name = $image['name'];
-                $imageModel->slug = $image['slug'];
-                $imageModel->url = $image['url'];
-                $imageModel->path = $image['path'];
-                $imageModel->size = $image['size'];
-                $imageModel->type = $image['type'];
-                $imageModel->extension = $image['extension'];
-                $imageModel->mime_type = $image['mime_type'];
-                $imageModel->url_thumbnail = $image['url_thumbnail'];
-                $imageModel->thumbnail_size = $image['thumbnail_size'];
-                $imageModel->save();
-            }
-        }else{
-            $item = self::where('id', $id)->withTrashed()->first();
-            $item->fill($inputs);
-            $item->save();
+        // Get the existing images for the item
+        if (isset($inputs['images'][0]['id'])) {
+            $existingImages = ProductMediaImage::where('vh_st_product_media_id', $id)->get();
+            $existingImageIds = $existingImages->pluck('id')->toArray();
+            $inputImageIds = collect($inputs['images'])->pluck('id')->toArray();
+            $imagesToDelete = array_diff($existingImageIds, $inputImageIds);
+            ProductMediaImage::whereIn('id', $imagesToDelete)->forceDelete();
         }
+
+        // Update or create the associated images
+        if (isset($inputs['images']) && !empty($inputs['images'])) {
+            foreach ($inputs['images'] as $image) {
+                $imageModel = ProductMediaImage::updateOrCreate(
+                    [
+                        'vh_st_product_media_id' => $id,
+                        'name' => $image['name'],
+                        'slug' => $image['slug'],
+                        'url' => $image['url'],
+                        'path' => $image['path'],
+                        'size' => $image['size'],
+                        'type' => $image['type'],
+                        'extension' => $image['extension'],
+                        'mime_type' => $image['mime_type'],
+                        'url_thumbnail' => $image['url_thumbnail'],
+                        'thumbnail_size' => $image['thumbnail_size'],
+                    ]
+                );
+            }
+        }
+
+        $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
+        $item->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -773,7 +779,7 @@ class ProductMedia extends Model
             return $response;
         }
 
-        $ids = $item->productMediaImages->pluck('id')->toArray();
+        $ids = $item->images->pluck('id')->toArray();
         ProductMediaImage::whereIn('id', $ids)->forceDelete();
         $item->forceDelete();
 
@@ -829,6 +835,7 @@ class ProductMedia extends Model
             'vh_st_product_id'=> 'required',
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
+            'images'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:100'
@@ -837,9 +844,10 @@ class ProductMedia extends Model
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
-            'vh_st_product_variation_id.required' => 'The Product variation field is required',
+            'vh_st_product_variation_id.required' => 'The Product Variation field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+            'images' => 'The Image field is required.',
         ]
         );
         if($rules->fails()){
@@ -1018,13 +1026,6 @@ class ProductMedia extends Model
 
     }
 
-    //-------------------------------------------------
-    public static function singleProductRemove($request ,$id){
-        ProductMediaImage::where('id', $id)->delete();
-        $response['messages'][] = 'Removed successfully.';
-        return $response;
-
-    }
     //-------------------------------------------------
 
 

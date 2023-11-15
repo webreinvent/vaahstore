@@ -211,9 +211,9 @@ const toggleItemMenu = (event) => {
                                         <b>Product Images</b>
                                     </td>
                                     <td colspan="2" >
-                                        <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"
+                                        <Image v-if="store.item.images && store.item.images.length > 0"
                                                class="pt-2"
-                                               v-for="(item) in store.item.product_media_images"
+                                               v-for="(item) in store.item.images"
                                                :src="store.item.base_path+'/'+item['url']"
                                                preview
                                                alt="Image"

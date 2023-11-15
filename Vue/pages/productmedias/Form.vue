@@ -25,7 +25,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-console.log('from',store);
+
 </script>
 <template>
 
@@ -173,6 +173,7 @@ console.log('from',store);
                     <FileUpload customUpload
                                 name="demo[]"
                                 @upload="store.onImageUpload($event)"
+                                @select="store.onImageUpload"
                                 :multiple="!route.params.id"
                                 accept="image/*"
                                 :pt="{
@@ -182,9 +183,9 @@ console.log('from',store);
                         <template #empty>
 
 
-                            <div v-if="store.item.product_media_images && store.item.product_media_images.length > 0">
+                            <div v-if="store.item.images && store.item.images.length > 0">
                                 <div class="flex flex-wrap sm:p-5 gap-5">
-                                    <div v-for="(file, index) of store.item.product_media_images" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column align-items-center gap-3">
+                                    <div v-for="(file, index) of store.item.images" :key="file.name + file.type + file.size" class="card m-0 px-6 flex flex-column align-items-center gap-3">
                                         <div>
                                             <Image role="presentation"
                                                  :alt="file.name"
@@ -197,7 +198,7 @@ console.log('from',store);
                                         <span severity="success">{{ file.name }}</span>
 
                                         <Button icon="pi pi-times"
-                                                @click="store.onRemoveTemplatingFile(store.item.product_media_images,index)"
+                                                @click="store.onRemoveTemplatingFile(store.item.images,index)"
                                                 outlined
                                                 rounded
                                                 severity="danger" />

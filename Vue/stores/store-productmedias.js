@@ -73,7 +73,8 @@ export const useProductMediaStore = defineStore({
         status_suggestion:null,
         product_variation_suggestion:null,
         product_suggestion:null,
-        form_menu_list: []
+        form_menu_list: [],
+        selectedFiles:null,
     }),
     getters: {
 
@@ -172,14 +173,14 @@ export const useProductMediaStore = defineStore({
         },
         //---------------------------------------------------------------------
         async onImageUpload(event){
-            let selectedFiles = event.files;
-            if(!selectedFiles.length)
+            this.selectedFiles = event.files;
+            if(!this.selectedFiles.length)
             {
                 return false;
             }
             let attachment = []
-            for(let i=0; i<selectedFiles.length; i++){
-                attachment.push(selectedFiles[i]);
+            for(let i=0; i<this.selectedFiles.length; i++){
+                attachment.push(this.selectedFiles[i]);
             }
             let formData  = new FormData();
             for(let i=0; i < attachment.length; i++){
@@ -204,36 +205,8 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async onRemoveTemplatingFile(productMediaImages,index){
-            const details = productMediaImages[index];
-            if (productMediaImages.length > index) {
-                productMediaImages.splice(index, 1);
-            }
-
-            if(details.id){
-                const options = {
-                    method: 'get',
-                };
-                const id = details.id
-                await vaah().ajax(
-                    this.ajax_url+'/single/product/remove/'+id,
-                    this.onRemoveTemplatingFileAfter,
-                    options
-                );
-            }
-
-        },
-        //---------------------------------------------------------------------
-        //---------------------------------------------------------------------
-        async onRemoveTemplatingFileAfter(data,res){
-            if(data)
-            {
-                this.item = data;
-                await this.getList();
-                await this.formActionAfter(data);
-                this.getItemMenu();
-                this.getFormMenu();
-            }
+         onRemoveTemplatingFile(productMediaImages,index){
+             this.item.images.splice(index, 1);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -605,6 +578,7 @@ export const useProductMediaStore = defineStore({
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+                this.removeFile();
             }
         },
         //---------------------------------------------------------------------
@@ -623,7 +597,10 @@ export const useProductMediaStore = defineStore({
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':
+                    console.log('item not this', this.item);
                     this.item.id = null;
+                    this.item.images = null;
+                    this.item.product_media_images = null;
                     await this.getFormMenu();
                     break;
                 case 'trash':
@@ -637,6 +614,15 @@ export const useProductMediaStore = defineStore({
                     break;
             }
         },
+        //---------------------------------------------------------------------
+        removeFile(){
+            if (!this.selectedFiles) {
+                this.selectedFiles = [];
+            }
+            this.selectedFiles.splice(0, this.selectedFiles.length);
+        },
+
+
         //---------------------------------------------------------------------
         async toggleIsActive(item)
         {
