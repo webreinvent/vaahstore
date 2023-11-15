@@ -78,7 +78,7 @@ const toggleItemMenu = (event) => {
                 <div class="p-inputgroup">
 
                     <Button label="Edit"
-                            class="p-button"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="orders-item-to-edit"
                             icon="pi pi-save"/>
@@ -86,7 +86,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
-                        class="p-button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="orders-item-menu"
                         icon="pi pi-angle-down"
@@ -97,7 +97,7 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary p-button"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="orders-item-to-list"
                             @click="store.toList()"/>
