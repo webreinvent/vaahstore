@@ -51,12 +51,21 @@ class ProductsController extends Controller
             $active_stores = $this->getStores();
             $active_brands = $this->getBrands();
             $active_vendors = $this->getVendors();
-
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
-            // set default values
-            $data['empty_item']['store'] = $this->getDefaultStore();
-            $data['empty_item']['brand'] = $this->getDefaultBrand();
+            // set default values of Store if it is not null
+            if($this->getDefaultStore() !== null)
+            {
+                $data['empty_item']['store'] = $this->getDefaultStore();
+                $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore()->id;
+            }
+
+            // set default values of Brand if it is not null
+            if($this->getDefaultBrand() !== null)
+            {
+                $data['empty_item']['brand'] = $this->getDefaultBrand();
+                $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand()->id;
+            }
 
             $data['taxonomy'] = [
                 "product_status" => Taxonomy::getTaxonomyByType('product-status'),

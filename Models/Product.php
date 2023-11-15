@@ -377,7 +377,6 @@ class Product extends Model
                 ->endOfDay()
                 ->toDateTimeString();
         }
-
         $query->whereBetween('updated_at', [$from, $to]);
     }
 
@@ -391,7 +390,6 @@ class Product extends Model
         if (!$validation['success']) {
             return $validation;
         }
-
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
@@ -447,14 +445,12 @@ class Product extends Model
 
     public function scopeGetSorted($query, $filter)
     {
-
         if(!isset($filter['sort']))
         {
             return $query->orderBy('id', 'desc');
         }
 
         $sort = $filter['sort'];
-
 
         $direction = Str::contains($sort, ':');
 
@@ -470,7 +466,6 @@ class Product extends Model
     //-------------------------------------------------
     public function scopeIsActiveFilter($query, $filter)
     {
-
         if(!isset($filter['is_active'])
             || is_null($filter['is_active'])
             || $filter['is_active'] === 'null'
@@ -489,12 +484,10 @@ class Product extends Model
                     ->orWhere('is_active', 0);
             });
         }
-
     }
     //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
-
         if(!isset($filter['trashed']))
         {
             return $query;
@@ -513,7 +506,6 @@ class Product extends Model
 
     public function scopeSearchFilter($query, $filter)
     {
-
         if(!isset($filter['q']))
         {
             return $query;
@@ -524,7 +516,6 @@ class Product extends Model
                 ->orWhere('slug', 'LIKE', '%' . $search . '%')
                 ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
-
     }
     //-------------------------------------------------
     public static function getList($request)
@@ -855,11 +846,11 @@ class Product extends Model
             return $response;
         }
         $item->forceDelete();
-        ProductVendor::deleteProducts($item->id);
-        ProductVariation::deleteProducts($item->id);
-        ProductMedia::deleteProducts($item->id);
-        ProductPrice::deleteProducts($item->id);
-        ProductStock::deleteProducts($item->id);
+        ProductVendor::deleteProduct($item->id);
+        ProductVariation::deleteProduct($item->id);
+        ProductMedia::deleteProduct($item->id);
+        ProductPrice::deleteProduct($item->id);
+        ProductStock::deleteProduct($item->id);
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Record has been deleted';
@@ -920,7 +911,6 @@ class Product extends Model
 
     public static function itemAction($request, $id, $type): array
     {
-
 
         switch($type)
         {

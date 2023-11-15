@@ -219,7 +219,6 @@ const toggleOrderProductMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="orders-active"
                                  data-testid="orders-active"
-                                 @change="store.selectOrderStatus()"
                                  v-model="store.item.is_active_order_item"/>
                 </VhField>
 

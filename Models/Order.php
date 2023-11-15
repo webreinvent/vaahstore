@@ -970,13 +970,7 @@ class Order extends Model
         $inputs['taxonomy_id_order_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
-        $inputs['is_active'] = 0;
-
-        if($status['name'] == 'Approved')
-        {
-            $inputs['is_active'] = 1;
-
-        }
+        $inputs['is_active'] = 1;
 
         // fill the taxonomy status while placing order
         $taxonomy_order_item_status = Taxonomy::getTaxonomyByType('order-items-status');
@@ -985,11 +979,7 @@ class Order extends Model
         $inputs['taxonomy_id_order_items_status'] = $status_order_item_id;
         $status_order_item = $taxonomy_order_item_status->where('id',$status_order_item_id)->first();
         $inputs['status_order_items']=$status_order_item;
-        $inputs['is_active_order_item'] = 0;
-        if($status_order_item['name'] == 'Approved')
-        {
-            $inputs['is_active_order_item'] = 1;
-        }
+        $inputs['is_active_order_item'] = 1;
 
         $number_of_characters = rand(5,250);
         $inputs['status_notes_order_item']=$faker->text($number_of_characters);

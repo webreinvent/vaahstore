@@ -512,7 +512,7 @@ class ProductVendor extends Model
             if(is_array($inputs['taxonomy_id_product_vendor_status'])) {
                 $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
             }
-            
+
             $item->save();
 
             $response = self::getItem($item->id);
@@ -640,6 +640,19 @@ class ProductVendor extends Model
 
     }
     //-------------------------------------------------
+    public static function deleteProduct($items_id){
+
+        if($items_id){
+            self::where('vh_st_product_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
+    //-------------------------------------------------
     public static function deleteProducts($items_id){
         if($items_id){
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
@@ -651,7 +664,5 @@ class ProductVendor extends Model
         }
 
     }
-    //-------------------------------------------------
-
 
 }
