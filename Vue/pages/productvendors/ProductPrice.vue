@@ -124,6 +124,7 @@ const toggleFormMenu = (event) => {
                         name="productprices-amount"
                         v-model="store.item.amount"
                         :min="0"
+                        :max="150000000000000"
                         mode="decimal" showButtons
                         data-testid="productprices-amount"/>
 
