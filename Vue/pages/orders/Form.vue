@@ -152,7 +152,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Amount*">
                     <InputNumber
                         placeholder="Enter a Amount"
-                        inputId="minmax-buttons"
+                        inputId="minmaxfraction" :minFractionDigits="2"
                         name="orders-quantity"
                         v-model="store.item.amount"
                         mode="decimal"
