@@ -91,7 +91,6 @@ class Product extends Model
         {
             $empty_item[$column] = null;
         }
-
         return $empty_item;
     }
 

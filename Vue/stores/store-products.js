@@ -910,6 +910,7 @@ export const useProductStore = defineStore({
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
+                this.variation_item = null;
                 this.getItemMenu();
 
             }
@@ -1104,6 +1105,7 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'products.index'})
+
         },
         //---------------------------------------------------------------------
         toForm()
