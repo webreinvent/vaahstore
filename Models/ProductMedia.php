@@ -203,7 +203,7 @@ class ProductMedia extends Model
 
             if ($item) {
                 $response['success'] = false;
-                $response['messages'][] = "This product and Product Variation is already exist.";
+                $response['messages'][] = "This Product and Product Variation is already exist.";
                 return $response;
             }
 
@@ -310,8 +310,11 @@ class ProductMedia extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('id', 'LIKE', '%' . $search . '%')
+                ->orWhereHas('product', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
         });
 
     }

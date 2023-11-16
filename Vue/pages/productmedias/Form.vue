@@ -170,8 +170,10 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Image">
+
                     <FileUpload customUpload
                                 name="demo[]"
+                                ref="upload_refs"
                                 @upload="store.onImageUpload($event)"
                                 @select="store.onImageUpload"
                                 :multiple="!route.params.id"
@@ -179,7 +181,9 @@ const toggleFormMenu = (event) => {
                                 :pt="{
                                     root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
                                 }"
-                                :maxFileSize="1000000">
+                                :maxFileSize="1000000"
+                                @remove="store.removeUploadedFile"
+                    >
                         <template #empty>
 
 
@@ -208,25 +212,6 @@ const toggleFormMenu = (event) => {
                             <div  v-else>
                                 <p>Drag and drop files to here to upload.</p>
                             </div>
-
-
-<!--                            <div>-->
-<!--                            <Image v-if="store.item.product_media_images && store.item.product_media_images.length > 0"-->
-<!--                                   class="p-1"-->
-<!--                                   v-for="(item) in store.item.product_media_images"-->
-<!--                                   :src="store.item.base_path+'/'+item['url']"-->
-<!--                                   preview-->
-<!--                                   alt="Image"-->
-<!--                                   width="150" />-->
-<!--                            <Image v-else-if="store.item.url"-->
-<!--                                    :src="store.item.base_path+'/'+store.item.url"-->
-<!--                                   preview-->
-<!--                                   alt="Image"-->
-<!--                                   width="150" />-->
-<!--                            <template v-else>-->
-<!--                                <p>Drag and drop files to here to upload.</p>-->
-<!--                            </template>-->
-<!--                            </div>-->
                         </template>
                     </FileUpload>
                 </VhField>

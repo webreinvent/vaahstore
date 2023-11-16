@@ -4,7 +4,6 @@ import { useProductVendorStore } from '../../../stores/store-productvendors'
 
 const store = useProductVendorStore();
 const useVaah = vaah();
-
 </script>
 
 <template>
@@ -121,7 +120,7 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
+                    :sortable="false"
                     style="width:100px;"
                     header="Is Active">
 

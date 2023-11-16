@@ -123,34 +123,6 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-       // async searchProductVariation(event) {
-       //      const query = event;
-       //      const options = {
-       //          params: query,
-       //          method: 'post',
-       //      };
-       //
-       //      await vaah().ajax(
-       //          this.ajax_url+'/search/product/variation',
-       //          this.searchProductVariationAfter,
-       //          options
-       //      );
-       //  },
-       //  //---------------------------------------------------------------------
-       //  searchProductVariationAfter(data,res) {
-       //      if(data)
-       //      {
-       //          this.product_variation_suggestion = data;
-       //      }
-       //  },
-        //---------------------------------------------------------------------
-        // searchProductAfter(data,res) {
-        //     if(data)
-        //     {
-        //         this.product_suggestion = data;
-        //     }
-        // },
-        //---------------------------------------------------------------------
        async searchProductVariation(event) {
             const query = event;
             const options = {
@@ -207,6 +179,11 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
          onRemoveTemplatingFile(productMediaImages,index){
              this.item.images.splice(index, 1);
+        },
+        //---------------------------------------------------------------------
+        removeUploadedFile(e){
+            const indexName = e.file.name;
+            this.item.images = this.item.images.filter(file => file.name !== indexName);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
