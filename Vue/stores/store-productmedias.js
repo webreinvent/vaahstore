@@ -184,6 +184,7 @@ export const useProductMediaStore = defineStore({
         removeUploadedFile(e){
             const indexName = e.file.name;
             this.item.images = this.item.images.filter(file => file.name !== indexName);
+            this.getItem(this.route.params.id);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
