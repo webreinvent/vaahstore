@@ -81,7 +81,7 @@ const toggleOrderProductMenu = (event) => {
 
 
             <div v-if="store.item">
-                <VhField label="Types*">
+                <VhField label="Payment Type*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.types"
