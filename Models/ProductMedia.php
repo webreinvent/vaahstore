@@ -203,7 +203,7 @@ class ProductMedia extends Model
 
             if ($item) {
                 $response['success'] = false;
-                $response['messages'][] = "This Product and Product variation is already exist.";
+                $response['messages'][] = "This Product and Product Variation is already exist.";
                 return $response;
             }
 
@@ -729,7 +729,7 @@ class ProductMedia extends Model
 
         if ($existingItem && $existingItem->id != $id) {
             $response['success'] = false;
-            $response['messages'][] = "This product and Product Variation already exist.";
+            $response['messages'][] = "This Product and Product Variation already exist.";
             return $response;
         }
 
