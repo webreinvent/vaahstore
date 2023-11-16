@@ -234,7 +234,11 @@ class ProductVendor extends Model
 
             $item = new self();
             $item->fill($inputs);
-            $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
+            if (isset($inputs['taxonomy_id_product_vendor_status']['id'])) {
+                $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status']['id'];
+              } else {
+                $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
+              }
             $item->save();
 
             // Save value in the pivot table
