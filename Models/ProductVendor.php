@@ -738,9 +738,9 @@ class ProductVendor extends Model
                              ],
             ],
         [
-            'vh_st_vendor_id.required' => 'The vendor field is required',
-            'store_vendor_product.required' => 'The store field is required',
-            'vh_st_product_id.required' => 'The product field is required',
+            'vh_st_vendor_id.required' => 'The Vendor field is required',
+            'store_vendor_product.required' => 'The Store field is required',
+            'vh_st_product_id.required' => 'The Product field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
