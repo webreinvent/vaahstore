@@ -822,6 +822,37 @@ export const useProductStore = defineStore({
             );
         },
         //---------------------------------------------------------------------
+
+        async saveVendor()
+        {
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+            };
+            options.method = 'POST';
+            options.params = this.item;
+            ajax_url += '/vendor';
+            await vaah().ajax(
+                ajax_url,
+                this.saveVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveVendorAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.toList();
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
         async itemAction(type, item=null){
             if(!item)
             {
@@ -906,11 +937,9 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                console.log(data);
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
-                this.variation_item = null;
                 this.getItemMenu();
 
             }
@@ -918,7 +947,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
-
+            console.log()
             switch (this.form.action)
             {
                 case 'create-and-new':
