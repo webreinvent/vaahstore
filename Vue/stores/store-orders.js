@@ -1015,13 +1015,13 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         getIdWidth()
         {
-            let width = 50;
+            let width = 20;
 
             if(this.list && this.list.total)
             {
                 let chrs = this.list.total.toString();
                 chrs = chrs.length;
-                width = chrs*40;
+                width = chrs*20;
             }
 
             return width+'px';

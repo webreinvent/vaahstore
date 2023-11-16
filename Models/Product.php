@@ -958,7 +958,7 @@ class Product extends Model
                 'max:250'
             ],
             'in_stock'=> 'required|numeric',
-            'quantity'  => 'required|digits_between:1,15',
+            'quantity'  => 'required|digits_between:1,9',
         ],
             [    'name.required' => 'The Name field is required',
                 'slug.required' => 'The Slug field is required',
@@ -969,7 +969,7 @@ class Product extends Model
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
-                'quantity.digits_between' => 'The Quantity field must not be greater than 15 digits',
+                'quantity.digits_between' => 'The Quantity field must not be greater than 9 digits',
             ]
         );
 
