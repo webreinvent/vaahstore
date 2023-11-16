@@ -29,6 +29,7 @@ function () {
      */
     Route::delete('/', 'ProductVendorsController@deleteList')
         ->name('vh.backend.store.productvendors.list.delete');
+
     /**
      * POST create productPrice
      */
@@ -40,6 +41,11 @@ function () {
     Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductVendorsController@fillItem')
+        ->name('vh.backend.store.productvendors.fill');
 
     /**
      * Create Item
@@ -73,6 +79,36 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'ProductVendorsController@itemAction')
         ->name('vh.backend.store.productvendors.item.action');
+
+    /**
+     * Search product
+     */
+    Route::any('/search/product', 'ProductVendorsController@searchProduct')
+        ->name('vh.backend.store.productvendors.search.product');
+
+    /**
+     * Search vendor
+     */
+    Route::any('/search/vendor', 'ProductVendorsController@searchVendor')
+        ->name('vh.backend.store.productvendors.search.vendor');
+
+    /**
+     * Search added by
+     */
+    Route::any('/search/added/by', 'ProductVendorsController@searchAddedBy')
+        ->name('vh.backend.store.productvendors.search.Added');
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'ProductVendorsController@searchStatus')
+        ->name('vh.backend.store.productvendors.search.status');
+
+    /**
+     * Product variation status
+     */
+    Route::any('/search/product/variation', 'ProductVendorsController@searchProductVariation')
+        ->name('vh.backend.store.productvendors.search.variation');
 
     //---------------------------------------------------------
 

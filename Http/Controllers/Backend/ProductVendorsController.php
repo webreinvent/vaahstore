@@ -33,35 +33,26 @@ class ProductVendorsController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['except'] = [
-                'uuid',
-                'created_by',
-                'updated_by',
-                'deleted_by',
-            ];
-
-            $model = new ProductVendor();
-            $fillable = $model->getFillable();
-            $data['fillable']['columns'] = array_diff(
-                $fillable, $data['fillable']['except']
-            );
-
-            foreach ($fillable as $column)
-            {
-                $data['empty_item'][$column] = null;
-            }
+            $data['fillable']['columns'] = ProductVendor::getFillableColumns();
+            $data['fillable']['except'] = ProductVendor::getUnFillableColumns();
+            $data['empty_item'] = ProductVendor::getEmptyItem();
 
             $data['auth_users'] = auth()->user()->get();
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
 
             $data['empty_item']['can_update'] = 0;
             $data['empty_item']['status'] = null;
-            $data['empty_item']['is_active'] = 1;
+            $data['empty_item']['is_active'] = 0;
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
             $data['empty_item']['vendor'] = $this->getDefaultVendor();
+            $data['empty_item']['vh_st_vendor_id'] = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
+                                                     ->pluck('id')->first();
             $data['empty_item']['product_variation'] = $this->getDefaultProductVariation();
             $data['empty_item']['added_by_user'] = $this->getActiveUser();
+            $data['empty_item']['added_by'] = auth()->user()->id;
+
+
             $data['actions'] = [];
 
             $data['active_products'] = $this->getActiveProducts();
@@ -70,12 +61,13 @@ class ProductVendorsController extends Controller
             $data['active_users'] = $this->getActiveUsers();
             $data['active_product_variations'] = $this->getActiveProductVariation();
 
+
             $response['success'] = true;
             $response['data'] = $data;
 
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
@@ -83,6 +75,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = 'Something went wrong.';
             }
         }
+
         return $response;
     }
     //----------------------------------------------------------
@@ -227,14 +220,14 @@ class ProductVendorsController extends Controller
             return ProductVendor::getList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -244,7 +237,10 @@ class ProductVendorsController extends Controller
             $response = [];
             $ids = array_column($inputs, 'id');
             $data = Product::where('is_active', 1)->whereIn( 'vh_st_store_id', $ids)
-                ->get(['id','name','slug']);
+                ->with('store')
+                ->orderBy('vh_st_store_id')
+                ->orderBy('id')
+                ->get(['id','name','slug','vh_st_store_id']);
             $response['success'] = true;
             $response['data']= $data;
             return $response;
@@ -267,31 +263,35 @@ class ProductVendorsController extends Controller
             return ProductVendor::updateList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
+
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+
+
         try{
             return ProductVendor::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
+
         }
     }
     //----------------------------------------------------------
@@ -301,14 +301,31 @@ class ProductVendorsController extends Controller
             return ProductVendor::deleteList($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        try{
+            return ProductVendor::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -318,14 +335,14 @@ class ProductVendorsController extends Controller
             return ProductVendor::createItem($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -335,14 +352,14 @@ class ProductVendorsController extends Controller
             return ProductVendor::getItem($id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -352,14 +369,14 @@ class ProductVendorsController extends Controller
             return ProductVendor::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -369,14 +386,14 @@ class ProductVendorsController extends Controller
             return ProductVendor::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
     //----------------------------------------------------------
@@ -386,14 +403,103 @@ class ProductVendorsController extends Controller
             return ProductVendor::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
             }
+            return $response;
         }
     }
+    //----------------------------------------------------------
+    public function searchProduct(Request $request)
+    {
+        try{
+            return ProductVendor::searchProduct($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchVendor(Request $request)
+    {
+        try{
+            return ProductVendor::searchVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+
+    //------------------------------------------------------------
+
+    public function searchAddedBy(Request $request)
+    {
+        try{
+            return ProductVendor::searchAddedBy($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchStatus(Request $request)
+    {
+        try{
+            return ProductVendor::searchStatus($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function searchProductVariation(Request $request)
+    {
+        try{
+            return ProductVendor::searchProductVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
 }

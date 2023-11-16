@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product_vendor_status:null,
         },
     },
     action: {
@@ -70,6 +71,7 @@ export const useProductVendorStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
@@ -85,70 +87,99 @@ export const useProductVendorStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion= this.product_variations.filter((product_variations) => {
-                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        searchAddeddBy(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.added_by_suggestion = this.active_users;
-                }
-                else {
-                    this.added_by_suggestion= this.active_users.filter((user) => {
-                        return user.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status;
-                }
-                else {
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+       async searchProductVariation(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchProductVariationAfter,
+                options
+            );
         },
 
         //---------------------------------------------------------------------
-        searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.active_vendors;
-                }
-                else {
-                    this.vendor_suggestion= this.active_vendors.filter((vendor) => {
-                        return vendor.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+        searchProductVariationAfter(data,res){
+            if(data){
+                this.product_variation_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchAddedBy(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/added/by',
+                this.searchAddedByAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchAddedByAfter(data,res){
+            if(data){
+                this.added_by_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+       async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        searchStatusAfter(data,res){
+            if(data){
+                this.status_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+       async searchVendor(event) {
+           const query = event;
+           const options = {
+               params: query,
+               method: 'post',
+           };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchVendorAfter(data,res){
+            if(data){
+
+                this.vendor_suggestion = data;
+            }
         },
 
         //---------------------------------------------------------------------
         searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.active_products;
-                }
-                else {
-                    this.product_suggestion= this.active_products.filter((product) => {
-                        return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
+            if (this.product && this.product.length > 0) {
+                this.product_suggestion = this.product.filter((product) => {
+                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
+            }
         },
 
         //---------------------------------------------------------------------
@@ -236,27 +267,18 @@ export const useProductVendorStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchItem()
-        {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
-        },
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }
+          },
         //---------------------------------------------------------------------
         async getProductsListForStore(){
             let options = {
-                params: this.item.stores,
+                params: this.item.store_vendor_product,
                 method: 'POST'
             };
             await vaah().ajax(
@@ -269,7 +291,6 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.item.product = null;
                 this.product = data;
             }
         },
@@ -367,7 +388,7 @@ export const useProductVendorStore = defineStore({
                 this.item.taxonomy_id_product_vendor_status = data.status;
 
                 this.item.vh_st_product_variation_id = data.product_variation;
-                if(data.stores.length != 0){
+                if(data.store_vendor_product.length != 0){
                     this.getProductsListForStore();
                 }
             }else{
@@ -461,6 +482,8 @@ export const useProductVendorStore = defineStore({
                     method = 'DELETE';
                     break;
             }
+
+            this.action.filter = this.query.filter;
 
             let options = {
                 params: this.action,
@@ -560,11 +583,13 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
                 await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
@@ -578,10 +603,14 @@ export const useProductVendorStore = defineStore({
                     this.$router.push({name: 'productvendors.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -603,6 +632,7 @@ export const useProductVendorStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -611,27 +641,21 @@ export const useProductVendorStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -754,7 +778,6 @@ export const useProductVendorStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.index'})
         },
-        //---------------------------------------------------------------------
         toProductPrice(item)
         {
             this.item = vaah().clone(this.assets.empty_item);
@@ -943,6 +966,47 @@ export const useProductVendorStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -960,6 +1024,7 @@ export const useProductVendorStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -979,10 +1044,10 @@ export const useProductVendorStore = defineStore({
                         }
                     },
                     {
-                        label: 'Trash',
-                        icon: 'pi pi-times',
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
-                            this.itemAction('trash');
+                            this.itemAction(is_deleted ? 'restore': 'trash');
                         }
                     },
                     {
@@ -1026,7 +1091,7 @@ export const useProductVendorStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

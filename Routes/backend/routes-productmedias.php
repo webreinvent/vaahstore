@@ -36,6 +36,23 @@ function () {
     Route::post('/image/upload', 'ProductMediasController@uploadImage')
         ->name('vh.backend.store.productmedias.list.uploadImage');
 
+    /**
+     * Remove Single Product image
+     */
+    Route::get('/single/product/remove/{id}', 'ProductMediasController@singleProductRemove')
+        ->name('vh.backend.store.productmedias.singleProductRemove');
+
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductMediasController@fillItem')
+        ->name('vh.backend.store.productmedias.fill');
+
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductMediasController@fillItem')
+        ->name('vh.backend.store.productmedias.fill');
 
     /**
      * Create Item
@@ -69,6 +86,25 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'ProductMediasController@itemAction')
         ->name('vh.backend.store.productmedias.item.action');
+
+    /**
+     * Search product
+     */
+    Route::any('/search/product', 'ProductMediasController@searchProduct')
+        ->name('vh.backend.store.productmedias.search.product');
+
+    /**
+     * Search product variation
+     */
+    Route::any('/search/product/variation', 'ProductMediasController@searchProductVariation')
+        ->name('vh.backend.store.productmedias.search.variation');
+
+
+    /**
+     * Search status
+     */
+    Route::any('/search/status', 'ProductMediasController@searchStatus')
+        ->name('vh.backend.store.productmedias.search.status');
 
     //---------------------------------------------------------
 

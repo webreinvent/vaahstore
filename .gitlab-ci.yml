@@ -44,6 +44,7 @@ deploy_features:
     - php artisan storage:link
     - chmod -R 777 $PROJECT_STORAGE_PATH
     - chmod -R 777 $VAAHCMS_PUBLIC_PATH
+    - echo $VAAHCMS_PUBLIC_PATH
     - rm $VAAHCMS_CONFIG_PATH
     #===== PROTECT ENV FILES
     - chmod 640 $PROJECT_PATH/.env
