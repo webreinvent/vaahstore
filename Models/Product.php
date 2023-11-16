@@ -310,7 +310,6 @@ class Product extends Model
     public static function createVendor($request){
 
         $input = $request->all();
-
         $product_id = $input['id'];
         $validation = self::validatedVendor($input['vendors']);
         if (!$validation['success']) {

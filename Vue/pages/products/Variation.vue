@@ -41,7 +41,7 @@ const toggleSelectedMenuState = (event) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title">
-                        <b>Add Product Attributes</b>
+                        <b>Add Product Variations</b>
                     </div>
 
                 </div>
