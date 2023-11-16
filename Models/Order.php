@@ -858,8 +858,12 @@ class Order extends Model
             [
                 'vh_user_id.required' => 'The User field is required',
                 'amount.min' => 'The Amount field is required',
+                'amount.required' => 'The Amount field is required',
                 'payable.min' => 'The Payable field is required',
+                'payable.required' => 'The Payable field is required',
                 'paid.min' => 'The Paid field is required',
+                'paid.required' => 'The Paid field is required',
+                'delivery_fee.required' => 'The Delivery field is required',
                 'taxonomy_id_order_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'amount.regex' => 'amount must be between 1 to 10 digits',

@@ -46,6 +46,7 @@ const useVaah = vaah();
             </Column>
 
              <Column field="in_stock" header="In Stock"
+                     style="width:60px;"
                      v-if="store.isViewLarge()">
 
                  <template #body="prop">
@@ -141,7 +142,6 @@ const useVaah = vaah();
 
              <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
@@ -151,7 +151,7 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    style="width:100px;"
+                    style="width:80px;"
                     header="Is Active">
 
                 <template #body="prop">
@@ -165,7 +165,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
