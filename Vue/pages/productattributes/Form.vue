@@ -15,7 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    await store.watchItem();
+    await store.getFormMenu();
 });
 
 //--------form_menu
@@ -30,7 +30,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -55,6 +55,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productattributes-save"
                             @click="store.itemAction('save')"
@@ -63,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="productattributes-create-and-new"
                             icon="pi pi-save"/>
 
@@ -76,6 +78,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="productattributes-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -86,7 +89,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="productattributes-to-list"
                             @click="store.toList()">
@@ -98,15 +101,15 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="pt-2">
 
                 <VhField label="Product variation">
                     <AutoComplete v-model="store.item.product_variation"
                                   value="id"
                                   class="w-full"
                                   data-testid="productattributes-vh_st_product_variation_id"
-                                  :suggestions="store.product_variation_suggestion"
-                                  @complete="store.searchProductVariation($event)"
+                                  :suggestions="store.filtered_product_variations"
+                                  @complete="store.searchProductVariation"
                                   @change="store.setProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
@@ -120,30 +123,33 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+
                 <VhField label="Attributes">
                     <AutoComplete v-model="store.item.attribute"
                                   value="id"
                                   class="w-full"
                                   placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
-                                  :suggestions="store.attribute_suggestion"
-                                  @complete="store.searchAttribute($event)"
+                                  :suggestions="store.filtered_attributes"
+                                  @complete="store.searchAttribute"
                                   @change="store.setAttribute($event); store.getAttributeValue()"
                                   :dropdown="true"
                                   optionLabel="name"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
-                                <div>{{ slotProps.option.name }}<b>(slotProps.option.type)</b></div>
+                                <div>{{ slotProps.option.name }}<b>({{slotProps.option.type}})</b></div>
                             </div>
                         </template>
                     </AutoComplete>
                 </VhField>
 
-                <vhField label="Attribute Values" v-if="store.item.attribute_values">
+                <vhField label="Attribute Values" v-if="store.item.attribute && store.item.attribute_values">
                     <div v-for="item in store.item.attribute_values">
                         <div class="p-inputgroup flex-1 p-1">
-                            <span class="p-inputgroup-addon" v-tooltip="item.default_value" >{{ item.default_value.substring(0, 4) + '...' }}</span>
+                            <span class="p-inputgroup-addon" v-tooltip="item.default_value" >
+                                {{ item.default_value.length > 6 ? item.default_value.substring(0, 6) + '...' : item.default_value }}
+                            </span>
                             <InputText v-model="item.new_value" :placeholder="item.default_value" />
                         </div>
                     </div>
