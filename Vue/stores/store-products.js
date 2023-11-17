@@ -372,7 +372,7 @@ export const useProductStore = defineStore({
                 let temp = null;
                 this.select_all_vendor = false;
                 temp = this.item.vendors.filter((item) => {
-                    return item['is_selected'] === true;
+                    return item['is_selected'] === false;
                 });
 
                 if (temp.length === this.item.vendors.length) {
