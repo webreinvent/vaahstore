@@ -1130,9 +1130,18 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toVariation(item)
         {
+            this.variation_item.attribute_option_type =1;
+            this.variation_item.product_attributes =[];
+            this.variation_item.selected_attribute =null;
+            this.variation_item.attribute_options =null;
+            this.variation_item.show_create_form =false;
+            this.variation_item.select_all_variation =false;
+            this.create_variation_data= null;
+            this.new_variation= [];
             this.item = vaah().clone(item);
             // this.variation_item = vaah().clone(this.variation_item);
             this.$router.push({name: 'products.variation', params:{id:item.id}})
+
         },
         //---------------------------------------------------------------------
         toVendor(item)
