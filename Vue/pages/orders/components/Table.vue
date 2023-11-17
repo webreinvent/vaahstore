@@ -144,8 +144,6 @@ const useVaah = vaah();
 
              </Column>
 
-             </Column>
-
              <Column field="paid" header="Paid"
                      v-if="store.isViewLarge()"
                      :sortable="true">
