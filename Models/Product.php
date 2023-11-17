@@ -199,12 +199,21 @@ class Product extends Model
         $all_attribute = $input['all_variation']['all_attribute_name'];
 
         foreach ($all_variation as $key => $value) {
+            // check if product  variation exist for product
+            $item = ProductVariation::where('name', $value['variation_name'])->where('vh_st_product_id',$product_id) ->withTrashed()->first();
+            if ($item) {
+                $response['success'] = false;
+                $response['messages'][] = "This Variation name '{$value['variation_name']}' is already exist.";
+                return $response;
+            }
+
             $item = new ProductVariation();
             $item->name = $value['variation_name'];
             $item->slug = Str::slug($value['variation_name']);
 
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
+
             $item->save();
             foreach ($all_attribute as $k => $v) {
                 $item2 = new ProductAttribute();
