@@ -957,13 +957,14 @@ class Product extends Model
             'vh_st_store_id'=> 'required',
             'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
+            'quantity'  => 'required|numeric|min:1|digits_between:1,9',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:250'
             ],
             'in_stock'=> 'required|numeric',
-            'quantity'  => 'required|digits_between:1,9',
+
         ],
             [    'name.required' => 'The Name field is required',
                 'slug.required' => 'The Slug field is required',
@@ -975,6 +976,8 @@ class Product extends Model
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
                 'quantity.digits_between' => 'The Quantity field must not be greater than 9 digits',
+                'quantity.required' => 'The Product Quantity is required',
+                'quantity.min' => 'The Product Quantity is required',
             ]
         );
 

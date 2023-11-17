@@ -796,11 +796,40 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                await this.getList();
+                this.variation_item = null;
                 this.toList();
             }
         },
 
+        //---------------------------------------------------------------------
+
+        async saveVariation()
+        {
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+            };
+            options.method = 'POST';
+            options.params = this.item;
+            ajax_url += '/variation'
+            await vaah().ajax(
+                ajax_url,
+                this.saveVariationAfter,
+                options
+            );
+        },
+
+
+        //---------------------------------------------------------------------
+
+        async saveVariationAfter(data, res)
+        {
+            if(data)
+            {
+                this.toList();
+                await this.getList();
+            }
+        },
 
         //---------------------------------------------------------------------
 
@@ -845,11 +874,6 @@ export const useProductStore = defineStore({
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
-                    break;
-                case 'save-variation':
-                    options.method = 'POST';
-                    options.params = item;
-                    ajax_url += '/variation'
                     break;
 
                 case 'save-vendor':
@@ -1084,11 +1108,11 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         toList()
         {
+
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'products.index'})
             this.selected_vendor = null;
-            this.selected_attribute = null;
-            this.item.all_variation = null;
+
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1107,7 +1131,7 @@ export const useProductStore = defineStore({
         toVariation(item)
         {
             this.item = vaah().clone(item);
-            this.variation_item = vaah().clone(this.variation_item);
+            // this.variation_item = vaah().clone(this.variation_item);
             this.$router.push({name: 'products.variation', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -1210,6 +1234,13 @@ export const useProductStore = defineStore({
                     icon: 'pi pi-trash',
                     command: () => {
                         this.bulkRemoveProductVariation()
+                    }
+                },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProductVariation(true)
                     }
                 },
             ]

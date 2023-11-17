@@ -57,7 +57,7 @@ const toggleSelectedMenuState = (event) => {
                             v-if="store.item && store.item.id"
                             class="p-button-sm"
                             data-testid="products-save"
-                            @click="store.itemAction('save-variation')"
+                            @click="store.saveVariation()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -167,11 +167,11 @@ const toggleSelectedMenuState = (event) => {
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
-                            <th>Variation name</th>
+                            <th class="col-md-1">Variation name</th>
                             <th v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">
                                 {{ item }}
                             </th>
-                            <th>Action</th>
+                            <th class="col-md-2">Action</th>
                         </tr>
                         </thead>
                         <tbody v-if="store.variation_item.show_create_form">
@@ -216,9 +216,7 @@ const toggleSelectedMenuState = (event) => {
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-                    <div class="pr-1">
-                        <Button label="Remove All" @click="store.bulkRemoveProductVariation(true)" class="btn-danger" size="small" />
-                    </div>
+
                 </div>
 
 <!--                variation table-->
@@ -227,7 +225,7 @@ const toggleSelectedMenuState = (event) => {
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
-                            <th class="col-1">
+                            <th class="col">
                                 <Checkbox v-model="store.variation_item.select_all_variation"
                                           :binary="true" @click="store.selectAllVariation()" />
                             </th>
