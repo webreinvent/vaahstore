@@ -1071,7 +1071,7 @@ class Order extends Model
                 'product.required' => 'The Product field is required',
                 'product_variation.required' => 'The Product Variation field is required',
                 'vendor.required' => 'The Vendor field is required',
-                'customer_group.required' => 'The Customer Group field is required',
+                'customer_group.required' => 'The Customer Groups field is required',
                 'invoice_url.required' => 'The Invoice URL field is required',
                 'status_order_items.required' => 'The Status field is required',
                 'tracking.required' => 'The Tracking field is required',

@@ -153,12 +153,10 @@ const toggleSelectedMenuState = (event) => {
                         </span>
                     </div>
                     <div class="flex col-3">
-                        <div class="pr-1">
+                        <div class="pr-2">
                             <Button label="Create" @click="store.createProductVariation()" severity="primary" size="small" />
                         </div>
-                        <div class="pr-1">
-                            <Button label="Generate" @click="store.generateProductVariation()" severity="primary" size="small" />
-                        </div>
+
                     </div>
                 </div>
 

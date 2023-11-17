@@ -145,7 +145,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Customer Group*">
+                <VhField label="Customer Groups*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.customer_group"
@@ -154,7 +154,7 @@ const toggleOrderProductMenu = (event) => {
                         name="orderitems-customer_group"
                         :suggestions="store.filtered_customer_groups"
                         @complete="store.searchCustomerGroup"
-                        placeholder="Select Customer Group"
+                        placeholder="Select Customer Groups"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-customer_group"
                         forceSelection>

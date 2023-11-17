@@ -469,6 +469,7 @@ export const useProductStore = defineStore({
             this.variation_item.product_attributes = this.variation_item.product_attributes.filter(function(item){ return item.name != attribute.name })
         },
         //---------------------------------------------------------------------
+
         generateProductVariation(){
 
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
