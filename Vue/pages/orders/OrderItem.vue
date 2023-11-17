@@ -145,7 +145,7 @@ const toggleOrderProductMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Customer Groups*">
+                <VhField label="Customer Group*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.customer_group"

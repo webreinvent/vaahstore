@@ -836,7 +836,7 @@ class Order extends Model
             'delivery_fee' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
             'taxes' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
             'discount' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'payable' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
+            'payable' => 'required|numeric|gt:0|regex:/^[+-]?\d{0,10}(\.\d{1,2})?$/',
             'paid' => [
                 'required',
                 'numeric',
@@ -846,6 +846,7 @@ class Order extends Model
                     if ($value > $inputs['payable']) {
                         $fail('The '.$attribute.' amount must not exceed the payable amount.');
                     }
+
                 },
             ],
             'vh_st_payment_method_id' => 'required',
@@ -873,6 +874,7 @@ class Order extends Model
                 'taxes.regex' => 'The Tax amount must be between 1 to 10 digits',
                 'discount.regex' => 'The Discount value must be between 1 to 10 digits',
                 'payable.regex' => 'The Payable amount must be between 1 to 10 digits',
+                'payable.gt' => 'The Payable amount must be greater than 0',
                 'paid.regex' => 'The Paid amount must be between 1 to 10 digits',
                 'paid.max' => 'The Paid amount must be less than payable amount',
                 'vh_st_payment_method_id.required' => 'The Payment Method field is required',

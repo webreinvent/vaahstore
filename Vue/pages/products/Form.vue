@@ -198,7 +198,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Quantity">
+                <VhField label="Quantity*">
                     <InputNumber
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"

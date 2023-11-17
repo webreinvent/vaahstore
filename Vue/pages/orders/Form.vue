@@ -207,9 +207,10 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.payable"
                         mode="decimal" showButtons
                         :min="0"
-                        data-testid="orders-payable"/>
+                        data-testid="orders-payable"
+                        disabled/>
                 </VhField>
-                    
+
                 <VhField label="Paid*">
                     <InputNumber
                         placeholder="Enter Paid Amount"
