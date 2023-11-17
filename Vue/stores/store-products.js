@@ -356,31 +356,31 @@ export const useProductStore = defineStore({
             this.item.vendors = this.item.vendors.filter(function (item) {
                 return item['vendor']['id'] != attribute['vendor']['id']
             })
-            if (attribute.id) {
-                const options = {
-                    method: 'get',
-                };
-                let id = attribute.id;
-                await vaah().ajax(
-                    this.ajax_url + '/' + id + '/remove/vendor',
-                    this.removeVendorAfter,
-                    options
-                );
-            }
+            // if (attribute.id) {
+            //     const options = {
+            //         method: 'get',
+            //     };
+            //     let id = attribute.id;
+            //     await vaah().ajax(
+            //         this.ajax_url + '/' + id + '/remove/vendor',
+            //         this.removeVendorAfter,
+            //         options
+            //     );
+            // }
 
         },
 
-        //---------------------------------------------------------------------
-
-        async removeVendorAfter(data, res) {
-            if (data) {
-                this.item = data;
-                await this.getList();
-                await this.formActionAfter(data);
-                this.getItemMenu();
-                this.getFormMenu();
-            }
-        },
+        // //---------------------------------------------------------------------
+        //
+        // async removeVendorAfter(data, res) {
+        //     if (data) {
+        //         this.item = data;
+        //         await this.getList();
+        //         await this.formActionAfter(data);
+        //         this.getItemMenu();
+        //         this.getFormMenu();
+        //     }
+        // },
 
         //---------------------------------------------------------------------
 
@@ -404,6 +404,7 @@ export const useProductStore = defineStore({
 
                 if (temp.length === this.item.vendors.length) {
 
+                    alert("hi");
                     let temp = null;
                     temp = this.item.vendors.filter((item) => {
                         return item['is_selected'] == true;
@@ -422,6 +423,7 @@ export const useProductStore = defineStore({
                         options
                     );
                 } else {
+                    alert("hello");
                     let temp = null;
                     temp = this.item.vendors.filter((item) => {
                         return item['is_selected'] != true;
