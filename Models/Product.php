@@ -221,7 +221,7 @@ class Product extends Model
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = 'Variation Saved successfully.';
         return $response;
     }
 
