@@ -106,7 +106,7 @@ const toggleSelectedMenuState = (event) => {
                     </div>
 
                     <div class="p-2">
-                        <Button type="button" label="Add" @click="store.addNewProductAttribute()" />
+                        <Button v-if="store.variation_item.selected_attribute" type="button" label="Add" @click="store.addNewProductAttribute()" />
                     </div>
                 </div>
 

@@ -372,7 +372,7 @@ export const useProductStore = defineStore({
                 let temp = null;
                 this.select_all_vendor = false;
                 temp = this.item.vendors.filter((item) => {
-                    return item['is_selected'] == true;
+                    return item['is_selected'] === true;
                 });
 
                 if (temp.length === this.item.vendors.length) {
@@ -893,6 +893,7 @@ export const useProductStore = defineStore({
                 await this.formActionAfter(data);
                 this.getItemMenu();
 
+
             }
         },
         //---------------------------------------------------------------------
@@ -1086,6 +1087,8 @@ export const useProductStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'products.index'})
             this.selected_vendor = null;
+            this.selected_attribute = null;
+            this.item.all_variation = null;
         },
         //---------------------------------------------------------------------
         toForm()
