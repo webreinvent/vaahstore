@@ -248,8 +248,6 @@ class Product extends Model
 
                 if (!isset($value['variation_name']) || empty($value['variation_name'])) {
                     array_push($error_message, "variation name's required");
-                } elseif (!isset($value['media']) || empty($value['media'])){
-                    array_push($error_message, $value["variation_name"]."'s media required");
                 }
 
                 foreach ($all_arrtibute as $k => $v){
@@ -968,7 +966,7 @@ class Product extends Model
             'vh_st_store_id'=> 'required',
             'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
-            'quantity'  => 'required|numeric|min:1|digits_between:1,9',
+            'quantity'  => 'required|numeric|min:0|digits_between:1,9',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',

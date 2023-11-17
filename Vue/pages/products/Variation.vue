@@ -26,6 +26,11 @@ const selected_menu_state = ref();
 const toggleSelectedMenuState = (event) => {
     selected_menu_state.value.toggle(event);
 };
+
+const selected_attribute_menu_state = ref();
+const toggleSelectedAttributeMenuState = (event) => {
+    selected_attribute_menu_state.value.toggle(event);
+};
 //--------/selected_menu_state
 
 
@@ -116,7 +121,7 @@ const toggleSelectedMenuState = (event) => {
                         <!--selected_menu-->
                         <Button
                             type="button"
-                            @click="toggleSelectedMenuState"
+                            @click="toggleSelectedAttributeMenuState"
                             data-testid="products-actions-menu"
                             aria-haspopup="true"
                             aria-controls="overlay_menu">
@@ -124,8 +129,8 @@ const toggleSelectedMenuState = (event) => {
                             <Badge v-if="store.action.items.length > 0"
                                    :value="store.action.items.length" />
                         </Button>
-                        <Menu ref="selected_menu_state"
-                              :model="store.vendor_selected_menu"
+                        <Menu ref="selected_attribute_menu_state"
+                              :model="store.attribute_selected_menu"
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
@@ -154,8 +159,8 @@ const toggleSelectedMenuState = (event) => {
                             <thead>
                             <tr>
                                 <th class="col-1">
-                                    <Checkbox v-model="store.select_all_vendor"
-                                              :binary="true" @click="store.selectAllVendor()" />
+                                    <Checkbox v-model="store.select_all_attribute"
+                                              :binary="true" @click="store.selectAllAttribute()" />
                                 </th>
                                 <th>Attribute name</th>
                                 <th>Action</th>

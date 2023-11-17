@@ -44,6 +44,7 @@ export const useProductStore = defineStore({
         active_stores:null,
         selected_vendor:null,
         select_all_vendor:false,
+        select_all_attribute : false,
         user_error_message: [],
         empty_variation_item : null,
         variation_item: {
@@ -80,6 +81,7 @@ export const useProductStore = defineStore({
         count_filters: 0,
         variation_selected_menu: [],
         vendor_selected_menu: [],
+        attribute_selected_menu : [],
         suggestion:null,
         product_status:null,
         filtered_status:null,
@@ -352,6 +354,14 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
+        selectAllAttribute() {
+            this.variation_item.product_attributes.forEach((i) => {
+                i['is_selected'] = !this.select_all_attribute;
+            })
+        },
+
+        //---------------------------------------------------------------------
+
         async removeVendor(attribute) {
             this.item.vendors = this.item.vendors.filter(function (item) {
                 return item['vendor']['id'] != attribute['vendor']['id']
@@ -367,24 +377,51 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        async bulkRemoveVendor() {
+        async removeAllAttributes()
+        {
+            this.variation_item.product_attributes = [];
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveAttribute() {
 
                 let temp = null;
-                this.select_all_vendor = false;
-                temp = this.item.vendors.filter((item) => {
+                this.select_all_attribute = false;
+                temp = this.variation_item.product_attributes.filter((item) => {
                     return item['is_selected'] === false;
                 });
 
-                if (temp.length === this.item.vendors.length) {
-
-                    this.item.vendors = [];
+                if (temp.length === this.variation_item.product_attributes.length) {
+                    dd("hello");
+                    this.variation_item.product_attributes = [];
                 }
                 else {
-
-                    this.item.vendors = temp;
+                        dd("hi");
+                    this.variation_item.product_attributes = temp;
                 }
 
         },
+        //---------------------------------------------------------------------
+
+        async bulkRemoveVendor() {
+
+            let temp = null;
+            this.select_all_vendor = false;
+            temp = this.item.vendors.filter((item) => {
+                return item['is_selected'] === false;
+            });
+
+            if (temp.length === this.item.vendors.length) {
+
+                this.item.vendors = [];
+            }
+            else {
+
+                this.item.vendors = temp;
+            }
+
+        },
+
         //---------------------------------------------------------------------
 
         async bulkRemoveVendorAfter() {
@@ -797,8 +834,8 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                this.variation_item = null;
                 this.toList();
+                await this.getList();
             }
         },
 
@@ -1272,6 +1309,25 @@ export const useProductStore = defineStore({
                 },
 
             ]
+            this.attribute_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveAttribute()
+                    }
+                },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllAttributes()
+                    }
+                },
+
+            ]
+
+
         },
 
         //---------------------------------------------------------------------
