@@ -101,7 +101,7 @@ const toggleSelectedMenuState = (event) => {
                     </div>
 
                     <div class="p-2">
-                        <Button type="button" label="Add" @click="store.addVendor()" />
+                        <Button v-if="store.selected_vendor" type="button" label="Add" @click="store.addVendor()" />
                     </div>
                 </div>
 
