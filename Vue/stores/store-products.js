@@ -356,84 +356,34 @@ export const useProductStore = defineStore({
             this.item.vendors = this.item.vendors.filter(function (item) {
                 return item['vendor']['id'] != attribute['vendor']['id']
             })
-            // if (attribute.id) {
-            //     const options = {
-            //         method: 'get',
-            //     };
-            //     let id = attribute.id;
-            //     await vaah().ajax(
-            //         this.ajax_url + '/' + id + '/remove/vendor',
-            //         this.removeVendorAfter,
-            //         options
-            //     );
-            // }
-
+            this.select_all_vendor = false;
         },
 
-        // //---------------------------------------------------------------------
-        //
-        // async removeVendorAfter(data, res) {
-        //     if (data) {
-        //         this.item = data;
-        //         await this.getList();
-        //         await this.formActionAfter(data);
-        //         this.getItemMenu();
-        //         this.getFormMenu();
-        //     }
-        // },
+        //---------------------------------------------------------------------
+        async removeAllVendor()
+        {
+            this.item.vendors = [];
+            this.select_all_vendor = false;
+        },
 
         //---------------------------------------------------------------------
-
-        async bulkRemoveVendor(id, all = null) {
-
-            if (all) {
-                const options = {
-                    method: 'get',
-                };
-                await vaah().ajax(
-                    this.ajax_url + '/' + id + '/bulk-remove/vendor',
-                    this.bulkRemoveVendorAfter,
-                    options
-                );
-            } else {
+        async bulkRemoveVendor() {
 
                 let temp = null;
+                this.select_all_vendor = false;
                 temp = this.item.vendors.filter((item) => {
                     return item['is_selected'] == true;
                 });
 
                 if (temp.length === this.item.vendors.length) {
 
-                    alert("hi");
-                    let temp = null;
-                    temp = this.item.vendors.filter((item) => {
-                        return item['is_selected'] == true;
-                    });
+                    this.item.vendors = [];
+                }
+                else {
 
                     this.item.vendors = temp;
-                    this.select_all_product = false;
-                    let id = this.route.params.id;
-                    const options = {
-                        method: 'get',
-                    };
-
-                    await vaah().ajax(
-                        this.ajax_url + '/' + id + '/bulk-remove/vendor',
-                        this.bulkRemoveVendorAfter,
-                        options
-                    );
-                } else {
-                    alert("hello");
-                    let temp = null;
-                    temp = this.item.vendors.filter((item) => {
-                        return item['is_selected'] != true;
-                    })
-                    this.item.vendors = temp;
-                    this.select_all_vendor = false;
-                    await this.itemAction('save-vendor')
                 }
 
-            }
         },
         //---------------------------------------------------------------------
 
@@ -670,7 +620,6 @@ export const useProductStore = defineStore({
                 this.active_stores = data.active_stores;
                 this.types = data.taxonomy.types;
                 this.active_vendors = data.active_vendors;
-                this.selected_vendor = data.default_vendor;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 if(data.rows)
                 {
@@ -1136,7 +1085,7 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'products.index'})
-
+            this.selected_vendor = null;
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1270,6 +1219,14 @@ export const useProductStore = defineStore({
                         this.bulkRemoveVendor()
                     }
                 },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllVendor()
+                    }
+                },
+
             ]
         },
 

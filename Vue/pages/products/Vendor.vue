@@ -92,11 +92,11 @@ const toggleSelectedMenuState = (event) => {
                                   optionLabel="name"
                                   placeholder="Select a Vendor"
                                   class="w-full">
-                            <template #optiongroup="slotProps">
-                                <div class="flex align-items-center">
-                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>
-                                </div>
-                            </template>
+<!--                            <template #optiongroup="slotProps">-->
+<!--                                <div class="flex align-items-center">-->
+<!--                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>-->
+<!--                                </div>-->
+<!--                            </template>-->
                         </Dropdown>
                     </div>
 
@@ -125,9 +125,9 @@ const toggleSelectedMenuState = (event) => {
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-                    <div class="pr-1">
-                        <Button label="Remove All" @click="store.bulkRemoveVendor(store.item.id,true)" class="btn-danger" size="small" />
-                    </div>
+<!--                    <div class="pr-1">-->
+<!--                        <Button label="Remove All" @click="store.removeAllVendor()" class="btn-danger" size="small" />-->
+<!--                    </div>-->
                 </div>
 
                 <!--added vendor's list-->
@@ -142,7 +142,7 @@ const toggleSelectedMenuState = (event) => {
                             </th>
                             <th scope="col">Vendor name</th>
                             <th scope="col">Can update</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">Status*</th>
                             <th scope="col">Status notes</th>
                             <th scope="col">Action</th>
                         </tr>
@@ -151,7 +151,7 @@ const toggleSelectedMenuState = (event) => {
                         <tr v-for="(item, index) in store.item.vendors">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                             <td>
-                                <InputText v-model="item['vendor']['name']" class="w-full" />
+                                <InputText v-model="item['vendor']['name']" class="w-full" disabled/>
                             </td>
                             <td>
                                 <InputSwitch v-model="item['can_update']" />

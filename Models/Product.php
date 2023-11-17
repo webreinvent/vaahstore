@@ -318,11 +318,13 @@ class Product extends Model
         $vendor_data = $input['vendors'];
 
         $active_user = auth()->user();
-        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_active'=>0]);
+
         foreach ($vendor_data as $key=>$value){
 
             $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
+
             if (isset($value['id']) && !empty($value['id'])){
+
                 $item = ProductVendor::where('id',$value['id'])->first();
                 $item->vh_st_product_id = $product_id;
                 $item->vh_st_vendor_id = $value['vendor']['id'];
@@ -333,13 +335,18 @@ class Product extends Model
                 $item->is_active = 1;
                 $item->save();
             }else if($precious_record){
-                $precious_record->added_by = $active_user->id;
-                $precious_record->can_update = $value['can_update'];
-                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $precious_record->status_notes = $value['status_notes'];
-                $precious_record->is_active = 1;
-                $precious_record->save();
+
+                $response['success'] = false;
+                $response['messages'][] = "This Vendor '{$value['vendor']['name']}' is already exist.";
+                return $response;
+//                $precious_record->added_by = $active_user->id;
+//                $precious_record->can_update = $value['can_update'];
+//                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
+//                $precious_record->status_notes = $value['status_notes'];
+//                $precious_record->is_active = 1;
+//                $precious_record->save();
             }else {
+
                 $item = new ProductVendor();
                 $item->vh_st_product_id = $product_id;
                 $item->vh_st_vendor_id = $value['vendor']['id'];
@@ -353,7 +360,7 @@ class Product extends Model
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = 'Vendor Added successfully.';
         return $response;
 
     }
@@ -753,7 +760,7 @@ class Product extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status', 'productAttributes', 'productVendors'
+                'brand','store','type','status', 'productAttributes',
             ])
             ->withTrashed()
             ->first();
