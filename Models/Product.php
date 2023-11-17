@@ -210,10 +210,12 @@ class Product extends Model
             $item = new ProductVariation();
             $item->name = $value['variation_name'];
             $item->slug = Str::slug($value['variation_name']);
-
+            $item->in_stock = 'No';
+            $item->quantity = 0;
+            $taxonomy_status_id = Taxonomy::getTaxonomyByType('product-variation-status')->where('name', 'Pending')->pluck('id')->first();
+            $item->taxonomy_id_variation_status = $taxonomy_status_id;
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
-
             $item->save();
             foreach ($all_attribute as $k => $v) {
                 $item2 = new ProductAttribute();
