@@ -110,6 +110,31 @@ const toggleSelectedMenuState = (event) => {
                     </div>
                 </div>
 
+                <div class="p-1 pl-2 flex flex-wrap col-12"
+                     v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
+                    <div class="col-10">
+                        <!--selected_menu-->
+                        <Button
+                            type="button"
+                            @click="toggleSelectedMenuState"
+                            data-testid="products-actions-menu"
+                            aria-haspopup="true"
+                            aria-controls="overlay_menu">
+                            <i class="pi pi-angle-down"></i>
+                            <Badge v-if="store.action.items.length > 0"
+                                   :value="store.action.items.length" />
+                        </Button>
+                        <Menu ref="selected_menu_state"
+                              :model="store.vendor_selected_menu"
+                              :popup="true" />
+                        <!--/selected_menu-->
+                    </div>
+                    <!--                    <div class="pr-1">-->
+                    <!--                        <Button label="Remove All" @click="store.removeAllVendor()" class="btn-danger" size="small" />-->
+                    <!--                    </div>-->
+                </div>
+
+
 <!--                Product Attributes-->
 
                 <div class="col-12 ">
