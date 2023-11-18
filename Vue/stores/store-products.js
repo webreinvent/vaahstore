@@ -392,11 +392,9 @@ export const useProductStore = defineStore({
                 });
 
                 if (temp.length === this.variation_item.product_attributes.length) {
-                    dd("hello");
                     this.variation_item.product_attributes = [];
                 }
                 else {
-                        dd("hi");
                     this.variation_item.product_attributes = temp;
                 }
 
@@ -493,7 +491,11 @@ export const useProductStore = defineStore({
         addNewProductAttribute(data = null){
 
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
-                this.variation_item.product_attributes.push(this.variation_item.selected_attribute);
+                let  new_attribute = {
+                    ...this.variation_item.selected_attribute,
+                    is_selected: false
+                };
+                this.variation_item.product_attributes.push(new_attribute);
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
             else if(this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 1){
@@ -1478,7 +1480,6 @@ export const useProductStore = defineStore({
 
             if(this.item && this.item.id)
             {
-                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1497,21 +1498,40 @@ export const useProductStore = defineStore({
 
                         }
                     },
-                    {
-                        label: is_deleted ? 'Restore': 'Trash',
-                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
-                        command: () => {
-                            this.itemAction(is_deleted ? 'restore': 'trash');
-                        }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
+
                 ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+                else {
+                    form_menu.push({
+                        label: 'Trash',
+                        icon: 'pi pi-times',
+                        command: () => {
+                            this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
+
 
             } else{
                 form_menu = [
@@ -1537,17 +1557,17 @@ export const useProductStore = defineStore({
                         command: () => {
                             this.setActiveItemAsEmpty();
                         }
-                    },
-                    {
-                        label: 'Fill',
-                        icon: 'pi pi-pencil',
-                        command: () => {
-                            this.getFormInputs();
-                        }
                     }
-
                 ];
             }
+
+            form_menu.push({
+                label: 'Fill',
+                icon: 'pi pi-pencil',
+                command: () => {
+                    this.getFormInputs();
+                }
+            },)
 
             this.form_menu_list = form_menu;
 
