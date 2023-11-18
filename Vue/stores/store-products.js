@@ -545,6 +545,7 @@ export const useProductStore = defineStore({
                 this.variation_item.create_variation_data = [];
             }
         },
+
         //---------------------------------------------------------------------
         createProductVariation(){
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){

@@ -356,9 +356,8 @@ class ProductsController extends Controller
                     array_push($value_name, $v[$value]['value']);
                 }
 
-                $v['variation_name'] = $product_detail->name.'-'.implode('-', $value_name);
+                $v['variation_name'] = $product_detail->name.'-'.implode('/', $value_name);
                 $v['is_selected'] = false;
-                $v['media'] = 1;
                 array_push($structured_variation, $v);
             }
 
