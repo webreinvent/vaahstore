@@ -54,16 +54,18 @@ const toggleSelectedMenuState = (event) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
+                            class="p-button-sm"
                             data-testid="products-save"
-                            @click="store.itemAction('save-vendor')"
+                            @click="store.saveVendor()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
+                            class="p-button-sm"
                             href="https://vaah.dev/store"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-sm"
                             icon="pi pi-times"
                             data-testid="products-to-list"
                             @click="store.toList()">
@@ -90,16 +92,16 @@ const toggleSelectedMenuState = (event) => {
                                   optionLabel="name"
                                   placeholder="Select a Vendor"
                                   class="w-full">
-                            <template #optiongroup="slotProps">
-                                <div class="flex align-items-center">
-                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>
-                                </div>
-                            </template>
+<!--                            <template #optiongroup="slotProps">-->
+<!--                                <div class="flex align-items-center">-->
+<!--                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>-->
+<!--                                </div>-->
+<!--                            </template>-->
                         </Dropdown>
                     </div>
 
-                    <div class="p-1">
-                        <Button type="button" label="Add" @click="store.addVendor()" />
+                    <div class="p-2">
+                        <Button v-if="store.selected_vendor" type="button" label="Add" @click="store.addVendor()" />
                     </div>
                 </div>
 
@@ -115,20 +117,15 @@ const toggleSelectedMenuState = (event) => {
                             aria-haspopup="true"
                             aria-controls="overlay_menu">
                             <i class="pi pi-angle-down"></i>
-                            <Badge v-if="store.action.items.length > 0"
-                                   :value="store.action.items.length" />
                         </Button>
                         <Menu ref="selected_menu_state"
                               :model="store.vendor_selected_menu"
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-                    <div class="pr-1">
-                        <Button label="Remove All" @click="store.bulkRemoveVendor(true)" class="btn-danger" size="small" />
-                    </div>
                 </div>
 
-<!--                added vendor's list-->
+                <!--added vendor's list-->
                 <div class="col-12"
                      v-if="store.item.vendors && store.item.vendors.length > 0">
                     <table class="table col-12 table-scroll table-striped">
@@ -140,7 +137,7 @@ const toggleSelectedMenuState = (event) => {
                             </th>
                             <th scope="col">Vendor name</th>
                             <th scope="col">Can update</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">Status*</th>
                             <th scope="col">Status notes</th>
                             <th scope="col">Action</th>
                         </tr>
@@ -149,7 +146,7 @@ const toggleSelectedMenuState = (event) => {
                         <tr v-for="(item, index) in store.item.vendors">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                             <td>
-                                <InputText v-model="item['vendor']['name']" class="w-full" />
+                                <InputText v-model="item['vendor']['name']" class="w-full" disabled/>
                             </td>
                             <td>
                                 <InputSwitch v-model="item['can_update']" />

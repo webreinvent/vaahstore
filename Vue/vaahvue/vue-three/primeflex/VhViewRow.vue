@@ -59,7 +59,7 @@ const props = defineProps({
                     <Badge v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                         {{value.name}}
                     </Badge>
-                    <Badge v-else @click="vaah().copy(value.id)" severity="primary">
+                    <Badge v-else @click="vaah().copy(value.name)" severity="primary">
                         {{value.name}}
                     </Badge>
                 </template>
@@ -183,8 +183,8 @@ const props = defineProps({
 
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
-                <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
-                <Tag v-else value="No" severity="danger"></Tag>
+                <Badge value="Yes" v-if="value===1 || value=='yes'" severity="success"></Badge>
+                <Badge v-else value="No" severity="danger"></Badge>
             </td>
         </template>
         <template v-else-if="type==='multipleValues'">
@@ -198,8 +198,7 @@ const props = defineProps({
                 </template>
             </td>
         </template>
-
-
+        
         <template v-else>
             <td  colspan="2">{{value}}</td>
         </template>

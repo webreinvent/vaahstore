@@ -32,6 +32,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'OrdersController@fillItem')
+        ->name('vh.backend.store.orders.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'OrdersController@createItem')
@@ -47,6 +53,7 @@ function () {
      */
     Route::post('/items', 'OrdersController@createOrderItems')
         ->name('vh.backend.store.products.createOrderItems');
+
     /**
      * Update Item
      */
@@ -72,4 +79,46 @@ function () {
 
     //---------------------------------------------------------
 
+    /**
+     * Search Products
+     */
+
+    Route::post('/search/product', 'OrdersController@searchProduct')
+        ->name('vh.backend.store.orders.search.product');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Variations
+     */
+
+    Route::post('/search/product-variation','OrdersController@searchProductVariation')
+        ->name('vh.backend.store.orders.search.product-variation');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Vendor
+     */
+
+    Route::post('/search/vendor', 'OrdersController@searchVendor')
+        ->name('vh.backend.store.orders.search.vendor');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Customer Group
+     */
+
+    Route::post('/search/customer-group', 'OrdersController@searchCustomerGroup')
+        ->name('vh.backend.store.orders.search.customer-group');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search User
+     */
+
+    Route::post('/search/user', 'OrdersController@searchUser')
+        ->name('vh.backend.store.orders.search.user');
 });

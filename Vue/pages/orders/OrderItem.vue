@@ -8,20 +8,20 @@ import {useRoute} from 'vue-router';
 
 const store = useOrderStore();
 const route = useRoute();
-
-onMounted(async () => {
-    if(route.params && route.params.id)
-    {
-        await store.getItem(route.params.id);
-    }
-
-    await store.watchItem();
-});
+store.getOrderProductMenu();
+// onMounted(async () => {
+//
+//     if(route.params && route.params.id)
+//     {
+//         await store.getItem(route.params.id);
+//     }
+//
+// });
 
 //--------form_menu
-const form_menu = ref();
-const toggleFormMenu = (event) => {
-    form_menu.value.toggle(event);
+const order_product_menu = ref(null);
+const toggleOrderProductMenu = (event) => {
+    order_product_menu.value.toggle(event);
 };
 //--------/form_menu
 
@@ -38,7 +38,7 @@ const toggleFormMenu = (event) => {
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span>
-                            Add Order Item
+                            Order Products
                         </span>
                     </div>
 
@@ -50,32 +50,27 @@ const toggleFormMenu = (event) => {
             <template #icons>
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
-                            v-if="store.item && store.item.id"
+                    <Button label="Add"
                             data-testid="orderitems-save"
-                            @click="store.itemAction('save-orderitems')"
+                            @click="store.createOrder()"
                             icon="pi pi-save"/>
-
-                    <Button data-testid="orderitems-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'Documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
                         type="button"
-                        @click="toggleFormMenu"
-                        data-testid="orderitems-form-menu"
+                        @click="toggleOrderProductMenu"
+                        data-testid="orderproduct-form-menu"
                         icon="pi pi-angle-down"
+                        class = "p-button-sm"
                         aria-haspopup="true"/>
 
-                    <Menu ref="form_menu"
-                          :model="store.form_menu_list"
+                    <Menu ref="order_product_menu"
+                          :model="store.order_product_menu_list"
                           :popup="true" />
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-sm"
                             icon="pi pi-times"
                             data-testid="orderitems-to-list"
                             @click="store.toList()">
@@ -86,7 +81,7 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item">
-                <VhField label="Types">
+                <VhField label="Payment Type*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.types"
@@ -102,15 +97,15 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product">
+                <VhField label="Product*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.product"
                         @change="store.setOrderItemProduct($event)"
                         class="w-full"
                         name="orderitems-product"
-                        :suggestions="store.product_suggestion"
-                        @complete="store.searchProduct($event)"
+                        :suggestions="store.products"
+                        @complete="store.searchProduct"
                         placeholder="Select Types"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-product"
@@ -118,15 +113,15 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product Variation">
+                <VhField label="Product Variation*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.product_variation"
                         @change="store.setOrderItemProductVariation($event)"
                         class="w-full"
                         name="orderitems-product_variation"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
+                        :suggestions="store.filtered_product_variations"
+                        @complete="store.searchProductVariation"
                         placeholder="Select Product Variation"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-product_variation"
@@ -134,15 +129,15 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Vendor">
+                <VhField label="Vendor*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
                         @change="store.setOrderItemVendor($event)"
                         class="w-full"
                         name="orderitems-vendor"
-                        :suggestions="store.vendor_suggestion"
-                        @complete="store.searchVendor($event)"
+                        :suggestions="store.filtered_venders"
+                        @complete="store.searchVendor"
                         placeholder="Select vendor"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-vendor"
@@ -150,23 +145,23 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Customer Groups">
+                <VhField label="Customer Groups*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.customer_group"
                         @change="store.setOrderItemCustomerGroup($event)"
                         class="w-full"
                         name="orderitems-customer_group"
-                        :suggestions="store.customer_group_suggestion"
-                        @complete="store.searchCustomerGroup($event)"
-                        placeholder="Select Customer Group"
+                        :suggestions="store.filtered_customer_groups"
+                        @complete="store.searchCustomerGroup"
+                        placeholder="Select Customer Groups"
                         :dropdown="true" optionLabel="name"
                         data-testid="orderitems-customer_group"
                         forceSelection>
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Invoice Url">
+                <VhField label="Invoice Url*">
                     <InputText class="w-full"
                                placeholder="Enter a URL"
                                name="orderitems-invoice_url"
@@ -174,7 +169,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.invoice_url"/>
                 </VhField>
 
-                <VhField label="Tracking">
+                <VhField label="Tracking*">
                     <InputText class="w-full"
                                placeholder="Enter a Tracking"
                                name="orderitems-tracking"
@@ -182,7 +177,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.tracking"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status_order_items"
@@ -215,6 +210,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Active">
+
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="orders-active"

@@ -128,7 +128,7 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')
+        return $this->belongsTo(Product::class,'vh_st_product_id','id')
             ->select('id','name','slug');
     }
 
@@ -762,6 +762,21 @@ class ProductVariation extends Model
 
     //------------------------------------------------
 
+    public static function deleteProduct($items_id){
+
+        if($items_id){
+            self::where('vh_st_product_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
+
+    //------------------------------------------------
+
     public static function seedSampleItems($records=100)
     {
 
@@ -780,7 +795,6 @@ class ProductVariation extends Model
         }
 
     }
-
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)

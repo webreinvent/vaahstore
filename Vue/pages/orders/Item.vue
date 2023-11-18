@@ -58,7 +58,7 @@ const toggleItemMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -76,7 +76,9 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
                     <Button label="Edit"
+                            class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="orders-item-to-edit"
                             icon="pi pi-save"/>
@@ -84,6 +86,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="orders-item-menu"
                         icon="pi pi-angle-down"
@@ -94,7 +97,7 @@ const toggleItemMenu = (event) => {
                           :popup="true" />
                     <!--/item_menu-->
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="orders-item-to-list"
                             @click="store.toList()"/>
@@ -106,7 +109,16 @@ const toggleItemMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div class="mt-2" v-if="store.item">
+
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <tr>
+                        <td  colspan="2" >
+                            <div  style="width:300px;word-break: break-word;">
+                                {{store.item.status_notes}}</div>
+                        </td>
+                    </tr>
+                </Message>
 
                 <Message severity="error"
                          class="p-container-message"
@@ -117,10 +129,10 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
-                        <div class="">
+                        <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="orders-item-restore"
@@ -143,7 +155,9 @@ const toggleItemMenu = (event) => {
                             column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
                             column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
                             column === 'status'|| column === 'status_order'|| column === 'items'||
-                            column === 'is_active_order_item' || column == 'is_invoice_available'">
+                            column === 'is_active_order_item' || column == 'is_invoice_available'
+                            || column == 'meta' || column == 'deleted_by' || column == 'status_notes'
+                             || column == 'slug' || column == 'status_notes_order_item'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -153,12 +167,97 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
-                                column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
                             />
+                        </template>
+
+                        <template v-else-if="column === 'types'">
+                            <tr>
+                                <td><b>Types</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.types.name}}</div>
+                                </td>
+                            </tr>
+                        </template>
+                        <template v-else-if="column === 'product'">
+                            <tr>
+                                <td><b>Product</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.product.name}}</div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'product_variation'">
+                            <tr>
+                                <td><b>Product Variation</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.product_variation.name}}</div>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'vendor'">
+                            <tr>
+                                <td><b>Vendor</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.vendor.name}}</div>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'customer_group'">
+                            <tr>
+                                <td><b>Customer Group</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.customer_group.name}}</div>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'customer_group'">
+                            <tr>
+                                <td><b>Customer Group</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.customer_group.name}}</div>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'status_order_items'">
+                            <tr>
+                                <td><b>Order Status</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.status_order_items.name}}</div>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'status_notes_order_item'">
+                            <tr>
+                                <td><b>Order Status</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.status_order_items.name}}</div>
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'taxonomy_id_order_status'">
@@ -170,8 +269,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
                             <VhViewRow label="Payment Method"
-                                       :value="store.item.payment_method"
-                                       type="user"
+                                       :value="store.item.payment_method.name"
                             />
                         </template>
 
@@ -184,10 +282,10 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_user_id'">
                             <VhViewRow label="User"
-                                       :value="store.item.user"
-                                       type="user"
+                                       :value="store.item.user.first_name"
                             />
                         </template>
+
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"
                                        :value="value"

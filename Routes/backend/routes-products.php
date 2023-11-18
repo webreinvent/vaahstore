@@ -59,6 +59,13 @@ function () {
     Route::post('/variation', 'ProductsController@createVariation')
         ->name('vh.backend.store.products.createVariation');
 
+
+    /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductsController@fillItem')
+        ->name('vh.backend.store.products.fill');
+
     /**
      * Create Item
      */
@@ -91,6 +98,29 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'ProductsController@itemAction')
         ->name('vh.backend.store.products.item.action');
+
+    /**
+     * Search Store
+     */
+    Route::post('/search/store', 'ProductsController@searchStore')
+        ->name('vh.backend.store.products.search.store');
+
+    /**
+     * Search Brand
+     */
+    Route::post('/search/brand', 'ProductsController@searchBrand')
+        ->name('vh.backend.store.products.search.brand');
+
+    /** Remove vendor
+    */
+        Route::get('/{id}/remove/vendor', 'ProductsController@removeVendor')
+            ->name('vh.backend.store.products.remove.vendor');
+
+    /**
+     * Remove All Vendor
+     */
+    Route::get('/{id}/bulk-remove/vendor', 'ProductsController@bulkRemoveVendor')
+        ->name('vh.backend.store.products.remove.bulk.vendor');
 
     //---------------------------------------------------------
 
