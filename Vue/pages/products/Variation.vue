@@ -98,7 +98,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                         <label for="attribute-group" class="ml-2">Attribute Group</label>
                     </div>
                 </div>
-
+                
 <!--                Dropdown for attribute selection-->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
@@ -288,7 +288,6 @@ const toggleSelectedAttributeMenuState = (event) => {
                                 v-for="(item, index) in store.item.all_variation.all_attribute_name">
                                 {{ item }}
                             </th>
-                            <th scope="col">Media</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
@@ -300,9 +299,6 @@ const toggleSelectedAttributeMenuState = (event) => {
                                 </td>
                                 <td v-for="(i) in store.item.all_variation.all_attribute_name">
                                     <InputText v-model="item[i]['value']" class="w-full md:w-5rem" disabled="true"/>
-                                </td>
-                                <td>
-                                    <InputText v-model="item['media']" class="w-full md:w-5rem" />
                                 </td>
                                 <td>
                                     <Button label="Remove"

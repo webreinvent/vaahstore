@@ -124,6 +124,7 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
+
     public function productVariation()
     {
         return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')

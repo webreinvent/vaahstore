@@ -377,6 +377,13 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        async removeAllProductVariation()
+        {
+            this.item.all_variation = {};
+        },
+
+        //---------------------------------------------------------------------
         async removeAllAttributes()
         {
             this.variation_item.product_attributes = [];
@@ -385,13 +392,18 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async bulkRemoveAttribute() {
 
+            let selected_attribute = this.variation_item.product_attributes.filter(attribute => attribute.is_selected);
                 let temp = null;
                 this.select_all_attribute = false;
                 temp = this.variation_item.product_attributes.filter((item) => {
                     return item['is_selected'] === false;
                 });
 
-                if (temp.length === this.variation_item.product_attributes.length) {
+            if (selected_attribute.length === 0) {
+                vaah().toastErrors(['Select a Attribute']);
+                return false;
+            }
+            else if (temp.length === this.variation_item.product_attributes.length) {
                     this.variation_item.product_attributes = [];
                 }
                 else {
@@ -495,6 +507,10 @@ export const useProductStore = defineStore({
                     ...this.variation_item.selected_attribute,
                     is_selected: false
                 };
+                if (this.variation_item.product_attributes.some(attr => attr.id === new_attribute.id)) {
+                    vaah().toastErrors(['Attribute already added']);
+                    return false;
+                }
                 this.variation_item.product_attributes.push(new_attribute);
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
@@ -552,20 +568,28 @@ export const useProductStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        bulkRemoveProductVariation(all = null){
+        bulkRemoveProductVariation(){
 
-            if (all){
-                this.item.all_variation = {};
-                this.variation_item.select_all_variation = false;
-            }else{
-                let temp = null;
-                temp = this.item.all_variation.structured_variation.filter((item) => {
-                    return item['is_selected'] != true;
-                });
-                this.item.all_variation.structured_variation = temp;
+            let selected_variation = this.item.all_variation.structured_variation.filter(variation => variation.is_selected);
+            let temp = null;
+            this.variation_item.select_all_variation = false;
+            temp = this.item.all_variation.structured_variation.filter((item) => {
+                return item['is_selected'] === false;
+            });
 
-                this.variation_item.select_all_variation = false;
+            if (selected_variation.length === 0) {
+                vaah().toastErrors(['Select a Variation to remove']);
+                return false;
             }
+            else if(temp.length === this.item.all_variation.structured_variation.length)
+                {
+                    this.item.all_variation = {};
+                }
+
+            else {
+                this.item.all_variation.structured_variation = temp;
+            }
+
 
         },
         //---------------------------------------------------------------------
@@ -591,6 +615,7 @@ export const useProductStore = defineStore({
             if (this.variation_item.new_variation
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
+
                 if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
 
                     let error_message = [];
@@ -616,10 +641,12 @@ export const useProductStore = defineStore({
                     })
 
                     if(error_message && error_message.length == 0){
-                        this.item.all_variation.structured_variation.push(Object.assign({},this.variation_item.new_variation));
+                        let new_variation = Object.assign({}, this.variation_item.new_variation);
+                        new_variation.is_selected = false;
+                        this.item.all_variation.structured_variation.push(new_variation);
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
-                        console.log(this.item.all_variation);
+
                     }else{
                         this.showUserErrorMessage(error_message, 4000);
                     }
@@ -629,6 +656,7 @@ export const useProductStore = defineStore({
                         structured_variation: [Object.assign({},this.variation_item.new_variation)],
                         all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
                     };
+
                     this.item.all_variation = temp;
                     this.variation_item.create_variation_data = null;
                     this.variation_item.show_create_form = false;
@@ -1297,7 +1325,7 @@ export const useProductStore = defineStore({
                     label: 'Remove All',
                     icon: 'pi pi-trash',
                     command: () => {
-                        this.bulkRemoveProductVariation(true)
+                        this.removeAllProductVariation()
                     }
                 },
             ]
