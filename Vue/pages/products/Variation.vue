@@ -98,7 +98,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                         <label for="attribute-group" class="ml-2">Attribute Group</label>
                     </div>
                 </div>
-                
+
 <!--                Dropdown for attribute selection-->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
@@ -209,14 +209,15 @@ const toggleSelectedAttributeMenuState = (event) => {
                         </span>
                     </div>
                     <div class="flex col-3">
-                        <div class="pr-2">
-                            <Button label="Create" @click="store.createProductVariation()" severity="primary" size="small" />
+                        <div class="pr-1">
+                            <Button label="Create" @click="store.generateProductVariation()" severity="primary" size="small" />
                         </div>
 
                     </div>
                 </div>
 
-<!--                create variation table form-->
+
+                <!--                create variation table form-->
                 <div class="col-12" v-if="store.variation_item.show_create_form">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
