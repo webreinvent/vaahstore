@@ -117,17 +117,12 @@ const toggleSelectedMenuState = (event) => {
                             aria-haspopup="true"
                             aria-controls="overlay_menu">
                             <i class="pi pi-angle-down"></i>
-                            <Badge v-if="store.action.items.length > 0"
-                                   :value="store.action.items.length" />
                         </Button>
                         <Menu ref="selected_menu_state"
                               :model="store.vendor_selected_menu"
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-<!--                    <div class="pr-1">-->
-<!--                        <Button label="Remove All" @click="store.removeAllVendor()" class="btn-danger" size="small" />-->
-<!--                    </div>-->
                 </div>
 
                 <!--added vendor's list-->

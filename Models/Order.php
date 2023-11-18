@@ -1067,7 +1067,7 @@ class Order extends Model
                 ],
             ],
             [
-                'types.required' => 'The Type field is required',
+                'types.required' => 'The Payment Type field is required',
                 'product.required' => 'The Product field is required',
                 'product_variation.required' => 'The Product Variation field is required',
                 'vendor.required' => 'The Vendor field is required',

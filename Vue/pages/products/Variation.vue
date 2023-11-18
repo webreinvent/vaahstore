@@ -274,7 +274,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                 </div>
 
 <!--                variation table-->
-                <div class="col-12"
+                <div class="container col-12"
                      v-if="store.item.all_variation && Object.keys(store.item.all_variation).length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
@@ -296,7 +296,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                             <tr v-for="(item, index) in store.item.all_variation.structured_variation">
                                 <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                                 <td>
-                                    <InputText v-model="item['variation_name']" class="w-full md:w-5rem" />
+                                    <InputText v-model="item['variation_name']" class="w-full " />
                                 </td>
                                 <td v-for="(i) in store.item.all_variation.all_attribute_name">
                                     <InputText v-model="item[i]['value']" class="w-full md:w-5rem" disabled="true"/>

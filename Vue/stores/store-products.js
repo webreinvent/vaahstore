@@ -405,14 +405,20 @@ export const useProductStore = defineStore({
 
         async bulkRemoveVendor() {
 
+            let selected_vendors = this.item.vendors.filter(vendor => vendor.is_selected);
             let temp = null;
             this.select_all_vendor = false;
             temp = this.item.vendors.filter((item) => {
                 return item['is_selected'] === false;
             });
 
-            if (temp.length === this.item.vendors.length) {
+            if (selected_vendors.length === 0) {
+                vaah().toastErrors(['Select a vendor']);
+                return false;
+            }
 
+            else if (temp.length === this.item.vendors.length) {
+                alert("hello");
                 this.item.vendors = [];
             }
             else {
@@ -834,8 +840,9 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                this.toList();
                 await this.getList();
+                this.toList();
+
             }
         },
 
@@ -864,8 +871,9 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                this.toList();
                 await this.getList();
+                this.toList();
+
             }
         },
 

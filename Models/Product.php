@@ -330,7 +330,7 @@ class Product extends Model
 
         foreach ($vendor_data as $key=>$value){
 
-            $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
+            $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
 
             if (isset($value['id']) && !empty($value['id'])){
 
@@ -343,17 +343,9 @@ class Product extends Model
                 $item->status_notes = $value['status_notes'];
                 $item->is_active = 1;
                 $item->save();
-            }else if($precious_record){
-
-                $response['success'] = false;
-                $response['messages'][] = "This Vendor '{$value['vendor']['name']}' is already exist.";
+            }else if($product_vendor){
+                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' is already exist.";
                 return $response;
-//                $precious_record->added_by = $active_user->id;
-//                $precious_record->can_update = $value['can_update'];
-//                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
-//                $precious_record->status_notes = $value['status_notes'];
-//                $precious_record->is_active = 1;
-//                $precious_record->save();
             }else {
 
                 $item = new ProductVendor();
