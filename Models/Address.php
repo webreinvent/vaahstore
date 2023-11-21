@@ -706,12 +706,12 @@ class Address extends Model
             [
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
-                'address_line_1'=>'required|max:100',
-                'address_line_2'=>'required|max:100',
+                'address_line_1'=>'required|max:250',
+                'address_line_2'=>'required|max:250',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
-                    'max:100'
+                    'max:250'
                 ],
             ],
             [
