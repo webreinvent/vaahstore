@@ -644,7 +644,7 @@ class StorePaymentMethod extends Model
             'taxonomy_id_payment_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
         );
 

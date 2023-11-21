@@ -336,8 +336,8 @@ class Vendor extends Model
     public static function vendorInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
             'owned_by' => 'required',
             'auto_approve_products' => 'required',
@@ -347,7 +347,7 @@ class Vendor extends Model
             'is_active' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
 
         ],

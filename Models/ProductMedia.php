@@ -841,7 +841,7 @@ class ProductMedia extends Model
             'images'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
         ],
         [
