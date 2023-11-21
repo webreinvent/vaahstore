@@ -34,7 +34,7 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.product_variation.is_default">Default</Badge>
+                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.is_default">Default</Badge>
                      <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
                          {{prop.data.product_variation.name}}</div>
                  </template>
