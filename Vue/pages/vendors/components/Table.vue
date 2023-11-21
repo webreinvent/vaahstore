@@ -50,8 +50,8 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    {{prop.data.store.name}}
-                    <span v-if="prop.data.store.is_default == 1">
+                    <span v-if="prop.data.store && prop.data.store.name">{{prop.data.store.name}}</span>
+                    <span v-if="prop.data.store && prop.data.store.is_default === 1">
                          <badge>&nbsp;(Default)</badge>
                      </span>
                 </template>
@@ -86,9 +86,9 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.status.slug == 'approved'"
+                    <Badge v-if="prop.data.status && prop.data.status.name == 'Approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>
-                    <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                    <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
                     <Badge v-else
                            severity="primary"> {{prop.data.status.name}} </Badge>
