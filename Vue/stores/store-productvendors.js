@@ -175,6 +175,7 @@ export const useProductVendorStore = defineStore({
 
         //---------------------------------------------------------------------
         searchProduct(event) {
+
             if (this.product && this.product.length > 0) {
                 this.product_suggestion = this.product.filter((product) => {
                     return product.name.toLowerCase().startsWith(event.query.toLowerCase());

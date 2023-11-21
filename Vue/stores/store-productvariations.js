@@ -118,6 +118,7 @@ export const useProductVariationStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
         async searchProduct(event) {
 
             const query = event;
