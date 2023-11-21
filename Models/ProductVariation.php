@@ -108,7 +108,7 @@ class ProductVariation extends Model
          $query=$request->input('query');
         if($query === null)
         {
-            $products = Product::where('is_active',1)->select('id','name','slug')
+            $products = Product::where('is_active',1)->select('id','name')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -117,7 +117,7 @@ class ProductVariation extends Model
 
             $products = Product::where('is_active',1)
                 ->where('name', 'like', "%$query%")
-                ->select('id','name','slug')
+                ->select('id','name')
                 ->get();
         }
         $response['success'] = true;

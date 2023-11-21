@@ -139,11 +139,11 @@ export const useProductVariationStore = defineStore({
         searchProductAfter(data,res){
             if(data){
 
-                this.vendor_suggestion = data;
+                this.filtered_products = data;
             }
         },
 
-
+        //---------------------------------------------------------------------
 
         async updateQueryFromUrl(route)
         {
