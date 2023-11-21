@@ -735,7 +735,7 @@ class ProductVendor extends Model
             'can_update'=> 'required|max:150',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
                              ],
             ],
         [

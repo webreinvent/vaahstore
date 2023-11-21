@@ -702,13 +702,13 @@ class ProductVariation extends Model
 
         $rules = validator($inputs, [
             'product'=> 'required',
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'sku' => 'required|max:50',
             'taxonomy_id_variation_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
 
             'quantity'  => 'required|digits_between:1,15',

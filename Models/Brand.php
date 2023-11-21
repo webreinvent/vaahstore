@@ -672,25 +672,23 @@ class Brand extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-            'status'=> 'required|max:150',
-            'registered_at'=> 'required',
-            'approved_at'=> 'required',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'registered_by'=> 'required',
+            'registered_at'=> 'required',
             'approved_by'=> 'required',
+            'approved_at'=> 'required',
+            'status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
-
+        
         );
 
         $customMessages = array(
-            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+            'status_notes.required_if' => 'The Status Notes is required for "Rejected" Status',
+            'status_notes.max' => 'The Status Notes may not be greater than :max characters.',
         );
 
         $validator = \Validator::make($inputs, $rules,$customMessages);
