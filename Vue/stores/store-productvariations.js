@@ -69,7 +69,7 @@ export const useProductVariationStore = defineStore({
         suggestion: null,
         active_products: null,
         status_suggestion:null,
-        product_suggestion:null,
+        filtered_products:null,
     }),
     getters: {
 
@@ -118,13 +118,32 @@ export const useProductVariationStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchProduct(event) {
+        async searchProduct(event) {
 
-            this.product_suggestion= this.active_products.filter((products) => {
-                return products.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
         },
+
         //---------------------------------------------------------------------
+
+        searchProductAfter(data,res){
+            if(data){
+
+                this.vendor_suggestion = data;
+            }
+        },
+
+
+
         async updateQueryFromUrl(route)
         {
             if(route.query)

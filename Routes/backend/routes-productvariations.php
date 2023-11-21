@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/productvariations',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -70,6 +70,13 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductVariationsController@itemAction')
         ->name('vh.backend.store.productvariations.item.action');
 
+    /**
+     * Search vendor
+     */
+    Route::any('/search/product', 'ProductVariationsController@searchProduct')
+        ->name('vh.backend.store.productvariations.search.product');
+
     //---------------------------------------------------------
+
 
 });
