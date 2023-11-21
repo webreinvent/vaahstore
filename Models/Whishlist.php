@@ -637,10 +637,10 @@ class Whishlist extends Model
             'taxonomy_id_whishlists_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
         );
-
+        
         $customMessages = array(
             'vh_user_id.required' => 'The user field is required.',
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',
