@@ -102,6 +102,32 @@ class ProductVariation extends Model
 
     //-------------------------------------------------
 
+    public static function searchProduct($request)
+    {
+
+         $query=$request->input('query');
+        if($query === null)
+        {
+            $products = Product::where('is_active',1)->select('id','name')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+        else{
+
+            $products = Product::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name')
+                ->get();
+        }
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public function createdByUser()
     {
         return $this->belongsTo(User::class,
@@ -231,6 +257,7 @@ class ProductVariation extends Model
     }
 
     //-------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
