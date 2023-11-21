@@ -683,7 +683,7 @@ class Brand extends Model
                 'required_if:status.slug,==,rejected',
                 'max:250'
             ],
-
+        
         );
 
         $customMessages = array(
