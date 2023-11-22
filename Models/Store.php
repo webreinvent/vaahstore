@@ -240,8 +240,8 @@ class Store extends Model
                 $record->vh_st_store_id = $item->id;
                 $record->name = $value['name'];
 
-                if (!empty($inputs['currency_default'])) {
-                    if ($inputs['currency_default']['name'] == $value['name']) {
+                if (!empty($inputs['default_currency'])) {
+                    if ($inputs['default_currency']['name'] == $value['name']) {
                         $record->is_default = 1;
                     }
                 } else {
@@ -260,8 +260,8 @@ class Store extends Model
                 $record->vh_st_store_id = $item->id;
                 $record->name = $value['name'];
 
-                if (!empty($inputs['language_default'])) {
-                    if ($inputs['language_default']['name'] == $value['name']) {
+                if (!empty($inputs['default_language'])) {
+                    if ($inputs['default_language']['name'] == $value['name']) {
                         $record->is_default = 1;
                     }
                 } else {
@@ -736,7 +736,7 @@ class Store extends Model
             return $response;
         }
 
-        $item->currency_default = null;
+        $item->default_currency = null;
         $item->currencies = [];
         if ($item->currenciesData->isNotEmpty()){
 
@@ -744,7 +744,7 @@ class Store extends Model
                 ->select('name',)->get();
             if($currency_default_record->isNotEmpty()){
 
-                $item->currency_default = $currency_default_record[0];
+                $item->default_currency = $currency_default_record[0];
             }
 
             $currencies = [];
@@ -755,7 +755,7 @@ class Store extends Model
 
         }
 
-        $item->language_default = null;
+        $item->default_language = null;
         $item->languages = [];
         if ($item->lingualData->isNotEmpty()){
 
@@ -763,7 +763,7 @@ class Store extends Model
 
             if($language_default_record->isNotEmpty()){
 
-                $item->language_default = $language_default_record[0];
+                $item->default_language = $language_default_record[0];
             }
 
             $languages = [];
@@ -835,8 +835,8 @@ class Store extends Model
 
             }
 
-            if (!empty($inputs['currency_default'])){
-                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['currency_default']['name'],
+            if (!empty($inputs['default_currency'])){
+                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_currency']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
             }
         }else{
@@ -855,8 +855,8 @@ class Store extends Model
 
             }
 
-            if (!empty($inputs['language_default'])){
-                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['language_default']['name'],
+            if (!empty($inputs['default_language'])){
+                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_language']['name'],
                     'is_active' => 1])->update(['is_default' => 1]);
             }
         }else{
@@ -963,8 +963,8 @@ class Store extends Model
                     $record->vh_st_store_id = $item->id;
                     $record->name = $value['name'];
 
-                    if (!empty($inputs['currency_default'])) {
-                        if ($inputs['currency_default']['name'] == $value['name']) {
+                    if (!empty($inputs['default_currency'])) {
+                        if ($inputs['default_currency']['name'] == $value['name']) {
                             $record->is_default = 1;
                         }
                     } else {
@@ -983,8 +983,8 @@ class Store extends Model
                     $record->vh_st_store_id = $item->id;
                     $record->name = $value['name'];
 
-                    if (!empty($inputs['language_default'])) {
-                        if ($inputs['language_default']['name'] == $value['name']) {
+                    if (!empty($inputs['default_language'])) {
+                        if ($inputs['default_language']['name'] == $value['name']) {
                             $record->is_default = 1;
                         }
                     } else {
@@ -1022,14 +1022,14 @@ class Store extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
-        
+
         $inputs['is_multi_currency'] = rand(0,1);
         $inputs['is_multi_lingual'] = rand(0,1);
 
         $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
         $random_currencies = array_rand($currency_list, 3);
         $selected_currencies = [];
-        $inputs['currency_default'] = null;
+        $inputs['default_currency'] = null;
 
         foreach ($random_currencies as $index) {
             $selected_currencies[] = $currency_list[$index];
@@ -1037,7 +1037,7 @@ class Store extends Model
 
         if($inputs['is_multi_currency'] == 1)
         {
-            $inputs['currency_default'] = $selected_currencies[0];
+            $inputs['default_currency'] = $selected_currencies[0];
             foreach ($selected_currencies as $currency)
             {
 
@@ -1048,13 +1048,13 @@ class Store extends Model
         $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
         $random_languages = array_rand($language_list, 3);
         $selected_languages = [];
-        $inputs['language_default'] = null;
+        $inputs['default_language'] = null;
         foreach ($random_languages as $index) {
             $selected_languages[] = $language_list[$index];
         }
         if($inputs['is_multi_lingual'] == 1)
         {
-            $inputs['language_default'] = $selected_languages[0];
+            $inputs['default_language'] = $selected_languages[0];
             foreach ($selected_languages as $language)
             {
 

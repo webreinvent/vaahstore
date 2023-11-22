@@ -160,9 +160,9 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8 flex flex-row">
-                            <Dropdown v-model="store.item.currency_default"
+                            <Dropdown v-model="store.item.default_currency"
                                       :options="store.item.currencies"
-                                      data-testid="store-currency_default"
+                                      data-testid="store-default_currency"
                                       filter
                                       optionLabel="name"
                                       placeholder="Select Default Currency"
@@ -175,8 +175,8 @@ const toggleFormMenu = (event) => {
                                 </template>
                             </Dropdown>
                             <Button
-                                    v-if="store.item && store.item.currency_default"
-                                    @click="store.item.currency_default = null"
+                                    v-if="store.item && store.item.default_currency"
+                                    @click="store.item.default_currency = null"
                                     class="p-button-sm"
                                     data-testid="store-remove-default-currency"
                                     icon="pi pi-times"
@@ -215,7 +215,7 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8 flex flex-row">
-                            <Dropdown v-model="store.item.language_default"
+                            <Dropdown v-model="store.item.default_language"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
                                       filter
@@ -229,8 +229,8 @@ const toggleFormMenu = (event) => {
                                 </template>
                             </Dropdown>
                             <Button
-                                v-if="store.item && store.item.language_default"
-                                @click="store.item.language_default = null"
+                                v-if="store.item && store.item.default_language"
+                                @click="store.item.default_language = null"
                                 class="p-button-sm"
                                 data-testid="store-remove-default-currency"
                                 icon="pi pi-times"/>
