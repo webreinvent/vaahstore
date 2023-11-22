@@ -1049,8 +1049,6 @@ class Store extends Model
 
         }
 
-
-
         $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
         $random_languages = array_rand($language_list, 3);
         $selected_languages = [];

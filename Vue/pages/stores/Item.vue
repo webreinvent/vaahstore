@@ -214,7 +214,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'currency_default'">
+                        <template v-else-if="column === 'currency_default' && store.item.currency_default != null">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Currency</b>
@@ -233,7 +233,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'language_default'">
+                        <template v-else-if="column === 'language_default' && store.item.language_default != null">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Language</b>
