@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
                         || column === 'status' || column === 'status_notes' || column === 'currencies_data'
-                         || column === 'lingual_data' || column === 'meta' || column === 'notes'">
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -214,14 +214,14 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'currency_default' && store.item.currency_default != null">
+                        <template v-else-if="column === 'default_currency' && store.item.default_currency != null">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Currency</b>
                                 </td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        {{store.item.currency_default.name}}</div>
+                                        {{store.item.default_currency.name}}</div>
                                 </td>
                             </tr>
                         </template>
@@ -233,14 +233,14 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'language_default' && store.item.language_default != null">
+                        <template v-else-if="column === 'default_language' && store.item.default_language != null">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Language</b>
                                 </td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        {{store.item.language_default.name}}</div>
+                                        {{store.item.default_language.name}}</div>
                                 </td>
                             </tr>
                         </template>
