@@ -243,20 +243,14 @@ const toggleItemMenu = (event) => {
 
                         </template>
 
-                        <template v-else-if="column === 'default_currency'">
-                            <tr v-if="store.item.default_currency && store.item.default_currency.name">
+                        <template v-else-if="column === 'currency_default'">
+                            <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Currency</b>
                                 </td>
-                                <td  colspan="2" v-if="store.item.default_currency && store.item.default_currency.name">
+                                <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
-                                        </Tag>
-                                    </div>
-
-                                </td>
-                                <td  colspan="2" v-else>
-
+                                        {{store.item.currency_default.name}}</div>
                                 </td>
                             </tr>
                         </template>
@@ -284,18 +278,14 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
-                        <template v-else-if="column === 'default_language'">
-                            <tr v-if="store.item.default_language && store.item.default_language.name">
+                        <template v-else-if="column === 'language_default'">
+                            <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Language</b>
                                 </td>
-                                <td  colspan="2" v-if="store.item.default_language && store.item.default_language.name">
+                                <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
-                                    </div>
-                                </td>
-                                <td v-else>
-
+                                        {{store.item.language_default.name}}</div>
                                 </td>
                             </tr>
                         </template>
