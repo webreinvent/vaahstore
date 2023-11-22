@@ -798,7 +798,7 @@ class Store extends Model
     }
 
     //-------------------------------------------------
-
+    
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
