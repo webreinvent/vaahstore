@@ -76,7 +76,7 @@ const props = defineProps({
                 </template>
             </td>
         </template>
-        
+
         <template v-else-if="type==='defaultCurrency'">
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
