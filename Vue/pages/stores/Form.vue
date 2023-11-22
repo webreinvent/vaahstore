@@ -160,7 +160,7 @@ const toggleFormMenu = (event) => {
                                          v-model="store.item.is_multi_currency"/>
                         </div>
 
-                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-9 flex flex-row">
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8 flex flex-row">
                             <Dropdown v-model="store.item.default_currency"
                                       :options="store.item.currencies"
                                       data-testid="store-default_currency"
@@ -217,7 +217,7 @@ const toggleFormMenu = (event) => {
                                          v-model="store.item.is_multi_lingual"/>
                         </div>
 
-                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-9 flex flex-row">
+                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8 flex flex-row">
                             <Dropdown v-model="store.item.default_language"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"

@@ -1203,14 +1203,14 @@ class Store extends Model
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
-        
+
         $inputs['is_multi_currency'] = rand(0,1);
         $inputs['is_multi_lingual'] =  rand(0,1);
 
         $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
         $random_currencies = array_rand($currency_list, 3);
         $selected_currencies = [];
-        $inputs['currency_default'] = null;
+        $inputs['default_currency'] = null;
 
         foreach ($random_currencies as $index) {
             $selected_currencies[] = $currency_list[$index];
@@ -1218,7 +1218,7 @@ class Store extends Model
 
         if($inputs['is_multi_currency'] == 1)
         {
-            $inputs['currency_default'] = $selected_currencies[0];
+            $inputs['default_currency'] = $selected_currencies[0];
             foreach ($selected_currencies as $currency)
             {
 
@@ -1229,13 +1229,13 @@ class Store extends Model
         $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
         $random_languages = array_rand($language_list, 3);
         $selected_languages = [];
-        $inputs['language_default'] = null;
+        $inputs['default_language'] = null;
         foreach ($random_languages as $index) {
             $selected_languages[] = $language_list[$index];
         }
         if($inputs['is_multi_lingual'] == 1)
         {
-            $inputs['language_default'] = $selected_languages[0];
+            $inputs['default_language'] = $selected_languages[0];
             foreach ($selected_languages as $language)
             {
 
