@@ -215,10 +215,15 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'currency_default'">
-                            <VhViewRow label="Default currency"
-                                       :value="value"
-                                       type="defaultCurrency"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Default Currency</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.currency_default.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'languages'">
@@ -229,10 +234,15 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'language_default'">
-                            <VhViewRow label="Default Language"
-                                       :value="value"
-                                       type="defaultLingual"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Default Language</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.language_default.name}}</div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_multi_currency'">
