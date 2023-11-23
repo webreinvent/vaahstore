@@ -492,15 +492,15 @@ class Store extends Model
 
     public function scopeMultiCurrencyFilter($query, $filter)
     {
-        if(!isset($filter['multicurrency'])
-            || is_null($filter['multicurrency'])
-            || $filter['multicurrency'] === 'null'
+        if(!isset($filter['is_multi_currency'])
+            || is_null($filter['is_multi_currency'])
+            || $filter['is_multi_currency'] === 'null'
         )
         {
             return $query;
         }
 
-        $is_multi_currency = $filter['multicurrency'];
+        $is_multi_currency = $filter['is_multi_currency'];
         if($is_multi_currency == 'true')
         {
             return $query->where(function ($q){
@@ -520,25 +520,25 @@ class Store extends Model
 
     public function scopeMultiLanguageFilter($query, $filter)
     {
-        if(!isset($filter['multicurrency'])
-            || is_null($filter['multicurrency'])
-            || $filter['multicurrency'] === 'null'
+        if(!isset($filter['is_multi_language'])
+            || is_null($filter['is_multi_language'])
+            || $filter['is_multi_language'] === 'null'
         )
         {
             return $query;
         }
 
-        $is_multi_currency = $filter['multicurrency'];
-        if($is_multi_currency == 'true')
+        $is_multi_language = $filter['is_multi_language'];
+        if($is_multi_language == 'true')
         {
             return $query->where(function ($q){
-                $q->Where('is_multi_currency', 1);
+                $q->Where('is_multi_lingual', 1);
             });
         }
         else{
             return $query->where(function ($q){
-                $q->whereNull('is_multi_currency')
-                    ->orWhere('is_multi_currency', 0);
+                $q->whereNull('is_multi_lingual')
+                    ->orWhere('is_multi_lingual', 0);
             });
         }
 
@@ -589,6 +589,7 @@ class Store extends Model
         $list->statusFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->multiCurrencyFilter($request->filter);
+        $list->multiLanguageFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

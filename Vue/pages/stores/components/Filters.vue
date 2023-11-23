@@ -15,20 +15,41 @@ const store = useStoreStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Multi Language:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="multi-language-yes"
+                                 value="true"
+                                 data-testid="stores-filters-multi-language-yes"
+                                 v-model="store.query.filter.is_multi_language" />
+                    <label for="multi-language-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="multi-language-no"
+                                 value="false"
+                                 data-testid="stores-filters-multi-language-no"
+                                 v-model="store.query.filter.is_multi_language" />
+                    <label for="multi-language-yes">No</label>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Multi Currency:</b>
                 </template>
                 <div class="field-radiobutton">
                     <RadioButton name="multi-currency-yes"
                                  value="true"
                                  data-testid="stores-filters-multi-currency-yes"
-                                 v-model="store.query.filter.multicurrency" />
+                                 v-model="store.query.filter.is_multi_currency" />
                     <label for="multicurrency-yes">Yes</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="default-store-no"
                                  value="false"
                                  data-testid="stores-filters-multi-currency-no"
-                                 v-model="store.query.filter.multicurrency" />
+                                 v-model="store.query.filter.is_multi_currency" />
                     <label for="multicurrency-no">No</label>
                 </div>
 
