@@ -15,6 +15,51 @@ const store = useStoreStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Multi Currency:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="multi-currency-yes"
+                                 value="true"
+                                 data-testid="stores-filters-multi-currency-yes"
+                                 v-model="store.query.filter.multicurrency" />
+                    <label for="multicurrency-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-store-no"
+                                 value="false"
+                                 data-testid="stores-filters-multi-currency-no"
+                                 v-model="store.query.filter.multicurrency" />
+                    <label for="multicurrency-no">No</label>
+                </div>
+
+            </VhFieldVertical>
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Default Store:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-store-yes"
+                                 value="true"
+                                 data-testid="stores-filters-default-store-yes"
+                                 v-model="store.query.filter.default" />
+                    <label for="default-store-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-store-no"
+                                 value="false"
+                                 data-testid="stores-filters-default-store-no"
+                                 v-model="store.query.filter.default" />
+                    <label for="default-store-no">No</label>
+                </div>
+
+            </VhFieldVertical>
+
+
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status:</b>
                 </template>
 

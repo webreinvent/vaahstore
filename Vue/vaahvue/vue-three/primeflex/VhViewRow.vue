@@ -70,7 +70,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                       <Tag :severity="primary" :value="data.name" :rounded="true" style="margin-top:10px"></Tag>
+                       <Tag :severity="primary" :value="data.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                         &nbsp;&nbsp;
                     </span>
                 </template>
@@ -92,7 +92,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        <Tag :severity="primary" :value="data.name" :rounded="true" style="margin-top:10px"></Tag> &nbsp;
+                        <Tag :severity="primary" :value="data.name" :rounded="true" style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
             </td>
@@ -113,7 +113,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        <badge :value="data" severity="Default"></badge>&nbsp; &nbsp;
+                        <Tag :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
                 <template v-else><Tag value="No" severity="danger"></Tag></template>
