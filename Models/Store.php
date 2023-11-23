@@ -595,7 +595,7 @@ class Store extends Model
             });
         }
     }
-    
+
     //-------------------------------------------------
 
     public function scopeMultiLanguageFilter($query, $filter)
