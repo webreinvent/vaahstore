@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
@@ -542,7 +542,7 @@ class Store extends Model
             });
         }
     }
-    
+
     //-------------------------------------------------
 
     public function scopeMultiLanguageFilter($query, $filter)
