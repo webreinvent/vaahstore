@@ -116,7 +116,6 @@ const props = defineProps({
                         <Tag :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
-                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
