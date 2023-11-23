@@ -77,7 +77,25 @@ const store = useStoreStore();
 
             </VhFieldVertical>
 
-
+            <VhFieldVertical >
+                <template #label>
+                    <b>Multi Vendor:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="multi-vendor-yes"
+                                 value="true"
+                                 data-testid="stores-filters-multi-vendor-yes"
+                                 v-model="store.query.filter.is_multi_vendor" />
+                    <label for="multi-vendor-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="multi-vendor-no"
+                                 value="false"
+                                 data-testid="stores-filters-multi-vendor-no"
+                                 v-model="store.query.filter.is_multi_vendor" />
+                    <label for="multi-vendor-no">No</label>
+                </div>
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
