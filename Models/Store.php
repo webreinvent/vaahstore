@@ -516,15 +516,15 @@ class Store extends Model
     public function scopeDefaultFilter($query, $filter)
     {
 
-        if(!isset($filter['is_default'])
-            || is_null($filter['is_default'])
-            || $filter['is_default'] === 'null'
+        if(!isset($filter['default'])
+            || is_null($filter['default'])
+            || $filter['default'] === 'null'
         )
         {
             return $query;
         }
 
-        $default = $filter['is_default'][0];
+        $default = $filter['default'];
         if($default == 'true')
         {
             return $query->where(function ($q){
@@ -545,15 +545,15 @@ class Store extends Model
 
     public function scopeMultiCurrencyFilter($query, $filter)
     {
-        if(!isset($filter['is_multi_currency'])
-            || is_null($filter['is_multi_currency'])
-            || $filter['is_multi_currency'] === 'null'
+        if(!isset($filter['multicurrency'])
+            || is_null($filter['multicurrency'])
+            || $filter['multicurrency'] === 'null'
         )
         {
             return $query;
         }
 
-        $is_multi_currency = $filter['is_multi_currency'][0];
+        $is_multi_currency = $filter['multicurrency'];
         if($is_multi_currency == 'true')
         {
             return $query->where(function ($q){
@@ -571,55 +571,27 @@ class Store extends Model
 
     //-------------------------------------------------
 
-    public function scopeMultiVendorFilter($query, $filter)
-    {
-        if(!isset($filter['is_multi_vendor'])
-            || is_null($filter['is_multi_vendor'])
-            || $filter['is_multi_vendor'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $is_multi_vendor = $filter['is_multi_vendor'][0];
-        if($is_multi_vendor == 'true')
-        {
-            return $query->where(function ($q){
-                $q->Where('is_multi_vendor', 1);
-            });
-        }
-        else{
-            return $query->where(function ($q){
-                $q->whereNull('is_multi_vendor')
-                    ->orWhere('is_multi_vendor', 0);
-            });
-        }
-    }
-
-    //-------------------------------------------------
-
     public function scopeMultiLanguageFilter($query, $filter)
     {
-        if(!isset($filter['is_multi_language'])
-            || is_null($filter['is_multi_language'])
-            || $filter['is_multi_language'] === 'null'
+        if(!isset($filter['multicurrency'])
+            || is_null($filter['multicurrency'])
+            || $filter['multicurrency'] === 'null'
         )
         {
             return $query;
         }
 
-        $is_multi_language = $filter['is_multi_language'][0];
-
-        if($is_multi_language == 'true')
+        $is_multi_currency = $filter['multicurrency'];
+        if($is_multi_currency == 'true')
         {
             return $query->where(function ($q){
-                $q->Where('is_multi_lingual', 1);
+                $q->Where('is_multi_currency', 1);
             });
         }
         else{
             return $query->where(function ($q){
-                $q->whereNull('is_multi_lingual')
-                    ->orWhere('is_multi_lingual', 0);
+                $q->whereNull('is_multi_currency')
+                    ->orWhere('is_multi_currency', 0);
             });
         }
 
@@ -679,10 +651,6 @@ class Store extends Model
         $list->statusFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->multiCurrencyFilter($request->filter);
-        $list->multiLanguageFilter($request->filter);
-        $list->multiVendorFilter($request->filter);
-        $list->dateFilter($request->filter);
-
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

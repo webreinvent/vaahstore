@@ -250,7 +250,10 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        {{store.item.default_currency.name}}</div>
+                                        <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
+                                        </Tag>
+                                    </div>
+
                                 </td>
                             </tr>
                         </template>
@@ -285,7 +288,8 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                                        {{store.item.default_language.name}}</div>
+                                        <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
+                                    </div>
                                 </td>
                             </tr>
                         </template>
