@@ -571,6 +571,33 @@ class Store extends Model
 
     //-------------------------------------------------
 
+    public function scopeMultiVendorFilter($query, $filter)
+    {
+        if(!isset($filter['is_multi_vendor'])
+            || is_null($filter['is_multi_vendor'])
+            || $filter['is_multi_vendor'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $is_multi_vendor = $filter['is_multi_vendor'];
+        if($is_multi_vendor == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('is_multi_vendor', 1);
+            });
+        }
+        else{
+            return $query->where(function ($q){
+                $q->whereNull('is_multi_vendor')
+                    ->orWhere('is_multi_vendor', 0);
+            });
+        }
+    }
+    
+    //-------------------------------------------------
+
     public function scopeMultiLanguageFilter($query, $filter)
     {
         if(!isset($filter['is_multi_language'])
@@ -652,6 +679,7 @@ class Store extends Model
         $list->defaultFilter($request->filter);
         $list->multiCurrencyFilter($request->filter);
         $list->multiLanguageFilter($request->filter);
+        $list->multiVendorFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
