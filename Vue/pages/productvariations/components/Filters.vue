@@ -15,6 +15,26 @@ const store = useProductVariationStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Default Product Variation:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-product-variation-yes"
+                                 value="true"
+                                 data-testid="stores-filters-default-product-variation-yes"
+                                 v-model="store.query.filter.default" />
+                    <label for="default-product-variation-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-product-variation-no"
+                                 value="false"
+                                 data-testid="stores-filters-default-product-variation-no"
+                                 v-model="store.query.filter.default" />
+                    <label for="default-product-variation-no">No</label>
+                </div>
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status:</b>
                 </template>
 
