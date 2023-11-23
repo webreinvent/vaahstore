@@ -15,49 +15,6 @@ const store = useProductVariationStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Product:</b>
-                </template>
-
-                <AutoComplete
-                    value="id"
-                    v-model="store.query.filter.product"
-                    @change="store.setProductFilter($event)"
-                    class="w-full"
-                    :suggestions="store.filtered_products"
-                    @complete="store.searchProduct($event)"
-                    placeholder="Select Product"
-                    data-testid="productvariations-product"
-                    name="productvariations-product"
-                    :dropdown="true" optionLabel="name" forceSelection>
-                </AutoComplete>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>In Stock:</b>
-                </template>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-yes"
-                                 value="true"
-                                 data-testid="stores-filters-in-stock-yes"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-yes">Yes</label>
-                </div>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-no"
-                                 value="false"
-                                 data-testid="stores-filters-in-stock-no"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-no">No</label>
-                </div>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
                     <b>Default Product Variation:</b>
                 </template>
                 <div class="field-radiobutton">
