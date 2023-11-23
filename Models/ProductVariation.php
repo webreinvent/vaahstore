@@ -181,6 +181,35 @@ class ProductVariation extends Model
     }
 
     //-------------------------------------------------
+
+    public function scopeDefaultFilter($query, $filter)
+    {
+        if(!isset($filter['default'])
+            || is_null($filter['default'])
+            || $filter['default'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $default = $filter['default'];
+        if($default == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('is_default', 1);
+            });
+        }
+        else{
+            return $query->where(function ($q){
+                $q->whereNull('is_default')
+                    ->orWhere('is_default', 0);
+            });
+        }
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -371,6 +400,8 @@ class ProductVariation extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->defaultFilter($request->filter);
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
