@@ -208,7 +208,7 @@ class ProductAttribute extends Model
             'vh_st_product_variation_id' => 'required',
             'vh_st_attribute_id' => 'required',
             'attribute_values' => '',
-            'attribute_values.*.new_value' => 'max:50'
+            'attribute_values.*.new_value' => 'max:100'
         ],
             [
                 'vh_st_product_variation_id.required' => 'The Product Variation field is required',
@@ -233,7 +233,7 @@ class ProductAttribute extends Model
 
     }
 
-
+    //-------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
     {

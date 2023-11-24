@@ -324,7 +324,6 @@ class Whishlist extends Model
     //-------------------------------------------------
     public static function updateList($request)
     {
-
         $inputs = $request->all();
 
         $rules = array(
@@ -334,7 +333,6 @@ class Whishlist extends Model
         $messages = array(
             'type.required' => 'Action type is required',
         );
-
 
         $validator = \Validator::make($inputs, $rules, $messages);
         if ($validator->fails()) {
@@ -640,7 +638,7 @@ class Whishlist extends Model
                 'max:250'
             ],
         );
-        
+
         $customMessages = array(
             'vh_user_id.required' => 'The user field is required.',
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',
@@ -661,7 +659,6 @@ class Whishlist extends Model
         return $response;
 
     }
-
     //-------------------------------------------------
     public static function getActiveItems()
     {
@@ -671,7 +668,6 @@ class Whishlist extends Model
         return $item;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
@@ -689,10 +685,7 @@ class Whishlist extends Model
             $i++;
 
         }
-
     }
-
-
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {

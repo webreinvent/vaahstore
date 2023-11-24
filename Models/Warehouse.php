@@ -642,12 +642,12 @@ class Warehouse extends Model
     public static function validation($inputs)
     {
         $validated_data = validator($inputs, [
-            'name' => 'required |max:250',
-            'slug' => 'required | max:250',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'vendor' => 'required',
             'country' => 'required',
-            'state' => 'required | max:100',
-            'city' => 'required | max:100',
+            'state' => 'required|max:100',
+            'city' => 'required|max:100',
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -671,12 +671,10 @@ class Warehouse extends Model
         }
 
         $validated_data = $validated_data->validated();
-
         return [
             'success' => true,
             'data' => $validated_data
         ];
-
 
     }
 
