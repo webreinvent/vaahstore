@@ -347,7 +347,7 @@ class ProductVariation extends Model
         }
 
         $in_stock = $filter['in_stock'];
-
+        dd($in_stock);
         if($in_stock == 'true')
         {
             return $query->where(function ($q){
@@ -453,7 +453,7 @@ class ProductVariation extends Model
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->defaultFilter($request->filter);
-
+        $list->inStockFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

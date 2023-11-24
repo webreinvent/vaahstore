@@ -81,8 +81,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status.name" header="Status"
-                     :sortable="true">
+             <Column field="status.name" header="Status">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.status.slug == 'approved'"
