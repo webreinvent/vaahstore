@@ -638,7 +638,7 @@ class Whishlist extends Model
                 'max:250'
             ],
         );
-        
+
         $customMessages = array(
             'vh_user_id.required' => 'The user field is required.',
             'taxonomy_id_whishlists_types.required' => 'The type field is required.',

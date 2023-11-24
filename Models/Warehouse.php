@@ -642,8 +642,8 @@ class Warehouse extends Model
     public static function validation($inputs)
     {
         $validated_data = validator($inputs, [
-            'name' => 'required |max:250',
-            'slug' => 'required | max:250',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'vendor' => 'required',
             'country' => 'required',
             'state' => 'required|max:100',
