@@ -334,6 +334,37 @@ class ProductVariation extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeInStockFilter($query, $filter)
+    {
+
+        if(!isset($filter['in_stock'])
+            || is_null($filter['in_stock'])
+            || $filter['in_stock'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+        dd($in_stock);
+        if($in_stock == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('in_stock', 1);
+            });
+        }
+        else{
+            return $query->where(function ($q){
+                $q->whereNull('in_stock')
+                    ->orWhere('in_stock', 0);
+            });
+        }
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -401,7 +432,7 @@ class ProductVariation extends Model
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->defaultFilter($request->filter);
-
+        $list->inStockFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
