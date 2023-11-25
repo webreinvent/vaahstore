@@ -283,13 +283,9 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setFilterStore(event) {
+        setFilterStore() {
 
-            let store = toRaw(event.value);
-            if(store.slug)
-            {
-                this.query.filter.store = store.slug;
-            }
+            this.query.filter.store = this.searched_store.slug;
         },
 
         //---------------------------------------------------------------------
