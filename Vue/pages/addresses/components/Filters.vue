@@ -2,6 +2,7 @@
 
 import { useAddressStore } from '../../../stores/store-addresses'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useAddressStore();
 
@@ -12,6 +13,71 @@ const store = useAddressStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+
+            <VhFieldVertical>
+                <template #label>
+                    <b>Address Type:</b>
+                </template>
+                <div class="field-autocomplete">
+                    <AutoComplete
+                        v-model="store.query.filter.address_type"
+                        @change="store.setAddressTypeFilter($event)"
+                        class="w-full"
+                        value="id"
+                        name="addresses-type"
+                        :suggestions="store.type_suggestion"
+                        @complete="store.searchType($event)"
+                        placeholder="Select Type"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="addresses-type"
+                        forceSelection>
+                    </AutoComplete>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Default Store:</b>
+                </template>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-address-yes"
+                                 value="true"
+                                 data-testid="stores-filters-default-address-yes"
+                                 v-model="store.query.filter.is_default" />
+                    <label for="default-address-yes">Yes</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="default-address-no"
+                                 value="false"
+                                 data-testid="stores-filters-default-address-no"
+                                 v-model="store.query.filter.is_default" />
+                    <label for="default-address-no">No</label>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical>
+
+                <template #label>
+                    <b>User:</b>
+                </template>
+
+                <AutoComplete
+                    v-model="store.query.filter.user"
+                    @change="store.setUserSlug($event)"
+                    class="w-full"
+                    value="id"
+                    name="addresses-user"
+                    :suggestions="store.user_suggestion"
+                    @complete="store.searchUser($event)"
+                    placeholder="Select User"
+                    :dropdown="true" optionLabel="first_name"
+                    data-testid="addresses-user"
+                    forceSelection>
+                </AutoComplete>
+
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
