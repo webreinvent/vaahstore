@@ -172,6 +172,28 @@ class Product extends Model
 
     //-------------------------------------------------
 
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->where('name', $status)
+                ->orWhere('slug',$status);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -179,6 +201,28 @@ class Product extends Model
     }
 
     //-------------------------------------------------
+
+    public function scopeQuantityFilter($query, $filter)
+    {
+        if(!isset($filter['quantity'])
+            || is_null($filter['quantity'])
+            || $filter['quantity'] === 'null'
+        )
+        {
+            return $query;
+        }
+        else{
+            $quantity = $filter['quantity'];
+            return $query->where(function ($q) use($quantity) {
+                    $q->Where('quantity', '>', $quantity);
+
+            });
+        }
+
+
+    }
+    //-------------------------------------------------
+
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
@@ -509,6 +553,29 @@ class Product extends Model
     }
     //-------------------------------------------------
 
+    public function scopeStoreFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['store'])
+            || is_null($filter['store'])
+            || $filter['store'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $store = $filter['store'];
+
+        $query->whereHas('store', function ($query) use ($store) {
+            $query->where('slug', $store);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeSearchFilter($query, $filter)
     {
         if(!isset($filter['q']))
@@ -530,6 +597,9 @@ class Product extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->quantityFilter($request->filter);
+        $list->storeFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
