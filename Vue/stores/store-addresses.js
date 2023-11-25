@@ -111,6 +111,7 @@ export const useAddressStore = defineStore({
                 return types.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
         },
+
         //---------------------------------------------------------------------
         searchStatus(event) {
 
