@@ -94,7 +94,8 @@ export const useProductStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        searched_stored : null,
     }),
     getters: {
 
@@ -282,6 +283,13 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        setFilterStore() {
+
+            this.query.filter.store = this.searched_store.slug;
+        },
+
+        //---------------------------------------------------------------------
+
         checkQuantity(event) {
             this.item.quantity = event.value;
             if (this.item.quantity > 0) {
@@ -292,23 +300,22 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        updateQuantityFilter(event) {
+            this.query.filter.quantity = event.value;
+        },
+        //---------------------------------------------------------------------
         checkInStock(event) {
 
             if (this.item.in_stock == 0) {
                 this.item.quantity = 0;
             }
         },
-
         //---------------------------------------------------------------------
-
         setBrand(event) {
             let brand = toRaw(event.value);
             this.item.vh_st_brand_id = brand.id;
         },
-
         //---------------------------------------------------------------------
-
         setType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
@@ -1164,7 +1171,7 @@ export const useProductStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            this.searched_store = null;
             //reload page list
             await this.getList();
         },

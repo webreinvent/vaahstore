@@ -359,7 +359,7 @@ class Address extends Model
             $query->where('first_name', $user);
         });
     }
-    
+
     //-------------------------------------------------
 
     public function scopeDefaultFilter($query, $filter)

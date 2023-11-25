@@ -594,17 +594,15 @@ class Store extends Model
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
+        if(!isset($filter['quantity']))
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
+        $quantity = $filter['quantity'];
+        $query->where(function ($q) use ($quantity) {
+            $q->where('quantity', '>=', $quantity);
 
+        });
     }
     //-------------------------------------------------
     public static function getList($request)

@@ -15,6 +15,71 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Store:</b>
+                </template>
+
+                <AutoComplete name="products-store-filter"
+                              data-testid="products-store-filter"
+                              v-model="store.searched_store"
+                              @change="store.setFilterStore()"
+                              option-label = "name"
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_stores"
+                              @complete="store.searchStore"
+                              :dropdown="true"
+                              optionLabel="name"
+                              />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status:</b>
+                </template>
+
+                <div class="field-radiobutton">
+                    <RadioButton name="status-pending"
+                                 value="pending"
+                                 data-testid="stores-filters-status-pending"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-pending">Pending</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-approved"
+                                 data-testid="stores-filters-status-approved"
+                                 value="approved"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-approved">Approved</label>
+                </div>
+                <div class="field-radiobutton">
+                    <RadioButton name="status-rejected"
+                                 data-testid="stores-filters-status-rejected"
+                                 value="rejected"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-rejected">Rejected</label>
+                </div>
+
+            </VhFieldVertical>
+            <VhFieldVertical >
+                <template #label>
+                    <b>Quantity:</b>
+                </template>
+
+                <VhField label="Quantity">
+                    <InputNumber
+                        placeholder="Enter a Quantity"
+                        inputId="minmax-buttons"
+                        name="products-quantity"
+                        v-model="store.query.filter.quantity"
+                        @input = "store.updateQuantityFilter($event)"
+                        showButtons
+                        :min="0"
+                        data-testid="products-quantity"/>
+                </VhField>
+
+            </VhFieldVertical>
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 
