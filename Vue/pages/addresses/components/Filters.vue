@@ -22,6 +22,8 @@ const store = useAddressStore();
                     <AutoComplete
                         v-model="store.query.filter.address_type"
                         @change="store.setAddressTypeFilter($event)"
+                        class="w-full"
+                        value="id"
                         name="addresses-type"
                         :suggestions="store.type_suggestion"
                         @complete="store.searchType($event)"
@@ -64,6 +66,8 @@ const store = useAddressStore();
                 <AutoComplete
                     v-model="store.query.filter.user"
                     @change="store.setUserSlug($event)"
+                    class="w-full"
+                    value="id"
                     name="addresses-user"
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUser($event)"

@@ -347,7 +347,7 @@ class ProductVariation extends Model
         }
 
         $in_stock = $filter['in_stock'];
-        dd($in_stock);
+
         if($in_stock == 'true')
         {
             return $query->where(function ($q){
