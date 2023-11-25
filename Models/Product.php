@@ -206,7 +206,7 @@ class Product extends Model
                 $response['messages'][] = "This Variation name '{$value['variation_name']}' is already exist.";
                 return $response;
             }
-            
+
             $item = new ProductVariation();
             $item->name = $value['variation_name'];
             $item->slug = Str::slug($value['variation_name']);

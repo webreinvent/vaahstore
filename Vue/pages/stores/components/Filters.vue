@@ -2,7 +2,6 @@
 
 import { useStoreStore } from '../../../stores/store-stores'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-
 const store = useStoreStore();
 
 </script>
