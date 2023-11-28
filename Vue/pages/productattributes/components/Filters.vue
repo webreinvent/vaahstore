@@ -20,13 +20,32 @@ const store = useProductAttributeStore();
 
                 <AutoComplete v-model="store.query.filter.product_variation"
                               class="w-full"
-                              data-testid="productattributes-vh_st_product_variation_id"
+                              data-testid="productattributes-product-variation-filter"
                               :suggestions="store.filtered_product_variations"
                               @complete="store.searchProductVariation"
                               @change="store.setProductVariationFilter($event)"
                               :dropdown="true"
                               optionLabel="name"
                               placeholder="Select Product variation"
+                              forceSelection>
+                </AutoComplete>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Attribute:</b>
+                </template>
+
+                <AutoComplete v-model="store.query.filter.attributes"
+                              class="w-full"
+                              placeholder="Select Attributes"
+                              data-testid="productattributes-attributes-filter"
+                              :suggestions="store.filtered_attributes"
+                              @complete="store.searchAttribute"
+                              @change="store.setAttributeFilter($event)"
+                              :dropdown="true"
+                              optionLabel="name"
                               forceSelection>
                 </AutoComplete>
 

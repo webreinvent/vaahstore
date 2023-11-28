@@ -248,10 +248,17 @@ export const useProductAttributeStore = defineStore({
         setAttribute(event){
             let attribute = toRaw(event.value);
             this.item.vh_st_attribute_id = attribute.id;
-
         },
 
         //---------------------------------------------------------------------
+
+        setAttributeFilter(event){
+            let attribute = toRaw(event.value);
+            this.query.filter.attributes = attribute.slug;
+        },
+
+        //---------------------------------------------------------------------
+
         setProductVariation(event){
 
             let productVariation = toRaw(event.value);
