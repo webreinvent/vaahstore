@@ -39,10 +39,10 @@ const useVaah = vaah();
                      <span v-else>
                      {{prop.data.vendor.name}}
                          </span>
-                     <span v-if="prop.data.vendor.is_default == 1">
+                     <span v-if="prop.data.vendor && prop.data.vendor.is_default && prop.data.vendor.is_default == 1">
                          <badge>&nbsp;(Default)</badge>
                      </span>
-
+                     
                  </template>
 
              </Column>
