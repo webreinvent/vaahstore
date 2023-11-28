@@ -137,7 +137,7 @@ class ProductAttribute extends Model
         return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
             ->select('name', 'id', 'type');
     }
-    
+
     //-------------------------------------------------
 
     public function scopeBetweenDates($query, $from, $to)

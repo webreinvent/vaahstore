@@ -130,7 +130,7 @@ class Product extends Model
 
     public function store()
     {
-        return $this->hasOne(Store::class,'id','vh_st_store_id')->select('id','name','slug', 'is_default');
+        return $this->belongsTo(Store::class,'vh_st_store_id','id')->select('id','name','slug', 'is_default');
     }
 
     //-------------------------------------------------
