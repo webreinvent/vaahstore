@@ -15,6 +15,26 @@ const store = useProductVariationStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete
+                    value="id"
+                    v-model="store.query.filter.product"
+                    @change="store.setProductFilter($event)"
+                    class="w-full"
+                    :suggestions="store.filtered_products"
+                    @complete="store.searchProduct($event)"
+                    placeholder="Select Product"
+                    data-testid="productvariations-product"
+                    name="productvariations-product"
+                    :dropdown="true" optionLabel="name" forceSelection>
+                </AutoComplete>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>In Stock:</b>
                 </template>
 
