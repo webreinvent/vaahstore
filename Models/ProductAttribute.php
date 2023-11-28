@@ -411,7 +411,7 @@ class ProductAttribute extends Model
         }
 
         $attributes = $filter['attributes'];
-        
+
         $query->whereHas('attribute', function ($query) use ($attributes) {
             $query->where('slug', $attributes);
 
