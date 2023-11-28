@@ -31,7 +31,25 @@ const store = useProductMediaStore();
 
             </VhFieldVertical>
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product:</b>
+                </template>
+                <AutoComplete
+                    name="product-medias-product-filter"
+                    data-testid="product-medias-product-filter"
+                    v-model="store.query.filter.product"
+                    @change="store.setProductFilter($event)"
+                    class="w-full"
+                    :suggestions="store.product_suggestion"
+                    @complete="store.searchProduct($event)"
+                    placeholder="Select Product"
+                    :dropdown="true"
+                    optionLabel="name"
+                    forceSelection>
+                </AutoComplete>
 
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
