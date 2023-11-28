@@ -20,8 +20,8 @@ const store = useProductStore();
 
                 <AutoComplete name="products-store-filter"
                               data-testid="products-store-filter"
-                              v-model="store.searched_store"
-                              @change="store.setFilterStore()"
+                              v-model="store.query.filter.store"
+                              @change="store.setFilterStore($event)"
                               option-label = "name"
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_stores"
