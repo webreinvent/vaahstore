@@ -137,7 +137,7 @@ class ProductAttribute extends Model
         return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
             ->select('name', 'id', 'type');
     }
-
+    
     //-------------------------------------------------
 
     public function scopeBetweenDates($query, $from, $to)
@@ -399,28 +399,6 @@ class ProductAttribute extends Model
 
     //-------------------------------------------------
 
-    public function scopeAttributesFilter($query, $filter)
-    {
-
-        if(!isset($filter['attributes'])
-            || is_null($filter['attributes'])
-            || $filter['attributes'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $attributes = $filter['attributes'];
-
-        $query->whereHas('attribute', function ($query) use ($attributes) {
-            $query->where('slug', $attributes);
-
-        });
-
-    }
-
-    //-------------------------------------------------
-
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with(['productVariation', 'attribute']);
@@ -428,7 +406,6 @@ class ProductAttribute extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVariationFilter($request->filter);
-        $list->attributesFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
