@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product_variation : null,
         },
     },
     action: {
@@ -252,9 +253,22 @@ export const useProductAttributeStore = defineStore({
 
         //---------------------------------------------------------------------
         setProductVariation(event){
+
             let productVariation = toRaw(event.value);
             this.item.vh_st_product_variation_id = productVariation.id;
+
         },
+        //---------------------------------------------------------------------
+
+        setProductVariationFilter(event){
+
+            let product_variation = toRaw(event.value);
+            if(product_variation.slug)
+            {
+                this.query.filter.product_variation = product_variation.slug;
+            }
+        },
+
         //---------------------------------------------------------------------
 
         async getAssets() {
