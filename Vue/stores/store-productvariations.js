@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product : null,
         },
     },
     action: {
@@ -225,6 +226,18 @@ export const useProductVariationStore = defineStore({
             this.item.vh_st_product_id = product.id;
         },
         //---------------------------------------------------------------------
+
+        setProductFilter(event){
+
+            let product = toRaw(event.value);
+            if(product.slug)
+            {
+                this.query.filter.product = product.slug;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_variation_status = status.id;

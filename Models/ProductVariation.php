@@ -108,7 +108,7 @@ class ProductVariation extends Model
          $query=$request->input('query');
         if($query === null)
         {
-            $products = Product::where('is_active',1)->select('id','name')
+            $products = Product::where('is_active',1)->select('id','name','slug')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -117,7 +117,7 @@ class ProductVariation extends Model
 
             $products = Product::where('is_active',1)
                 ->where('name', 'like', "%$query%")
-                ->select('id','name')
+                ->select('id','name','slug')
                 ->get();
         }
         $response['success'] = true;
@@ -424,6 +424,27 @@ class ProductVariation extends Model
 
     //-------------------------------------------------
 
+    public function scopeProductFilter($query, $filter)
+    {
+
+        if(!isset($filter['product'])
+            || is_null($filter['product'])
+            || $filter['product'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product = $filter['product'];
+
+        $query->whereHas('product', function ($query) use ($product) {
+            $query->Where('slug',$product);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','product');
@@ -433,6 +454,7 @@ class ProductVariation extends Model
         $list->statusFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->inStockFilter($request->filter);
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
