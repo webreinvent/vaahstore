@@ -137,7 +137,7 @@ class ProductAttribute extends Model
         return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
             ->select('name', 'id', 'type');
     }
-
+    
     //-------------------------------------------------
 
     public function scopeBetweenDates($query, $from, $to)
@@ -304,12 +304,11 @@ class ProductAttribute extends Model
     public static function searchProductVariation($request)
     {
 
-
         $query = $request['filter']['q']['query'];
 
         if($query === null)
         {
-            $product_variations = ProductVariation::select('id','name')
+            $product_variations = ProductVariation::select('id','name','slug')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -318,7 +317,8 @@ class ProductAttribute extends Model
         else{
 
             $product_variations = ProductVariation::where('name', 'like', "%$query%")
-                ->select('id','name')
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
                 ->get();
         }
 
@@ -374,13 +374,38 @@ class ProductAttribute extends Model
         });
 
     }
+
     //-------------------------------------------------
+
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variation'])
+            || is_null($filter['product_variation'])
+            || $filter['product_variation'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product_variation = $filter['product_variation'];
+
+        $query->whereHas('productVariation', function ($query) use ($product_variation) {
+            $query->where('slug', $product_variation);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with(['productVariation', 'attribute']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->productVariationFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
