@@ -70,7 +70,7 @@ const toggleItemMenu = (event) => {
                 <div class="flex flex-row">
 
                     <div class="p-panel-title">
-                        #{{store.item.id}}
+                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" /> {{store.item.name.replace('.', '')}}
                     </div>
 
                 </div>
@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
                         || column === 'status' || column === 'status_notes' || column === 'currencies_data'
-                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default'">
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default' || column === 'taxonomy_id_store_status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -175,6 +175,17 @@ const toggleItemMenu = (event) => {
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <Tag v-if="store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else severity="primary" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                 </td>
                             </tr>
                         </template>
@@ -253,13 +264,6 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_store_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
                             />
                         </template>
 

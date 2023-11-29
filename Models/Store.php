@@ -471,7 +471,7 @@ class Store extends Model
             return $query;
         }
 
-        $default = $filter['default'];
+        $default = $filter['default'][0];
         if($default == 'true')
         {
             return $query->where(function ($q){
@@ -500,7 +500,7 @@ class Store extends Model
             return $query;
         }
 
-        $is_multi_currency = $filter['is_multi_currency'];
+        $is_multi_currency = $filter['is_multi_currency'][0];
         if($is_multi_currency == 'true')
         {
             return $query->where(function ($q){
@@ -555,7 +555,8 @@ class Store extends Model
             return $query;
         }
 
-        $is_multi_language = $filter['is_multi_language'];
+        $is_multi_language = $filter['is_multi_language'][0];
+
         if($is_multi_language == 'true')
         {
             return $query->where(function ($q){
@@ -1137,8 +1138,8 @@ class Store extends Model
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
 
-        $inputs['is_multi_currency'] = 1;
-        $inputs['is_multi_lingual'] =  1;
+        $inputs['is_multi_currency'] = rand(0,1);
+        $inputs['is_multi_lingual'] =  rand(0,1);
 
         $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
         $random_currencies = array_rand($currency_list, 3);
