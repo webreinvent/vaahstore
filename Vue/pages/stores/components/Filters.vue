@@ -33,31 +33,19 @@ const store = useStoreStore();
                 <div class="field-checkbox">
                     <Checkbox name="default-store-yes"
                               data-testid="default-store-yes"
-                              v-model = "store.query.filter.default"
+                              v-model = "store.query.filter.is_default"
                               :value="true" />
                     <label for="default-store-yes"> Default Store </label>
                 </div>
 
-            </VhFieldVertical>
-            
-            <VhFieldVertical >
-                <template #label>
-                    <b>Multi Vendor:</b>
-                </template>
-                <div class="field-radiobutton">
-                    <RadioButton name="multi-vendor-yes"
-                                 value="true"
-                                 data-testid="stores-filters-multi-vendor-yes"
-                                 v-model="store.query.filter.is_multi_vendor" />
-                    <label for="multi-vendor-yes">Yes</label>
+                <div class="field-checkbox">
+                    <Checkbox name="multi-vendor-yes"
+                              data-testid="stores-filters-multi-vendor-yes"
+                              v-model = "store.query.filter.is_multi_vendor"
+                              :value="true" />
+                    <label for="multi-vendor-yes"> Multi Vendor </label>
                 </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="multi-vendor-no"
-                                 value="false"
-                                 data-testid="stores-filters-multi-vendor-no"
-                                 v-model="store.query.filter.is_multi_vendor" />
-                    <label for="multi-vendor-no">No</label>
-                </div>
+
             </VhFieldVertical>
 
             <VhFieldVertical >
