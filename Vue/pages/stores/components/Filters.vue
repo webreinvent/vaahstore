@@ -33,85 +33,13 @@ const store = useStoreStore();
                 <div class="field-checkbox">
                     <Checkbox name="default-store-yes"
                               data-testid="default-store-yes"
-                              v-model = "store.query.filter.is_default"
+                              v-model = "store.query.filter.default"
                               :value="true" />
                     <label for="default-store-yes"> Default Store </label>
                 </div>
 
-                <div class="field-checkbox">
-                    <Checkbox name="multi-vendor-yes"
-                              data-testid="stores-filters-multi-vendor-yes"
-                              v-model = "store.query.filter.is_multi_vendor"
-                              :value="true" />
-                    <label for="multi-vendor-yes"> Multi Vendor </label>
-                </div>
-
             </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Multi Language:</b>
-                </template>
-                <div class="field-radiobutton">
-                    <RadioButton name="multi-language-yes"
-                                 value="true"
-                                 data-testid="stores-filters-multi-language-yes"
-                                 v-model="store.query.filter.is_multi_language" />
-                    <label for="multi-language-yes">Yes</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="multi-language-no"
-                                 value="false"
-                                 data-testid="stores-filters-multi-language-no"
-                                 v-model="store.query.filter.is_multi_language" />
-                    <label for="multi-language-yes">No</label>
-                </div>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Multi Currency:</b>
-                </template>
-                <div class="field-radiobutton">
-                    <RadioButton name="multi-currency-yes"
-                                 value="true"
-                                 data-testid="stores-filters-multi-currency-yes"
-                                 v-model="store.query.filter.is_multi_currency" />
-                    <label for="multicurrency-yes">Yes</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="default-store-no"
-                                 value="false"
-                                 data-testid="stores-filters-multi-currency-no"
-                                 v-model="store.query.filter.is_multi_currency" />
-                    <label for="multicurrency-no">No</label>
-                </div>
-
-            </VhFieldVertical>
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Default Store:</b>
-                </template>
-                <div class="field-radiobutton">
-                    <RadioButton name="default-store-yes"
-                                 value="true"
-                                 data-testid="stores-filters-default-store-yes"
-                                 v-model="store.query.filter.default" />
-                    <label for="default-store-yes">Yes</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="default-store-no"
-                                 value="false"
-                                 data-testid="stores-filters-default-store-no"
-                                 v-model="store.query.filter.default" />
-                    <label for="default-store-no">No</label>
-                </div>
-
-            </VhFieldVertical>
-
+            
             <VhFieldVertical >
                 <template #label>
                     <b>Multi Vendor:</b>

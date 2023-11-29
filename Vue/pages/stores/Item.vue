@@ -70,9 +70,8 @@ const toggleItemMenu = (event) => {
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title" style="display: flex; align-items: center;">
-                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
-                        <div style="word-break: break-word;margin-left: 5px;">{{ store.item.name.replace('.', '') }}</div>
+                    <div class="p-panel-title">
+                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" /> {{store.item.name.replace('.', '')}}
                     </div>
 
                 </div>
@@ -149,7 +148,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
                         || column === 'status' || column === 'status_notes' || column === 'currencies_data'
-                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default'">
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default' || column === 'taxonomy_id_store_status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

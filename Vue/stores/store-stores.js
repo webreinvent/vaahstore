@@ -21,10 +21,7 @@ let empty_states = {
             status : null,
             is_multi_language : null,
             is_multi_currency : null,
-            is_default : null,
-            is_multi_vendor : null,
-            currencies : null,
-            date : null,
+            default : null,
         },
     },
     action: {
