@@ -516,15 +516,15 @@ class Store extends Model
     public function scopeDefaultFilter($query, $filter)
     {
 
-        if(!isset($filter['default'])
-            || is_null($filter['default'])
-            || $filter['default'] === 'null'
+        if(!isset($filter['is_default'])
+            || is_null($filter['is_default'])
+            || $filter['is_default'] === 'null'
         )
         {
             return $query;
         }
 
-        $default = $filter['default'][0];
+        $default = $filter['is_default'][0];
         if($default == 'true')
         {
             return $query->where(function ($q){
@@ -581,7 +581,7 @@ class Store extends Model
             return $query;
         }
 
-        $is_multi_vendor = $filter['is_multi_vendor'];
+        $is_multi_vendor = $filter['is_multi_vendor'][0];
         if($is_multi_vendor == 'true')
         {
             return $query->where(function ($q){
