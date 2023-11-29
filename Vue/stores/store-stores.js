@@ -19,6 +19,9 @@ let empty_states = {
             trashed: null,
             sort: null,
             status : null,
+            is_multi_language : null,
+            is_multi_currency : null,
+            default : null,
         },
     },
     action: {
