@@ -77,7 +77,8 @@ export const useStoreStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        currency_list : null,
     }),
     getters: {
 
@@ -283,17 +284,18 @@ export const useStoreStore = defineStore({
 
         addCurrenciesFilter() {
 
-            const unique_currencies_filter = [];
-            const check_slugs = new Set();
 
-            for (const currencies of this.query.filter.currencies) {
-                if (!check_slugs.has(currencies.slug)) {
-                    unique_currencies_filter.push(currencies);
-                    check_slugs.add(currencies.slug);
+            const unique_currencies = [];
+            const check_names = new Set();
+
+            for (const currency of this.currency_list) {
+                if (!check_names.has(currency.name)) {
+                    unique_currencies.push(currency);
+                    check_names.add(currency.name);
                 }
             }
-            this.query.filter.currencies = unique_currencies_filter.slug;
-
+            this.query.filter.currencies = unique_currencies.slug;
+            
         },
 
         //---------------------------------------------------------------------
