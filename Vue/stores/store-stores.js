@@ -23,6 +23,7 @@ let empty_states = {
             is_multi_currency : null,
             is_default : null,
             is_multi_vendor : null,
+            currencies : null,
         },
     },
     action: {
@@ -354,6 +355,23 @@ export const useStoreStore = defineStore({
                 }
             }
             this.query.filter.currencies = unique_currencies.slug;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addCurrenciesFilter() {
+
+            const unique_currencies_filter = [];
+            const check_slugs = new Set();
+
+            for (const currencies of this.query.filter.currencies) {
+                if (!check_slugs.has(currencies.slug)) {
+                    unique_currencies_filter.push(currencies);
+                    check_slugs.add(currencies.slug);
+                }
+            }
+            this.query.filter.currencies = unique_currencies_filter.slug;
 
         },
 

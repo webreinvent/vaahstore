@@ -50,6 +50,27 @@ const store = useStoreStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Currencies:</b>
+                </template>
+                <VhField label="Status">
+                    <AutoComplete name="store-currencies"
+                                  data-testid="store-currencies"
+                                  v-model="store.query.filter.currencies"
+                                  option-label ="name"
+                                  multiple
+                                  placeholder="Select Currencies"
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.currency_suggestion_list"
+                                  @change = "store.addCurrenciesFilter()"
+                                  @complete="store.searchCurrencies"
+                                  class="w-full"
+                    />
+                </VhField>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status:</b>
                 </template>
 
