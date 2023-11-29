@@ -55,7 +55,7 @@ const store = useStoreStore();
                 <VhField label="Status">
                     <AutoComplete name="store-currencies"
                                   data-testid="store-currencies"
-                                  v-model="store.query.filter.currencies"
+                                  v-model="store.currency_list"
                                   option-label ="name"
                                   multiple
                                   placeholder="Select Currencies"
