@@ -351,13 +351,12 @@ class Store extends Model
                 'regex:/^[^0-9\s][a-zA-Z0-9\s\W]+$/',
                 'not_regex:/^[^a-zA-Z\s]+$/',
                 'not_regex:/^[^0-9\s]+$/',
+                'max:250'
             ],
-
+            
             'slug' => [
                 'required',
-                'regex:/^[^0-9\s][a-zA-Z0-9\s\W]+$/',
-                'not_regex:/^[^a-zA-Z\s]+$/',
-                'not_regex:/^[^0-9\s]+$/',
+                'max:250',
             ],
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
