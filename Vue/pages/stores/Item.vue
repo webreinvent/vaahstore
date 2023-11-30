@@ -229,6 +229,7 @@ const toggleItemMenu = (event) => {
                                                   v-model="store.item.currencies"
                                                   option-label ="name"
                                                   multiple
+                                                  :placeholder="store.item.currencies.length === 0 ? 'Select currencies' : ''"
                                                   :complete-on-focus = "true"
                                                   :suggestions="store.currency_suggestion_list"
                                                   @change = "store.saveCurrencies()"
@@ -268,6 +269,7 @@ const toggleItemMenu = (event) => {
                                                   multiple
                                                   :complete-on-focus = "true"
                                                   :suggestions="store.language_suggestion_list"
+                                                  :placeholder="store.item.languages.length === 0 ? 'Select languages' : ''"
                                                   @change = "store.saveLanguages()"
                                                   @complete="store.searchLanguages"
                                                   class="w-full"
