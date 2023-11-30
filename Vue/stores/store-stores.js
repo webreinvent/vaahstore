@@ -354,7 +354,7 @@ export const useStoreStore = defineStore({
                 }
                 else {
                     this.item.currencies = unique_currencies;
-                    vaah().toastErrors(['Currency is already added']);
+                    vaah().toastErrors(['This Currency is already added']);
                     return false;
                 }
             }
@@ -416,7 +416,7 @@ export const useStoreStore = defineStore({
                 }
                 else {
                     this.item.languages = unique_languages;
-                    vaah().toastErrors(['Language is already added']);
+                    vaah().toastErrors(['This Language is already added']);
                     return false;
                 }
             }
