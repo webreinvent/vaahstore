@@ -299,7 +299,6 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
 
         addCurrencies() {
-            alert("hi");
             const unique_currencies = [];
             const check_names = new Set();
 
@@ -353,10 +352,16 @@ export const useStoreStore = defineStore({
                     unique_currencies.push(currency);
                     check_names.add(currency.name);
                 }
+                else {
+                    this.item.currencies = unique_currencies;
+                    vaah().toastErrors(['Currency is already added']);
+                    return false;
+                }
             }
             if(unique_currencies.length == 0)
             {
                 vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
+                await this.getItem(this.route.params.id);
                 return false;
             }
             this.item.currencies = unique_currencies;
@@ -409,10 +414,16 @@ export const useStoreStore = defineStore({
                     unique_languages.push(language);
                     check_names.add(language.name);
                 }
+                else {
+                    this.item.languages = unique_languages;
+                    vaah().toastErrors(['Language is already added']);
+                    return false;
+                }
             }
             if(unique_languages.length === 0)
             {
                 vaah().toastErrors(['Language is required when Is Multi Language is true']);
+                await this.getItem(this.route.params.id);
                 return false;
             }
             this.item.languages = unique_languages;
