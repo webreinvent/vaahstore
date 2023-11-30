@@ -220,7 +220,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'currencies'">
-                            <tr v-if="store.item.is_multi_currency">
+                            <tr>
                                 <td :style="{width: label_width}">
                                     <b>Currencies</b>
                                 </td>
@@ -230,7 +230,6 @@ const toggleItemMenu = (event) => {
                                                   v-model="store.item.currencies"
                                                   option-label ="name"
                                                   multiple
-                                                  :placeholder="store.item.currencies.length === 0 ? 'Select currencies' : ''"
                                                   :complete-on-focus = "true"
                                                   :suggestions="store.currency_suggestion_list"
                                                   @change = "store.saveCurrencies()"
@@ -258,7 +257,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'languages'">
-                            <tr v-if="store.item.is_multi_lingual">
+                            <tr>
                                 <td :style="{width: label_width}">
                                     <b>Languages</b>
                                 </td>
@@ -270,7 +269,6 @@ const toggleItemMenu = (event) => {
                                                   multiple
                                                   :complete-on-focus = "true"
                                                   :suggestions="store.language_suggestion_list"
-                                                  :placeholder="store.item.languages.length === 0 ? 'Select languages' : ''"
                                                   @change = "store.saveLanguages()"
                                                   @complete="store.searchLanguages"
                                                   class="w-full"

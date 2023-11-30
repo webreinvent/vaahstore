@@ -1,6 +1,7 @@
 <script setup>
-import {reactive, ref} from 'vue';
+import {reactive, ref,watch,onMounted} from 'vue';
 import {useRoute} from 'vue-router';
+
 import Menu from 'primevue/menu';
 const route = useRoute();
 const inputs = {
@@ -9,7 +10,7 @@ const data = reactive(inputs);
 const height = ref(window.innerHeight)
 
 const menu = ref();
-const route = useRoute();
+
 const items = ref([
     {
         label: 'Store',
@@ -18,7 +19,6 @@ const items = ref([
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
                 to: "/stores",
-                class: { 'highlight': route.path.startsWith('/stores') }
             },
             {
                 label: 'Store Payment Methods',
@@ -132,9 +132,5 @@ onMounted(updateSelectedItem);
     </div>
 
 </template>
-<!--<style scoped>-->
-<!--.highlight {-->
-<!--    background-color: yellow; // Customize the highlight style-->
-<!--}-->
-<!--</style>-->
+
 

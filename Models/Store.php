@@ -386,12 +386,16 @@ class Store extends Model
         $validated_data = validator($inputs,[
             'name' => [
                 'required',
-                'regex:/^(?![-\/_+]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,-\/_+]+$/',
-                'max:50'
+                'regex:/^[^0-9\s][a-zA-Z0-9\s\W]+$/',
+                'not_regex:/^[^a-zA-Z\s]+$/',
+                'not_regex:/^[^0-9\s]+$/',
             ],
+
             'slug' => [
                 'required',
-                'max:50',
+                'regex:/^[^0-9\s][a-zA-Z0-9\s\W]+$/',
+                'not_regex:/^[^a-zA-Z\s]+$/',
+                'not_regex:/^[^0-9\s]+$/',
             ],
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
@@ -405,11 +409,10 @@ class Store extends Model
             'allowed_ips.*' => 'ip',
         ],
             [
-                'name.max' => 'The Name field cannot be more than :max characters.',
-                'name.required' => 'The Name field is required',
-                'slug.required' => 'The Slug field is required',
-                'slug.max' => 'The Slug field cannot be more than :max characters.',
-                'name.regex' => 'The Name field format is not valid.',
+                'name.regex' => 'The Name field should contain combination of  alphabets, numbers, and special characters if it starts with a number or special character.',
+                'name.not_regex' => 'The Name field cannot contain only numeric values or special characters.',
+                'slug.regex' => 'The Slug field should contain combination of  alphabets, numbers, and special characters if it starts with a number or special character.',
+                'slug.not_regex' => 'The Slug field cannot contain only numeric values or special characters.',
                 'taxonomy_id_store_status.required' => 'The Status field is required',
                 'notes.required' => 'The Store Notes field is required',
                 'currencies.required_if' => 'The Currencies field is required when Is Multi Currency is "Yes".',
