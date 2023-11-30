@@ -223,7 +223,7 @@ const toggleItemMenu = (event) => {
                                 <td :style="{width: label_width}">
                                     <b>Currencies</b>
                                 </td>
-                                <td  colspan="2" >
+                                <td  colspan="2" v-if="store.item.is_multi_currency">
                                     <AutoComplete name="store-currencies"
                                                   data-testid="store-currencies"
                                                   v-model="store.item.currencies"
@@ -261,7 +261,7 @@ const toggleItemMenu = (event) => {
                                 <td :style="{width: label_width}">
                                     <b>Languages</b>
                                 </td>
-                                <td  colspan="2" >
+                                <td  colspan="2" v-if="store.item.is_multi_lingual">
                                     <AutoComplete name="store-languages"
                                                   data-testid="store-languages"
                                                   v-model="store.item.languages"
