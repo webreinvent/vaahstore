@@ -219,10 +219,25 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'currencies'">
-                            <VhViewRow label="Currencies"
-                                       :value="value"
-                                       type="multipleCurrency"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Currencies</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <AutoComplete name="store-currencies"
+                                                  data-testid="store-currencies"
+                                                  v-model="store.item.currencies"
+                                                  option-label ="name"
+                                                  multiple
+                                                  :complete-on-focus = "true"
+                                                  :suggestions="store.currency_suggestion_list"
+                                                  @change = "store.saveCurrencies()"
+                                                  @complete="store.searchCurrencies"
+                                                  class="w-full"
+                                    />
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'default_currency' && store.item.default_currency != null">
@@ -241,10 +256,25 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'languages'">
-                            <VhViewRow label="Languages"
-                                       :value="value"
-                                       type="multipleLingual"
-                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Languages</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <AutoComplete name="store-languages"
+                                                  data-testid="store-languages"
+                                                  v-model="store.item.languages"
+                                                  option-label = "name"
+                                                  multiple
+                                                  :complete-on-focus = "true"
+                                                  :suggestions="store.language_suggestion_list"
+                                                  @change = "store.saveLanguages()"
+                                                  @complete="store.searchLanguages"
+                                                  class="w-full"
+                                    />
+
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'default_language' && store.item.default_language != null">
