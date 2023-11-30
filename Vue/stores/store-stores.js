@@ -266,7 +266,7 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
 
         addCurrencies() {
-
+            alert("hi");
             const unique_currencies = [];
             const check_names = new Set();
 
@@ -278,6 +278,27 @@ export const useStoreStore = defineStore({
             }
             this.item.currencies = unique_currencies;
 
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveCurrencies() {
+            const unique_currencies = [];
+            const check_names = new Set();
+
+            for (const currency of this.item.currencies) {
+                if (!check_names.has(currency.name)) {
+                    unique_currencies.push(currency);
+                    check_names.add(currency.name);
+                }
+            }
+            if(unique_currencies.length == 0)
+            {
+                vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
+                return false;
+            }
+            this.item.currencies = unique_currencies;
+            await this.itemAction('save');
         },
 
         //---------------------------------------------------------------------
@@ -295,7 +316,7 @@ export const useStoreStore = defineStore({
                 }
             }
             this.query.filter.currencies = unique_currencies.slug;
-            
+
         },
 
         //---------------------------------------------------------------------
@@ -312,6 +333,28 @@ export const useStoreStore = defineStore({
                 }
             }
             this.item.languages = unique_languages;
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveLanguages() {
+
+            const unique_languages = [];
+            const check_names = new Set();
+
+            for (const language of this.item.languages) {
+                if (!check_names.has(language.name)) {
+                    unique_languages.push(language);
+                    check_names.add(language.name);
+                }
+            }
+            if(unique_languages.length === 0)
+            {
+                vaah().toastErrors(['Language is required when Is Multi Language is true']);
+                return false;
+            }
+            this.item.languages = unique_languages;
+            await this.itemAction('save');
         },
 
         //---------------------------------------------------------------------
