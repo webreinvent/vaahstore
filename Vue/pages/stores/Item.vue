@@ -62,15 +62,18 @@ const toggleItemMenu = (event) => {
 
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                    {{store.item.status_notes}}</div>
+                    <pre v-html="store.item.status_notes"></pre>
+                </div>
             </Message>
 
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title">
-                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" /> {{store.item.name.replace('.', '')}}
+                    <div class="p-panel-title" v-if="store.item.name">
+                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;">
+                            {{store.item.name.replace('.', '')}}
+                        </Tag>
                     </div>
 
                 </div>
