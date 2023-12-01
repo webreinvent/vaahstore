@@ -386,7 +386,7 @@ class Store extends Model
         $validated_data = validator($inputs,[
             'name' => [
                 'required',
-                'regex:/^(?![!@#$%^&*()]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,!@#$%^&*()]+$/',
+                'regex:/^(?![!@#$%^&*()]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,!@#$%^&*()+]+$/',
                 'max:250'
             ],
             'slug' => [
@@ -665,7 +665,7 @@ class Store extends Model
 
             });
         }
-        
+
 
     }
 
