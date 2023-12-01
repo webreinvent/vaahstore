@@ -186,7 +186,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Currencies" v-show="store.item.is_multi_currency == 1">
+                <VhField label="Currencies*" v-show="store.item.is_multi_currency == 1">
 
                     <AutoComplete name="store-currencies"
                                   data-testid="store-currencies"
@@ -269,7 +269,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Allowed IP">
+                <VhField label="Allowed IPs">
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
                            placeholder="e.g. 192.168.1.1 , 203.23.15.68"

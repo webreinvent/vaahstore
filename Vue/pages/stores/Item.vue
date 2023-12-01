@@ -198,14 +198,14 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_default'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Default"
                                        :value="value"
                                        type="yes-no"
                             />
@@ -241,16 +241,19 @@ const toggleItemMenu = (event) => {
 
                         </template>
 
-                        <template v-else-if="column === 'default_currency' && store.item.default_currency != null">
+                        <template v-else-if="column === 'default_currency'">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Currency</b>
                                 </td>
-                                <td  colspan="2" >
+                                <td  colspan="2" v-if="store.item.default_currency && store.item.default_currency.name">
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
                                         </Tag>
                                     </div>
+
+                                </td>
+                                <td  colspan="2" v-else>
 
                                 </td>
                             </tr>
@@ -279,35 +282,38 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
-                        <template v-else-if="column === 'default_language' && store.item.default_language != null">
+                        <template v-else-if="column === 'default_language'">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Default Language</b>
                                 </td>
-                                <td  colspan="2" >
+                                <td  colspan="2" v-if="store.item.default_language && store.item.default_language.name">
                                     <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
                                     </div>
+                                </td>
+                                <td v-else>
+
                                 </td>
                             </tr>
                         </template>
 
                         <template v-else-if="column === 'is_multi_currency'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Currency"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_multi_lingual'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Language"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_multi_vendor'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Vendor"
                                        :value="value"
                                        type="yes-no"
                             />
