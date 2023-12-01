@@ -72,7 +72,7 @@ const toggleItemMenu = (event) => {
 
                     <div class="p-panel-title">
                         <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
-                            <span v-if="store.item && store.item.name">{{ store.item.name.replace('.', '') }}</span>
+                            <span style="margin-left:5px" v-if="store.item && store.item.name">{{ store.item.name.replace('.', '') }}</span>
                     </div>
 
                 </div>
