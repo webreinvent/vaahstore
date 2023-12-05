@@ -168,6 +168,32 @@ class Store extends Model
     }
 
     //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+       return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -637,6 +663,8 @@ class Store extends Model
         $list->multiCurrencyFilter($request->filter);
         $list->multiLanguageFilter($request->filter);
         $list->multiVendorFilter($request->filter);
+        $list->dateFilter($request->filter);
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
