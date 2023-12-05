@@ -944,6 +944,8 @@ export const useStoreStore = defineStore({
             this.selected_dates = null;
             vaah().toastSuccess(['Action was successful']);
 
+            vaah().toastSuccess(['Action was successful']);
+
             //reload page list
             await this.getList();
         },
@@ -966,6 +968,7 @@ export const useStoreStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'stores.index'})
+            vaah().toastSuccess(["Data not saved"]);
         },
         //---------------------------------------------------------------------
         toForm()
