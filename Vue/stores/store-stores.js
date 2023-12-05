@@ -407,9 +407,11 @@ export const useStoreStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        checkIpAddress(event)
+
+        async reloadPage()
         {
-            console.log(event.target.value);
+            await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
 
@@ -629,6 +631,7 @@ export const useStoreStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -684,6 +687,10 @@ export const useStoreStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'stores.index'});
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'stores.form'});
+                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
@@ -691,6 +698,9 @@ export const useStoreStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -837,6 +847,8 @@ export const useStoreStore = defineStore({
             //reset query strings
             await this.resetQueryString();
 
+            vaah().toastSuccess(['Action was successful']);
+
             //reload page list
             await this.getList();
         },
@@ -859,6 +871,7 @@ export const useStoreStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'stores.index'})
+            vaah().toastSuccess(["Data not saved"]);
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1135,6 +1148,16 @@ export const useStoreStore = defineStore({
                         }
                     },
                     {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
+
+                    {
                         label: is_deleted ? 'Restore': 'Trash',
                         icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
@@ -1173,6 +1196,8 @@ export const useStoreStore = defineStore({
                         icon: 'pi pi-refresh',
                         command: () => {
                             this.setActiveItemAsEmpty();
+                            vaah().toastSuccess(['Action was successful']);
+
                         }
                     }
                 ];
