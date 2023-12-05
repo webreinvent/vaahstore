@@ -87,12 +87,11 @@ const store = useStoreStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date Range Filter:</b>
+                    <b>Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <Calendar v-model="store.query.filter.date"
                           selectionMode="range"
-                          @date-select="store.setDateRange"
                           :manualInput="false"/>
 
                 </VhFieldVertical >

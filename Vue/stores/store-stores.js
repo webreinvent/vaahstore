@@ -24,6 +24,7 @@ let empty_states = {
             is_default : null,
             is_multi_vendor : null,
             currencies : null,
+            date : null,
         },
     },
     action: {
@@ -149,7 +150,17 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         watchStates() {
             watch(this.query.filter, (newVal, oldVal) => {
+                if (this.query.filter.date) {
+                    if (
+                        this.query.filter.date[0] !=  null &&
+                        this.query.filter.date[1] != null
+
+                    ) {
+                        this.delayedSearch();
+                    }
+                } else {
                     this.delayedSearch();
+                }
             }, { deep: true });
         },
         //---------------------------------------------------------------------
@@ -968,7 +979,6 @@ export const useStoreStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'stores.index'})
-            vaah().toastSuccess(["Data not saved"]);
         },
         //---------------------------------------------------------------------
         toForm()
