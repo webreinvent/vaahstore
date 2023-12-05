@@ -9,9 +9,10 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+    <div v-if="store.list" class="data-container">
         <!--table-->
          <DataTable :value="store.list.data"
+                    v-if="store.list.data.length > 0"
                        dataKey="id"
                     :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
@@ -132,6 +133,10 @@ const useVaah = vaah();
         </DataTable>
         <!--/table-->
 
+        <div v-else class="no-record-message">
+            No record found.
+        </div>
+
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
@@ -146,3 +151,18 @@ const useVaah = vaah();
 
 
 </template>
+<style>
+.data-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.no-record-message {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 18px;
+    color: #888;
+}
+</style>
