@@ -177,6 +177,7 @@ class Store extends Model
     public function scopeDateFilter($query, $filter)
     {
 
+
         if(!isset($filter['date'])
             || is_null($filter['date'])
         )
@@ -185,10 +186,10 @@ class Store extends Model
         }
 
         $dates = $filter['date'];
-        
         $from = \Carbon::parse($dates[0])
             ->startOfDay()
             ->toDateTimeString();
+
         $to = \Carbon::parse($dates[1])
             ->endOfDay()
             ->toDateTimeString();
@@ -385,7 +386,7 @@ class Store extends Model
         $validated_data = validator($inputs,[
             'name' => [
                 'required',
-                'regex:/^(?![!@#$%^&*()]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,!@#$%^&*()+]+$/',
+                'regex:/^(?![-\/_+]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,-\/_+]+$/',
                 'max:250'
             ],
             'slug' => [

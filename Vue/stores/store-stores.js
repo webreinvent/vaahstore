@@ -80,6 +80,7 @@ export const useStoreStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         currency_list : null,
+        selected_dates : null,
     }),
     getters: {
 
@@ -150,17 +151,7 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         watchStates() {
             watch(this.query.filter, (newVal, oldVal) => {
-                if (this.query.filter.date) {
-                    if (
-                        this.query.filter.date[0] !=  null &&
-                        this.query.filter.date[1] != null
-
-                    ) {
-                        this.delayedSearch();
-                    }
-                } else {
                     this.delayedSearch();
-                }
             }, { deep: true });
         },
         //---------------------------------------------------------------------
@@ -953,8 +944,6 @@ export const useStoreStore = defineStore({
             //reset query strings
             await this.resetQueryString();
             this.selected_dates = null;
-            vaah().toastSuccess(['Action was successful']);
-
             vaah().toastSuccess(['Action was successful']);
 
             //reload page list
