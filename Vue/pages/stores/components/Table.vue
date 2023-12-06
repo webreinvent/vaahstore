@@ -9,7 +9,7 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list" class="data-container">
+    <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
@@ -125,7 +125,7 @@ const useVaah = vaah();
 
              <template #empty="prop">
 
-                 <div class="no-record-message">No records found.</div>
+                 <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
 
              </template>
 
@@ -148,18 +148,3 @@ const useVaah = vaah();
 
 
 </template>
-<style>
-.data-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-}
-
-.no-record-message {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 12px;
-    color: #888;
-}
-</style>
