@@ -387,11 +387,11 @@ class Store extends Model
             'name' => [
                 'required',
                 'regex:/^(?![-\/_+]+$)(?![0-9]+$)[a-zA-Z0-9\s\-_\.,-\/_+]+$/',
-                'max:64'
+                'max:50'
             ],
             'slug' => [
                 'required',
-                'max:64',
+                'max:50',
             ],
             'taxonomy_id_store_status' => 'required',
             'status_notes' => [
@@ -665,7 +665,6 @@ class Store extends Model
 
             });
         }
-
 
     }
 
