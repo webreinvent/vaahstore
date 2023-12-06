@@ -217,7 +217,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'allowed_ips'">
-                            <VhViewRow label="Allowed IP"
+                            <VhViewRow label="Allowed IPs"
                                        :value="value"
                                        type="allowedIps"
                             />
