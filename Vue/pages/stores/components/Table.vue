@@ -12,7 +12,6 @@ const useVaah = vaah();
     <div v-if="store.list" class="data-container">
         <!--table-->
          <DataTable :value="store.list.data"
-                    v-if="store.list.data.length > 0"
                        dataKey="id"
                     :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
@@ -124,13 +123,14 @@ const useVaah = vaah();
 
             </Column>
 
+             <template #empty="prop">
+
+                 <div class="no-record-message">No records found.</div>
+
+             </template>
 
         </DataTable>
         <!--/table-->
-
-        <div v-else class="no-record-message">
-            No record found.
-        </div>
 
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
@@ -145,6 +145,8 @@ const useVaah = vaah();
     </div>
 
 
+
+
 </template>
 <style>
 .data-container {
@@ -157,7 +159,7 @@ const useVaah = vaah();
 .no-record-message {
     text-align: center;
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 12px;
     color: #888;
 }
 </style>
