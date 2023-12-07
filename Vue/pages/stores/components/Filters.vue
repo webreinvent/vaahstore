@@ -54,6 +54,14 @@ const store = useStoreStore();
                 </template>
 
                 <div class="field-radiobutton">
+                    <RadioButton name="status-all"
+                                 value="all"
+                                 data-testid="stores-filters-status-all"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-all">All</label>
+                </div>
+
+                <div class="field-radiobutton">
                     <RadioButton name="status-pending"
                                  value="pending"
                                  data-testid="stores-filters-status-pending"

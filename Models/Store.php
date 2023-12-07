@@ -494,6 +494,11 @@ class Store extends Model
 
         $status = $filter['status'];
 
+        if($status == 'all')
+        {
+            return $query;
+        }
+
         $query->whereHas('status', function ($query) use ($status) {
             $query->where('name', $status)
                 ->orWhere('slug',$status);
