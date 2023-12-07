@@ -658,6 +658,7 @@ export const useVendorStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -713,6 +714,10 @@ export const useVendorStore = defineStore({
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'vendors.index'});
+                    break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'vendors.form'});
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':
@@ -1170,6 +1175,16 @@ export const useVendorStore = defineStore({
 
                         }
                     },
+
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
+
                     {
                         label: is_deleted ? 'Restore': 'Trash',
                         icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
