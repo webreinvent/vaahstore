@@ -263,7 +263,6 @@ export const useProductAttributeStore = defineStore({
 
             let productVariation = toRaw(event.value);
             this.item.vh_st_product_variation_id = productVariation.id;
-
         },
         //---------------------------------------------------------------------
 
