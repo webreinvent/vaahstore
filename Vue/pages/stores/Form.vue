@@ -156,6 +156,7 @@ const toggleFormMenu = (event) => {
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
                                          data-testid="stores-multi-currency"
+                                         @change="store.item.currencies = null;store.item.default_currency = null;"
                                          v-model="store.item.is_multi_currency"/>
                         </div>
 
@@ -212,6 +213,7 @@ const toggleFormMenu = (event) => {
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
                                          data-testid="stores-multi-currency"
+                                         @change="store.item.languages = null;store.item.default_language = null;"
                                          v-model="store.item.is_multi_lingual"/>
                         </div>
 

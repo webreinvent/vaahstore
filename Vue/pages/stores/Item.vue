@@ -221,11 +221,11 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'currencies'">
-                            <tr>
+                            <tr v-if="store.item.is_multi_currency">
                                 <td :style="{width: label_width}">
                                     <b>Currencies</b>
                                 </td>
-                                <td  colspan="2" v-if="store.item.is_multi_currency">
+                                <td  colspan="2" >
                                     <AutoComplete name="store-currencies"
                                                   data-testid="store-currencies"
                                                   v-model="store.item.currencies"
@@ -244,7 +244,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'default_currency'">
-                            <tr>
+                            <tr v-if="store.item.default_currency && store.item.default_currency.name">
                                 <td :style="{width: label_width}">
                                     <b>Default Currency</b>
                                 </td>
@@ -262,11 +262,11 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'languages'">
-                            <tr>
+                            <tr v-if="store.item.is_multi_lingual">
                                 <td :style="{width: label_width}">
                                     <b>Languages</b>
                                 </td>
-                                <td  colspan="2" v-if="store.item.is_multi_lingual">
+                                <td  colspan="2" >
                                     <AutoComplete name="store-languages"
                                                   data-testid="store-languages"
                                                   v-model="store.item.languages"
@@ -285,7 +285,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'default_language'">
-                            <tr>
+                            <tr v-if="store.item.default_language && store.item.default_language.name">
                                 <td :style="{width: label_width}">
                                     <b>Default Language</b>
                                 </td>
