@@ -9,7 +9,7 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
         <DataTable :value="store.list.data"
                    dataKey="id"
@@ -81,11 +81,7 @@ const useVaah = vaah();
             <Column field="status.name" header="Status"
                     v-if="store.isViewLarge()"
                     :sortable="true">
-
                 <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
                     <Badge v-if="prop.data.status && prop.data.status.name == 'Approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>
                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
@@ -123,7 +119,6 @@ const useVaah = vaah();
             </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
@@ -182,6 +177,11 @@ const useVaah = vaah();
 
             </Column>
 
+            <template #empty="prop">
+
+                <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+            </template>
 
         </DataTable>
         <!--/table-->
