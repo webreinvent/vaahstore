@@ -819,7 +819,7 @@ export const useStoreStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
 
