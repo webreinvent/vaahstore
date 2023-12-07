@@ -681,6 +681,13 @@ export const useProductAttributeStore = defineStore({
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+
+            if(this.query.filter.q)
+            {
+                vaah().toastSuccess(['Action Was Successful']);
+            }
+
+
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -1003,6 +1010,9 @@ export const useProductAttributeStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
+
+
 
 
 
