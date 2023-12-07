@@ -173,7 +173,6 @@ const removeImage = () => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-
                 <VhField label="Store*">
                     <AutoComplete v-model="store.item.store"
                                   @change="store.setStore($event)"
@@ -193,18 +192,6 @@ const removeImage = () => {
                         </template>
                     </AutoComplete>
                 </VhField>
-
-                <VhField label="Business Type*">
-
-                    <Dropdown v-model="store.item.business_type"
-                              @change="store.setBusinessType($event)"
-                              :options="store.business_types_list"
-                              data-testid="vendors-business-types"
-                              optionLabel="name"
-                              placeholder="Select a Business type"
-                              class="w-full" />
-                </VhField>
-
 
                 <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"

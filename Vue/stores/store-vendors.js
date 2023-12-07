@@ -84,7 +84,6 @@ export const useVendorStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         selected_dates : null,
-        business_types_list : null,
     }),
     getters: {
 
