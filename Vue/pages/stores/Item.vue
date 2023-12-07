@@ -70,12 +70,9 @@ const toggleItemMenu = (event) => {
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title">
+                    <div class="p-panel-title" style="display: flex; align-items: center;">
                         <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
-                            <span style="margin-left:5px;word-wrap:break-word;overflow-wrap: break-word;" v-if="store.item && store.item.name">
-                                {{ store.item.name.replace('.', '') }}
-                            </span>
-
+                        <div style="word-break: break-word;margin-left: 5px;">{{ store.item.name.replace('.', '') }}</div>
                     </div>
 
                 </div>
