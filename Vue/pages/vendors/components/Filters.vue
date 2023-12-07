@@ -30,6 +30,8 @@ const store = useVendorStore();
 
 
             </VhFieldVertical>
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Status By:</b>
@@ -48,8 +50,18 @@ const store = useVendorStore();
 
 
             </VhFieldVertical>
-            <Divider/>
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date Range Filter:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+            </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

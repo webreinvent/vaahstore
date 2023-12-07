@@ -448,12 +448,20 @@ class Vendor extends Model
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
+
+        $keys = explode(' ',$filter['q']);
+        foreach($keys as $search)
+        {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                })
+
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+
+            });
+        }
 
     }
     //-------------------------------------------------
@@ -483,7 +491,34 @@ class Vendor extends Model
         });
 
     }
+
     //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+        || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+                ->startOfDay()
+                ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+             ->endOfDay()
+            ->toDateTimeString();
+
+    return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with(['store', 'approvedByUser', 'ownedByUser', 'status','vendorProducts']);
@@ -492,7 +527,7 @@ class Vendor extends Model
         $list->searchFilter($request->filter);
         $list->searchStore($request->filter);
         $list->vendorStatus($request->filter);
-
+        $list->dateFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -888,11 +923,8 @@ class Vendor extends Model
             $item->save();
 
             $i++;
-
         }
-
     }
-
 
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
