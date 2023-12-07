@@ -134,7 +134,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="vendors-name"
                                placeholder="Enter Name"
@@ -143,7 +143,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                placeholder="Enter Slug"
                                name="vendors-slug"
@@ -151,7 +151,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Store">
+                <VhField label="Store*">
                     <AutoComplete v-model="store.item.store"
                                   @change="store.setStore($event)"
                                   value="id"
@@ -171,12 +171,12 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Approve By">
+                <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
                                   @change="store.setApprovedBy($event)"
                                   value="id"
                                   class="w-full"
-                                  placeholder="Select Approve By"
+                                  placeholder="Select Approved By"
                                   data-testid="vendors-approved_by"
                                   name="vendors-approved_by"
                                   :suggestions="store.approved_by_suggestions"
@@ -193,7 +193,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Owned By">
+                <VhField label="Owned By*">
                     <AutoComplete v-model="store.item.owned_by_user"
                                   @change="store.setOwnedBy($event)"
                                   value="id"
@@ -215,7 +215,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
