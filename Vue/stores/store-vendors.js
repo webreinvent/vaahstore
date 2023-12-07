@@ -726,6 +726,9 @@ export const useVendorStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -871,7 +874,7 @@ export const useVendorStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -915,6 +918,15 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
+        },
+
+        //---------------------------------------------------------------------
+
         toEdit(item)
         {
             this.item = item;
@@ -1056,6 +1068,7 @@ export const useVendorStore = defineStore({
             ];
         },
         //---------------------------------------------------------------------
+
         getItemMenu()
         {
             let item_menu = [];
