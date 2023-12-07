@@ -82,9 +82,6 @@ const useVaah = vaah();
                     v-if="store.isViewLarge()"
                     :sortable="true">
                 <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
                     <Badge v-if="prop.data.status && prop.data.status.name == 'Approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>
                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
