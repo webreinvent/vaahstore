@@ -36,11 +36,7 @@ class Vendor extends Model
         'phone_number','email','address',
         'owned_by', 'registered_at',
         'years_in_business',
-        'business_document_type',
-        'business_document_detail',
-        'business_document_file',
         'services_offered',
-        'taxonomy_id_vendor_business_type',
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
         'taxonomy_id_vendor_status', 'status_notes', 'meta',
@@ -161,7 +157,7 @@ class Vendor extends Model
     public function store(){
 
         return $this->belongsTo(Store::class, 'vh_st_store_id','id')
-            ->select(['id','name', 'is_default','slug','is_multi_vendor']);
+            ->select(['id','name', 'is_default','slug']);
     }
 
     //-------------------------------------------------

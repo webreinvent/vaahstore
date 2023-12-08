@@ -193,6 +193,26 @@ const removeImage = () => {
                     </AutoComplete>
                 </VhField>
 
+                <VhField label="Years in Business*">
+                    <InputNumber class="w-full"
+                               name="vendors-business-years"
+                               placeholder="Enter years in business"
+                               data-testid="vendors-name"
+                               v-model="store.item.years_in_business"/>
+                </VhField>
+
+                <VhField label="Services Offered*">
+                    <Textarea
+                        class="w-full"
+                        name="vendors-services-offered"
+                        placeholder="Services description"
+                        data-testid="vendors-services-offered"
+                        v-model="store.item.services_offered"
+                        rows="3"
+                        cols="30" />
+
+                </VhField>
+
                 <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
                                   @change="store.setApprovedBy($event)"
