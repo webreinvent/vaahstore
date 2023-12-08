@@ -497,7 +497,7 @@ export const useVendorStore = defineStore({
 
         setBusinessType(event){
             let business_type = toRaw(event.value);
-            this.item.taxonomy_id_business_type = business_type.id;
+            this.item.taxonomy_id_vendor_business_type = business_type.id;
         },
 
         //---------------------------------------------------------------------
