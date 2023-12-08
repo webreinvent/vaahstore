@@ -633,7 +633,6 @@ export const useProductVariationStore = defineStore({
             }
             this.action.type = 'trash';
             vaah().confirmDialogTrash(this.listAction);
-
         },
         //---------------------------------------------------------------------
         confirmRestore()
@@ -753,7 +752,7 @@ export const useProductVariationStore = defineStore({
             {
                 vaah().toastSuccess(['Action Was Successful']);
             }
-            
+
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -869,7 +868,6 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        console.log(this.action.items);
                         this.confirmTrash()
                     }
                 },
