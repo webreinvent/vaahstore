@@ -40,6 +40,7 @@ class ProductVariation extends Model
         'meta',
         'taxonomy_id_variation_status',
         'status_notes',
+        'description',
         'created_by',
         'updated_by',
         'deleted_by',
