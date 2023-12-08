@@ -186,10 +186,22 @@ const toggleFormMenu = (event) => {
                         placeholder="Services description"
                         data-testid="vendors-services-offered"
                         v-model="store.item.services_offered"
-                        rows="3"
+                        rows="2"
                         cols="30" />
 
                 </VhField>
+
+                <VhField label="Business Type*">
+
+                    <Dropdown v-model="store.item.business_type"
+                              @change="store.setBusinessType($event)"
+                              :options="store.business_types_list"
+                              data-testid="vendors-business-types"
+                              optionLabel="name"
+                              placeholder="Select a Business type"
+                              class="w-full" />
+                </VhField>
+
 
                 <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
