@@ -18,7 +18,7 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                route: "/stores",
+                route: "/stores"
             },
             {
                 label: 'Store Payment Methods',
@@ -28,7 +28,7 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                route: "/vendors",
+                route: "/vendors"
             },
             {
                 label: 'Vendor Products',
@@ -127,5 +127,4 @@ const items = ref([
             </template>
         </Menu>
     </div>
-
 </template>

@@ -191,6 +191,14 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
+                <VhField label="Description">
+                    <Textarea rows="3" class="w-full"
+                              placeholder="Enter a Description Here"
+                              name="productvariations-description"
+                              data-testid="productvariations-description"
+                              v-model="store.item.description"/>
+                </VhField>
+
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
