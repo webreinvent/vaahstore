@@ -128,8 +128,13 @@ class Store extends Model
 
     //-------------------------------------------------
 
+    public function vendors(){
 
+        return $this->hasMany(Vendor::class, 'vh_st_store_id','id')
+            ->select(['id','name', 'is_default','slug']);
+    }
 
+    //-------------------------------------------------
 
     public function createdByUser()
     {
