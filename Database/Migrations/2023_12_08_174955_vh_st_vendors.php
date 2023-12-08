@@ -11,14 +11,13 @@ class VhStVendors extends Migration
      *
      * @return void
      */
-
-        public function up()
+    public function up()
     {
+
         Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->integer('taxonomy_id_vendor_services')->nullable()->index();
+            $table->integer('taxonomy_id_vendor_business_type')->nullable()->after('slug');
         });
     }
-
 
     /**
     * Reverse the migrations.
@@ -28,7 +27,7 @@ class VhStVendors extends Migration
     public function down()
     {
         Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->dropColumn('taxonomy_id_vendor_services');
+            $table->dropColumn('taxonomy_id_vendor_business_type');
         });
     }
 }
