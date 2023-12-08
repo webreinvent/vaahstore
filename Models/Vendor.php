@@ -37,6 +37,7 @@ class Vendor extends Model
         'owned_by', 'registered_at',
         'years_in_business',
         'services_offered',
+        'taxonomy_id_vendor_business_type',
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
         'taxonomy_id_vendor_status', 'status_notes', 'meta',
@@ -177,8 +178,8 @@ class Vendor extends Model
 
     //-------------------------------------------------
 
-    public function servicesDescription(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_services')->select(['id','name','slug']);
+    public function businessType(){
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_business_type', 'id')->select(['id','name','slug']);
     }
 
     //-------------------------------------------------
@@ -367,6 +368,7 @@ class Vendor extends Model
             'vh_st_store_id' => 'required',
             'years_in_business' => 'required|digits_between:1,6',
             'services_offered' => 'required | max:500',
+            'taxonomy_id_vendor_business_type' => 'required',
             'owned_by' => 'required',
             'taxonomy_id_vendor_status' => 'required',
             'status_notes' => [
@@ -804,7 +806,7 @@ class Vendor extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
-                'status','vendorProducts','business_type'])
+                'status','vendorProducts','businessType'])
             ->withTrashed()
             ->first();
         if(!$item)
