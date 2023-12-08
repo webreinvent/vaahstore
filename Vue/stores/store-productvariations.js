@@ -589,6 +589,18 @@ export const useProductVariationStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
         async delayedSearch()
         {
             let self = this;
@@ -818,14 +830,14 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
