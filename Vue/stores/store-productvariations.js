@@ -2,6 +2,7 @@ import {watch,toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from 'moment';
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductVariation';
 
@@ -18,7 +19,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
-            product : null,
+            date:null
         },
     },
     action: {
@@ -70,7 +71,8 @@ export const useProductVariationStore = defineStore({
         suggestion: null,
         active_products: null,
         status_suggestion:null,
-        filtered_products:null,
+        product_suggestion:null,
+        selected_dates:null
     }),
     getters: {
 
@@ -1122,7 +1124,40 @@ export const useProductVariationStore = defineStore({
 
             vaah().toastSuccess(['Action Was Successful']);
 
-        }
+        },
+
+        //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
 
 
         //---------------------------------------------------------------------
