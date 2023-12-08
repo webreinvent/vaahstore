@@ -716,11 +716,15 @@ class ProductVariation extends Model
             'in_stock'=> 'required|numeric',
         ],
             [
-                'product.required' => 'Please choose a Product',
+                'product.required' => 'Please Choose a Product',
                 'taxonomy_id_variation_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'slug.required'=>'The Name field is required.',
+                'name.required'=>'The Slug field is required.',
+                'sku.required'=>'The SKU field is required.'
+
             ]
         );
         if($rules->fails()){
