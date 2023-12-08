@@ -84,6 +84,7 @@ export const useVendorStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         selected_dates : null,
+        business_types_list : null,
     }),
     getters: {
 
@@ -406,12 +407,15 @@ export const useVendorStore = defineStore({
         {
             if(data)
             {
+
                 this.assets = data;
                 this.active_stores = data.active_stores;
                 this.active_users = data.active_users;
+                this.business_types_list = data.business_type;
                 this.vendor_status = data.taxonomy.vendor_status;
                 this.active_products = data.active_products;
                 this.selected_product = data.default_product;
+                this.business_types_list = data.taxonomy.business_type;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
@@ -490,6 +494,14 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
+        setBusinessType(event){
+            let business_type = toRaw(event.value);
+            this.item.taxonomy_id_business_type = business_type.id;
+        },
+
+        //---------------------------------------------------------------------
+
         async searchOwnedBy(event) {
             const query = event;
             const options = {

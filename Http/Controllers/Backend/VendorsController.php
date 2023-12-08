@@ -36,7 +36,6 @@ class VendorsController extends Controller
             $data['empty_item'] = Vendor::getEmptyItem();
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
             $data['empty_item']['is_default'] = 0;
             $data['empty_item']['is_active'] = 0;
             $data['empty_item']['auto_approve_products'] = 0;
@@ -44,6 +43,7 @@ class VendorsController extends Controller
             $data['empty_item']['owned_by_user'] = null;
             $data['empty_item']['approved_by_user'] = null;
             $data['empty_item']['status_record'] = null;
+            $data['empty_item']['years_in_business'] = 0;
             $data['actions'] = [];
 
             $active_stores = $this->getActiveStores();
@@ -64,7 +64,7 @@ class VendorsController extends Controller
             // get taxonomy data's
             $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
+            $data['taxonomy']['business_type'] = Taxonomy::getTaxonomyByType('business-types');
             $response['success'] = true;
             $response['data'] = $data;
 
