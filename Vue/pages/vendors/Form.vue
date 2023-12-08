@@ -190,10 +190,10 @@ const toggleFormMenu = (event) => {
                         cols="30" />
 
                 </VhField>
-
+                
                 <VhField label="Business Type*">
 
-                    <Dropdown v-model="store.item.businessType"
+                    <Dropdown v-model="store.item.business_type"
                               @change="store.setBusinessType($event)"
                               :options="store.business_types_list"
                               data-testid="vendors-business-types"
