@@ -423,26 +423,31 @@ class ProductVariation extends Model
 
     }
 
-    //-------------------------------------------------
 
-    public function scopeProductFilter($query, $filter)
+    //-------------------------------------------------
+    public function scopeDateRangeFilter($query, $filter)
     {
 
-        if(!isset($filter['product'])
-            || is_null($filter['product'])
-            || $filter['product'] === 'null'
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
         )
         {
             return $query;
         }
 
-        $product = $filter['product'];
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
 
-        $query->whereHas('product', function ($query) use ($product) {
-            $query->Where('slug',$product);
-        });
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
+
 
     //-------------------------------------------------
 
@@ -453,9 +458,7 @@ class ProductVariation extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
-        $list->defaultFilter($request->filter);
-        $list->inStockFilter($request->filter);
-        $list->productFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
