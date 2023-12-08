@@ -900,14 +900,13 @@ class ProductVariation extends VaahModel
         ],
             [
                 'product.required' => 'Please Choose a Product',
-                'name.required'=>'The Name field is required.',
-                'slug.required'=>'The Slug field is required.',
-                'taxonomy_id_variation_status.required' => 'The Status field is required.',
-                'sku.required'=>'The SKU field is required.',
+                'taxonomy_id_variation_status.required' => 'The Status field is required',
+                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
-                'description.max' => 'The Description field may not be greater than :max characters.',
-
+                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'slug.required'=>'The Name field is required.',
+                'name.required'=>'The Slug field is required.',
+                'sku.required'=>'The SKU field is required.'
 
             ]
         );
