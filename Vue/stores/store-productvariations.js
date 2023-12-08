@@ -596,6 +596,28 @@ export const useProductVariationStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+        confirmTrash()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'trash';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestore()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'restore';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
@@ -672,7 +694,7 @@ export const useProductVariationStore = defineStore({
             {
                 vaah().toastSuccess(['Action Was Successful']);
             }
-            
+
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -788,14 +810,14 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.updateList('trash')
+                        this.confirmTrash()
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.updateList('restore')
+                        this.confirmRestore()
                     }
                 },
                 {
