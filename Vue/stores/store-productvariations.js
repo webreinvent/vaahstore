@@ -1100,6 +1100,14 @@ export const useProductVariationStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        //---------------------------------------------------------------------
+        reloadPage()
+        {
+            this.getList()
+
+            vaah().toastSuccess(['Action Was Successful']);
+
+        }
 
 
         //---------------------------------------------------------------------
