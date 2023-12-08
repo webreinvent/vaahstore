@@ -480,8 +480,10 @@ export const useProductVariationStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
                 case 'save':
                     this.item = data;
                     break;
