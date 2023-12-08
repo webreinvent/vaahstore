@@ -175,6 +175,13 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
+
+    public function servicesDescription(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_services')->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
     public function vendorProducts()
     {
         return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id')
@@ -357,6 +364,8 @@ class Vendor extends Model
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
+            'years_in_business' => 'required|digits_between:1,6',
+            'services_offered' => 'required | max:500',
             'owned_by' => 'required',
             'auto_approve_products' => 'required',
             'approved_by' => 'required',
@@ -374,6 +383,7 @@ class Vendor extends Model
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
             ]
         );
 
@@ -936,7 +946,6 @@ class Vendor extends Model
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
 
@@ -967,9 +976,16 @@ class Vendor extends Model
         }
         $inputs = $fillable['data']['fill'];
 
+        $faker = Factory::create();
+
         $store = Store::where('is_active', 1)->inRandomOrder()->first();
         $inputs['vh_st_store_id'] = $store->id;
         $inputs['store'] = $store;
+
+        $inputs['years_in_business'] = rand(1,50);
+
+        $number_of_characters = rand(5,250);
+        $inputs['status_notes']=$faker->text($number_of_characters);
 
         $approved_by = User::where('is_active',1)->inRandomOrder()->first();
         $inputs['approved_by'] =$approved_by->id;
@@ -983,12 +999,13 @@ class Vendor extends Model
         $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id', $status_id)->first();
 
+
         $inputs['taxonomy_id_vendor_status'] = $status_id;
         $inputs['status'] = $status;
         $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
 
 
-        $faker = Factory::create();
+
 
         /*
          * You can override the filled variables below this line.
