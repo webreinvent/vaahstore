@@ -34,6 +34,8 @@ class Vendor extends Model
         'uuid',
         'vh_st_store_id', 'name', 'slug',
         'owned_by', 'registered_at',
+        'years_in_business',
+        'services_offered',
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
         'taxonomy_id_vendor_status', 'status_notes', 'meta',
@@ -152,7 +154,9 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public function store(){
-        return $this->hasOne(Store::class, 'id', 'vh_st_store_id')->select(['id','name', 'is_default','slug']);
+
+        return $this->belongsTo(Store::class, 'vh_st_store_id','id')
+            ->select(['id','name', 'is_default','slug']);
     }
 
     //-------------------------------------------------
@@ -293,6 +297,20 @@ class Vendor extends Model
 
         if ($validation_result['success'] != true){
             return $validation_result;
+        }
+
+
+        if($inputs['store']['is_default'] === 0)
+        {
+            if($inputs['store']['is_multi_vendor'] === 0)
+            {
+                $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])
+                    ->first();
+                if ($vendor) {
+                    $response['errors'][] = "There is already a vendor associated with this store.";
+                    return $response;
+                }
+            }
         }
 
         // check if name exist
@@ -804,6 +822,16 @@ class Vendor extends Model
             self::where('is_default',1)->update(['is_default' => 0]);
         }
 
+        if($inputs['store']['is_multi_vendor'] === 0)
+        {
+            $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])
+                ->first();
+            if ($vendor) {
+                $response['errors'][] = "There is already a vendor associated with this store.";
+                return $response;
+            }
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -992,7 +1020,7 @@ class Vendor extends Model
     public static function searchStore($request)
     {
 
-        $search_store = Store::select('id', 'name','slug')->where('is_active', '1');
+        $search_store = Store::select('id', 'name','slug','is_default','is_multi_vendor')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_store->where(function($q) use ($query) {
