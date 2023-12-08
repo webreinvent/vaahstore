@@ -177,8 +177,8 @@ class Vendor extends Model
 
     //-------------------------------------------------
 
-    public function business_type(){
-        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_business_type', 'id');
+    public function servicesDescription(){
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_services')->select(['id','name','slug']);
     }
 
     //-------------------------------------------------
@@ -367,8 +367,6 @@ class Vendor extends Model
             'vh_st_store_id' => 'required',
             'years_in_business' => 'required|digits_between:1,6',
             'services_offered' => 'required | max:500',
-            'taxonomy_id_vendor_business_type' => 'required',
-            'approved_by' => 'required',
             'owned_by' => 'required',
             'taxonomy_id_vendor_status' => 'required',
             'status_notes' => [
@@ -407,7 +405,8 @@ class Vendor extends Model
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+                'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
             ]
         );
 

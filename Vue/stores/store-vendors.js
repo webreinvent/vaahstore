@@ -84,6 +84,7 @@ export const useVendorStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         selected_dates : null,
+        business_types_list : null,
     }),
     getters: {
 
@@ -497,7 +498,7 @@ export const useVendorStore = defineStore({
 
         setBusinessType(event){
             let business_type = toRaw(event.value);
-            this.item.taxonomy_id_vendor_business_type = business_type.id;
+            this.item.taxonomy_id_business_type = business_type.id;
         },
 
         //---------------------------------------------------------------------
