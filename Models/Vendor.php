@@ -178,8 +178,8 @@ class Vendor extends Model
 
     //-------------------------------------------------
 
-    public function businessType(){
-        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_business_type', 'id')->select(['id','name','slug']);
+    public function business_type(){
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_business_type', 'id');
     }
 
     //-------------------------------------------------
@@ -806,7 +806,7 @@ class Vendor extends Model
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
-                'status','vendorProducts','businessType'])
+                'status','vendorProducts','business_type'])
             ->withTrashed()
             ->first();
         if(!$item)
