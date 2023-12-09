@@ -1,7 +1,7 @@
 <script setup>
 import {reactive, ref, watch } from 'vue';
 import {vaah} from '../../../vaahvue/pinia/vaah'
-import { useVendorStore } from '../../../stores/store-vendors'
+import { usePracticeStore } from '../../../stores/store-practices'
 import axios from 'axios';
 /**----------------------
  * Props
@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const upload_refs = ref([])
 
-const store = useVendorStore();
+const store = usePracticeStore();
 
 const temp_setter = ref(store.reset_uploader);
 
@@ -96,6 +96,7 @@ function uploadFile(e){
             }
         }).then(res=>{
             upload_refs.value.uploadedFiles[0] = file;
+            store.storeAvatar(res.data.data);
             emit('fileUploaded', res.data);
         });
     })
@@ -103,7 +104,11 @@ function uploadFile(e){
 
 
 }
+function removeFile(e){
 
+    // store.item[props.store_label] = null;
+
+}
 
 function selectFile (data){
 

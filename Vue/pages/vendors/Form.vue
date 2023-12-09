@@ -28,15 +28,15 @@ const handleFileUploaded = (responseData) => {
 
     if (responseData.data && responseData.data.url) {
 
-        store.item.business_document_file = responseData.data.url
+        store.item.file_link=responseData.data.url
 
-    }
-    else {
+
+    } else {
 
         console.error('image not found');
     }
 
-   /* response.value = JSON.stringify(responseData, null, 2);*/
+    response.value = JSON.stringify(responseData, null, 2);
 
 };
 
@@ -327,7 +327,57 @@ const removeImage = () => {
                     </AccordionTab>
 
                 </Accordion>
+                <Accordion class="mt-3 mb-3">
 
+                    <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
+                        <VhField label="Document Type">
+                            <InputNumber class="w-full"
+                                         name="vendors-phone-number"
+                                         placeholder="Enter Document Type"
+                                         data-testid="vendors-phone-number"
+                                         v-model="store.item.phone_number"/>
+                        </VhField>
+
+                        <VhField label="Document Details">
+                            <InputText class="w-full"
+                                       name="vendors-email"
+                                       placeholder="Details of the document e.g registration number"
+                                       data-testid="vendors-email"
+                                       v-model="store.item.email"/>
+                        </VhField>
+
+
+                            <VhField label="Upload">
+
+                                <FileUploader placeholder="Upload Avatar"
+                                              v-model="store.item.document_image"
+                                              :is_basic="true"
+                                              data-testid="practices_upload_avatar"
+                                              :auto_upload="true"
+                                              :uploadUrl="store.assets.urls.upload"
+                                              @fileUploaded="handleFileUploaded">
+                                </FileUploader>
+
+                                <file v-if="store.item.document_image"
+                                     :src="store.item.document_image"
+                                     width="64"
+                                     height="64"
+                                     alt="Uploaded Image"/>
+                                <Button v-if="store.item.document_image"
+                                        icon="pi pi-times"
+                                        severity="danger"
+                                        @click="removeImage"
+                                        text rounded aria-label="Cancel"
+                                        class="close-button"
+                                />
+
+                            </VhField>
+
+
+
+                    </AccordionTab>
+
+                </Accordion>
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
