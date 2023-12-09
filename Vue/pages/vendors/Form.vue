@@ -28,7 +28,7 @@ const handleFileUploaded = (responseData) => {
 
     if (responseData.data && responseData.data.url) {
 
-        store.item.file_link=responseData.data.url
+        store.item.document_image = responseData.data.url
 
 
     } else {
@@ -36,7 +36,7 @@ const handleFileUploaded = (responseData) => {
         console.error('image not found');
     }
 
-    response.value = JSON.stringify(responseData, null, 2);
+   /* response.value = JSON.stringify(responseData, null, 2);*/
 
 };
 
@@ -316,10 +316,10 @@ const removeImage = () => {
                         <VhField label="Address">
                                 <Textarea
                                     class="w-full"
-                                    name="vendors-services-offered"
-                                    placeholder="Services description"
-                                    data-testid="vendors-services-offered"
-                                    v-model="store.item.services_offered"
+                                    name="vendors-address"
+                                    placeholder="Enter Address"
+                                    data-testid="vendors-addresses"
+                                    v-model="store.item.address"
                                     rows="3"
                                     cols="30" />
                         </VhField>
@@ -331,42 +331,45 @@ const removeImage = () => {
 
                     <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
                         <VhField label="Document Type">
-                            <InputNumber class="w-full"
-                                         name="vendors-phone-number"
+                            <InputText class="w-full"
+                                         name="vendors-document-type"
                                          placeholder="Enter Document Type"
-                                         data-testid="vendors-phone-number"
-                                         v-model="store.item.phone_number"/>
+                                         data-testid="vendors-document-type"
+                                         v-model="store.item.business_document_type"/>
                         </VhField>
 
                         <VhField label="Document Details">
                             <InputText class="w-full"
-                                       name="vendors-email"
-                                       placeholder="Details of the document e.g registration number"
-                                       data-testid="vendors-email"
-                                       v-model="store.item.email"/>
+                                       name="vendors-document-detail"
+                                       placeholder="e.g registration number"
+                                       data-testid="vendors-document-detail"
+                                       v-model="store.item.business_document_detail"/>
                         </VhField>
 
 
-                            <VhField label="Upload">
+                            <VhField label="Upload File">
 
-                                <FileUploader placeholder="Upload Avatar"
-                                              v-model="store.item.document_image"
+                                <FileUploader
+                                    placeholder="Upload document"
+                                              v-model="store.item.business_document_file"
                                               :is_basic="true"
-                                              data-testid="practices_upload_avatar"
+                                              data-testid="vendors-document-image"
                                               :auto_upload="true"
                                               :uploadUrl="store.assets.urls.upload"
                                               @fileUploaded="handleFileUploaded">
+
                                 </FileUploader>
 
-                                <file v-if="store.item.document_image"
-                                     :src="store.item.document_image"
+
+                                <img v-if="store.item.business_document_file"
+                                     :src="store.item.business_document_file"
                                      width="64"
                                      height="64"
                                      alt="Uploaded Image"/>
-                                <Button v-if="store.item.document_image"
+                                <Button v-if="store.item.business_document_file"
                                         icon="pi pi-times"
                                         severity="danger"
-                                        @click="removeImage"
+                                        @click="store.removeImage()"
                                         text rounded aria-label="Cancel"
                                         class="close-button"
                                 />
