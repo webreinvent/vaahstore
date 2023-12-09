@@ -151,6 +151,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+
                 <VhField label="Store*">
                     <AutoComplete v-model="store.item.store"
                                   @change="store.setStore($event)"
@@ -186,11 +187,11 @@ const toggleFormMenu = (event) => {
                         placeholder="Services description"
                         data-testid="vendors-services-offered"
                         v-model="store.item.services_offered"
-                        rows="2"
+                        rows="3"
                         cols="30" />
 
                 </VhField>
-                
+
                 <VhField label="Business Type*">
 
                     <Dropdown v-model="store.item.business_type"
@@ -201,6 +202,9 @@ const toggleFormMenu = (event) => {
                               placeholder="Select a Business type"
                               class="w-full" />
                 </VhField>
+
+
+
 
                 <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
@@ -267,6 +271,41 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes" rows="3" class="w-full"
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
+
+                <Accordion class="mt-3 mb-3">
+
+                    <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
+                        <VhField label="Phone">
+                            <InputNumber class="w-full"
+                                         name="vendors-phone-number"
+                                         placeholder="Enter your phone number"
+                                         data-testid="vendors-phone-number"
+                                         v-model="store.item.phone_number"/>
+                        </VhField>
+
+                        <VhField label="Email">
+                            <InputText class="w-full"
+                                       name="vendors-email"
+                                       placeholder="Enter Email"
+                                       data-testid="vendors-email"
+                                       v-model="store.item.email"/>
+                        </VhField>
+
+                        <VhField label="Address">
+                                <Textarea
+                                    class="w-full"
+                                    name="vendors-services-offered"
+                                    placeholder="Services description"
+                                    data-testid="vendors-services-offered"
+                                    v-model="store.item.services_offered"
+                                    rows="3"
+                                    cols="30" />
+                        </VhField>
+
+                    </AccordionTab>
+
+                </Accordion>
+
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
