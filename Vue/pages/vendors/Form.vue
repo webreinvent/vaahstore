@@ -173,6 +173,7 @@ const removeImage = () => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+
                 <VhField label="Store*">
                     <AutoComplete v-model="store.item.store"
                                   @change="store.setStore($event)"
@@ -208,11 +209,11 @@ const removeImage = () => {
                         placeholder="Services description"
                         data-testid="vendors-services-offered"
                         v-model="store.item.services_offered"
-                        rows="2"
+                        rows="3"
                         cols="30" />
 
                 </VhField>
-                
+
                 <VhField label="Business Type*">
 
                     <Dropdown v-model="store.item.business_type"
@@ -223,6 +224,9 @@ const removeImage = () => {
                               placeholder="Select a Business type"
                               class="w-full" />
                 </VhField>
+
+
+
 
                 <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
@@ -290,28 +294,6 @@ const removeImage = () => {
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
 
-
-
-                <VhField label="Years in Business">
-                    <InputNumber class="w-full"
-                                 name="vendors-business-years"
-                                 placeholder="Enter years in business"
-                                 data-testid="vendors-name"
-                                 v-model="store.item.years_in_business"/>
-                </VhField>
-
-                <VhField label="Services Offered">
-                    <Editor
-                        class="w-full"
-                        name="vendors-services-offered"
-                        placeholder="Services description"
-                        data-testid="vendors-services-offered"
-                        v-model="store.item.services_offered"
-                        rows="3"
-                        cols="30" />
-
-                </VhField>
-
                 <Accordion class="mt-3 mb-3">
 
                     <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
@@ -334,10 +316,10 @@ const removeImage = () => {
                         <VhField label="Address">
                                 <Textarea
                                     class="w-full"
-                                    name="vendors-address"
-                                    placeholder="Enter Address"
-                                    data-testid="vendors-addresses"
-                                    v-model="store.item.address"
+                                    name="vendors-services-offered"
+                                    placeholder="Services description"
+                                    data-testid="vendors-services-offered"
+                                    v-model="store.item.services_offered"
                                     rows="3"
                                     cols="30" />
                         </VhField>
@@ -345,58 +327,7 @@ const removeImage = () => {
                     </AccordionTab>
 
                 </Accordion>
-                <Accordion class="mt-3 mb-3">
 
-                    <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
-                        <VhField label="Document Type">
-                            <InputText class="w-full"
-                                         name="vendors-document-type"
-                                         placeholder="Enter Document Type"
-                                         data-testid="vendors-document-type"
-                                         v-model="store.item.business_document_type"/>
-                        </VhField>
-
-                        <VhField label="Document Details">
-                            <InputText class="w-full"
-                                       name="vendors-document-detail"
-                                       placeholder="e.g registration number"
-                                       data-testid="vendors-document-detail"
-                                       v-model="store.item.business_document_detail"/>
-                        </VhField>
-
-                            <VhField label="Upload File">
-
-                                <FileUploader
-                                    placeholder="Upload document"
-                                              v-model="store.item.business_document_file"
-                                              :is_basic="true"
-                                              data-testid="vendors-document-image"
-                                              :auto_upload="true"
-                                              :uploadUrl="store.assets.urls.upload"
-                                              @fileUploaded="handleFileUploaded">
-
-                                </FileUploader>
-
-                                <img v-if="store.item.business_document_file"
-                                     :src="store.item.business_document_file"
-                                     width="64"
-                                     height="64"
-                                     alt="Uploaded Image"/>
-                                <Button v-if="store.item.business_document_file"
-                                        icon="pi pi-times"
-                                        severity="danger"
-                                        @click="store.removeImage()"
-                                        text rounded aria-label="Cancel"
-                                        class="close-button"
-                                />
-
-                            </VhField>
-
-
-
-                    </AccordionTab>
-
-                </Accordion>
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
