@@ -37,8 +37,8 @@ class Vendor extends Model
         'owned_by', 'registered_at',
         'years_in_business',
         'business_document_type',
-        'business_document_details',
-        'business_document_image',
+        'business_document_detail',
+        'business_document_file',
         'services_offered',
         'taxonomy_id_vendor_business_type',
         'auto_approve_products', 'approved_by',
@@ -383,8 +383,8 @@ class Vendor extends Model
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => '',
-            'business_document_details' => '',
-            'business_document_image' => '',
+            'business_document_detail' => '',
+            'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
             'is_active' => 'required',
@@ -1017,6 +1017,11 @@ class Vendor extends Model
         $approved_by = User::where('is_active',1)->inRandomOrder()->first();
         $inputs['approved_by'] =$approved_by->id;
         $inputs['approved_by_user'] = $approved_by;
+
+        $inputs['phone_number'] = rand(10000000000,999999999999999);
+
+        $inputs['email'] = $faker->email;
+        $inputs['address'] = $faker->address;
 
         $owned_by = User::where('is_active',1)->inRandomOrder()->first();
         $inputs['owned_by'] =$owned_by->id;
