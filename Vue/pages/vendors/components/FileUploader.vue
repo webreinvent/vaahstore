@@ -99,6 +99,9 @@ function uploadFile(e){
             emit('fileUploaded', res.data);
         });
     })
+
+
+
 }
 
 

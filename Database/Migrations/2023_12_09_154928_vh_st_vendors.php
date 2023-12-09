@@ -15,7 +15,7 @@ class VhStVendors extends Migration
     {
 
         Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->string('business_document_type')->nullable()->after('	taxonomy_id_vendor_business_type');
+            $table->string('business_document_type')->nullable()->after('taxonomy_id_vendor_business_type');
             $table->string('business_document_detail')->nullable()->after('business_document_type');
             $table->string('business_document_file')->nullable()->after('business_document_detail');
         });
