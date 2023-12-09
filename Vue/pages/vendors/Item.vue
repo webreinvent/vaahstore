@@ -149,12 +149,7 @@ const toggleItemMenu = (event) => {
                                        || column === 'status'|| column === 'approved_by_user' || column === 'deleted_by'
                                        || column === 'owned_by_user'|| column === 'vendor_products' || column === 'meta'
                                        || column === 'products' || column === 'taxonomy_id_vendor_business_type'
-                                       || column === 'business_type' || column === 'store' || column === 'vh_st_store_id'
-                                       || column === 'approved_by_user' || column === 'status_notes'
-                                       || column === 'years_in_business' || column === 'services_offered'
-                                       || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
-                                       || column === 'approved_by' || column === 'email'
-                                       || column === 'address'">
+                                       || column === 'business_type'  ">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -185,71 +180,12 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
 
-                                <tr v-if="store.item.store">
-                                    <td>
-                                        <b>Store</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        {{store.item.store.name}}
-                                    </td>
-                                </tr>
-
-
                                 <tr v-if="store.item.business_type.name">
                                     <td>
                                         <b>Business Type</b>
                                     </td>
                                     <td colspan="2" >
                                         {{store.item.business_type.name}}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <b>Approved By</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        <Button class="p-button-outlined p-button-secondary p-button-sm">
-                                            {{store.item.approved_by_user.first_name}}
-                                        </Button>
-                                    </td>
-                                </tr>
-
-                                <tr v-if="store.item.owned_by_user && store.item.owned_by_user.name">
-                                    <td>
-                                        <b>Owned By</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        <Button class="p-button-outlined p-button-secondary p-button-sm">
-                                            {{store.item.owned_by_user.name}}
-                                        </Button>
-                                    </td>
-                                </tr>
-
-                                <tr v-if="store.item.status && store.item.status.name">
-                                    <td>
-                                        <b>Status</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        {{store.item.status.name}}
-                                    </td>
-                                </tr>
-
-                                <tr v-if="store.item.years_in_business">
-                                    <td>
-                                        <b>Years in Business</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        {{store.item.years_in_business}}
-                                    </td>
-                                </tr>
-
-                                <tr v-if="store.item.services_offered">
-                                    <td>
-                                        <b>Services Offered</b>
-                                    </td>
-                                    <td colspan="2">
-                                        <div v-html="store.item.services_offered"></div>
                                     </td>
                                 </tr>
 
