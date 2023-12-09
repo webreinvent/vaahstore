@@ -169,6 +169,7 @@ export const useVendorStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
+
         watchStates()
         {
             watch(this.query.filter, (newVal,oldVal) =>
@@ -1301,11 +1302,22 @@ export const useVendorStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
         //---------------------------------------------------------------------
+
+        removeImage()
+        {
+            this.item.business_document_file = null;
+        }
+
+
     }
+
+        //---------------------------------------------------------------------
+
+
+
 });
-
-
 
 // Pinia hot reload
 if (import.meta.hot) {
