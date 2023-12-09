@@ -42,6 +42,8 @@ class ProductVariation extends VaahModel
         'taxonomy_id_variation_status',
         'status_notes',
         'description',
+        'per_unit_price',
+        'total_price',
         'created_by',
         'updated_by',
         'deleted_by',
