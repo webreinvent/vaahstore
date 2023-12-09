@@ -15,7 +15,9 @@ class AddColumnVhStProductVariationsTable extends Migration
     {
 
         Schema::table('vh_st_product_variations', function($table) {
-            $table->longText('description');
+            $table->longText('description')->nullable()->index();
+            $table->integer('per_unit_price')->nullable()->index();
+            $table->integer('total_price')->nullable()->index();
         });
     }
 
@@ -26,9 +28,8 @@ class AddColumnVhStProductVariationsTable extends Migration
     */
     public function down()
     {
-
         Schema::table('vh_st_product_variations', function($table) {
-            $table->dropColumn('description');
+            $table->dropColumn(['description','per_unit_price','total_price']);
         });
     }
 }
