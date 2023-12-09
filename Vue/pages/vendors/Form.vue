@@ -28,10 +28,10 @@ const handleFileUploaded = (responseData) => {
 
     if (responseData.data && responseData.data.url) {
 
-        store.item.document_image = responseData.data.url
+        store.item.business_document_file = responseData.data.url
 
-
-    } else {
+    }
+    else {
 
         console.error('image not found');
     }
@@ -214,6 +214,7 @@ const removeImage = () => {
 
                 </VhField>
 
+
                 <VhField label="Business Type*">
 
                     <Dropdown v-model="store.item.business_type"
@@ -346,7 +347,6 @@ const removeImage = () => {
                                        v-model="store.item.business_document_detail"/>
                         </VhField>
 
-
                             <VhField label="Upload File">
 
                                 <FileUploader
@@ -359,7 +359,6 @@ const removeImage = () => {
                                               @fileUploaded="handleFileUploaded">
 
                                 </FileUploader>
-
 
                                 <img v-if="store.item.business_document_file"
                                      :src="store.item.business_document_file"
