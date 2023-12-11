@@ -277,7 +277,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        
         async getAssets() {
 
             if(this.assets_is_fetching === true){
