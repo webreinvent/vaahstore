@@ -59,7 +59,8 @@ const store = useVendorStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
-                          :manualInput="false"/>
+                          :manualInput="false"
+                            class="w-full"/>
 
             </VhFieldVertical >
 

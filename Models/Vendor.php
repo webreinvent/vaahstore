@@ -161,7 +161,7 @@ class Vendor extends Model
     public function store(){
 
         return $this->belongsTo(Store::class, 'vh_st_store_id','id')
-            ->select(['id','name', 'is_default','slug']);
+            ->select(['id','name', 'is_default','slug','is_multi_vendor']);
     }
 
     //-------------------------------------------------
@@ -379,6 +379,7 @@ class Vendor extends Model
                 'required_if:status.slug,==,rejected',
                 'max:250'
             ],
+            'store' => '',
             'phone_number' => 'digits_between:1,15',
             'email' => 'email|max:100',
             'address' => 'max:250',

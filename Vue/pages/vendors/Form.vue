@@ -194,27 +194,6 @@ const removeImage = () => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Years in Business*">
-                    <InputNumber class="w-full"
-                               name="vendors-business-years"
-                               placeholder="Enter years in business"
-                               data-testid="vendors-name"
-                               v-model="store.item.years_in_business"/>
-                </VhField>
-
-                <VhField label="Services Offered*">
-                    <Textarea
-                        class="w-full"
-                        name="vendors-services-offered"
-                        placeholder="Services description"
-                        data-testid="vendors-services-offered"
-                        v-model="store.item.services_offered"
-                        rows="3"
-                        cols="30" />
-
-                </VhField>
-
-
                 <VhField label="Business Type*">
 
                     <Dropdown v-model="store.item.business_type"
@@ -225,8 +204,6 @@ const removeImage = () => {
                               placeholder="Select a Business type"
                               class="w-full" />
                 </VhField>
-
-
 
 
                 <VhField label="Approved By*">
@@ -293,6 +270,28 @@ const removeImage = () => {
                     <Textarea placeholder="Enter Status Note"
                               v-model="store.item.status_notes" rows="3" class="w-full"
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
+                </VhField>
+
+
+
+                <VhField label="Years in Business">
+                    <InputNumber class="w-full"
+                                 name="vendors-business-years"
+                                 placeholder="Enter years in business"
+                                 data-testid="vendors-name"
+                                 v-model="store.item.years_in_business"/>
+                </VhField>
+
+                <VhField label="Services Offered">
+                    <Editor
+                        class="w-full"
+                        name="vendors-services-offered"
+                        placeholder="Services description"
+                        data-testid="vendors-services-offered"
+                        v-model="store.item.services_offered"
+                        rows="3"
+                        cols="30" />
+
                 </VhField>
 
                 <Accordion class="mt-3 mb-3">
