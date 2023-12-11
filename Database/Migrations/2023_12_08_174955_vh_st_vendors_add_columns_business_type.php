@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStVendorsAddDetailsColumns extends Migration
+class VhStVendorsAddColumnsBusinessType extends Migration
 {
     /**
      * Run the migrations.
@@ -15,9 +15,7 @@ class VhStVendorsAddDetailsColumns extends Migration
     {
 
         Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->bigInteger('phone_number')->nullable()->after('slug');
-            $table->string('email')->nullable()->after('phone_number');
-            $table->text('address')->nullable()->after('email');
+            $table->integer('taxonomy_id_vendor_business_type')->nullable()->after('slug');
         });
     }
 
@@ -29,9 +27,7 @@ class VhStVendorsAddDetailsColumns extends Migration
     public function down()
     {
         Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->dropColumn('phone_number');
-            $table->dropColumn('email');
-            $table->dropColumn('address');
+            $table->dropColumn('taxonomy_id_vendor_business_type');
         });
     }
 }
