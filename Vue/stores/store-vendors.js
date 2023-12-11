@@ -811,6 +811,7 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
+
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,

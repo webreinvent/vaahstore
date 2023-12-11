@@ -1030,14 +1030,19 @@ class Vendor extends Model
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id', $status_id)->first();
-
-
         $inputs['taxonomy_id_vendor_status'] = $status_id;
         $inputs['status'] = $status;
+
         $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
+        $inputs['business_document_file'] = null;
 
+        // set business type field
+        $taxonomy_business_type = Taxonomy::getTaxonomyByType('business-types');
 
-
+        $business_type_id = $taxonomy_business_type->pluck('id')->random();
+        $business_type = $taxonomy_business_type->where('id', $business_type_id)->first();
+        $inputs['taxonomy_id_vendor_business_type'] = $business_type_id;
+        $inputs['business_type'] = $business_type;
 
         /*
          * You can override the filled variables below this line.
