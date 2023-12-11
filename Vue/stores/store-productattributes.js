@@ -264,7 +264,21 @@ export const useProductAttributeStore = defineStore({
             let productVariation = toRaw(event.value);
             this.item.vh_st_product_variation_id = productVariation.id;
 
+<<<<<<< HEAD
         },
+        //---------------------------------------------------------------------
+
+        setProductVariationFilter(event){
+
+            let product_variation = toRaw(event.value);
+            if(product_variation.slug)
+            {
+                this.query.filter.product_variation = product_variation.slug;
+            }
+=======
+>>>>>>> vendors-crud-upgradation
+        },
+
         //---------------------------------------------------------------------
 
         setProductVariationFilter(event){
