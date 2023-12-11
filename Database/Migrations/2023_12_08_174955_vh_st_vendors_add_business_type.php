@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStOrdersAmountColumn extends Migration
+class VhStVendorsAddBusinessTypeColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class VhStOrdersAmountColumn extends Migration
     public function up()
     {
 
-        Schema::table('vh_st_orders', function (Blueprint $table) {
-            $table->double('amount')->change();
+        Schema::table('vh_st_vendors', function (Blueprint $table) {
+            $table->integer('taxonomy_id_vendor_business_type')->nullable()->after('slug');
         });
     }
 
@@ -26,8 +26,8 @@ class VhStOrdersAmountColumn extends Migration
     */
     public function down()
     {
-        Schema::table('vh_st_orders', function (Blueprint $table) {
-            $table->integer('amount')->change();
+        Schema::table('vh_st_vendors', function (Blueprint $table) {
+            $table->dropColumn('taxonomy_id_vendor_business_type');
         });
     }
 }
