@@ -52,7 +52,6 @@ const props = defineProps({
     },
     file_type_accept:{
         type: String,
-        default: 'image/*'
     },
     placeholder:{
         type: String,
@@ -79,7 +78,7 @@ const emit = defineEmits();
 /**----------------------
  * Methods
  */
-function uploadFile(e){
+/*function uploadFile(e){
 
     let uploaded_files = upload_refs.value.files;
 
@@ -102,8 +101,38 @@ function uploadFile(e){
 
 
 
-}
+}*/
 
+
+function uploadFile(e) {
+    let uploaded_files = upload_refs.value.files;
+
+    console.log(uploaded_files);
+
+    upload_refs.value.files = [];
+
+    uploaded_files.forEach(async (file) => {
+        let formData = new FormData();
+        formData.append("file", file);
+        formData.append('folder_path', props.folderPath);
+        formData.append('file_name', props.fileName);
+
+        console.log( formData.append('file_name', props.fileName));
+
+
+
+        let contentType = 'multipart/form-data';
+
+        axios.post(props.uploadUrl, formData, {
+            headers: {
+                'Content-Type': contentType
+            }
+        }).then(res => {
+            upload_refs.value.uploadedFiles[0] = file;
+            emit('fileUploaded', res.data);
+        });
+    });
+}
 
 function selectFile (data){
 
