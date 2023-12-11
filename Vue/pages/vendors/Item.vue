@@ -5,6 +5,7 @@ import {useRoute} from 'vue-router';
 import { useVendorStore } from '../../stores/store-vendors'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 const store = useVendorStore();
 const route = useRoute();
 
@@ -115,7 +116,6 @@ const toggleItemMenu = (event) => {
                         {{store.item.status_notes}}</div>
                 </Message>
 
-
                 <Message severity="error"
                          class="p-container-message"
                          :closable="false"
@@ -149,7 +149,12 @@ const toggleItemMenu = (event) => {
                                        || column === 'status'|| column === 'approved_by_user' || column === 'deleted_by'
                                        || column === 'owned_by_user'|| column === 'vendor_products' || column === 'meta'
                                        || column === 'products' || column === 'taxonomy_id_vendor_business_type'
-                                       || column === 'business_type'  ">
+                                       || column === 'business_type' || column === 'store' || column === 'vh_st_store_id'
+                                       || column === 'approved_by_user' || column === 'status_notes'
+                                       || column === 'years_in_business' || column === 'services_offered'
+                                       || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
+                                       || column === 'approved_by' || column === 'email'
+                                       || column === 'address'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -180,6 +185,16 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
 
+                                <tr v-if="store.item.store">
+                                    <td>
+                                        <b>Store</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        {{store.item.store.name}}
+                                    </td>
+                                </tr>
+
+
                                 <tr v-if="store.item.business_type.name">
                                     <td>
                                         <b>Business Type</b>
@@ -189,40 +204,160 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
 
+                                <tr>
+                                    <td>
+                                        <b>Approved By</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <Button class="p-button-outlined p-button-secondary p-button-sm">
+                                            {{store.item.approved_by_user.first_name}}
+                                        </Button>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="store.item.owned_by_user && store.item.owned_by_user.name">
+                                    <td>
+                                        <b>Owned By</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <Button class="p-button-outlined p-button-secondary p-button-sm">
+                                            {{store.item.owned_by_user.name}}
+                                        </Button>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="store.item.status && store.item.status.name">
+                                    <td>
+                                        <b>Status</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        {{store.item.status.name}}
+                                    </td>
+                                </tr>
+
+                                <tr v-if="store.item.years_in_business">
+                                    <td>
+                                        <b>Years in Business</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        {{store.item.years_in_business}}
+                                    </td>
+                                </tr>
+
+                                <tr v-if="store.item.services_offered">
+                                    <td>
+                                        <b>Services Offered</b>
+                                    </td>
+                                    <td colspan="2">
+                                        <div v-html="store.item.services_offered"></div>
+                                    </td>
+                                </tr>
+
 
                             </template>
-                       <template v-else-if="column === 'vh_st_store_id'">
-                            <tr>
-                                <td>
-                                    <b>Store</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.store?.name}}
-                                </td>
-                            </tr>
-                        </template>
 
-                        <template v-else-if="column === 'owned_by'">
-                            <tr>
-                                <td>
-                                    <b>Owned By</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.owned_by_user?.name}}
-                                </td>
-                            </tr>
-                        </template>
-                        <template v-else-if="column === 'approved_by'">
-                            <tr>
-                                <td>
-                                    <b>Approved By</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.approved_by_user?.first_name}}
-                                </td>
-                            </tr>
-                        </template>
+                            <template v-else-if="column === 'phone_number'">
+                                <tr>
+                                    <td colspan="3">
+                                        <Accordion class="mt-3 mb-3">
 
+                                            <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
+                                                <VhField label="Phone">
+                                                    <InputNumber class="w-full"
+                                                                 name="vendors-phone-number"
+                                                                 placeholder="Enter your phone number"
+                                                                 data-testid="vendors-phone-number"
+                                                                 v-model="store.item.phone_number"
+                                                                 readonly/>
+                                                </VhField>
+
+                                                <VhField label="Email">
+                                                    <InputText class="w-full"
+                                                               name="vendors-email"
+                                                               placeholder="Enter Email"
+                                                               data-testid="vendors-email"
+                                                               v-model="store.item.email"
+                                                               readonly/>
+                                                </VhField>
+
+                                                <VhField label="Address">
+                                                    <Textarea
+                                                        class="w-full"
+                                                        name="vendors-address"
+                                                        placeholder="Enter Address"
+                                                        data-testid="vendors-addresses"
+                                                        v-model="store.item.address"
+                                                        rows="3"
+                                                        cols="30"
+                                                        readonly/>
+                                                </VhField>
+
+                                            </AccordionTab>
+
+                                        </Accordion>
+                                    </td>
+
+                                </tr>
+
+                            </template>
+                            <template v-else-if="column === 'business_document_type'">
+                                <tr>
+                                    <td colspan="3">
+                                        <Accordion class="mt-3 mb-3">
+
+                                            <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
+                                                <VhField label="Document Type">
+                                                    <InputText class="w-full"
+                                                               name="vendors-document-type"
+                                                               placeholder="Enter Document Type"
+                                                               data-testid="vendors-document-type"
+                                                               v-model="store.item.business_document_type"/>
+                                                </VhField>
+
+                                                <VhField label="Document Details">
+                                                    <InputText class="w-full"
+                                                               name="vendors-document-detail"
+                                                               placeholder="e.g registration number"
+                                                               data-testid="vendors-document-detail"
+                                                               v-model="store.item.business_document_detail"/>
+                                                </VhField>
+
+                                                <VhField label="Upload File">
+
+                                                    <FileUploader
+                                                        placeholder="Upload document"
+                                                        v-model="store.item.business_document_file"
+                                                        :is_basic="true"
+                                                        data-testid="vendors-document-image"
+                                                        :auto_upload="true"
+                                                        :uploadUrl="store.assets.urls.upload"
+                                                        @fileUploaded="handleFileUploaded">
+
+                                                    </FileUploader>
+
+                                                    <img v-if="store.item.business_document_file"
+                                                         :src="store.item.business_document_file"
+                                                         width="64"
+                                                         height="64"
+                                                         alt="Uploaded Image"/>
+                                                    <Button v-if="store.item.business_document_file"
+                                                            icon="pi pi-times"
+                                                            severity="danger"
+                                                            @click="store.removeImage()"
+                                                            text rounded aria-label="Cancel"
+                                                            class="close-button"
+                                                    />
+
+                                                </VhField>
+
+                                            </AccordionTab>
+
+                                        </Accordion>
+                                    </td>
+
+                                </tr>
+
+                            </template>
                        <template v-else-if="column === 'taxonomy_id_vendor_status'">
                             <tr>
                                 <td>
@@ -243,20 +378,6 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
-                            <template v-else-if="column === 'is_active'">
-                                <VhViewRow :label="column"
-                                           :value="value"
-                                           type="yes-no"
-                                />
-                            </template>
-
-                            <template v-else-if="column === 'is_default'">
-                                <VhViewRow :label="column"
-                                           :value="value"
-                                           type="yes-no"
-                                />
-                            </template>
-
                             <template v-else-if="column === 'auto_approve_products'">
                                 <VhViewRow :label="column"
                                            :value="value"
@@ -264,31 +385,26 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
-                            <template v-else-if="column === 'taxonomy_id_vendor_status'">
-                                <VhViewRow label="Status"
-                                           :value="store.item.status"
-                                           type="status"
+                            <template v-else-if="column === 'is_active'">
+                                <VhViewRow label="Is Active"
+                                           :value="value"
+                                           type="yes-no"
                                 />
                             </template>
 
-                            <template v-else-if="column === 'approved_by'">
-                                <VhViewRow :label="column"
-                                           :value="store.item.approved_by_user"
-                                           type="userEmail"
+                            <template v-else-if="column === 'is_default'">
+                                <VhViewRow label="Is Default"
+                                           :value="value"
+                                           type="yes-no"
                                 />
                             </template>
+
+
 
                             <template v-else-if="column === 'owned_by'">
                                 <VhViewRow :label="column"
                                            :value="store.item.owned_by_user"
                                            type="userEmail"
-                                />
-                            </template>
-
-                            <template v-else-if="column === 'vh_st_store_id'">
-                                <VhViewRow label="store"
-                                           :value="store.item.store"
-                                           type="user"
                                 />
                             </template>
 
