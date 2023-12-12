@@ -150,23 +150,24 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Multi Currency">
 
                     <div class="flex flex-row">
-                        <div class="col-4">
+                        <div class="col-3">
                             <InputSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
                                          data-testid="stores-multi-currency"
+                                         @change="store.item.currencies = null;store.item.default_currency = null;"
                                          v-model="store.item.is_multi_currency"/>
                         </div>
 
-                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-8 flex flex-row">
-                            <Dropdown v-model="store.item.currency_default"
+                        <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-9 flex flex-row">
+                            <Dropdown v-model="store.item.default_currency"
                                       :options="store.item.currencies"
-                                      data-testid="store-currency_default"
+                                      data-testid="store-default_currency"
                                       filter
                                       optionLabel="name"
                                       placeholder="Select Default Currency"
-                                      class="w-full"
+                                      style="width:180px"
                                       >
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
@@ -175,17 +176,18 @@ const toggleFormMenu = (event) => {
                                 </template>
                             </Dropdown>
                             <Button
-                                    v-if="store.item && store.item.currency_default"
-                                    @click="store.item.currency_default = null"
+                                    v-if="store.item && store.item.default_currency"
+                                    @click="store.item.default_currency = null"
                                     class="p-button-sm"
                                     data-testid="store-remove-default-currency"
                                     icon="pi pi-times"
+                                    style="width:30px;"
                                     />
                         </div>
                     </div>
                 </VhField>
 
-                <VhField label="Currencies" v-show="store.item.is_multi_currency == 1">
+                <VhField label="Currencies*" v-show="store.item.is_multi_currency == 1">
 
                     <AutoComplete name="store-currencies"
                                   data-testid="store-currencies"
@@ -205,23 +207,24 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
-                        <div class="col-4">
+                        <div class="col-3">
                             <InputSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
                                          data-testid="stores-multi-currency"
+                                         @change="store.item.languages = null;store.item.default_language = null;"
                                          v-model="store.item.is_multi_lingual"/>
                         </div>
 
-                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-8 flex flex-row">
-                            <Dropdown v-model="store.item.language_default"
+                        <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-9 flex flex-row">
+                            <Dropdown v-model="store.item.default_language"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
                                       filter
                                       optionLabel="name"
                                       placeholder="Select Default Language"
-                                      class="w-full">
+                                      style="width:180px">
                                 <template #option="slotProps">
                                     <div class="flex align-items-center">
                                         <span>{{slotProps.option.name}}</span>
@@ -229,8 +232,8 @@ const toggleFormMenu = (event) => {
                                 </template>
                             </Dropdown>
                             <Button
-                                v-if="store.item && store.item.language_default"
-                                @click="store.item.language_default = null"
+                                v-if="store.item && store.item.default_language"
+                                @click="store.item.default_language = null"
                                 class="p-button-sm"
                                 data-testid="store-remove-default-currency"
                                 icon="pi pi-times"/>
@@ -268,10 +271,10 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Allowed IP">
+                <VhField label="Allowed IPs">
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
-                           placeholder="e.g. 192.168.1.1"
+                           placeholder="e.g. 192.168.1.1 , 203.23.15.68"
                            data-testid="store-allowed-ips"
                            @keydown.enter = "store.handleNewIP($event)"
                            type="number" />

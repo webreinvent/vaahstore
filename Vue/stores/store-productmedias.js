@@ -281,6 +281,19 @@ export const useProductMediaStore = defineStore({
             let product = toRaw(event.value);
             this.item.vh_st_product_id = product.id;
         },
+
+        //---------------------------------------------------------------------
+
+        setProductFilter(event){
+
+            let product = toRaw(event.value);
+            this.item.vh_st_product_id = product.id;
+            if(product.slug)
+            {
+                this.query.filter.product = product.slug;
+            }
+        },
+
         //---------------------------------------------------------------------
         setProductVariation(event){
             let productVariation = toRaw(event.value);

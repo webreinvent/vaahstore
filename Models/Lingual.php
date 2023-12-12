@@ -512,8 +512,8 @@ class Lingual extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
         );
 
         $validator = \Validator::make($inputs, $rules);

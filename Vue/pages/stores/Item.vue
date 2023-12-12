@@ -62,15 +62,17 @@ const toggleItemMenu = (event) => {
 
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                    {{store.item.status_notes}}</div>
+                    <pre v-html="store.item.status_notes"></pre>
+                </div>
             </Message>
 
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title">
-                        #{{store.item.id}}
+                    <div class="p-panel-title" style="display: flex; align-items: center;">
+                        <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
+                        <div style="word-break: break-word;margin-left: 5px;">{{ store.item.name.replace('.', '') }}</div>
                     </div>
 
                 </div>
@@ -147,7 +149,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
                         || column === 'status' || column === 'status_notes' || column === 'currencies_data'
-                         || column === 'lingual_data' || column === 'meta' || column === 'notes'">
+                         || column === 'lingual_data' || column === 'meta' || column === 'notes' || column === 'currency_default' || column === 'taxonomy_id_store_status'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -177,6 +179,17 @@ const toggleItemMenu = (event) => {
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Status</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <Tag v-if="store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else severity="primary" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
@@ -187,77 +200,122 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_default'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Default"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'allowed_ips'">
-                            <VhViewRow label="Allowed IP"
+                            <VhViewRow label="Allowed IPs"
                                        :value="value"
                                        type="allowedIps"
                             />
                         </template>
 
                         <template v-else-if="column === 'currencies'">
-                            <VhViewRow label="Currencies"
-                                       :value="value"
-                                       type="multipleCurrency"
-                            />
+                            <tr v-if="store.item.is_multi_currency">
+                                <td :style="{width: label_width}">
+                                    <b>Currencies</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <AutoComplete name="store-currencies"
+                                                  data-testid="store-currencies"
+                                                  v-model="store.item.currencies"
+                                                  option-label ="name"
+                                                  multiple
+                                                  :placeholder="store.item.currencies.length === 0 ? 'Select currencies' : ''"
+                                                  :complete-on-focus = "true"
+                                                  :suggestions="store.currency_suggestion_list"
+                                                  @change = "store.saveCurrencies()"
+                                                  @complete="store.searchCurrencies"
+                                                  class="w-full"
+                                    />
+                                </td>
+                            </tr>
+
                         </template>
 
-                        <template v-else-if="column === 'currency_default'">
-                            <VhViewRow label="Default currency"
-                                       :value="value"
-                                       type="defaultCurrency"
-                            />
+                        <template v-else-if="column === 'default_currency'">
+                            <tr v-if="store.item.default_currency && store.item.default_currency.name">
+                                <td :style="{width: label_width}">
+                                    <b>Default Currency</b>
+                                </td>
+                                <td  colspan="2" v-if="store.item.default_currency && store.item.default_currency.name">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
+                                        </Tag>
+                                    </div>
+
+                                </td>
+                                <td  colspan="2" v-else>
+
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'languages'">
-                            <VhViewRow label="Languages"
-                                       :value="value"
-                                       type="multipleLingual"
-                            />
+                            <tr v-if="store.item.is_multi_lingual">
+                                <td :style="{width: label_width}">
+                                    <b>Languages</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <AutoComplete name="store-languages"
+                                                  data-testid="store-languages"
+                                                  v-model="store.item.languages"
+                                                  option-label = "name"
+                                                  multiple
+                                                  :complete-on-focus = "true"
+                                                  :suggestions="store.language_suggestion_list"
+                                                  :placeholder="store.item.languages.length === 0 ? 'Select languages' : ''"
+                                                  @change = "store.saveLanguages()"
+                                                  @complete="store.searchLanguages"
+                                                  class="w-full"
+                                    />
+
+                                </td>
+                            </tr>
                         </template>
 
-                        <template v-else-if="column === 'language_default'">
-                            <VhViewRow label="Default Language"
-                                       :value="value"
-                                       type="defaultLingual"
-                            />
+                        <template v-else-if="column === 'default_language'">
+                            <tr v-if="store.item.default_language && store.item.default_language.name">
+                                <td :style="{width: label_width}">
+                                    <b>Default Language</b>
+                                </td>
+                                <td  colspan="2" v-if="store.item.default_language && store.item.default_language.name">
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
+                                    </div>
+                                </td>
+                                <td v-else>
+
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_multi_currency'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Currency"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
-                        <template v-else-if="column === 'taxonomy_id_store_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
-                        </template>
-
                         <template v-else-if="column === 'is_multi_lingual'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Language"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
                         <template v-else-if="column === 'is_multi_vendor'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Multi Vendor"
                                        :value="value"
                                        type="yes-no"
                             />

@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'StorePaymentMethods - Store';
+    document.title = 'Store PaymentMethods - Store';
     /**
      * call onLoad action when List view loads
      */

@@ -139,7 +139,8 @@ class ProductVendor extends Model
     {
         return $this->hasMany(Store::class, 'id', 'vh_st_store_id')->select('id', 'name', 'slug');
     }
-    //-------------------------------------------------
+
+    //----------------------------------------------------------------------------------
     public function vendor()
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug','is_default');
@@ -735,7 +736,7 @@ class ProductVendor extends Model
             'can_update'=> 'required|max:150',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
                              ],
             ],
         [

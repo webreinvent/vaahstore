@@ -456,6 +456,7 @@ export const useWarehouseStore = defineStore({
                 options
             );
         },
+
         //---------------------------------------------------------------------
         async itemActionAfter(data, res)
         {

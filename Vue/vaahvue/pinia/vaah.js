@@ -250,8 +250,42 @@ export const vaah = defineStore({
         //----------------------------------------------------------
         confirmDialogDelete(callbackOnAccept)
         {
-            this.confirmDialog('Delete Confirmation', 'Do you want to delete record(s)?', callbackOnAccept);
+            this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
         },
+        //----------------------------------------------------------
+
+        confirmDialogDeleteAll(callbackOnAccept)
+        {
+            this.confirmDialog('Delete Confirmation', 'Do you want to Delete all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogActivate(callbackOnAccept)
+        {
+            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogDeactivate(callbackOnAccept)
+        {
+            this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogTrash(callbackOnAccept)
+        {
+            this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogRestore(callbackOnAccept)
+        {
+            this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
+        },
+
         //----------------------------------------------------------
         clone: function (source)
         {

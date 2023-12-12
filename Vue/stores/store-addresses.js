@@ -71,6 +71,7 @@ export const useAddressStore = defineStore({
         status_suggestion: null,
         active_users:null,
         types:null,
+        address_type:null,
     }),
     getters: {
 
@@ -110,6 +111,7 @@ export const useAddressStore = defineStore({
                 return types.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
         },
+
         //---------------------------------------------------------------------
         searchStatus(event) {
 
@@ -126,10 +128,26 @@ export const useAddressStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        setUserSlug(event) {
+            let user = toRaw(event.value);
+            this.query.filter.user = user.first_name;
+        },
+
+        //---------------------------------------------------------------------
+
         setAddressType(event) {
 
             let address_type = toRaw(event.value);
             this.item.taxonomy_id_address_types = address_type.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        setAddressTypeFilter(event)
+        {
+            let address_type = toRaw(event.value);
+            this.query.filter.address_type = address_type.slug;
         },
 
         //---------------------------------------------------------------------

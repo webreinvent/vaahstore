@@ -145,8 +145,8 @@ class VendorUser extends Model
     public static function vendorUserInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'vh_st_vendor_id' => 'required',
             'vh_user_id' => 'required',
             'vh_role_id' => 'required',
@@ -176,7 +176,6 @@ class VendorUser extends Model
         ];
 
     }
-
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)

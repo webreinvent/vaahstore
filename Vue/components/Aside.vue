@@ -1,8 +1,9 @@
 <script setup>
-import {reactive, ref} from 'vue';
+import {reactive, ref,watch,onMounted} from 'vue';
+import {useRoute} from 'vue-router';
 
 import Menu from 'primevue/menu';
-
+const route = useRoute();
 const inputs = {
 }
 const data = reactive(inputs);
@@ -17,7 +18,7 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                to: "/stores"
+                to: "/stores",
             },
             {
                 label: 'Store Payment Methods',
@@ -27,7 +28,7 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                to: "/vendors"
+                to: "/vendors",
             },
             {
                 label: 'Vendor Products',
@@ -108,6 +109,21 @@ const items = ref([
     },
 ]);
 
+const updateSelectedItem = () => {
+    const parts = route.path.split('/');
+    const value = parts[1];
+
+    items.value.forEach((item) => {
+        item.items.forEach((sub_item) => {
+            const sub_item_to = sub_item.to.replace(/^\//, '');
+            sub_item.style = sub_item_to === value ? { 'background': '#e5e7eb' } : {};
+        });
+    });
+};
+
+watch(() => route.path, updateSelectedItem);
+
+onMounted(updateSelectedItem);
 </script>
 <template>
 

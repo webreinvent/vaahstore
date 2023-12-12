@@ -2,7 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-
+import moment from 'moment';
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Store';
 
 
@@ -19,6 +19,12 @@ let empty_states = {
             trashed: null,
             sort: null,
             status : null,
+            is_multi_language : null,
+            is_multi_currency : null,
+            is_default : null,
+            is_multi_vendor : null,
+            currencies : null,
+            date : null,
         },
     },
     action: {
@@ -69,9 +75,12 @@ export const useStoreStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        currency_list : null,
+        selected_dates : null,
     }),
     getters: {
 
@@ -143,10 +152,43 @@ export const useStoreStore = defineStore({
         watchStates() {
             watch(this.query.filter, (newVal, oldVal) => {
                     this.delayedSearch();
-                }, {deep: true}
-            )
+            }, { deep: true });
         },
         //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
         watchItem() {
             if (this.item) {
                 watch(() => this.item.name, (newVal, oldVal) => {
@@ -259,7 +301,6 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
 
         addCurrencies() {
-
             const unique_currencies = [];
             const check_names = new Set();
 
@@ -270,6 +311,51 @@ export const useStoreStore = defineStore({
                 }
             }
             this.item.currencies = unique_currencies;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveCurrencies() {
+            const unique_currencies = [];
+            const check_names = new Set();
+
+            for (const currency of this.item.currencies) {
+                if (!check_names.has(currency.name)) {
+                    unique_currencies.push(currency);
+                    check_names.add(currency.name);
+                }
+                else {
+                    this.item.currencies = unique_currencies;
+                    vaah().toastErrors(['This Currency is already added']);
+                    return false;
+                }
+            }
+            if(unique_currencies.length == 0)
+            {
+                vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
+                await this.getItem(this.route.params.id);
+                return false;
+            }
+            this.item.currencies = unique_currencies;
+            await this.itemAction('save');
+        },
+
+        //---------------------------------------------------------------------
+
+        addCurrenciesFilter() {
+
+
+            const unique_currencies = [];
+            const check_names = new Set();
+
+            for (const currency of this.currency_list) {
+                if (!check_names.has(currency.name)) {
+                    unique_currencies.push(currency);
+                    check_names.add(currency.name);
+                }
+            }
+            this.query.filter.currencies = unique_currencies.slug;
 
         },
 
@@ -287,6 +373,34 @@ export const useStoreStore = defineStore({
                 }
             }
             this.item.languages = unique_languages;
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveLanguages() {
+
+            const unique_languages = [];
+            const check_names = new Set();
+
+            for (const language of this.item.languages) {
+                if (!check_names.has(language.name)) {
+                    unique_languages.push(language);
+                    check_names.add(language.name);
+                }
+                else {
+                    this.item.languages = unique_languages;
+                    vaah().toastErrors(['This Language is already added']);
+                    return false;
+                }
+            }
+            if(unique_languages.length === 0)
+            {
+                vaah().toastErrors(['Language is required when Is Multi Language is true']);
+                await this.getItem(this.route.params.id);
+                return false;
+            }
+            this.item.languages = unique_languages;
+            await this.itemAction('save');
         },
 
         //---------------------------------------------------------------------
@@ -325,21 +439,14 @@ export const useStoreStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_store_status = status.id;
-            if(status.name == 'Approved')
-            {
-
-                this.item.is_active = 1;
-            }
-            else
-            {
-                this.item.is_active = 0;
-            }
-
         },
+
         //---------------------------------------------------------------------
-        checkIpAddress(event)
+
+        async reloadPage()
         {
-            console.log(event.target.value);
+            await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
 
@@ -368,25 +475,6 @@ export const useStoreStore = defineStore({
             this.status_suggestion_list = this.status_option.filter((department) => {
                 return department.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
-        },
-
-        //---------------------------------------------------------------------
-
-        selectStatus()
-        {
-
-            if(this.item.is_active == '1')
-            {
-
-                let active_status = this.status_option.find((item) => item.name === "Approved");
-                this.item.taxonomy_id_store_status = active_status.id;
-                this.item.status = active_status;
-            }
-            else {
-                    let rejected_status = this.status_option.find((item) => item.name === "Rejected");
-                    this.item.taxonomy_id_store_status = rejected_status.id;
-                    this.item.status = rejected_status;
-            }
         },
 
         //---------------------------------------------------------------------
@@ -578,6 +666,7 @@ export const useStoreStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -633,6 +722,10 @@ export const useStoreStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'stores.index'});
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'stores.form'});
+                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
@@ -640,6 +733,9 @@ export const useStoreStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -723,9 +819,42 @@ export const useStoreStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivate(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmDeactivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivate(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -785,6 +914,8 @@ export const useStoreStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
+            this.selected_dates = null;
+            vaah().toastSuccess(['Action was successful']);
 
             //reload page list
             await this.getList();
@@ -920,13 +1051,13 @@ export const useStoreStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -936,14 +1067,14 @@ export const useStoreStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -1084,6 +1215,16 @@ export const useStoreStore = defineStore({
                         }
                     },
                     {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
+
+                    {
                         label: is_deleted ? 'Restore': 'Trash',
                         icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
@@ -1122,6 +1263,8 @@ export const useStoreStore = defineStore({
                         icon: 'pi pi-refresh',
                         command: () => {
                             this.setActiveItemAsEmpty();
+                            vaah().toastSuccess(['Action was successful']);
+
                         }
                     }
                 ];

@@ -2,7 +2,6 @@
 
 import { useStoreStore } from '../../../stores/store-stores'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-
 const store = useStoreStore();
 
 </script>
@@ -14,9 +13,53 @@ const store = useStoreStore();
                  position="right">
 
             <VhFieldVertical >
+
+                <div class="field-checkbox">
+                    <Checkbox name="multi-language-yes"
+                              data-testid="multi-language-yes"
+                              v-model = "store.query.filter.is_multi_language"
+                              :value="true" />
+                    <label for="multi-language-yes"> Multi Language </label>
+                </div>
+
+                <div class="field-checkbox">
+                    <Checkbox name="multi-currency-yes"
+                              data-testid="multi-currency-yes"
+                              v-model = "store.query.filter.is_multi_currency"
+                              :value="true" />
+                    <label for="multi-currency-yes"> Multi Currency </label>
+                </div>
+
+                <div class="field-checkbox">
+                    <Checkbox name="default-store-yes"
+                              data-testid="default-store-yes"
+                              v-model = "store.query.filter.is_default"
+                              :value="true" />
+                    <label for="default-store-yes"> Default Store </label>
+                </div>
+
+                <div class="field-checkbox">
+                    <Checkbox name="multi-vendor-yes"
+                              data-testid="stores-filters-multi-vendor-yes"
+                              v-model = "store.query.filter.is_multi_vendor"
+                              :value="true" />
+                    <label for="multi-vendor-yes"> Multi Vendor </label>
+                </div>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
                 <template #label>
                     <b>Status:</b>
                 </template>
+
+                <div class="field-radiobutton">
+                    <RadioButton name="status-all"
+                                 value="all"
+                                 data-testid="stores-filters-status-all"
+                                 v-model="store.query.filter.status" />
+                    <label for="status-all">All</label>
+                </div>
 
                 <div class="field-radiobutton">
                     <RadioButton name="status-pending"
@@ -41,6 +84,18 @@ const store = useStoreStore();
                 </div>
 
             </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date Range Filter:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+                </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

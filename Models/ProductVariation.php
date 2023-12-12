@@ -102,6 +102,32 @@ class ProductVariation extends Model
 
     //-------------------------------------------------
 
+    public static function searchProduct($request)
+    {
+
+         $query=$request->input('query');
+        if($query === null)
+        {
+            $products = Product::where('is_active',1)->select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+        else{
+
+            $products = Product::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public function createdByUser()
     {
         return $this->belongsTo(User::class,
@@ -155,6 +181,35 @@ class ProductVariation extends Model
     }
 
     //-------------------------------------------------
+
+    public function scopeDefaultFilter($query, $filter)
+    {
+        if(!isset($filter['default'])
+            || is_null($filter['default'])
+            || $filter['default'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $default = $filter['default'];
+        if($default == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('is_default', 1);
+            });
+        }
+        else{
+            return $query->where(function ($q){
+                $q->whereNull('is_default')
+                    ->orWhere('is_default', 0);
+            });
+        }
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -231,6 +286,7 @@ class ProductVariation extends Model
     }
 
     //-------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
@@ -278,6 +334,37 @@ class ProductVariation extends Model
 
     }
     //-------------------------------------------------
+
+    public function scopeInStockFilter($query, $filter)
+    {
+
+        if(!isset($filter['in_stock'])
+            || is_null($filter['in_stock'])
+            || $filter['in_stock'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+
+        if($in_stock == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('in_stock', 1);
+            });
+        }
+        else{
+            return $query->where(function ($q){
+                $q->whereNull('in_stock')
+                    ->orWhere('in_stock', 0);
+            });
+        }
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -337,6 +424,27 @@ class ProductVariation extends Model
 
     //-------------------------------------------------
 
+    public function scopeProductFilter($query, $filter)
+    {
+
+        if(!isset($filter['product'])
+            || is_null($filter['product'])
+            || $filter['product'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product = $filter['product'];
+
+        $query->whereHas('product', function ($query) use ($product) {
+            $query->Where('slug',$product);
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','product');
@@ -344,6 +452,9 @@ class ProductVariation extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->defaultFilter($request->filter);
+        $list->inStockFilter($request->filter);
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -702,13 +813,13 @@ class ProductVariation extends Model
 
         $rules = validator($inputs, [
             'product'=> 'required',
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'sku' => 'required|max:50',
             'taxonomy_id_variation_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
 
             'quantity'  => 'required|digits_between:1,15',
