@@ -53,20 +53,6 @@ const useVaah = vaah();
 
              </Column>
 
-<!--             <Column field="in_stock" header="In Stock" :style="{width: store.getInStockWidth()}"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.in_stock == 0"-->
-<!--                            value="No"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <Badge v-else-if="prop.data.in_stock == 1"-->
-<!--                            value="Yes"-->
-<!--                            severity="success"></Badge>-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
              <Column field="quantity" header="Quantity"
                      :sortable="true">
 

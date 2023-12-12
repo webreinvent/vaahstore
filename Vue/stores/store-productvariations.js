@@ -456,6 +456,7 @@ export const useProductVariationStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -495,6 +496,7 @@ export const useProductVariationStore = defineStore({
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
@@ -503,6 +505,7 @@ export const useProductVariationStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
+                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -516,8 +519,6 @@ export const useProductVariationStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
-                    this.item.id = null;
-                    await this.getFormMenu();
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'productvariations.form'});
                     vaah().toastSuccess(['Action Was Successful']);
