@@ -396,12 +396,16 @@ const getFileExtension = (filePath) => {
                                               @fileUploaded="handleFileUploaded">
 
                                 </FileUploader>
-                                
+
 
 
                                 <template v-if="store.item.business_document_file">
                                     <template v-if="['png', 'jpg', 'jpeg'].includes(getFileExtension(store.item.business_document_file))">
-                                        <img :src="store.item.business_document_file" style="width: auto !important; height: auto !important; max-width: 100%;" alt="Uploaded Image"/>
+                                        <img :src="store.item.business_document_file"
+                                             style="width: auto !important;
+                                             height: auto !important;
+                                              max-width: 100%;"
+                                             alt="Uploaded Image"/>
                                     </template>
                                     <template v-else>
                                         <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>

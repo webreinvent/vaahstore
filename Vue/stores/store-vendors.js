@@ -766,6 +766,7 @@ export const useVendorStore = defineStore({
                     break;
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    vaah().toastSuccess(['Action was successful']);
                     this.$router.push({name: 'vendors.form'});
                     break;
                 case 'save-and-clone':
