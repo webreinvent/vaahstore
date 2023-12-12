@@ -724,6 +724,7 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.select_all_product = false;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
@@ -968,6 +969,7 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         toProduct(item)
         {
+            this.select_all_product = false;
             this.item = vaah().clone(item);
             this.$router.push({name: 'vendors.product', params:{id:item.id}})
         },
