@@ -99,7 +99,6 @@ class ProductVariation extends Model
         $empty_item['in_stock'] = 0;
         $empty_item['has_media'] = 0;
         $empty_item['quantity'] = 0;
-
         return $empty_item;
     }
 
@@ -741,7 +740,13 @@ class ProductVariation extends Model
                 'max:100'
             ],
 
-            'quantity'  => 'required|digits_between:1,15',
+            'quantity'  => 'required|digits_between:1,9',
+            'per_unit_price' => [
+                'required_if:quantity,' . $inputs['quantity'],
+                'digits_between:1,9',
+                'min:1',
+
+            ],
             'in_stock'=> 'required|numeric',
         ],
             [
@@ -749,10 +754,12 @@ class ProductVariation extends Model
                 'taxonomy_id_variation_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'slug.required'=>'The Name field is required.',
                 'name.required'=>'The Slug field is required.',
-                'sku.required'=>'The SKU field is required.'
+                'sku.required'=>'The SKU field is required.',
+                'per_unit_price.required_if' => 'The Per Unit Price field is required if Quantity is there',
+                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits'
 
             ]
         );
@@ -848,6 +855,10 @@ class ProductVariation extends Model
         $inputs['vh_st_product_id'] = $product_id;
         $inputs['product'] = $product;
         $inputs['quantity'] = rand(1,500);
+
+        $inputs['per_unit_price'] = rand(1,100000);
+        $inputs['total_price'] = $inputs['quantity']*$inputs['per_unit_price'];
+
         $inputs['in_stock'] = 1;
         $inputs['is_active'] = rand(0,1);
         $inputs['is_default'] = 0;
