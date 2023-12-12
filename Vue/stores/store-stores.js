@@ -300,7 +300,7 @@ export const useStoreStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        addCurrencies() {
+        async addCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();
 
@@ -326,25 +326,7 @@ export const useStoreStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        addCurrenciesFilter() {
-
-
-            const unique_currencies = [];
-            const check_names = new Set();
-
-            for (const currency of this.currency_list) {
-                if (!check_names.has(currency.name)) {
-                    unique_currencies.push(currency);
-                    check_names.add(currency.name);
-                }
-            }
-            this.query.filter.currencies = unique_currencies.slug;
-
-        },
-
-        //---------------------------------------------------------------------
-
+        
         async saveCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();
