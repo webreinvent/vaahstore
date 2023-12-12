@@ -33,7 +33,7 @@ class Vendor extends Model
     protected $fillable = [
         'uuid',
         'vh_st_store_id', 'name', 'slug',
-        'phone_number','email','address',
+        'phone_number','email','address','country_code',
         'owned_by', 'registered_at',
         'years_in_business',
         'business_document_type',
