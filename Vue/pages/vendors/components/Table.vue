@@ -50,7 +50,9 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    <span v-if="prop.data.store && prop.data.store.name">{{prop.data.store.name}}</span>
+                    <div style="word-break: break-word;" v-if="prop.data.store &&prop.data.store.name">
+                        {{ prop.data.store.name }}
+                    </div>
                     <span v-if="prop.data.store && prop.data.store.is_default === 1">
                          <badge>&nbsp;(Default)</badge>
                      </span>

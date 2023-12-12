@@ -422,7 +422,6 @@ class Vendor extends Model
                 'phone_number.max' => 'The Phone Number field should not be more than :max characters',
                 'country_code.regex' => 'The Country Code field should contains numbers only with + sign',
                 'country_code.max' => 'The Country Code field should not be more than :max characters',
-
             ]
         );
 
