@@ -888,15 +888,12 @@ class ProductVariation extends VaahModel
                 'max:100',
             ],
 
-
-
-            'quantity' => 'nullable|numeric|digits_between:1,9',
+            'quantity'  => 'required|digits_between:1,9',
             'per_unit_price' => [
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($inputs['quantity'] > 0 && $value == 0)  {
-                        $fail('The Price field is required if quantity is greater than 0');
-                    }
-                },
+                'required_if:quantity,' . $inputs['quantity'],
+                'digits_between:1,9',
+                'min:1',
+
             ],
             'in_stock'=> 'required|numeric',
         ],
@@ -905,10 +902,12 @@ class ProductVariation extends VaahModel
                 'taxonomy_id_variation_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'slug.required'=>'The Name field is required.',
                 'name.required'=>'The Slug field is required.',
-                'sku.required'=>'The SKU field is required.'
+                'sku.required'=>'The SKU field is required.',
+                'per_unit_price.required_if' => 'The Per Unit Price field is required if Quantity is there',
+                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits'
 
             ]
         );
