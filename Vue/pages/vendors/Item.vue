@@ -54,6 +54,14 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
+
+const visible = ref(false);
+
+const getFileExtension = (filePath) => {
+    const parts = filePath.split('.');
+    return parts[parts.length - 1];
+};
+
 </script>
 <template>
 
@@ -311,6 +319,7 @@ const toggleItemMenu = (event) => {
                                                                name="vendors-document-type"
                                                                placeholder="Enter Document Type"
                                                                data-testid="vendors-document-type"
+                                                               disabled
                                                                v-model="store.item.business_document_type"/>
                                                 </VhField>
 
@@ -319,34 +328,49 @@ const toggleItemMenu = (event) => {
                                                                name="vendors-document-detail"
                                                                placeholder="e.g registration number"
                                                                data-testid="vendors-document-detail"
+                                                               disabled
                                                                v-model="store.item.business_document_detail"/>
                                                 </VhField>
 
                                                 <VhField label="Upload File">
 
-                                                    <FileUploader
-                                                        placeholder="Upload document"
-                                                        v-model="store.item.business_document_file"
-                                                        :is_basic="true"
-                                                        data-testid="vendors-document-image"
-                                                        :auto_upload="true"
-                                                        :uploadUrl="store.assets.urls.upload"
-                                                        @fileUploaded="handleFileUploaded">
 
-                                                    </FileUploader>
+                                                    <Button label="Show"
+                                                            icon="pi pi-external-link"
+                                                            @click="visible = true"
+                                                            :disabled="!store.item.business_document_file"  />
 
-                                                    <img v-if="store.item.business_document_file"
-                                                         :src="store.item.business_document_file"
-                                                         width="64"
-                                                         height="64"
-                                                         alt="Uploaded Image"/>
-                                                    <Button v-if="store.item.business_document_file"
-                                                            icon="pi pi-times"
-                                                            severity="danger"
-                                                            @click="store.removeImage()"
-                                                            text rounded aria-label="Cancel"
-                                                            class="close-button"
-                                                    />
+                                                    <Dialog v-model:visible="visible" modal header="File" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+
+
+<!--                                                        <img v-if="store.item.business_document_file"
+                                                             :src="store.item.business_document_file"
+                                                             style=" width: auto !important;
+                                                             height: auto !important;
+                                                             max-width: 100%;"
+                                                             alt="Uploaded Image"/>
+
+                                                        <a
+                                                            v-if="store.item.business_document_file"
+                                                            :href="store.item.business_document_file"
+                                                            :src="store.item.business_document_file"
+                                                        >Download</a>-->
+
+
+                                                        <template v-if="store.item.business_document_file">
+                                                            <template v-if="['png', 'jpg', 'jpeg'].includes(getFileExtension(store.item.business_document_file))">
+                                                                <img :src="store.item.business_document_file" style="width: auto !important; height: auto !important; max-width: 100%;" alt="Uploaded Image"/>
+                                                            </template>
+                                                            <template v-else>
+                                                                <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>
+                                                            </template>
+                                                        </template>
+
+
+                                                    </Dialog>
+
+
+
 
                                                 </VhField>
 
