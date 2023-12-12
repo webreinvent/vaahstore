@@ -162,7 +162,8 @@ const getFileExtension = (filePath) => {
                                        || column === 'years_in_business' || column === 'services_offered'
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
                                        || column === 'approved_by' || column === 'email'
-                                       || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'">
+                                       || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'
+                                       || column === 'country_code'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -281,12 +282,14 @@ const getFileExtension = (filePath) => {
                                                 </VhField>
 
                                                 <VhField label="Phone">
-                                                    <InputNumber class="w-full"
-                                                                 name="vendors-phone-number"
-                                                                 placeholder="Enter your phone number"
-                                                                 data-testid="vendors-phone-number"
-                                                                 v-model="store.item.phone_number"
-                                                                 readonly/>
+                                                    <InputText class="w-full"
+                                                               name="vendors-phone-number"
+                                                               placeholder="Enter your phone number"
+                                                               data-testid="vendors-phone-number"
+                                                               v-model="store.item.phone_number"
+                                                               inputmode="numeric"
+                                                               pattern="[0-9]*"
+                                                    />
                                                 </VhField>
 
                                                 <VhField label="Email">

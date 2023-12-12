@@ -57,9 +57,11 @@ class Vendor extends Model
 
     //-------------------------------------------------
     protected $appends = [
+
     ];
 
     //-------------------------------------------------
+
     protected function serializeDate(DateTimeInterface $date)
     {
         $date_time_format = config('settings.global.datetime_format');
@@ -843,6 +845,7 @@ class Vendor extends Model
                 array_push($vendor_product, $new_array);
             }
             $item['products'] = $vendor_product;
+
         }else{
             $item['products'] = [];
         }
