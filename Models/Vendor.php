@@ -388,7 +388,7 @@ class Vendor extends Model
 
             'country_code' => [
                     'max:4',
-
+                    'regex:/^\+[0-9]+$/',
                 ],
             'email' => 'email|max:100',
             'address' => 'max:250',
@@ -420,6 +420,8 @@ class Vendor extends Model
                 'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
                 'phone_number.regex' => 'The Phone Number field should contains numbers only',
                 'phone_number.max' => 'The Phone Number field should not be more than :max characters',
+                'country_code.regex' => 'The Country Code field should contains numbers only with + sign',
+                'country_code.max' => 'The Country Code field should not be more than :max characters',
 
             ]
         );
