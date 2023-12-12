@@ -335,13 +335,22 @@ const getFileExtension = (filePath) => {
                 <Accordion class="mt-3 mb-3">
 
                     <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
+
+                        <VhField label="Country Code">
+                            <InputText class="w-full"
+                                       name="vendors-country-code"
+                                       placeholder="Enter Country Code"
+                                       data-testid="vendors-country-code"
+                                       v-model="store.item.country_code"/>
+                        </VhField>
+
                         <VhField label="Phone">
                             <InputNumber class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"
                                          v-model="store.item.phone_number"
-                                         :numberFormat="'0'"/>
+                                        />
                         </VhField>
 
                         <VhField label="Email">
@@ -468,7 +477,6 @@ const getFileExtension = (filePath) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 @change="store.setVendorStatus()"
                                  name="vendors-is_active"
                                  data-testid="vendors-is_active"
                                  v-model="store.item.is_active"/>
