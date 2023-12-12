@@ -48,6 +48,7 @@ class Vendor extends Model
         'created_by',
         'updated_by',
         'deleted_by',
+        'country_code',
     ];
     //-------------------------------------------------
     protected $fill_except = [
@@ -370,7 +371,7 @@ class Vendor extends Model
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
             'years_in_business' => 'required|digits_between:1,6',
-            'services_offered' => 'required | max:500',
+            'services_offered' => 'max:250',
             'taxonomy_id_vendor_business_type' => 'required',
             'approved_by' => 'required',
             'owned_by' => 'required',
@@ -384,7 +385,11 @@ class Vendor extends Model
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
-            'business_document_detail' => 'max:50',
+            'business_document_detail' =>
+                [
+                    'required_if:business_document_type,!=,',
+                    'max:50',
+                ],
             'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
@@ -1027,13 +1032,15 @@ class Vendor extends Model
         $inputs['owned_by'] =$owned_by->id;
         $inputs['owned_by_user'] = $owned_by;
 
+        $inputs['services_offered'] = null;
+
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id', $status_id)->first();
         $inputs['taxonomy_id_vendor_status'] = $status_id;
         $inputs['status'] = $status;
 
-        $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
+        $inputs['is_active'] = 1;
         $inputs['business_document_file'] = null;
 
         // set business type field
