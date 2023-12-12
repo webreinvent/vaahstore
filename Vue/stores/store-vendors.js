@@ -190,6 +190,7 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
         addProduct(){
             if (this.selected_product != null){
                 let exist = 0;
@@ -1324,7 +1325,16 @@ export const useVendorStore = defineStore({
         removeImage()
         {
             this.item.business_document_file = null;
-        }
+        },
+
+        //--------------------------------------------------------------------
+
+        checkPhoneNumber(event)
+        {
+            alert(event.value);
+            const phone_number = event.value.replace(/,/g, '');
+
+        },
 
 
     }

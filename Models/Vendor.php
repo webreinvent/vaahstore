@@ -37,6 +37,7 @@ class Vendor extends Model
         'owned_by', 'registered_at',
         'years_in_business',
         'business_document_type',
+        'country_code',
         'business_document_detail',
         'business_document_file',
         'services_offered',
@@ -380,15 +381,18 @@ class Vendor extends Model
                 'max:250'
             ],
             'store' => '',
-            'phone_number' => 'digits_between:1,15',
+            'phone_number' => [
+                'max:15',
+                'regex:/^[0-9]+$/', // Only allow numbers
+            ],
+
+            'country_code' => [
+                    'max:4',
+                    
+                ],
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
-            'business_document_detail' =>
-                [
-                    'required_if:business_document_type,!=,',
-                    'max:50',
-                ],
             'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
@@ -403,8 +407,6 @@ class Vendor extends Model
                 'email.email' => 'The Email is not valid',
                 'email.max' => 'The Email field cannot be more than :max characters',
                 'address.required' => 'The Address field cannot be more than :max characters',
-                'phone_number.required' => 'The Phone number field is required',
-                'phone_number.digits_between' => 'The Phone number field should not be more than 15 digits',
                 'years_in_business.required' => 'The Years in business field is required',
                 'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
                 'services_offered.required' => 'The Services offered field is required',
@@ -416,6 +418,9 @@ class Vendor extends Model
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
+                'phone_number.regex' => 'The Phone Number field should contains numbers only',
+                'phone_number.max' => 'The Phone Number field should not be more than :max characters',
+
             ]
         );
 
@@ -1032,6 +1037,7 @@ class Vendor extends Model
         $inputs['owned_by_user'] = $owned_by;
 
         $inputs['services_offered'] = null;
+        $inputs['country_code'] = null;
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();

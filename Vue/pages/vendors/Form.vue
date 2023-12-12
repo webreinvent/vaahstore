@@ -327,8 +327,16 @@ const getFileExtension = (filePath) => {
                         placeholder="Services description"
                         data-testid="vendors-services-offered"
                         v-model="store.item.services_offered"
-                        rows="3"
-                        cols="30" />
+                        editorStyle="min-height: 80px"
+                        >
+                        <template v-slot:toolbar>
+                            <span class="ql-formats">
+                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+                            </span>
+                        </template>
+                    </Editor>
 
                 </VhField>
 
@@ -345,11 +353,13 @@ const getFileExtension = (filePath) => {
                         </VhField>
 
                         <VhField label="Phone">
-                            <InputNumber class="w-full"
+                            <InputText class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"
                                          v-model="store.item.phone_number"
+                                         inputmode="numeric"
+                                         pattern="[0-9]*"
                                         />
                         </VhField>
 
