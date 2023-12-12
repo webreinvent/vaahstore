@@ -388,7 +388,7 @@ class Vendor extends Model
 
             'country_code' => [
                     'max:4',
-                    
+
                 ],
             'email' => 'email|max:100',
             'address' => 'max:250',
