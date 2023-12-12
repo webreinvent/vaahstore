@@ -162,8 +162,7 @@ const getFileExtension = (filePath) => {
                                        || column === 'years_in_business' || column === 'services_offered'
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
                                        || column === 'approved_by' || column === 'email'
-                                       || column === 'address' || column ==='business_document_detail'
-                                        || column ==='business_document_file'">
+                                       || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
