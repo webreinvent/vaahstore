@@ -340,7 +340,8 @@ const getFileExtension = (filePath) => {
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"
-                                         v-model="store.item.phone_number"/>
+                                         v-model="store.item.phone_number"
+                                         :numberFormat="'0'"/>
                         </VhField>
 
                         <VhField label="Email">
