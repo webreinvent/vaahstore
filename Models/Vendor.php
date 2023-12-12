@@ -48,7 +48,6 @@ class Vendor extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'country_code',
     ];
     //-------------------------------------------------
     protected $fill_except = [
