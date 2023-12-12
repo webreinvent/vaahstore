@@ -335,7 +335,15 @@ const getFileExtension = (filePath) => {
                 <Accordion class="mt-3 mb-3">
 
                     <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
-                        
+
+                        <VhField label="Country Code">
+                            <InputText class="w-full"
+                                       name="vendors-country-code"
+                                       placeholder="Enter Country Code"
+                                       data-testid="vendors-country-code"
+                                       v-model="store.item.country_code"/>
+                        </VhField>
+
                         <VhField label="Phone">
                             <InputNumber class="w-full"
                                          name="vendors-phone-number"
