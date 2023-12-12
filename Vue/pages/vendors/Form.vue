@@ -78,6 +78,11 @@ const removeImage = () => {
     store.item.file_link = '';
 };
 
+const getFileExtension = (filePath) => {
+    const parts = filePath.split('.');
+    return parts[parts.length - 1];
+};
+
 //--------/form_menu
 
 </script>
@@ -391,15 +396,24 @@ const removeImage = () => {
                                               @fileUploaded="handleFileUploaded">
 
                                 </FileUploader>
+                                
 
-                                {{store.item.business_document_file}}
+
+                                <template v-if="store.item.business_document_file">
+                                    <template v-if="['png', 'jpg', 'jpeg'].includes(getFileExtension(store.item.business_document_file))">
+                                        <img :src="store.item.business_document_file" style="width: auto !important; height: auto !important; max-width: 100%;" alt="Uploaded Image"/>
+                                    </template>
+                                    <template v-else>
+                                        <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>
+                                    </template>
+                                </template>
 
 
-                                <a
+<!--                                <a
                                     v-if="store.item.business_document_file"
                                     :href="store.item.business_document_file"
                                    :src="store.item.business_document_file"
-                                >Download</a>
+                                >Download</a>-->
 
 <!--                                <div class="footer_box_content">
                                     <div class="cleaner_h10"></div>
