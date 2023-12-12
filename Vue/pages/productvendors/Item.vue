@@ -219,7 +219,6 @@ const toggleItemMenu = (event) => {
                                        type="yes-no"
                             />
 
-
                             <tr>
                                 <td>
                                     <b>Store</b>

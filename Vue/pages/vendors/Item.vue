@@ -162,7 +162,8 @@ const getFileExtension = (filePath) => {
                                        || column === 'years_in_business' || column === 'services_offered'
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
                                        || column === 'approved_by' || column === 'email'
-                                       || column === 'address'">
+                                       || column === 'address' || column ==='business_document_detail'
+                                        || column ==='business_document_file'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -319,7 +320,7 @@ const getFileExtension = (filePath) => {
                                                                name="vendors-document-type"
                                                                placeholder="Enter Document Type"
                                                                data-testid="vendors-document-type"
-                                                               disabled
+                                                               readonly
                                                                v-model="store.item.business_document_type"/>
                                                 </VhField>
 
@@ -328,7 +329,7 @@ const getFileExtension = (filePath) => {
                                                                name="vendors-document-detail"
                                                                placeholder="e.g registration number"
                                                                data-testid="vendors-document-detail"
-                                                               disabled
+                                                               readonly
                                                                v-model="store.item.business_document_detail"/>
                                                 </VhField>
 
