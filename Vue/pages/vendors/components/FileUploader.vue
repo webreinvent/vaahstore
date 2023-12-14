@@ -104,35 +104,43 @@ const emit = defineEmits();
 }*/
 
 
-function uploadFile(e) {
+async function uploadFile(e) {
     let uploaded_files = upload_refs.value.files;
 
-    console.log(uploaded_files);
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+    const maxSizeMB = 1;
 
-    upload_refs.value.files = [];
+    for (const file of uploaded_files) {
+        try {
 
-    uploaded_files.forEach(async (file) => {
-        let formData = new FormData();
-        formData.append("file", file);
-        formData.append('folder_path', props.folderPath);
-        formData.append('file_name', props.fileName);
+            if (!file || !file.type || !allowedTypes.includes(file.type) || file.size > maxSizeMB * 1024 * 1024) {
+                vaah().toastErrors([(`Invalid file: Only PDF, PNG, JPEG files less than 1MB are allowed.`)]);
+                return;
 
-        console.log( formData.append('file_name', props.fileName));
-
-
-
-        let contentType = 'multipart/form-data';
-
-        axios.post(props.uploadUrl, formData, {
-            headers: {
-                'Content-Type': contentType
             }
-        }).then(res => {
+
+            let formData = new FormData();
+            formData.append("file", file);
+            formData.append('folder_path', props.folderPath);
+            formData.append('file_name', props.fileName);
+
+            let contentType = 'multipart/form-data';
+
+            const res = await axios.post(props.uploadUrl, formData, {
+                headers: {
+                    'Content-Type': contentType
+                }
+            });
+
             upload_refs.value.uploadedFiles[0] = file;
             emit('fileUploaded', res.data);
-        });
-    });
+        } catch (error) {
+            console.error(`Error uploading file: ${error.message}`);
+        }
+    }
+    upload_refs.value.files = [];
 }
+
 
 function selectFile (data){
 
