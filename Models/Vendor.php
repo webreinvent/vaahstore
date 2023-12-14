@@ -368,7 +368,8 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function vendorInputValidator($requestData){
 
-        $validated_data = validator($requestData, [
+
+        $rules = [
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
@@ -383,15 +384,6 @@ class Vendor extends Model
                 'max:250'
             ],
             'store' => '',
-            'phone_number' => [
-                'max:15',
-                'regex:/^[0-9]+$/', // Only allow numbers
-            ],
-
-            'country_code' => [
-                    'max:4',
-                    'regex:/^\+[0-9]+$/',
-                ],
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
@@ -399,33 +391,44 @@ class Vendor extends Model
             'is_default' => '',
             'auto_approve_products' => '',
             'is_active' => 'required',
+        ];
 
-        ],
-            [
-                'name.required' => 'The Name field is required',
-                'name.max' => 'The Name field cannot be greater than :max characters',
-                'slug.required' => 'The Slug field is required',
-                'slug.max' => 'The Slug field cannot be greater than :max characters',
-                'email.email' => 'The Email is not valid',
-                'email.max' => 'The Email field cannot be more than :max characters',
-                'address.required' => 'The Address field cannot be more than :max characters',
-                'years_in_business.required' => 'The Years in business field is required',
-                'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
-                'services_offered.required' => 'The Services offered field is required',
-                'services_offered.max' => 'The Services offered field cannot be more than :max characters',
-                'taxonomy_id_vendor_business_type.required' => 'The Business Type field is required',
-                'approved_by.required' => 'The Approved by field is required',
-                'owned_by' => 'The Owned by field is required',
-                'vh_st_store_id.required' => 'The Store field is required',
-                'taxonomy_id_vendor_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
-                'phone_number.regex' => 'The Phone Number field should contains numbers only',
-                'phone_number.max' => 'The Phone Number field should not be more than :max characters',
-                'country_code.regex' => 'The Country Code field should contains numbers only with + sign',
-                'country_code.max' => 'The Country Code field should not be more than :max characters',
-            ]
-        );
+        if (!empty($requestData['phone_number'])) {
+            $rules['phone_number'] = [
+                'max:15',
+                'regex:/^[0-9]+$/', // Only allow numbers
+            ];
+
+            $rules['country_code'] = [
+                'max:4',
+                'regex:/^\+[0-9]+$/',
+            ];
+        }
+
+        $validated_data = validator($requestData, $rules, [
+            'name.required' => 'The Name field is required',
+            'name.max' => 'The Name field cannot be greater than :max characters',
+            'slug.required' => 'The Slug field is required',
+            'slug.max' => 'The Slug field cannot be greater than :max characters',
+            'email.email' => 'The Email is not valid',
+            'email.max' => 'The Email field cannot be more than :max characters',
+            'address.required' => 'The Address field cannot be more than :max characters',
+            'years_in_business.required' => 'The Years in business field is required',
+            'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
+            'services_offered.required' => 'The Services offered field is required',
+            'services_offered.max' => 'The Services offered field cannot be more than :max characters',
+            'taxonomy_id_vendor_business_type.required' => 'The Business Type field is required',
+            'approved_by.required' => 'The Approved by field is required',
+            'owned_by.required' => 'The Owned by field is required',
+            'vh_st_store_id.required' => 'The Store field is required',
+            'taxonomy_id_vendor_status.required' => 'The Status field is required',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
+            'phone_number.regex' => 'The Phone Number field should contain numbers only',
+            'phone_number.max' => 'The Phone Number field should not be more than :max characters',
+            'country_code.regex' => 'The Country Code field should contain numbers only with + sign',
+            'country_code.max' => 'The Country Code field should not be more than :max characters',
+        ]);
 
         if($validated_data->fails()){
             return [
@@ -1040,9 +1043,6 @@ class Vendor extends Model
         $inputs['owned_by'] =$owned_by->id;
         $inputs['owned_by_user'] = $owned_by;
 
-        $inputs['services_offered'] = null;
-        $inputs['country_code'] = null;
-
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
         $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id', $status_id)->first();
@@ -1059,6 +1059,13 @@ class Vendor extends Model
         $business_type = $taxonomy_business_type->where('id', $business_type_id)->first();
         $inputs['taxonomy_id_vendor_business_type'] = $business_type_id;
         $inputs['business_type'] = $business_type;
+
+        // set contact info field
+
+        $inputs['services_offered'] =  $faker->text($number_of_characters);
+
+        $inputs['country_code'] = '+' . rand(1, 999);
+
 
         /*
          * You can override the filled variables below this line.
