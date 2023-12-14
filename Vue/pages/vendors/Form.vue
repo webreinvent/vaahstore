@@ -83,6 +83,12 @@ const getFileExtension = (filePath) => {
     return parts[parts.length - 1];
 };
 
+watch(() => store.item.name, (item_name) => {
+    if (item_name.length === 0) {
+        store.item.slug = '';
+    }
+});
+
 //--------/form_menu
 
 </script>
