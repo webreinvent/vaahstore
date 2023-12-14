@@ -88,7 +88,6 @@ watch(() => store.item.name, (item_name) => {
         store.item.slug = '';
     }
 });
-
 //--------/form_menu
 
 </script>
@@ -319,11 +318,24 @@ watch(() => store.item.name, (item_name) => {
 
 
                 <VhField label="Years in Business">
-                    <InputNumber class="w-full"
+<!--                    <InputNumber class="w-full"
                                  name="vendors-business-years"
                                  placeholder="Enter years in business"
                                  data-testid="vendors-name"
-                                 v-model="store.item.years_in_business"/>
+                                 v-model="store.item.years_in_business"
+                                 inputId="minmaxfraction"
+                                 :minFractionDigits="1"
+                                 :maxFractionDigits="1"
+                                 @input="store.handleYearInput($event)"
+                    />-->
+
+                    <InputMask class="w-full"
+                               name="vendors-business-years"
+                               placeholder="Enter years in business"
+                               data-testid="vendors-name"
+                               v-model="store.item.years_in_business"
+                               mask="99.9"
+                                />
                 </VhField>
 
                 <VhField label="Services Offered">
