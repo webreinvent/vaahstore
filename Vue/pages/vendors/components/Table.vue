@@ -72,8 +72,9 @@ const useVaah = vaah();
                             <b v-else>0</b>
                         </span>
                         <button @click="store.toProduct(prop.data)"
-                                style="cursor: pointer;  border-width : 0; background: #4f46e5;"
-                                :disabled="$route.path.includes('product') && prop.data.id===store.item?.id">
+                                style="cursor: not-allowed;  border-width : 0; background: #4f46e5;"
+                                :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }">
 
                            <i class="pi pi-plus" style="color: white"></i>
                         </button>
@@ -203,3 +204,9 @@ const useVaah = vaah();
     </div>
 
 </template>
+
+<style scoped>
+.blurred {
+    filter: blur(1px); /* Adjust the blur amount as needed */
+}
+</style>
