@@ -373,7 +373,7 @@ class Vendor extends Model
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
-            'years_in_business' => 'required|digits_between:1,6',
+            'years_in_business' => ['required', 'regex:/^\d{1,4}(\.\d{1})?$/'],
             'services_offered' => 'max:250',
             'taxonomy_id_vendor_business_type' => 'required',
             'approved_by' => 'required',
