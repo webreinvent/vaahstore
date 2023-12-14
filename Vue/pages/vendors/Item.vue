@@ -289,6 +289,7 @@ const getFileExtension = (filePath) => {
                                                                v-model="store.item.phone_number"
                                                                inputmode="numeric"
                                                                pattern="[0-9]*"
+                                                               readonly
                                                     />
                                                 </VhField>
 
