@@ -387,6 +387,7 @@ class Vendor extends Model
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
+            'business_document_detail'=>'',
             'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
