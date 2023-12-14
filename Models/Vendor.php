@@ -394,7 +394,7 @@ class Vendor extends Model
             'is_active' => 'required',
         ];
 
-        if (!empty($requestData['phone_number'])) {
+        if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
             $rules['phone_number'] = [
                 'max:15',
                 'regex:/^[0-9]+$/', // Only allow numbers
