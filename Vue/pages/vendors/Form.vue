@@ -84,8 +84,11 @@ const getFileExtension = (filePath) => {
 };
 
 watch(() => store.item.name, (item_name) => {
-    if (item_name.length === 0) {
-        store.item.slug = '';
+    try {
+        if (item_name.length === 0) {
+            store.item.slug = '';
+        }
+    } catch (error) {
     }
 });
 //--------/form_menu
@@ -328,6 +331,8 @@ watch(() => store.item.name, (item_name) => {
                                  :maxFractionDigits="1"
                                  @input="store.handleYearInput($event)"
                     />-->
+
+                    {{store.item.years_in_business}}
 
                     <InputMask class="w-full"
                                name="vendors-business-years"
