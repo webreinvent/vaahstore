@@ -204,12 +204,12 @@ const getFileExtension = (filePath) => {
                                 </tr>
 
 
-                                <tr v-if="store.item.business_type.name">
+                                <tr v-if="store.item.business_type && store.item.business_type.name">
                                     <td>
                                         <b>Business Type</b>
                                     </td>
-                                    <td colspan="2" >
-                                        {{store.item.business_type.name}}
+                                    <td colspan="2">
+                                        {{ store.item.business_type.name }}
                                     </td>
                                 </tr>
 
