@@ -5,6 +5,9 @@ import { useVendorStore } from '../../../stores/store-vendors'
 const store = useVendorStore();
 const useVaah = vaah();
 
+
+const permission=store.assets.permission;
+
 </script>
 
 <template>
@@ -152,7 +155,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="vendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"

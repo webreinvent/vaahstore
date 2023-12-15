@@ -7,6 +7,7 @@ use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\Permission;
 
 
 class VendorsController extends Controller
@@ -28,7 +29,14 @@ class VendorsController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permission'] = \Auth::user()->permissions(true);
+
+
+            $data['active_permissions'] = Permission::getActiveItems();
+
+
+            Permission::syncPermissionsWithRoles();
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Vendor::getFillableColumns();
