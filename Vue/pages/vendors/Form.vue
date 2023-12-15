@@ -47,31 +47,6 @@ const handleFileUploaded = (responseData) => {
 
 };
 
-/*function uploadFile(e) {
-    let uploaded_files = upload_refs.value.files;
-
-    upload_refs.value.files = [];
-
-    uploaded_files.forEach(async (file) => {
-        let formData = new FormData();
-        formData.append("file", file);
-        formData.append('folder_path', props.folderPath);
-        formData.append('file_name', props.fileName);
-
-        let contentType = file.type === 'application/pdf' || file.type === 'text/plain'
-            ? file.type
-            : 'multipart/form-data';
-
-        axios.post(props.uploadUrl, formData, {
-            headers: {
-                'Content-Type': contentType
-            }
-        }).then(res => {
-            upload_refs.value.uploadedFiles[0] = file;
-            emit('fileUploaded', res.data);
-        });
-    });
-}*/
 
 const removeImage = () => {
 
@@ -442,27 +417,6 @@ watch(() => store.item.name, (item_name) => {
                                         <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>
                                     </template>
                                 </template>
-
-
-<!--                                <a
-                                    v-if="store.item.business_document_file"
-                                    :href="store.item.business_document_file"
-                                   :src="store.item.business_document_file"
-                                >Download</a>-->
-
-<!--                                <div class="footer_box_content">
-                                    <div class="cleaner_h10"></div>
-                                    <p>Many  thanks  to  everyone  who cleared snow and ice during the cold spell in February.
-                                        Should Arctic conditions return, each block has a shovel and a jar of rock salt  to  clear  the  steps.
-                                        Please click more to read the full newsletter.</p>
-                                    <div class="button_01"><a :href="store.item.business_document_file">Read more</a></div>
-                                </div>-->
-
-<!--                                <img v-if="store.item.business_document_file"
-                                     :src="store.item.business_document_file"
-                                     width="64"
-                                     height="64"
-                                     alt="Uploaded Image"/>-->
                                 <Button v-if="store.item.business_document_file"
                                         icon="pi pi-times"
                                         severity="danger"

@@ -1338,34 +1338,6 @@ export const useVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        /*handleYearInput(event){
-
-            const input_year=event.value;
-            const digitsBeforeDecimal = event.value.split('.');
-
-            console.log(digitsBeforeDecimal);
-            /!*console.log(digitsAfterDecimal);*!/
-
-            console.log(input_year);
-
-        },*/
-
-        /*handleYearInput(newValue) {
-            const input_year = newValue;
-            const digitsBeforeDecimal = newValue.split('.');
-
-            console.log(digitsBeforeDecimal);
-            console.log(input_year);
-        },*/
-        handleYearInput(newValue) {
-
-            this.item.years_in_business= newValue.value;
-
-           /* const new_value=this.item.years_in_business.split('.');*/
-            /*console.log(this.item.years_in_business.length)*/
-
-            console.log(this.item.years_in_business);
-        },
 
 
     }

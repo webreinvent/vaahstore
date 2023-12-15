@@ -63,13 +63,6 @@ const props = defineProps({
     }
 });
 
-
-// watch(store.reset_uploader, async (new_val, old_val) => {
-//     console.log('watch',new_val);
-//     upload_refs.value.files = [];
-//     upload_refs.value.uploadedFiles = [];
-// })
-
 /**----------------------
  * Data
  */
@@ -78,30 +71,7 @@ const emit = defineEmits();
 /**----------------------
  * Methods
  */
-/*function uploadFile(e){
 
-    let uploaded_files = upload_refs.value.files;
-
-    upload_refs.value.files = [];
-
-    uploaded_files.forEach(async (file) => {
-        let formData = new FormData();
-        formData.append("file", file);
-        formData.append('folder_path', props.folderPath);
-        formData.append('file_name', props.fileName);
-        axios.post(props.uploadUrl, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        }).then(res=>{
-            upload_refs.value.uploadedFiles[0] = file;
-            emit('fileUploaded', res.data);
-        });
-    })
-
-
-
-}*/
 
 
 async function uploadFile(e) {
