@@ -11,7 +11,7 @@ const store = useVendorStore();
     <div>
 
         <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+                 position="right" class="relative">
             <VhFieldVertical >
                 <template #label>
                     <b>Store By:</b>
@@ -25,7 +25,9 @@ const store = useVendorStore();
                         optionLabel="name"
                         placeholder="Select Store"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative"
+                        appendTo="self"
+                    />
                 </VhField>
 
 
@@ -45,7 +47,9 @@ const store = useVendorStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative"
+                        appendTo="self"
+                    />
                 </VhField>
 
 
