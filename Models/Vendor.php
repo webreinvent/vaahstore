@@ -387,7 +387,7 @@ class Vendor extends Model
             'email' => 'email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
-            'business_document_detail'=>'',
+            'business_document_detail'=>'max:50',
             'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
@@ -429,6 +429,7 @@ class Vendor extends Model
             'phone_number.max' => 'The Phone Number field should not be more than :max characters',
             'country_code.regex' => 'The Country Code field should contain numbers only with + sign',
             'country_code.max' => 'The Country Code field should not be more than :max characters',
+            'business_document_detail.max'=>'The Business Document  field should not be more than :max characters',
         ]);
 
         if($validated_data->fails()){
