@@ -321,18 +321,6 @@ watch(() => store.item.name, (item_name) => {
 
 
                 <VhField label="Years in Business">
-<!--                    <InputNumber class="w-full"
-                                 name="vendors-business-years"
-                                 placeholder="Enter years in business"
-                                 data-testid="vendors-name"
-                                 v-model="store.item.years_in_business"
-                                 inputId="minmaxfraction"
-                                 :minFractionDigits="1"
-                                 :maxFractionDigits="1"
-                                 @input="store.handleYearInput($event)"
-                    />-->
-
-                    {{store.item.years_in_business}}
 
                     <InputMask class="w-full"
                                name="vendors-business-years"
