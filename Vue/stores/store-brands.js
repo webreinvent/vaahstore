@@ -560,9 +560,11 @@ export const useBrandStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
-                case 'trash':
-                    break;
                 case 'restore':
+                case 'trash':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
