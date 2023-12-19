@@ -94,7 +94,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="brands-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reload()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 

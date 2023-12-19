@@ -598,6 +598,7 @@ export const useBrandStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
