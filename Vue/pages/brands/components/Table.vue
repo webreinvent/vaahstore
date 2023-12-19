@@ -148,6 +148,11 @@ const useVaah = vaah();
 
             </Column>
 
+             <template #empty="prop">
+
+                 <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+             </template>
 
         </DataTable>
         <!--/table-->
