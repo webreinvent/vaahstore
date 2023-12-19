@@ -646,8 +646,40 @@ export const useBrandStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
+        //---------------------------------------------------------------------
+
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivate(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmDeactivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivate(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+
         //---------------------------------------------------------------------
         async delayedSearch()
         {
@@ -845,13 +877,13 @@ export const useBrandStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -861,14 +893,14 @@ export const useBrandStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
