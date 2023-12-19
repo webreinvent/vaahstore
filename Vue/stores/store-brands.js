@@ -500,6 +500,7 @@ export const useBrandStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -1011,6 +1012,7 @@ export const useBrandStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1028,7 +1030,16 @@ export const useBrandStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
