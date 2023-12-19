@@ -503,7 +503,7 @@ export const useBrandStore = defineStore({
                 case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
-                    ajax_url += '/'+item.id
+                    ajax_url += '/'+item.id;
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -549,6 +549,8 @@ export const useBrandStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -1012,7 +1014,7 @@ export const useBrandStore = defineStore({
 
             if(this.item && this.item.id)
             {
-                
+
                 form_menu = [
                     {
                         label: 'Save & Close',
