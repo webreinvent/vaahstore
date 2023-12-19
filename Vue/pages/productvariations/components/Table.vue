@@ -44,7 +44,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="product" header="Product"
+             <Column field="product.name" header="Product"
                      :sortable="true">
 
                  <template #body="prop">
@@ -53,19 +53,19 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="in_stock" header="In Stock" :style="{width: store.getInStockWidth()}"
-                     :sortable="true">
+<!--             <Column field="in_stock" header="In Stock" :style="{width: store.getInStockWidth()}"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
-                            value="No"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
-                            value="Yes"
-                            severity="success"></Badge>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.in_stock == 0"-->
+<!--                            value="No"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-else-if="prop.data.in_stock == 1"-->
+<!--                            value="Yes"-->
+<!--                            severity="success"></Badge>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
              <Column field="quantity" header="Quantity"
                      :sortable="true">
@@ -81,8 +81,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
+             <Column field="status.name" header="Status">
 
                  <template #body="prop">
                      <Badge v-if="prop.data.status.slug == 'approved'"
@@ -97,20 +96,7 @@ const useVaah = vaah();
 
              </Column>
 
-
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
-
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
-
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 

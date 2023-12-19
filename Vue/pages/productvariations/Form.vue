@@ -109,7 +109,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.product"
                         @change="store.setProduct($event)"
                         class="w-full"
-                        :suggestions="store.product_suggestion"
+                        :suggestions="store.filtered_products"
                         @complete="store.searchProduct($event)"
                         placeholder="Select Product"
                         data-testid="productvariations-product"
@@ -154,7 +154,6 @@ const toggleFormMenu = (event) => {
                         @input = "store.checkQuantity($event)"
                         showButtons
                         :min="0"
-
                         data-testid="productvariations-quantity"/>
                 </VhField>
 

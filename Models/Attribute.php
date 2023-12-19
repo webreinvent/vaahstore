@@ -660,11 +660,11 @@ class Attribute extends Model
     {
 
         $validated_data = validator($inputs, [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
-            'value' => 'required|max:50',
-            'value.*.value' => 'max:50',
-            'type' => 'required|max:50',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
+            'value' => 'required|max:250',
+            'value.*.value' => 'max:250',
+            'type' => 'required|max:250',
 
         ],
             [

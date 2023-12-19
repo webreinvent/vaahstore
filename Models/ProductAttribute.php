@@ -4,9 +4,12 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class ProductAttribute extends Model
 {
@@ -31,6 +34,10 @@ class ProductAttribute extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -41,6 +48,41 @@ class ProductAttribute extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -82,18 +124,22 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
+
     public function productVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('name', 'id', 'is_default');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')
+            ->select('name', 'id', 'is_default');
     }
 
     //-------------------------------------------------
     public function attribute()
     {
-        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')->select('name', 'id', 'type');
+        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
+            ->select('name', 'id', 'type');
     }
 
     //-------------------------------------------------
+
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -121,14 +167,27 @@ class ProductAttribute extends Model
         if ($validation_result['success'] != true){
             return $validation_result;
         }
-
         $inputs = $validation_result['data'];
+
+        // check if product variation and attribute value already  exist in the table
+
+        $product_variation_id = $inputs['vh_st_product_variation_id'];
+        $attribute_id = $inputs['vh_st_attribute_id'];
+
+        $item = self::where('vh_st_product_variation_id',$product_variation_id)
+            ->where('vh_st_attribute_id',$attribute_id)->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This record is already exist.";
+            return $response;
+        }
 
         $item = new self();
         $item->fill($inputs);
         $item->save();
-
         foreach ($inputs['attribute_values'] as $key=>$value){
+
             $item1 = new ProductAttributeValue();
             $item1->vh_st_product_attribute_id = $item->id;
             $item1->vh_st_attribute_value_id = $value['id'];
@@ -149,10 +208,12 @@ class ProductAttribute extends Model
             'vh_st_product_variation_id' => 'required',
             'vh_st_attribute_id' => 'required',
             'attribute_values' => '',
+            'attribute_values.*.new_value' => 'max:100'
         ],
             [
                 'vh_st_product_variation_id.required' => 'The Product Variation field is required',
                 'vh_st_attribute_id.required' => 'The Attribute field is required',
+                'attribute_values.*.new_value' => 'The Attribute Value field should not exceed :max characters',
             ]
         );
 
@@ -173,6 +234,7 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
+
     public function scopeGetSorted($query, $filter)
     {
 
@@ -210,9 +272,12 @@ class ProductAttribute extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -235,6 +300,62 @@ class ProductAttribute extends Model
 
     }
     //-------------------------------------------------
+
+    public static function searchProductVariation($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $product_variations = ProductVariation::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $product_variations = ProductVariation::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchAttribute($request)
+    {
+
+
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $attributes = Attribute::inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attributes = Attribute::where('name', 'like', "%$query%")->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attributes;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeSearchFilter($query, $filter)
     {
 
@@ -243,19 +364,71 @@ class ProductAttribute extends Model
             return $query;
         }
         $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+
+        $query->where(function ($query) use ($search) {
+            $query->where('id', 'LIKE', '%' . $search . '%')
+                ->orwhereHas('productVariation', function ($query) use ($search) {
+                    $query->where('name','LIKE', '%'.$search.'%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
         });
 
     }
+
     //-------------------------------------------------
+
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variation'])
+            || is_null($filter['product_variation'])
+            || $filter['product_variation'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product_variation = $filter['product_variation'];
+
+        $query->whereHas('productVariation', function ($query) use ($product_variation) {
+            $query->where('slug', $product_variation);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeAttributesFilter($query, $filter)
+    {
+
+        if(!isset($filter['attributes'])
+            || is_null($filter['attributes'])
+            || $filter['attributes'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $attributes = $filter['attributes'];
+
+        $query->whereHas('attribute', function ($query) use ($attributes) {
+            $query->where('slug', $attributes);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with(['productVariation', 'attribute']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->productVariationFilter($request->filter);
+        $list->attributesFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -265,10 +438,6 @@ class ProductAttribute extends Model
         }
 
         $list = $list->paginate($rows);
-
-//        foreach ($list->toArray()['data'] as $key=>$value){
-//            $list->toArray()['data'][$key]['vh_st_product_variation_id'] = 'abc';
-//        }
 
         $response['success'] = true;
         $response['data'] = $list;
@@ -322,9 +491,12 @@ class ProductAttribute extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $user_id = auth()->user()->id;
+                $items->update(['deleted_by' => $user_id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -354,8 +526,8 @@ class ProductAttribute extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -383,6 +555,14 @@ class ProductAttribute extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -398,11 +578,13 @@ class ProductAttribute extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -411,20 +593,43 @@ class ProductAttribute extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->update(['deleted_by' => null]);
+                $list->restore();
                 break;
             case 'delete-all':
-                self::withTrashed()->forceDelete();
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -438,7 +643,7 @@ class ProductAttribute extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'productVariation', 'attribute'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
             ->withTrashed()
             ->first();
 
@@ -449,8 +654,8 @@ class ProductAttribute extends Model
             return $response;
         }
 
-        $item->vh_st_product_variation_id = $item->productVariation;
-        $item->vh_st_attribute_id = $item->attribute;
+        $item->vh_st_product_variation_id = $item->productVariation->id;
+        $item->vh_st_attribute_id = $item->attribute->id;
 
         $item1 = ProductAttributeValue::where('vh_st_product_attribute_id', $item->id)->with(['attributeValues'])->get();
         $attribute_values = [];
@@ -481,13 +686,29 @@ class ProductAttribute extends Model
 
         $inputs = $validation_result['data'];
 
+        // check if product variation and attribute value already  exist in the table
+
+        $product_variation_id = $inputs['vh_st_product_variation_id'];
+        $attribute_id = $inputs['vh_st_attribute_id'];
+
+        $item = self::where('id','!=', $id)->where('vh_st_product_variation_id',$product_variation_id)
+            ->where('vh_st_attribute_id',$attribute_id)->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This record is already exist.";
+            return $response;
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
         $item->save();
 
         $all_active_attribute_values_ids = [];
         foreach ($inputs['attribute_values'] as $key=>$value){
 
-            $item1 = ProductAttributeValue::where(['vh_st_product_attribute_id' => $item->id, 'vh_st_attribute_value_id' => $value['id']])->first();
+            $item1 = ProductAttributeValue::where(['vh_st_product_attribute_id' =>
+                $item->id, 'vh_st_attribute_value_id' => $value['id']])->first();
             if (!$item1){
                 $item1 = new ProductAttributeValue();
                 $item1->vh_st_product_attribute_id = $item->id;
@@ -502,7 +723,8 @@ class ProductAttribute extends Model
             array_push($all_active_attribute_values_ids,$value['id']);
         }
 
-        ProductAttributeValue::where(['vh_st_product_attribute_id' => $item->id])->whereNotIn('vh_st_attribute_value_id', $all_active_attribute_values_ids)->delete();
+        ProductAttributeValue::where(['vh_st_product_attribute_id' => $item->id])->
+        whereNotIn('vh_st_attribute_value_id', $all_active_attribute_values_ids)->delete();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -515,7 +737,7 @@ class ProductAttribute extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
@@ -542,12 +764,20 @@ class ProductAttribute extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = auth()->user()->id;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -577,16 +807,102 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
+
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
+
+
     //-------------------------------------------------
+
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            foreach ($inputs['attribute_values'] as $key=>$value){
+                $item1 = new ProductAttributeValue();
+                $item1->vh_st_product_attribute_id = $item->id;
+                $item1->vh_st_attribute_value_id = $value['id'];
+                $item1->value = $value['new_value'] ?? $value['default_value'];
+                $item1->save();
+            }
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $product_variations = ProductVariation::where('is_active', 1)->get();
+        $product_variation_ids = $product_variations->pluck('id')->toArray();
+        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+        $product_variation = $product_variations->where('id',$product_variation_id)->first();
+        $inputs['product_variation'] = $product_variation;
+        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+
+        $attributes = Attribute::get();
+        $attribute_ids = $attributes->pluck('id')->toArray();
+        $attribute_id = $attribute_ids[array_rand($attribute_ids)];
+        $attribute = $attributes->where('id',$attribute_id)->first();
+        $inputs['attribute'] = $attribute;
+        $inputs['vh_st_attribute_id'] = $attribute_id;
+
+        $attribute_values = AttributeValue::where('vh_st_attribute_id', $attribute_id)->get(['id', 'value']);
+
+        $attribute_value = [];
+        foreach ($attribute_values as $key=>$value){
+            $attribute_value[$key]['id'] = $value['id'];
+            $attribute_value[$key]['default_value'] = $value['value'];
+            $attribute_value[$key]['new_value'] = $value['value'];
+        }
+
+        $inputs['attribute_values'] = $attribute_value;
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
     public static function deleteProductVariations($items_id){
         if($items_id){
-            self::whereIn('vh_st_product_variation_id',$items_id)->forcedelete();
+            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
             $response['data'] = true;
         }else{
@@ -597,20 +913,6 @@ class ProductAttribute extends Model
     }
 
     //-------------------------------------------------
-    public static function deleteProductVariation($items_id){
-        if($items_id){
-            self::where('vh_st_product_variation_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
-            $response['error'] = true;
-            $response['data'] = false;
-        }
-
-    }
-
-    //-------------------------------------------------
-
 
 
 }

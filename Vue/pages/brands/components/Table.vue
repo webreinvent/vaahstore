@@ -39,33 +39,22 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="registered_by_user.display_name" header="Registered By"
+             <Column field="registered_by_user.first_name" header="Registered By"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by_user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.registered_by_user.first_name}}
-                         </span>
+                     <div v-if="prop.data.registered_by_user">
+                         {{prop.data.registered_by_user.first_name}}
+                     </div>
                  </template>
              </Column>
 
              <Column field="approved_by_user.first_name" header="Approved By"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.approved_by_user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.approved_by_user.first_name}}
-                         </span>
+                     <div v-if="prop.data.approved_by_user">
+                         {{prop.data.approved_by_user.first_name}}
+                     </div>
+
                  </template>
              </Column>
 
@@ -76,13 +65,15 @@ const useVaah = vaah();
                      <Badge v-if="prop.data.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'pending'"
                             severity="warning"> {{prop.data.status.name}} </Badge>
+                     <span v-else>
 
+                     </span>
                  </template>
              </Column>
 

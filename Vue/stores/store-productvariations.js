@@ -18,6 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product : null,
         },
     },
     action: {
@@ -69,7 +70,7 @@ export const useProductVariationStore = defineStore({
         suggestion: null,
         active_products: null,
         status_suggestion:null,
-        product_suggestion:null,
+        filtered_products:null,
     }),
     getters: {
 
@@ -112,19 +113,39 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         searchStatus(event) {
 
-                    this.status_suggestion= this.status.filter((status) => {
-                        return status.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-        },
-
-        //---------------------------------------------------------------------
-        searchProduct(event) {
-
-            this.product_suggestion= this.active_products.filter((products) => {
-                return products.name.toLowerCase().startsWith(event.query.toLowerCase());
+            this.status_suggestion= this.status.filter((status) => {
+                return status.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
         },
+
         //---------------------------------------------------------------------
+
+        async searchProduct(event) {
+
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductAfter(data,res){
+            if(data){
+
+                this.filtered_products = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async updateQueryFromUrl(route)
         {
             if(route.query)
@@ -139,14 +160,16 @@ export const useProductVariationStore = defineStore({
                 }
             }
         },
+
         //---------------------------------------------------------------------
+
         watchRoutes(route)
         {
             //watch routes
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -203,6 +226,18 @@ export const useProductVariationStore = defineStore({
             this.item.vh_st_product_id = product.id;
         },
         //---------------------------------------------------------------------
+
+        setProductFilter(event){
+
+            let product = toRaw(event.value);
+            if(product.slug)
+            {
+                this.query.filter.product = product.slug;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_variation_status = status.id;

@@ -11,8 +11,11 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Http\Controllers\MediaController;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductMedia extends Model
 {
@@ -51,6 +54,10 @@ class ProductMedia extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -61,6 +68,41 @@ class ProductMedia extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -84,7 +126,12 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public function productVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug','is_default');
+    }
+    //-------------------------------------------------
+    public function images()
+    {
+        return $this->hasMany(ProductMediaImage::class, 'vh_st_product_media_id','id');
     }
     //-------------------------------------------------
     public function updatedByUser()
@@ -93,7 +140,6 @@ class ProductMedia extends Model
             'updated_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-
     //-------------------------------------------------
     public function deletedByUser()
     {
@@ -157,16 +203,30 @@ class ProductMedia extends Model
 
             if ($item) {
                 $response['success'] = false;
-                $response['messages'][] = "This product and Product Variation is already exist.";
+                $response['messages'][] = "This Product and Product Variation is already exist.";
                 return $response;
             }
-        foreach ($inputs['images'] as $image)
-        {
+
             $item = new self();
             $item->fill($inputs);
-            $item->fill($image);
             $item->save();
-        }
+
+             foreach ($inputs['images'] as $image_details)
+              {
+                 $image = new ProductMediaImage;
+                 $image->vh_st_product_media_id = $item->id;
+                 $image->name = $image_details['name'];
+                 $image->slug = $image_details['slug'];
+                 $image->url = $image_details['url'];
+                 $image->path = $image_details['path'];
+                 $image->size  = $image_details['size'];
+                 $image->type = $image_details['type'];
+                 $image->extension = $image_details['extension'];
+                 $image->mime_type = $image_details['mime_type'];
+                 $image->url_thumbnail = $image_details['url_thumbnail'];
+                 $image->thumbnail_size  = $image_details['thumbnail_size'];
+                 $image->save();
+              }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -213,9 +273,12 @@ class ProductMedia extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -247,18 +310,75 @@ class ProductMedia extends Model
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            $q->where('id', 'LIKE', '%' . $search . '%')
+                ->orWhereHas('product', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
         });
 
     }
     //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['media_status']))
+        {
+            return $query;
+        }
+        $search = $filter['media_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+    //-------------------------------------------------
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variation']))
+        {
+            return $query;
+        }
+        $search = $filter['product_variation'];
+        $query->whereHas('productVariation',function ($q) use ($search) {
+            $q->whereIn('name',$search);
+        });
+
+    }
+    //-------------------------------------------------
+
+    public function scopeProductFilter($query, $filter)
+    {
+
+        if(!isset($filter['product'])
+            || is_null($filter['product'])
+            || $filter['product'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product = $filter['product'];
+
+        $query->whereHas('product', function ($query) use ($product) {
+            $query->where('slug', $product);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
+
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','product','productVariation');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->productVariationFilter($request->filter);
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -271,7 +391,6 @@ class ProductMedia extends Model
         $response['data'] = $list;
 
         return $response;
-
 
     }
 
@@ -319,9 +438,11 @@ class ProductMedia extends Model
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -351,10 +472,14 @@ class ProductMedia extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
+
+        // delete value from pivot table
+        $item_id = collect($inputs['items'])->pluck('id')->toArray();
+        ProductMediaImage::whereIn('vh_st_product_media_id', $item_id)->forceDelete();
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
@@ -380,6 +505,14 @@ class ProductMedia extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
@@ -388,6 +521,7 @@ class ProductMedia extends Model
                 }
                 break;
             case 'activate':
+                $items->update(['is_active' => 1, ]);
                 if($items->count() > 0) {
                     $items->update(['is_active' => 1]);
                 }
@@ -395,11 +529,13 @@ class ProductMedia extends Model
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
@@ -408,20 +544,45 @@ class ProductMedia extends Model
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
                 self::withTrashed()->forceDelete();
+                ProductMediaImage::deleteImages($items_id);
+                $list->forceDelete();
                 break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+            if(!config('store.is_dev')){
+                $response['success'] = false;
+                $response['errors'][] = 'User is not in the development environment.';
+
+                return $response;
+            }
+
+            preg_match('/-(.*?)-/', $type, $matches);
+
+            if(count($matches) !== 2){
+                break;
+            }
+
+            self::seedSampleItems($matches[1]);
+            break;
         }
 
         $response['success'] = true;
@@ -435,7 +596,7 @@ class ProductMedia extends Model
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation','images'])
             ->withTrashed()
             ->first();
 
@@ -577,26 +738,58 @@ class ProductMedia extends Model
      //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $inputs = $request->all();
 
+        $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
 
-        // if new image is updated
-        if (isset($inputs['images']) && !empty($inputs['images'])){
-            foreach ($inputs['images'] as $image){
-                $item = self::where('id', $id)->withTrashed()->first();
-                $item->fill($inputs);
-                $item->fill($image);
-                $item->save();
-            }
-        }else{
-            $item = self::where('id', $id)->withTrashed()->first();
-            $item->fill($inputs);
-            $item->save();
+        // check if exist
+        $existingItem = self::where('vh_st_product_id', $inputs['vh_st_product_id'])
+            ->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id'])
+            ->withTrashed()
+            ->first();
+
+        if ($existingItem && $existingItem->id != $id) {
+            $response['success'] = false;
+            $response['messages'][] = "This Product and Product Variation already exist.";
+            return $response;
         }
+
+        // Get the existing images for the item
+        if (isset($inputs['images'][0]['id'])) {
+            $existingImages = ProductMediaImage::where('vh_st_product_media_id', $id)->get();
+            $existingImageIds = $existingImages->pluck('id')->toArray();
+            $inputImageIds = collect($inputs['images'])->pluck('id')->toArray();
+            $imagesToDelete = array_diff($existingImageIds, $inputImageIds);
+            ProductMediaImage::whereIn('id', $imagesToDelete)->forceDelete();
+        }
+
+        // Update or create the associated images
+        if (isset($inputs['images']) && !empty($inputs['images'])) {
+            foreach ($inputs['images'] as $image) {
+                $imageModel = ProductMediaImage::updateOrCreate(
+                    [
+                        'vh_st_product_media_id' => $id,
+                        'name' => $image['name'],
+                        'slug' => $image['slug'],
+                        'url' => $image['url'],
+                        'path' => $image['path'],
+                        'size' => $image['size'],
+                        'type' => $image['type'],
+                        'extension' => $image['extension'],
+                        'mime_type' => $image['mime_type'],
+                        'url_thumbnail' => $image['url_thumbnail'],
+                        'thumbnail_size' => $image['thumbnail_size'],
+                    ]
+                );
+            }
+        }
+
+        $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
+        $item->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -609,9 +802,12 @@ class ProductMedia extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+
+        $ids = $item->images->pluck('id')->toArray();
+        ProductMediaImage::whereIn('id', $ids)->forceDelete();
         $item->forceDelete();
 
         $response['success'] = true;
@@ -636,12 +832,22 @@ class ProductMedia extends Model
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -656,13 +862,19 @@ class ProductMedia extends Model
             'vh_st_product_id'=> 'required',
             'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
-            'status_notes' => 'required_if:taxonomy_id_product_media_status.slug,==,rejected',
+            'images'=> 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:250'
+            ],
         ],
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
-            'vh_st_product_variation_id.required' => 'The Product variation field is required',
-            'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+            'vh_st_product_variation_id.required' => 'The Product Variation field is required',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+            'images' => 'The Image field is required.',
         ]
         );
         if($rules->fails()){
@@ -684,6 +896,7 @@ class ProductMedia extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
@@ -701,6 +914,21 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
+
+    public static function deleteProduct($items_id){
+
+        if($items_id){
+            self::where('vh_st_product_id',$items_id)->forcedelete();
+            $response['success'] = true;
+            $response['data'] = true;
+        }else{
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+
+    }
+    //-------------------------------------------------
+
     public static function deleteProductVariations($items_id){
 
         if($items_id){
@@ -714,7 +942,70 @@ class ProductMedia extends Model
 
     }
     //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
 
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $user = Product::where('is_active',1)->inRandomOrder()->first();
+        $inputs['vh_st_product_id'] =$user->id;
+        $inputs['product'] = $user;
+
+        $owned_by = ProductVariation::where('is_active',1)->inRandomOrder()->first();
+        $inputs['vh_st_product_variation_id'] =$owned_by->id;
+        $inputs['product_variation'] = $owned_by;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_product_media_status'] = $status_id;
+        $inputs['status']=$status;
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
+    //-------------------------------------------------
     public static function deleteProductVariation($items_id){
 
         if($items_id){
@@ -727,5 +1018,57 @@ class ProductMedia extends Model
         }
 
     }
+    //-------------------------------------------------
+    public static function searchProduct($request){
+        $addedBy = Product::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchProductVariation($request){
+        $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function searchStatus($request){
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('product-medias-status');
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('product-medias-status');
+            $item =array();
+
+            if(!$status){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
 
 }

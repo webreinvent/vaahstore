@@ -161,7 +161,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
+                                 class="p-inputswitch"
                                  name="whishlists-is_default"
                                  data-testid="whishlists-is_default"
                                  v-model="store.item.is_default"/>

@@ -39,7 +39,7 @@ const props = defineProps({
             <td colspan="2" >
 
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Button  @click="vaah().copy(value.id)"  class="p-button-outlined p-button-secondary p-button-sm">
+                    <Button  @click="vaah().copy(value.name)"  class="p-button-outlined p-button-secondary p-button-sm">
                         {{value.name}}
                     </Button>
                 </template>
@@ -50,18 +50,18 @@ const props = defineProps({
         <template v-else-if="type==='status'">
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
-                    <Tag v-if="value.slug == 'approved'"  @click="vaah().copy(value.id)" severity="success">
+                    <Badge v-if="value.slug == 'approved'"  @click="vaah().copy(value.name)" severity="success">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else-if="value.slug == 'pending'" @click="vaah().copy(value.id)" severity="warning">
+                    </Badge>
+                    <Badge v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warning">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.id)" severity="danger">
+                    </Badge>
+                    <Badge v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                         {{value.name}}
-                    </Tag>
-                    <Tag v-else @click="vaah().copy(value.id)" severity="primary">
+                    </Badge>
+                    <Badge v-else @click="vaah().copy(value.name)" severity="primary">
                         {{value.name}}
-                    </Tag>
+                    </Badge>
                 </template>
             </td>
         </template>
@@ -70,13 +70,10 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        {{data.code}}<b>({{data.symbol}})</b>
-                        <span v-if="data.is_default == 1">
-                            <badge value="Default" severity="Default"></badge>
-                        </span>&nbsp;&nbsp;
+                       <Tag :severity="primary" :value="data.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                        &nbsp;&nbsp;
                     </span>
                 </template>
-                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -84,9 +81,10 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
                     <span>
-                        {{value.code}}<b>({{value.symbol}})</b>
+                        <b>{{value.name}}</b>
                      </span>
                 </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -94,10 +92,9 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        {{data.name}}&nbsp; &nbsp;
+                        <Tag :severity="primary" :value="data.name" :rounded="true" style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
-                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -105,9 +102,10 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value !== null">
                     <span>
-                        {{value.name}}
+                        <b>{{value.name}}</b>
                      </span>
                 </template>
+                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -115,10 +113,9 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        <badge :value="data" severity="Default"></badge>&nbsp; &nbsp;
+                        <Tag :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
-                <template v-else><Tag value="No" severity="danger"></Tag></template>
             </td>
         </template>
 
@@ -158,7 +155,7 @@ const props = defineProps({
                     <table class="table">
                         <tbody>
                             <tr v-for="data in value">
-                                <td>{{data.new_value}}</td>
+                                <td><div style="word-break: break-word;">{{data.new_value}}</div></td>
                             </tr>
                         </tbody>
                     </table>
@@ -181,8 +178,8 @@ const props = defineProps({
 
         <template v-else-if="type==='yes-no'">
             <td colspan="2">
-                <Tag value="Yes" v-if="value===1 || value=='yes'" severity="success"></Tag>
-                <Tag v-else value="No" severity="danger"></Tag>
+                <Badge value="Yes" v-if="value===1 || value=='yes'" severity="success"></Badge>
+                <Badge v-else value="No" severity="danger"></Badge>
             </td>
         </template>
         <template v-else-if="type==='multipleValues'">
@@ -196,7 +193,6 @@ const props = defineProps({
                 </template>
             </td>
         </template>
-
 
         <template v-else>
             <td  colspan="2">{{value}}</td>

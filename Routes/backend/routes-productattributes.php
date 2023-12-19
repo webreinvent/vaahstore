@@ -38,6 +38,12 @@ function () {
 
 
     /**
+     * Fill Form Inputs
+     */
+    Route::any('/fill', 'ProductAttributesController@fillItem')
+        ->name('vh.backend.store.productattributes.fill');
+
+    /**
      * Create Item
      */
     Route::post('/', 'ProductAttributesController@createItem')
@@ -69,6 +75,18 @@ function () {
      */
     Route::any('/{id}/action/{action}', 'ProductAttributesController@itemAction')
         ->name('vh.backend.store.productattributes.item.action');
+
+    /**
+     * Search Product variation
+     */
+    Route::post('/search/product-variation', 'ProductAttributesController@searchProductVariation')
+        ->name('vh.backend.store.productattributes.search.productvariation');
+
+    /**
+     * Search Attribute
+     */
+    Route::post('/search/attribute', 'ProductAttributesController@searchAttribute')
+        ->name('vh.backend.store.productattributes.search.attribute');
 
     //---------------------------------------------------------
 

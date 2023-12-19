@@ -321,6 +321,74 @@ class Address extends Model
         });
 
     }
+
+    //-------------------------------------------------
+
+    public function scopeAddressTypeFilter($query, $filter)
+    {
+        if(!isset($filter['address_type'])
+            || is_null($filter['address_type'])
+            || $filter['address_type'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $address_type = $filter['address_type'];
+
+        return $query->whereHas('addressType', function ($query) use ($address_type) {
+            $query->where('slug', $address_type);
+        });
+    }
+
+    //-------------------------------------------------
+
+    public function scopeUserFilter($query, $filter)
+    {
+        if(!isset($filter['user'])
+            || is_null($filter['user'])
+            || $filter['user'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $user = $filter['user'];
+
+        return $query->whereHas('user', function ($query) use ($user) {
+            $query->where('first_name', $user);
+        });
+    }
+
+    //-------------------------------------------------
+
+    public function scopeDefaultFilter($query, $filter)
+    {
+        if(!isset($filter['is_default'])
+            || is_null($filter['is_default'])
+            || $filter['is_default'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $is_default = $filter['is_default'];
+
+        if($is_default == 'true')
+        {
+            return $query->where(function ($q){
+                $q->Where('is_default', 1);
+            });
+        }
+        else{
+
+            return $query->where(function ($q){
+                $q->whereNull('is_default')
+                    ->orWhere('is_default', 0);
+            });
+        }
+    }
+
     //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
@@ -355,6 +423,10 @@ class Address extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->addressTypeFilter($request->filter);
+        $list->defaultFilter($request->filter);
+        $list->userFilter($request->filter);
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -706,12 +778,12 @@ class Address extends Model
             [
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
-                'address_line_1'=>'required|max:100',
-                'address_line_2'=>'required|max:100',
+                'address_line_1'=>'required|max:250',
+                'address_line_2'=>'required|max:250',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
-                    'max:100'
+                    'max:250'
                 ],
             ],
             [

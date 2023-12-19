@@ -23,7 +23,7 @@ class VhStProducts extends Migration
             $table->integer('vh_cms_content_form_field_id')->nullable()->index();
             $table->integer('taxonomy_id_product_status')->nullable()->index();
 
-            $table->string('name')->nullable()->index();
+            $table->string('name',255)->nullable()->index();
             $table->string('slug')->nullable()->index();
 
             $table->bigInteger('quantity')->nullable()->index();

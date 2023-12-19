@@ -4,10 +4,16 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\TaxonomyType;
+use Faker\Factory;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
-use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\User;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\Store;
 
 class Vendor extends Model
 {
@@ -36,6 +42,10 @@ class Vendor extends Model
         'updated_by',
         'deleted_by',
     ];
+    //-------------------------------------------------
+    protected $fill_except = [
+
+    ];
 
     //-------------------------------------------------
     protected $appends = [
@@ -46,6 +56,41 @@ class Vendor extends Model
     {
         $date_time_format = config('settings.global.datetime_format');
         return $date->format($date_time_format);
+    }
+
+    //-------------------------------------------------
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
+    //-------------------------------------------------
+    public static function getFillableColumns()
+    {
+        $model = new self();
+        $except = $model->fill_except;
+        $fillable_columns = $model->getFillable();
+        $fillable_columns = array_diff(
+            $fillable_columns, $except
+        );
+        return $fillable_columns;
+    }
+    //-------------------------------------------------
+    public static function getEmptyItem()
+    {
+        $model = new self();
+        $fillable = $model->getFillable();
+        $empty_item = [];
+        foreach ($fillable as $column)
+        {
+            $empty_item[$column] = null;
+        }
+
+        return $empty_item;
     }
 
     //-------------------------------------------------
@@ -175,20 +220,17 @@ class Vendor extends Model
     public static function createProduct($request){
 
         $input = $request->all();
-
         $vendor_id = $input['id'];
         $validation = self::validatedProduct($input['products']);
         if (!$validation['success']) {
             return $validation;
         }
         $product_data = $input['products'];
-
         $active_user = auth()->user();
         ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
         foreach ($product_data as $key=>$value){
 
             $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
-
             if (isset($value['id']) && !empty($value['id'])){
                 $item = ProductVendor::where('id',$value['id'])->first();
                 $item->vh_st_vendor_id = $vendor_id;
@@ -224,15 +266,56 @@ class Vendor extends Model
         return $response;
 
     }
+    //-------------------------------------------------
+    public static function bulkProductRemove($request ,$id){
+            ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
+            $response['messages'][] = 'Removed all product successfully.';
+            return $response;
 
+
+    }
+
+    //-------------------------------------------------
+    public static function singleProductRemove($request ,$id){
+
+        ProductVendor::where('id', $id)->update(['is_active'=>0]);
+        $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
+        $response = self::getItem($vendor->vh_st_vendor_id);
+        $response['messages'][] = 'Removed successfully.';
+        return $response;
+
+    }
     //-------------------------------------------------
     public static function createItem($request)
     {
-
+        $inputs = $request->all();
         $validation_result = self::vendorInputValidator($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
+        }
+
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name is already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
+        // Check if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
         }
 
         $inputs = $validation_result['data'];
@@ -253,21 +336,26 @@ class Vendor extends Model
     public static function vendorInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required',
-            'slug' => 'required',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
             'owned_by' => 'required',
             'auto_approve_products' => 'required',
             'approved_by' => 'required',
             'is_default' => 'required',
             'taxonomy_id_vendor_status' => 'required',
-            'status_notes' => 'required_if:taxonomy_id_vendor_status.slug,==,rejected',
-            'is_active' => 'required'
+            'is_active' => 'required',
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:250'
+            ],
+
         ],
             [
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_vendor_status.required' => 'The Status field is required',
-                'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
         );
 
@@ -325,9 +413,12 @@ class Vendor extends Model
 
         if($is_active === 'true' || $is_active === true)
         {
-            return $query->whereNotNull('is_active');
+            return $query->where('is_active', 1);
         } else{
-            return $query->whereNull('is_active');
+            return $query->where(function ($q){
+                $q->whereNull('is_active')
+                    ->orWhere('is_active', 0);
+            });
         }
 
     }
@@ -360,7 +451,35 @@ class Vendor extends Model
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
+        });
+
+    }
+    //-------------------------------------------------
+    public function scopeSearchStore($query, $filter)
+    {
+
+        if(!isset($filter['vendor_status']))
+        {
+            return $query;
+        }
+        $search = $filter['vendor_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+
+    }
+    //-------------------------------------------------
+    public function scopeVendorStatus($query, $filter)
+    {
+        if(!isset($filter['store']))
+        {
+            return $query;
+        }
+        $search = $filter['store'];
+        $query->whereHas('store',function ($q) use ($search) {
+            $q->whereIn('name',$search);
         });
 
     }
@@ -371,6 +490,8 @@ class Vendor extends Model
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->searchStore($request->filter);
+        $list->vendorStatus($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -426,16 +547,22 @@ class Vendor extends Model
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $items->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $items->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'activate':
-                $items->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
+                $items->update(['deleted_by' => auth()->user()->id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
+                $items->update(['deleted_by' => null]);
                 break;
         }
 
@@ -465,8 +592,8 @@ class Vendor extends Model
         if ($validator->fails()) {
 
             $errors = errorsToArray($validator->errors());
-            $response['failed'] = true;
-            $response['messages'] = $errors;
+            $response['success'] = false;
+            $response['errors'] = $errors;
             return $response;
         }
 
@@ -495,50 +622,87 @@ class Vendor extends Model
                 ->withTrashed();
         }
 
+        $list = self::query();
+
+        if($request->has('filter')){
+            $list->getSorted($request->filter);
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+        }
 
         switch ($type) {
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null]);
+                    $items->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 }
                 break;
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1]);
+                    $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
                 }
                 break;
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
+                    $items->update(['deleted_by' => auth()->user()->id]);
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
-                    ProductVendor::deleteVendors($items_id);
                 }
                 break;
             case 'activate-all':
-                self::query()->update(['is_active' => 1]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
+                $list->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'deactivate-all':
-                self::query()->update(['is_active' => null]);
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
+                $list->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
-                self::query()->delete();
+                $list->update(['deleted_by'  => auth()->user()->id]);
+                $list->delete();
                 break;
             case 'restore-all':
-                self::withTrashed()->restore();
+                $list->restore();
+                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
-                ProductVendor::deleteVendors($items_id);
+                $list->forceDelete();
+                break;
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
+
+                    return $response;
+                }
+
+                preg_match('/-(.*?)-/', $type, $matches);
+
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
         }
 
@@ -600,6 +764,11 @@ class Vendor extends Model
 
         $inputs = $validation_result['data'];
 
+        // Check if current record is default
+        if($inputs['is_default']){
+            self::where('is_default',1)->update(['is_default' => 0]);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -618,11 +787,11 @@ class Vendor extends Model
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['messages'][] = 'Record does not exist.';
+            $response['errors'][] = 'Record does not exist.';
             return $response;
         }
         $item->forceDelete();
-        ProductVendor::deleteVendors($item->id);
+        ProductVendor::deleteVendors([$item->id]);
 
         $response['success'] = true;
         $response['data'] = [];
@@ -636,22 +805,36 @@ class Vendor extends Model
         switch($type)
         {
             case 'activate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1]);
+                    ->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
                 break;
             case 'deactivate':
+                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null]);
+                    ->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'trash':
-                self::find($id)->delete();
+                self::where('id', $id)
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id',$id)->withTrashed()->first();
+                if($item->delete()) {
+                    $item->deleted_by = auth()->user()->id;
+                    $item->save();
+                }
                 break;
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -671,7 +854,7 @@ class Vendor extends Model
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
-            $response['messages'] = $messages->all();
+            $response['errors'] = $messages->all();
             return $response;
         }
 
@@ -684,13 +867,87 @@ class Vendor extends Model
     public static function getActiveItems()
     {
         $item = self::where('is_active', 1)
+            ->withTrashed()
             ->first();
         return $item;
     }
+
+    //-------------------------------------------------
+    //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+
+            $i++;
+
+        }
+
+    }
+
+
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+
+        $store = Store::where('is_active', 1)->inRandomOrder()->first();
+        $inputs['vh_st_store_id'] = $store->id;
+        $inputs['store'] = $store;
+
+        $approved_by = User::where('is_active',1)->inRandomOrder()->first();
+        $inputs['approved_by'] =$approved_by->id;
+        $inputs['approved_by_user'] = $approved_by;
+
+        $owned_by = User::where('is_active',1)->inRandomOrder()->first();
+        $inputs['owned_by'] =$owned_by->id;
+        $inputs['owned_by_user'] = $owned_by;
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id', $status_id)->first();
+
+        $inputs['taxonomy_id_vendor_status'] = $status_id;
+        $inputs['status'] = $status;
+        $inputs['is_active'] = ($status['name'] === 'Approved') ? 1 : 0;
+
+
+        $faker = Factory::create();
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
+
     //-------------------------------------------------
     public static function deleteStores($items_id){
         if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
+            self::where('vh_st_store_id',$items_id)->forcedelete();
             $response['success'] = true;
             $response['data'] = true;
         }else{
@@ -699,9 +956,79 @@ class Vendor extends Model
         }
 
     }
+    //-------------------------------------------------
+    public static function searchStore($request)
+    {
+
+        $search_store = Store::select('id', 'name','slug')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_store->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('slug', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_store = $search_store->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_store;
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function searchApprovedBy($request)
+    {
+        $search_approved = User::select('id', 'first_name','last_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_approved->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('email', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_approved = $search_approved->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_approved;
+        return $response;
+    }
 
     //-------------------------------------------------
+    public static function searchOwnedBy($request)
+    {
+        $search_owned_by = User::select('id', 'first_name','last_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_owned_by->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('email', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_owned_by = $search_owned_by->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_owned_by;
+        return $response;
+    }
     //-------------------------------------------------
+    public static function searchStatus($request)
+    {
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('vendor-status');
+        } else {
+            $tax_type = TaxonomyType::getFirstOrCreate('vendor-status');
+            $item =array();
+
+            if(!$tax_type){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$tax_type->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
     //-------------------------------------------------
 
 

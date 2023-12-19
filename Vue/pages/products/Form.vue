@@ -15,6 +15,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
+    await store.getFormMenu();
     await store.watchItem();
 });
 
@@ -30,7 +31,7 @@ const toggleFormMenu = (event) => {
 
     <div class="col-6" >
 
-        <Panel >
+        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -54,7 +55,15 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="products-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
+
                     <Button label="Save"
+                            class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="products-save"
                             @click="store.itemAction('save')"
@@ -63,18 +72,15 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            class="p-button-sm"
                             data-testid="products-create-and-new"
                             icon="pi pi-save"/>
-
-                    <Button data-testid="products-document" icon="pi pi-info-circle"
-                            href="https://vaah.dev/store"
-                            v-tooltip.top="'Documentation'"
-                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        class="p-button-sm"
                         data-testid="products-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -85,7 +91,7 @@ const toggleFormMenu = (event) => {
                     <!--/form_menu-->
 
 
-                    <Button class="p-button-primary"
+                    <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
                             data-testid="products-to-list"
                             @click="store.toList()">
@@ -97,33 +103,59 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+            <div v-if="store.item" class="mt-2">
 
-                <VhField label="Name">
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Deleted {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
+
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="products-name"
-                               placeholder="Enter a Name"
                                data-testid="products-name"
+                               @update:modelValue="store.watchItem"
+                               placeholder="Enter Name"
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
-                               placeholder="Enter a Slug"
                                name="products-slug"
                                data-testid="products-slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Store">
+                <VhField label="Store*">
 
                     <AutoComplete
                         value="id"
                         v-model="store.item.store"
                         @change="store.setStore($event)"
                         class="w-full"
-                        :suggestions="store.store_suggestion"
-                        @complete="store.searchStore($event)"
+                        :suggestions="store.filtered_stores"
+                        @complete="store.searchStore"
                         placeholder="Select Store"
                         data-testid="products-store"
                         name="products-store"
@@ -132,15 +164,15 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Brand">
+                <VhField label="Brand*">
 
                     <AutoComplete
                         value="id"
                         v-model="store.item.brand"
                         @change="store.setBrand($event)"
                         class="w-full"
-                        :suggestions="store.brand_suggestion"
-                        @complete="store.searchBrand($event)"
+                        :suggestions="store.filtered_brands"
+                        @complete="store.searchBrand"
                         placeholder="Select Brand"
                         data-testid="products-brand"
                         name="products-brand"
@@ -149,7 +181,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Type">
+                <VhField label="Type*">
 
                     <AutoComplete
                         value="id"
@@ -166,13 +198,14 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Quantity">
+                <VhField label="Quantity*">
                     <InputNumber
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
                         name="products-quantity"
                         v-model="store.item.quantity"
-                        mode="decimal" showButtons
+                        @input = "store.checkQuantity($event)"
+                        showButtons
                         :min="0"
                         data-testid="products-quantity"/>
                 </VhField>
@@ -181,20 +214,20 @@ const toggleFormMenu = (event) => {
                     <InputSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
-                        v-bind="store.item.quantity == 0 ? store.item.in_stock = 0 : store.item.in_stock = 1"
+                        @change="store.checkInStock()"
                         name="products-in_stock"
                         data-testid="products-in_stock"
                         v-model="store.item.in_stock"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
                         @change="store.setProductStatus($event)"
                         class="w-full"
                         name="products-status"
-                        :suggestions="store.status_suggestion"
+                        :suggestions="store.filtered_status"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
@@ -205,15 +238,16 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Status Notes">
                     <Textarea rows="3" class="w-full"
-                               placeholder="Enter a Status Note"
-                               name="products-status_notes"
-                               data-testid="products-status_notes"
-                               v-model="store.item.status_notes"/>
+                              placeholder="Enter a Status Note"
+                              name="products-status_notes"
+                              data-testid="products-status_notes"
+                              v-model="store.item.status_notes"/>
                 </VhField>
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
+                                 class="p-inputswitch"
                                  name="products-active"
                                  data-testid="products-active"
                                  v-model="store.item.is_active"/>

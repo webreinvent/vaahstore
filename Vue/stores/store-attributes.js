@@ -129,7 +129,7 @@ export const useAttributeStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -234,18 +234,12 @@ export const useAttributeStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion = this.product_variations.filter((department) => {
-                        return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
 
+            this.product_variation_suggestion = this.product_variations.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
         //---------------------------------------------------------------------
 
         async getAssets() {

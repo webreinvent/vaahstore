@@ -1,4 +1,4 @@
-import {toRaw, watch} from 'vue'
+import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -62,143 +62,31 @@ export const useOrderStore = defineStore({
         count_filters: 0,
         list_selected_menu: [],
         list_bulk_menu: [],
+        list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
         suggestion: null,
         status_suggestion: null,
         status_order_items_suggestion: null,
         payment_method_suggestion: null,
-        product_variation_suggestion: null,
         user_suggestion: null,
         type_suggestion: null,
-        product_suggestion: null,
+        products: null,
         vendor_suggestion: null,
         customer_group_suggestion: null,
-        form_menu_list: []
+        form_menu_list: [],
+        order_product_menu_list : [],
+        types : null,
+        filtered_product_variations : null,
+        filtered_venders :null,
+        vendors : null,
+        filtered_customer_groups : null,
+        filtered_users : null,
     }),
     getters: {
 
     },
     actions: {
-        //---------------------------------------------------------------------
-        searchType(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.type_suggestion = this.types;
-                }
-                else {
-                    this.type_suggestion= this.type.filter((types) => {
-                        return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchProductVariation(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_variation_suggestion = this.product_variations;
-                }
-                else {
-                    this.product_variation_suggestion= this.product_variations.filter((product_variation) => {
-                        return product_variations.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchStatusOrderItems(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_order_items_suggestion = this.status_order_items;
-                }
-                else {
-                    this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
-                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchCustomerGroup(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.customer_group_suggestion = this.customer_groups;
-                }
-                else {
-                    this.customer_group_suggestion= this.customer_groups.filter((customer_groups) => {
-                        return customer_groups.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchProduct(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.product_suggestion = this.products;
-                }
-                else {
-                    this.product_suggestion= this.products.filter((products) => {
-                        return products.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchVendor(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.vendor_suggestion = this.vendors;
-                }
-                else {
-                    this.vendor_suggestion= this.vendors.filter((vendors) => {
-                        return vendors.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-        //---------------------------------------------------------------------
-        searchStatus(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.status_suggestion = this.status_orders;
-                }
-                else {
-                    this.status_suggestion= this.status_orders.filter((status_orders) => {
-                        return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchUser(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.user_suggestion = this.active_users;
-                }
-                else {
-                    this.user_suggestion= this.active_users.filter((active_users) => {
-                        return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
-                    this.payment_method_suggestion = this.payment_methods;
-                }
-                else {
-                    this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                        return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-                    });
-                }
-            }, 250);
-        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -217,7 +105,202 @@ export const useOrderStore = defineStore({
              */
             this.updateQueryFromUrl(route);
         },
+
         //---------------------------------------------------------------------
+
+        searchType(event) {
+
+            this.type_suggestion= this.types.filter((types) => {
+                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+        searchStatusOrderItems(event) {
+
+            this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
+                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchProduct(event)
+        {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.products = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchProductVariation(event)
+        {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVariationAfter(data,res) {
+            if(data)
+            {
+                this.filtered_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchVendor(event) {
+
+                const query = {
+                    filter: {
+                        q: event,
+                    },
+                };
+
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+                await vaah().ajax(
+                    this.ajax_url+'/search/vendor',
+                    this.searchVendorAfter,
+                    options
+                );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchVendorAfter(data,res) {
+            if(data)
+            {
+                this.filtered_venders = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchCustomerGroup(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/customer-group',
+                this.searchCustomerGroupAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCustomerGroupAfter(data,res) {
+
+            if(data)
+            {
+                this.filtered_customer_groups = data;
+                console.log(data);
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchStatus(event) {
+
+            this.status_suggestion= this.status_orders.filter((status_orders) => {
+                return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchUser(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUserAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUserAfter(data,res) {
+            if(data)
+            {
+                this.filtered_users = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        //---------------------------------------------------------------------
+        searchPaymentMethod(event) {
+
+            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+
+
         setViewAndWidth(route_name)
         {
             switch(route_name)
@@ -254,14 +337,13 @@ export const useOrderStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
                     }
 
                     this.route = newVal;
-
                     if(newVal.params.id){
                         this.getItem(newVal.params.id);
                     }
@@ -280,25 +362,71 @@ export const useOrderStore = defineStore({
                 },{deep: true}
             )
         },
+        // //---------------------------------------------------------------------
+        //  watchItem(amount)
+        //   {
+        //       if(amount && amount !== "")
+        //       {
+        //          alert(amount);
+        //       }
+        //   },
+        // //---------------------------------------------------------------------
+
+        // watchAmount()
+        // {
+        //     if(this.item){
+        //         watch(() => [this.item.amount, this.item.delivery_fee,this.item.taxes, this.item.discount],
+        //             ([newAmount, newDeliveryFee,newTaxes, newDiscount], [oldAmount, oldDeliveryFee,oldTaxes, oldDiscount]) =>
+        //             {
+        //
+        //                 let payable = newAmount + newDeliveryFee + newTaxes - newDiscount;
+        //                     this.item.payable = payable;
+        //
+        //             },{deep: true}
+        //         )
+        //     }
+        //     if (this.form_menu_list.length === 0) {
+        //         this.getFormMenu();
+        //     }
+        // },
+
+
         //---------------------------------------------------------------------
-        watchItem()
+        updateAmount(event)
         {
-            if(this.item){
-                    watch(() => this.item.name, (newVal,oldVal) =>
-                        {
-                            if(newVal && newVal !== "")
-                            {
-                                this.item.name = vaah().capitalising(newVal);
-                                this.item.slug = vaah().strToSlug(newVal);
-                            }
-                        },{deep: true}
-                    )
-                }
-            if (this.form_menu_list.length === 0) {
-                this.getFormMenu();
-            }
+            this.item.amount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
         },
+
         //---------------------------------------------------------------------
+        updateDeliveryFee(event)
+        {
+            this.item.delivery_fee = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
+        updateTaxAmount(event)
+        {
+            this.item.taxes = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+        updateDiscountAmount(event)
+        {
+            this.item.discount = event.value;
+            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
+            this.item.payable = total_payable;
+        },
+
+        //---------------------------------------------------------------------
+
+
         setUser(event) {
             let user = toRaw(event.value);
             this.item.vh_user_id = user.id;
@@ -312,8 +440,10 @@ export const useOrderStore = defineStore({
         setStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_order_status = status.id;
+
         },
         //---------------------------------------------------------------------
+
         setOrderItemType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_order_items_types = type.id;
@@ -340,10 +470,24 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
         setOrderItemStatus(event) {
+
             let status = toRaw(event.value);
             this.item.taxonomy_id_order_items_status = status.id;
         },
         //---------------------------------------------------------------------
+        checkPaidAmount(event)
+        {
+            this.item.paid = event.value;
+            if(this.item.paid > 0)
+            {
+                this.item.is_paid = 1;
+            }
+            else {
+                this.item.is_paid = 0;
+            }
+        },
+        //---------------------------------------------------------------------
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -417,7 +561,6 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
-
             }else{
                 this.$router.push({name: 'orders.index'});
             }
@@ -510,6 +653,8 @@ export const useOrderStore = defineStore({
                     break;
             }
 
+            this.action.filter = this.query.filter;
+
             let options = {
                 params: this.action,
                 method: method,
@@ -521,8 +666,45 @@ export const useOrderStore = defineStore({
                 options
             );
         },
+
         //---------------------------------------------------------------------
+
+        async createOrder()
+        {
+           let item = this.item;
+           let id = this.route.params.order_id;
+           item.id = id;
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+            };
+
+            options.params = item;
+            ajax_url += '/items';
+            await vaah().ajax(
+                ajax_url,
+                this.createOrderAfter,
+                options
+            );
+
+        },
+        //---------------------------------------------------------------------
+
+        async createOrderAfter(data)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.setActiveItemAsEmpty();
+                this.getItemMenu();
+                this.getFormMenu();
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async itemAction(type, item=null){
+
             if(!item)
             {
                 item = this.item;
@@ -564,8 +746,7 @@ export const useOrderStore = defineStore({
                     options.params = item;
                     ajax_url += '/'+item.id
                     break;
-
-                case 'save-orderitems':
+                case 'order-items':
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/items'
@@ -601,20 +782,21 @@ export const useOrderStore = defineStore({
         {
             if(data)
             {
-                this.item = data;
-
                 await this.getList();
-                await this.formActionAfter();
+                await this.formActionAfter(data);
                 this.getItemMenu();
+                this.getFormMenu();
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter ()
+        async formActionAfter (data)
         {
             switch (this.form.action)
             {
+
                 case 'create-and-new':
                 case 'save-and-new':
+                case 'order-items':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -623,10 +805,14 @@ export const useOrderStore = defineStore({
                     this.$router.push({name: 'orders.index'});
                     break;
                 case 'save-and-clone':
+                case 'create-and-clone':
                     this.item.id = null;
+                    await this.getFormMenu();
                     break;
                 case 'trash':
-                    this.item = null;
+                case 'restore':
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -648,6 +834,7 @@ export const useOrderStore = defineStore({
         async paginate(event) {
             this.query.page = event.page+1;
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
@@ -656,27 +843,22 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+
+        async getFormInputs () {
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
+            let url = this.ajax_url+'/fill';
 
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
-                options
+                this.getFormInputsAfter,
             );
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
                 let self = this;
@@ -807,12 +989,13 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.form'})
         },
         //---------------------------------------------------------------------
-        toOrderItem(item)
+        toOrderItem(id)
         {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'orders.orderitems', params:{id:item.id}})
+            this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
+
         },
         //---------------------------------------------------------------------
+
         toView(item)
         {
             this.item = vaah().clone(item);
@@ -832,13 +1015,13 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         getIdWidth()
         {
-            let width = 50;
+            let width = 20;
 
             if(this.list && this.list.total)
             {
                 let chrs = this.list.total.toString();
                 chrs = chrs.length;
-                width = chrs*40;
+                width = chrs*20;
             }
 
             return width+'px';
@@ -988,6 +1171,47 @@ export const useOrderStore = defineStore({
             this.item_menu_list = item_menu;
         },
         //---------------------------------------------------------------------
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
+        },
+
+        //---------------------------------------------------------------------
         confirmDeleteItem()
         {
             this.form.type = 'delete';
@@ -1023,21 +1247,40 @@ export const useOrderStore = defineStore({
 
                         }
                     },
-                    {
+
+                ];
+                if(this.item.deleted_at)
+                {
+                    form_menu.push({
+                        label: 'Restore',
+                        icon: 'pi pi-replay',
+                        command: () => {
+                            this.itemAction('restore');
+                            this.item = null;
+                            this.toList();
+                        }
+                    },)
+                }
+                else {
+                    form_menu.push({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
                             this.itemAction('trash');
+                            this.item = null;
+                            this.toList();
                         }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
+                    },)
+                }
+
+                form_menu.push({
+                    label: 'Delete',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.confirmDeleteItem('delete');
+                    }
+                },)
+
 
             } else{
                 form_menu = [
@@ -1071,7 +1314,7 @@ export const useOrderStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
@@ -1079,6 +1322,33 @@ export const useOrderStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async getOrderProductMenu()
+        {
+            let order_product_menu = [];
+
+            order_product_menu = [
+
+                    {
+                        label: 'Reset',
+                        icon: 'pi pi-refresh',
+                        command: () => {
+                            this.setActiveItemAsEmpty();
+                        }
+                    },
+                    {
+                        label: 'Fill',
+                        icon: 'pi pi-pencil',
+                        command: () => {
+                            this.getFormInputs();
+                        }
+                    },
+
+
+                ];
+
+            this.order_product_menu_list = order_product_menu;
+
+        },
     }
 });
 
