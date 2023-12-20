@@ -301,6 +301,23 @@ class ProductAttribute extends Model
     }
     //-------------------------------------------------
 
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date']))
+        {
+            return $query;
+        }
+        $from = $filter['date'][0];
+
+        $to =$filter['date'][1];
+
+        dd(['this is from data'=>$from,'this is to data' =>$to]);
+
+    }
+
+    //-------------------------------------------------
+
     public static function searchProductVariation($request)
     {
 
@@ -365,13 +382,17 @@ class ProductAttribute extends Model
         }
         $search = $filter['q'];
 
-        $query->where(function ($query) use ($search) {
-            $query->where('id', 'LIKE', '%' . $search . '%')
-                ->orwhereHas('productVariation', function ($query) use ($search) {
-                    $query->where('name','LIKE', '%'.$search.'%')
-                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
-                });
-        });
+        $key = explode(' ', $search);
+
+        foreach ($key as $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('productVariation', function ($query) use ($search) {
+                        $query->where('name', 'LIKE', '%' . $search . '%')
+                            ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                    });
+            });
+        }
 
     }
 
