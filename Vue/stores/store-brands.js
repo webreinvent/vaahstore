@@ -1147,7 +1147,7 @@ export const useBrandStore = defineStore({
             })
         },
         clearimage(){
-           
+
             this.item.image = null
         },
 
