@@ -1,9 +1,8 @@
 <script setup>
-import {reactive, ref,watch,onMounted} from 'vue';
-import {useRoute} from 'vue-router';
+import {reactive, ref} from 'vue';
 
 import Menu from 'primevue/menu';
-const route = useRoute();
+
 const inputs = {
 }
 const data = reactive(inputs);
@@ -18,7 +17,7 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                route: "/stores",
+                route: "/stores"
             },
             {
                 label: 'Store Payment Methods',
@@ -28,7 +27,7 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                route: "/vendors",
+                route: "/vendors"
             },
             {
                 label: 'Vendor Products',
@@ -108,6 +107,7 @@ const items = ref([
         ]
     },
 ]);
+
 </script>
 <template>
 
