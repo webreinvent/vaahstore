@@ -2,9 +2,8 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-
+import moment from 'moment';
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductAttribute';
-
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
 let ajax_url = base_url + "/store/productattributes";
@@ -19,6 +18,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_variation : null,
+            date:null,
         },
     },
     action: {
@@ -70,7 +70,8 @@ export const useProductAttributeStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:null
     }),
     getters: {
 
@@ -542,14 +543,24 @@ export const useProductAttributeStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'productattributes.index'});
                     break;
+
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
+                case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'productattributes.form'});
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
                 case 'save':
                     this.item = data;
                     break;
@@ -607,8 +618,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
+        
         onItemSelection(items)
         {
             this.action.items = items;
@@ -636,6 +646,23 @@ export const useProductAttributeStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -694,7 +721,10 @@ export const useProductAttributeStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            if(this.count_filters === 0)
+            {
+                vaah().toastSuccess(['Action Was Successful']);
+            }
             //reload page list
             await this.getList();
         },
@@ -821,14 +851,14 @@ export const useProductAttributeStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -955,7 +985,15 @@ export const useProductAttributeStore = defineStore({
 
                         }
                     },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-copy',
+                        command: () => {
 
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
@@ -1030,18 +1068,47 @@ export const useProductAttributeStore = defineStore({
 
         },
 
-        reloadPage()
-        {
-            this.getList()
-
-            vaah().toastSuccess(['Action Was Successful']);
-
-        }
-
         //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await  this.getList()
+            vaah().toastSuccess(['Action Was Successful']);
+        },
+        //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+            }
+
+        },
+
     }
 });
-
 
 
 // Pinia hot reload

@@ -87,32 +87,20 @@ const store = useProductAttributeStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Is Active:</b>
+                    <b>Date:</b>
                 </template>
 
                 <div class="field-radiobutton">
-                    <RadioButton name="active-all"
-                                 inputId="active-all"
-                                 value="null"
-                                 data-testid="productattributes-filters-active-all"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-all" class="cursor-pointer">All</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-true"
-                                 inputId="active-true"
-                                 data-testid="productattributes-filters-active-true"
-                                 value="true"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-true" class="cursor-pointer">Only Active</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-false"
-                                 inputId="active-false"
-                                 data-testid="productattributes-filters-active-false"
-                                 value="false"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-false" class="cursor-pointer">Only Inactive</label>
+
+                    <Calendar v-model="store.selected_dates"
+                              name="range-date"
+                              inputId="range-date"
+                              data-testid="productattributes-filters-range-date"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false" />
+
+                    <label for="range-date" class="cursor-pointer"></label>
                 </div>
 
             </VhFieldVertical>
