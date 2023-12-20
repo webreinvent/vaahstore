@@ -24,6 +24,9 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+
+
+
 </script>
 <template>
 
@@ -114,6 +117,55 @@ const toggleFormMenu = (event) => {
                                data-testid="brands-slug"
                                placeholder="Enter a Slug"
                                v-model="store.item.slug"/>
+                </VhField>
+
+                <VhField label="" class="mb-0">
+                    <Message v-if="!store.item.image" class="mt-4" severity="warn" :closable="false">Type: jpeg, jpg, png & Size: less than 1mb</Message>
+                </VhField>
+
+
+                <VhField label="Brand Logo">
+                    <FileUpload
+                        name="image"
+                        accept=".jpeg,.jpg,.png,"
+                        :maxFileSize="1024*1024"
+                        :custom-upload="true"
+                        mode="advanced"
+                        :multiple="false"
+                        @uploader="store.upload" >
+                        <template #empty class="flex">
+                            <p v-if="!store.item.image">Drag and drop files here to upload.</p>
+                            <p v-if="store.item.image">
+                                <img class="w-5 h-4rem" :src="`image/uploads/brands/`+store.item.image"/>
+                                <i class="pi pi-times text-2xl font-bold cursor-pointer text-red-500 ml-2" @click="store.clearimage"></i>
+
+                            </p>
+
+
+                        </template>
+
+                    </FileUpload>
+                </VhField>
+
+                <VhField label="Meta Title">
+                    <InputText class="w-full"
+                               name="brands-slug"
+                               data-testid="brands-meta_title"
+                               placeholder="Enter a meta title"
+                               v-model="store.item.meta_title"/>
+                </VhField>
+
+                <VhField label="Meta Description">
+                    <Textarea rows="3" class="w-full"
+                              name="brands-meta_description"
+                              data-testid="brands-meta_description"
+                              :autoResize="true"
+                              placeholder="Enter Meta Description"
+                              v-model="store.item.meta_description"/>
+                </VhField>
+
+                <VhField label="Meta Keyword" >
+                    <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />
                 </VhField>
 
                 <VhField label="Registered By*">
@@ -210,6 +262,10 @@ const toggleFormMenu = (event) => {
                                  data-testid="brands-active"
                                  v-model="store.item.is_active"/>
                 </VhField>
+
+
+
+
 
             </div>
         </Panel>

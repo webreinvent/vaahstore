@@ -320,5 +320,25 @@ class BrandsController extends Controller
 
     //----------------------------------------------------------
 
+    public function imageUploads(Request $request)
+    {
+//        dd($request->all());
+        try {
+            return Brand::uploadImage($request);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
 
 }

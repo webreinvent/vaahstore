@@ -46,6 +46,14 @@ class Brand extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
+        'image',
+        'meta_title',
+        'meta_description',
+        'meta_keyword',
+    ];
+
+    protected $casts =[
+        'meta_keyword'=>'array',
     ];
     //-------------------------------------------------
     protected $fill_except = [
@@ -249,6 +257,15 @@ class Brand extends VaahModel
         if ($item) {
             $response['success'] = false;
             $response['messages'][] = "This slug is already exist.";
+            return $response;
+        }
+
+        // check if meta title exist
+        $item = self::where('meta_title', $inputs['meta_title'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This meta title already exists.";
             return $response;
         }
 
@@ -633,6 +650,17 @@ class Brand extends VaahModel
             return $response;
         }
 
+        // check if meta title exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('meta_title', $inputs['meta_title'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This meta title already exists.";
+            return $response;
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -706,6 +734,9 @@ class Brand extends VaahModel
         $rules = array(
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
+            'meta_title' => 'nullable|max:50',
+            'meta_description' => 'nullable|max:100',
+            'meta_keyword' => 'nullable|max:50',
             'registered_by'=> 'required',
             'registered_at'=> 'required',
             'approved_by'=> 'required',
@@ -889,6 +920,20 @@ class Brand extends VaahModel
         $response['data'] = $item;
         return $response;
     }
+    //-------------------------------------------------
+
+
+    public static function uploadImage($request){
+//        dd($request->all());
+        if($request->hasFile('image')){
+            $file = $request->file('image');
+            $file_name = time().'.' .$file->getClientOriginalExtension();
+            $file->move(public_path('image/uploads/brands'), $file_name);
+            $response['image_name'] = $file_name;
+            return $response;
+        }
+    }
+
     //-------------------------------------------------
 
 
