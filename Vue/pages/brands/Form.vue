@@ -168,7 +168,7 @@ const toggleFormMenu = (event) => {
                     <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />
                 </VhField>
 
-                <VhField label="Registered By*">
+                <VhField label="Registered By">
 
                     <AutoComplete
                         value="id"
@@ -186,7 +186,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Registered at*">
+                <VhField label="Registered at">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
@@ -200,7 +200,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
-                <VhField label="Approved By*">
+                <VhField label="Approved By">
                     <AutoComplete
                         v-model="store.item.approved_by_user"
                         @change="store.setApprovedBy($event)"
@@ -216,7 +216,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Approved at*">
+                <VhField label="Approved at">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
