@@ -707,7 +707,6 @@ export const useProductAttributeStore = defineStore({
                 vaah().toastSuccess(['Action Was Successful']);
             }
 
-
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -1031,12 +1030,13 @@ export const useProductAttributeStore = defineStore({
 
         },
 
+        reloadPage()
+        {
+            this.getList()
 
+            vaah().toastSuccess(['Action Was Successful']);
 
-
-
-
-
+        }
 
         //---------------------------------------------------------------------
     }
