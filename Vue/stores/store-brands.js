@@ -3,7 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
-
+import axios from "axios";
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Brand';
 
 
@@ -1124,6 +1124,33 @@ export const useBrandStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
+
+        //---------------------------------------------------------------------
+
+        upload(event){
+
+            let formData = new FormData();
+            formData.append('image',event.files[0]);
+            axios.post(
+                this.ajax_url + '/image/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            ).then(res => {
+                if(res) {
+
+                    this.item.image = res.data.image_name;
+
+                }
+            })
+        },
+        clearimage(){
+           
+            this.item.image = null
+        },
+
         //---------------------------------------------------------------------
     }
 });
