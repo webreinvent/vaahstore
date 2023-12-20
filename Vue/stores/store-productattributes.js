@@ -618,7 +618,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        
         onItemSelection(items)
         {
             this.action.items = items;
@@ -721,7 +721,10 @@ export const useProductAttributeStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-            vaah().toastSuccess(['Action was successful']);
+            if(this.count_filters === 0)
+            {
+                vaah().toastSuccess(['Action Was Successful']);
+            }
             //reload page list
             await this.getList();
         },
@@ -1065,15 +1068,45 @@ export const useProductAttributeStore = defineStore({
 
         },
 
-        reloadPage()
-        {
-            this.getList()
-
-            vaah().toastSuccess(['Action Was Successful']);
-
-        }
-
         //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await  this.getList()
+            vaah().toastSuccess(['Action Was Successful']);
+        },
+        //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+            }
+
+        },
+
     }
 });
 
