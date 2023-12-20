@@ -791,6 +791,8 @@ export const useBrandStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'brands.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
