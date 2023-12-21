@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import {useStoreStore} from "./store-stores";
 import moment from "moment";
 import axios from "axios";
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Brand';
@@ -335,6 +336,7 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            console.log(data,'data');
             if(data)
             {
                 this.list = data;
@@ -1150,9 +1152,39 @@ export const useBrandStore = defineStore({
 
             this.item.image = null
         },
-
         //---------------------------------------------------------------------
-    }
+        countStore(products){
+            if (!Array.isArray(products)) {
+                throw new Error('Something went wrong');
+            }
+            const unique_store_ids = new Set();
+            products.forEach(product => {
+                if (product.store && product.store.id) {
+                    unique_store_ids.add(product.store.id);
+                }
+            });
+
+            return unique_store_ids.size;
+        },
+
+        storeIds(store_ids) {
+
+            const unique_store_ids = new Set();
+            store_ids.forEach(product => {
+                if (product.store && product.store.id) {
+                    unique_store_ids.add(product.store.id);
+                }
+            });
+            const unique_store_ids_array = [...unique_store_ids];
+            const resultString = `{${unique_store_ids_array.join(', ')}}`;
+
+            useStoreStore().storeids(unique_store_ids_array);
+            return unique_store_ids_array;
+
+        }
+
+    },
+
 });
 
 
