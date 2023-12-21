@@ -705,17 +705,13 @@ export const useProductVariationStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action Was Successful']);
             //reload page list
             await this.getList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
-            if(this.query.filter.q)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
 
             for(let key in this.query.filter)
             {
