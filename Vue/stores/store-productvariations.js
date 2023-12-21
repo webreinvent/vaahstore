@@ -523,10 +523,10 @@ export const useProductVariationStore = defineStore({
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'trash':
-                    vaah().toastSuccess(['Action Was Successful']);
+                    vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'restore':
-                    vaah().toastSuccess(['Action Was Successful']);
+                    vaah().toastSuccess(['Action was successful']);
                 case 'save':
                     this.item = data;
                     break;
