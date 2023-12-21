@@ -5,19 +5,23 @@ import { useProductVariationStore } from '../../../stores/store-productvariation
 const store = useProductVariationStore();
 const useVaah = vaah();
 
+const permission=store.assets.permission;
+
 </script>
 
 <template>
 
     <div v-if="store.list">
         <!--table-->
-         <DataTable :value="store.list.data"
-                       dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
-                   class="p-datatable-sm p-datatable-hoverable-rows"
-                   v-model:selection="store.action.items"
-                   stripedRows
-                   responsiveLayout="scroll">
+        <DataTable
+            :value="store.list.data"
+            dataKey="id"
+            :rowClass="(rowData) => rowData && rowData.id === store.item && store.item.id ? 'bg-yellow-200' : ''"
+            class="p-datatable-sm p-datatable-hoverable-rows"
+            v-model:selection="store.action.items"
+            stripedRows
+            responsiveLayout="scroll"
+        >
 
             <Column selectionMode="multiple"
                     v-if="store.isViewLarge()"
@@ -121,11 +125,12 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item && store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item.id"

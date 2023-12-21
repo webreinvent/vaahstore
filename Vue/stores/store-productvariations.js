@@ -471,7 +471,6 @@ export const useProductVariationStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -490,10 +489,10 @@ export const useProductVariationStore = defineStore({
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'trash':
-                    vaah().toastSuccess(['Action Was Successful']);
+                    vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'restore':
-                    vaah().toastSuccess(['Action Was Successful']);
+                    vaah().toastSuccess(['Action was successful']);
                 case 'save':
                     this.item = data;
                     break;
@@ -672,17 +671,13 @@ export const useProductVariationStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action Was Successful']);
             //reload page list
             await this.getList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
-            if(this.query.filter.q)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
 
             for(let key in this.query.filter)
             {

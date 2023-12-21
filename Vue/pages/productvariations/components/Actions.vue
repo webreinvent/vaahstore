@@ -106,7 +106,6 @@ const toggleBulkMenuState = (event) => {
                                 class="p-button-sm"
                                 label="Reset"
                                 @click="store.resetQuery()"
-                                :disabled="store.count_filters===0"
                             />
 
                         </div>
