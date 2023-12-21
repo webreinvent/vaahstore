@@ -300,20 +300,32 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
-
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
 
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id','LIKE','%'.$search.'%');
+        $search_terms = explode(' ', $filter['q']);
+
+        $query->where(function ($query) use ($search_terms) {
+            foreach ($search_terms as $term) {
+                $query->where(function ($query) use ($term) {
+                    $query->where('id', 'LIKE', '%' . $term . '%')
+                        ->orWhere('name', 'LIKE', '%' . $term . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $term . '%');
+                });
+            }
+
+            $query->orWhereHas('product', function ($productQuery) use ($search_terms) {
+                foreach ($search_terms as $term) {
+                    $productQuery->where('name', 'LIKE', '%' . $term . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $term . '%');
+                }
+            });
         });
 
+        return $query;
     }
+
     //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
@@ -728,12 +740,12 @@ class ProductVariation extends Model
 
     public static function validation($inputs)
     {
-
         $rules = validator($inputs, [
             'product'=> 'required',
             'name' => 'required|max:100',
             'slug' => 'required|max:100',
             'sku' => 'required|max:50',
+            'description'=>'required|string|max:255',
             'taxonomy_id_variation_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -759,7 +771,10 @@ class ProductVariation extends Model
                 'name.required'=>'The Slug field is required.',
                 'sku.required'=>'The SKU field is required.',
                 'per_unit_price.required_if' => 'The Per Unit Price field is required if Quantity is there',
-                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits'
+                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits',
+                'description.required'=>'The Description field is required.',
+                'description.max' => 'The Description field may not be greater than :max characters.',
+
 
             ]
         );
