@@ -745,22 +745,13 @@ export const useProductVariationStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
-            this.selected_dates=[];
-
-            this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
-
-            vaah().toastSuccess(['Action was successful']);
+            vaah().toastSuccess(['Action Was Successful']);
             //reload page list
             await this.getList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
-            if(this.query.filter.q)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
 
             for(let key in this.query.filter)
             {
