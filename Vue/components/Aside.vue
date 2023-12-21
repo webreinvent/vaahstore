@@ -1,15 +1,30 @@
 <script setup>
-import {reactive, ref,watch,onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-
+import {reactive, ref,} from 'vue';
 import Menu from 'primevue/menu';
-const route = useRoute();
+import {useRoute} from "vue-router";
+const route =useRoute()
+
 const inputs = {
 }
 const data = reactive(inputs);
 const height = ref(window.innerHeight)
 
 const menu = ref();
+
+// console.log(route)
+
+const selected_page = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
+
+
+
+
+// console.log('test',route.matched)
+// console.log(route.matched);
 
 const items = ref([
     {
@@ -128,7 +143,7 @@ onMounted(updateSelectedItem);
 <template>
 
     <div v-if="height">
-        <Menu :model="items"  class="w-full" >
+        <Menu :model="items"  class="w-full" :pt="selected_page">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
