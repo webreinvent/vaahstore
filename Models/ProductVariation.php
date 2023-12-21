@@ -874,14 +874,12 @@ class ProductVariation extends VaahModel
 
     public static function validation($inputs)
     {
-
-
         $rules = validator($inputs, [
             'product'=> 'required',
-            'name' => 'required|min:1|max:100',
-            'slug' => 'required|min:1|max:100',
-            'sku' => 'required|min:1|max:50',
-            'description'=>'max:255',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
+            'sku' => 'required|max:50',
+            'description'=>'required|string|max:255',
             'taxonomy_id_variation_status'=> 'required',
 
             'status_notes' => [
@@ -907,7 +905,10 @@ class ProductVariation extends VaahModel
                 'name.required'=>'The Slug field is required.',
                 'sku.required'=>'The SKU field is required.',
                 'per_unit_price.required_if' => 'The Per Unit Price field is required if Quantity is there',
-                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits'
+                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits',
+                'description.required'=>'The Description field is required.',
+                'description.max' => 'The Description field may not be greater than :max characters.',
+
 
             ]
         );
