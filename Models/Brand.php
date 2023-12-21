@@ -13,7 +13,7 @@ use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-
+use Illuminate\Support\Facades\DB;
 
 class Brand extends VaahModel
 {
@@ -164,6 +164,11 @@ class Brand extends VaahModel
             ->select('id','name','slug');
     }
 
+    //-------------------------------------------------
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'vh_st_brand_id','id' );
+    }
     //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
@@ -396,8 +401,11 @@ class Brand extends VaahModel
             $rows = $request->rows;
         }
 
-        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate($rows);
+        $list = $list->with(['registeredByUser','status',
+                             'approvedByUser','products.store'])
+            ->paginate($rows);
 
+//
         $response['success'] = true;
         $response['data'] = $list;
 

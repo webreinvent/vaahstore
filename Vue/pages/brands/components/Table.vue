@@ -39,6 +39,22 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="store_count" header="Store"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+<!--                     <a href="https://vuejs.org" target="_blank" rel="noopener noreferrer" class="font-bold">{{store.countStore(prop.data.products)}}</a>-->
+                     <Button
+
+                     @click="store.storeIds(prop.data.products)">{{store.countStore(prop.data.products)}}
+                         </Button>
+                 </template>
+
+             </Column>
+
              <Column field="registered_by_user.first_name" header="Registered By"
                      :sortable="true">
                  <template #body="prop">
