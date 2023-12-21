@@ -114,7 +114,7 @@ const toggleItemMenu = (event) => {
                     <tr>
                         <td  colspan="2" >
                             <div  style="width:300px;word-break: break-word;">
-                                {{store.item.status_notes}}</div>
+                                <pre>{{store.item.status_notes}}</pre></div>
                         </td>
                     </tr>
                 </Message>
@@ -148,7 +148,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by'
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' || column === 'description'
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'">
                         </template>
 
@@ -181,6 +181,14 @@ const toggleItemMenu = (event) => {
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:300px;word-break: break-word;">
                                         {{store.item.sku}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Description</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        <pre>{{store.item.description}}</pre>
+                                    </div>
                                 </td>
                             </tr>
                         </template>
