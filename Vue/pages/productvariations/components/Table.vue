@@ -5,6 +5,8 @@ import { useProductVariationStore } from '../../../stores/store-productvariation
 const store = useProductVariationStore();
 const useVaah = vaah();
 
+const permission=store.assets.permission;
+
 </script>
 
 <template>
@@ -125,7 +127,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
