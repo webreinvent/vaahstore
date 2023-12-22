@@ -494,26 +494,37 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.prev_list =this.list.data;
+                /*console.log(this.item);*/
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+              const result= this.findInArrayByKey(this.action && this.action.items,'id',this.item.id);
+              console.log(result);
             }
-            this.current_list=this.list.data
-            this.compareList(this.prev_list,this.current_list)
-
+          /*  console.log(this.action.items);
+            console.log(this.list.data);*/
         },
-        compareList(prev_list, current_list) {
+        findInArrayByKey: function (array, key, value) {
 
-            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
-
-            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
-                current_list.some(current_item => current_item.id === removed_item.id)
-            );
-            if (!removed_item_present_in_current_list) {
-                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            console.log(array,key,value);
+            if(!Array.isArray(array))
+            {
+                return false;
             }
+
+            let element = null;
+
+            array.map(function(item, index) {
+
+                if(item[key] == value)
+                {
+                    element = item;
+                }
+
+            });
+
+            return element;
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
@@ -631,6 +642,7 @@ export const useProductVariationStore = defineStore({
             }
             this.action.type = 'trash';
             vaah().confirmDialogTrash(this.listAction);
+
         },
         //---------------------------------------------------------------------
         confirmRestore()
@@ -862,6 +874,7 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
+                        console.log(this.action.items);
                         this.confirmTrash()
                     }
                 },
