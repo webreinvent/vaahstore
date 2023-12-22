@@ -223,9 +223,14 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="productvariations-active"
                                  data-testid="productvariations-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active"
+                                 :pt="{
+        slider: ({ props }) => ({
+            class: props.modelValue ? 'bg-green-400' : ''
+        })
+    }"
+                    />
                 </VhField>
-
             </div>
         </Panel>
 
