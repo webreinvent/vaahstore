@@ -741,13 +741,14 @@ class ProductVariation extends Model
     {
         $rules = validator($inputs, [
             'product'=> 'required',
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
-            'sku' => 'required|max:50',
-            'description'=>'required|string|max:255',
+            'name' => 'required|min:1|max:100',
+            'slug' => 'required|min:1|max:100',
+            'sku' => 'required|min:1|max:50',
+            'description'=>'required|string|min:1|max:255',
             'taxonomy_id_variation_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
+                'min:1',
                 'max:100'
             ],
 
@@ -764,6 +765,7 @@ class ProductVariation extends Model
                 'product.required' => 'Please Choose a Product',
                 'taxonomy_id_variation_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
+                'status_notes.min' => 'The Status notes field is required ',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'slug.required'=>'The Name field is required.',
