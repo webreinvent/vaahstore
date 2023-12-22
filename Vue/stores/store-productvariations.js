@@ -597,19 +597,19 @@ export const useProductVariationStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrash(this.listAction);
+            vaah().confirmDialogTrashAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
