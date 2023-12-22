@@ -1212,7 +1212,6 @@ export const useStoreStore = defineStore({
 
             this.$router.push({name: 'stores.index'})
             this.query.filter.store_ids = ids;
-
         }
         //---------------------------------------------------------------------
     }

@@ -1168,7 +1168,6 @@ export const useBrandStore = defineStore({
         },
 
         storeIds(store_ids) {
-
             const unique_store_ids = new Set();
             store_ids.forEach(product => {
                 if (product.store && product.store.id) {
