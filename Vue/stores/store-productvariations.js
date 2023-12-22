@@ -674,18 +674,6 @@ export const useProductVariationStore = defineStore({
             vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
-        confirmTrashAll()
-        {
-            this.action.type = 'trash-all';
-            vaah().confirmDialogTrash(this.listAction);
-        },
-        //---------------------------------------------------------------------
-        confirmRestoreAll()
-        {
-            this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
-        },
-        //---------------------------------------------------------------------
         async delayedSearch()
         {
             let self = this;
