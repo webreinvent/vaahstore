@@ -859,8 +859,8 @@ class ProductVariation extends VaahModel
                 'slug.required'=>'The Name field is required.',
                 'name.required'=>'The Slug field is required.',
                 'sku.required'=>'The SKU field is required.',
-                'per_unit_price.required_if' => 'The Per Unit Price field is required if Quantity is there',
-                'per_unit_price.digits_between' => 'The Per Unit Price field must not be greater than 9 digits',
+                'per_unit_price.required_if' => 'The  Price field is required if Quantity is there',
+                'per_unit_price.digits_between' => 'The  Price field must not be greater than 9 digits',
                 'description.required'=>'The Description field is required.',
                 'description.max' => 'The Description field may not be greater than :max characters.',
 
