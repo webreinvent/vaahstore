@@ -109,7 +109,13 @@ const permission=store.assets.permission;
                                  data-testid="productvariations-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
-                                 @input="store.toggleIsActive(prop.data)">
+                                 @input="store.toggleIsActive(prop.data)"
+                                 :pt="{
+        slider: ({ props }) => ({
+            class: props.modelValue ? 'bg-green-400' : ''
+        })
+    }"
+                    >
                     </InputSwitch>
                 </template>
 

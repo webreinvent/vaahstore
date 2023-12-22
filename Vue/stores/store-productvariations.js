@@ -72,7 +72,8 @@ export const useProductVariationStore = defineStore({
         active_products: null,
         status_suggestion:null,
         product_suggestion:null,
-        selected_dates:null
+        selected_dates:[],
+        date_null:null
     }),
     getters: {
 
@@ -459,11 +460,37 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
+                /*console.log(this.item);*/
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+              const result= this.findInArrayByKey(this.action && this.action.items,'id',this.item.id);
+              console.log(result);
             }
+          /*  console.log(this.action.items);
+            console.log(this.list.data);*/
+        },
+        findInArrayByKey: function (array, key, value) {
+
+            console.log(array,key,value);
+            if(!Array.isArray(array))
+            {
+                return false;
+            }
+
+            let element = null;
+
+            array.map(function(item, index) {
+
+                if(item[key] == value)
+                {
+                    element = item;
+                }
+
+            });
+
+            return element;
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
@@ -581,6 +608,7 @@ export const useProductVariationStore = defineStore({
             }
             this.action.type = 'trash';
             vaah().confirmDialogTrash(this.listAction);
+
         },
         //---------------------------------------------------------------------
         confirmRestore()
@@ -597,19 +625,19 @@ export const useProductVariationStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrash(this.listAction);
+            vaah().confirmDialogTrashAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -671,6 +699,11 @@ export const useProductVariationStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
+
+            this.selected_dates=[];
+
+            this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+
             vaah().toastSuccess(['Action Was Successful']);
             //reload page list
             await this.getList();
@@ -794,6 +827,7 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
+                        console.log(this.action.items);
                         this.confirmTrash()
                     }
                 },
@@ -879,7 +913,9 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: () => {
+                        console.log(this.action.items);
                         this.itemAction('trash');
+                        console.log(this.action.items);
                     }
                 });
             }
@@ -952,17 +988,9 @@ export const useProductVariationStore = defineStore({
 
             if (this.item.quantity > 0) {
                 this.item.in_stock = 1;
-                if(this.item.per_unit_price >0)
-                {
-                    this.item.total_price = this.item.quantity * this.item.per_unit_price;
-                }
-                else {
-                    this.item.total_price=0;
-                }
             } else {
                 this.item.in_stock = 0;
                 this.item.per_unit_price = 0;
-                this.item.total_price = 0;
             }
         },
 
@@ -972,11 +1000,6 @@ export const useProductVariationStore = defineStore({
         {
 
             this.item.per_unit_price = event.value;
-
-            if(this.item.per_unit_price >0)
-            {
-                this.item.total_price = this.item.quantity * this.item.per_unit_price;
-            }
 
 
         },
@@ -1046,6 +1069,7 @@ export const useProductVariationStore = defineStore({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
+                            console.log(this.action.items);
                             this.itemAction('trash');
                             this.item = null;
                             this.toList();

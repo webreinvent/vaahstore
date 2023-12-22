@@ -16,7 +16,23 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
+
+    setDefaultProduct();
 });
+
+const setDefaultProduct = () => {
+
+    if(route.params && route.params.id)
+    {
+        store.item.product=store.item.product;
+    }
+    else {
+        if (store.active_products && store.active_products.length > 0) {
+            store.item.product = store.active_products[0];
+        }
+    }
+
+};
 
 //--------form_menu
 const form_menu = ref();
@@ -115,6 +131,10 @@ const toggleFormMenu = (event) => {
                         data-testid="productvariations-product"
                         name="productvariations-product"
                         :dropdown="true" optionLabel="name" forceSelection>
+
+                        <template #option="slotProps">
+                            {{ slotProps.option.name }}
+                        </template>
                     </AutoComplete>
 
                 </VhField>
@@ -158,7 +178,7 @@ const toggleFormMenu = (event) => {
                         data-testid="productvariations-quantity"/>
                 </VhField>
 
-                <VhField label="Per Unit Price"  v-if="store.item.quantity">
+                <VhField label="Price"  v-if="store.item.quantity">
                     <InputNumber
                         v-model="store.item.per_unit_price"
                         placeholder="Enter Price"
@@ -166,15 +186,6 @@ const toggleFormMenu = (event) => {
                         :min = 1
                         name="productvariations-per_unit_price"
                         data-testid="productvariations-per_unit_price"/>
-                </VhField>
-
-                <VhField label="Total Price"  v-if="store.item.per_unit_price>0 && store.item.quantity>0">
-                    <InputNumber
-                        v-model="store.item.total_price"
-                        disabled
-                        placeholder="Enter Price"
-                        name="productvariations-total_price"
-                        data-testid="productvariations-total_price"/>
                 </VhField>
 
                 <VhField label="In Stock">
@@ -232,9 +243,14 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="productvariations-active"
                                  data-testid="productvariations-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active"
+                                 :pt="{
+        slider: ({ props }) => ({
+            class: props.modelValue ? 'bg-green-400' : ''
+        })
+    }"
+                    />
                 </VhField>
-
             </div>
         </Panel>
 
