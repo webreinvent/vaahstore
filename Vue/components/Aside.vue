@@ -108,11 +108,17 @@ const items = ref([
         ]
     },
 ]);
+
+
 </script>
 <template>
 
     <div v-if="height">
-        <Menu :model="items"  class="w-full" >
+        <Menu :model="items"  class="w-full" :pt="{
+          action: ({ props }) => ({
+          class: route.path=== props.item.route ? 'bg-gray-200' : undefined
+          })
+          }">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
@@ -127,5 +133,6 @@ const items = ref([
             </template>
         </Menu>
     </div>
+
 
 </template>
