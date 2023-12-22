@@ -183,7 +183,7 @@ const permission=store.assets.permission;
                         data-testid="productvariations-quantity"/>
                 </VhField>
 
-                <VhField label="Per Unit Price"  v-if="store.item.quantity">
+                <VhField label="Price"  v-if="store.item.quantity">
                     <InputNumber
                         v-model="store.item.per_unit_price"
                         placeholder="Enter Price"
@@ -191,15 +191,6 @@ const permission=store.assets.permission;
                         :min = 1
                         name="productvariations-per_unit_price"
                         data-testid="productvariations-per_unit_price"/>
-                </VhField>
-
-                <VhField label="Total Price"  v-if="store.item.per_unit_price>0 && store.item.quantity>0">
-                    <InputNumber
-                        v-model="store.item.total_price"
-                        disabled
-                        placeholder="Enter Price"
-                        name="productvariations-total_price"
-                        data-testid="productvariations-total_price"/>
                 </VhField>
 
                 <VhField label="In Stock">

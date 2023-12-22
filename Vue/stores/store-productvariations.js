@@ -1030,17 +1030,9 @@ export const useProductVariationStore = defineStore({
 
             if (this.item.quantity > 0) {
                 this.item.in_stock = 1;
-                if(this.item.per_unit_price >0)
-                {
-                    this.item.total_price = this.item.quantity * this.item.per_unit_price;
-                }
-                else {
-                    this.item.total_price=0;
-                }
             } else {
                 this.item.in_stock = 0;
                 this.item.per_unit_price = 0;
-                this.item.total_price = 0;
             }
         },
 
@@ -1050,11 +1042,6 @@ export const useProductVariationStore = defineStore({
         {
 
             this.item.per_unit_price = event.value;
-
-            if(this.item.per_unit_price >0)
-            {
-                this.item.total_price = this.item.quantity * this.item.per_unit_price;
-            }
 
 
         },
