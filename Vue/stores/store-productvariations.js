@@ -460,11 +460,37 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
+                /*console.log(this.item);*/
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+              const result= this.findInArrayByKey(this.action && this.action.items,'id',this.item.id);
+              console.log(result);
             }
+          /*  console.log(this.action.items);
+            console.log(this.list.data);*/
+        },
+        findInArrayByKey: function (array, key, value) {
+
+            console.log(array,key,value);
+            if(!Array.isArray(array))
+            {
+                return false;
+            }
+
+            let element = null;
+
+            array.map(function(item, index) {
+
+                if(item[key] == value)
+                {
+                    element = item;
+                }
+
+            });
+
+            return element;
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
@@ -582,6 +608,7 @@ export const useProductVariationStore = defineStore({
             }
             this.action.type = 'trash';
             vaah().confirmDialogTrash(this.listAction);
+
         },
         //---------------------------------------------------------------------
         confirmRestore()
@@ -800,6 +827,7 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
+                        console.log(this.action.items);
                         this.confirmTrash()
                     }
                 },
@@ -885,7 +913,9 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: () => {
+                        console.log(this.action.items);
                         this.itemAction('trash');
+                        console.log(this.action.items);
                     }
                 });
             }
@@ -1039,6 +1069,7 @@ export const useProductVariationStore = defineStore({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
+                            console.log(this.action.items);
                             this.itemAction('trash');
                             this.item = null;
                             this.toList();
