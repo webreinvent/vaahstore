@@ -587,10 +587,17 @@ class ProductPrice extends VaahModel
 
     public static function deleteProductVariations($items_id){
         if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
+            $product_price = self::whereIn('vh_st_product_id', $items_id)->forceDelete();
+
+            if ($product_price > 0) {
+                $response['success'] = true;
+                $response['data'] = true;
+            } else {
+                $response['success'] = false;
+                $response['data'] = false;
+                $response['message'] = 'No records found for deletion.';
+            }
+        } else {
             $response['error'] = true;
             $response['data'] = false;
         }
