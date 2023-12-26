@@ -902,71 +902,21 @@ class ProductAttribute extends VaahModel
     //-------------------------------------------------
 
     public static function deleteProductVariations($items_id){
+        if($items_id){
+            $product_attribute = self::whereIn('vh_st_product_id', $items_id)->forceDelete();
 
-        if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
-
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+            if ($product_attribute > 0) {
                 $response['success'] = true;
                 $response['data'] = true;
             } else {
-                $response['success'] = true;
+                $response['success'] = false;
                 $response['data'] = false;
+                $response['message'] = 'No records found for deletion.';
             }
         } else {
-            // If $items_id is not set, return an error
             $response['error'] = true;
             $response['data'] = false;
-        }
-    }
-
-    //-------------------------------------------------
-
-    //-------------------------------------------------
-    /*public static function deleteProductVariation($items_id){
-        if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
-
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
-                $response['success'] = true;
-                $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
-            }
-        } else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
-        }
-
-    }*/
-    public static function deleteProductVariation($items_id){
-
-        if (is_array($items_id)) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
-
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
-                $response['success'] = true;
-                $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
-            }
-        } elseif ($items_id)
-        {
-            self::where('vh_st_product_variation_id', $items_id)->forceDelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }
-
-        else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['message'] = 'Invalid input, $items_id is required.';
         }
 
     }

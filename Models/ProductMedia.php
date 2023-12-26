@@ -932,20 +932,18 @@ class ProductMedia extends VaahModel
 
     public static function deleteProductVariations($items_id){
 
-        if ($items_id) {
-            $itemsExist = self::whereIn('vh_st_product_variation_id', $items_id);
+        if($items_id){
+            $product_media = self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
 
-            if ($itemsExist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+            if ($product_media > 0) {
                 $response['success'] = true;
                 $response['data'] = true;
             } else {
-                // If no items found, return a success response
-                $response['success'] = true;
+                $response['success'] = false;
                 $response['data'] = false;
+                $response['message'] = 'No records found for deletion.';
             }
         } else {
-            // If $items_id is not set, return an error
             $response['error'] = true;
             $response['data'] = false;
         }
