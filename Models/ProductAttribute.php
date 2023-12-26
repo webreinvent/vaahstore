@@ -902,12 +902,20 @@ class ProductAttribute extends Model
 
     public static function deleteProductVariations($items_id){
         if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
+            $product_attribute = self::whereIn('vh_st_product_id', $items_id)->forceDelete();
+
+            if ($product_attribute > 0) {
+                $response['success'] = true;
+                $response['data'] = true;
+            } else {
+                $response['success'] = false;
+                $response['data'] = false;
+                $response['message'] = 'No records found for deletion.';
+            }
+        } else {
             $response['error'] = true;
             $response['data'] = false;
+            $response['message'] = 'Invalid input, $items_id is required.';
         }
 
     }
