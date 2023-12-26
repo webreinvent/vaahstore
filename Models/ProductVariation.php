@@ -490,6 +490,7 @@ class ProductVariation extends Model
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
+        self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
         $response['messages'][] = 'Action was successful.';

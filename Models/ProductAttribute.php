@@ -853,18 +853,46 @@ class ProductAttribute extends Model
     //-------------------------------------------------
 
     public static function deleteProductVariations($items_id){
-        if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
+
+        if ($items_id) {
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
+
+            if ($items_exist) {
+                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+                $response['success'] = true;
+                $response['data'] = true;
+            } else {
+                $response['success'] = true;
+                $response['data'] = false;
+            }
+        } else {
+            // If $items_id is not set, return an error
+            $response['error'] = true;
+            $response['data'] = false;
+        }
+    }
+
+    //-------------------------------------------------
+
+    //-------------------------------------------------
+    public static function deleteProductVariation($items_id){
+        if ($items_id) {
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
+
+            if ($items_exist) {
+                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+                $response['success'] = true;
+                $response['data'] = true;
+            } else {
+                $response['success'] = true;
+                $response['data'] = false;
+            }
+        } else {
+            // If $items_id is not set, return an error
             $response['error'] = true;
             $response['data'] = false;
         }
 
     }
-
-    //-------------------------------------------------
-
 
 }
