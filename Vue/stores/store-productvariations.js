@@ -73,7 +73,9 @@ export const useProductVariationStore = defineStore({
         status_suggestion:null,
         product_suggestion:null,
         selected_dates:[],
-        date_null:null
+        date_null:null,
+        prev_list:[],
+        current_list:[]
     }),
     getters: {
 
@@ -460,37 +462,26 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.item = data;
-                /*console.log(this.item);*/
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
-              const result= this.findInArrayByKey(this.action && this.action.items,'id',this.item.id);
-              console.log(result);
             }
-          /*  console.log(this.action.items);
-            console.log(this.list.data);*/
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+
         },
-        findInArrayByKey: function (array, key, value) {
+        compareList(prev_list, current_list) {
 
-            console.log(array,key,value);
-            if(!Array.isArray(array))
-            {
-                return false;
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
-
-            let element = null;
-
-            array.map(function(item, index) {
-
-                if(item[key] == value)
-                {
-                    element = item;
-                }
-
-            });
-
-            return element;
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
