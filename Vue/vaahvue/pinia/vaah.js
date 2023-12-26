@@ -279,6 +279,16 @@ export const vaah = defineStore({
             this.confirmDialog('Restore Confirmation', 'Do you want to restore all record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
+        confirmDialogActivateAll(callbackOnAccept)
+        {
+            this.confirmDialog('Activate  Confirmation', 'Do you want to activate all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+        confirmDialogDeActivateAll(callbackOnAccept)
+        {
+            this.confirmDialog('De-Activate Confirmation', 'Do you want to de-activate all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));

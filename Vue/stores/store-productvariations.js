@@ -618,6 +618,19 @@ export const useProductVariationStore = defineStore({
             this.action.type = 'delete-all';
             vaah().confirmDialogDeleteAll(this.listAction);
         },
+
+        //---------------------------------------------------------------------
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivateAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmDeActivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeActivateAll(this.listAction);
+        },
         //---------------------------------------------------------------------
         confirmTrashAll()
         {
@@ -846,13 +859,15 @@ export const useProductVariationStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+
+                        this.confirmDeActivateAll();
                     }
                 },
                 {
