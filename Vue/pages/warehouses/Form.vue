@@ -102,7 +102,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="warehouses-name"
                                data-testid="warehouses-name"
@@ -111,7 +111,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="warehouses-slug"
                                data-testid="warehouses-slug"
@@ -119,7 +119,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Vendor">
+                <VhField label="Vendor*">
                     <AutoComplete v-model="store.item.vendor"
                                   @change="store.setVendor($event)"
                                   value="id"
@@ -133,7 +133,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection />
                 </VhField>
 
-                <VhField label="Country">
+                <VhField label="Country*">
                     <AutoComplete v-model="store.item.country"
                                   value="id"
                                   class="w-full"
@@ -145,7 +145,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection />
                 </VhField>
 
-                <VhField label="State">
+                <VhField label="State*">
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
@@ -153,7 +153,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.state"/>
                 </VhField>
 
-                <VhField label="City">
+                <VhField label="City*">
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
@@ -161,7 +161,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.city"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
