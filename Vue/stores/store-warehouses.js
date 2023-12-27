@@ -528,6 +528,7 @@ export const useWarehouseStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
