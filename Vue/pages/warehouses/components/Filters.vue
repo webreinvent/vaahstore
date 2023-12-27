@@ -42,6 +42,22 @@ const store = useWarehouseStore();
 
             </VhFieldVertical>
 
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date Range Filter:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+            </VhFieldVertical >
+
+            <Divider/>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>
