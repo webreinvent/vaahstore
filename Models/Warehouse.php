@@ -299,11 +299,15 @@ class Warehouse extends Model
         if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search)
+        {
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
+        }
 
     }
 
