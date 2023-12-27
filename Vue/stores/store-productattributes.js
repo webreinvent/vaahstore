@@ -618,7 +618,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         onItemSelection(items)
         {
             this.action.items = items;
@@ -721,22 +721,14 @@ export const useProductAttributeStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-            if(this.count_filters === 0)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
-
-            if(this.query.filter.q)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
-
+            
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
