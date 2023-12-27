@@ -428,6 +428,7 @@ export const useWarehouseStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -477,10 +478,13 @@ export const useWarehouseStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'warehouses.index'});
                     break;
@@ -677,6 +681,8 @@ export const useWarehouseStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'warehouses.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -955,6 +961,15 @@ export const useWarehouseStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-clone');
+
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
 
                         }
                     },
