@@ -162,7 +162,6 @@ class ProductAttribute extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $validation_result = self::productAttributeInputValidator($request->all());
 
         if ($validation_result['success'] != true){
