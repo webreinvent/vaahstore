@@ -1018,7 +1018,7 @@ class ProductMedia extends Model
     //-------------------------------------------------
     public static function deleteProductVariation($items_id){
 
-        if ($items_id) {
+        if (is_array($items_id)) {
             $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
 
             if ($items_exist) {
@@ -1029,7 +1029,14 @@ class ProductMedia extends Model
                 $response['success'] = true;
                 $response['data'] = false;
             }
-        } else {
+        } elseif ($items_id)
+        {
+                self::where('vh_st_product_variation_id', $items_id)->forceDelete();
+                $response['success'] = true;
+                $response['data'] = true;
+        }
+
+        else {
             // If $items_id is not set, return an error
             $response['error'] = true;
             $response['data'] = false;
