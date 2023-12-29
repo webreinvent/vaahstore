@@ -154,7 +154,11 @@ export const useProductVendorStore = defineStore({
 
         //---------------------------------------------------------------------
        async searchVendor(event) {
-           const query = event;
+           const query = {
+               filter: {
+                   q: event,
+               },
+           };
            const options = {
                params: query,
                method: 'post',
@@ -298,9 +302,11 @@ export const useProductVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
+        setVendor(event) {
+            if (event.value) {
+                let vendor = toRaw(event.value);
+                this.item.vh_st_vendor_id = vendor.id;
+            }
         },
         //---------------------------------------------------------------------
         setProduct(event){

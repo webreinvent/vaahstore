@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
@@ -641,6 +642,27 @@ class ProductVendor extends VaahModel
         $response['data'] = $item;
         return $response;
 
+    }
+    //-------------------------------------------------
+    public static function searchVendor(Request $request): array
+    {
+
+        $user = Auth::user();
+
+        $query = $request->input('filter.q.query');
+        $vendor = Vendor::where('created_by', $user->id)
+            ->select('id', 'name', 'slug');
+
+        if ($query !== null) {
+            $vendor->where('name', 'like', "%$query%");
+        }
+
+        $vendor = $vendor->get();
+
+        $response['success'] = true;
+        $response['data'] = $vendor;
+
+        return $response;
     }
     //-------------------------------------------------
     public static function updateItem($request, $id)
