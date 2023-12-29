@@ -827,41 +827,40 @@ class ProductVariation extends Model
 
     public static function validation($inputs)
     {
+
+
         $rules = validator($inputs, [
             'product'=> 'required',
             'name' => 'required|min:1|max:100',
             'slug' => 'required|min:1|max:100',
             'sku' => 'required|min:1|max:50',
-            'description'=>'required|string|min:1|max:255',
+            'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
+
             'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'min:1',
-                'max:100'
+                'max:100',
             ],
 
-            'quantity'  => 'required|digits_between:1,9',
-            'per_unit_price' => [
-                'required_if:quantity,' . $inputs['quantity'],
-                'digits_between:1,9',
-                'min:1',
 
+
+            'quantity' => 'nullable|numeric|digits_between:1,9',
+            'per_unit_price' => [
+                function ($attribute, $value, $fail) use ($inputs) {
+                    if ($inputs['quantity'] > 0 && $value == 0)  {
+                        $fail('The Price field is required if quantity is greater than 0');
+                    }
+                },
             ],
             'in_stock'=> 'required|numeric',
         ],
             [
                 'product.required' => 'Please Choose a Product',
-                'taxonomy_id_variation_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
-                'status_notes.min' => 'The Status notes field is required ',
+                'name.required'=>'The Name field is required.',
+                'slug.required'=>'The Slug field is required.',
+                'taxonomy_id_variation_status.required' => 'The Status field is required.',
+                'sku.required'=>'The SKU field is required.',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
-                'slug.required'=>'The Name field is required.',
-                'name.required'=>'The Slug field is required.',
-                'sku.required'=>'The SKU field is required.',
-                'per_unit_price.required_if' => 'The  Price field is required if Quantity is there',
-                'per_unit_price.digits_between' => 'The  Price field must not be greater than 9 digits',
-                'description.required'=>'The Description field is required.',
                 'description.max' => 'The Description field may not be greater than :max characters.',
 
 
