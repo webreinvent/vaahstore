@@ -538,6 +538,7 @@ export const useProductVendorStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -827,9 +828,16 @@ export const useProductVendorStore = defineStore({
             this.$router.push({name: 'productvendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+        // toEdit(item)
+        // {
+        //     this.item = item;
+        //     this.$router.push({name: 'productvendors.form', params:{id:item.id}})
+        // },
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'productvendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -1063,6 +1071,14 @@ export const useProductVendorStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-close');
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
                     {
