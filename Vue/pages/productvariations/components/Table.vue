@@ -86,7 +86,20 @@ const permission=store.assets.permission;
 
              </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+
+                <Column field="updated_at" header="Updated"
+                        v-if="store.isViewLarge()"
+                        style="width:150px;"
+                        :sortable="true">
+
+                    <template #body="prop">
+                        {{useVaah.ago(prop.data.updated_at)}}
+                    </template>
+
+                </Column>
+
+<!--            <Column field="is_active" v-if="store.isViewLarge()"
+                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
@@ -105,7 +118,33 @@ const permission=store.assets.permission;
                     </InputSwitch>
                 </template>
 
+            </Column>-->
+
+            <Column
+                field="is_active"
+                v-if="store.isViewLarge()"
+                :sortable="true"
+                style="width:100px;"
+                header="Is Active"
+            >
+                <template #body="prop">
+                    <InputSwitch
+                        v-model.bool="prop.data.is_active"
+                        data-testid="productvariations-table-is-active"
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        class="p-inputswitch-sm"
+                        @input="store.toggleIsActive(prop.data)"
+                        :pt="{
+        slider: ({ props }) => ({
+          class: props.modelValue ? 'bg-green-400' : '',
+        }),
+      }"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
+                    ></InputSwitch>
+                </template>
             </Column>
+
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
@@ -129,9 +168,10 @@ const permission=store.assets.permission;
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button
+                                class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permission.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />

@@ -58,6 +58,7 @@ const toggleCreateMenu = (event) => {
 };
 //--------/form_menu
 
+const permission=store.assets ? store.assets.permission : 0;
 
 </script>
 <template>
@@ -87,7 +88,8 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="productvariations-list-create"
                             class="p-button-sm"
-                            @click="store.toForm()">
+                            @click="store.toForm()"
+                            :disabled="!store.assets.permission.includes('can-update-module')">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
