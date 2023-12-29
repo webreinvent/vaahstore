@@ -319,7 +319,7 @@ class ProductAttribute extends Model
         $to = \Carbon::parse($dates[1])
             ->endOfDay()
             ->toDateTimeString();
-        
+
         return $query->whereBetween('created_at', [$from, $to]);
 
     }

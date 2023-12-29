@@ -184,6 +184,14 @@ const toggleItemMenu = (event) => {
                                         {{store.item.attribute.name}}</div>
                                 </td>
                             </tr>
+                            <tr v-if="store.item.attribute_values">
+                                <td><b>Attribute Values</b></td>
+                                <td colspan="2">
+                                    <tr v-for="data in value">
+                                        <td><div style="word-break: break-word;">{{data.new_value}}</div></td>
+                                    </tr>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'attribute_values'">
