@@ -1170,7 +1170,7 @@ export const useProductVariationStore = defineStore({
         {
             this.getList()
 
-            vaah().toastSuccess(['Action Was Successful']);
+            vaah().toastSuccess(['Page Reloaded']);
 
         },
 
