@@ -30,6 +30,19 @@ const store = useProductVendorStore();
 
 
             </VhFieldVertical>
+            <VhFieldVertical >
+                <template #label>
+                    <b>Created Between:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+
+            </VhFieldVertical >
+            <Divider/>
 
             <VhFieldVertical >
                 <template #label>

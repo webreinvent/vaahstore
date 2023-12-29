@@ -352,6 +352,28 @@ class ProductVendor extends VaahModel
         });
     }
     //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('product','vendor','addedByUser','status','stores');
@@ -359,6 +381,7 @@ class ProductVendor extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVendorFilter($request->filter);
+        $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
