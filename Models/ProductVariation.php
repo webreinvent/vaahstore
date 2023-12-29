@@ -574,7 +574,6 @@ class ProductVariation extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
@@ -780,9 +779,10 @@ class ProductVariation extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
-        $item->forceDelete();
         ProductMedia::deleteProductVariation($item->id);
+        ProductPrice::deleteProductVariation($item->id);
         ProductAttribute::deleteProductVariation($item->id);
+        $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Record has been deleted';
