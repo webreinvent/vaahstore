@@ -315,6 +315,25 @@ class Warehouse extends VaahModel
 
     }
 
+
+    //-------------------------------------------------
+    public function scopeCountryStateFilter($query, $filter)
+    {
+
+        if (!isset($filter['country_state'])) {
+            return $query;
+        }
+
+            $search = $filter['country_state'];
+            $query->where(function ($country_state) use ($search) {
+                $country_state->where('country', 'LIKE', '%' . $search . '%')
+                    ->orWhere('state', 'LIKE', '%' . $search . '%')
+                    ->orWhere('postal_code', 'LIKE', '%' . $search . '%');
+            });
+
+
+    }
+
     //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
@@ -347,6 +366,7 @@ class Warehouse extends VaahModel
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->countryStateFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if ($request->has('rows')) {
@@ -476,6 +496,7 @@ class Warehouse extends VaahModel
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
+            $list->countryStateFilter($request->filter);
         }
 
         switch ($type) {

@@ -20,6 +20,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             status:null,
+            country_state: null,
         },
     },
     action: {
@@ -159,6 +160,7 @@ export const useWarehouseStore = defineStore({
             watch(this.query.filter, (newVal,oldVal) =>
                 {
                     this.delayedSearch();
+                    this.countryStateSearch();
                 },{deep: true}
             )
         },
@@ -579,6 +581,19 @@ export const useWarehouseStore = defineStore({
 
         //---------------------------------------------------------------------
         async delayedSearch()
+        {
+            let self = this;
+            this.query.page = 1;
+            this.action.items = [];
+            clearTimeout(this.search.delay_timer);
+            this.search.delay_timer = setTimeout(async function() {
+                await self.updateUrlQueryString(self.query);
+                await self.getList();
+            }, this.search.delay_time);
+        },
+
+        //---------------------------------------------------------------------
+        async countryStateSearch()
         {
             let self = this;
             this.query.page = 1;

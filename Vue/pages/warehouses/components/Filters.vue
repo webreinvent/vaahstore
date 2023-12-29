@@ -60,6 +60,23 @@ const store = useWarehouseStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Country/State/Zip Code Filter:</b>
+                </template>
+
+                <InputText v-model="store.query.filter.country_state"
+                           @keyup.enter="store.countryStateSearch()"
+                           class="p-inputtext-md"
+                           @keyup.enter.native="store.countryStateSearch()"
+                           @keyup.13="store.countryStateSearch()"
+                           data-testid="warehouses-actions-filter"
+                           placeholder="Filter"/>
+
+            </VhFieldVertical >
+
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Sort By:</b>
                 </template>
 
