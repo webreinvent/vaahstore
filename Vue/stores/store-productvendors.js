@@ -83,6 +83,8 @@ export const useProductVendorStore = defineStore({
         status: null,
         product_variation_suggestion:null,
         disable_approved_by:true,
+        prev_list:[],
+        current_list:[]
     }),
     getters: {
 
@@ -587,15 +589,30 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
 
                 this.item.vh_st_product_variation_id = data.product_variation;
                 await this.getList();
-                await this.formActionAfter();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -618,7 +635,11 @@ export const useProductVendorStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
