@@ -161,6 +161,30 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.city"/>
                 </VhField>
 
+                <VhField label="Address 1">
+                    <InputText class="w-full"
+                               name="warehouses-address_1"
+                               data-testid="warehouses-address_1"
+                               placeholder="Enter Address 1"
+                               v-model="store.item.address_1"/>
+                </VhField>
+
+                <VhField label="Address 2">
+                    <InputText class="w-full"
+                               name="warehouses-address_2"
+                               data-testid="warehouses-address_2"
+                               placeholder="Enter Address 2"
+                               v-model="store.item.address_2"/>
+                </VhField>
+
+                <VhField label="Pin Code">
+                    <InputText class="w-full"
+                               name="warehouses-postal_code"
+                               data-testid="warehouses-postal_code"
+                               placeholder="Enter Pin Code"
+                               v-model="store.item.postal_code"/>
+                </VhField>
+
                 <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"

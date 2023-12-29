@@ -39,6 +39,9 @@ class Warehouse extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
+        'address_1',
+        'address_2',
+        'postal_code',
     ];
     //-------------------------------------------------
     protected $fill_except = [
