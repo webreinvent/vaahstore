@@ -300,18 +300,27 @@ class ProductAttribute extends Model
     }
     //-------------------------------------------------
 
-    public function scopeDateRangeFilter($query, $filter)
+    public function scopeDateFilter($query, $filter)
     {
 
-        if(!isset($filter['date']))
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
         {
             return $query;
         }
-        $from = $filter['date'][0];
 
-        $to =$filter['date'][1];
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
 
-        dd(['this is from data'=>$from,'this is to data' =>$to]);
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+        
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
 
@@ -448,6 +457,7 @@ class ProductAttribute extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVariationFilter($request->filter);
+        $list->dateFilter($request->filter);
         $list->attributesFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
