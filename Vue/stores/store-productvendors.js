@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductVendor';
 
@@ -19,6 +20,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_vendor_status:null,
+            selected_dates:null
         },
     },
     action: {
@@ -1101,6 +1103,31 @@ export const useProductVendorStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
+        //---------------------------------------------------------------------
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+
         //---------------------------------------------------------------------
     }
 });
