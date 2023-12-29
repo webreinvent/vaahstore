@@ -742,7 +742,7 @@ export const useProductVariationStore = defineStore({
 
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
 
-            vaah().toastSuccess(['Action Was Successful']);
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
