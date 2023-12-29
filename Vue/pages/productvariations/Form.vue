@@ -41,6 +41,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+const permission=store.assets.permission;
 </script>
 <template>
 
