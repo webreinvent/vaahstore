@@ -498,6 +498,12 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function updateList($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $inputs = $request->all();
 
