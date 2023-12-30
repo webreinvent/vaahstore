@@ -232,6 +232,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $inputs = $request->all();
 
@@ -551,6 +557,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+        
         $inputs = $request->all();
 
         $rules = array(
@@ -714,6 +727,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -771,6 +791,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {

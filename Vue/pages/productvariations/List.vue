@@ -109,6 +109,7 @@ const permission=store.assets ? store.assets.permission : 0;
                         class="p-button-sm"
                         data-testid="productvariations-create-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="create_menu"
