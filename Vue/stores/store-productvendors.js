@@ -112,7 +112,11 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
        async searchAddedBy(event) {
-            const query = event;
+           const query = {
+               filter: {
+                   q: event,
+               },
+           };
             const options = {
                 params: query,
                 method: 'post',
