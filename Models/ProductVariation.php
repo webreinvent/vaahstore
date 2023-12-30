@@ -476,7 +476,7 @@ class ProductVariation extends Model
 
             return $response;
         }
-        
+
         $inputs = $request->all();
 
         $rules = array(
@@ -512,6 +512,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -730,6 +737,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
         switch($type)
         {
             case 'activate':
