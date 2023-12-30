@@ -570,7 +570,7 @@ class ProductVariation extends VaahModel
 
             return $response;
         }
-        
+
         $inputs = $request->all();
 
         $rules = array(
