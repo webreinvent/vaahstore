@@ -83,6 +83,10 @@ export const useProductVendorStore = defineStore({
         status: null,
         product_variation_suggestion:null,
         disable_approved_by:true,
+        status_suggestion_list:null,
+        user_suggestion_list:null,
+        active_users_list:null,
+        active_vendors_list:null,
 
     }),
     getters: {
@@ -110,79 +114,31 @@ export const useProductVendorStore = defineStore({
                 this.product_variation_suggestion = data;
             }
         },
-        //---------------------------------------------------------------------
-       async searchAddedBy(event) {
-           const query = {
-               filter: {
-                   q: event,
-               },
-           };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/added/by',
-                this.searchAddedByAfter,
-                options
-            );
-        },
 
         //---------------------------------------------------------------------
-        searchAddedByAfter(data,res){
-            if(data){
-                this.added_by_suggestion = data;
-            }
+        searchStatus(event) {
+
+            this.status_suggestion_list = this.status_option.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
         //---------------------------------------------------------------------
-       async searchStatus(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
+        searchAddedBy(event) {
 
-            await vaah().ajax(
-                this.ajax_url+'/search/status',
-                this.searchStatusAfter,
-                options
-            );
+            this.active_users_list = this.active_users.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
+        searchVendor(event) {
+
+            this.active_vendors_list = this.active_vendors.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+
+
         //---------------------------------------------------------------------
 
-        searchStatusAfter(data,res){
-            if(data){
-                this.status_suggestion = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-       async searchVendor(event) {
-           const query = {
-               filter: {
-                   q: event,
-               },
-           };
-           const options = {
-               params: query,
-               method: 'post',
-           };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/vendor',
-                this.searchVendorAfter,
-                options
-            );
-        },
-
-        //---------------------------------------------------------------------
-        searchVendorAfter(data,res){
-            if(data){
-
-                this.vendor_suggestion = data;
-            }
-        },
 
         //---------------------------------------------------------------------
         searchProduct(event) {
@@ -320,13 +276,17 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         setAddedBy(event){
-            let user = toRaw(event.value);
-            this.item.added_by = user.id;
+            if (event.value) {
+                let user = toRaw(event.value);
+                this.item.added_by = user.id;
+            }
         },
         //---------------------------------------------------------------------
         setStatus(event){
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_product_vendor_status = status.id;
+            if (event.value) {
+                let status = toRaw(event.value);
+                this.item.taxonomy_id_product_vendor_status = status.id;
+            }
         },
         //---------------------------------------------------------------------
         async getAssets() {
@@ -346,7 +306,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status;
+                this.status_option = data.taxonomy.status;
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
                 this.active_products = data.active_products;
