@@ -646,49 +646,9 @@ class ProductVendor extends VaahModel
 
     }
     //-------------------------------------------------
-    public static function searchVendor(Request $request): array
-    {
 
-        $user = Auth::user();
-
-        $query = $request->input('filter.q.query');
-        $vendor = Vendor::where('is_active', 1, $user->id)
-            ->select('id', 'name', 'slug');
-
-        if ($query !== null) {
-            $vendor->where('name', 'like', "%$query%");
-        }
-
-        $vendor = $vendor->get();
-
-        $response['success'] = true;
-        $response['data'] = $vendor;
-
-        return $response;
-    }
     //-------------------------------------------------
-    public static function searchAddedBy(Request $request): array
-    {
-        $user = auth()->user();
 
-        $query = $request->input('filter.q.query');
-        $added_users = User::where('is_active', 1);
-
-        if ($query !== null) {
-            $added_users->where(function ($query_builder) use ($query) {
-                $query_builder->where('first_name', 'like', "%$query%")
-                    ->orWhere('last_name', 'like', "%$query%")
-                    ->orWhere('email', 'like', "%$query%");
-            });
-        }
-
-        $active_users = $added_users->get();
-
-        $response['success'] = true;
-        $response['data'] = $active_users;
-
-        return $response;
-    }
 
     //-------------------------------------------------
     public static function updateItem($request, $id)
