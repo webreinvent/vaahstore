@@ -157,6 +157,8 @@ const toggleItemMenu = (event) => {
                                      ||  column === 'meta_keyword'
                                      ||  column === 'registered_by'
                                      ||  column === 'registered_at'
+                                     ||  column === 'approved_by'
+                                     ||  column === 'taxonomy_id_brand_status'
                                      || column ==='approved_at'">
                         </template>
 
@@ -187,10 +189,10 @@ const toggleItemMenu = (event) => {
                                        type="String"
                             />
 
-                            <VhViewRow label="Meta Keyword"
-                                       :value=store.item.meta_keyword
-                                       type="meta_tags"
-                            />
+<!--                            <VhViewRow label="Meta Keyword"-->
+<!--                                       :value=store.item.meta_keyword-->
+<!--                                       type="meta_tags"-->
+<!--                            />-->
 
                             <VhViewRow label="Registered By"
                                        :value=store.item.registered_by_user.username
@@ -236,16 +238,6 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
-                        <template v-else-if="column === 'approved_by'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Store</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.approved_by_user.username}}
-                                </td>
-                            </tr>
-                        </template>
 
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"

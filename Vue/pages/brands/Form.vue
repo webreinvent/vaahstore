@@ -164,9 +164,9 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.meta_description"/>
                 </VhField>
 
-                <VhField label="Meta Keyword" >
-                    <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />
-                </VhField>
+<!--                <VhField label="Meta Keyword" >-->
+<!--                    <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />-->
+<!--                </VhField>-->
 
                 <VhField label="Registered By">
 

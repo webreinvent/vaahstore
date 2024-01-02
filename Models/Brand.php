@@ -47,7 +47,6 @@ class Brand extends VaahModel
         'updated_by',
         'deleted_by',
         'image',
-        'meta_title',
         'meta_description',
         'meta_keyword',
     ];
