@@ -640,14 +640,17 @@ export const useProductVendorStore = defineStore({
         getFormInputsAfter: function (data, res) {
             if(data)
             {
+                this.item.store_vendor_product = [data.fill.store_vendor_product];
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
+                    if (key !== 'store_vendor_product') {
                     self.item[key] = data.fill[key];
+                    }
                 });
+
             }
         },
 
-        //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
         onItemSelection(items)
