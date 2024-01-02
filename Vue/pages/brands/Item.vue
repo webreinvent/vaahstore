@@ -145,14 +145,73 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'status' || column === 'status_notes' || column === 'updated_by' ||
-                         column === 'registered_by_user' || column === 'approved_by_user'">
+                        <template v-if="column === 'created_by'
+                                     || column === 'status'
+                                     || column === 'status_notes'
+                                     || column === 'updated_by'
+                                     || column === 'registered_by_user'
+                                     ||  column === 'approved_by_user'
+                                     ||  column === 'image'
+                                     ||  column === 'meta_title'
+                                     ||  column === 'meta_description'
+                                     ||  column === 'meta_keyword'
+                                     ||  column === 'registered_by'
+                                     ||  column === 'registered_at'
+                                     || column ==='approved_at'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        :can_copy="true"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'slug' ">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="slug"
+                            />
+                            <VhViewRow label="Brand Logo"
+                                       :value=store.item.image
+                                       type="image_preview"
+                            />
+
+                            <VhViewRow label="Meta Title"
+                                       :value=store.item.meta_title
+                                       type="String"
+                            />
+
+                            <VhViewRow label="Meta Description"
+                                       :value=store.item.meta_description
+                                       type="String"
+                            />
+
+                            <VhViewRow label="Meta Keyword"
+                                       :value=store.item.meta_keyword
+                                       type="meta_tags"
+                            />
+
+                            <VhViewRow label="Registered By"
+                                       :value=store.item.registered_by_user.username
+                                       type="String"
+                            />
+                            <VhViewRow label="Registered At"
+                                       :value=store.item.registered_by_user.created_at
+                                       type="date"
+                            />
+                            <VhViewRow label="Approved By"
+                                       :value=store.item.approved_by_user.first_name
+                                       type="String"
+                            />
+                            <VhViewRow label="Approved At"
+                                       :value=store.item.approved_by_user.created_at
+                                       type="name"
+                            />
+
+                            <VhViewRow label="Status"
+                                       :value=store.item.status.name
+                                       type="String"
                             />
                         </template>
 
@@ -164,16 +223,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'taxonomy_id_brand_status'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Status</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.status.name}}
-                                </td>
-                            </tr>
-                        </template>
+
 
                         <template v-else-if="column === 'registered_by'">
                             <tr>
@@ -216,6 +266,8 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        />
                         </template>
+
+
 
 
                     </template>

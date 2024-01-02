@@ -20,6 +20,10 @@ const props = defineProps({
     can_copy:{
         type: Boolean,
         default: false
+    },
+    meta_tags:{
+        type:Object,
+        default:null,
     }
 })
 
@@ -168,10 +172,10 @@ const props = defineProps({
 
             <td colspan="2" >
 
-                <Image :src="value"
+                <Image :src="`image/uploads/brands/`+value"
                        preview
                        alt="Image"
-                       width="150" />
+                       width="70" />
 
             </td>
         </template>
@@ -191,6 +195,16 @@ const props = defineProps({
                         </Button>&nbsp;
                     </span>
                 </template>
+            </td>
+        </template>
+
+        <template v-else-if="type==='meta_tags'">
+            <td colspan="2">
+                <span v-for="tag in value ">
+                    <Button class="p-button-outlined p-button-secondary p-button-sm">
+                            {{tag}}
+                        </Button>&nbsp;
+                </span>
             </td>
         </template>
 
