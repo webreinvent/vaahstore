@@ -120,7 +120,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="" class="mb-0">
-                    <Message v-if="!store.item.image" class="mt-4" severity="warn" :closable="false">Type: jpeg, jpg, png & Size: less than 1mb</Message>
+                    <Message v-if="!store.item.image" class="mt-2" severity="warn" :closable="false">Type: jpeg, jpg, png & Size: less than 1mb</Message>
                 </VhField>
 
 
