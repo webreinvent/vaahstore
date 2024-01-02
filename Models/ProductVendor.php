@@ -890,8 +890,9 @@ class ProductVendor extends Model
         $store_ids = $stores->pluck('id')->toArray();
         $store_id = $store_ids[array_rand($store_ids)];
         $store = $stores->where('id',$store_id)->first();
-        $inputs['store'] = $store;
+        $inputs['store_vendor_product'] = $store;
         $inputs['vh_st_store_id'] = $store_id ;
+
 
         $products = Product::where('is_active',1)->get();
         $product_ids = $products->pluck('id')->toArray();
