@@ -87,6 +87,8 @@ export const useProductVendorStore = defineStore({
         user_suggestion_list:null,
         active_users_list:null,
         active_vendors_list:null,
+        prev_list:[],
+        current_list:[]
 
     }),
     getters: {
@@ -340,10 +342,6 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
-                if ((this.action.type === 'trash' || this.action.type === 'restore') &&
-                    this.action.items.length > 0){
-                    this.action.items = data.data;
-                }
             }
         },
         //---------------------------------------------------------------------
@@ -556,6 +554,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
                 this.item.vh_st_product_variation_id = data.product_variation;
@@ -564,7 +563,20 @@ export const useProductVendorStore = defineStore({
                 this.getItemMenu();
                 this.getFormMenu();
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
 
+        },
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
