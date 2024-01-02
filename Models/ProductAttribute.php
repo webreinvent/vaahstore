@@ -2,7 +2,6 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -301,6 +300,37 @@ class ProductAttribute extends VaahModel
     }
     //-------------------------------------------------
 
+    public function scopeDefaultProductVariationFilter($query,$filter)
+    {
+
+        if(!isset($filter['default_product_variation'])
+            || is_null($filter['default_product_variation'])
+            || $filter['default_product_variation'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $default = $filter['default_product_variation'][0];
+        if($default == 'true')
+        {
+            $query->whereHas('productVariation', function ($query) use ($default) {
+                $query->where('is_default', 1);
+
+            });
+        }
+        else{
+            $query->whereHas('productVariation', function ($query) use ($default) {
+                $query->where('is_default',0);
+
+            });
+        }
+
+
+    }
+
+    //-------------------------------------------------
+
     public function scopeDateFilter($query, $filter)
     {
 
@@ -458,6 +488,7 @@ class ProductAttribute extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVariationFilter($request->filter);
+        $list->defaultProductVariationFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->attributesFilter($request->filter);
 

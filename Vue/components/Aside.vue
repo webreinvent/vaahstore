@@ -1,14 +1,19 @@
 <script setup>
 import {reactive, ref} from 'vue';
-
+import { useRoute } from 'vue-router';
 import Menu from 'primevue/menu';
 
 const inputs = {
 }
 const data = reactive(inputs);
 const height = ref(window.innerHeight)
-
+const route = useRoute();
 const menu = ref();
+
+function isActive(routePaths) {
+    return routePaths.includes(route.path);
+}
+
 
 const items = ref([
     {
@@ -114,7 +119,9 @@ const items = ref([
     <div v-if="height">
         <Menu :model="items"  class="w-full" >
             <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom
+                 :class="{ 'router-link-active' : isActive(item.route) }"
+                >
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
                         <span :class="item.icon" />
                         <span class="ml-2">{{ item.label }}</span>
