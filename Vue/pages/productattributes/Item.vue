@@ -140,7 +140,7 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' ||
-                        column === 'product_variation' || column === 'attribute' || column === 'meta'">
+                        column === 'product_variation' || column === 'attribute' || column === 'meta' || column === 'attribute_values'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -184,14 +184,16 @@ const toggleItemMenu = (event) => {
                                         <tag>{{store.item.attribute.name}}</tag></div>
                                 </td>
                             </tr>
-
-                        </template>
-
-                        <template v-else-if="column === 'attribute_values'">
-                            <VhViewRow label="Attribute Values"
-                                       :value="value"
-                                       type="productAttributeValues"
-                            />
+                            <tr>
+                                <td><b>Attribute Values</b></td>
+                                <td colspan="2">
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        <template v-for="value in store.item.attribute_values">
+                                            <tag style="margin-right:10px;">{{value.new_value}}</tag>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else>
