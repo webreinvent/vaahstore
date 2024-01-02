@@ -338,7 +338,6 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
-            console.log(data,'data');
             if(data)
             {
                 this.list = data;
