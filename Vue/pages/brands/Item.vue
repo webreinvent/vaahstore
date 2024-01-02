@@ -195,7 +195,7 @@ const toggleItemMenu = (event) => {
 <!--                            />-->
 
                             <VhViewRow label="Registered By"
-                                       :value=store.item.registered_by_user.username
+                                       :value=store.item.registered_by_user.first_name
                                        type="String"
                             />
                             <VhViewRow label="Registered At"
