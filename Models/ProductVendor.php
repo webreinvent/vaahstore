@@ -864,5 +864,71 @@ class ProductVendor extends Model
         }
 
     }
+    //-------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+        $inputs = $fillable['data']['fill'];
+        $faker = Factory::create();
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-vendor-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_product_vendor_status'] = $status_id;
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['status']=$status;
+
+        // fill the store field here
+        $stores = Store::where('is_active',1)->get();
+        $store_ids = $stores->pluck('id')->toArray();
+        $store_id = $store_ids[array_rand($store_ids)];
+        $store = $stores->where('id',$store_id)->first();
+        $inputs['store'] = $store;
+        $inputs['vh_st_store_id'] = $store_id ;
+
+        $products = Product::where('is_active',1)->get();
+        $product_ids = $products->pluck('id')->toArray();
+        $product_ids = $product_ids[array_rand($product_ids)];
+        $products = $products->where('id',$product_ids)->first();
+        $inputs['product'] = $products;
+        $inputs['vh_st_product_id'] = $product_ids ;
+
+        $users = User::where('is_active',1)->get();
+        $users_ids = $users->pluck('id')->toArray();
+        $users_ids = $users_ids[array_rand($users_ids)];
+        $users = $users->where('id',$users)->first();
+        $inputs['users'] = $users;
+        $inputs['added_by'] = $users_ids ;
+
+        $vendors = Vendor::where('is_active',1)->get();
+        $vendors_ids = $vendors->pluck('id')->toArray();
+        $vendors_ids = $vendors_ids[array_rand($vendors_ids)];
+        $vendors = $vendors->where('id',$vendors_ids)->first();
+        $inputs['vendor'] = $vendors;
+        $inputs['vh_st_vendor_id'] = $vendors_ids ;
+
+
+        $inputs['can_update'] =  rand(0,1);
+        $inputs['is_active'] = 1;
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
 
 }
