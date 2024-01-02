@@ -340,7 +340,8 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
-                if (this.action.type === 'trash' || this.action.type === 'restore'){
+                if ((this.action.type === 'trash' || this.action.type === 'restore') &&
+                    this.action.items.length > 0){
                     this.action.items = data.data;
                 }
             }
@@ -808,11 +809,7 @@ export const useProductVendorStore = defineStore({
             this.$router.push({name: 'productvendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        // toEdit(item)
-        // {
-        //     this.item = item;
-        //     this.$router.push({name: 'productvendors.form', params:{id:item.id}})
-        // },
+
         toEdit(item)
         {
             this.item = item;
