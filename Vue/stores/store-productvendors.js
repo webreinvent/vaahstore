@@ -96,31 +96,17 @@ export const useProductVendorStore = defineStore({
     },
     actions: {
         //---------------------------------------------------------------------
-       async searchProductVariation(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
-
-        //---------------------------------------------------------------------
-        searchProductVariationAfter(data,res){
-            if(data){
-                this.product_variation_suggestion = data;
-            }
-        },
 
         //---------------------------------------------------------------------
         searchStatus(event) {
 
             this.status_suggestion_list = this.status_option.filter((department) => {
+                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
+        //---------------------------------------------------------------------
+        searchProductVariation(event){
+            this.product_variation_suggestion = this.active_product_variation.filter((department) => {
                 return department.name.toLowerCase().startsWith(event.query.toLowerCase());
             });
         },
@@ -312,7 +298,7 @@ export const useProductVendorStore = defineStore({
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
                 this.active_products = data.active_products;
-                this.product_variations = data.active_product_variations
+                this.active_product_variation = data.active_product_variations
 
                 if(data.rows)
                 {
