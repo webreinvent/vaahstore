@@ -193,11 +193,11 @@ const toggleFormMenu = (event) => {
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single" style="box-shadow: none;">
                                 <div role="radio" class="p-button p-component" :class="store.item.can_update == 0 ? 'bg-red-500 text-white' : ''">
-                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">no</span>
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">No</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                                 <div role="radio" class="p-button p-component"  :class="store.item.can_update == 1 ? 'p-highlight' : ''">
-                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">yes</span>
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">Yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                             </div>
