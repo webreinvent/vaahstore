@@ -176,7 +176,6 @@ const props = defineProps({
                        preview
                        alt="Image"
                        width="70" />
-
             </td>
         </template>
 
@@ -198,15 +197,15 @@ const props = defineProps({
             </td>
         </template>
 
-        <template v-else-if="type==='meta_tags'">
-            <td colspan="2">
-                <span v-for="tag in value ">
-                    <Button class="p-button-outlined p-button-secondary p-button-sm">
-                            {{tag}}
-                        </Button>&nbsp;
-                </span>
-            </td>
-        </template>
+<!--        <template v-else-if="type==='meta_tags'">-->
+<!--            <td colspan="2">-->
+<!--                <span v-for="tag in value ">-->
+<!--                    <Button class="p-button-outlined p-button-secondary p-button-sm">-->
+<!--                            {{tag}}-->
+<!--                        </Button>&nbsp;-->
+<!--                </span>-->
+<!--            </td>-->
+<!--        </template>-->
 
         <template v-else>
             <td  colspan="2">{{value}}</td>

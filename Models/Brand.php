@@ -46,7 +46,6 @@ class Brand extends Model
         'updated_by',
         'deleted_by',
         'image',
-        'meta_title',
         'meta_description',
         'meta_keyword',
     ];
