@@ -260,7 +260,13 @@ const toggleFormMenu = (event) => {
                                  class="p-inputswitch"
                                  name="brands-active"
                                  data-testid="brands-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active"
+                                 :pt="{
+                                        slider: ({ props }) => ({
+                                            class: props.modelValue ? 'bg-green-600' : ' '
+                                        })
+                                 }"
+                    />
                 </VhField>
 
 

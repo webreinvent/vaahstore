@@ -114,6 +114,11 @@ const useVaah = vaah();
                                  data-testid="brands-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
+                                 :pt="{
+                                        slider: ({ props }) => ({
+                                            class: props.modelValue ? 'bg-green-600' : ' '
+                                        })
+                                 }"
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
                 </template>
