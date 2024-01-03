@@ -43,9 +43,7 @@ const permission=store.assets.permission;
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+
                      <Button :disabled="store.countStore(prop.data.products) < 1"
                      @click="store.storeIds(prop.data.products)">{{store.countStore(prop.data.products)}}
                          </Button>
@@ -157,7 +155,8 @@ const permission=store.assets.permission;
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="brands-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at &&
+                             store.assets.permission.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

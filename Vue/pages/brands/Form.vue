@@ -24,7 +24,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-
+const permission=store.assets.permission;
 
 
 </script>
@@ -38,7 +38,8 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="flex flex-row">
-                    <div class="p-panel-title">
+                    <div class="p-panel-title"
+                         :disabled="!store.assets.permission.includes('can-update-module')">
                         <span v-if="store.item && store.item.id">
                             Update
                         </span>
@@ -61,6 +62,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="brands-save"
                             @click="store.itemAction('save')"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -68,6 +70,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="brands-create-and-new"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="brands-document" icon="pi pi-info-circle"
@@ -83,6 +86,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="brands-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -266,6 +270,7 @@ const toggleFormMenu = (event) => {
                                             class: props.modelValue ? 'bg-green-600' : ' '
                                         })
                                  }"
+                                 :disabled="!store.assets.permission.includes('can-update-module')"
                     />
                 </VhField>
 
