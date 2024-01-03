@@ -158,6 +158,7 @@ const toggleItemMenu = (event) => {
                                      ||  column === 'registered_by'
                                      ||  column === 'registered_at'
                                      ||  column === 'approved_by'
+                                     ||  column === 'is_default'
                                      ||  column === 'taxonomy_id_brand_status'
                                      || column ==='approved_at'">
                         </template>
