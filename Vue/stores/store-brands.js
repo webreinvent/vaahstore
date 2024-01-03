@@ -78,7 +78,7 @@ export const useBrandStore = defineStore({
         form_menu_list: [],
         selected_dates : null,
         prev_list:[],
-        current_list:[]
+        current_list:[],
     }),
     getters: {
 
