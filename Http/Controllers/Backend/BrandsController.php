@@ -29,7 +29,7 @@ class BrandsController extends Controller
 
             $data['permission'] = \Auth::user()->permissions(true);
             $data['active_permissions'] = Permission::getActiveItems();
-            Permission::syncPermissionsWithRoles();
+//            Permission::syncPermissionsWithRoles();
 
             $data['rows'] = config('vaahcms.per_page');
 
