@@ -2,6 +2,7 @@
 
 import { useBrandStore } from '../../../stores/store-brands'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useBrandStore();
 </script>

@@ -79,6 +79,8 @@ export const useBrandStore = defineStore({
         selected_dates : null,
         prev_list:[],
         current_list:[],
+        display_meta_modal:false,
+        meta_content:[],
     }),
     getters: {
 
@@ -1167,6 +1169,13 @@ export const useBrandStore = defineStore({
 
             this.item.image = null
         },
+        //---------------------------------------------------------------------
+
+        openModal(item){
+            this.meta_content = JSON.stringify(item,null,2);
+            this.display_meta_modal=true;
+        },
+
         //---------------------------------------------------------------------
         countStore(products){
             if (!Array.isArray(products)) {

@@ -175,10 +175,12 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="slug"
                             />
-                            <VhViewRow label="Brand Logo"
-                                       :value=store.item.image
-                                       type="image_preview"
-                            />
+                            <template v-if="store.item.image">
+                                <VhViewRow label="Brand Logo"
+                                           :value=store.item.image
+                                           type="image_preview"
+                                />
+                            </template>
 
                             <VhViewRow label="Meta Title"
                                        :value=store.item.meta_title
@@ -190,32 +192,55 @@ const toggleItemMenu = (event) => {
                                        type="String"
                             />
 
-<!--                            <VhViewRow label="Meta Keyword"-->
-<!--                                       :value=store.item.meta_keyword-->
-<!--                                       type="meta_tags"-->
-<!--                            />-->
+                            <template v-if="store.item.registered_by_user">
+                                <VhViewRow label="Registered By"
+                                           :value=store.item.registered_by_user.first_name
+                                           type="String"
+                                />
+                                <VhViewRow label="Registered At"
+                                           :value=store.item.registered_by_user.created_at
+                                           type="date"
+                                />
+                            </template>
 
-                            <VhViewRow label="Registered By"
-                                       :value=store.item.registered_by_user.first_name
-                                       type="String"
-                            />
-                            <VhViewRow label="Registered At"
-                                       :value=store.item.registered_by_user.created_at
-                                       type="date"
-                            />
-                            <VhViewRow label="Approved By"
-                                       :value=store.item.approved_by_user.first_name
-                                       type="String"
-                            />
-                            <VhViewRow label="Approved At"
-                                       :value=store.item.approved_by_user.created_at
-                                       type="name"
-                            />
+                            <template v-if="store.item.approved_by_user">
+                                <VhViewRow label="Approved By"
+                                           :value=store.item.approved_by_user.first_name
+                                           type="String"
+                                />
+                                <VhViewRow label="Approved At"
+                                           :value=store.item.approved_by_user.created_at
+                                           type="name"
+                                />
+                            </template>
 
-                            <VhViewRow label="Status"
+
+                            <VhViewRow v-if="store.item.status" label="Status"
                                        :value=store.item.status.name
                                        type="String"
                             />
+                        </template>
+
+                        <template v-else-if="column === 'meta'">
+                            <tr>
+                                <td><b>Meta</b></td>
+                                <td v-if="value">
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal(value)"
+                                            data-testid="meta-open_modal"
+                                    />
+                                </td>
+                            </tr>
+
+                            <Dialog header="Meta"
+                                    v-model:visible="store.display_meta_modal"
+                                    :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+                                    :style="{width: '50vw'}" :modal="true"
+                            >
+                                <p class="m-0" v-html="'<pre>'+store.meta_content+'<pre>'"></p>
+                            </Dialog>
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
