@@ -5,7 +5,7 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Brand;
 use WebReinvent\VaahCms\Entities\User;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\Permission;
 
 class BrandsController extends Controller
 {
@@ -22,11 +22,15 @@ class BrandsController extends Controller
     public function getAssets(Request $request)
     {
 
+
         try{
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permission'] = \Auth::user()->permissions(true);
+            $data['active_permissions'] = Permission::getActiveItems();
+            Permission::syncPermissionsWithRoles();
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Brand::getFillableColumns();
