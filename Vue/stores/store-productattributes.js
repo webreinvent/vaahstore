@@ -71,7 +71,9 @@ export const useProductAttributeStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        selected_dates:null
+        selected_dates:null,
+        filter_selected_product_variation : null,
+        filter_selected_attribute : null,
     }),
     getters: {
 
@@ -733,6 +735,9 @@ export const useProductAttributeStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.filter_selected_product_variation = null;
+            this.filter_selected_attribute = null;
+            this.selected_dates = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------

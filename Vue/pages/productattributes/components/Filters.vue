@@ -28,7 +28,7 @@ const store = useProductAttributeStore();
                     <b>Product Variation:</b>
                 </template>
 
-                <AutoComplete v-model="store.query.filter.product_variation"
+                <AutoComplete v-model="store.filter_selected_product_variation"
                               class="w-full"
                               data-testid="productattributes-product-variation-filter"
                               :suggestions="store.filtered_product_variations"
@@ -36,6 +36,7 @@ const store = useProductAttributeStore();
                               @change="store.setProductVariationFilter($event)"
                               :dropdown="true"
                               optionLabel="name"
+                              optionValue="slug"
                               placeholder="Select Product variation"
                               forceSelection>
                 </AutoComplete>
@@ -47,7 +48,7 @@ const store = useProductAttributeStore();
                     <b>Attribute:</b>
                 </template>
 
-                <AutoComplete v-model="store.query.filter.attributes"
+                <AutoComplete v-model="store.filter_selected_attribute"
                               class="w-full"
                               placeholder="Select Attributes"
                               data-testid="productattributes-attributes-filter"
