@@ -7,7 +7,7 @@ import { useBrandStore } from '../../stores/store-brands'
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useBrandStore();
 const route = useRoute();
-
+const permission=store.assets.permission;
 onMounted(async () => {
 
     /**
@@ -85,6 +85,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             data-testid="brands-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -93,6 +94,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         data-testid="brands-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -132,6 +134,7 @@ const toggleItemMenu = (event) => {
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="brands-item-restore"
+                                    :disabled="!store.assets.permission.includes('can-update-module')"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
