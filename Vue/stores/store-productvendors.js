@@ -298,6 +298,7 @@ export const useProductVendorStore = defineStore({
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
                 this.active_products = data.active_products;
+                this.default_store = data.active_stores.filter(store => store.is_default === 1);
                 this.active_product_variation = data.active_product_variations
 
                 if(data.rows)
@@ -350,9 +351,6 @@ export const useProductVendorStore = defineStore({
                 this.item.taxonomy_id_product_vendor_status = data.status;
 
                 this.item.vh_st_product_variation_id = data.product_variation;
-                if(data.store_vendor_product.length != 0){
-                    this.getProductsListForStore();
-                }
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -572,6 +570,9 @@ export const useProductVendorStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    if (this.default_store && this.default_store.length > 0) {
+                        this.item.store_vendor_product = [this.default_store[0]];
+                    }
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -1118,6 +1119,9 @@ export const useProductVendorStore = defineStore({
             },)
 
             this.form_menu_list = form_menu;
+            if (!this.item.store_vendor_product) {
+                this.item.store_vendor_product = this.default_store;
+            }
 
         },
 

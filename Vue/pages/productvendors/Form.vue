@@ -16,10 +16,6 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
-
-    if (!store.item.store_vendor_product) {
-        store.item.store_vendor_product = store.assets.active_stores.filter(store => store.is_default === 1);
-    }
     await store.getProductsListForStore();
 });
 
