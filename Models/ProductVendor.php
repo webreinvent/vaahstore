@@ -865,6 +865,28 @@ class ProductVendor extends Model
 
     }
     //-------------------------------------------------
+    public static function seedSampleItems($records=100)
+    {
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            $item->storeVendorProduct()->attach(
+                $inputs['vh_st_store_id']
+            );
+
+            $i++;
+
+        }
+
+    }
+    //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
         $request = new Request([
