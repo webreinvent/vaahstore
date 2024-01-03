@@ -12,12 +12,13 @@ use Intervention\Image\Facades\Image;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Http\Controllers\MediaController;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
-class ProductMedia extends Model
+class ProductMedia extends VaahModel
 {
 
     use SoftDeletes;

@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use VaahCms\Modules\Store\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
-class Warehouse extends Model
+class Warehouse extends VaahModel
 {
 
     use SoftDeletes;

@@ -9,12 +9,13 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\TaxonomyType;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 
-class Brand extends Model
+class Brand extends VaahModel
 {
 
     use SoftDeletes;
