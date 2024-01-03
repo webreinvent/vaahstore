@@ -40,7 +40,7 @@ const permission=store.assets.permission;
             </Column>
 
              <Column field="store_count" header="Store"
-                     :sortable="true">
+                     :sortable="false">
 
                  <template #body="prop">
 
@@ -74,9 +74,7 @@ const permission=store.assets.permission;
              <Column field="status.name" header="Status"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
+                     
                      <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"

@@ -163,7 +163,9 @@ const toggleItemMenu = (event) => {
                                      ||  column === 'approved_by'
                                      ||  column === 'is_default'
                                      ||  column === 'taxonomy_id_brand_status'
-                                     || column ==='approved_at'">
+                                     || column ==='approved_at'
+                                     || column ==='deleted_by'
+                                        ">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
