@@ -4,7 +4,7 @@ import { useBrandStore } from '../../../stores/store-brands'
 
 const store = useBrandStore();
 const useVaah = vaah();
-
+const permission=store.assets.permission;
 </script>
 
 <template>
@@ -117,6 +117,7 @@ const useVaah = vaah();
                                             class: props.modelValue ? 'bg-green-600' : ' '
                                         })
                                  }"
+                                 :disabled="!store.assets.permission.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
                 </template>
@@ -137,7 +138,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="brands-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
@@ -146,7 +148,8 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="brands-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at &&
+                                store.assets.permission.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
