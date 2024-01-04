@@ -607,6 +607,7 @@ class ProductPrice extends VaahModel
 
     }
 
+    //-------------------------------------------------
 
     public static function deleteProductVariation($items_id){
 
