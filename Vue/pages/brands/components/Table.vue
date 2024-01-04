@@ -39,13 +39,13 @@ const permission=store.assets.permission;
 
             </Column>
 
-             <Column field="store_count" header="Store"
+             <Column field="products" header="Store"
                      :sortable="false">
 
                  <template #body="prop">
 
                      <Button :disabled="store.countStore(prop.data.products) < 1"
-                     @click="store.storeIds(prop.data.products)">{{store.countStore(prop.data.products)}}
+                     @click="store.storeIds(prop.data.products)">{{(store.countStore((prop.data.products)))}}
                          </Button>
                  </template>
 

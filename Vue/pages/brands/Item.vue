@@ -187,15 +187,6 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
-                            <VhViewRow label="Meta Title"
-                                       :value=store.item.meta_title
-                                       type="String"
-                            />
-
-                            <VhViewRow label="Meta Description"
-                                       :value=store.item.meta_description
-                                       type="String"
-                            />
 
                             <template v-if="store.item.registered_by_user">
                                 <VhViewRow label="Registered By"
@@ -239,12 +230,14 @@ const toggleItemMenu = (event) => {
                                 </td>
                             </tr>
 
-                            <Dialog header="Meta"
+                            <Dialog header="Meta Fields"
                                     v-model:visible="store.display_meta_modal"
                                     :breakpoints="{'960px': '75vw', '640px': '90vw'}"
                                     :style="{width: '50vw'}" :modal="true"
                             >
-                                <p class="m-0" v-html="'<pre>'+store.meta_content+'<pre>'"></p>
+                                <span class="font-bold">Meta</span> <p  class="" v-html="'<pre>'+store.meta_content+'<pre>'"></p>
+                                <div class="mb-4"><span class="font-bold">Meta Title</span><p>{{store.item.meta_title}}</p></div>
+                                <div><span class="font-bold">Meta Description</span><p>{{store.item.meta_description}}</p></div>
                             </Dialog>
                         </template>
 
