@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref,} from 'vue';
+import {reactive, ref} from 'vue';
 import Menu from 'primevue/menu';
 import {useRoute} from "vue-router";
 const route =useRoute()
@@ -19,12 +19,6 @@ const selected_page = ref({
         route.matched[1].path === props.item.route ? 'p-focus' : ''
     })
 });
-
-
-
-
-// console.log('test',route.matched)
-// console.log(route.matched);
 
 const items = ref([
     {
