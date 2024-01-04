@@ -15,7 +15,7 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use Illuminate\Support\Facades\DB;
 
-class Brand extends VaahModel
+class Brand extends Model
 {
 
     use SoftDeletes;
