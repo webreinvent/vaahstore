@@ -199,7 +199,7 @@ const props = defineProps({
 
                 <template v-if="value !== null">
 
-                    <pre class="pre-tag" stye="font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;"> {{value}}</pre>
+                    <pre class="pre-tag"> {{value}}</pre>
                 </template>
             </td>
         </template>
