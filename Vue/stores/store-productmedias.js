@@ -666,12 +666,17 @@ export const useProductMediaStore = defineStore({
         },
         //---------------------------------------------------------------------
         getFormInputsAfter: function (data, res) {
-            if(data)
-            {
+
+            if (data) {
+                this.item.images = [data.fill.images];
+
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
-                    self.item[key] = data.fill[key];
+                    if (key !== 'images') {
+                        self.item[key] = data.fill[key];
+                    }
                 });
+                // this.onImageUpload();
             }
         },
 
