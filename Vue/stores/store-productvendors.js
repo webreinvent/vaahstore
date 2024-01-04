@@ -88,7 +88,9 @@ export const useProductVendorStore = defineStore({
         active_users_list:null,
         active_vendors_list:null,
         prev_list:[],
-        current_list:[]
+        current_list:[],
+        selected_dates:[],
+        date_null:null
 
     }),
     getters: {
@@ -598,6 +600,7 @@ export const useProductVendorStore = defineStore({
                     this.toList();
                     break;
             }
+            this.$router.push({name: 'productvendors.form'});
         },
         //---------------------------------------------------------------------
         async toggleIsActive(item)
@@ -772,6 +775,7 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
