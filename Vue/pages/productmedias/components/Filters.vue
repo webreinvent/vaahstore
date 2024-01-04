@@ -70,6 +70,24 @@ const store = useProductMediaStore();
 
             </VhFieldVertical>
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Created Between:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose date range"
+
+                />
+
+
+            </VhFieldVertical >
+
+
             <Divider/>
 
             <VhFieldVertical >

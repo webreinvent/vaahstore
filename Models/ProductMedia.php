@@ -371,6 +371,28 @@ class ProductMedia extends VaahModel
     }
 
     //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+    //-------------------------------------------------
 
 
     public static function getList($request)
@@ -382,6 +404,7 @@ class ProductMedia extends VaahModel
         $list->statusFilter($request->filter);
         $list->productVariationFilter($request->filter);
         $list->productFilter($request->filter);
+        $list->dateFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
