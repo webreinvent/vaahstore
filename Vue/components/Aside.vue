@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref,} from 'vue';
+import {reactive, ref} from 'vue';
 import Menu from 'primevue/menu';
 import {useRoute} from "vue-router";
 const route =useRoute()
@@ -19,12 +19,6 @@ const selected_page = ref({
         route.matched[1].path === props.item.route ? 'p-focus' : ''
     })
 });
-
-
-
-
-// console.log('test',route.matched)
-// console.log(route.matched);
 
 const items = ref([
     {
@@ -123,22 +117,6 @@ const items = ref([
         ]
     },
 ]);
-
-const updateSelectedItem = () => {
-    const parts = route.path.split('/');
-    const value = parts[1];
-
-    items.value.forEach((item) => {
-        item.items.forEach((sub_item) => {
-            const sub_item_to = sub_item.to.replace(/^\//, '');
-            sub_item.style = sub_item_to === value ? { 'background': '#e5e7eb' } : {};
-        });
-    });
-};
-
-watch(() => route.path, updateSelectedItem);
-
-onMounted(updateSelectedItem);
 </script>
 <template>
 
