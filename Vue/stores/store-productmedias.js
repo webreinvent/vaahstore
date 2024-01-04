@@ -533,6 +533,7 @@ export const useProductMediaStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -583,6 +584,10 @@ export const useProductMediaStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.$router.push({name: 'productmedias.form'})
+                    vaah().toastSuccess(['Action Was Successful']);
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -1067,6 +1072,14 @@ export const useProductMediaStore = defineStore({
 
                             this.itemAction('save-and-clone');
 
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
                     {
