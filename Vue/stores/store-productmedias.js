@@ -21,7 +21,7 @@ let empty_states = {
             sort: null,
             media_status:null,
             product_variation:null,
-            selected_dates:null,
+            date:null,
         },
     },
     action: {
@@ -77,6 +77,8 @@ export const useProductMediaStore = defineStore({
         product_suggestion:null,
         form_menu_list: [],
         selectedFiles:null,
+        selected_dates:[],
+        date_null:null
     }),
     getters: {
 
@@ -781,7 +783,6 @@ export const useProductMediaStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
             //reload page list
             await this.getList();
             vaah().toastSuccess(['Action was successful']);
@@ -790,6 +791,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
