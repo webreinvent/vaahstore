@@ -238,6 +238,7 @@ const permission=store.assets.permission;
                             />
                             <VhViewRow label="Description"
                                        :value="store.item.description"
+                                       type="description"
 
                             />
                             <tr>
