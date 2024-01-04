@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
@@ -15,7 +16,7 @@ use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
-class ProductVendor extends Model
+class ProductVendor extends VaahModel
 {
 
     use SoftDeletes;
