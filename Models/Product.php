@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -130,6 +131,14 @@ class Product extends VaahModel
     }
     //-------------------------------------------------
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')
+            ->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
+
     public function store()
     {
         return $this->belongsTo(Store::class,'vh_st_store_id','id')->select('id','name','slug', 'is_default');
@@ -169,7 +178,8 @@ class Product extends VaahModel
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
             ->where('vh_st_product_vendors.is_active', 1)
-            ->select();
+            ->select()
+            ->with('vendor');
     }
 
     //-------------------------------------------------
@@ -555,28 +565,6 @@ class Product extends VaahModel
     }
     //-------------------------------------------------
 
-    public function scopeProductVariationFilter($query, $filter)
-    {
-
-        if(!isset($filter['product_variations'])
-            || is_null($filter['product_variations'])
-            || $filter['product_variations'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $product_variations = $filter['product_variations'];
-
-        $query->whereHas('productVariations', function ($query) use ($product_variations) {
-            $query->whereIn('slug', $product_variations);
-
-        });
-
-    }
-
-    //-------------------------------------------------
-
     public function scopeSearchFilter($query, $filter)
     {
 
@@ -610,6 +598,7 @@ class Product extends VaahModel
         $list->statusFilter($request->filter);
         $list->quantityFilter($request->filter);
         $list->productVariationFilter($request->filter);
+        $list->vendorFilter($request->filter);
         $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -1245,5 +1234,78 @@ class Product extends VaahModel
         return $response;
 
     }
+
+    //-------------------------------------------------
+
+    public static function searchVendor($request)
+    {
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $vendors = Vendor::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $vendors = Vendor::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeVendorFilter($query, $filter)
+    {
+
+        if(!isset($filter['vendors'])
+            || is_null($filter['vendors'])
+            || $filter['vendors'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $vendors = $filter['vendors'];
+
+        $query->whereHas('productVendors.vendor', function ($query) use ($vendors) {
+            $query->whereIn('slug', $vendors);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variations'])
+            || is_null($filter['product_variations'])
+            || $filter['product_variations'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product_variations = $filter['product_variations'];
+
+        $query->whereHas('productVariations', function ($query) use ($product_variations) {
+            $query->whereIn('slug', $product_variations);
+
+        });
+
+    }
+
 
 }

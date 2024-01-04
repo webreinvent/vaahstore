@@ -33,19 +33,19 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Product Vendor:</b>
+                    <b>Vendor:</b>
                 </template>
-                <AutoComplete name="products-store-filter"
-                              data-testid="products-store-filter"
-                              v-model="store.query.filter.store"
-                              @change="store.setFilterStore($event)"
+
+                <AutoComplete name="products-vendor-filter"
+                              data-testid="products-vendor-filter"
+                              v-model="store.selected_vendors"
+                              @change = "store.addProductVendor()"
                               option-label = "name"
+                              multiple
                               :complete-on-focus = "true"
-                              :suggestions="store.filtered_stores"
-                              @complete="store.searchStore"
-                              :dropdown="true"
-                              optionLabel="name"
-                />
+                              :suggestions="store.filtered_vendors"
+                              @complete="store.searchProductVendor"
+                              class="w-full " />
 
             </VhFieldVertical>
 

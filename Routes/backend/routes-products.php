@@ -128,6 +128,14 @@ function () {
     Route::post('/search/product-variation', 'ProductsController@searchProductVariation')
         ->name('vh.backend.store.products.search.productvariation');
 
+    /**
+     * Search Product vendor
+     */
+    Route::post('/search/product-vendor', 'ProductsController@searchVendor')
+        ->name('vh.backend.store.products.search.productvendor');
+
+
+
     //---------------------------------------------------------
 
 });

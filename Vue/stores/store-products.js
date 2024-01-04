@@ -101,6 +101,8 @@ export const useProductStore = defineStore({
         selected_dates : null,
         filtered_product_variations : null,
         selected_product_variations : null,
+        selected_vendors : null,
+        filtered_vendors : null,
     }),
     getters: {
 
@@ -1250,6 +1252,7 @@ export const useProductStore = defineStore({
             await this.resetQueryString();
             this.searched_store = null;
             this.selected_product_variations = null;
+            this.selected_vendors = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
@@ -1755,6 +1758,57 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        addProductVendor() {
+
+            const unique_vendors = [];
+            const check_names = new Set();
+
+            for (const product_vendors of this.selected_vendors) {
+                if (!check_names.has(product_vendors.name)) {
+                    unique_vendors.push(product_vendors);
+                    check_names.add(product_vendors.name);
+                }
+            }
+            const product_vendors_slugs = unique_vendors.map(vendors => vendors.slug);
+            this.selected_vendors = unique_vendors;
+            this.query.filter.vendors = product_vendors_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
+
+
+        async searchProductVendor(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/product-vendor',
+                this.searchProductVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVendorAfter(data, res) {
+
+            if (data) {
+                this.filtered_vendors = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
 
     }
 });
