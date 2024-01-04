@@ -20,6 +20,8 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_variations : null,
+            vendors : null,
+            store : null,
         },
     },
     action: {
@@ -103,6 +105,7 @@ export const useProductStore = defineStore({
         selected_product_variations : null,
         selected_vendors : null,
         filtered_vendors : null,
+        filter_selected_store : null,
     }),
     getters: {
 
@@ -322,12 +325,8 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         setFilterStore(event) {
-
             let store = toRaw(event.value);
-            if(store.slug)
-            {
-                this.query.filter.store = store.slug;
-            }
+            this.query.filter.store = store.slug;
         },
 
         //---------------------------------------------------------------------

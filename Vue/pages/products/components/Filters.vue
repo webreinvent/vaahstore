@@ -54,17 +54,21 @@ const store = useProductStore();
                     <b>Store:</b>
                 </template>
 
-                <AutoComplete name="products-store-filter"
-                              data-testid="products-store-filter"
-                              v-model="store.query.filter.store"
-                              @change="store.setFilterStore($event)"
-                              option-label = "name"
-                              :complete-on-focus = "true"
-                              :suggestions="store.filtered_stores"
-                              @complete="store.searchStore"
-                              :dropdown="true"
-                              optionLabel="name"
-                              />
+                <VhField label="Store*">
+
+                    <AutoComplete
+                        v-model="store.filter_selected_store"
+                        @change="store.setFilterStore($event)"
+                        class="w-full"
+                        :suggestions="store.filtered_stores"
+                        @complete="store.searchStore"
+                        placeholder="Select Store"
+                        data-testid="products-filter-store"
+                        name="products-filter-store"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
+
+                </VhField>
 
             </VhFieldVertical>
 
@@ -96,24 +100,7 @@ const store = useProductStore();
                 </div>
 
             </VhFieldVertical>
-            <VhFieldVertical >
-                <template #label>
-                    <b>Quantity:</b>
-                </template>
 
-                <VhField label="Quantity">
-                    <InputNumber
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        name="products-quantity"
-                        v-model="store.query.filter.quantity"
-                        @input = "store.updateQuantityFilter($event)"
-                        showButtons
-                        :min="0"
-                        data-testid="products-quantity"/>
-                </VhField>
-
-            </VhFieldVertical>
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>

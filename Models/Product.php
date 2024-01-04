@@ -599,6 +599,7 @@ class Product extends VaahModel
         $list->quantityFilter($request->filter);
         $list->productVariationFilter($request->filter);
         $list->vendorFilter($request->filter);
+        $list->storeFilter($request->filter);
         $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -1306,6 +1307,26 @@ class Product extends VaahModel
         });
 
     }
+
+    //-------------------------------------------------
+
+    public function scopeStoreFilter($query, $filter)
+    {
+        if(!isset($filter['store'])
+            || is_null($filter['store'])
+            || $filter['store'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $store = $filter['store'];
+        $query->whereHas('store', function ($query) use ($store) {
+            $query->where('slug', $store);
+        });
+
+    }
+
 
 
 }
