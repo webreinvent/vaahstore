@@ -753,6 +753,8 @@ export const useProductMediaStore = defineStore({
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action was successful']);
+            return false;
         },
         //---------------------------------------------------------------------
         async resetQueryString()
