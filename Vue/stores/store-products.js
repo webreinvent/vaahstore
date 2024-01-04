@@ -961,6 +961,7 @@ export const useProductStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -1025,6 +1026,10 @@ export const useProductStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'products.index'});
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'products.form'});
+                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
@@ -1032,6 +1037,9 @@ export const useProductStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -1567,6 +1575,15 @@ export const useProductStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-clone');
+
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
 
                         }
                     },

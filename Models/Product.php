@@ -1208,7 +1208,7 @@ class Product extends VaahModel
         return $query->whereBetween('created_at', [$from, $to]);
 
     }
-    
+
     //-------------------------------------------------
 
 
