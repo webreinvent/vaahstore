@@ -222,6 +222,12 @@ const permission=store.assets.permission;
                                     <badge>{{store.item.quantity}}</badge>
                                 </td>
                             </tr>
+                            <tr>
+                                <td><b>Price</b></td>
+                                <td  colspan="2" >
+                                    <badge>{{store.item.per_unit_price}}</badge>
+                                </td>
+                            </tr>
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
@@ -234,6 +240,13 @@ const permission=store.assets.permission;
                                        :value="store.item.description"
 
                             />
+                            <tr>
+                                <td><b>Is Default</b></td>
+                                <td colspan="2">
+                                    <Badge value="Yes" v-if="store.item.is_default===1 || value=='yes'" severity="success"></Badge>
+                                    <Badge v-else value="No" severity="danger"></Badge>
+                                </td>
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'has_media'">
@@ -243,12 +256,12 @@ const permission=store.assets.permission;
                             />
                         </template>
 
-                        <template v-else-if="column === 'is_default'">
+<!--                        <template v-else-if="column === 'is_default'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
                             />
-                        </template>
+                        </template>-->
 
                         <template v-else-if="column === 'vh_st_product_id'">
                             <VhViewRow label="Product"
