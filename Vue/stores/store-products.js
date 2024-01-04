@@ -19,6 +19,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product_variations : null,
         },
     },
     action: {
@@ -98,6 +99,8 @@ export const useProductStore = defineStore({
         form_menu_list: [],
         searched_stored : null,
         selected_dates : null,
+        filtered_product_variations : null,
+        selected_product_variations : null,
     }),
     getters: {
 
@@ -151,6 +154,37 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        async searchProductVariation(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/product-variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVariationAfter(data, res) {
+
+            if (data) {
+                this.filtered_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
         async searchStore(event) {
             const query = {
                 filter: {
@@ -1215,6 +1249,7 @@ export const useProductStore = defineStore({
             //reset query strings
             await this.resetQueryString();
             this.searched_store = null;
+            this.selected_product_variations = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
@@ -1702,6 +1737,24 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
+        addProductVariation() {
+
+            const unique_product_variations = [];
+            const check_names = new Set();
+
+            for (const product_variations of this.selected_product_variations) {
+                if (!check_names.has(product_variations.name)) {
+                    unique_product_variations.push(product_variations);
+                    check_names.add(product_variations.name);
+                }
+            }
+            const product_variations_slugs = unique_product_variations.map(variation => variation.slug);
+            this.selected_product_variations = unique_product_variations;
+            this.query.filter.product_variations = product_variations_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
 
     }
 });

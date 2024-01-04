@@ -15,6 +15,42 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Product Variation:</b>
+                </template>
+
+                <AutoComplete name="products-variation-filter"
+                              data-testid="products-variation-filter"
+                              v-model="store.selected_product_variations"
+                              @change = "store.addProductVariation()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_product_variations"
+                              @complete="store.searchProductVariation"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Vendor:</b>
+                </template>
+                <AutoComplete name="products-store-filter"
+                              data-testid="products-store-filter"
+                              v-model="store.query.filter.store"
+                              @change="store.setFilterStore($event)"
+                              option-label = "name"
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_stores"
+                              @complete="store.searchStore"
+                              :dropdown="true"
+                              optionLabel="name"
+                />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Store:</b>
                 </template>
 

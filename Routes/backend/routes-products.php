@@ -122,6 +122,12 @@ function () {
     Route::get('/{id}/bulk-remove/vendor', 'ProductsController@bulkRemoveVendor')
         ->name('vh.backend.store.products.remove.bulk.vendor');
 
+    /**
+     * Search Product variation
+     */
+    Route::post('/search/product-variation', 'ProductsController@searchProductVariation')
+        ->name('vh.backend.store.products.search.productvariation');
+
     //---------------------------------------------------------
 
 });

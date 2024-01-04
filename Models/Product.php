@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\ProductVariation;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -156,7 +157,7 @@ class Product extends VaahModel
             'vh_st_product_variation_id');
     }
     //-------------------------------------------------
-    public function variationCount()
+    public function productVariations()
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
             ->where('vh_st_product_variations.is_active', 1)
@@ -554,22 +555,21 @@ class Product extends VaahModel
     }
     //-------------------------------------------------
 
-    public function scopeStoreFilter($query, $filter)
+    public function scopeProductVariationFilter($query, $filter)
     {
 
-
-        if(!isset($filter['store'])
-            || is_null($filter['store'])
-            || $filter['store'] === 'null'
+        if(!isset($filter['product_variations'])
+            || is_null($filter['product_variations'])
+            || $filter['product_variations'] === 'null'
         )
         {
             return $query;
         }
 
-        $store = $filter['store'];
+        $product_variations = $filter['product_variations'];
 
-        $query->whereHas('store', function ($query) use ($store) {
-            $query->where('slug', $store);
+        $query->whereHas('productVariations', function ($query) use ($product_variations) {
+            $query->whereIn('slug', $product_variations);
 
         });
 
@@ -602,14 +602,14 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
 
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->quantityFilter($request->filter);
-        $list->storeFilter($request->filter);
+        $list->productVariationFilter($request->filter);
         $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -1220,6 +1220,30 @@ class Product extends VaahModel
 
     //-------------------------------------------------
 
+    public static function searchProductVariation($request)
+    {
+        $query = $request['filter']['q']['query'];
 
+        if($query === null)
+        {
+            $product_variations = ProductVariation::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $product_variations = ProductVariation::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+        return $response;
+
+    }
 
 }

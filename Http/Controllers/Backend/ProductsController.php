@@ -417,7 +417,7 @@ class ProductsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
-        
+
         try{
             return Product::listAction($request, $type);
         }catch (\Exception $e){
@@ -618,6 +618,30 @@ class ProductsController extends Controller
         }
     }
     //----------------------------------------------------------
+
+    public function searchProductVariation(Request $request)
+    {
+        try {
+
+            return Product::searchProductVariation($request);
+        }
+        catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+
+            }
+            return $response;
+        }
+
+    }
+
+    //----------------------------------------------------------
+
 
 
 }
