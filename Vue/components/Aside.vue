@@ -18,119 +18,121 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                to: "/stores",
+                route: "/stores",
             },
             {
                 label: 'Store Payment Methods',
                 icon: 'fa-regular fa-credit-card',
-                to: "/storepaymentmethods"
+                route: "/storepaymentmethods"
             },
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                to: "/vendors",
+                route: "/vendors",
             },
             {
                 label: 'Vendor Products',
                 icon: 'fa-regular fa-clone',
-                to: "/productvendors"
+                route: "/productvendors"
             },
             {
                 label: 'Products',
                 icon: 'fa-regular fa-clone',
-                to: "/products"
+                route: "/products"
             },
             {
                 label: 'Product Variations',
                 icon: 'fa-regular fa-clone',
-                to: "/productvariations"
+                route: "/productvariations"
             },
             {
                 label: 'Product Attributes',
                 icon: 'fa-regular fa-clone',
-                to: "/productattributes"
+                route: "/productattributes"
             },
             {
                 label: 'Product Medias',
                 icon: 'fa-regular fa-image',
-                to: "/productmedias"
+                route: "/productmedias"
             },
             {
                 label: 'Product Stocks',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/productstocks"
+                route: "/productstocks"
             },
             {
                 label: 'Brands',
                 icon: 'fa-regular fa-copyright',
-                to: "/brands"
+                route: "/brands"
             },
             {
                 label: 'Warehouses',
                 icon: 'fa-regular fa-building',
-                to: "/warehouses"
+                route: "/warehouses"
             },
             {
                 label: 'Attributes',
                 icon: 'fa-regular fa-folder',
-                to: "/attributes"
+                route: "/attributes"
             },
             {
                 label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
-                to: "/attributegroups"
+                route: "/attributegroups"
             },
             {
                 label: 'Orders',
                 icon: 'fa-regular fa-check-square',
-                to: "/orders"
+                route: "/orders"
             },
             {
                 label: 'Payment Methods',
                 icon: 'fa-regular fa-dollar',
-                to: "/paymentmethods"
+                route: "/paymentmethods"
             },
             {
                 label: 'Addresses',
                 icon: 'fa-regular fa-address-card',
-                to: "/addresses"
+                route: "/addresses"
             },
             {
                 label: 'Customer Groups',
                 icon: 'fa-regular fa-user',
-                to: "/customergroups"
+                route: "/customergroups"
             },
             {
                 label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
-                to: "/whishlists"
+                route: "/whishlists"
             },
         ]
     },
 ]);
+const menu_pt = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
 
-const updateSelectedItem = () => {
-    const parts = route.path.split('/');
-    const value = parts[1];
-
-    items.value.forEach((item) => {
-        item.items.forEach((sub_item) => {
-            const sub_item_to = sub_item.to.replace(/^\//, '');
-            sub_item.style = sub_item_to === value ? { 'background': '#e5e7eb' } : {};
-        });
-    });
-};
-
-watch(() => route.path, updateSelectedItem);
-
-onMounted(updateSelectedItem);
 </script>
 <template>
 
     <div v-if="height">
-        <Menu class="col-12" :model="items" />
+        <Menu :model="items" :pt="menu_pt"  class="w-full" >
+            <template #item="{ item, props }">
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom :class="props.class">
+                    <a v-ripple :href="href" v-bind="props.action" @click="navigate">
+                        <span :class="item.icon" />
+                        <span class="ml-2">{{ item.label }}</span>
+                    </a>
+                </router-link>
+                <a v-else v-ripple :href="item.url" :target="item.target" :class="props.class">
+                    <span :class="item.icon" />
+                    <span class="ml-2">{{ item.label }}</span>
+                </a>
+            </template>
+        </Menu>
     </div>
 
 </template>
-
-
