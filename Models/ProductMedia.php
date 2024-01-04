@@ -1014,6 +1014,16 @@ class ProductMedia extends Model
         $inputs['taxonomy_id_product_media_status'] = $status_id;
         $inputs['status']=$status;
 
+
+        $image_data = ProductMediaImage::inRandomOrder()->get()->toArray();
+        $random_index = array_rand($image_data);
+        $random_image = $image_data[$random_index];
+        $inputs['images'] = $random_image;
+
+
+
+
+
         $faker = Factory::create();
 
         /*
