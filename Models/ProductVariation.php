@@ -341,35 +341,6 @@ class ProductVariation extends VaahModel
         }
 
     }
-    //-------------------------------------------------
-
-    public function scopeInStockFilter($query, $filter)
-    {
-
-        if(!isset($filter['in_stock'])
-            || is_null($filter['in_stock'])
-            || $filter['in_stock'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $in_stock = $filter['in_stock'];
-
-        if($in_stock == 'true')
-        {
-            return $query->where(function ($q){
-                $q->Where('in_stock', 1);
-            });
-        }
-        else{
-            return $query->where(function ($q){
-                $q->whereNull('in_stock')
-                    ->orWhere('in_stock', 0);
-            });
-        }
-
-    }
 
     //-------------------------------------------------
 
@@ -443,6 +414,30 @@ class ProductVariation extends VaahModel
     }
 
 
+
+    //-------------------------------------------------
+
+    public function scopeStockFilter($query, $filter)
+    {
+        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+
+        if ($in_stock === 'false') {
+            $query->where(function ($query) {
+                $query->where('in_stock', false)->orWhere('quantity', 0);
+            });
+        } elseif ($in_stock === 'true') {
+            $query->where('in_stock', true)->where('quantity', '>', 1);
+        }
+
+        return $query;
+    }
+
+
+
     //-------------------------------------------------
     public function scopeDateRangeFilter($query, $filter)
     {
@@ -477,6 +472,8 @@ class ProductVariation extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->stockFilter($request->filter);
+        $list->defaultFilter($request->filter);
         $list->dateRangeFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
