@@ -51,6 +51,24 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Brand:</b>
+                </template>
+
+                <AutoComplete name="products-brand-filter"
+                              data-testid="products-brand-filter"
+                              v-model="store.filter_selected_brands"
+                              @change = "store.addFilterBrand()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_brands"
+                              @complete="store.searchBrand"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Store:</b>
                 </template>
 

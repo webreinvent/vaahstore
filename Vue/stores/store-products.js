@@ -106,6 +106,7 @@ export const useProductStore = defineStore({
         selected_vendors : null,
         filtered_vendors : null,
         filter_selected_store : null,
+        filter_selected_brands : null,
     }),
     getters: {
 
@@ -1777,6 +1778,24 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        addFilterBrand() {
+
+            const unique_brands = [];
+            const check_names = new Set();
+
+            for (const brands of this.filter_selected_brands) {
+                if (!check_names.has(brands.name)) {
+                    unique_brands.push(brands);
+                    check_names.add(brands.name);
+                }
+            }
+            const brands_slugs = unique_brands.map(brands => brands.slug);
+            this.filter_selected_brands = unique_brands;
+            this.query.filter.brands = brands_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
 
         async searchProductVendor(event) {
             const query = {

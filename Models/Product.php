@@ -591,7 +591,6 @@ class Product extends VaahModel
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
-
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -600,8 +599,9 @@ class Product extends VaahModel
         $list->productVariationFilter($request->filter);
         $list->vendorFilter($request->filter);
         $list->storeFilter($request->filter);
+        $list->brandFilter($request->filter);
         $list->dateFilter($request->filter);
-
+        $list->brandFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1308,7 +1308,7 @@ class Product extends VaahModel
 
     }
 
-    //-------------------------------------------------
+    //----------------------------------------------------
 
     public function scopeStoreFilter($query, $filter)
     {
@@ -1327,6 +1327,25 @@ class Product extends VaahModel
 
     }
 
+    //-------------------------------------------------
 
+    public function scopeBrandFilter($query, $filter)
+    {
+        if(!isset($filter['brands'])
+            || is_null($filter['brands'])
+            || $filter['brands'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $brand = $filter['brands'];
+        $query->whereHas('brand', function ($query) use ($brand) {
+            $query->whereIn('slug', $brand);
+        });
+
+    }
+
+    
 
 }
