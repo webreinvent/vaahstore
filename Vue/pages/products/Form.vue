@@ -248,7 +248,7 @@ const toggleFormMenu = (event) => {
                         v-bind:true-value="1"
                         name="products-is-home-featured"
                         data-testid="products-is-home-featured"
-                        v-model="store.item.is_featured_on_home"/>
+                        v-model="store.item.is_featured_on_home_page"/>
                 </VhField>
 
                 <VhField label="Featured on Category page">
@@ -257,7 +257,7 @@ const toggleFormMenu = (event) => {
                         v-bind:true-value="1"
                         name="products-is-category-featured"
                         data-testid="products-is-category-featured"
-                        v-model="store.item.is_featured_on_category"/>
+                        v-model="store.item.is_featured_on_category_page"/>
                 </VhField>
 
                 <VhField label="Product Details">

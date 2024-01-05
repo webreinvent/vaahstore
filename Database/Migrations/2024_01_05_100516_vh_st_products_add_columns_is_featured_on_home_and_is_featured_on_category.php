@@ -13,21 +13,9 @@ class VhStProductsAddColumnsIsFeaturedOnHomeAndIsFeaturedOnCategory extends Migr
      */
     public function up()
     {
-
-        Schema::create('vh_st_products', function (Blueprint $table) {
-            $table->increments('id');
-            $table->uuid('uuid')->nullable()->index();
-
-            //----common fields
-            $table->text('meta')->nullable();
-            $table->integer('created_by')->nullable()->index();
-            $table->integer('updated_by')->nullable()->index();
-            $table->integer('deleted_by')->nullable()->index();
-            $table->timestamps();
-            $table->softDeletes();
-            $table->index(['created_at', 'updated_at', 'deleted_at']);
-            //----/common fields
-
+        Schema::table('vh_st_products', function (Blueprint $table) {
+            $table->boolean('is_featured_on_home_page')->nullable()->index()->after('in_stock');
+            $table->boolean('is_featured_on_category_page')->nullable()->index()->after('is_featured_on_home_page');
         });
     }
 
@@ -38,6 +26,9 @@ class VhStProductsAddColumnsIsFeaturedOnHomeAndIsFeaturedOnCategory extends Migr
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_products');
+        Schema::table('vh_st_products', function (Blueprint $table) {
+            $table->dropColumn('is_featured_on_home_page');
+            $table->dropColumn('is_featured_on_category_page');
+        });
     }
 }

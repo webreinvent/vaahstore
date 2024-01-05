@@ -47,8 +47,8 @@ class Product extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
-        'is_featured_on_home',
-        'is_featured_on_category',
+        'is_featured_on_home_page',
+        'is_featured_on_category_page',
     ];
 
     //-------------------------------------------------
@@ -1128,6 +1128,11 @@ class Product extends VaahModel
         $max_chars = rand(5,250);
         $inputs['name']=$faker->text($max_chars);
 
+        // fill the name field here
+        $max_summary_chars = rand(5,250);
+        $inputs['summary']=$faker->text($max_chars);
+
+
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
         $store_ids = $stores->pluck('id')->toArray();
@@ -1153,6 +1158,8 @@ class Product extends VaahModel
         $inputs['status']=$status;
 
         $inputs['is_active'] = 1;
+        $inputs['is_featured_on_home_page'] = rand(0,1);
+        $inputs['is_featured_on_category_page'] = rand(0,1);
         $inputs['quantity'] = rand(1,10000000);
         $inputs['in_stock'] = 1;
         // fill the product type field here
