@@ -37,6 +37,8 @@ class Product extends VaahModel
         'id',
         'name',
         'slug',
+        'summary',
+        'details',
         'taxonomy_id_product_type',
         'vh_st_store_id',
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
@@ -45,6 +47,8 @@ class Product extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
+        'is_featured_on_home',
+        'is_featured_on_category',
     ];
 
     //-------------------------------------------------
@@ -1025,8 +1029,9 @@ class Product extends VaahModel
     public static function  validation($inputs)
     {
         $rules = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'summary' => 'max:100',
             'vh_st_store_id'=> 'required',
             'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
@@ -1037,10 +1042,14 @@ class Product extends VaahModel
                 'max:250'
             ],
             'in_stock'=> 'required|numeric',
-
+            'details' => 'max:250'
         ],
             [    'name.required' => 'The Name field is required',
+                 'name.max' => 'The Name field may not be greater than :max characters',
                 'slug.required' => 'The Slug field is required',
+                'slug.max' => 'The Slug field may not be greater than :max characters',
+                'summary.max' => 'The Summary field may not be greater than :max characters',
+                'details.max' => 'The Details field may not be greater than :max characters',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',

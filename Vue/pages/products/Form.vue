@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductStore } from '../../stores/store-products'
-
+import Editor from 'primevue/editor';
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
@@ -148,12 +148,21 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Summary">
-                    <InputText class="w-full"
-                               name="products-name"
-                               data-testid="products-name"
-                               @update:modelValue="store.watchItem"
-                               placeholder="Enter Summary"
-                               v-model="store.item.name"/>
+
+                    <Editor editor-style="height:50px"
+                            name="products-summary"
+                            data-testid="products-summary"
+                            placeholder="Enter Product Summary"
+                            v-model="store.item.summary">
+
+                        <template v-slot:toolbar>
+                            <span class="ql-formats">
+                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+                            </span>
+                        </template>
+                    </Editor>
                 </VhField>
 
                 <VhField label="Store*">
@@ -210,14 +219,18 @@ const toggleFormMenu = (event) => {
                 <VhField label="Quantity*">
                     <InputNumber
                         placeholder="Enter a Quantity"
+                        class="w-full"
                         inputId="minmax-buttons"
                         name="products-quantity"
                         v-model="store.item.quantity"
                         @input = "store.checkQuantity($event)"
                         showButtons
                         :min="0"
-                        data-testid="products-quantity"/>
+                        data-testid="products-quantity"
+                        style="height:40px;"/>
                 </VhField>
+
+
 
                 <VhField label="In Stock">
                     <InputSwitch
@@ -229,13 +242,31 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.in_stock"/>
                 </VhField>
 
-                <VhField label="Description">
-                    <InputText class="w-full"
-                               name="products-name"
-                               data-testid="products-name"
-                               @update:modelValue="store.watchItem"
-                               placeholder="Enter Name"
-                               v-model="store.item.name"/>
+                <VhField label="Featured on Home page">
+                    <InputSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        name="products-is-home-featured"
+                        data-testid="products-is-home-featured"
+                        v-model="store.item.is_featured_on_home"/>
+                </VhField>
+
+                <VhField label="Featured on Category page">
+                    <InputSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        name="products-is-category-featured"
+                        data-testid="products-is-category-featured"
+                        v-model="store.item.is_featured_on_category"/>
+                </VhField>
+
+                <VhField label="Product Details">
+                    <Editor v-model="store.item.details"
+                            class="w-full"
+                            name="products-details"
+                            data-testid="products-details"
+                            placeholder="Enter Product Details"
+                            editorStyle="height:80px" />
                 </VhField>
 
                 <VhField label="Status*">
@@ -270,6 +301,7 @@ const toggleFormMenu = (event) => {
                                  data-testid="products-active"
                                  v-model="store.item.is_active"/>
                 </VhField>
+
 
             </div>
         </Panel>
