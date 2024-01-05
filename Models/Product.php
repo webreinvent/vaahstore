@@ -602,6 +602,7 @@ class Product extends VaahModel
         $list->brandFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->brandFilter($request->filter);
+        $list->productTypeFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1346,6 +1347,25 @@ class Product extends VaahModel
 
     }
 
-    
+    //-------------------------------------------------
+
+    public function scopeProductTypeFilter($query, $filter)
+    {
+        if(!isset($filter['product_types'])
+            || is_null($filter['product_types'])
+            || $filter['product_types'] === 'null'
+        )
+        {
+            return $query;
+        }
+        $product_type = $filter['product_types'];
+        $query->whereHas('type', function ($query) use ($product_type) {
+            $query->whereIn('slug', $product_type);
+        });
+
+    }
+
+
+
 
 }

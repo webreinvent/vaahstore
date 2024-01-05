@@ -22,6 +22,8 @@ let empty_states = {
             product_variations : null,
             vendors : null,
             store : null,
+            brands : null,
+            product_types : null,
         },
     },
     action: {
@@ -361,6 +363,24 @@ export const useProductStore = defineStore({
         setType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        addFilterProductType(event) {
+            const unique_product_type = [];
+            const check_names = new Set();
+
+            for (const product_type of this.filter_selected_product_type) {
+                if (!check_names.has(product_type.name)) {
+                    unique_product_type.push(product_type);
+                    check_names.add(product_type.name);
+                }
+            }
+            const product_type_slugs = unique_product_type.map(type => type.slug);
+            this.filter_selected_product_type = unique_product_type;
+            this.query.filter.product_types = product_type_slugs;
+
         },
 
         //---------------------------------------------------------------------
@@ -1252,7 +1272,10 @@ export const useProductStore = defineStore({
             await this.resetQueryString();
             this.searched_store = null;
             this.selected_product_variations = null;
+            this.filter_selected_brands = null;
+            this.filter_selected_store = null;
             this.selected_vendors = null;
+            this.filter_selected_product_type = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();

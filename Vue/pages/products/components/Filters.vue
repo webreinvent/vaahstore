@@ -67,6 +67,25 @@ const store = useProductStore();
 
             </VhFieldVertical>
 
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Type:</b>
+                </template>
+
+                <AutoComplete name="products-type-filter"
+                              data-testid="products-type-filter"
+                              v-model="store.filter_selected_product_type"
+                              @change = "store.addFilterProductType()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.type_suggestion"
+                              @complete="store.searchTaxonomyProduct($event)"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Store:</b>

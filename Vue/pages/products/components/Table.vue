@@ -80,8 +80,8 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon">
-                             <b v-if="prop.data.variation_count && prop.data.variation_count.length">
-                                 {{prop.data.variation_count.length}}
+                             <b v-if="prop.data.product_variations && prop.data.product_variations.length">
+                                 {{prop.data.product_variations.length}}
                             </b>
                               <b v-else>0</b>
                          </span>
