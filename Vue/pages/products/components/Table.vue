@@ -1,8 +1,10 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
+import { useVendorStore} from "../../../stores/store-vendors";
 
 const store = useProductStore();
+const vendorStore = useVendorStore();
 const useVaah = vaah();
 
 </script>
@@ -111,7 +113,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon cursor-pointer"
                           v-tooltip.top="'View Vendors'"
-                          @click="store.toViewVendors(prop.data)">
+                          @click="vendorStore.toViewVendors(prop.data)">
                              <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
                                  {{prop.data.product_vendors.length}}
                             </b>

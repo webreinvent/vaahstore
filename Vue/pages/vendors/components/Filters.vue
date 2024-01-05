@@ -30,6 +30,26 @@ const store = useVendorStore();
 
 
             </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete name="vendors-product-filter"
+                              data-testid="vendors-product-filter"
+                              v-model="store.filter_selected_products"
+                              @change = "store.addFilteredProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_products"
+                              @complete="store.searchProduct"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Status By:</b>

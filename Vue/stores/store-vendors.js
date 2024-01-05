@@ -20,6 +20,7 @@ let empty_states = {
             sort: null,
             store:null,
             vendor_status:null,
+            products : null,
         },
     },
     action: {
@@ -81,7 +82,9 @@ export const useVendorStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        filtered_products : null,
+        filter_selected_products : null,
     }),
     getters: {
 
@@ -877,6 +880,7 @@ export const useVendorStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.filter_selected_products = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1226,6 +1230,71 @@ export const useVendorStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+
+        async searchProduct(event) {
+
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductAfter(data,res){
+            if(data){
+
+                this.filtered_products = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        addFilteredProduct() {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.filter_selected_products) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const products_slugs = unique_products.map(products => products.slug);
+            this.filter_selected_products = unique_products;
+            this.query.filter.products = products_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        toViewVendors(product)
+        {
+
+            this.$router.push({name: 'vendors.index'});
+            const filtered_product = {
+                id: product.id,
+                is_default: product.is_default,
+                name: product.name,
+                slug: product.slug
+            };
+
+            // Add the filtered product to the filter_selected_products array
+            this.filter_selected_products = [filtered_product];
+            this.query.filter.products= [product.slug];
+
+        },
+
+
+
     }
 });
 
