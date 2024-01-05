@@ -147,6 +147,15 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+                <VhField label="Summary">
+                    <InputText class="w-full"
+                               name="products-name"
+                               data-testid="products-name"
+                               @update:modelValue="store.watchItem"
+                               placeholder="Enter Summary"
+                               v-model="store.item.name"/>
+                </VhField>
+
                 <VhField label="Store*">
 
                     <AutoComplete
@@ -218,6 +227,15 @@ const toggleFormMenu = (event) => {
                         name="products-in_stock"
                         data-testid="products-in_stock"
                         v-model="store.item.in_stock"/>
+                </VhField>
+
+                <VhField label="Description">
+                    <InputText class="w-full"
+                               name="products-name"
+                               data-testid="products-name"
+                               @update:modelValue="store.watchItem"
+                               placeholder="Enter Name"
+                               v-model="store.item.name"/>
                 </VhField>
 
                 <VhField label="Status*">
