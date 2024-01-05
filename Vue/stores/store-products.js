@@ -1848,7 +1848,10 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        toViewVendors(product)
+        {
+            this.$router.push({name: 'vendors.index'})
+        },
 
 
     }
