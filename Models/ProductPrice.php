@@ -587,53 +587,42 @@ class ProductPrice extends VaahModel
 
     public static function deleteProductVariations($items_id){
 
+        $response=[];
+
         if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_id', $items_id);
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
 
             if ($items_exist) {
-                self::whereIn('vh_st_product_id', $items_id)->forceDelete();
+                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
                 $response['success'] = true;
-                $response['data'] = true;
-            } else {
-                // If no items found, return a success response
-                $response['success'] = true;
-                $response['data'] = false;
             }
-        } else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
         }
+
+        $response['success'] = false;
+
+        return $response;
 
     }
 
     //-------------------------------------------------
 
-    public static function deleteProductVariation($items_id){
+    public static function deleteProductVariation($item_id){
 
-        if (is_array($items_id)) {
-            $items_exist = self::whereIn('vh_st_product_id', $items_id);
+        $response = [];
 
-            if ($items_exist) {
-                self::whereIn('vh_st_product_id', $items_id)->forceDelete();
+        if ($item_id) {
+            $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+                self::where('vh_st_product_variation_id', $item_id)->forceDelete();
+
                 $response['success'] = true;
-                $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
             }
-        } elseif ($items_id)
-        {
-            self::where('vh_st_product_id', $items_id)->forceDelete();
-            $response['success'] = true;
-            $response['data'] = true;
+        } else {
+            $response['success'] = false;
         }
 
-        else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
-        }
+        return $response;
 
     }
 

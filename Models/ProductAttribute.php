@@ -904,6 +904,7 @@ class ProductAttribute extends VaahModel
     public static function deleteProductVariations($items_id)
     {
 
+        $response=[];
 
         if ($items_id) {
             $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
@@ -923,12 +924,10 @@ class ProductAttribute extends VaahModel
                 }
 
                 $response['success'] = true;
-                $response['data'] = true;
                 $response['messages'][] = 'Record has been deleted';
             }
         } else {
             $response['success'] = false;
-            $response['data'] = null;
         }
 
         return $response;
@@ -938,6 +937,7 @@ class ProductAttribute extends VaahModel
 
     public static function deleteProductVariation($item_id)
     {
+        $response=[];
 
         if ($item_id) {
             $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
@@ -957,12 +957,9 @@ class ProductAttribute extends VaahModel
                 }
                 self::where('vh_st_product_variation_id', $item_id)->forceDelete();
                 $response['success'] = true;
-                $response['data'] = true;
-                $response['messages'][] = 'Record has been deleted';
             }
         } else {
             $response['success'] = false;
-            $response['data'] = null;
         }
 
         return $response;
