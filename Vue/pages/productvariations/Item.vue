@@ -155,7 +155,7 @@ const permission=store.assets.permission;
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' || column === 'description'
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'
-                        || column === 'per_unit_price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
+                        || column === 'price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
                         || column === 'is_active'
 ">
                         </template>
@@ -225,7 +225,7 @@ const permission=store.assets.permission;
                             <tr>
                                 <td><b>Price</b></td>
                                 <td  colspan="2" >
-                                    <badge>{{store.item.per_unit_price}}</badge>
+                                    <badge>{{store.item.price}}</badge>
                                 </td>
                             </tr>
                             <VhViewRow :label="column"

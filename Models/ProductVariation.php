@@ -42,7 +42,7 @@ class ProductVariation extends VaahModel
         'taxonomy_id_variation_status',
         'status_notes',
         'description',
-        'per_unit_price',
+        'price',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -887,7 +887,7 @@ class ProductVariation extends VaahModel
 
 
             'quantity' => 'nullable|numeric|digits_between:1,9',
-            'per_unit_price' => [
+            'price' => [
                 function ($attribute, $value, $fail) use ($inputs) {
                     if ($inputs['quantity'] > 0 && $value == 0)  {
                         $fail('The Price field is required if quantity is greater than 0');
@@ -1002,8 +1002,8 @@ class ProductVariation extends VaahModel
         $inputs['product'] = $product;
         $inputs['quantity'] = rand(1,500);
 
-        $inputs['per_unit_price'] = rand(1,100000);
-        $inputs['total_price'] = $inputs['quantity']*$inputs['per_unit_price'];
+        $inputs['price'] = rand(1,100000);
+        $inputs['total_price'] = $inputs['quantity']*$inputs['price'];
 
         $inputs['in_stock'] = 1;
         $inputs['is_active'] = rand(0,1);

@@ -185,12 +185,12 @@ const permission=store.assets.permission;
 
                 <VhField label="Price"  v-if="store.item.quantity">
                     <InputNumber
-                        v-model="store.item.per_unit_price"
+                        v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
                         :min = 1
-                        name="productvariations-per_unit_price"
-                        data-testid="productvariations-per_unit_price"/>
+                        name="productvariations-price"
+                        data-testid="productvariations-price"/>
                 </VhField>
 
                 <VhField label="In Stock">

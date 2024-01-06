@@ -1032,7 +1032,7 @@ export const useProductVariationStore = defineStore({
                 this.item.in_stock = 1;
             } else {
                 this.item.in_stock = 0;
-                this.item.per_unit_price = 0;
+                this.item.price = 0;
             }
         },
 
@@ -1041,7 +1041,7 @@ export const useProductVariationStore = defineStore({
         checkPrice(event)
         {
 
-            this.item.per_unit_price = event.value;
+            this.item.price = event.value;
 
 
         },
