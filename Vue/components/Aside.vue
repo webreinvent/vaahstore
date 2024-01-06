@@ -14,6 +14,12 @@ function isActive(routePaths) {
     return routePaths.includes(route.path);
 }
 
+const selected_page = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
 
 const items = ref([
     {
@@ -117,7 +123,7 @@ const items = ref([
 <template>
 
     <div v-if="height">
-        <Menu :model="items"  class="w-full" >
+        <Menu :model="items"  class="w-full" :pt="selected_page">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom
                  :class="{ 'router-link-active' : isActive(item.route) }"
