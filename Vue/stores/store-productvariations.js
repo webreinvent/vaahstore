@@ -18,7 +18,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
-            product : null,
+            products : null,
         },
     },
     action: {
@@ -672,6 +672,7 @@ export const useProductVariationStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.selected_products = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1059,9 +1060,45 @@ export const useProductVariationStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        //---------------------------------------------------------------------
 
+        addSelectedProduct() {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.selected_products) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const product_slugs = unique_products.map(product => product.slug);
+            this.selected_products = unique_products;
+            this.query.filter.products = product_slugs;
+
+        },
 
         //---------------------------------------------------------------------
+
+        toViewVariations(product)
+        {
+
+            this.$router.push({name: 'productvariations.index'});
+            const filtered_product = {
+                id: product.id,
+                is_default: product.is_default,
+                name: product.name,
+                slug: product.slug
+            };
+
+            // Add the filtered product to the filter_selected_products array
+            this.selected_products = [filtered_product];
+            this.query.filter.products= [product.slug];
+
+        },
+
+
     }
 });
 

@@ -2,9 +2,11 @@
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
 import { useVendorStore} from "../../../stores/store-vendors";
+import {useProductVariationStore} from "../../../stores/store-productvariations";
 
 const store = useProductStore();
 const vendorStore = useVendorStore();
+const variationStore = useProductVariationStore();
 const useVaah = vaah();
 
 </script>
@@ -81,7 +83,9 @@ const useVaah = vaah();
 
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
+                         <span class="p-inputgroup-addon cursor-pointer"
+                         v-tooltip.top="'View Variations'"
+                         @click="variationStore.toViewVariations(prop.data)">
                              <b v-if="prop.data.product_variations && prop.data.product_variations.length">
                                  {{prop.data.product_variations.length}}
                             </b>
@@ -97,18 +101,6 @@ const useVaah = vaah();
 
              <Column field="vendors" header="Vendors"
                      :sortable="false">
-
-<!--                 <template #body="prop">-->
-<!--                     <div class="p-inputgroup flex-1">-->
-<!--                        <span class="p-inputgroup-addon">-->
-<!--                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">-->
-<!--                                {{prop.data.product_vendors.length}}</b>-->
-<!--                            <b v-else>0</b>-->
-<!--                        </span>-->
-<!--                         <button @click="store.toVendor(prop.data)"><b>+</b></button>-->
-<!--                     </div>-->
-<!--                 </template>-->
-
                  <template #body="prop">
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon cursor-pointer"

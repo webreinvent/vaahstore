@@ -1287,7 +1287,6 @@ export const useVendorStore = defineStore({
                 slug: product.slug
             };
 
-            // Add the filtered product to the filter_selected_products array
             this.filter_selected_products = [filtered_product];
             this.query.filter.products= [product.slug];
 

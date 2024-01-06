@@ -18,18 +18,16 @@ const store = useProductVariationStore();
                     <b>Product:</b>
                 </template>
 
-                <AutoComplete
-                    value="id"
-                    v-model="store.query.filter.product"
-                    @change="store.setProductFilter($event)"
-                    class="w-full"
-                    :suggestions="store.filtered_products"
-                    @complete="store.searchProduct($event)"
-                    placeholder="Select Product"
-                    data-testid="productvariations-product"
-                    name="productvariations-product"
-                    :dropdown="true" optionLabel="name" forceSelection>
-                </AutoComplete>
+                <AutoComplete name="product-variations-product-filter"
+                              data-testid="product-variations-product-filter"
+                              v-model="store.selected_products"
+                              @change = "store.addSelectedProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_products"
+                              @complete="store.searchProduct($event)"
+                              class="w-full " />
 
             </VhFieldVertical>
 

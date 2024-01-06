@@ -428,18 +428,18 @@ class ProductVariation extends VaahModel
     public function scopeProductFilter($query, $filter)
     {
 
-        if(!isset($filter['product'])
-            || is_null($filter['product'])
-            || $filter['product'] === 'null'
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
         )
         {
             return $query;
         }
 
-        $product = $filter['product'];
+        $products = $filter['products'];
 
-        $query->whereHas('product', function ($query) use ($product) {
-            $query->Where('slug',$product);
+        $query->whereHas('product', function ($query) use ($products) {
+            $query->WhereIn('slug',$products);
         });
 
     }
@@ -456,6 +456,7 @@ class ProductVariation extends VaahModel
         $list->defaultFilter($request->filter);
         $list->inStockFilter($request->filter);
         $list->productFilter($request->filter);
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
