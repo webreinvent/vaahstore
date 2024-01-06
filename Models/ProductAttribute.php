@@ -473,7 +473,7 @@ class ProductAttribute extends VaahModel
         $attributes = $filter['attributes'];
 
         $query->whereHas('attribute', function ($query) use ($attributes) {
-            $query->where('slug', $attributes);
+            $query->whereIn('slug', $attributes);
 
         });
 

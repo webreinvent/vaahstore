@@ -48,16 +48,18 @@ const store = useProductAttributeStore();
                     <b>Attribute:</b>
                 </template>
 
-                <AutoComplete v-model="store.filter_selected_attribute"
-                              class="w-full"
-                              placeholder="Select Attributes"
+                <AutoComplete
+                              name="productattributes-attributes-filter"
                               data-testid="productattributes-attributes-filter"
+                              v-model="store.filter_selected_attribute"
+                              @change="store.setAttributeFilter($event)"
+                              option-label="name"
+                              multiple
+                              :complete-on-focus = "true"
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttribute"
-                              @change="store.setAttributeFilter($event)"
-                              :dropdown="true"
-                              optionLabel="name"
-                              forceSelection>
+                              class="w-full"
+                              placeholder="Select Attributes">
                 </AutoComplete>
 
             </VhFieldVertical>

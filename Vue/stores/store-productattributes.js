@@ -19,6 +19,7 @@ let empty_states = {
             sort: null,
             product_variation : null,
             date:null,
+            attributes : null,
         },
     },
     action: {
@@ -256,8 +257,18 @@ export const useProductAttributeStore = defineStore({
         //---------------------------------------------------------------------
 
         setAttributeFilter(event){
-            let attribute = toRaw(event.value);
-            this.query.filter.attributes = attribute.slug;
+            const unique_attributes = [];
+            const check_names = new Set();
+
+            for (const attributes of this.filter_selected_attribute) {
+                if (!check_names.has(attributes.name)) {
+                    unique_attributes.push(attributes);
+                    check_names.add(attributes.name);
+                }
+            }
+            const attribute_slugs = unique_attributes.map(attribute => attribute.slug);
+            this.filter_selected_attribute = unique_attributes;
+            this.query.filter.attributes = attribute_slugs;
         },
 
         //---------------------------------------------------------------------
