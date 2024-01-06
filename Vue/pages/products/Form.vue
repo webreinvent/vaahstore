@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useProductStore } from '../../stores/store-products'
+import {useProductStore} from '../../stores/store-products'
 import Editor from 'primevue/editor';
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
@@ -10,8 +10,7 @@ const store = useProductStore();
 const route = useRoute();
 
 onMounted(async () => {
-    if(route.params && route.params.id)
-    {
+    if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
 
@@ -29,7 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-6">
 
         <Panel class="is-small">
 
@@ -87,7 +86,7 @@ const toggleFormMenu = (event) => {
 
                     <Menu ref="form_menu"
                           :model="store.form_menu_list"
-                          :popup="true" />
+                          :popup="true"/>
                     <!--/form_menu-->
 
 
@@ -97,7 +96,6 @@ const toggleFormMenu = (event) => {
                             @click="store.toList()">
                     </Button>
                 </div>
-
 
 
             </template>
@@ -223,13 +221,12 @@ const toggleFormMenu = (event) => {
                         inputId="minmax-buttons"
                         name="products-quantity"
                         v-model="store.item.quantity"
-                        @input = "store.checkQuantity($event)"
+                        @input="store.checkQuantity($event)"
                         showButtons
                         :min="0"
                         data-testid="products-quantity"
                         style="height:40px;"/>
                 </VhField>
-
 
 
                 <VhField label="In Stock">
@@ -255,7 +252,7 @@ const toggleFormMenu = (event) => {
                               placeholder="Select date"
                               v-model="store.item.available_at"></Calendar>
                 </VhField>
-                
+
                 <VhField label="Launch Date">
                     <Calendar tabindex="0"
                               :showIcon="true"
@@ -295,7 +292,9 @@ const toggleFormMenu = (event) => {
                             name="products-details"
                             data-testid="products-details"
                             placeholder="Enter Product Details"
-                            editorStyle="height:80px" />
+                            editorStyle="height:80px">
+
+                    </Editor>
                 </VhField>
 
                 <VhField label="Status*">

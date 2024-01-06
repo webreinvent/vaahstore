@@ -153,7 +153,8 @@ const toggleItemMenu = (event) => {
                             || column === 'product_attributes'|| column === 'product_vendors'|| column === 'brand'
                             || column === 'store'|| column === 'type'|| column === 'status'||
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
-                            || column === 'status_notes' || column === 'vh_cms_content_form_field_id'">
+                            || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
+                            || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -167,7 +168,7 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Name</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;white-space: pre-wrap;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -177,19 +178,67 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Slug</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;white-space: pre-wrap;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
+                            <tr v-if="store.item.type">
+                                <td><b>Product Type</b></td>
+                                <td  colspan="2" >
+                                    <Button class="p-button-outlined p-button-secondary p-button-sm">
+                                        {{store.item.type.name}}
+                                    </Button>
+                                </td>
+                            </tr>
+
+                            <tr v-if="store.item.vh_st_store_id">
+                                <td><b>Store</b></td>
+                                <td  colspan="2" >
+                                    <Button class="p-button-outlined p-button-secondary p-button-sm">
+                                        {{store.item.store.name}}
+                                    </Button>
+                                </td>
+                            </tr>
+
+                            <tr v-if="store.item.vh_st_brand_id">
+                                <td><b>Brand</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                        {{store.item.brand.name}}</div>
+                                </td>
+                            </tr>
+
+                            <tr v-if="store.item.vh_st_brand_id">
+                                <td><b>Status</b></td>
+                                <td  colspan="2" >
+                                    <Badge v-if="store.item.status.slug == 'approved'" severity="success">
+                                        {{store.item.status.name}}
+                                    </Badge>
+                                    <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warning">
+                                        {{store.item.status.name}}
+                                    </Badge>
+                                    <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
+                                        {{store.item.status.name}}
+                                    </Badge>
+                                    <Badge v-else severity="primary">
+                                        {{store.item.status.name}}
+                                    </Badge>
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'summary'">
                             <tr>
                                 <td><b>Summary</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        <pre v-html="store.item.summary"></pre>
-                                    </div>
+                                    <pre v-html="store.item.summary" style="width:300px;word-break:break-word;white-space: pre-wrap;"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Details</b></td>
+                                <td colspan="2">
+                                    <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space:pre-wrap;"/>
                                 </td>
                             </tr>
                         </template>
@@ -198,33 +247,6 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_product_type'">
-                            <VhViewRow label="Type"
-                                       :value="store.item.type.name"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_store_id'">
-                            <VhViewRow label="Store"
-                                       :value="store.item.store"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_st_brand_id'">
-                            <VhViewRow label="Brand"
-                                       :value="store.item.brand"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_product_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
                             />
                         </template>
 
@@ -241,6 +263,20 @@ const toggleItemMenu = (event) => {
                                        type="yes-no"
                             />
                         </template>
+                        <template v-else-if="column === 'is_featured_on_home_page'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
+                        <template v-else-if="column === 'is_featured_on_category_page'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
+                        </template>
+
 
                         <template v-else-if="column === 'in_stock'">
                             <VhViewRow :label="column"
