@@ -32,19 +32,6 @@ onMounted(async () => {
      * Watch if url record id is changed, if changed
      * then fetch the new records from database
      */
-    /*watch(route, async (newVal,oldVal) =>
-        {
-            if(newVal.params && !newVal.params.id
-                && newVal.name === 'articles.view')
-            {
-                store.toList();
-
-            }
-            await store.getItem(route.params.id);
-        }, { deep: true }
-    )*/
-
-});
 
 //--------toggle item menu
 const item_menu_state = ref();
@@ -191,14 +178,6 @@ const permission=store.assets.permission;
                                         {{store.item.sku}}</div>
                                 </td>
                             </tr>
-<!--                            <tr>
-                                <td><b>Description</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        <pre>{{store.item.description}}</pre>
-                                    </div>
-                                </td>
-                            </tr>-->
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
@@ -257,12 +236,6 @@ const permission=store.assets.permission;
                             />
                         </template>
 
-<!--                        <template v-else-if="column === 'is_default'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>-->
 
                         <template v-else-if="column === 'vh_st_product_id'">
                             <VhViewRow label="Product"
@@ -277,13 +250,6 @@ const permission=store.assets.permission;
                                        type="user"
                             />
                         </template>
-
-<!--                        <template v-else-if="column === 'taxonomy_id_variation_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
-                        </template>-->
 
                         <template v-else>
                             <VhViewRow :label="column"
