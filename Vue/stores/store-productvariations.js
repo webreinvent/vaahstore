@@ -1084,7 +1084,6 @@ export const useProductVariationStore = defineStore({
         toViewVariations(product)
         {
 
-            this.$router.push({name: 'productvariations.index'});
             const filtered_product = {
                 id: product.id,
                 is_default: product.is_default,
@@ -1095,6 +1094,7 @@ export const useProductVariationStore = defineStore({
             // Add the filtered product to the filter_selected_products array
             this.selected_products = [filtered_product];
             this.query.filter.products= [product.slug];
+            this.$router.push({name: 'productvariations.index'});
 
         },
 

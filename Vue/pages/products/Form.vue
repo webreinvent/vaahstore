@@ -216,7 +216,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Quantity*">
+                <VhField label="Quantity">
                     <InputNumber
                         placeholder="Enter a Quantity"
                         class="w-full"
@@ -241,6 +241,35 @@ const toggleFormMenu = (event) => {
                         data-testid="products-in_stock"
                         v-model="store.item.in_stock"/>
                 </VhField>
+
+                <VhField label="Availablity Date">
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              class="w-full"
+                              name="brands-registered_at"
+                              id="registered_at"
+                              value="registered_at"
+                              data-testid="brands-registered_at"
+                              dateFormat="yy-mm-dd"
+                              :showTime="true" :showSeconds="true"
+                              placeholder="Select date"
+                              v-model="store.item.available_at"></Calendar>
+                </VhField>
+                
+                <VhField label="Launch Date">
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              class="w-full"
+                              name="brands-registered_at"
+                              id="registered_at"
+                              value="registered_at"
+                              data-testid="brands-registered_at"
+                              dateFormat="yy-mm-dd"
+                              :showTime="true" :showSeconds="true"
+                              placeholder="Select date"
+                              v-model="store.item.launch_at"></Calendar>
+                </VhField>
+
 
                 <VhField label="Featured on Home page">
                     <InputSwitch

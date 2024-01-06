@@ -49,6 +49,9 @@ class Product extends VaahModel
         'deleted_by',
         'is_featured_on_home_page',
         'is_featured_on_category_page',
+        'available_at',
+        'launch_at',
+
     ];
 
     //-------------------------------------------------
@@ -1039,7 +1042,7 @@ class Product extends VaahModel
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
             'in_stock'=> 'required|numeric',
             'details' => 'max:250'
@@ -1125,11 +1128,11 @@ class Product extends VaahModel
         $faker = Factory::create();
 
        // fill the name field here
-        $max_chars = rand(5,250);
+        $max_chars = rand(5,100);
         $inputs['name']=$faker->text($max_chars);
 
         // fill the name field here
-        $max_summary_chars = rand(5,250);
+        $max_summary_chars = rand(5,100);
         $inputs['summary']=$faker->text($max_chars);
 
 
@@ -1170,7 +1173,7 @@ class Product extends VaahModel
         $inputs['type'] = $type;
         $inputs['taxonomy_id_product_type'] = $type_id ;
 
-        $number_of_characters = rand(5,250);
+        $number_of_characters = rand(5,100);
         $inputs['status_notes']=$faker->text($number_of_characters);
 
         /*

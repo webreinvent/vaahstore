@@ -1278,8 +1278,6 @@ export const useVendorStore = defineStore({
 
         toViewVendors(product)
         {
-
-            this.$router.push({name: 'vendors.index'});
             const filtered_product = {
                 id: product.id,
                 is_default: product.is_default,
@@ -1289,6 +1287,8 @@ export const useVendorStore = defineStore({
 
             this.filter_selected_products = [filtered_product];
             this.query.filter.products= [product.slug];
+            this.$router.push({name: 'vendors.index'});
+
 
         },
 
