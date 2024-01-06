@@ -576,12 +576,9 @@ export const useProductVendorStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.item.id = null;
+                    this.setActiveItemAsEmpty();
                     await this.getFormMenu();
                     this.$router.push({name: 'productvendors.form'})
-                    this.setActiveItemAsEmpty();
-                    if (this.default_store && this.default_store.length > 0) {
-                        this.item.store_vendor_product = [this.default_store[0]];
-                    }
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -592,7 +589,6 @@ export const useProductVendorStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     this.$router.push({name: 'productvendors.form'});
-                    await this.getFormMenu();
                     await this.getFormMenu();
                     break;
                 case 'trash':
