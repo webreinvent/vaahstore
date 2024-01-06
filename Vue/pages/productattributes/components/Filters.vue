@@ -22,26 +22,7 @@ const store = useProductAttributeStore();
                     <label for="default-product-variation-yes">Default Product Variation </label>
                 </div>
             </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product Variation:</b>
-                </template>
-
-                <AutoComplete v-model="store.filter_selected_product_variation"
-                              class="w-full"
-                              data-testid="productattributes-product-variation-filter"
-                              :suggestions="store.filtered_product_variations"
-                              @complete="store.searchProductVariation"
-                              @change="store.setProductVariationFilter($event)"
-                              :dropdown="true"
-                              optionLabel="name"
-                              optionValue="slug"
-                              placeholder="Select Product variation"
-                              forceSelection>
-                </AutoComplete>
-
-            </VhFieldVertical>
+            
 
             <VhFieldVertical >
                 <template #label>
