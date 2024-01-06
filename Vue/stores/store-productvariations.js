@@ -77,7 +77,8 @@ export const useProductVariationStore = defineStore({
         selected_dates: [],
         date_null: null,
         prev_list: [],
-        current_list: []
+        current_list: [],
+        filtered_products:null,
     }),
     getters: {
 
@@ -145,12 +146,14 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
 
         searchProductAfter(data,res){
+
             if (data) {
                 this.filtered_products= data.map(products => ({
                     ...products,
                     name: this.shortCharacter(products.name),
                 }));
             }
+
         },
 
         //---------------------------------------------------------------------
@@ -866,7 +869,6 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        console.log(this.action.items);
                         this.confirmTrash()
                     }
                 },
@@ -954,9 +956,7 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: () => {
-                        console.log(this.action.items);
                         this.itemAction('trash');
-                        console.log(this.action.items);
                     }
                 });
             }
@@ -1100,7 +1100,6 @@ export const useProductVariationStore = defineStore({
                         label: 'Trash',
                         icon: 'pi pi-times',
                         command: () => {
-                            console.log(this.action.items);
                             this.itemAction('trash');
                             this.item = null;
                             this.toList();

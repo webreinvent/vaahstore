@@ -16,23 +16,7 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
-
-    setDefaultProduct();
 });
-
-const setDefaultProduct = () => {
-
-    if(route.params && route.params.id)
-    {
-        store.item.product=store.item.product;
-    }
-    else {
-        if (store.active_products && store.active_products.length > 0) {
-            store.item.product = store.active_products[0];
-        }
-    }
-
-};
 
 //--------form_menu
 const form_menu = ref();
@@ -136,10 +120,6 @@ const permission=store.assets.permission;
                         data-testid="productvariations-product"
                         name="productvariations-product"
                         :dropdown="true" optionLabel="name" forceSelection>
-
-                        <template #option="slotProps">
-                            {{ slotProps.option.name }}
-                        </template>
                     </AutoComplete>
 
                 </VhField>
