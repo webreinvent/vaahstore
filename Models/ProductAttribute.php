@@ -901,74 +901,73 @@ class ProductAttribute extends VaahModel
 
     //-------------------------------------------------
 
-    public static function deleteProductVariations($items_id){
+    public static function deleteProductVariations($items_id)
+    {
+
 
         if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
+
+            $attribute_ids = $items_exist->pluck('id')->toArray();
 
             if ($items_exist) {
                 self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+                foreach ($attribute_ids as $attribute_id) {
+                    $attribute_values = ProductAttributeValue::where('vh_st_product_attribute_id', $attribute_id)->get();
+
+                    if ($attribute_values) {
+                        $attribute_values->each(function ($value) {
+                            $value->forceDelete();
+                        });
+                    }
+                }
+
                 $response['success'] = true;
                 $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
+                $response['messages'][] = 'Record has been deleted';
             }
         } else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
+            $response['data'] = null;
         }
+
+        return $response;
     }
 
     //-------------------------------------------------
 
-    //-------------------------------------------------
-    /*public static function deleteProductVariation($items_id){
-        if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
+    public static function deleteProductVariation($item_id)
+    {
 
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+        if ($item_id) {
+            $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+
+                $attribute_ids = $item_exist->pluck('id')->toArray();
+
+                foreach ($attribute_ids as $attribute_id) {
+                    $attribute_values = ProductAttributeValue::where('vh_st_product_attribute_id', $attribute_id)->get();
+
+                    if ($attribute_values) {
+                        $attribute_values->each(function ($value) {
+                            $value->forceDelete();
+                        });
+                    }
+                }
+                self::where('vh_st_product_variation_id', $item_id)->forceDelete();
                 $response['success'] = true;
                 $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
+                $response['messages'][] = 'Record has been deleted';
             }
         } else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
+            $response['data'] = null;
         }
 
-    }*/
-    public static function deleteProductVariation($items_id){
-
-        if (is_array($items_id)) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id);
-
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
-                $response['success'] = true;
-                $response['data'] = true;
-            } else {
-                $response['success'] = true;
-                $response['data'] = false;
-            }
-        } elseif ($items_id)
-        {
-            self::where('vh_st_product_variation_id', $items_id)->forceDelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }
-
-        else {
-            // If $items_id is not set, return an error
-            $response['error'] = true;
-            $response['data'] = false;
-        }
-
+        return $response;
     }
+
+
 
 }
