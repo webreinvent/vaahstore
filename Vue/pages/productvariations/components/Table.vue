@@ -52,7 +52,7 @@ const permission=store.assets.permission;
                      :sortable="true">
 
                  <template #body="prop">
-                     {{prop.data.product.name}}
+                     {{store.shortCharacter(prop.data.product.name)}}
                  </template>
 
              </Column>

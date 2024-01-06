@@ -145,9 +145,11 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
 
         searchProductAfter(data,res){
-            if(data){
-
-                this.filtered_products = data;
+            if (data) {
+                this.filtered_products= data.map(products => ({
+                    ...products,
+                    name: this.shortCharacter(products.name),
+                }));
             }
         },
 
@@ -230,7 +232,11 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
+            if(product && product.id)
+            {
+                this.item.vh_st_product_id = product.id;
+            }
+
         },
         //---------------------------------------------------------------------
 
@@ -1183,7 +1189,14 @@ export const useProductVariationStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-    }
+        shortCharacter  (name)  {
+            if (name && name.length > 20) {
+                return name.substring(0, 20) + '...';
+            }
+            return name;
+        }
+    },
+
 });
 
 
