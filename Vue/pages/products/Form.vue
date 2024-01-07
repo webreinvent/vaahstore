@@ -293,48 +293,6 @@ const toggleFormMenu = (event) => {
                             data-testid="products-details"
                             placeholder="Enter Product Details"
                             editorStyle="height:80px"
-                             >
-                        <template v-slot:toolbar>
-                            <span class="ql-formats">
-                                <select class="ql-header">
-                                    <option value="1">Heading</option>
-                                    <option value="2">Heading 2</option>
-                                    <option value="3">Heading 3</option>
-                                    <option value="4">Heading 4</option>
-                                    <option value="5">Heading 5</option>
-                                    <option value="6">Heading 6</option>
-                                </select>
-                                <select class="ql-font" v-model="store.item.font">
-                                    <option value="sans-serif">Sans Serif</option>
-                                    <option value="Arial, Helvetica, sans-serif">Arial</option>
-                                    <option value="Verdana, Geneva, sans-serif">Verdana</option>
-                                    <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
-                                </select>
-                            </span>
-                            <span class="ql-formats">
-                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
-                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
-                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
-                            </span>
-                            <span class="ql-formats">
-                                <button class="ql-list" value="ordered"></button>
-                                <button class="ql-list" value="bullet"></button>
-                            </span>
-                            <span class="ql-formats">
-                                <button class="ql-link" type="button"></button>
-                                <button class="ql-code-block" type="button"></button>
-                            </span>
-
-                        </template>
-                    </Editor>
-                </VhField>
-                <VhField label="Product Details">
-                    <Editor v-model="store.item.details"
-                            class="w-full"
-                            name="products-details"
-                            data-testid="products-details"
-                            placeholder="Enter Product Details"
-                            editorStyle="height:80px"
                     >
                     </Editor>
                 </VhField>
