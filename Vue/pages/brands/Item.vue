@@ -188,10 +188,10 @@ const toggleItemMenu = (event) => {
                             </template>
 
                             <template v-else>
-                                <VhViewRow label="Brand Logo"
-                                           value="No"
-                                           type=""
-                                />
+                                <tr>
+                                    <td class="font-bold">Brand Logo</td>
+                                    <td><Badge value="No" severity="danger"></Badge></td>
+                                </tr>
                             </template>
 
 

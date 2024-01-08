@@ -48,7 +48,7 @@ class Brand extends Model
         'deleted_by',
         'image',
         'meta_description',
-        'meta_keyword',
+        'meta_title',
     ];
 
     protected $casts =[
@@ -271,13 +271,7 @@ class Brand extends Model
         }
 
         // check if meta title exist
-        $item = self::where('meta_title', $inputs['meta_title'])->withTrashed()->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This meta title already exists.";
-            return $response;
-        }
 
         $item = new self();
         $item->fill($inputs);
@@ -693,15 +687,7 @@ class Brand extends Model
         }
 
         // check if meta title exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('meta_title', $inputs['meta_title'])->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This meta title already exists.";
-            return $response;
-        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -790,9 +776,6 @@ class Brand extends Model
         $rules = array(
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
-            'meta_title' => 'nullable|max:50',
-            'meta_description' => 'nullable|max:100',
-            'meta_keyword' => 'nullable|max:50',
             'registered_by'=> 'nullable',
             'registered_at'=> 'nullable',
             'approved_by'=> 'nullable',
@@ -894,6 +877,7 @@ class Brand extends Model
         $registered_by_data = User::where('is_active',1)->where('id',$registered_id)->first();
         $inputs['registered_by'] = $registered_id;
         $inputs['registered_by_user'] = $registered_by_data;
+        $inputs['image'] = 'default/default_brand.png';
 
 
 

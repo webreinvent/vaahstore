@@ -151,26 +151,6 @@ const permission=store.assets.permission;
                     </FileUpload>
                 </VhField>
 
-                <VhField label="Meta Title">
-                    <InputText class="w-full"
-                               name="brands-slug"
-                               data-testid="brands-meta_title"
-                               placeholder="Enter a meta title"
-                               v-model="store.item.meta_title"/>
-                </VhField>
-
-                <VhField label="Meta Description">
-                    <Textarea rows="3" class="w-full"
-                              name="brands-meta_description"
-                              data-testid="brands-meta_description"
-                              :autoResize="true"
-                              placeholder="Enter Meta Description"
-                              v-model="store.item.meta_description"/>
-                </VhField>
-
-<!--                <VhField label="Meta Keyword" >-->
-<!--                    <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />-->
-<!--                </VhField>-->
 
                 <VhField label="Registered By">
 
