@@ -217,12 +217,22 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
+                            <template  v-if="store.item.status">
+                                <tr>
+                                    <td class="font-bold">Status</td>
+                                    <td colspan="2">
+                                        <Badge  v-if="store.item.status.slug === 'pending'" severity="warning">{{store.item.status.name}}</Badge>
+                                        <Badge  v-else-if="store.item.status.slug === 'rejected'" severity="danger">{{store.item.status.name}}</Badge>
+                                        <Badge  v-else severity="success">{{store.item.status.name}}</Badge>
 
-                            <VhViewRow v-if="store.item.status" label="Status"
-                                       :value=store.item.status.name
-                                       type="String"
-                            />
+                                    </td>
+                                </tr>
+                            </template>
                         </template>
+
+
+
+
 
                         <template v-else-if="column === 'meta'">
                             <tr>
