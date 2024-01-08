@@ -187,6 +187,13 @@ const toggleItemMenu = (event) => {
                                 />
                             </template>
 
+                            <template v-else>
+                                <VhViewRow label="Brand Logo"
+                                           value="No"
+                                           type=""
+                                />
+                            </template>
+
 
                             <template v-if="store.item.registered_by_user">
                                 <VhViewRow label="Registered By"
