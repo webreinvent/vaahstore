@@ -161,7 +161,7 @@ const useVaah = vaah();
 
 
             </Column>
-
+<!--For empty table-->
              <template #empty="prop">
                  <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
              </template>
