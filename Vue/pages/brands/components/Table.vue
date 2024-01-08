@@ -93,7 +93,8 @@ const permission=store.assets.permission;
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+<!--                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
+                        {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>
