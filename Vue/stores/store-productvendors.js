@@ -99,36 +99,111 @@ export const useProductVendorStore = defineStore({
     actions: {
         //---------------------------------------------------------------------
 
-        //---------------------------------------------------------------------
-        searchStatus(event) {
 
-            this.status_suggestion_list = this.status_option.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-        //---------------------------------------------------------------------
-        searchProductVariation(event){
-            this.product_variation_suggestion = this.active_product_variation.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-        //---------------------------------------------------------------------
-        searchAddedBy(event) {
 
-            this.active_users_list = this.active_users.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-        searchVendor(event) {
 
-            this.active_vendors_list = this.active_vendors.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+        async searchVendor(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
         },
 
+        //---------------------------------------------------------------------
+        searchVendorAfter(data,res){
+            if(data){
 
+                this.active_vendors_list = data;
+            }
+        },
         //---------------------------------------------------------------------
 
+        async searchAddedBy(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/added/by',
+                this.searchAddedByAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchAddedByAfter(data,res){
+            if(data){
+                this.active_users_list = data;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async searchStatus(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        searchStatusAfter(data,res){
+            if(data){
+                this.status_suggestion_list = data;
+            }
+        },
+
+        async searchProductVariation(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchProductVariationAfter(data,res){
+            if(data){
+                this.product_variation_suggestion = data;
+            }
+        },
 
         //---------------------------------------------------------------------
         searchProduct(event) {
