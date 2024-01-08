@@ -539,11 +539,12 @@ export const useProductAttributeStore = defineStore({
         {
             if(data)
             {
+                this.prev_list =this.list.data;
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
-                this.prev_list =this.list.data;
+
             }
             this.current_list=this.list.data
             this.compareList(this.prev_list,this.current_list)
@@ -560,7 +561,7 @@ export const useProductAttributeStore = defineStore({
                 this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
-
+        
         //---------------------------------------------------------------------
 
 
