@@ -41,8 +41,7 @@ export const useProductAttributeStore = defineStore({
         filtered_product_variations: null,
         product_variation: null,
         filtered_attributes: null,
-        attribute: null,
-        list: null,
+        attribute: null,t: null,
         item: null,
         fillable:null,
         empty_query:empty_states.query,
@@ -78,27 +77,31 @@ export const useProductAttributeStore = defineStore({
         prev_list:[],
         current_list:[],
     }),
-    getters: {
+        getters: {
 
-    },
-    actions: {
-        //---------------------------------------------------------------------
-        async onLoad(route)
-        {
-            /**
-             * Set initial routes
-             */
-            this.route = route;
+        },
+        actions: {
+            //---------------------------------------------------------------------
+            async onLoad(route)
+            {
+                /**
+                 * Set initial routes
+                 */
+                this.route = route;
 
-            /**
-             * Update with view and list css column number
-             */
-            this.setViewAndWidth(route.name);
+                /**
+                 * Update with view and list css column number
+                 */
+                this.setViewAndWidth(route.name);
 
-            /**
-             * Update query state with the query parameters of url
-             */
-            this.updateQueryFromUrl(route);
+                /**
+                 * Update query state with the query parameters of url
+                 */
+                this.updateQueryFromUrl(route);
+                if (route.query && route.query.filter && route.query.filter.date) {
+                    this.selected_dates = route.query.filter.date;
+                    this.selected_dates = this.selected_dates.join(' - ');
+                }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -561,7 +564,7 @@ export const useProductAttributeStore = defineStore({
                 this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
-        
+
         //---------------------------------------------------------------------
 
 
