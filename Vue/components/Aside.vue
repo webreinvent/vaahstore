@@ -108,11 +108,18 @@ const items = ref([
         ]
     },
 ]);
+
+const menu_pt = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
 </script>
 <template>
 
     <div v-if="height">
-        <Menu :model="items"  class="w-full" >
+        <Menu :model="items" :pt="menu_pt"  class="w-full" >
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
