@@ -245,6 +245,9 @@ const toggleItemMenu = (event) => {
                                             data-testid="meta-open_modal"
                                     />
                                 </td>
+                                <td v-else> <Badge  severity="danger">No</Badge></td>
+
+
                             </tr>
 
                             <Dialog header="Meta Fields"
@@ -252,11 +255,13 @@ const toggleItemMenu = (event) => {
                                     :breakpoints="{'960px': '75vw', '640px': '90vw'}"
                                     :style="{width: '50vw'}" :modal="true"
                             >
-                                <span class="font-bold">Meta</span> <p  class="" v-html="'<pre>'+store.meta_content+'<pre>'"></p>
+<!--                                <span class="font-bold">Meta</span> <p  class="" v-html="'<pre>'+store.meta_content+'<pre>'"></p>-->
+                                <span class="font-bold">Meta</span> <p  class="mb-4" >{{store.item.meta}}</p>
                                 <div class="mb-4"><span class="font-bold">Meta Title</span><p>{{store.item.meta_title}}</p></div>
                                 <div><span class="font-bold">Meta Description</span><p>{{store.item.meta_description}}</p></div>
                             </Dialog>
                         </template>
+
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                          || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">

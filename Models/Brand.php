@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
@@ -877,8 +878,14 @@ class Brand extends Model
         $registered_by_data = User::where('is_active',1)->where('id',$registered_id)->first();
         $inputs['registered_by'] = $registered_id;
         $inputs['registered_by_user'] = $registered_by_data;
-        $inputs['image'] = 'default/default_brand.png';
+        $image = UploadedFile::fake()->image('file1.png', 600, 600);
 
+        if($image){
+            $file_name = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('image/uploads/brands'), $file_name);
+            $image_default = $file_name;
+            $inputs['image'] = $image_default;
+        }
 
 
         $approved_ids = User::where('is_active',1)->pluck('id')->toArray();
