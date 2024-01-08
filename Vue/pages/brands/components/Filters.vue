@@ -17,7 +17,7 @@ const store = useBrandStore();
                 <template #label>
                     <b>Status By:</b>
                 </template>
-                <VhField label="Brand Status">
+
                     <MultiSelect
                         v-model="store.query.filter.brand_status"
                         :options="store.assets.taxonomy.status"
@@ -26,8 +26,8 @@ const store = useBrandStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
-                </VhField>
+                        class="w-12rem" />
+
             </VhFieldVertical>
 
             <Divider/>
