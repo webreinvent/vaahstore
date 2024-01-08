@@ -400,8 +400,7 @@ class ProductAttribute extends VaahModel
         }
 
         else{
-
-            $attributes = Attribute::where('name', 'like', "%$query%")->get();
+            $attributes = Attribute::where('name', 'like', "$query%")->get();
         }
 
         $response['success'] = true;
@@ -436,7 +435,6 @@ class ProductAttribute extends VaahModel
     }
 
     //-------------------------------------------------
-
     public function scopeProductVariationFilter($query, $filter)
     {
 

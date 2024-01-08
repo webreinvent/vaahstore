@@ -75,6 +75,8 @@ export const useProductAttributeStore = defineStore({
         selected_dates:null,
         filter_selected_product_variation : null,
         filter_selected_attribute : null,
+        prev_list:[],
+        current_list:[],
     }),
     getters: {
 
@@ -501,6 +503,7 @@ export const useProductAttributeStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -540,15 +543,32 @@ export const useProductAttributeStore = defineStore({
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+                this.prev_list =this.list.data;
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
         },
         //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
         async formActionAfter (data)
         {
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -563,11 +583,9 @@ export const useProductAttributeStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
-                    this.item.id = null;
-                    await this.getFormMenu();
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
                     this.$router.push({name: 'productattributes.form'});
-                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'trash':
                     vaah().toastSuccess(['Action Was Successful']);
@@ -779,6 +797,8 @@ export const useProductAttributeStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'productattributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
