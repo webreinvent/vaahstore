@@ -457,6 +457,7 @@ export const useAttributeStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -506,7 +507,10 @@ export const useAttributeStore = defineStore({
                 case 'create-and-new':
                     this.attribute_new_value = null;
                 case 'save-and-new':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'attributes.form'})
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -979,6 +983,14 @@ export const useAttributeStore = defineStore({
 
                             this.itemAction('save-and-clone');
 
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
 
