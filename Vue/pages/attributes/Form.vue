@@ -179,6 +179,14 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.type"/>
                 </VhField>
 
+                <VhField label="Description">
+                    <Textarea v-model="store.item.description"
+                              rows="3" class="w-full"
+                              placeholder="Enter Description"
+                              data-testid="attributes-description"
+                              :autoResize="true"/>
+                </VhField>
+
 
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"

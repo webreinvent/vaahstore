@@ -32,6 +32,7 @@ class Attribute extends VaahModel
         'name',
         'slug',
         'type',
+        'description',
         'is_active',
         'created_by',
         'updated_by',
@@ -165,7 +166,6 @@ class Attribute extends VaahModel
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -190,9 +190,7 @@ class Attribute extends VaahModel
         }
 
         $item = new self();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
         $new_array = null;
@@ -691,6 +689,7 @@ class Attribute extends VaahModel
             'value' => 'required|max:250',
             'value.*.value' => 'max:250',
             'type' => 'required|max:250',
+            'description' => 'required|max:250',
 
         ],
             [
