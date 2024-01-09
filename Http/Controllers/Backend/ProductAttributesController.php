@@ -6,7 +6,7 @@ use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductVariation;
-
+use WebReinvent\VaahCms\Models\Permission;
 class ProductAttributesController extends Controller
 {
 
@@ -26,7 +26,12 @@ class ProductAttributesController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permission'] = \Auth::user()->permissions(true);
+
+            $data['active_permissions'] = Permission::getActiveItems();
+
+            Permission::syncPermissionsWithRoles();
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductAttribute::getFillableColumns();
@@ -37,7 +42,7 @@ class ProductAttributesController extends Controller
             $data['actions'] = [];
             $get_product_variation_data = self::getProductVariationData();
             $data = array_merge($data, $get_product_variation_data);
-            
+
             $response['success'] = true;
             $response['data'] = $data;
 

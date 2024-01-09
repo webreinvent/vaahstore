@@ -77,6 +77,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Edit"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="productattributes-item-to-edit"
@@ -85,6 +86,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="productattributes-item-menu"
