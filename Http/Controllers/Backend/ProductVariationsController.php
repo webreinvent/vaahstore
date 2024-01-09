@@ -6,7 +6,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\Permission;
 
 class ProductVariationsController extends Controller
 {
@@ -27,7 +27,12 @@ class ProductVariationsController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permission'] = \Auth::user()->permissions(true);
+
+
+            $data['active_permissions'] = Permission::getActiveItems();
+
+            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductVariation::getFillableColumns();
