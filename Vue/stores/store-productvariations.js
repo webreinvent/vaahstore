@@ -93,6 +93,10 @@ export const useProductVariationStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.products)
+            {
+                this.route.query.filter.products = this.query.filter.products;
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
