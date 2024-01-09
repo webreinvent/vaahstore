@@ -538,6 +538,7 @@ export const useAttributeStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     this.attribute_new_value = null;
+                    this.$router.push({name: 'attributes.form'})
                     await this.getFormMenu();
                     break;
                 case 'trash':
