@@ -56,7 +56,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Save"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productattributes-save"
@@ -64,7 +64,7 @@ const toggleFormMenu = (event) => {
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             v-else
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
@@ -83,7 +83,7 @@ const toggleFormMenu = (event) => {
                         @click="toggleFormMenu"
                         class="p-button-sm"
                         data-testid="productattributes-form-menu"
-                        :disabled="!store.assets.permission.includes('can-update-module')"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         icon="pi pi-angle-down"
 
                         aria-haspopup="true"/>

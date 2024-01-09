@@ -26,8 +26,7 @@ class ProductAttributesController extends Controller
 
             $data = [];
 
-            $data['permission'] = \Auth::user()->permissions(true);
-
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['active_permissions'] = Permission::getActiveItems();
 
             Permission::syncPermissionsWithRoles();

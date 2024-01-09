@@ -76,7 +76,7 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
                                 data-testid="productattributes-table-to-edit"
                                 v-tooltip.top="'Update'"
@@ -84,7 +84,7 @@ const useVaah = vaah();
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permission.includes('can-update-module')"
+                        <Button v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productattributes-table-action-trash"
                                 @click="store.itemAction('trash', prop.data)"
@@ -92,7 +92,7 @@ const useVaah = vaah();
                                 icon="pi pi-trash" />
 
 
-                        <Button v-if="store.isViewLarge() && prop.data.deleted_at &&  store.assets.permission.includes('can-update-module') "
+                        <Button v-if="store.isViewLarge() && prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productattributes-table-action-restore"
                                 @click="store.itemAction('restore', prop.data)"
