@@ -522,8 +522,8 @@ export const useAttributeStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                    this.attribute_new_value = null;
                 case 'save-and-new':
+                    this.attribute_new_value = null;
                     this.item.id = null;
                     this.setActiveItemAsEmpty();
                     await this.getFormMenu();
