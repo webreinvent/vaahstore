@@ -76,6 +76,7 @@ export const useProductAttributeStore = defineStore({
         filter_selected_attribute : null,
         prev_list:[],
         current_list:[],
+        filter_default_product_variation : [],
     }),
         getters: {
 
@@ -101,6 +102,11 @@ export const useProductAttributeStore = defineStore({
                 if (route.query && route.query.filter && route.query.filter.date) {
                     this.selected_dates = route.query.filter.date;
                     this.selected_dates = this.selected_dates.join(' - ');
+                }
+                if (route.query && route.query.filter && route.query.filter.default_product_variation) {
+                    let default_product_variation = route.query.filter.default_product_variation;
+                    this.query.filter.default_product_variation = default_product_variation;
+                    this.filter_default_product_variation[0] = default_product_variation;
                 }
         },
         //---------------------------------------------------------------------
@@ -771,6 +777,7 @@ export const useProductAttributeStore = defineStore({
             this.filter_selected_product_variation = null;
             this.filter_selected_attribute = null;
             this.selected_dates = null;
+            this.filter_default_product_variation = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1138,6 +1145,13 @@ export const useProductAttributeStore = defineStore({
             }
 
         },
+
+            //---------------------------------------------------------------------
+
+            updateDefaultProductVariation()
+            {
+                this.query.filter.default_product_variation = this.filter_default_product_variation[0];
+            }
 
     }
 });

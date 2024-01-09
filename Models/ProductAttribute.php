@@ -311,7 +311,7 @@ class ProductAttribute extends VaahModel
             return $query;
         }
 
-        $default = $filter['default_product_variation'][0];
+        $default = $filter['default_product_variation'];
         if($default == 'true')
         {
             $query->whereHas('productVariation', function ($query) use ($default) {

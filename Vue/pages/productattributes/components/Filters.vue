@@ -17,12 +17,13 @@ const store = useProductAttributeStore();
                 <div class="field-checkbox">
                     <Checkbox name="default-product-variation-yes"
                               data-testid="product-variation-yes"
-                              v-model = "store.query.filter.default_product_variation"
-                              :value="true" />
+                              v-model = "store.filter_default_product_variation"
+                              @change="store.updateDefaultProductVariation"
+                              :value="'true'" />
                     <label for="default-product-variation-yes">Default Product Variation </label>
                 </div>
             </VhFieldVertical>
-            
+
 
             <VhFieldVertical >
                 <template #label>

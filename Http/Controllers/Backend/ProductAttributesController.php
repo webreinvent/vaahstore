@@ -37,7 +37,7 @@ class ProductAttributesController extends Controller
             $data['actions'] = [];
             $get_product_variation_data = self::getProductVariationData();
             $data = array_merge($data, $get_product_variation_data);
-
+            
             $response['success'] = true;
             $response['data'] = $data;
 
