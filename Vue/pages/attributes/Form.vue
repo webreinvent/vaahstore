@@ -35,6 +35,7 @@ const toggleFormMenu = (event) => {
             <template class="p-1" #header>
 
 
+
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span v-if="store.item && store.item.id">

@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import { useProductMediaStore } from '../../stores/store-productmedias'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
@@ -169,7 +169,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Image">
+                <VhField label="Media">
 
                     <FileUpload customUpload
                                 name="demo[]"
@@ -215,6 +215,15 @@ const toggleFormMenu = (event) => {
                         </template>
                     </FileUpload>
                 </VhField>
+                <div v-if="store.item.images && store.item.images.length > 0">
+                    <VhField label="Media Type" >
+                    <InputText class="w-full"
+                               name="productmedias-type"
+                               data-testid="productmedias-type"
+                               disabled
+                               v-model="store.item.type"/>
+                </VhField>
+                </div>
 
 
                 <VhField label="Status">

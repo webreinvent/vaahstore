@@ -1,4 +1,4 @@
-import {toRaw, watch} from 'vue'
+import {computed, toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -152,6 +152,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async onImageUpload(event){
             this.selectedFiles = event.files;
+            this.item.type = Array.from(new Set(this.selectedFiles.map(file => file.type))).join(', ');
             if(!this.selectedFiles.length)
             {
                 return false;
@@ -184,14 +185,33 @@ export const useProductMediaStore = defineStore({
         },
         //---------------------------------------------------------------------
          onRemoveTemplatingFile(productMediaImages,index){
+             const removedImage = this.item.images[index];
+             const removedType = removedImage ? removedImage.mime_type : null;
              this.item.images.splice(index, 1);
+             if (this.item.images.length > 0) {
+                 const remainingTypes = Array.from(new Set(this.item.images.map(file => file.mime_type)));
+                 this.item.type = remainingTypes.join(', ');
+             } else {
+                 this.item.type = null;
+             }
         },
         //---------------------------------------------------------------------
         removeUploadedFile(e){
             const indexName = e.file.name;
+            const removedImage = this.item.images.find(file => file.name === indexName);
+            const removedType = removedImage ? removedImage.mime_type : null;
+
             this.item.images = this.item.images.filter(file => file.name !== indexName);
+            if (this.item.images.length > 0) {
+                const remainingTypes = Array.from(new Set(this.item.images.map(file => file.mime_type)));
+                this.item.type = remainingTypes.join(', ');
+            } else {
+                this.item.type = null;
+            }
             this.getItem(this.route.params.id);
         },
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -395,6 +415,12 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item = data;
+                const images=data.images;
+                if (images.length > 0) {
+                    this.item.type= images.map((file) => file.mime_type).join(', ');
+                } else {
+                    this.item.type= '';
+                }
             }else{
                 this.$router.push({name: 'productmedias.index'});
             }
@@ -691,10 +717,11 @@ export const useProductMediaStore = defineStore({
 
             if (data) {
                 this.item.images = [data.fill.images];
+                this.item.type = data.fill.images.mime_type;
 
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
-                    if (key !== 'images') {
+                    if (key !== 'images' && key!== 'type') {
                         self.item[key] = data.fill[key];
                     }
                 });
