@@ -47,7 +47,7 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
-
+    await store.updateProductFilterOnRedirection();
     await store.getListCreateMenu();
 });
 
