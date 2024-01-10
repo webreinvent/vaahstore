@@ -153,7 +153,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Product Variation" v-if="store.item.product">
+                <VhField label="Product Variation" >
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product_variation"
