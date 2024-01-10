@@ -1339,6 +1339,23 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        shortProductName(products) {
+            if (!products || !Array.isArray(products)) {
+                return [];
+            }
+            return products.map(product => {
+                if (product.name && product.name.length > 20) {
+                    return {
+                        ...product,
+                        name: product.name.substring(0, 20) + '...'
+                    };
+                } else {
+                    return product;
+                }
+            });
+        },
+
+
 
     }
 
