@@ -298,6 +298,34 @@ const toggleFormMenu = (event) => {
                     </Editor>
                 </VhField>
 
+                <VhField label="Seo Title">
+                    <InputText class="w-full"
+                               name="products-seo-title"
+                               data-testid="products-seo-title"
+                               placeholder="Enter Seo Title"
+                               v-model="store.item.seo_title"/>
+                </VhField>
+
+                <VhField label="Seo Description">
+                    <Textarea class="w-full"
+                              name="products-seo-description"
+                              data-testid="products-seo-description"
+                              placeholder="Enter Seo Description"
+                              rows="3" cols="30"
+                              v-model="store.item.seo_meta_description"
+                    />
+                </VhField>
+
+
+                <VhField label="Seo Keywords">
+                    <InputText class="w-full"
+                               name="products-seo-meta-keywords"
+                               data-testid="products-seo-meta-keywords"
+                               placeholder="Enter Seo Meta keywords"
+                               v-model="store.item.seo_meta_keyword"/>
+                </VhField>
+
+
                 <VhField label="Status*">
                     <AutoComplete
                         value="id"

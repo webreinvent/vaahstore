@@ -44,6 +44,7 @@ class Product extends VaahModel
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
         'quantity', 'in_stock', 'is_active',
         'taxonomy_id_product_status', 'status_notes', 'meta',
+        'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -1039,6 +1040,10 @@ class Product extends VaahModel
             'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
             'quantity'  => 'required|numeric|min:0|digits_between:1,9',
+            'details' => 'max:250',
+            'seo_title' => 'max:100',
+            'seo_meta_description' => 'max:250',
+            'seo_meta_keyword' => 'max:100',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -1056,6 +1061,9 @@ class Product extends VaahModel
                 'slug.max' => 'The Slug field may not be greater than :max characters',
                 'summary.max' => 'The Summary field may not be greater than :max characters',
                 'details.max' => 'The Details field may not be greater than :max characters',
+                'seo_title.max' => 'The Details field may not be greater than :max characters',
+                'seo_meta_description.max' => 'The Details field may not be greater than :max characters',
+                'seo_meta_keyword.max' => 'The Details field may not be greater than :max characters',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
@@ -1142,6 +1150,22 @@ class Product extends VaahModel
         $max_details_chars = rand(5,100);
         $inputs['details']=$faker->text($max_details_chars);
 
+        // fill the Seo title field here
+        $max_title_chars = rand(5,50);
+        $inputs['seo_title']=$faker->text($max_title_chars);
+
+        // fill the Seo Description field here
+        $max_seo_description_chars = rand(5,250);
+        $inputs['seo_meta_description']=$faker->text($max_seo_description_chars);
+
+        // fill the Seo Keywords field here
+        $max_seo_keywords_chars = rand(5,50);
+        $inputs['seo_meta_keyword']=$faker->text($max_seo_keywords_chars);
+
+        // fill the Seo title field here
+        $max_title_chars = rand(5,50);
+        $inputs['seo_title']=$faker->text($max_title_chars);
+
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
         $store_ids = $stores->pluck('id')->toArray();
@@ -1149,6 +1173,7 @@ class Product extends VaahModel
         $store = $stores->where('id',$store_id)->first();
         $inputs['store'] = $store;
         $inputs['vh_st_store_id'] = $store_id ;
+
 
         // fill the Brand field here
         $brands = Brand::where('is_active',1);
