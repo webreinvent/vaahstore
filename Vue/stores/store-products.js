@@ -21,7 +21,7 @@ let empty_states = {
             sort: null,
             product_variations : null,
             vendors : null,
-            store : null,
+            stores : null,
             brands : null,
             product_types : null,
         },
@@ -332,8 +332,18 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         setFilterStore(event) {
-            let store = toRaw(event.value);
-            this.query.filter.store = store.slug;
+            const unique_store = [];
+            const check_names = new Set();
+
+            for (const store of this.filter_selected_store) {
+                if (!check_names.has(store.name)) {
+                    unique_store.push(store);
+                    check_names.add(store.name);
+                }
+            }
+            const store_slugs = unique_store.map(type => type.slug);
+            this.filter_selected_store = unique_store;
+            this.query.filter.stores = store_slugs;
         },
 
         //---------------------------------------------------------------------
@@ -1078,9 +1088,6 @@ export const useProductStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
-                    this.setActiveItemAsEmpty();
-                    break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
@@ -1089,6 +1096,7 @@ export const useProductStore = defineStore({
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'products.form'});
+                    await this.getFormMenu();
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':

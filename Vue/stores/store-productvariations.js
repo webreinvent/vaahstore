@@ -1099,7 +1099,7 @@ export const useProductVariationStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         async updateProductFilterOnRedirection()
         {
 

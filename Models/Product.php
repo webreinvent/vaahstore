@@ -1044,8 +1044,11 @@ class Product extends VaahModel
                 'required_if:status.slug,==,rejected',
                 'max:100'
             ],
+            'launch_at' => 'required_without_all:quantity,available_at',
+            'available_at' => 'required_without_all:quantity,launch_at',
             'in_stock'=> 'required|numeric',
-            'details' => 'max:250'
+            'details' => 'max:250',
+            ''
         ],
             [    'name.required' => 'The Name field is required',
                  'name.max' => 'The Name field may not be greater than :max characters',
@@ -1332,17 +1335,17 @@ class Product extends VaahModel
 
     public function scopeStoreFilter($query, $filter)
     {
-        if(!isset($filter['store'])
-            || is_null($filter['store'])
-            || $filter['store'] === 'null'
+        if(!isset($filter['stores'])
+            || is_null($filter['stores'])
+            || $filter['stores'] === 'null'
         )
         {
             return $query;
         }
 
-        $store = $filter['store'];
+        $store = $filter['stores'];
         $query->whereHas('store', function ($query) use ($store) {
-            $query->where('slug', $store);
+            $query->whereIn('slug', $store);
         });
 
     }

@@ -293,6 +293,7 @@ const toggleFormMenu = (event) => {
                             data-testid="products-details"
                             placeholder="Enter Product Details"
                             editorStyle="height:80px"
+
                     >
                     </Editor>
                 </VhField>

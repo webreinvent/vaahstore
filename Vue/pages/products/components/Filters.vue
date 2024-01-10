@@ -27,6 +27,7 @@ const store = useProductStore();
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_product_variations"
                               @complete="store.searchProductVariation"
+                              placeholder="Select Product Variation"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -45,6 +46,7 @@ const store = useProductStore();
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_vendors"
                               @complete="store.searchProductVendor"
+                              placeholder="Select Vendor"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -63,6 +65,7 @@ const store = useProductStore();
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_brands"
                               @complete="store.searchBrand"
+                              placeholder="Select Brand"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -82,6 +85,7 @@ const store = useProductStore();
                               :complete-on-focus = "true"
                               :suggestions="store.type_suggestion"
                               @complete="store.searchTaxonomyProduct($event)"
+                              placeholder="Select Product Type"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -94,15 +98,18 @@ const store = useProductStore();
                 <VhField label="Store*">
 
                     <AutoComplete
+                        name="products-filter-store"
+                        data-testid="products-filter-store"
                         v-model="store.filter_selected_store"
                         @change="store.setFilterStore($event)"
+                        option-label = "name"
+                        multiple
+                        :complete-on-focus = "true"
                         class="w-full"
                         :suggestions="store.filtered_stores"
                         @complete="store.searchStore"
                         placeholder="Select Store"
-                        data-testid="products-filter-store"
-                        name="products-filter-store"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                    >
                     </AutoComplete>
 
                 </VhField>
