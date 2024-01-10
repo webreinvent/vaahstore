@@ -1,4 +1,4 @@
-import {computed, toRaw, watch} from 'vue'
+import {computed, ref, toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -80,7 +80,21 @@ export const useProductMediaStore = defineStore({
         selected_dates:[],
         date_null:null,
         prev_list:[],
-        current_list:[]
+        current_list:[],
+        media_type: ref([
+            { name: 'Image', code: 'image', mimeTypes: ['image/jpeg', 'image/png'] },
+            { name: 'Audio', code: 'audio', mimeTypes: ['audio/mpeg', 'audio/wav'] },
+            { name: 'Application', code: 'docs', mimeTypes: ['application/pdf', 'application/msword'] },
+            {
+                name: 'Presentation',
+                code: 'ppt',
+                mimeTypes: [
+                    'application/vnd.ms-powerpoint',
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                ],
+            },
+        ]),
+
     }),
     getters: {
 
@@ -152,8 +166,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async onImageUpload(event){
             this.selectedFiles = event.files;
-            console.log(this.selectedFiles)
-            this.item.type = Array.from(new Set(this.selectedFiles.map(file => file.type))).join(', ');
+            this.item.type = Array.from(new Set(this.selectedFiles.map(file => file.type.split('/')[0]))).join(', ');
             if(!this.selectedFiles.length)
             {
                 return false;
@@ -190,10 +203,10 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
          onRemoveTemplatingFile(productMediaImages,index){
              const removedImage = this.item.images[index];
-             const removedType = removedImage ? removedImage.mime_type : null;
+             const removedType = removedImage ? removedImage.type : null;
              this.item.images.splice(index, 1);
              if (this.item.images.length > 0) {
-                 const remainingTypes = Array.from(new Set(this.item.images.map(file => file.mime_type)));
+                 const remainingTypes = Array.from(new Set(this.item.images.map(file => file.type)));
                  this.item.type = remainingTypes.join(', ');
              } else {
                  this.item.type = null;
@@ -203,11 +216,11 @@ export const useProductMediaStore = defineStore({
         removeUploadedFile(e){
             const indexName = e.file.name;
             const removedImage = this.item.images.find(file => file.name === indexName);
-            const removedType = removedImage ? removedImage.mime_type : null;
+            const removedType = removedImage ? removedImage.type : null;
 
             this.item.images = this.item.images.filter(file => file.name !== indexName);
             if (this.item.images.length > 0) {
-                const remainingTypes = Array.from(new Set(this.item.images.map(file => file.mime_type)));
+                const remainingTypes = Array.from(new Set(this.item.images.map(file => file.type)));
                 this.item.type = remainingTypes.join(', ');
             } else {
                 this.item.type = null;
@@ -421,7 +434,7 @@ export const useProductMediaStore = defineStore({
                 this.item = data;
                 const images=data.images;
                 if (images.length > 0) {
-                    this.item.type= images.map((file) => file.mime_type).join(', ');
+                    this.item.type= images.map((file) => file.type).join(', ');
                 } else {
                     this.item.type= '';
                 }

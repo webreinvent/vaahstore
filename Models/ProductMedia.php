@@ -348,6 +348,20 @@ class ProductMedia extends VaahModel
         });
 
     }
+    public function scopeMediaTypeFilter($query, $filter)
+    {
+        if (!isset($filter['type']) || empty($filter['type'])) {
+            return $query;
+        }
+
+        $search = $filter['type'];
+
+        return $query->where(function ($query) use ($search) {
+            foreach ($search as $type) {
+                $query->orWhere('type', $type);
+            }
+        });
+    }
     //-------------------------------------------------
 
     public function scopeProductFilter($query, $filter)
@@ -405,6 +419,7 @@ class ProductMedia extends VaahModel
         $list->productVariationFilter($request->filter);
         $list->productFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->mediaTypeFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

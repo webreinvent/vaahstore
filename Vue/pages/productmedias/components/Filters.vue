@@ -31,25 +31,6 @@ const store = useProductMediaStore();
 
             </VhFieldVertical>
 
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product:</b>
-                </template>
-                <AutoComplete
-                    name="product-medias-product-filter"
-                    data-testid="product-medias-product-filter"
-                    v-model="store.query.filter.product"
-                    @change="store.setProductFilter($event)"
-                    class="w-full"
-                    :suggestions="store.product_suggestion"
-                    @complete="store.searchProduct($event)"
-                    placeholder="Select Product"
-                    :dropdown="true"
-                    optionLabel="name"
-                    forceSelection>
-                </AutoComplete>
-
-            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
@@ -87,6 +68,24 @@ const store = useProductMediaStore();
 
             </VhFieldVertical >
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Media Type:</b>
+                </template>
+                <VhField label="Type">
+                    <MultiSelect
+                        v-model="store.query.filter.type"
+                        :options="store.media_type"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        placeholder="Select Media Type"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
 
             <Divider/>
 
