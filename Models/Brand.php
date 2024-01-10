@@ -50,6 +50,7 @@ class Brand extends VaahModel
         'image',
         'meta_description',
         'meta_title',
+        'meta_keyword'
     ];
 
     protected $casts =[

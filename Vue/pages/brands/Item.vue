@@ -241,7 +241,7 @@ const toggleItemMenu = (event) => {
                                     <Button icon="pi pi-eye"
                                             label="view"
                                             class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
-                                            @click="store.openModal(value)"
+                                            @click="store.openModal(store.item.meta_keyword)"
                                             data-testid="meta-open_modal"
                                     />
                                 </td>
@@ -256,9 +256,9 @@ const toggleItemMenu = (event) => {
                                     :style="{width: '50vw'}" :modal="true"
                             >
 <!--                                <span class="font-bold">Meta</span> <p  class="" v-html="'<pre>'+store.meta_content+'<pre>'"></p>-->
-                                <span class="font-bold">Meta</span> <p  class="mb-4" >{{store.item.meta}}</p>
-                                <div class="mb-4"><span class="font-bold">Meta Title</span><p>{{store.item.meta_title}}</p></div>
-                                <div><span class="font-bold">Meta Description</span><p>{{store.item.meta_description}}</p></div>
+                                <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
+                                <div class="mb-4 flex"><span class="font-bold mr-2">Meta Description: </span><p>{{store.item.meta_description}}</p></div>
+                                <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p   >{{store.itemString}}</p></div>
                             </Dialog>
                         </template>
 

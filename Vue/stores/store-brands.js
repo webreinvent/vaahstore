@@ -81,6 +81,7 @@ export const useBrandStore = defineStore({
         current_list:[],
         display_meta_modal:false,
         meta_content:[],
+        itemString:[],
     }),
     getters: {
 
@@ -1173,6 +1174,12 @@ export const useBrandStore = defineStore({
 
         openModal(item){
             this.meta_content = JSON.stringify(item,null,2);
+            if(item){
+                this.itemString = `{${item.map(value => `"${value}"`).join(",")}}`;
+            }else{
+                this.itemString = 'No';
+            }
+
             this.display_meta_modal=true;
         },
 
