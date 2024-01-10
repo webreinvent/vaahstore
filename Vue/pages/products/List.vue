@@ -48,7 +48,7 @@ onMounted(async () => {
     await store.getList();
 
     await store.getListCreateMenu();
-    
+
 });
 
 //--------form_menu

@@ -1134,10 +1134,13 @@ class Product extends VaahModel
         $max_chars = rand(5,100);
         $inputs['name']=$faker->text($max_chars);
 
-        // fill the name field here
+        // fill the product summary field here
         $max_summary_chars = rand(5,100);
-        $inputs['summary']=$faker->text($max_chars);
-
+        $inputs['summary']=$faker->text($max_summary_chars);
+        
+        // fill the product details field here
+        $max_details_chars = rand(5,100);
+        $inputs['details']=$faker->text($max_details_chars);
 
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
