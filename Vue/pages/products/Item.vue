@@ -243,6 +243,93 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
+                        <template v-else-if="column === 'seo_title'">
+                            <tr>
+                                <td><b>Seo Title</b></td>
+                                <td >
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal(value)"
+                                            data-testid="display-seo-title"
+                                    />
+                                </td>
+                            </tr>
+
+                            <Dialog
+                                    v-model:visible="store.display_seo_modal"
+                                    :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+                                    :style="{width: '50vw'}" :modal="true"
+                            >
+                                <p class="m-0" v-html="'<pre>'+store.seo_meta_value+'<pre>'"></p>
+                            </Dialog>
+
+                        </template>
+
+                        <template v-else-if="column === 'seo_meta_description'">
+                            <tr>
+                                <td><b>Seo Meta Description</b></td>
+                                <td >
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal(value)"
+                                            data-testid="display-seo-title"
+                                    />
+                                </td>
+                            </tr>
+
+                            <Dialog
+                                v-model:visible="store.display_seo_modal"
+                                :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+                                :style="{width: '50vw'}" :modal="true"
+                            >
+                                <p class="m-0" v-html="'<pre>'+store.seo_meta_value+'<pre>'"></p>
+                            </Dialog>
+
+                        </template>
+
+                        <template v-else-if="column === 'seo_meta_keyword'">
+                            <tr>
+                                <td><b>Seo Meta Keywords</b></td>
+                                <td >
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal(value)"
+                                            data-testid="display-seo-title"
+                                    />
+                                </td>
+                            </tr>
+                            
+                            <Dialog
+                                v-model:visible="store.display_seo_modal"
+                                :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+                                :style="{width: '50vw'}" :modal="true"
+                            >
+                                <p class="m-0" v-html="'<pre>'+store.seo_meta_value+'<pre>'"></p>
+                            </Dialog>
+
+                        </template>
+
+                        <template v-else-if="column === 'available_at'">
+                            <tr v-if="store.item.available_at">
+                                <td><b>Available From</b></td>
+                                <td  colspan="2" >
+                                  {{ store.item.available_at }}
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template v-else-if="column === 'launch_at'">
+                            <tr v-if="store.item.launch_at">
+                                <td><b>Launch At</b></td>
+                                <td  colspan="2" >
+                                    {{ store.item.launch_at }}
+                                </td>
+                            </tr>
+                        </template>
+
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
                                        :value="value"

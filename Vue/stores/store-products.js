@@ -109,6 +109,8 @@ export const useProductStore = defineStore({
         filtered_vendors : null,
         filter_selected_store : null,
         filter_selected_brands : null,
+        display_seo_modal : false,
+        seo_meta_value : null,
     }),
     getters: {
 
@@ -1865,6 +1867,13 @@ export const useProductStore = defineStore({
         {
             this.$router.push({name: 'vendors.index'})
         },
+
+        //---------------------------------------------------------------------
+        openModal(item){
+            this.seo_meta_value = JSON.stringify(item,null,2);
+            this.display_seo_modal=true;
+        },
+
 
 
     }
