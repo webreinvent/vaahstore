@@ -49,7 +49,6 @@ const permission=store.assets.permission;
             </Column>
 
             <Column field="store.name" header="Store"
-                    v-if="store.isViewLarge()"
                     :sortable="true">
 
                 <template #body="prop">
