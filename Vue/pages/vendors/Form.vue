@@ -338,7 +338,7 @@ watch(() => store.item.name, (item_name) => {
                         </VhField>
 
                         <VhField label="Phone">
-                            <InputText class="w-full"
+                            <InputNumber class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"

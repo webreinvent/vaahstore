@@ -425,9 +425,9 @@ class Vendor extends Model
             'taxonomy_id_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
-            'phone_number.regex' => 'The Phone Number field should contain numbers only',
+            'phone_number.regex' => 'The Phone Number is required if the country code is provided and should contain only numbers.',
             'phone_number.max' => 'The Phone Number field should not be more than :max characters',
-            'country_code.regex' => 'The Country Code field should contain numbers only with + sign',
+            'country_code.regex' => 'The Country Code is required if the Phone Number is provided should contain only numbers with + sign',
             'country_code.max' => 'The Country Code field should not be more than :max characters',
             'business_document_detail.max'=>'The Business Document  field should not be more than :max characters',
         ]);
