@@ -1286,16 +1286,12 @@ export const useVendorStore = defineStore({
             };
 
             this.filter_selected_products = [filtered_product];
-            this.query.filter.products= [product.slug];
             this.$router.push({name: 'vendors.index'});
 
         },
         async updateProductFilterOnRedirection()
         {
-            if(this.query.filter.products)
-            {
-                this.route.query.filter.products = this.query.filter.products;
-            }
+            this.query.filter.products= [this.filter_selected_products[0].slug];
         }
 
 

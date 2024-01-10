@@ -1280,6 +1280,7 @@ export const useProductStore = defineStore({
             this.filter_selected_store = null;
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
+            this.selected_dates = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();

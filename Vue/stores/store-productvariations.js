@@ -1094,16 +1094,17 @@ export const useProductVariationStore = defineStore({
 
             // Add the filtered product to the filter_selected_products array
             this.selected_products = [filtered_product];
-            this.query.filter.products= [product.slug];
             this.$router.push({name: 'productvariations.index'});
 
         },
+
+        //---------------------------------------------------------------------
+        
         async updateProductFilterOnRedirection()
         {
-            if(this.query.filter.products)
-            {
-                this.route.query.filter.products = this.query.filter.products;
-            }
+
+            this.query.filter.products= [this.selected_products[0].slug];
+
         }
 
 
