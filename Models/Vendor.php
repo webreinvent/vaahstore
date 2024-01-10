@@ -370,7 +370,11 @@ class Vendor extends Model
 
 
         $rules = [
-            'name' => 'required|max:250',
+            'name' => [
+                'required',
+                'max:250',
+                'regex:/^[A-Za-z0-9.\'\-&\/ ]+$/',
+            ],
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
             'years_in_business' => 'nullable|integer|min:1|max:100',
@@ -407,6 +411,8 @@ class Vendor extends Model
         }
 
         $validated_data = validator($requestData, $rules, [
+            'name.regex' => 'The Name field only supports uppercase letters (A-Z), lowercase letters (a-z),
+             numbers (0-9), period (.), apostrophe (\'), hyphen/dash (-), ampersand (&), slash (/), and spaces',
             'name.required' => 'The Name field is required',
             'name.max' => 'The Name field cannot be greater than :max characters',
             'slug.required' => 'The Slug field is required',
