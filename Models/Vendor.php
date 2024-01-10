@@ -373,7 +373,7 @@ class Vendor extends Model
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
-            'years_in_business' => ['required', 'regex:/^\d{1,4}(\.\d{1})?$/'],
+            'years_in_business' => 'nullable|integer|min:1|max:100',
             'services_offered' => 'max:250',
             'taxonomy_id_vendor_business_type' => 'required',
             'approved_by' => 'required',
@@ -414,8 +414,8 @@ class Vendor extends Model
             'email.email' => 'The Email is not valid',
             'email.max' => 'The Email field cannot be more than :max characters',
             'address.required' => 'The Address field cannot be more than :max characters',
-            'years_in_business.required' => 'The Years in business field is required',
-            'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
+            'years_in_business.min' => 'The Years in business must be greater than 0',
+            'years_in_business.max' => 'The Years in Business not greater than 100 ',
             'services_offered.required' => 'The Services offered field is required',
             'services_offered.max' => 'The Services offered field cannot be more than :max characters',
             'taxonomy_id_vendor_business_type.required' => 'The Business Type field is required',
@@ -1027,7 +1027,7 @@ class Vendor extends Model
         $inputs['vh_st_store_id'] = $store->id;
         $inputs['store'] = $store;
 
-        $inputs['years_in_business'] = rand(1,50);
+        $inputs['years_in_business'] = rand(1,100);
 
         $number_of_characters = rand(5,250);
         $inputs['status_notes']=$faker->text($number_of_characters);
