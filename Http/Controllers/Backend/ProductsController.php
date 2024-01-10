@@ -11,7 +11,7 @@ use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\Permission;
 class ProductsController extends Controller
 {
 
@@ -31,9 +31,10 @@ class ProductsController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permission'] = \Auth::user()->permissions(true);
+            $data['active_permissions'] = Permission::getActiveItems();
+            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
-
             $data['fillable']['columns'] = Product::getFillableColumns();
             $data['fillable']['except'] = Product::getUnFillableColumns();
             $data['empty_item'] = Product::getEmptyItem();

@@ -64,11 +64,13 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             data-testid="products-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             v-else
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
@@ -79,6 +81,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         class="p-button-sm"
                         data-testid="products-form-menu"
                         icon="pi pi-angle-down"

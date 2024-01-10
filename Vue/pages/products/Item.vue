@@ -79,6 +79,7 @@ const toggleItemMenu = (event) => {
 
                     <Button label="Edit"
                             class="p-button-sm"
+                            :disabled="!store.assets.permission.includes('can-update-module')"
                             @click="store.toEdit(store.item)"
                             data-testid="products-item-to-edit"
                             icon="pi pi-save"/>
@@ -87,6 +88,7 @@ const toggleItemMenu = (event) => {
                     <Button
                         type="button"
                         class="p-button-sm"
+                        :disabled="!store.assets.permission.includes('can-update-module')"
                         @click="toggleItemMenu"
                         data-testid="products-item-menu"
                         icon="pi pi-angle-down"
@@ -301,7 +303,7 @@ const toggleItemMenu = (event) => {
                                     />
                                 </td>
                             </tr>
-                            
+
                             <Dialog
                                 v-model:visible="store.display_seo_modal"
                                 :breakpoints="{'960px': '75vw', '640px': '90vw'}"
