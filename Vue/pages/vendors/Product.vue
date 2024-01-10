@@ -87,14 +87,12 @@ const toggleSelectedMenuState = (event) => {
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
                         <Dropdown v-model="store.selected_product"
-                                  :options="store.active_products"
+                                  :options="store.shortProductName(store.active_products)"
                                   optionLabel="name"
                                   placeholder="Select a Product"
                                   class="w-full">
-                            <template #optiongroup="slotProps">
-                                <div class="flex align-items-center">
-                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>
-                                </div>
+                            <template #option="slotProps">
+                                <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
                             </template>
                         </Dropdown>
                     </div>

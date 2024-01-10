@@ -370,10 +370,14 @@ class Vendor extends Model
 
 
         $rules = [
-            'name' => 'required|max:250',
+            'name' => [
+                'required',
+                'max:250',
+                'regex:/^[A-Za-z0-9.\'\-&\/ ]+$/',
+            ],
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
-            'years_in_business' => ['required', 'regex:/^\d{1,4}(\.\d{1})?$/'],
+            'years_in_business' => 'nullable|integer|min:1|max:100',
             'services_offered' => 'max:250',
             'taxonomy_id_vendor_business_type' => 'required',
             'approved_by' => 'required',
@@ -407,6 +411,8 @@ class Vendor extends Model
         }
 
         $validated_data = validator($requestData, $rules, [
+            'name.regex' => 'The Name field only supports uppercase letters (A-Z), lowercase letters (a-z),
+             numbers (0-9), period (.), apostrophe (\'), hyphen/dash (-), ampersand (&), slash (/), and spaces',
             'name.required' => 'The Name field is required',
             'name.max' => 'The Name field cannot be greater than :max characters',
             'slug.required' => 'The Slug field is required',
@@ -414,8 +420,8 @@ class Vendor extends Model
             'email.email' => 'The Email is not valid',
             'email.max' => 'The Email field cannot be more than :max characters',
             'address.required' => 'The Address field cannot be more than :max characters',
-            'years_in_business.required' => 'The Years in business field is required',
-            'years_in_business.digits_between' => 'The Years in Business field should not be more than 6 digits',
+            'years_in_business.min' => 'The Years in business must be greater than 0',
+            'years_in_business.max' => 'The Years in Business not greater than 100 ',
             'services_offered.required' => 'The Services offered field is required',
             'services_offered.max' => 'The Services offered field cannot be more than :max characters',
             'taxonomy_id_vendor_business_type.required' => 'The Business Type field is required',
@@ -425,9 +431,9 @@ class Vendor extends Model
             'taxonomy_id_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
-            'phone_number.regex' => 'The Phone Number field should contain numbers only',
+            'phone_number.regex' => 'The Phone Number is required if the country code is provided and should contain only numbers.',
             'phone_number.max' => 'The Phone Number field should not be more than :max characters',
-            'country_code.regex' => 'The Country Code field should contain numbers only with + sign',
+            'country_code.regex' => 'The Country Code is required if the Phone Number is provided should contain only numbers with + sign',
             'country_code.max' => 'The Country Code field should not be more than :max characters',
             'business_document_detail.max'=>'The Business Document  field should not be more than :max characters',
         ]);
@@ -1027,7 +1033,7 @@ class Vendor extends Model
         $inputs['vh_st_store_id'] = $store->id;
         $inputs['store'] = $store;
 
-        $inputs['years_in_business'] = rand(1,50);
+        $inputs['years_in_business'] = rand(1,100);
 
         $number_of_characters = rand(5,250);
         $inputs['status_notes']=$faker->text($number_of_characters);

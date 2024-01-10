@@ -297,12 +297,11 @@ watch(() => store.item.name, (item_name) => {
 
                 <VhField label="Years in Business">
 
-                    <InputMask class="w-full"
+                    <InputNumber class="w-full"
                                name="vendors-business-years"
                                placeholder="Enter years in business"
                                data-testid="vendors-name"
                                v-model="store.item.years_in_business"
-                               mask="99.9"
                                 />
                 </VhField>
 
@@ -339,7 +338,7 @@ watch(() => store.item.name, (item_name) => {
                         </VhField>
 
                         <VhField label="Phone">
-                            <InputText class="w-full"
+                            <InputNumber class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"

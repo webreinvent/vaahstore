@@ -49,7 +49,6 @@ const permission=store.assets.permission;
             </Column>
 
             <Column field="store.name" header="Store"
-                    v-if="store.isViewLarge()"
                     :sortable="true">
 
                 <template #body="prop">
@@ -121,7 +120,7 @@ const permission=store.assets.permission;
                     :sortable="true">
 
                 <template #body="prop">
-                    {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                    {{useVaah.ago(prop.data.updated_at)}}
                 </template>
 
             </Column>

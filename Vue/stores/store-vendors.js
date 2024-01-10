@@ -1339,6 +1339,39 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        shortProductName(products) {
+            if (!products || !Array.isArray(products)) {
+                return [];
+            }
+            return products.map(product => {
+                if (product.name && product.name.length > 20) {
+                    return {
+                        ...product,
+                        name: product.name.substring(0, 20) + '...'
+                    };
+                } else {
+                    return product;
+                }
+            });
+        },
+
+        //-------------------------------------------------------------------------
+
+        getFullName(option) {
+
+            if (option) {
+                const matching_product = this.active_products.find(product => product.id === option.id);
+                if (matching_product) {
+                    return matching_product.name;
+                } else {
+                    return option.slug; // show the slug value of the option if product not match .
+                }
+            }
+
+            return '';
+        },
+
+
 
     }
 
