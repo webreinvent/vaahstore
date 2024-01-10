@@ -1137,7 +1137,7 @@ class Product extends VaahModel
         // fill the product summary field here
         $max_summary_chars = rand(5,100);
         $inputs['summary']=$faker->text($max_summary_chars);
-        
+
         // fill the product details field here
         $max_details_chars = rand(5,100);
         $inputs['details']=$faker->text($max_details_chars);
