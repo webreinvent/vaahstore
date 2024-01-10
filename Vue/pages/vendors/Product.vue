@@ -91,10 +91,8 @@ const toggleSelectedMenuState = (event) => {
                                   optionLabel="name"
                                   placeholder="Select a Product"
                                   class="w-full">
-                            <template #optiongroup="slotProps">
-                                <div class="flex align-items-center">
-                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>
-                                </div>
+                            <template #option="slotProps">
+                                <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
                             </template>
                         </Dropdown>
                     </div>
