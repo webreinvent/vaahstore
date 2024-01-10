@@ -168,7 +168,9 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
 
                 </VhField>
-
+                <VhField label="Name">
+                    <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
+                </VhField>
                 <VhField label="Media">
 
                     <FileUpload customUpload

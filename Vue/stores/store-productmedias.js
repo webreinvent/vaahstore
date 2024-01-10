@@ -152,6 +152,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async onImageUpload(event){
             this.selectedFiles = event.files;
+            console.log(this.selectedFiles)
             this.item.type = Array.from(new Set(this.selectedFiles.map(file => file.type))).join(', ');
             if(!this.selectedFiles.length)
             {
@@ -181,6 +182,9 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item.images = data;
+                // let name = this.item.name;
+                // this.item = data;
+                this.item.name = data[0].name;
             }
         },
         //---------------------------------------------------------------------

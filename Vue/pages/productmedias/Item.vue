@@ -217,7 +217,8 @@ const toggleItemMenu = (event) => {
                                                :src="store.item.base_path+'/'+item['url']"
                                                preview
                                                alt="Image"
-                                               width="150" />
+                                               width="150"
+                                               v-tooltip.top="store.item.name"/>
                                     </td>
                                 </tr>
                         </template>
