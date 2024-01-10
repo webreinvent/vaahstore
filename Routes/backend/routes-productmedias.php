@@ -59,6 +59,9 @@ function () {
      */
     Route::post('/', 'ProductMediasController@createItem')
         ->name('vh.backend.store.productmedias.create');
+
+    Route::post('/getVariationForProduct', 'ProductMediasController@variationForProduct')
+        ->name('vh.backend.store.productmedias.list.productForStore');
     /**
      * Get Item
      */

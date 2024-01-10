@@ -1082,6 +1082,8 @@ class ProductMedia extends VaahModel
         return $response;
 
     }
+
+
     //-------------------------------------------------
     public static function searchProductVariation($request){
         $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);

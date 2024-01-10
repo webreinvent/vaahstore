@@ -366,6 +366,31 @@ class ProductMediasController extends Controller
         }
     }
 
+    public function variationForProduct(Request $request){
+        try{
+            $inputs = $request->all();
+            $response = [];
+            $data = ProductVariation::where('is_active', 1)->whereIn( 'vh_st_product_id', $inputs)
+                ->with('product')
+                ->orderBy('vh_st_product_id')
+                ->orderBy('id')
+                ->get(['id','name','slug','vh_st_product_id']);
+            $response['success'] = true;
+            $response['data']= $data;
+            return $response;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
     //----------------------------------------------------------
     //----------------------------------------------------------
 

@@ -96,6 +96,7 @@ export const useProductMediaStore = defineStore({
         ]),
 
     }),
+    product_suggestion_list:null,
     getters: {
 
     },
@@ -143,24 +144,33 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-       async searchProductVariation(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
+       // async searchProductVariation(event) {
+       //      const query = event;
+       //      const options = {
+       //          params: query,
+       //          method: 'post',
+       //      };
+       //
+       //      await vaah().ajax(
+       //          this.ajax_url+'/search/product/variation',
+       //          this.searchProductVariationAfter,
+       //          options
+       //      );
+       //  },
+       //  //---------------------------------------------------------------------
+       //  searchProductVariationAfter(data,res) {
+       //      if(data)
+       //      {
+       //          this.product_variation_suggestion = data;
+       //      }
+       //  },
 
-            await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        searchProductVariationAfter(data,res) {
-            if(data)
-            {
-                this.product_variation_suggestion = data;
+        searchProductVariation(event) {
+
+            if (this.product_variation && this.product_variation.length > 0) {
+                this.product_variation_suggestion = this.product_variation.filter((product) => {
+                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
             }
         },
         //---------------------------------------------------------------------
@@ -326,6 +336,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
+            console.log(product)
             this.item.vh_st_product_id = product.id;
         },
 
@@ -424,6 +435,15 @@ export const useProductMediaStore = defineStore({
                     ajax_url+'/'+id,
                     this.getItemAfter
                 );
+            }
+        },
+
+        searchProductVariations(event) {
+            if (this.product_variation && this.product_variation.length > 0) {
+                this.product_suggestion = this.product_variation.filter((product) => {
+                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                });
+                console.log( this.product_suggestion)
             }
         },
         //---------------------------------------------------------------------
@@ -1229,6 +1249,29 @@ export const useProductMediaStore = defineStore({
                 if (dates[0] != null && dates[1] != null) {
                     this.query.filter.date = dates;
                 }
+            }
+        },
+
+        async getVariationForProduct(event){
+            let product = toRaw(event.value);
+            console.log(product)
+            this.item.vh_st_product_id = product.id;
+            let options = {
+                params: this.item.product,
+                method: 'POST'
+            };
+            await vaah().ajax(
+                this.ajax_url+'/getVariationForProduct',
+                this.afterGetVariationForProduct,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        afterGetVariationForProduct(data, res)
+        {
+            if(data){
+                this.product_variation = data;
+
             }
         },
         //---------------------------------------------------------------------
