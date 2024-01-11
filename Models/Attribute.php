@@ -163,6 +163,7 @@ class Attribute extends VaahModel
 
     //-------------------------------------------------
 
+
     public static function createItem($request)
     {
         $inputs = $request->all();
@@ -171,7 +172,7 @@ class Attribute extends VaahModel
             return $validation;
         }
 
-        // check if name exist
+        // check if name exists
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
@@ -180,7 +181,7 @@ class Attribute extends VaahModel
             return $response;
         }
 
-        // check if slug exist
+        // check if slug exists
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
@@ -189,42 +190,42 @@ class Attribute extends VaahModel
             return $response;
         }
 
-        $item = new self();
-        $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
-
-        $hasNonNullValue = false;
-        $valueCount = 0;
+        $values_to_save = [];
 
         foreach ($inputs['value'] as $key => $value) {
             if ($value['is_active'] == 1 && $value['value'] !== null) {
-                $hasNonNullValue = true;
-                $valueCount++;
-
-                if ($valueCount > 15) {
-                    $response['success'] = false;
-                    $response['messages'][] = "Exceeded the maximum limit of 15 values.";
-                    return $response;
-                }
-
-                $item1 = new AttributeValue();
-                $item1->vh_st_attribute_id = $item->id;
-                $item1->value = $value['value'];
-                $item1->save();
+                $values_to_save[] = new AttributeValue(['value' => $value['value']]);
             }
         }
 
-        if (!$hasNonNullValue) {
+        if (empty($values_to_save)) {
             $response['success'] = false;
-            $response['messages'][] = "Please enter at least  value.";
+            $response['messages'][] = "Please enter Value field.";
             return $response;
         }
 
+        $item = new self();
+        $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
         $item->save();
+
+        if (count($values_to_save) > 15) {
+            $item->delete();
+            $response['success'] = false;
+            $response['messages'][] = "Exceeded the maximum limit of 15 values.";
+            return $response;
+        }
+
+        $item->value()->saveMany($values_to_save);
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
     }
+
+
+
+
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -689,6 +690,7 @@ class Attribute extends VaahModel
         $validated_data = validator($inputs, [
             'name' => 'required|max:250',
             'slug' => 'required|max:250',
+            'description' => 'max:100',
             'value' => 'required|max:250',
             'value.*.value' => 'max:250',
             'type' => 'required|max:250',
