@@ -708,6 +708,13 @@ class Whishlist extends VaahModel
 
         $taxonomy_type = Taxonomy::getTaxonomyByType('wishlists-types');
         $taxonomy_type_ids = $taxonomy_type->pluck('id')->toArray();
+        if($taxonomy_type_ids === [])
+        {
+            $response['success'] = false;
+            $response['errors'][] = 'No Wishlist Type Found , Create Wishlist Type From Taxonomies';
+            return $response;
+
+        }
         $taxonomy_type_id = $taxonomy_type_ids[array_rand($taxonomy_type_ids)];
         $taxonomy_type_name = $taxonomy_type->where('id',$taxonomy_type_id)->first();
         $inputs['taxonomy_id_whishlists_types'] = $taxonomy_type_id;
@@ -715,6 +722,13 @@ class Whishlist extends VaahModel
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
+        if($status_ids === [])
+        {
+            $response['success'] = false;
+            $response['errors'][] = 'No Wishlist Status Found , Create Wishlist Status From Taxonomies ';
+            return $response;
+
+        }
         $status_id = $status_ids[array_rand($status_ids)];
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_whishlists_status'] = $status_id;
