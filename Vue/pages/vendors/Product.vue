@@ -55,6 +55,7 @@ const toggleSelectedMenuState = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="products-save"
                             class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.itemAction('save-product')"
                             icon="pi pi-save"/>
 
@@ -90,6 +91,7 @@ const toggleSelectedMenuState = (event) => {
                                   :options="store.shortProductName(store.active_products)"
                                   optionLabel="name"
                                   placeholder="Select a Product"
+                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                   class="w-full">
                             <template #option="slotProps">
                                 <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
@@ -100,6 +102,7 @@ const toggleSelectedMenuState = (event) => {
                     <div class="p-1">
                         <Button type="button"
                                 label="Add"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 @click="store.addProduct()" />
                     </div>
                 </div>
@@ -114,6 +117,7 @@ const toggleSelectedMenuState = (event) => {
                             @click="toggleSelectedMenuState"
                             data-testid="products-actions-menu"
                             aria-haspopup="true"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             aria-controls="overlay_menu">
                             <i class="pi pi-angle-down"></i>
                             <Badge v-if="store.action.items.length > 0"
@@ -126,6 +130,7 @@ const toggleSelectedMenuState = (event) => {
                     </div>
                     <div class="pr-1">
                         <Button label="Remove All"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 @click="store.bulkRemoveProduct(store.item.id,true)"
                                 class="p-button-sm"
                                 size="small" />
@@ -140,6 +145,7 @@ const toggleSelectedMenuState = (event) => {
                         <tr>
                             <th class="col-1">
                                 <Checkbox v-model="store.select_all_product"
+                                          :disabled="!store.assets.permissions.includes('can-update-module')"
                                           :binary="true" @click="store.selectAllProduct()" />
                             </th>
                             <th scope="col">Product name</th>
@@ -174,6 +180,7 @@ const toggleSelectedMenuState = (event) => {
                                 <Button label="Remove"
                                         class="p-button-sm"
                                         size="small"
+                                        :disabled="!store.assets.permissions.includes('can-update-module')"
                                         @click="store.removeProduct(item)" />
                             </td>
                         </tr>

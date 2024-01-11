@@ -238,6 +238,13 @@ class Vendor extends Model
     //-------------------------------------------------
     public static function createProduct($request){
 
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $input = $request->all();
         $vendor_id = $input['id'];
         $validation = self::validatedProduct($input['products']);
@@ -287,6 +294,14 @@ class Vendor extends Model
     }
     //-------------------------------------------------
     public static function bulkProductRemove($request ,$id){
+
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
             ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
             $response['messages'][] = 'Removed all product successfully.';
             return $response;
@@ -296,6 +311,13 @@ class Vendor extends Model
 
     //-------------------------------------------------
     public static function singleProductRemove($request ,$id){
+
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         ProductVendor::where('id', $id)->update(['is_active'=>0]);
         $vendor = ProductVendor::select('vh_st_vendor_id')->where('id', $id)->first();
