@@ -897,7 +897,7 @@ class Brand extends VaahModel
         $approved_by_data = User::where('is_active',1)->where('id',$approved_id)->first();
         $inputs['approved_by'] =$approved_id;
         $inputs['approved_by_user'] = $approved_by_data;
-                
+
         $faker = Factory::create();
 
 
