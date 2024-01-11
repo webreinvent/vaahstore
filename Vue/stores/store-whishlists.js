@@ -664,6 +664,7 @@ export const useWhishlistStore = defineStore({
             //reset query strings
             await this.resetQueryString();
 
+
             //reload page list
             await this.getList();
         },
@@ -673,7 +674,9 @@ export const useWhishlistStore = defineStore({
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
+
             }
+            vaah().toastSuccess(['Action Was Successful']);
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
