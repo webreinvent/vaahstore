@@ -156,7 +156,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation'
                          || column === 'attribute_value' || column === 'status' || column === 'meta' || column === 'deleted_by'
-                           || column === 'value'">
+                           || column === 'value'|| column === 'description'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -199,6 +199,10 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'type'">
+                            <VhViewRow label="value"
+                                       :value="store.item.value"
+                                       type="multipleValues"
+                            />
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Type</b>
@@ -211,13 +215,13 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
+                            <VhViewRow label="Description"
+                                       :value="store.item.description"
+                                       
+                            />
                             <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
-                            />
-                            <VhViewRow label="value"
-                                       :value="store.item.value"
-                                       type="multipleValues"
                             />
 
                         </template>
