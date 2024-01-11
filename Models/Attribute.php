@@ -591,9 +591,7 @@ class Attribute extends VaahModel
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
         $existing_attribute_values = $item->value()->get()->toArray();
