@@ -234,10 +234,10 @@ export const useAttributeStore = defineStore({
         //----------------------------------------------------------------------
 
         deleteAttributeValue(value_name){
-
             this.item.value.forEach((element, index)=>{
-                if (element.value == value_name){
+                if (element.value === value_name){
                     element.is_active = 0;
+                    element.value = null;
                 }
             })
         },
