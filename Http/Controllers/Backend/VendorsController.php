@@ -29,11 +29,7 @@ class VendorsController extends Controller
 
             $data = [];
 
-            $data['permission'] = \Auth::user()->permissions(true);
-
-
-            $data['active_permissions'] = Permission::getActiveItems();
-
+            $data['permissions'] = \Auth::user()->permissions(true);
 
             Permission::syncPermissionsWithRoles();
 
