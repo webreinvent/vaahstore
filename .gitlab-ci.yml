@@ -35,7 +35,7 @@ deploy_features:
     - cp -r ./store-dev/.  ./
     - pwd
     - cp .env.example.default .env
-    - composer install
+    - composer update
     - php artisan down
     #- mv .env.develop-backup .env
     - php artisan cache:clear
