@@ -2,7 +2,6 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -162,7 +161,6 @@ class ProductAttribute extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $validation_result = self::productAttributeInputValidator($request->all());
 
         if ($validation_result['success'] != true){
@@ -302,6 +300,63 @@ class ProductAttribute extends VaahModel
     }
     //-------------------------------------------------
 
+    public function scopeDefaultProductVariationFilter($query,$filter)
+    {
+
+        if(!isset($filter['default_product_variation'])
+            || is_null($filter['default_product_variation'])
+            || $filter['default_product_variation'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $default = $filter['default_product_variation'];
+        if($default == 'true')
+        {
+            $query->whereHas('productVariation', function ($query) use ($default) {
+                $query->where('is_default', 1);
+
+            });
+        }
+        else{
+            $query->whereHas('productVariation', function ($query) use ($default) {
+                $query->where('is_default',0);
+
+            });
+        }
+
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    //-------------------------------------------------
+
     public static function searchProductVariation($request)
     {
 
@@ -345,8 +400,7 @@ class ProductAttribute extends VaahModel
         }
 
         else{
-
-            $attributes = Attribute::where('name', 'like', "%$query%")->get();
+            $attributes = Attribute::where('name', 'like', "$query%")->get();
         }
 
         $response['success'] = true;
@@ -366,18 +420,21 @@ class ProductAttribute extends VaahModel
         }
         $search = $filter['q'];
 
-        $query->where(function ($query) use ($search) {
-            $query->where('id', 'LIKE', '%' . $search . '%')
-                ->orwhereHas('productVariation', function ($query) use ($search) {
-                    $query->where('name','LIKE', '%'.$search.'%')
-                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
-                });
-        });
+        $key = explode(' ', $search);
+
+        foreach ($key as $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('productVariation', function ($query) use ($search) {
+                        $query->where('name', 'LIKE', '%' . $search . '%')
+                            ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                    });
+            });
+        }
 
     }
 
     //-------------------------------------------------
-
     public function scopeProductVariationFilter($query, $filter)
     {
 
@@ -414,7 +471,7 @@ class ProductAttribute extends VaahModel
         $attributes = $filter['attributes'];
 
         $query->whereHas('attribute', function ($query) use ($attributes) {
-            $query->where('slug', $attributes);
+            $query->whereIn('slug', $attributes);
 
         });
 
@@ -429,6 +486,8 @@ class ProductAttribute extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVariationFilter($request->filter);
+        $list->defaultProductVariationFilter($request->filter);
+        $list->dateFilter($request->filter);
         $list->attributesFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
