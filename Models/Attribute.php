@@ -689,11 +689,17 @@ class Attribute extends VaahModel
             'value' => 'required|max:250',
             'value.*.value' => 'max:250',
             'type' => 'required|max:250',
-            'description' => 'required|max:250',
+
 
         ],
             [
-
+                'name.required' => 'The Name field is required.',
+                'value.required' => 'The Value field is required.',
+                'name.max' => 'The Name field may not be greater than :max characters.',
+                'slug.required' => 'The Slug field is required.',
+                'slug.max' => 'The Slug field may not be greater than :max characters.',
+                'type.required' => 'The Type field field is required.',
+                'type.max' => 'The Type field may not be greater than :max characters.',
                 'value.*.value' => 'The Value field may not be greater than :max characters.',
 
             ]
