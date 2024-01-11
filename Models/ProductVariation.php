@@ -437,6 +437,29 @@ class ProductVariation extends VaahModel
     }
 
 
+    //-------------------------------------------------
+
+
+    public function scopeProductFilter($query, $filter)
+    {
+        if(!isset($filter['product'])
+            || is_null($filter['product'])
+            || $filter['product'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $store = $filter['product'];
+
+        $query->whereHas('product', function ($query) use ($store) {
+            $query->where('slug', $store);
+
+        });
+
+    }
+
+
 
     //-------------------------------------------------
     public function scopeDateRangeFilter($query, $filter)
@@ -475,6 +498,7 @@ class ProductVariation extends VaahModel
         $list->stockFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->dateRangeFilter($request->filter);
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
