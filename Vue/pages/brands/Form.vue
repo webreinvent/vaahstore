@@ -173,7 +173,6 @@ const permission=store.assets.permission;
                     <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />
                 </VhField>
 
-
                 <VhField label="Registered By">
 
                     <AutoComplete
