@@ -154,8 +154,8 @@ const props = defineProps({
                 <template v-if="typeof value === 'object' && value !== null">
                     <table class="table">
                         <tbody>
-                            <tr v-for="data in value">
-                                <td><div style="word-break: break-word;">{{data.new_value}}</div></td>
+                            <tr>
+                                <td v-for="data in value"><div style="word-break: break-word;"><tag>{{data.new_value}}</tag></div></td>
                             </tr>
                         </tbody>
                     </table>
