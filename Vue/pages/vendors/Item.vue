@@ -62,6 +62,8 @@ const getFileExtension = (filePath) => {
     return parts[parts.length - 1];
 };
 
+const permissions=store.assets.permissions;
+
 </script>
 <template>
 
@@ -89,6 +91,7 @@ const getFileExtension = (filePath) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="vendors-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -98,7 +101,9 @@ const getFileExtension = (filePath) => {
                         class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="vendors-item-menu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         icon="pi pi-angle-down"
+
                         aria-haspopup="true"/>
 
                     <Menu ref="item_menu_state"

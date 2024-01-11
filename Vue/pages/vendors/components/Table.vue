@@ -6,7 +6,7 @@ const store = useVendorStore();
 const useVaah = vaah();
 
 
-const permission=store.assets.permission;
+const permissions=store.assets.permissions;
 
 </script>
 
@@ -134,6 +134,7 @@ const permission=store.assets.permission;
                                  data-testid="vendors-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
                 </template>
@@ -154,7 +155,7 @@ const permission=store.assets.permission;
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
                             class="p-button-tiny p-button-text"
                                 data-testid="vendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
@@ -166,6 +167,7 @@ const permission=store.assets.permission;
                                 data-testid="vendors-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 

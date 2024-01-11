@@ -68,6 +68,8 @@ watch(() => store.item.name, (item_name) => {
 });
 //--------/form_menu
 
+const permissions=store.assets.permissions;
+
 </script>
 <template>
 
@@ -109,6 +111,7 @@ watch(() => store.item.name, (item_name) => {
                             v-if="store.item && store.item.id"
                             data-testid="vendors-save"
                             @click="store.itemAction('save')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -116,6 +119,7 @@ watch(() => store.item.name, (item_name) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="vendors-create-and-new"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
                     <Button data-testid="vendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
@@ -130,6 +134,7 @@ watch(() => store.item.name, (item_name) => {
                         class="p-button-sm"
                         data-testid="vendors-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
