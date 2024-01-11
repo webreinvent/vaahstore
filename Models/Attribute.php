@@ -226,7 +226,7 @@ class Attribute extends VaahModel
 
         if(!isset($filter['sort']))
         {
-            return $query->orderBy('id', 'asc');
+            return $query->orderBy('id', 'desc');
         }
 
         $sort = $filter['sort'];
@@ -301,7 +301,6 @@ class Attribute extends VaahModel
                     ->orWhere('id', 'LIKE', '%' . $search . '%');
             });
         }
-
     }
     //-------------------------------------------------
     public function scopeDateFilter($query, $filter)
