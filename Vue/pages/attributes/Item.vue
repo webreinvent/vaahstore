@@ -92,19 +92,19 @@ const toggleItemMenu = (event) => {
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
-                    <Button
-                        type="button"
-                        data-testid="attributes-form-menu"
-                        icon="pi pi-angle-left"
-                        @click="store.getPreviousItem(store.item)"
-                        aria-haspopup="true"/>
+<!--                    <Button-->
+<!--                        type="button"-->
+<!--                        data-testid="attributes-form-menu"-->
+<!--                        icon="pi pi-angle-left"-->
+<!--                        @click="store.getPreviousItem(store.item)"-->
+<!--                        aria-haspopup="true"/>-->
 
-                    <Button
-                        type="button"
-                        data-testid="attributes-form-menu"
-                        icon="pi pi-angle-right"
-                        @click="store.getNextItem(store.item)"
-                        aria-haspopup="true"/>
+<!--                    <Button-->
+<!--                        type="button"-->
+<!--                        data-testid="attributes-form-menu"-->
+<!--                        icon="pi pi-angle-right"-->
+<!--                        @click="store.getNextItem(store.item)"-->
+<!--                        aria-haspopup="true"/>-->
 
                     <Menu ref="item_menu_state"
                           :model="store.item_menu_list"
@@ -134,7 +134,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">

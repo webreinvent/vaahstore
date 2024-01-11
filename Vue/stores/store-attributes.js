@@ -495,6 +495,7 @@ export const useAttributeStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
                 this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
