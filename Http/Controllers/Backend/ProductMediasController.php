@@ -371,10 +371,10 @@ class ProductMediasController extends Controller
             $inputs = $request->all();
             $response = [];
             $data = ProductVariation::where('is_active', 1)->whereIn( 'vh_st_product_id', $inputs)
-                ->with('product')
+
                 ->orderBy('vh_st_product_id')
                 ->orderBy('id')
-                ->get(['id','name','slug','vh_st_product_id']);
+                ->get(['id','name','slug']);
             $response['success'] = true;
             $response['data']= $data;
             return $response;

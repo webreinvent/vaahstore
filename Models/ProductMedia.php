@@ -103,6 +103,8 @@ class ProductMedia extends VaahModel
             $empty_item[$column] = null;
         }
 
+        $empty_item['product_variation_store']=[];
+
         return $empty_item;
     }
 
@@ -133,6 +135,11 @@ class ProductMedia extends VaahModel
     public function images()
     {
         return $this->hasMany(ProductMediaImage::class, 'vh_st_product_media_id','id');
+    }
+    //-------------------------------------------------
+    public function productVariationMedia()
+    {
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_prod_variation_media', 'vh_st_product_media_id', 'vh_st_product_variation_id');
     }
     //-------------------------------------------------
     public function updatedByUser()
@@ -187,6 +194,15 @@ class ProductMedia extends VaahModel
 
         $inputs = $request->all();
 
+        $product_variation=[];
+
+        $product_variation= $inputs['product_variation'];
+
+
+
+
+
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -200,11 +216,11 @@ class ProductMedia extends VaahModel
 
 
         // check if exist
-            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id'])->withTrashed()->first();
+            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
 
             if ($item) {
                 $response['success'] = false;
-                $response['messages'][] = "This Product and Product Variation is already exist.";
+                $response['messages'][] = "This Product is already exist.";
                 return $response;
             }
 
@@ -228,6 +244,14 @@ class ProductMedia extends VaahModel
                  $image->thumbnail_size  = $image_details['thumbnail_size'];
                  $image->save();
               }
+
+            /* dd($inputs);*/
+
+        if (isset($product_variation) && is_array($product_variation)) {
+            foreach ($product_variation as $store) {
+                $item->productVariationMedia()->attach($store['id']);
+            }
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -637,7 +661,7 @@ class ProductMedia extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariation','images'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product','productVariationMedia','images'])
             ->withTrashed()
             ->first();
 
@@ -901,7 +925,6 @@ class ProductMedia extends VaahModel
 
         $rules = validator($inputs, [
             'vh_st_product_id'=> 'required',
-            'vh_st_product_variation_id'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
             'images'=> 'required',
             'status_notes' => [
@@ -912,7 +935,6 @@ class ProductMedia extends VaahModel
         [
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
             'vh_st_product_id.required' => 'The Product field is required',
-            'vh_st_product_variation_id.required' => 'The Product Variation field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             'images' => 'The Image field is required.',

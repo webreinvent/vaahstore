@@ -356,6 +356,7 @@ export const useProductMediaStore = defineStore({
         setProductVariation(event){
             if (event.value) {
                 let productVariation = toRaw(event.value);
+                console.log(productVariation)
                 this.item.vh_st_product_variation_id = productVariation.id;
             }
         },
@@ -455,6 +456,7 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 const images=data.images;
+                // this.item.product_variation=data.product_variation_media;
                 if (images.length > 0) {
                     this.item.type= images.map((file) => file.type).join(', ');
                 } else {
