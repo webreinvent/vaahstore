@@ -673,7 +673,7 @@ class Brand extends VaahModel
 
         if ($item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = "This Name already exists.";
             return $response;
         }
 
@@ -793,6 +793,9 @@ class Brand extends VaahModel
         $customMessages = array(
             'status_notes.required_if' => 'The Status Notes is required for "Rejected" Status',
             'status_notes.max' => 'The Status Notes may not be greater than :max characters.',
+            'name' => 'The Name field is required.',
+            'slug' => 'The Slug field is required.',
+            'status' => 'The Status field is required.',
         );
 
         $validator = \Validator::make($inputs, $rules,$customMessages);
@@ -894,8 +897,18 @@ class Brand extends VaahModel
         $approved_by_data = User::where('is_active',1)->where('id',$approved_id)->first();
         $inputs['approved_by'] =$approved_id;
         $inputs['approved_by_user'] = $approved_by_data;
-
+                
         $faker = Factory::create();
+
+
+        $random_words = [];
+        $max_words = 10;
+
+        for ($i = 0; $i < $faker->numberBetween(2, $max_words); $i++) {
+            $random_words[] = $faker->word;
+        }
+
+        $inputs['meta_keyword'] = $random_words;
 
         /*
          * You can override the filled variables below this line.
