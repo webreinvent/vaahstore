@@ -21,7 +21,8 @@ let empty_states = {
             sort: null,
             date: null,
             in_stock: null,
-            default: null
+            default: null,
+            product:null
         },
     },
     action: {
@@ -79,6 +80,7 @@ export const useProductVariationStore = defineStore({
         prev_list: [],
         current_list: [],
         filtered_products:null,
+        selected_product : null,
     }),
     getters: {
 
@@ -245,11 +247,8 @@ export const useProductVariationStore = defineStore({
 
         setProductFilter(event){
 
-            let product = toRaw(event.value);
-            if(product.slug)
-            {
-                this.query.filter.product = product.slug;
-            }
+            this.query.filter.product = this.selected_product.slug;
+
         },
 
         //---------------------------------------------------------------------
@@ -748,6 +747,7 @@ export const useProductVariationStore = defineStore({
         {
             await this.resetQueryString();
             this.selected_dates=[];
+            this.selected_product = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
             vaah().toastSuccess(['Action was successful']);
             await this.getList();

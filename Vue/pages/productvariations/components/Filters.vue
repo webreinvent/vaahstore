@@ -2,9 +2,31 @@
 
 import { useProductVariationStore } from '../../../stores/store-productvariations'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+const route = useRoute();
 
 const store = useProductVariationStore();
 
+onMounted(async () => {
+    if (route.query.filter && route.query.filter.product )
+    {
+        let product_slug = route.query.filter.product;
+        let product = store.active_products.find(product => product.slug === product_slug);
+        let filter_product = null;
+        if (product) {
+            filter_product = {
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+            };
+        }
+
+        store.selected_product = filter_product;
+    }
+
+
+});
 </script>
 
 <template>
@@ -18,9 +40,10 @@ const store = useProductVariationStore();
                     <b>Product:</b>
                 </template>
 
+
                 <AutoComplete
                     value="id"
-                    v-model="store.query.filter.product"
+                    v-model="store.selected_product"
                     @change="store.setProductFilter($event)"
                     class="w-full"
                     :suggestions="store.filtered_products"
