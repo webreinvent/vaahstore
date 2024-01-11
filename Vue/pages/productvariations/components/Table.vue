@@ -5,7 +5,7 @@ import { useProductVariationStore } from '../../../stores/store-productvariation
 const store = useProductVariationStore();
 const useVaah = vaah();
 
-const permission=store.assets.permission;
+const permissions=store.assets.permissions;
 
 </script>
 
@@ -118,7 +118,7 @@ const permission=store.assets.permission;
           class: props.modelValue ? 'bg-green-400' : '',
         }),
       }"
-                        :disabled="!store.assets.permission.includes('can-update-module')"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                     ></InputSwitch>
                 </template>
             </Column>
@@ -138,7 +138,7 @@ const permission=store.assets.permission;
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
                                 v-tooltip.top="'Update'"
@@ -149,7 +149,7 @@ const permission=store.assets.permission;
                         <Button
                                 class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permission.includes('can-update-module')"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />

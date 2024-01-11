@@ -43,7 +43,7 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
-const permission=store.assets.permission;
+const permissions=store.assets.permissions;
 
 
 </script>
@@ -72,7 +72,7 @@ const permission=store.assets.permission;
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="productvariations-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -83,7 +83,7 @@ const permission=store.assets.permission;
                         @click="toggleItemMenu"
                         data-testid="productvariations-item-menu"
                         icon="pi pi-angle-down"
-                        :disabled="!store.assets.permission.includes('can-update-module')"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="item_menu_state"

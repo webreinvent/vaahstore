@@ -25,7 +25,7 @@ const toggleBulkMenuState = (event) => {
 };
 //--------/bulk_menu_state
 
-const permission=store.assets.permission;
+const permissions=store.assets.permissions;
 </script>
 
 <template>
@@ -44,7 +44,7 @@ const permission=store.assets.permission;
                     data-testid="productvariations-actions-menu"
                     aria-haspopup="true"
                     aria-controls="overlay_menu"
-                        :disabled="!store.assets.permission.includes('can-update-module')">
+                        :disabled="!store.assets.permissions.includes('can-update-module')">
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"
                            :value="store.action.items.length" />
@@ -62,7 +62,7 @@ const permission=store.assets.permission;
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
                     class="ml-1 p-button-sm"
-                    :disabled="!store.assets.permission.includes('can-update-module')"
+                    :disabled="!store.assets.permissions.includes('can-update-module')"
                 >
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>

@@ -25,7 +25,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-const permission=store.assets.permission;
+const permissions=store.assets.permissions;
 </script>
 <template>
 
@@ -38,7 +38,7 @@ const permission=store.assets.permission;
 
                 <div class="flex flex-row">
                     <div class="p-panel-title"
-                         :disabled="!store.assets.permission.includes('can-update-module')">
+                         :disabled="!store.assets.permissions.includes('can-update-module')">
                         <span v-if="store.item && store.item.id">
                             Update
                         </span>
@@ -61,7 +61,7 @@ const permission=store.assets.permission;
                             v-if="store.item && store.item.id"
                             data-testid="productvariations-save"
                             @click="store.itemAction('save')"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -84,7 +84,7 @@ const permission=store.assets.permission;
                         class="p-button-sm"
                         data-testid="productvariations-form-menu"
                         icon="pi pi-angle-down"
-                        :disabled="!store.assets.permission.includes('can-update-module')"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
