@@ -2,8 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use WebReinvent\VaahCms\Models\Permission;
 
 class AttributesController extends Controller
 {
@@ -19,12 +21,20 @@ class AttributesController extends Controller
 
     public function getAssets(Request $request)
     {
+        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
+        $response['success'] = false;
+        $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+        return response()->json($response);
+    }
 
         try{
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
+            /*$data['active_permissions'] = Permission::getActiveItems();*/
+            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Attribute::getFillableColumns();
@@ -77,6 +87,7 @@ class AttributesController extends Controller
 
     public function getList(Request $request)
     {
+
         try{
             return Attribute::getList($request);
         }catch (\Exception $e){
@@ -94,6 +105,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return Attribute::updateList($request);
         }catch (\Exception $e){
@@ -112,7 +129,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
 
+            return response()->json($response);
+        }
 
         try{
             return Attribute::listAction($request, $type);
@@ -132,6 +154,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return Attribute::deleteList($request);
         }catch (\Exception $e){
@@ -166,6 +194,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return Attribute::createItem($request);
         }catch (\Exception $e){
@@ -200,6 +234,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+        $response['success'] = false;
+        $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+        return response()->json($response);
+    }
         try{
             return Attribute::updateItem($request,$id);
         }catch (\Exception $e){
@@ -217,6 +257,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return Attribute::deleteItem($request,$id);
         }catch (\Exception $e){
@@ -234,6 +280,12 @@ class AttributesController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return Attribute::itemAction($request,$id,$action);
         }catch (\Exception $e){

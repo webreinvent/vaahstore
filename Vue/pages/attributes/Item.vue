@@ -80,6 +80,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="attributes-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -88,6 +89,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="attributes-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -217,7 +219,7 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow label="Description"
                                        :value="store.item.description"
-                                       
+
                             />
                             <VhViewRow label="Is Active"
                                        :value="value"
