@@ -766,6 +766,7 @@ export const useAttributeStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.attribute_new_value=null;
             this.$router.push({name: 'attributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------

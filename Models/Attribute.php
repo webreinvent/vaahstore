@@ -162,9 +162,9 @@ class Attribute extends VaahModel
     }
 
     //-------------------------------------------------
+
     public static function createItem($request)
     {
-
         $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -192,21 +192,21 @@ class Attribute extends VaahModel
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->save();
-        $new_array = null;
-        foreach ($inputs['value'] as $value) {
-            if ($value['is_active']) {
-                $new_array[] = $value;
-            }
-        }
-        if(!$new_array)
-        {
-            $response['success'] = false;
-            $response['messages'][] = "Please enter value.";
-            return $response;
-        }
-        foreach ($inputs['value'] as $key=>$value) {
-            if ($value['is_active'] == 1) {
+
+        $hasNonNullValue = false;
+        $valueCount = 0;
+
+        foreach ($inputs['value'] as $key => $value) {
+            if ($value['is_active'] == 1 && $value['value'] !== null) {
+                $hasNonNullValue = true;
+                $valueCount++;
+
+                if ($valueCount > 15) {
+                    $response['success'] = false;
+                    $response['messages'][] = "Exceeded the maximum limit of 15 values.";
+                    return $response;
+                }
+
                 $item1 = new AttributeValue();
                 $item1->vh_st_attribute_id = $item->id;
                 $item1->value = $value['value'];
@@ -214,10 +214,16 @@ class Attribute extends VaahModel
             }
         }
 
+        if (!$hasNonNullValue) {
+            $response['success'] = false;
+            $response['messages'][] = "Please enter at least  value.";
+            return $response;
+        }
+
+        $item->save();
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
-
     }
 
     //-------------------------------------------------

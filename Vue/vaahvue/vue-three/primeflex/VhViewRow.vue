@@ -183,10 +183,9 @@ const props = defineProps({
             </td>
         </template>
         <template v-else-if="type==='description'">
-            <td colspan="2" style="max-width:260px; overflow-x: auto">
+            <td colspan="2">
 
-                <pre style="font-family: Inter, ui-sans-serif, system-ui
-">{{value}}</pre>
+                <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces">{{value}}</pre>
             </td>
         </template>
         <template v-else-if="type==='multipleValues'">
