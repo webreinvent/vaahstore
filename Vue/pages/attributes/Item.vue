@@ -178,11 +178,11 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'name'">
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Name</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -190,11 +190,11 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'slug'">
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Slug</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
@@ -206,11 +206,11 @@ const toggleItemMenu = (event) => {
                                        type="multipleValues"
                             />
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Type</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.type}}</div>
                                 </td>
                             </tr>

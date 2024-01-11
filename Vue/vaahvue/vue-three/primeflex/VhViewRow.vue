@@ -186,7 +186,7 @@ const props = defineProps({
             <td colspan="2">
                 <template v-if="typeof value === 'object' && value !== null">
                     <span v-for="data in value">
-                        <Tag class="p-button-outlined p-button-secondary p-button-sm">
+                        <Tag class="p-button-outlined p-button-secondary p-button-sm m-1">
                             {{data.value}}
                         </Tag>&nbsp;
                     </span>

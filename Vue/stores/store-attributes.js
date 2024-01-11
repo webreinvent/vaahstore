@@ -189,6 +189,7 @@ export const useAttributeStore = defineStore({
                 if (!this.item.value.some(item => item.value === new_array.value)) {
                     const new_value = { value: new_array.value , is_active :1 };
                     this.item.value.push(new_value);
+                    this.attribute_new_value=null;
                 }
                 else {
                     throw new Error('Value already added');
