@@ -226,7 +226,7 @@ class Attribute extends VaahModel
 
         if(!isset($filter['sort']))
         {
-            return $query->orderBy('id', 'desc');
+            return $query->orderBy('id', 'asc');
         }
 
         $sort = $filter['sort'];
