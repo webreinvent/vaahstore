@@ -110,10 +110,10 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item" class="mt-2">
+            <div class="mt-2" v-if="store.item">
 
                 <Message severity="error"
-                         class="p-container-message mb-3"
+                         class="p-container-message"
                          :closable="false"
                          icon="pi pi-trash"
                          v-if="store.item.deleted_at">
@@ -121,13 +121,13 @@ const toggleFormMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="articles-item-restore"
+                                    data-testid="attributes-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>

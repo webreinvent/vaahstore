@@ -544,9 +544,11 @@ export const useAttributeStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    this.item = data;
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    this.item = data;
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'save':
@@ -988,6 +990,7 @@ export const useAttributeStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1014,40 +1017,21 @@ export const useAttributeStore = defineStore({
                             this.itemAction('save-and-new');
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
