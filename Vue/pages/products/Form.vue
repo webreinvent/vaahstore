@@ -290,12 +290,30 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Product Details">
-                    <Editor v-model="store.item.details"
-                            class="w-full"
-                            name="products-details"
-                            data-testid="products-details"
-                            placeholder="Enter Product Details"
-                            editorStyle="height:80px"
+
+                    <Editor
+                        v-model="store.item.details"
+                        class="w-full"
+                        name="products-details"
+                        data-testid="products-details"
+                        placeholder="Enter Product Details"
+                        editorStyle="height: 10vh"
+                        :pt="{
+                            toolbar: {
+                                class: 'hidden'
+                            }
+                        }"
+                        formats=""
+                        :modules="{
+                        toolbar: [
+                            ['bold', 'italic', 'underline','strike'],
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                             [{ 'color': [] }, { 'background': [] }],
+                             [{ 'font': [] }],
+                            [{ 'align': '' }, {'align': 'center'}, {'align': 'right'}],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                           ]
+                        }"
 
                     >
                     </Editor>
