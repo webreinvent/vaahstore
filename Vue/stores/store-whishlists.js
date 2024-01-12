@@ -600,10 +600,47 @@ export const useWhishlistStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+        confirmTrash()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'trash';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestore()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'restore';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -780,14 +817,14 @@ export const useWhishlistStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.updateList('trash')
+                        this.confirmTrash()
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.updateList('restore')
+                        this.confirmRestore()
                     }
                 },
                 {
@@ -829,14 +866,14 @@ export const useWhishlistStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {

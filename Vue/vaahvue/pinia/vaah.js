@@ -253,6 +253,16 @@ export const vaah = defineStore({
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
+        confirmDialogTrash(callbackOnAccept)
+        {
+            this.confirmDialog('Trash Confirmation', 'Do you want to Trash record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+        confirmDialogRestore(callbackOnAccept)
+        {
+            this.confirmDialog('Restore Confirmation', 'Do you want to Restore record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
 
         confirmDialogDeleteAll(callbackOnAccept)
         {
@@ -274,14 +284,14 @@ export const vaah = defineStore({
 
         //----------------------------------------------------------
 
-        confirmDialogTrash(callbackOnAccept)
+        confirmDialogTrashAll(callbackOnAccept)
         {
             this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
 
-        confirmDialogRestore(callbackOnAccept)
+        confirmDialogRestoreAll(callbackOnAccept)
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
