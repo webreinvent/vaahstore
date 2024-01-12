@@ -164,6 +164,12 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $inputs = $request->all();
 
@@ -362,6 +368,13 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function updateList($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -428,6 +441,13 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -461,6 +481,13 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -566,6 +593,13 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType'])
@@ -587,6 +621,14 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -611,6 +653,14 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
@@ -628,6 +678,13 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         switch($type)
         {
             case 'activate':
