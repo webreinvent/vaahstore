@@ -26,7 +26,8 @@ const store = useBrandStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-12rem" />
+                        appendTo="self"
+                        class="w-full relative" />
 
             </VhFieldVertical>
 
@@ -34,12 +35,13 @@ const store = useBrandStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date Range Filter:</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          placeholder="Choose Date Range"
                           :manualInput="false"/>
 
             </VhFieldVertical >
