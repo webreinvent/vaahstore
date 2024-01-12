@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
                         column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
                         || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'||
                         column === 'size'||column === 'meta'|| column === 'type'|| column === 'extension'||
-                        column === 'product_media_images' || column === 'deleted_by' ">
+                        column === 'product_media_images' || column === 'deleted_by' || column==='product_variation_media' ">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -169,12 +169,23 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'vh_st_product_variation_id'">
+<!--                            <tr>-->
+<!--                                <td>-->
+<!--                                    <b>Product Variation</b>-->
+<!--                                </td>-->
+<!--                                <td colspan="2" >-->
+<!--                                    {{store.item.product_variation?.name}}-->
+<!--                                </td>-->
+<!--                            </tr>-->
                             <tr>
                                 <td>
-                                    <b>Product Variation</b>
+                                    <b>Product Variations</b>
                                 </td>
-                                <td colspan="2" >
-                                    {{store.item.product_variation?.name}}
+                                <td colspan="2">
+                                    <li v-for="product in store.item.product_variation_media" :key="product.id">
+                                        {{ product.name }}
+                                    </li>
+
                                 </td>
                             </tr>
                         </template>
@@ -201,10 +212,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
+
 
                                 <tr>
                                     <td>
@@ -221,6 +229,10 @@ const toggleItemMenu = (event) => {
                                                v-tooltip.top="store.item.name"/>
                                     </td>
                                 </tr>
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="yes-no"
+                            />
                         </template>
 
 

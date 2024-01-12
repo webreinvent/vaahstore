@@ -198,13 +198,17 @@ class ProductMedia extends VaahModel
     {
         $inputs = $request->all();
 //        dd($inputs['vh_st_product_id']);
-
+        
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
         $product_variation = $inputs['product_variation'];
         if (!isset($inputs['vh_st_product_id']) || empty($inputs['vh_st_product_id'])) {
-        $response['success'] = false;
-        $response['messages'][] = "The Product field is required.";
-        return $response;
-    }
+            $response['success'] = false;
+            $response['messages'][] = "The Product field is required.";
+            return $response;
+        }
         if (!is_array($product_variation) || empty($product_variation)) {
             $response['success'] = false;
             $response['messages'][] = "The Product Variation field is required.";
@@ -217,11 +221,6 @@ class ProductMedia extends VaahModel
                 $response['messages'][] = "Invalid product_variation_id: ".$variation['id'];
                 return $response;
             }
-        }
-
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
         }
 
         if (!isset($inputs['images']) || empty($inputs['images'])) {
@@ -258,13 +257,6 @@ class ProductMedia extends VaahModel
             $image->save();
         }
 
-//        if (isset($product_variation) && is_array($product_variation)) {
-//            $item->productVariationMedia()->detach();
-//
-//            foreach ($product_variation as $variation) {
-//                $item->productVariationMedia()->attach($variation['id']);
-//            }
-//        }
 
         if (isset($product_variation) && is_array($product_variation)) {
             $item->productVariationMedia()->detach();
@@ -871,7 +863,7 @@ class ProductMedia extends VaahModel
             $image->save();
         }
 
-       
+
         if (isset($product_variation) && is_array($product_variation)) {
             $item->productVariationMedia()->detach();
 
