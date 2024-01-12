@@ -295,6 +295,42 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
+        //----------------------------------------------------------
+
+        confirmDialogApprovedAll(callbackOnAccept)
+        {
+            this.confirmDialog('Approve Status Confirmation', 'Do you want to Approve all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogPendingAll(callbackOnAccept)
+        {
+            this.confirmDialog('Pending Status Confirmation', 'Do you want to Pending all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogRejectedAll(callbackOnAccept)
+        {
+            this.confirmDialog('Reject Status Confirmation', 'Do you want to Reject all record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogApproved(callbackOnAccept)
+        {
+            this.confirmDialog('Approve Status Confirmation', 'Do you want to Approve  record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogPending(callbackOnAccept)
+        {
+            this.confirmDialog('Pending Status Confirmation', 'Do you want to Pending  record(s)?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+
+        confirmDialogRejected(callbackOnAccept)
+        {
+            this.confirmDialog('Reject Status Confirmation', 'Do you want to Reject  record(s)?', callbackOnAccept);
+        },
 
         //----------------------------------------------------------
         clone: function (source)

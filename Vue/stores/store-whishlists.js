@@ -648,6 +648,42 @@ export const useWhishlistStore = defineStore({
             this.action.type = 'trash';
             vaah().confirmDialogTrash(this.listAction);
         },
+
+        //---------------------------------------------------------------------
+        confirmApproved()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'approved';
+            vaah().confirmDialogApproved(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+        confirmPending()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'pending';
+            vaah().confirmDialogPending(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+        confirmRejected()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'reject';
+            vaah().confirmDialogRejected(this.listAction);
+        },
         //---------------------------------------------------------------------
         confirmRestore()
         {
@@ -681,6 +717,24 @@ export const useWhishlistStore = defineStore({
             vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmApprovedAll()
+        {
+            this.action.type = 'approved-all';
+            vaah().confirmDialogApprovedAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRejectedAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectedAll(this.listAction);
+        },
         async delayedSearch()
         {
             let self = this;
@@ -837,19 +891,19 @@ export const useWhishlistStore = defineStore({
                 {
                     label: 'Approved',
                     command: async () => {
-                        await this.updateList('approved')
+                        this.confirmApproved();
                     }
                 },
                 {
                     label: 'Pending',
                     command: async () => {
-                        await this.updateList('pending')
+                        this.confirmPending()
                     }
                 },
                 {
                     label: 'Rejected',
                     command: async () => {
-                        await this.updateList('rejected')
+                        this.confirmRejected()
                     }
                 },
                 {
@@ -886,19 +940,19 @@ export const useWhishlistStore = defineStore({
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approved-all')
+                        this.confirmApprovedAll();
                     }
                 },
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectedAll();
                     }
                 },
                 {

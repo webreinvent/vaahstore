@@ -551,6 +551,21 @@ class Whishlist extends VaahModel
             case 'reject-all':
                 $list->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
+            case 'approved':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
+                }
+                break;
+            case 'pending':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                }
+                break;
+            case 'reject':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
+                }
+                break;
             case 'trash-all':
                 $list->update(['deleted_by' => auth()->user()->id]);
                 $list->delete();
