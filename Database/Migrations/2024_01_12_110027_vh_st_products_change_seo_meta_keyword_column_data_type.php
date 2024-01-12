@@ -16,7 +16,7 @@ class VhStProductsChangeSeoMetaKeywordColumnDataType extends Migration
     {
 
         Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->json('seo_meta_keyword')->change();
+            $table->longText('seo_meta_keyword')->change();
         });
     }
 
