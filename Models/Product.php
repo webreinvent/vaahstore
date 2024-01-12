@@ -1049,8 +1049,8 @@ class Product extends VaahModel
                 'required_if:status.slug,==,rejected',
                 'max:100'
             ],
-            'launch_at' => 'required_without_all:quantity,available_at',
-            'available_at' => 'required_without_all:quantity,launch_at',
+            'launch_at' => 'required_without_all:quantity,available_at,0',
+            'available_at' => 'required_without_all:quantity,launch_at,0',
             'in_stock'=> 'required|numeric',
             'details' => 'max:250',
             ''
