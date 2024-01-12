@@ -137,9 +137,14 @@ class ProductMedia extends VaahModel
         return $this->hasMany(ProductMediaImage::class, 'vh_st_product_media_id','id');
     }
     //-------------------------------------------------
+//    public function productVariationMedia()
+//    {
+//        return $this->belongsToMany(ProductVariation::class, 'vh_st_prod_variation_media', 'vh_st_product_media_id', 'vh_st_product_variation_id');
+//    }
     public function productVariationMedia()
     {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_prod_variation_media', 'vh_st_product_media_id', 'vh_st_product_variation_id');
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_prod_variation_media', 'vh_st_product_media_id', 'vh_st_product_variation_id')
+            ->withPivot('vh_st_product_id');
     }
     //-------------------------------------------------
     public function updatedByUser()
@@ -191,65 +196,62 @@ class ProductMedia extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-
         $inputs = $request->all();
 
-        $product_variation=[];
-
-        $product_variation= $inputs['product_variation'];
-
-
-
-
-
+        $product_variation = $inputs['product_variation'];
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
 
-        if (!isset($inputs['images']) || empty($inputs['images'])){
+        if (!isset($inputs['images']) || empty($inputs['images'])) {
             $response['success'] = false;
             $response['messages'][] = "The image field is required.";
             return $response;
         }
 
-
         // check if exist
-            $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
+        $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
 
-            if ($item) {
-                $response['success'] = false;
-                $response['messages'][] = "This Product is already exist.";
-                return $response;
-            }
-
+        if ($item) {
+            $item->fill($inputs);
+            $item->save();
+        } else {
             $item = new self();
             $item->fill($inputs);
             $item->save();
+        }
 
-             foreach ($inputs['images'] as $image_details)
-              {
-                 $image = new ProductMediaImage;
-                 $image->vh_st_product_media_id = $item->id;
-                 $image->name = $image_details['name'];
-                 $image->slug = $image_details['slug'];
-                 $image->url = $image_details['url'];
-                 $image->path = $image_details['path'];
-                 $image->size  = $image_details['size'];
-                 $image->type = $image_details['type'];
-                 $image->extension = $image_details['extension'];
-                 $image->mime_type = $image_details['mime_type'];
-                 $image->url_thumbnail = $image_details['url_thumbnail'];
-                 $image->thumbnail_size  = $image_details['thumbnail_size'];
-                 $image->save();
-              }
+        foreach ($inputs['images'] as $image_details) {
+            $image = new ProductMediaImage;
+            $image->vh_st_product_media_id = $item->id;
+            $image->name = $image_details['name'];
+            $image->slug = $image_details['slug'];
+            $image->url = $image_details['url'];
+            $image->path = $image_details['path'];
+            $image->size  = $image_details['size'];
+            $image->type = $image_details['type'];
+            $image->extension = $image_details['extension'];
+            $image->mime_type = $image_details['mime_type'];
+            $image->url_thumbnail = $image_details['url_thumbnail'];
+            $image->thumbnail_size  = $image_details['thumbnail_size'];
+            $image->save();
+        }
 
-            /* dd($inputs);*/
+//        if (isset($product_variation) && is_array($product_variation)) {
+//            $item->productVariationMedia()->detach();
+//
+//            foreach ($product_variation as $variation) {
+//                $item->productVariationMedia()->attach($variation['id']);
+//            }
+//        }
 
         if (isset($product_variation) && is_array($product_variation)) {
-            foreach ($product_variation as $store) {
-                $item->productVariationMedia()->attach($store['id']);
+            $item->productVariationMedia()->detach();
+
+            foreach ($product_variation as $variation) {
+                $item->productVariationMedia()->attach($variation['id'], ['vh_st_product_id' => $inputs['vh_st_product_id']]);
             }
         }
 
@@ -257,9 +259,7 @@ class ProductMedia extends VaahModel
         $response['messages'][] = 'Saved successfully.';
 
         return $response;
-
     }
-
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
     {

@@ -334,11 +334,13 @@ export const useProductMediaStore = defineStore({
               }
           },
         //---------------------------------------------------------------------
-        setProduct(event){
-            let product = toRaw(event.value);
-            console.log(product)
-            this.item.vh_st_product_id = product.id;
-        },
+        // setProduct(event){
+        //     if (event && event.value) {
+        //         let product = toRaw(event.value);
+        //         console.log(product)
+        //         this.item.vh_st_product_id = product.id;
+        //     }
+        // },
 
         //---------------------------------------------------------------------
 
@@ -354,8 +356,9 @@ export const useProductMediaStore = defineStore({
 
         //---------------------------------------------------------------------
         setProductVariation(event){
-            if (event.value) {
+            if (event && event.value) {
                 let productVariation = toRaw(event.value);
+                // this.item.vh_st_product_id = product.id;
                 console.log(productVariation)
                 this.item.vh_st_product_variation_id = productVariation.id;
             }
@@ -456,7 +459,17 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 const images=data.images;
-                // this.item.product_variation=data.product_variation_media;
+                this.item.product_variation = data.product_variation_media.map(variation => {
+                    return {
+                        id: variation.id,
+                        name: variation.name,
+                        slug: variation.slug
+                    };
+                });
+                if(data.product.length !== 0){
+                    await this.getVariationForProduct();
+                }
+                // this.item.product=data.product;
                 if (images.length > 0) {
                     this.item.type= images.map((file) => file.type).join(', ');
                 } else {
@@ -1257,7 +1270,8 @@ export const useProductMediaStore = defineStore({
         },
 
         async getVariationForProduct(event){
-            let product = toRaw(event.value);
+            // let product = toRaw(event.value);
+            let product = toRaw(event?.value);
             console.log(product)
             this.item.vh_st_product_id = product.id;
             let options = {

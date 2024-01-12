@@ -44,22 +44,22 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="product_variation.name" header="Product Variation"
-                     :sortable="true">
+<!--             <Column field="product_variation.name" header="Product Variation"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.product_variation == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.product_variation.name}}
-                         </span>
-<!--                     <span v-if="prop.data.product_variation.is_default == 1">-->
-<!--                         <badge>&nbsp;(Default)</badge>-->
-<!--                     </span>-->
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.product_variation == null"-->
+<!--                            value="Trashed"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <span v-else>-->
+<!--                     {{prop.data.product_variation.name}}-->
+<!--                         </span>-->
+<!--&lt;!&ndash;                     <span v-if="prop.data.product_variation.is_default == 1">&ndash;&gt;-->
+<!--&lt;!&ndash;                         <badge>&nbsp;(Default)</badge>&ndash;&gt;-->
+<!--&lt;!&ndash;                     </span>&ndash;&gt;-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
 <!--             <Column field="image_path" header="Image"-->
 <!--                     v-if="store.isViewLarge()"-->
