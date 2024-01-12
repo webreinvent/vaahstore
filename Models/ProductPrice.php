@@ -586,18 +586,45 @@ class ProductPrice extends VaahModel
     //-------------------------------------------------
 
     public static function deleteProductVariations($items_id){
-        if($items_id){
-            self::whereIn('vh_st_product_id',$items_id)->forcedelete();
-            $response['success'] = true;
-            $response['data'] = true;
-        }else{
-            $response['error'] = true;
-            $response['data'] = false;
+
+        $response=[];
+
+        if ($items_id) {
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
+
+            if ($items_exist) {
+                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+                $response['success'] = true;
+            }
         }
+
+        $response['success'] = false;
+
+        return $response;
 
     }
 
     //-------------------------------------------------
+
+    public static function deleteProductVariation($item_id){
+
+        $response = [];
+
+        if ($item_id) {
+            $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+                self::where('vh_st_product_variation_id', $item_id)->forceDelete();
+
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+
+    }
 
 
 
