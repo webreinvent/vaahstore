@@ -345,15 +345,15 @@ export const useProductMediaStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setProductFilter(event){
-
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-            if(product.slug)
-            {
-                this.query.filter.product = product.slug;
-            }
-        },
+        // setProductFilter(event){
+        //
+        //     let product = toRaw(event.value);
+        //     this.item.vh_st_product_id = product.id;
+        //     if(product.slug)
+        //     {
+        //         this.query.filter.product = product.slug;
+        //     }
+        // },
 
         //---------------------------------------------------------------------
         setProductVariation(event){
@@ -587,7 +587,7 @@ export const useProductMediaStore = defineStore({
             }
 
             this.form.action = type;
-
+// this.item.vh_st_product_id=null;
             let ajax_url = this.ajax_url;
 
             let options = {
@@ -681,6 +681,7 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
+            console.log(data)
             switch (this.form.action)
             {
                 case 'create-and-new':
@@ -718,14 +719,16 @@ export const useProductMediaStore = defineStore({
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'save':
-                    this.item = data;
-                    this.item.product_variation = data.product_variation_media.map(variation => {
-                        return {
-                            id: variation.id,
-                            name: variation.name,
-                            slug: variation.slug
-                        };
-                    });
+                    if (data) {
+                        this.item = data;
+                        this.item.product_variation = data.product_variation_media.map(variation => {
+                            return {
+                                id: variation.id,
+                                name: variation.name,
+                                slug: variation.slug
+                            };
+                        });
+                    }
                     break;
                 case 'delete':
                     this.item = null;

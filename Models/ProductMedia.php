@@ -197,8 +197,27 @@ class ProductMedia extends VaahModel
     public static function createItem($request)
     {
         $inputs = $request->all();
+//        dd($inputs['vh_st_product_id']);
 
         $product_variation = $inputs['product_variation'];
+        if (!isset($inputs['vh_st_product_id']) || empty($inputs['vh_st_product_id'])) {
+        $response['success'] = false;
+        $response['messages'][] = "The Product field is required.";
+        return $response;
+    }
+        if (!is_array($product_variation) || empty($product_variation)) {
+            $response['success'] = false;
+            $response['messages'][] = "The Product Variation field is required.";
+            return $response;
+        }
+        foreach ($product_variation as $variation) {
+            $productVariation = ProductVariation::find($variation['id']);
+            if (!$productVariation) {
+                $response['success'] = false;
+                $response['messages'][] = "Invalid product_variation_id: ".$variation['id'];
+                return $response;
+            }
+        }
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -801,65 +820,75 @@ class ProductMedia extends VaahModel
         return $response;
     }
      //-------------------------------------------------
+
+
     public static function updateItem($request, $id)
     {
-
         $inputs = $request->all();
+
+        $product_variation = $inputs['product_variation'];
+        if (!is_array($product_variation) || empty($product_variation)) {
+            $response['success'] = false;
+            $response['messages'][] = "The Product Variation field is required.";
+            return $response;
+        }
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
 
-        // check if exist
-        $existingItem = self::where('vh_st_product_id', $inputs['vh_st_product_id'])
-            ->where('vh_st_product_variation_id', $inputs['vh_st_product_variation_id'])
-            ->withTrashed()
-            ->first();
-
-        if ($existingItem && $existingItem->id != $id) {
+        if (!isset($inputs['images']) || empty($inputs['images'])) {
             $response['success'] = false;
-            $response['messages'][] = "This Product and Product Variation already exist.";
+            $response['messages'][] = "The image field is required.";
             return $response;
         }
 
-        // Get the existing images for the item
-        if (isset($inputs['images'][0]['id'])) {
-            $existingImages = ProductMediaImage::where('vh_st_product_media_id', $id)->get();
-            $existingImageIds = $existingImages->pluck('id')->toArray();
-            $inputImageIds = collect($inputs['images'])->pluck('id')->toArray();
-            $imagesToDelete = array_diff($existingImageIds, $inputImageIds);
-            ProductMediaImage::whereIn('id', $imagesToDelete)->forceDelete();
-        }
+        // Find the item by ID
+        $item = self::findOrFail($id);
 
-        // Update or create the associated images
-        if (isset($inputs['images']) && !empty($inputs['images'])) {
-            foreach ($inputs['images'] as $image) {
-                $imageModel = ProductMediaImage::updateOrCreate(
-                    [
-                        'vh_st_product_media_id' => $id,
-                        'name' => $image['name'],
-                        'slug' => $image['slug'],
-                        'url' => $image['url'],
-                        'path' => $image['path'],
-                        'size' => $image['size'],
-                        'type' => $image['type'],
-                        'extension' => $image['extension'],
-                        'mime_type' => $image['mime_type'],
-                        'url_thumbnail' => $image['url_thumbnail'],
-                        'thumbnail_size' => $image['thumbnail_size'],
-                    ]
-                );
-            }
-        }
-
-        $item = self::where('id', $id)->withTrashed()->first();
+        // Update the item with the new inputs
         $item->fill($inputs);
         $item->save();
 
+        // Delete existing images
+        $item->images()->delete();
+
+        // Save new images
+        foreach ($inputs['images'] as $image_details) {
+            $image = new ProductMediaImage;
+            $image->vh_st_product_media_id = $item->id;
+            $image->name = $image_details['name'];
+            $image->slug = $image_details['slug'];
+            $image->url = $image_details['url'];
+            $image->path = $image_details['path'];
+            $image->size  = $image_details['size'];
+            $image->type = $image_details['type'];
+            $image->extension = $image_details['extension'];
+            $image->mime_type = $image_details['mime_type'];
+            $image->url_thumbnail = $image_details['url_thumbnail'];
+            $image->thumbnail_size  = $image_details['thumbnail_size'];
+            $image->save();
+        }
+
+       
+        if (isset($product_variation) && is_array($product_variation)) {
+            $item->productVariationMedia()->detach();
+
+            foreach ($product_variation as $variation) {
+                $item->productVariationMedia()->attach($variation['id'], ['vh_st_product_id' => $inputs['vh_st_product_id']]);
+            }
+        }
+
+//        $response['success'] = true;
+//        $response['messages'][] = "Item updated successfully.";
+//        $response['data'] = $item;
+//
+//        return $response;
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
-        return $response;
 
+        return $response;
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
