@@ -198,7 +198,7 @@ class ProductMedia extends VaahModel
     {
         $inputs = $request->all();
 //        dd($inputs['vh_st_product_id']);
-        
+
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -233,6 +233,7 @@ class ProductMedia extends VaahModel
         $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
 
         if ($item) {
+
             $item->fill($inputs);
             $item->save();
         } else {
@@ -838,7 +839,11 @@ class ProductMedia extends VaahModel
 
         // Find the item by ID
         $item = self::findOrFail($id);
-
+        if ($item->vh_st_product_id !== $inputs['vh_st_product_id'] && self::where('vh_st_product_id', $inputs['vh_st_product_id'])->exists()) {
+            $response['success'] = false;
+            $response['messages'][] = "The Product is already in use.";
+            return $response;
+        }
         // Update the item with the new inputs
         $item->fill($inputs);
         $item->save();
