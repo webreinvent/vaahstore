@@ -455,6 +455,7 @@ export const useWhishlistStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -524,7 +525,6 @@ export const useWhishlistStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -536,6 +536,13 @@ export const useWhishlistStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     await this.getFormMenu();
+                    break;
+                case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'whishlists.form'});
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'trash':
                     vaah().toastSuccess(['Action Was Successful']);
@@ -1021,7 +1028,15 @@ export const useWhishlistStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
