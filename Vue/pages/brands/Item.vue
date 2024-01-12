@@ -194,29 +194,6 @@ const toggleItemMenu = (event) => {
                                 </tr>
                             </template>
 
-
-                            <template v-if="store.item.registered_by_user">
-                                <VhViewRow label="Registered By"
-                                           :value=store.item.registered_by_user.first_name
-                                           type="String"
-                                />
-                                <VhViewRow label="Registered At"
-                                           :value=store.item.registered_by_user.created_at
-                                           type="date"
-                                />
-                            </template>
-
-                            <template v-if="store.item.approved_by_user">
-                                <VhViewRow label="Approved By"
-                                           :value=store.item.approved_by_user.first_name
-                                           type="String"
-                                />
-                                <VhViewRow label="Approved At"
-                                           :value=store.item.approved_by_user.created_at
-                                           type="name"
-                                />
-                            </template>
-
                             <template  v-if="store.item.status">
                                 <tr>
                                     <td class="font-bold">Status</td>
@@ -255,10 +232,12 @@ const toggleItemMenu = (event) => {
                                     :breakpoints="{'960px': '75vw', '640px': '90vw'}"
                                     :style="{width: '50vw'}" :modal="true"
                             >
-<!--                                <span class="font-bold">Meta</span> <p  class="" v-html="'<pre>'+store.meta_content+'<pre>'"></p>-->
                                 <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
-                                <div class="mb-4 flex"><span class="font-bold mr-2">Meta Description: </span><p>{{store.item.meta_description}}</p></div>
-                                <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p   >{{store.itemString}}</p></div>
+                                <div class="mb-4 flex">
+                                    <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+                                    <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
+                                </div>
+                                <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.itemString}}</p></div>
                             </Dialog>
                         </template>
 
@@ -269,24 +248,40 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="user"
                             />
-                        </template>
-
-
-
-                        <template v-else-if="column === 'registered_by'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Registered by</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.registered_by_user.username}}
-                                </td>
-                            </tr>
-                        </template>
-
+                        </template >
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+
+                            <tr>
+                                <td><b>Registered By</b></td>
+                                <td colspan="2">
+                                    <div >
+                                        {{ store.item?.registered_by_user?.first_name || '' }}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Registered At</b></td>
+                                    <td  colspan="2" >
+                                        <div >
+                                            {{store.item?.registered_by_user?.created_at || ''}}</div>
+                                    </td>
+                            </tr>
+                            <tr>
+                                <td><b>Approved By</b></td>
+                                <td  colspan="2" >
+                                    <div >
+                                        {{store.item?.approved_by_user?.first_name || ''}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Approved At</b></td>
+                                <td  colspan="2" >
+                                    <div >
+                                        {{store.item?.approved_by_user?.created_at || ''}}</div>
+                                </td>
+                            </tr>
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
