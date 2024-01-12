@@ -491,12 +491,34 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
             }
+            this.current_list=this.list.data;
+
+            this.compareList(this.prev_list,this.current_list);
         },
         //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+            const prev_set = new Set(prev_list.map(item => item.id));
+
+            const current_set = new Set(current_list.map(item => item.id));
+
+            const removed_items = prev_list.filter(item => !current_set.has(item.id));
+
+            this.action.items = this.action.items.filter(item => current_set.has(item.id));
+
+            if (removed_items.length > 0) {
+                // Do something with removed items
+
+                //may update this in future
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
             switch (this.form.action)
