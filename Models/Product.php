@@ -480,6 +480,11 @@ class Product extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
+
+        if(isset($item->seo_meta_keyword))
+        {
+            $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
+        }
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -870,6 +875,7 @@ class Product extends VaahModel
             $item['vendors'] = [];
         }
 
+        $item['seo_meta_keyword'] = json_decode($item['seo_meta_keyword']);
         $item['product_variation'] = null;
         $item['all_variation'] = [];
         $response['success'] = true;
@@ -1159,8 +1165,12 @@ class Product extends VaahModel
         $inputs['seo_meta_description']=$faker->text($max_seo_description_chars);
 
         // fill the Seo Keywords field here
-        $max_seo_keywords_chars = rand(5,50);
-        $inputs['seo_meta_keyword']=$faker->text($max_seo_keywords_chars);
+        $max_seo_keywords = rand(2,10);
+        $seo_key_array = [];
+        foreach (range(1, $max_seo_keywords) as $index) {
+            $seo_key_array[] = $faker->word;
+        }
+        $inputs['seo_meta_keyword']=$seo_key_array;
 
         // fill the Seo title field here
         $max_title_chars = rand(5,50);
@@ -1196,6 +1206,10 @@ class Product extends VaahModel
         $inputs['is_featured_on_category_page'] = rand(0,1);
         $inputs['quantity'] = rand(1,10000000);
         $inputs['in_stock'] = 1;
+
+
+
+
         // fill the product type field here
         $types = Taxonomy::getTaxonomyByType('product-types');
         $type_ids = $types->pluck('id')->toArray();
@@ -1415,6 +1429,20 @@ class Product extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
+    public static function searchVendorUsingUrlSlug($request)
+    {
+        $query = $request['filter']['q'];
+
+            $vendors = Vendor::whereIn('name',$query)
+                ->orWhereIn('slug',$query)
+                ->select('id','name','slug')->get();
+
+            $response['success'] = true;
+            $response['data'] = $vendors;
+            return $response;
+    }
 
 
 

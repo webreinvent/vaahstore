@@ -1874,6 +1874,36 @@ export const useProductStore = defineStore({
             this.display_seo_modal=true;
         },
 
+        //---------------------------------------------------------------------
+        async setVendorsAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    q: this.query.filter.vendors,
+                },
+            };
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/search/vendors-using-slug',
+                    this.setVendorsAfterPageRefreshAfter,
+                    options
+                );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setVendorsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_vendors = data;
+            }
+        },
 
 
     }

@@ -251,7 +251,6 @@ const toggleFormMenu = (event) => {
                               value="registered_at"
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
-                              :showTime="true" :showSeconds="true"
                               placeholder="Select date"
                               v-model="store.item.available_at"></Calendar>
                 </VhField>
@@ -265,7 +264,6 @@ const toggleFormMenu = (event) => {
                               value="registered_at"
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
-                              :showTime="true" :showSeconds="true"
                               placeholder="Select date"
                               v-model="store.item.launch_at"></Calendar>
                 </VhField>
@@ -339,13 +337,14 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Seo Keywords">
-                    <InputText class="w-full"
-                               name="products-seo-meta-keywords"
-                               data-testid="products-seo-meta-keywords"
-                               placeholder="Enter Seo Meta keywords"
-                               v-model="store.item.seo_meta_keyword"/>
-                </VhField>
+                    <Chips class="w-full"
+                           name="products-seo-meta-keywords"
+                           data-testid="products-seo-meta-keywords"
+                           placeholder="Enter Seo Meta keywords"
+                           v-model="store.item.seo_meta_keyword"
+                           type="text" />
 
+                </VhField>
 
                 <VhField label="Status*">
                     <AutoComplete

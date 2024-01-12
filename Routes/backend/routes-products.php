@@ -134,8 +134,12 @@ function () {
     Route::post('/search/product-vendor', 'ProductsController@searchVendor')
         ->name('vh.backend.store.products.search.productvendor');
 
-
-
+    /**
+     * Search Vendors using Slug
+     */
+    Route::post('/search/vendors-using-slug', 'ProductsController@searchVendorUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-vendors');
+    
     //---------------------------------------------------------
 
 });
