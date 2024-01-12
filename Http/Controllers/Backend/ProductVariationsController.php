@@ -27,23 +27,24 @@ class ProductVariationsController extends Controller
 
             $data = [];
 
-            $data['permission'] = \Auth::user()->permissions(true);
-
+            $data['permissions'] = \Auth::user()->permissions(true);
 
             $data['active_permissions'] = Permission::getActiveItems();
 
             Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
-
             $data['fillable']['columns'] = ProductVariation::getFillableColumns();
             $data['fillable']['except'] = ProductVariation::getUnFillableColumns();
             $data['empty_item'] = ProductVariation::getEmptyItem();
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['active_products'] = $this->getActiveProducts();
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultProduct();
-
+            $default_product=Product::where(['is_default'=>1,'deleted_at'=>null])->first();
+            if($this->getDefaultProduct() !== null)
+            {
+                $data['empty_item']['product'] = $default_product;
+                $data['empty_item']['vh_st_product_id'] = $default_product->id;
+            }
             $data['actions'] = [];
-
             $response['success'] = true;
             $response['data'] = $data;
 
