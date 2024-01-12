@@ -26,6 +26,14 @@ const toggleFormMenu = (event) => {
 
 const permission=store.assets.permission;
 
+watch(() => store.item.name, (item_name) => {
+    try {
+        if (item_name.length === 0) {
+            store.item.slug = '';
+        }
+    } catch (error) {
+    }
+});
 
 </script>
 <template>
