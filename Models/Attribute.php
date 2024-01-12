@@ -706,6 +706,7 @@ class Attribute extends VaahModel
                 'type.required' => 'The Type field field is required.',
                 'type.max' => 'The Type field may not be greater than :max characters.',
                 'value.*.value' => 'The Value field may not be greater than :max characters.',
+                'description.max' => 'The Description field may not be greater than :max characters.',
 
             ]
         );
