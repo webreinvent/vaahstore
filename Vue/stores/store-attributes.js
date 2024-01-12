@@ -641,25 +641,25 @@ export const useAttributeStore = defineStore({
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
         {
             this.action.type='trash-all';
-            vaah().confirmDialogTrash(this.listAction);
+            vaah().confirmDialogTrashAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmActivateAll()
         {
             this.action.type='activate-all';
-            vaah().confirmDialogActivate(this.listAction);
+            vaah().confirmDialogActivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmDeactivateAll()
         {
             this.action.type='deactivate-all';
-            vaah().confirmDialogDeactivate(this.listAction);
+            vaah().confirmDialogDeActivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()

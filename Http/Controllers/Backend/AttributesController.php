@@ -33,8 +33,6 @@ class AttributesController extends Controller
             $data = [];
 
             $data['permissions'] = \Auth::user()->permissions(true);
-            /*$data['active_permissions'] = Permission::getActiveItems();*/
-            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Attribute::getFillableColumns();
