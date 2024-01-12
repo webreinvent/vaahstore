@@ -257,14 +257,24 @@ class Whishlist extends VaahModel
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
-        $query->whereHas('user' , function ($q) use ($search){
-            $q->where('first_name', 'LIKE', '%' . $search . '%');
+
+        $search_terms = explode(' ', $filter['q']);
+
+        $query->where(function ($query) use ($search_terms) {
+
+            $query->orWhereHas('user', function ($userQuery) use ($search_terms) {
+                foreach ($search_terms as $term) {
+                    $userQuery->where('first_name', 'LIKE', '%' . $term . '%')
+                        ->orWhere('middle_name', 'LIKE', '%' . $term . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $term . '%');
+                }
+            });
         });
+
+        return $query;
 
 
     }
