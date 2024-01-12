@@ -2,6 +2,7 @@ import {watch,toRaw } from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from 'moment';
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Whishlist';
 
@@ -20,6 +21,7 @@ let empty_states = {
             sort: null,
             wishlist_status: null,
             wishlist_type:null,
+            date:null,
         },
     },
     action: {
@@ -70,7 +72,9 @@ export const useWhishlistStore = defineStore({
         status_suggestion: null,
         type_suggestion: null,
         user_suggestion: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:null,
+        date_null:null
     }),
     getters: {
 
@@ -156,6 +160,11 @@ export const useWhishlistStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -732,6 +741,10 @@ export const useWhishlistStore = defineStore({
             //reset query strings
             await this.resetQueryString();
 
+            this.selected_dates=[];
+
+            this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+
 
             //reload page list
             await this.getList();
@@ -1118,6 +1131,31 @@ export const useWhishlistStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+
+        //---------------------------------------------------------------------
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+
     }
 });
 

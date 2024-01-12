@@ -120,6 +120,28 @@ const store = useWhishlistStore();
 
             </VhFieldVertical>
 
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date:</b>
+                </template>
+
+                <div class="field-radiobutton">
+
+                    <Calendar v-model="store.selected_dates"
+                              name="range-date"
+                              inputId="range-date"
+                              data-testid="wishlist-filters-range-date"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false"/>
+
+                    <label for="range-date" class="cursor-pointer"></label>
+                </div>
+
+            </VhFieldVertical>
+
 
         </Sidebar>
 
