@@ -94,6 +94,7 @@ export const useProductMediaStore = defineStore({
                 ],
             },
         ]),
+        product_variation:null
 
     }),
     product_suggestion_list:null,
@@ -292,10 +293,10 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        watchRoutes(route)
+        async watchRoutes(route)
         {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
+            this.watch_stopper = watch(route, async(newVal,oldVal) =>
                 {
 
                     if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
@@ -307,7 +308,7 @@ export const useProductMediaStore = defineStore({
                     this.route = newVal;
 
                     if(newVal.params.id){
-                        this.getItem(newVal.params.id);
+                       await this.getItem(newVal.params.id);
                     }
 
                     this.setViewAndWidth(newVal.name);
@@ -359,7 +360,6 @@ export const useProductMediaStore = defineStore({
             if (event && event.value) {
                 let productVariation = toRaw(event.value);
                 // this.item.vh_st_product_id = product.id;
-                console.log(productVariation)
                 this.item.vh_st_product_variation_id = productVariation.id;
             }
         },
@@ -459,6 +459,7 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 const images=data.images;
+                await this.getVariantdata();
                 this.item.product_variation = data.product_variation_media.map(variation => {
                     return {
                         id: variation.id,
@@ -466,9 +467,7 @@ export const useProductMediaStore = defineStore({
                         slug: variation.slug
                     };
                 });
-                if(data.product.length !== 0){
-                    await this.getVariationForProduct();
-                }
+
                 // this.item.product=data.product;
                 if (images.length > 0) {
                     this.item.type= images.map((file) => file.type).join(', ');
@@ -702,6 +701,13 @@ export const useProductMediaStore = defineStore({
                     this.item.id = null;
                     this.item.images = null;
                     this.item.product_media_images = null;
+                    this.item.product_variation = data.product_variation_media.map(variation => {
+                        return {
+                            id: variation.id,
+                            name: variation.name,
+                            slug: variation.slug
+                        };
+                    });
                     this.$router.push({name: 'productmedias.form'})
                     await this.getFormMenu();
                     break;
@@ -713,6 +719,13 @@ export const useProductMediaStore = defineStore({
                     break;
                 case 'save':
                     this.item = data;
+                    this.item.product_variation = data.product_variation_media.map(variation => {
+                        return {
+                            id: variation.id,
+                            name: variation.name,
+                            slug: variation.slug
+                        };
+                    });
                     break;
                 case 'delete':
                     this.item = null;
@@ -1270,10 +1283,16 @@ export const useProductMediaStore = defineStore({
         },
 
         async getVariationForProduct(event){
-            // let product = toRaw(event.value);
+            if (event && event.value && event.value.id) {
             let product = toRaw(event?.value);
-            console.log(product)
             this.item.vh_st_product_id = product.id;
+                await this.getVariantdata();
+            } else {
+                console.error('Invalid product object');
+            }
+        },
+        //---------------------------------------------------------------------
+        async getVariantdata(){
             let options = {
                 params: this.item.product,
                 method: 'POST'
@@ -1284,6 +1303,7 @@ export const useProductMediaStore = defineStore({
                 options
             );
         },
+
         //---------------------------------------------------------------------
         afterGetVariationForProduct(data, res)
         {

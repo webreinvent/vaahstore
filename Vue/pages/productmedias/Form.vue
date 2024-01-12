@@ -137,7 +137,7 @@ const toggleFormMenu = (event) => {
 
 
 
-                <VhField label="Product">{{store.item.product}}
+                <VhField label="Product">
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product"
@@ -154,10 +154,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Product Variation" >
-
-
-<!--                    {{store.item.product_variation_media}}-->
-                    {{store.item.product_variation}}
+<!--                    {{store.item.product_variation}}-->
                     <MultiSelect v-model="store.item.product_variation"
                                  display="chip"
                                  :options="store.product_variation"
