@@ -714,10 +714,10 @@ class AttributeGroup extends VaahModel
     {
 
         $rules = array(
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required|max:100',
+            'description' => 'max:50',
             'is_active' => 'required'
         );
         $messages = array(
@@ -725,8 +725,7 @@ class AttributeGroup extends VaahModel
             'name.max' => 'The Name field may not be greater than :max characters.',
             'slug.required' => 'The Slug field is required.',
             'slug.max' => 'The slug field may not be greater than :max characters.',
-            'active_attributes.required' => 'The Active Attributes field is required.',
-            'description.required' => 'The Description field is required.',
+            'active_attributes.required' => 'The  Attributes field is required.',
             'description.max' => 'The Description field may not be greater than :max characters.',
             'is_active.required' => 'The Is Active field is required.'
         );

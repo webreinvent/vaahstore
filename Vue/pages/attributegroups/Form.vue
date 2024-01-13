@@ -172,12 +172,12 @@ const toggleFormMenu = (event) => {
                                   placeholder="Select Attributes"
 
                                   class="w-full " >
-                        <template #option="slotProps">
-                                                      <div class="flex align-items-center">
-                                                         <span>{{slotProps.option.name}}</span>
-                                                       (<b>{{slotProps.option.type}}</b>)
-                                                   </div>
-                                            </template>
+<!--                        <template #option="slotProps">-->
+<!--                                                      <div class="flex align-items-center">-->
+<!--                                                         <span>{{slotProps.option.name}}</span>-->
+<!--                                                       (<b>{{slotProps.option.type}}</b>)-->
+<!--                                                   </div>-->
+<!--                                            </template>-->
                                                 </AutoComplete>
 
                                             </vhField>
