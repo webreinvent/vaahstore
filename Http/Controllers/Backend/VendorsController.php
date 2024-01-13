@@ -47,7 +47,6 @@ class VendorsController extends Controller
             $data['empty_item']['owned_by_user'] = null;
             $data['empty_item']['approved_by_user'] = null;
             $data['empty_item']['status_record'] = null;
-            $data['empty_item']['years_in_business'] = 0;
             $data['actions'] = [];
 
             $active_stores = $this->getActiveStores();
