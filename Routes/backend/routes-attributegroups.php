@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/attributegroups',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -70,6 +70,12 @@ function () {
     Route::any('/{id}/action/{action}', 'AttributeGroupsController@itemAction')
         ->name('vh.backend.store.attributegroups.item.action');
 
+    //---------------------------------------------------------
+    /**
+     * Search Attribute
+     */
+    Route::post('/search/attribute', 'AttributeGroupsController@searchAttribute')
+        ->name('vh.backend.store.attributegroups.search.attributes');
     //---------------------------------------------------------
 
 });

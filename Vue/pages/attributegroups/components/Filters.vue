@@ -13,22 +13,24 @@ const store = useAttributeGroupStore();
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
 
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Attributes By:</b>
                 </template>
-                <VhField label="Attributes">
-                    <MultiSelect
-                        v-model="store.query.filter.attributes_filter"
-                        :options="store.assets.attributes"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Attributes"
-                        display="chip"
-                        class="w-full" />
-                </VhField>
 
+                <AutoComplete name="attribute-filter"
+                              data-testid="attribute-filter"
+                              v-model="store.selected_attributes"
+                              @change = "store.addAttributes()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_attributes"
+                              @complete="store.searchAttributes"
+                              placeholder="Select Attributes"
+                              class="w-full " />
 
             </VhFieldVertical>
 

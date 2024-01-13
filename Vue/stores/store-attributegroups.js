@@ -21,6 +21,7 @@ let empty_states = {
             sort: null,
             attributes_filter:null,
             date:null,
+            attributes:null,
         },
     },
     action: {
@@ -72,6 +73,8 @@ export const useAttributeGroupStore = defineStore({
         selected_dates:[],
         prev_list:[],
         current_list:[],
+        filtered_attributes:null,
+        selected_attributes:null,
     }),
     getters: {
 
@@ -638,6 +641,7 @@ export const useAttributeGroupStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_attributes = null;
             //reset query strings
             await this.resetQueryString();
 
@@ -1011,6 +1015,50 @@ export const useAttributeGroupStore = defineStore({
                 if (dates[0] != null && dates[1] != null) {
                     this.query.filter.date = dates;
                 }
+            }
+        },
+        //---------------------------------------------------------------------
+        addAttributes() {
+
+            const unique_attributes = [];
+            const check_names = new Set();
+
+            for (const product_vendors of this.selected_attributes) {
+                if (!check_names.has(product_vendors.name)) {
+                    unique_attributes.push(product_vendors);
+                    check_names.add(product_vendors.name);
+                }
+            }
+            const product_vendors_slugs = unique_attributes.map(vendors => vendors.slug);
+            this.selected_attributes = unique_attributes;
+            this.query.filter.attributes = product_vendors_slugs;
+
+        },
+        //---------------------------------------------------------------------
+        async searchAttributes(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/attribute',
+                this.searchAttributesAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchAttributesAfter(data, res) {
+
+            if (data) {
+                this.filtered_attributes = data;
             }
         },
         //---------------------------------------------------------------------

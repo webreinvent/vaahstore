@@ -289,13 +289,13 @@ class AttributeGroup extends VaahModel
     public function scopeAttributesFilter($query, $filter)
     {
 
-        if(!isset($filter['attributes_filter']))
+        if(!isset($filter['attributes']))
         {
             return $query;
         }
-        $search = $filter['attributes_filter'];
+        $search = $filter['attributes'];
         $query->whereHas('attributesList' , function ($q) use ($search){
-            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
     }
     //-------------------------------------------------
@@ -318,6 +318,32 @@ class AttributeGroup extends VaahModel
             ->toDateTimeString();
 
         return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    public static function searchAttribute($request)
+    {
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $attribute_name = Attribute::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attribute_name = Attribute::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attribute_name;
+        return $response;
 
     }
     //-------------------------------------------------
