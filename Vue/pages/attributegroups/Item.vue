@@ -169,6 +169,7 @@ const toggleItemMenu = (event) => {
 
                             <VhViewRow label="Description"
                                        :value="store.item.description"
+                                       type="description"
 
                             />
 
@@ -183,6 +184,7 @@ const toggleItemMenu = (event) => {
                         <template v-else>
                             <VhViewRow :label="column"
                                        :value="value"
+                                       style=" white-space: break-spaces; word-break: break-all;"
                                        />
                         </template>
 
