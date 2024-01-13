@@ -154,50 +154,51 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <vhField label="Attributes">
-                    <MultiSelect v-model="store.item.active_attributes"
-                                 filter
-                                 :options="store.attribute_list"
-                                 data-testid="attributegroups-attributes"
-                                 optionLabel="name"
-                                 placeholder="Select attributes"
-                                 display="chip"
-                                 class="w-full">
+
+
+
+                    <AutoComplete
+                                  data-testid="attributegroups-attributes"
+                                  v-model="store.item.active_attributes"
+                                  @change="store.setAttribute($event)"
+                                  optionLabel="name"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.active_attributes_name"
+                                  @complete="store.searchActiveAttributes"
+                                  placeholder="Select Attributes"
+
+                                  class="w-full " >
                         <template #option="slotProps">
-                            <div class="flex align-items-center">
-                                <span>{{slotProps.option.name}}</span>
-                                (<b>{{slotProps.option.type}}</b>)
-                            </div>
-                        </template>
-                        <template #footer>
-<!--                            <div class="py-2 px-3">-->
-<!--                                <b>{{ store.item.active_attributes ? store.item.active_attributes.length : 0 }}</b>-->
-<!--                                item{{ (store.item.active_attributes ? store.item.active_attributes.length : 0) > 1 ? 's' : '' }} selected.-->
-<!--                            </div>-->
-                        </template>
-                    </MultiSelect>
+                                                      <div class="flex align-items-center">
+                                                         <span>{{slotProps.option.name}}</span>
+                                                       (<b>{{slotProps.option.type}}</b>)
+                                                   </div>
+                                            </template>
+                                                </AutoComplete>
 
-                </vhField>
+                                            </vhField>
 
-                <VhField label="Description">
-                    <Textarea v-model="store.item.description"
-                              rows="3" class="w-full"
-                              placeholder="Enter Description"
-                              data-testid="attributegroups-description"
-                              :autoResize="true"/>
-                </VhField>
+                                            <VhField label="Description">
+                                                <Textarea v-model="store.item.description"
+                                                          rows="3" class="w-full"
+                                                          placeholder="Enter Description"
+                                                          data-testid="attributegroups-description"
+                                                          :autoResize="true"/>
+                                            </VhField>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch"
-                                 name="attributegroups-active"
-                                 data-testid="attributegroups-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+                                            <VhField label="Is Active">
+                                                <InputSwitch v-bind:false-value="0"
+                                                             v-bind:true-value="1"
+                                                             class="p-inputswitch"
+                                                             name="attributegroups-active"
+                                                             data-testid="attributegroups-active"
+                                                             v-model="store.item.is_active"/>
+                                            </VhField>
 
-            </div>
-        </Panel>
+                                        </div>
+                                    </Panel>
 
-    </div>
+                                </div>
 
-</template>
+                            </template>

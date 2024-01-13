@@ -70,6 +70,9 @@ function () {
     Route::any('/{id}/action/{action}', 'AttributeGroupsController@itemAction')
         ->name('vh.backend.store.attributegroups.item.action');
 
+    Route::any('/search/active-attributes', 'AttributeGroupsController@searchActiveAttribute')
+        ->name('vh.backend.store.attributegroups.search.active-attribute');
+
     //---------------------------------------------------------
     /**
      * Search Attribute

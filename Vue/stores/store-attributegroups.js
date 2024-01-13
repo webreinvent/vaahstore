@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -199,7 +199,7 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.attribute_list = data.attributes;
+                // this.attribute_list = data.attributes;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -1039,6 +1039,11 @@ export const useAttributeGroupStore = defineStore({
             this.query.filter.attributes = attribute_slugs;
 
         },
+
+        setAttribute(event){
+            let attribute = toRaw(event.value);
+            this.item.vh_st_attribute_id = attribute.id;
+        },
         //---------------------------------------------------------------------
         async searchAttributes(event) {
             const query = {
@@ -1094,6 +1099,27 @@ export const useAttributeGroupStore = defineStore({
 
             if (data) {
                 this.selected_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchActiveAttributes(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-attributes',
+                this.searchActiveAttributesAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveAttributesAfter(data,res) {
+            if(data)
+            {
+                this.active_attributes_name = data;
             }
         },
         //---------------------------------------------------------------------
