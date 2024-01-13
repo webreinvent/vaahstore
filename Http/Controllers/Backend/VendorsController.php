@@ -41,7 +41,7 @@ class VendorsController extends Controller
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('vendor-status');
             $data['empty_item']['is_default'] = 0;
-            $data['empty_item']['is_active'] = 0;
+            $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
             $data['empty_item']['products'] = [];
             $data['empty_item']['owned_by_user'] = null;
