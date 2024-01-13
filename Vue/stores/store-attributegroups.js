@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -21,6 +21,7 @@ let empty_states = {
             sort: null,
             attributes_filter:null,
             date:null,
+            attributes:null,
         },
     },
     action: {
@@ -70,6 +71,10 @@ export const useAttributeGroupStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         selected_dates:[],
+        prev_list:[],
+        current_list:[],
+        filtered_attributes:null,
+        selected_attributes:null,
     }),
     getters: {
 
@@ -92,6 +97,11 @@ export const useAttributeGroupStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.attributes)
+            {
+                this.setAttributesAfterPageRefresh();
+            }
+
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -189,7 +199,7 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.attribute_list = data.attributes;
+                // this.attribute_list = data.attributes;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -417,10 +427,25 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -430,7 +455,10 @@ export const useAttributeGroupStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'attributegroups.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -440,10 +468,15 @@ export const useAttributeGroupStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'attributegroups.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -459,8 +492,10 @@ export const useAttributeGroupStore = defineStore({
             if(item.is_active)
             {
                 await this.itemAction('activate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             } else{
                 await this.itemAction('deactivate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             }
         },
         //---------------------------------------------------------------------
@@ -613,6 +648,7 @@ export const useAttributeGroupStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_attributes = null;
             //reset query strings
             await this.resetQueryString();
 
@@ -986,6 +1022,110 @@ export const useAttributeGroupStore = defineStore({
                 if (dates[0] != null && dates[1] != null) {
                     this.query.filter.date = dates;
                 }
+            }
+        },
+        //---------------------------------------------------------------------
+        addAttributes() {
+
+            const unique_attributes = [];
+            const check_names = new Set();
+
+            for (const attributes_name of this.selected_attributes) {
+                if (!check_names.has(attributes_name.name)) {
+                    unique_attributes.push(attributes_name);
+                    check_names.add(attributes_name.name);
+                }
+            }
+            const attribute_slugs = unique_attributes.map(attributes => attributes.slug);
+            this.selected_attributes = unique_attributes;
+            this.query.filter.attributes = attribute_slugs;
+
+        },
+
+        setAttribute(event){
+            let attribute = toRaw(event.value);
+            this.item.vh_st_attribute_id = attribute.id;
+        },
+        //---------------------------------------------------------------------
+        async searchAttributes(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/attribute',
+                this.searchAttributesAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchAttributesAfter(data, res) {
+
+            if (data) {
+                this.filtered_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async setAttributesAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    attributes: this.query.filter.attributes,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/attributes-using-slug',
+                this.setAttributersrPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setAttributersrPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchActiveAttributes(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-attributes',
+                this.searchActiveAttributesAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveAttributesAfter(data,res) {
+            if(data)
+            {
+                this.active_attributes_name = data;
             }
         },
         //---------------------------------------------------------------------

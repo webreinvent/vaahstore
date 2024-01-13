@@ -275,25 +275,27 @@ class AttributeGroup extends VaahModel
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
 
     }
     //-------------------------------------------------
     public function scopeAttributesFilter($query, $filter)
     {
 
-        if(!isset($filter['attributes_filter']))
+        if(!isset($filter['attributes']))
         {
             return $query;
         }
-        $search = $filter['attributes_filter'];
+        $search = $filter['attributes'];
         $query->whereHas('attributesList' , function ($q) use ($search){
-            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
     }
     //-------------------------------------------------
@@ -316,6 +318,32 @@ class AttributeGroup extends VaahModel
             ->toDateTimeString();
 
         return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    public static function searchAttribute($request)
+    {
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $attribute_name = Attribute::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attribute_name = Attribute::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attribute_name;
+        return $response;
 
     }
     //-------------------------------------------------
@@ -686,14 +714,23 @@ class AttributeGroup extends VaahModel
     {
 
         $rules = array(
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required|max:250',
+            'description' => 'max:50',
             'is_active' => 'required'
         );
+        $messages = array(
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The slug field may not be greater than :max characters.',
+            'active_attributes.required' => 'The  Attributes field is required.',
+            'description.max' => 'The Description field may not be greater than :max characters.',
+            'is_active.required' => 'The Is Active field is required.'
+        );
 
-        $validator = \Validator::make($inputs, $rules);
+        $validator = \Validator::make($inputs, $rules,$messages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -782,6 +819,39 @@ class AttributeGroup extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchAttributeUsingUrlSlug($request)
+    {
+        $query = $request['filter']['attributes'];
+
+        $attribute = Attribute::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $attribute;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function searchActiveAttribute($request)
+    {
+        $query = $request->input('filter.q.query');
+
+        $active_attribute = Attribute::where('is_active', 1);
+
+        if ($query !== null) {
+            $active_attribute->where(function ($query_builder) use ($query) {
+                $query_builder->where('name', 'like', "%$query%")
+                    ->orWhere('slug', 'like', "%$query%");
+            });
+        }
+
+        $active_attribute = $active_attribute->select('id', 'name', 'slug', 'type')->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $active_attribute;
+        return $response;
+    }
     //-------------------------------------------------
 
 
