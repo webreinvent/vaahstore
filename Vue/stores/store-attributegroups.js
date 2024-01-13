@@ -70,6 +70,8 @@ export const useAttributeGroupStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         selected_dates:[],
+        prev_list:[],
+        current_list:[],
     }),
     getters: {
 
@@ -417,10 +419,25 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
