@@ -75,6 +75,8 @@ export const useAddressStore = defineStore({
         types:null,
         address_type:null,
         selected_dates : null,
+        prev_list:[],
+        current_list:[],
     }),
     getters: {
 
@@ -448,6 +450,7 @@ export const useAddressStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -482,13 +485,32 @@ export const useAddressStore = defineStore({
         async itemActionAfter(data, res)
         {
             if(data)
-            {   this.item = data;
+            {
+                this.prev_list =this.list.data;
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
         },
         //---------------------------------------------------------------------
+
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
             switch (this.form.action)
@@ -496,6 +518,8 @@ export const useAddressStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'addresses.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -993,6 +1017,15 @@ export const useAddressStore = defineStore({
 
                             this.itemAction('save-and-clone');
 
+                        }
+                    },
+
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
 
