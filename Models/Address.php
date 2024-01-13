@@ -195,12 +195,19 @@ class Address extends VaahModel
         $item = new self();
         $item->fill($inputs);
         $user_id = $inputs['vh_user_id'];
+        $user = StoreUser::find($user_id);
+        $addresses = $user->addresses()->get();
+
+        if ($addresses->isEmpty()) {
+            $item->is_default = 1;
+        }
+
         if(($inputs['is_default']) == 1)
         {
             $user = StoreUser::find($user_id);
-            $addresses = $user->addresses()->where('is_default',1)->get();
+            $all_addresses = $user->addresses()->where('is_default',1)->get();
 
-            foreach ($addresses as $address) {
+            foreach ($all_addresses as $address) {
 
                 $address->is_default = 0;
                 $address->save();
