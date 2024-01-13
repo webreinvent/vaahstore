@@ -17,7 +17,7 @@ const store = useAttributeGroupStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Attributes By:</b>
+                    <b>Attributes:</b>
                 </template>
 
                 <AutoComplete name="attribute-filter"

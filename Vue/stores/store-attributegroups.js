@@ -492,8 +492,10 @@ export const useAttributeGroupStore = defineStore({
             if(item.is_active)
             {
                 await this.itemAction('activate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             } else{
                 await this.itemAction('deactivate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             }
         },
         //---------------------------------------------------------------------
