@@ -171,14 +171,21 @@ export const useAttributeGroupStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-         watchItem(name)
+         watchItem()
           {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              } else {
-                  this.item.slug = "";
+
+              if (this.item) {
+                  watch(() => this.item.name, (newVal, oldVal) => {
+                          if (newVal && newVal !== "") {
+                              this.item.name = vaah().capitalising(newVal);
+                              this.item.slug = vaah().strToSlug(newVal);
+                          }
+                          if (newVal == "") {
+                              this.item.slug = "";
+                          }
+
+                      }, {deep: true}
+                  )
               }
           },
         //---------------------------------------------------------------------

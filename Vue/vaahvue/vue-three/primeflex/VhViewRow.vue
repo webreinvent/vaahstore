@@ -137,8 +137,8 @@ const props = defineProps({
                     <td colspan="2">
                         <template v-if="typeof value === 'object' && value !== null">
               <span v-for="data in value">
-                <Tag :value="`${data.name} (${data.type})`"  style="margin-top:10px;"></Tag>
-              </span>
+<!--                <Tag :value="`${data.name} (${data.type})`" :rounded="true"  style="border-radius:20px;padding:5px 10px;"></Tag>-->
+<Tag :value="`${data.name} `" :rounded="true" style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;"></Tag>              </span>
                         </template>
                     </td>
                 </template>
