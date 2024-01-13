@@ -87,7 +87,8 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="warehouses-list-create"
                             class="p-button-sm"
-                            @click="store.toForm()">
+                            @click="store.toForm()"
+                            v-if="store.assets.permissions.includes('can-update-module')">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
@@ -100,8 +101,10 @@ const toggleCreateMenu = (event) => {
 
                     <!--form_menu-->
 
-                    <Button v-if="root.assets && root.assets.module
-                                                && root.assets.module.is_dev"
+                    <Button v-if="root.assets
+                                  && root.assets.module
+                                  && root.assets.module.is_dev
+                                  && store.assets.permissions.includes('can-update-module')"
                         type="button"
                         @click="toggleCreateMenu"
                         class="p-button-sm"

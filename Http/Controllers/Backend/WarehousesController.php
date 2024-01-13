@@ -5,6 +5,7 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Warehouse;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Permission;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 class WarehousesController extends Controller
 {
@@ -25,7 +26,9 @@ class WarehousesController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
+            $data['active_permissions'] = Permission::getActiveItems();
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Warehouse::getFillableColumns();
