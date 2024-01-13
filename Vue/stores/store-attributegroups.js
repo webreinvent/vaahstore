@@ -97,6 +97,11 @@ export const useAttributeGroupStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.attributes)
+            {
+                this.setAttributesAfterPageRefresh();
+            }
+
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1059,6 +1064,36 @@ export const useAttributeGroupStore = defineStore({
 
             if (data) {
                 this.filtered_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async setAttributesAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    attributes: this.query.filter.attributes,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/attributes-using-slug',
+                this.setAttributersrPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setAttributersrPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_attributes = data;
             }
         },
         //---------------------------------------------------------------------

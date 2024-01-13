@@ -77,5 +77,8 @@ function () {
     Route::post('/search/attribute', 'AttributeGroupsController@searchAttribute')
         ->name('vh.backend.store.attributegroups.search.attributes');
     //---------------------------------------------------------
+    Route::post('/search/attributes-using-slug', 'AttributeGroupsController@searchAttributeUsingUrlSlug')
+        ->name('vh.backend.store.attributegroups.search.filtered-attributes');
+    //---------------------------------------------------------
 
 });
