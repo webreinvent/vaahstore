@@ -1,7 +1,6 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useAddressStore } from '../../../stores/store-addresses'
-
 const store = useAddressStore();
 const useVaah = vaah();
 
@@ -112,24 +111,25 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if="store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id "
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button  v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="addresses-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-success p-button-text"
                                 data-testid="addresses-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

@@ -5,6 +5,7 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Address;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\Permission;
 
 class AddressesController extends Controller
 {
@@ -25,7 +26,10 @@ class AddressesController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
+            $data['active_permissions'] = Permission::getActiveItems();
+
+            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Address::getFillableColumns();
