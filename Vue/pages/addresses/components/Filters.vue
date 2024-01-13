@@ -75,6 +75,19 @@ const store = useAddressStore();
 
             </VhFieldVertical>
 
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date Range Filter:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+            </VhFieldVertical >
+
             <VhFieldVertical >
                 <template #label>
                     <b>Status:</b>

@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Address';
 
@@ -18,6 +19,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            date : null,
         },
     },
     action: {
@@ -72,6 +74,7 @@ export const useAddressStore = defineStore({
         active_users:null,
         types:null,
         address_type:null,
+        selected_dates : null,
     }),
     getters: {
 
@@ -94,6 +97,10 @@ export const useAddressStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
 
@@ -501,10 +508,12 @@ export const useAddressStore = defineStore({
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'restore':
                 case 'save':
                     this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'delete':
                     this.item = null;
@@ -586,7 +595,7 @@ export const useAddressStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -648,7 +657,7 @@ export const useAddressStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -659,6 +668,7 @@ export const useAddressStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.selected_dates = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1021,6 +1031,40 @@ export const useAddressStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
     }
 });
 
