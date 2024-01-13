@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/addresses',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -71,5 +71,12 @@ function () {
         ->name('vh.backend.store.addresses.item.action');
 
     //---------------------------------------------------------
+
+    /**
+     * Search User
+     */
+    Route::post('/search/user', 'AddressesController@searchUser')
+        ->name('vh.backend.store.addresses.search.user');
+
 
 });

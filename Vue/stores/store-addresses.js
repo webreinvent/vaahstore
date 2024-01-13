@@ -20,6 +20,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             date : null,
+            users : null,
         },
     },
     action: {
@@ -77,6 +78,7 @@ export const useAddressStore = defineStore({
         selected_dates : null,
         prev_list:[],
         current_list:[],
+        filter_selected_users : null,
     }),
     getters: {
 
@@ -103,14 +105,6 @@ export const useAddressStore = defineStore({
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
             }
-        },
-        //---------------------------------------------------------------------
-
-        searchUser(event) {
-
-            this.user_suggestion= this.active_users.filter((active_users) => {
-                return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
         },
 
         //---------------------------------------------------------------------
@@ -257,7 +251,6 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.active_users = data.active_users;
                 this.types = data.taxonomy.types;
                 this.status = data.taxonomy.status;
                 if(data.rows)
@@ -734,6 +727,7 @@ export const useAddressStore = defineStore({
                 this.query.filter[key] = null;
             }
             this.selected_dates = null;
+            this.filter_selected_users = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1142,6 +1136,56 @@ export const useAddressStore = defineStore({
             await  this.getList()
             vaah().toastSuccess(['Action Was Successful']);
         },
+
+        //---------------------------------------------------------------------
+        async searchUser(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUserAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        searchUserAfter(data,res) {
+
+            if(data)
+            {
+                this.user_suggestion = data;
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+        setFilterUser() {
+
+            const unique_users = [];
+            const check_names = new Set();
+
+            for (const users of this.filter_selected_users) {
+                if (!check_names.has(users.first_name)) {
+                    unique_users.push(users);
+                    check_names.add(users.first_name);
+                }
+            }
+            const users_slug = unique_users.map(users => users.first_name);
+            this.filter_selected_users = unique_users;
+            this.query.filter.users = users_slug;
+
+        },
+
     }
 });
 

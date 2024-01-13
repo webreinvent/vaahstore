@@ -34,6 +34,43 @@ const store = useAddressStore();
 
             </VhFieldVertical>
 
+
+
+            <VhFieldVertical>
+
+                <template #label>
+                    <b>User:</b>
+                </template>
+
+                <AutoComplete
+                    name="addresses-user-filter"
+                    data-testid="addresses-user-filter"
+                    v-model="store.filter_selected_users"
+                    @change="store.setFilterUser($event)"
+                    option-label = "first_name"
+                    multiple
+                    :complete-on-focus = "true"
+                    :suggestions="store.user_suggestion"
+                    @complete="store.searchUser($event)"
+                    placeholder="Select User"
+                    class="w-full">
+                </AutoComplete>
+
+            </VhFieldVertical>
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date Range Filter:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"/>
+
+            </VhFieldVertical >
+
             <VhFieldVertical >
                 <template #label>
                     <b>Default Address:</b>
@@ -55,38 +92,6 @@ const store = useAddressStore();
 
             </VhFieldVertical>
 
-            <VhFieldVertical>
-
-                <template #label>
-                    <b>User:</b>
-                </template>
-
-                <AutoComplete
-                    v-model="store.query.filter.user"
-                    @change="store.setUserSlug($event)"
-                    name="addresses-user"
-                    :suggestions="store.user_suggestion"
-                    @complete="store.searchUser($event)"
-                    placeholder="Select User"
-                    :dropdown="true" optionLabel="first_name"
-                    data-testid="addresses-user"
-                    forceSelection>
-                </AutoComplete>
-
-            </VhFieldVertical>
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Date Range Filter:</b>
-                </template>
-
-                <Calendar v-model="store.selected_dates"
-                          selectionMode="range"
-                          @date-select="store.setDateRange"
-                          :manualInput="false"/>
-
-            </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

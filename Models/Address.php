@@ -347,25 +347,6 @@ class Address extends VaahModel
 
     //-------------------------------------------------
 
-    public function scopeUserFilter($query, $filter)
-    {
-        if(!isset($filter['user'])
-            || is_null($filter['user'])
-            || $filter['user'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $user = $filter['user'];
-
-        return $query->whereHas('user', function ($query) use ($user) {
-            $query->where('first_name', $user);
-        });
-    }
-
-    //-------------------------------------------------
-
     public function scopeDefaultFilter($query, $filter)
     {
         if(!isset($filter['is_default'])
@@ -924,5 +905,45 @@ class Address extends VaahModel
 
     //-------------------------------------------------
 
+    public static function searchUser($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+        if($query === null)
+        {
+            $users = User::where('is_active',1)
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $users = User::where('first_name', 'like', "%$query%")
+                ->where('is_active',1)
+                ->get();
+        }
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public function scopeUserFilter($query, $filter)
+    {
+        if(!isset($filter['users'])
+            || is_null($filter['users'])
+            || $filter['users'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $users = $filter['users'];
+
+        return $query->whereHas('user', function ($query) use ($users) {
+            $query->whereIn('first_name', $users);
+        });
+    }
 
 }
