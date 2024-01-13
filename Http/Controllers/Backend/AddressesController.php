@@ -256,7 +256,23 @@ class AddressesController extends Controller
     }
 
     //----------------------------------------------------------
+    public function searchUserUsingUrlSlug(Request $request)
+    {
 
+        try{
+            return Address::searchUserUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
 
 
 }

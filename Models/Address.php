@@ -764,8 +764,8 @@ class Address extends VaahModel
             [
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
-                'address_line_1'=>'required|max:250',
-                'address_line_2'=>'required|max:250',
+                'address_line_1'=>'required|max:100',
+                'address_line_2'=>'required|max:100',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
@@ -774,8 +774,13 @@ class Address extends VaahModel
             ],
             [
                 'vh_user_id.required' => 'The User field is required',
+                'address_line_1.required' => 'The Address Line 1 field is required',
+                'address_line_2.required' => 'The Address Line 2 field is required',
+                'address_line_1.max' => 'The Address Line 1 field cannot be more than :max characters.',
+                'address_line_2.max' => 'The Address Line 2 field cannot be more than :max characters.',
                 'taxonomy_id_address_types.required' => 'The Type field is required',
                 'taxonomy_id_address_status.required' => 'The Status field is required',
+
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
@@ -944,6 +949,18 @@ class Address extends VaahModel
         return $query->whereHas('user', function ($query) use ($users) {
             $query->whereIn('first_name', $users);
         });
+    }
+
+    //-------------------------------------------------
+
+    public static function searchUserUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['users'];
+        $users = User::whereIn('first_name',$query)->get();
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
     }
 
 }

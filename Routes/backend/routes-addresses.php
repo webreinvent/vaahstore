@@ -78,5 +78,11 @@ function () {
     Route::post('/search/user', 'AddressesController@searchUser')
         ->name('vh.backend.store.addresses.search.user');
 
+    /**
+     * Search Users using Slug
+     */
+    Route::post('/search/users-using-slug', 'AddressesController@searchUserUsingUrlSlug')
+        ->name('vh.backend.store.addresses.search.filtered-user');
+
 
 });

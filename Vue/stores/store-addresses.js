@@ -101,6 +101,12 @@ export const useAddressStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+
+            if(this.query.filter.users)
+            {
+                this.setUsersAfterPageRefresh();
+            }
+
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1185,6 +1191,38 @@ export const useAddressStore = defineStore({
             this.query.filter.users = users_slug;
 
         },
+
+        //-----------------------------------------------------------------------
+
+        async setUsersAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    users: this.query.filter.users,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users-using-slug',
+                this.setUsersAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setUsersAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_users = data;
+            }
+        },
+
 
     }
 });
