@@ -1028,15 +1028,15 @@ export const useAttributeGroupStore = defineStore({
             const unique_attributes = [];
             const check_names = new Set();
 
-            for (const product_vendors of this.selected_attributes) {
-                if (!check_names.has(product_vendors.name)) {
-                    unique_attributes.push(product_vendors);
-                    check_names.add(product_vendors.name);
+            for (const attributes_name of this.selected_attributes) {
+                if (!check_names.has(attributes_name.name)) {
+                    unique_attributes.push(attributes_name);
+                    check_names.add(attributes_name.name);
                 }
             }
-            const product_vendors_slugs = unique_attributes.map(vendors => vendors.slug);
+            const attribute_slugs = unique_attributes.map(attributes => attributes.slug);
             this.selected_attributes = unique_attributes;
-            this.query.filter.attributes = product_vendors_slugs;
+            this.query.filter.attributes = attribute_slugs;
 
         },
         //---------------------------------------------------------------------
