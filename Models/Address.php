@@ -314,13 +314,16 @@ class Address extends VaahModel
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('address_line_1', 'LIKE', '%' . $search . '%')
-                ->orWhere('address_line_2', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
-
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('address_line_1', 'LIKE', '%' . $search . '%')
+                        ->orWhere('address_line_2', 'LIKE', '%' . $search . '%');
+                })
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
     }
 
     //-------------------------------------------------

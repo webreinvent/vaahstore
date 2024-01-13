@@ -36,7 +36,7 @@ const store = useAddressStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Default Store:</b>
+                    <b>Default Address:</b>
                 </template>
                 <div class="field-radiobutton">
                     <RadioButton name="default-address-yes"

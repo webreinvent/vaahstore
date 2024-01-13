@@ -1137,7 +1137,11 @@ export const useAddressStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        async reloadPage()
+        {
+            await  this.getList()
+            vaah().toastSuccess(['Action Was Successful']);
+        },
     }
 });
 

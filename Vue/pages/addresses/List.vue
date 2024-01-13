@@ -95,7 +95,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="addresses-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reloadPage()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -104,7 +104,7 @@ const toggleCreateMenu = (event) => {
                     <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
                         type="button"
-                        :disabled="!store.assets.permissions.includes('can-update-module')"     
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
                         data-testid="addresses-create-menu"
