@@ -447,7 +447,10 @@ export const useAttributeGroupStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'attributegroups.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -457,6 +460,7 @@ export const useAttributeGroupStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'attributegroups.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
