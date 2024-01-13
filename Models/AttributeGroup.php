@@ -833,17 +833,25 @@ class AttributeGroup extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function searchActiveAttribute($request){
-        $addedBy = Attribute::select('id', 'name','slug','type')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+
+    public static function searchActiveAttribute($request)
+    {
+        $query = $request->input('filter.q.query');
+
+        $active_attribute = Attribute::where('is_active', 1);
+
+        if ($query !== null) {
+            $active_attribute->where(function ($query_builder) use ($query) {
+                $query_builder->where('name', 'like', "%$query%")
+                    ->orWhere('slug', 'like', "%$query%");
+            });
         }
-        $addedBy = $addedBy->limit(10)->get();
+
+        $active_attribute = $active_attribute->select('id', 'name', 'slug', 'type')->limit(10)->get();
 
         $response['success'] = true;
-        $response['data'] = $addedBy;
+        $response['data'] = $active_attribute;
         return $response;
-
     }
     //-------------------------------------------------
 

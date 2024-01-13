@@ -1103,7 +1103,11 @@ export const useAttributeGroupStore = defineStore({
         },
         //---------------------------------------------------------------------
         async searchActiveAttributes(event) {
-            const query = event;
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
             const options = {
                 params: query,
                 method: 'post',
