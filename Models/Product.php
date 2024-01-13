@@ -1433,7 +1433,7 @@ class Product extends VaahModel
 
     public static function searchVendorUsingUrlSlug($request)
     {
-        $query = $request['filter']['q'];
+        $query = $request['filter']['vendor'];
 
             $vendors = Vendor::whereIn('name',$query)
                 ->orWhereIn('slug',$query)
@@ -1444,6 +1444,51 @@ class Product extends VaahModel
             return $response;
     }
 
+    //-------------------------------------------------
+
+    public static function searchBrandUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['brand'];
+        $brands = Brand::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $brands;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVariationUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['variation'];
+
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchStoreUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['store'];
+        $stores = Store::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $stores;
+        return $response;
+    }
 
 
 }

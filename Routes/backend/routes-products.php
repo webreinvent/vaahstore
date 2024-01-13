@@ -139,7 +139,27 @@ function () {
      */
     Route::post('/search/vendors-using-slug', 'ProductsController@searchVendorUsingUrlSlug')
         ->name('vh.backend.store.products.search.filtered-vendors');
-    
+
     //---------------------------------------------------------
+
+    /**
+     * Search Brands using Slug
+     */
+    Route::post('/search/brands-using-slug', 'ProductsController@searchBrandUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-brands');
+
+    //---------------------------------------------------------
+    /**
+     * Search Variations using Slug
+     */
+    Route::post('/search/variations-using-slug', 'ProductsController@searchVariationUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-variations');
+
+    //---------------------------------------------------------
+    /**
+     * Search Stores using Slug
+     */
+    Route::post('/search/stores-using-slug', 'ProductsController@searchStoreUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-stores');
 
 });

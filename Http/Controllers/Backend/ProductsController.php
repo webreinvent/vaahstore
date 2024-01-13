@@ -682,6 +682,62 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+    public function searchBrandUsingUrlSlug(Request $request)
+    {
+        try{
+            return Product::searchBrandUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchVariationUsingUrlSlug(Request $request)
+    {
+
+        try{
+            return Product::searchVariationUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchStoreUsingUrlSlug(Request $request)
+    {
+
+        try{
+            return Product::searchStoreUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
 
 
 }

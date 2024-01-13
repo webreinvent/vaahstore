@@ -48,10 +48,9 @@ onMounted(async () => {
     await store.getList();
 
     await store.getListCreateMenu();
-    if(store.query.filter.vendors)
-    {
-        store.setVendorsAfterPageRefresh();
-    }
+
+
+
 
 });
 

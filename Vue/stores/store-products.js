@@ -239,6 +239,22 @@ export const useProductStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.vendors)
+            {
+                this.setVendorsAfterPageRefresh();
+            }
+            if(this.query.filter.brands)
+            {
+                this.setBrandsAfterPageRefresh();
+            }
+            if(this.query.filter.product_variations)
+            {
+                this.setProductVariationsAfterPageRefresh();
+            }
+            if(this.query.filter.stores)
+            {
+                this.setStoresAfterPageRefresh();
+            }
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1880,7 +1896,7 @@ export const useProductStore = defineStore({
 
             let query = {
                 filter: {
-                    q: this.query.filter.vendors,
+                    vendor: this.query.filter.vendors,
                 },
             };
                 const options = {
@@ -1904,6 +1920,101 @@ export const useProductStore = defineStore({
                 this.selected_vendors = data;
             }
         },
+
+        //---------------------------------------------------------------------
+
+        async setBrandsAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    brand: this.query.filter.brands,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/brands-using-slug',
+                this.setBrandsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setBrandsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_brands = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setProductVariationsAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    variation: this.query.filter.product_variations,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/variations-using-slug',
+                this.setProductVariationsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setProductVariationsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setStoresAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    store: this.query.filter.stores,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/stores-using-slug',
+                this.setStoresAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setStoresAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_store = data;
+            }
+        },
+
 
 
     }
