@@ -139,7 +139,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'attributes_list'">
+                        <template v-if="column === 'created_by' || column === 'updated_by' || column === 'attributes_list' || column === 'description'|| column === 'active_attributes'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -149,17 +149,7 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'description'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Description</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.description}}</div>
-                                </td>
-                            </tr>
-                        </template>
+
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
@@ -169,18 +159,24 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
+                            <VhViewRow label="Attributes"
+                                       :value="store.item.active_attributes"
+                                       type="attributeValues"
+
+                            />
+
+                            <VhViewRow label="Description"
+                                       :value="store.item.description"
+
+                            />
+
                             <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
                         </template>
 
-                        <template v-else-if="column === 'active_attributes'">
-                            <VhViewRow label="Attributes"
-                                       :value="value"
-                                       type="attributeValues"
-                            />
-                        </template>
+
 
                         <template v-else>
                             <VhViewRow :label="column"
