@@ -598,6 +598,47 @@ export const useAddressStore = defineStore({
             vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRejectAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmApproveAll()
+        {
+            this.action.type = 'approve-all';
+            vaah().confirmDialogApproveAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+
         async delayedSearch()
         {
             let self = this;
@@ -797,22 +838,21 @@ export const useAddressStore = defineStore({
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectAll();
                     }
                 },
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approve-all')
+                        this.confirmApproveAll();
                     }
                 },
-
 
                 {
                     separator: true
@@ -821,14 +861,14 @@ export const useAddressStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {

@@ -254,9 +254,6 @@ export const vaah = defineStore({
         },
 
         //----------------------------------------------------------
-
-
-        //----------------------------------------------------------
         confirmDialogTrash(callbackOnAccept)
         {
             this.confirmDialog('Trash Confirmation', 'Do you want to trash record(s)?', callbackOnAccept);
@@ -292,6 +289,28 @@ export const vaah = defineStore({
             this.confirmDialog('De-Activate Confirmation', 'Do you want to de-activate all record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
+
+        confirmDialogPendingAll(callbackOnAccept)
+        {
+            this.confirmDialog('Pending  Confirmation', 'Do you want to put all record(s) status as pending?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogRejectAll(callbackOnAccept)
+        {
+            this.confirmDialog('Reject Confirmation', 'Do you want to put all record(s) status as rejected?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogApproveAll(callbackOnAccept)
+        {
+            this.confirmDialog('Approve  Confirmation', 'Do you want to put all record(s) status as approved?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));
