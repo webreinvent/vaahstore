@@ -118,7 +118,7 @@ watch(() => store.item.name, (item_name) => {
                     <InputText class="w-full"
                                name="brands-name"
                                data-testid="brands-name"
-                               placeholder="Enter a Name"
+                               placeholder="Enter Name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
@@ -127,7 +127,7 @@ watch(() => store.item.name, (item_name) => {
                     <InputText class="w-full"
                                name="brands-slug"
                                data-testid="brands-slug"
-                               placeholder="Enter a Slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -164,7 +164,7 @@ watch(() => store.item.name, (item_name) => {
                     <InputText class="w-full"
                                name="brands-slug"
                                data-testid="brands-meta_title"
-                               placeholder="Enter a meta title"
+                               placeholder="Enter Meta Title"
                                v-model="store.item.meta_title"/>
                 </VhField>
 
@@ -173,14 +173,14 @@ watch(() => store.item.name, (item_name) => {
                               name="brands-meta_description"
                               data-testid="brands-meta_description"
                               :autoResize="true"
-                              placeholder="Enter meta Description"
+                              placeholder="Enter Meta Description"
                               v-model="store.item.meta_description"/>
                 </VhField>
 
                 <VhField label="Meta Keyword" >
                     <Chips class="w-full"
                            v-model="store.item.meta_keyword"
-                           placeholder="Enter meta keyword"
+                           placeholder="Enter Meta keyword"
                            separator=","  />
                 </VhField>
 
@@ -212,7 +212,7 @@ watch(() => store.item.name, (item_name) => {
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date and time"
+                              placeholder="Select Date and Time"
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
@@ -242,7 +242,7 @@ watch(() => store.item.name, (item_name) => {
                               data-testid="brands-approved_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date and time"
+                              placeholder="Select Date and Time"
                               v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
