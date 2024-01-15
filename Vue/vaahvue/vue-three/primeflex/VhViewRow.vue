@@ -178,13 +178,19 @@ const props = defineProps({
                 <Badge v-else value="No" severity="danger"></Badge>
             </td>
         </template>
+        <template v-else-if="type==='description'">
+            <td colspan="2">
+
+                <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
+            </td>
+        </template>
         <template v-else-if="type==='multipleValues'">
             <td colspan="2">
                 <template v-if="typeof value === 'object' && value !== null">
                     <span v-for="data in value">
-                        <Button class="p-button-outlined p-button-secondary p-button-sm">
+                        <Tag class="p-button-outlined p-button-secondary p-button-sm m-1">
                             {{data.value}}
-                        </Button>&nbsp;
+                        </Tag>&nbsp;
                     </span>
                 </template>
             </td>

@@ -80,6 +80,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="attributes-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -88,23 +89,24 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="attributes-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
-                    <Button
-                        type="button"
-                        data-testid="attributes-form-menu"
-                        icon="pi pi-angle-left"
-                        @click="store.getPreviousItem(store.item)"
-                        aria-haspopup="true"/>
+<!--                    <Button-->
+<!--                        type="button"-->
+<!--                        data-testid="attributes-form-menu"-->
+<!--                        icon="pi pi-angle-left"-->
+<!--                        @click="store.getPreviousItem(store.item)"-->
+<!--                        aria-haspopup="true"/>-->
 
-                    <Button
-                        type="button"
-                        data-testid="attributes-form-menu"
-                        icon="pi pi-angle-right"
-                        @click="store.getNextItem(store.item)"
-                        aria-haspopup="true"/>
+<!--                    <Button-->
+<!--                        type="button"-->
+<!--                        data-testid="attributes-form-menu"-->
+<!--                        icon="pi pi-angle-right"-->
+<!--                        @click="store.getNextItem(store.item)"-->
+<!--                        aria-haspopup="true"/>-->
 
                     <Menu ref="item_menu_state"
                           :model="store.item_menu_list"
@@ -134,7 +136,7 @@ const toggleItemMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
@@ -156,7 +158,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'product_variation'
                          || column === 'attribute_value' || column === 'status' || column === 'meta' || column === 'deleted_by'
-                           || column === 'value'">
+                           || column === 'value'|| column === 'description'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -176,11 +178,11 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'name'">
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Name</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -188,37 +190,45 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'slug'">
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Slug</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
                         </template>
 
                         <template v-else-if="column === 'type'">
+                            <VhViewRow label="value"
+                                       :value="store.item.value"
+                                       type="multipleValues"
+                            />
                             <tr>
-                                <td :style="{width: label_width}">
+                                <td >
                                     <b>Type</b>
                                 </td>
                                 <td colspan="2" >
-                                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div >
                                         {{store.item.type}}</div>
                                 </td>
                             </tr>
                         </template>
 
+
+
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Description"
+                                       :value="store.item.description"
+                                       type="description"
+
+                            />
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
-                            <VhViewRow label="value"
-                                       :value="store.item.value"
-                                       type="multipleValues"
-                            />
+
 
                         </template>
 
