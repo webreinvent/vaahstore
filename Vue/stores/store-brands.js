@@ -669,6 +669,50 @@ export const useBrandStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+        confirmTrash()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'trash';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestore()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'restore';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmActivate()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'activate';
+            vaah().confirmDialogActivate(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmDeactivate()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'deactivate';
+            vaah().confirmDialogDeActivate(this.listAction);
+        },
+        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
@@ -679,7 +723,7 @@ export const useBrandStore = defineStore({
         confirmActivateAll()
         {
             this.action.type = 'activate-all';
-            vaah().confirmDialogActivate(this.listAction);
+            vaah().confirmDialogActivateAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -687,7 +731,7 @@ export const useBrandStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivate(this.listAction);
+            vaah().confirmDialogDeActivateAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -695,7 +739,7 @@ export const useBrandStore = defineStore({
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrash(this.listAction);
+            vaah().confirmDialogTrashAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -703,7 +747,7 @@ export const useBrandStore = defineStore({
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -862,13 +906,13 @@ export const useBrandStore = defineStore({
                 {
                     label: 'Activate',
                     command: async () => {
-                        await this.updateList('activate')
+                        this.confirmActivate();
                     }
                 },
                 {
                     label: 'Deactivate',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        this.confirmDeactivate();
                     }
                 },
                 {
@@ -878,14 +922,14 @@ export const useBrandStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.updateList('trash')
+                        this.confirmTrash();
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.updateList('restore')
+                        this.confirmRestore();
                     }
                 },
                 {
