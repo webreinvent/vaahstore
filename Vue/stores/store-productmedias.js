@@ -722,10 +722,12 @@ export const useProductMediaStore = defineStore({
         async getFormInputsAfter (data, res) {
 
             if (data) {
-                await this.getVariantdata();
+                if (data.fill.product) {
+                    this.item.product_variation=data.fill.listed_variation;
+                }
                 this.item.images = [data.fill.images];
                 this.item.type = data.fill.images.mime_type;
-                this.item.product_variation=data.fill.listed_variation;
+                this.product_variation=data.fill.listed_variation;
 
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {

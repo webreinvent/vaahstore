@@ -138,6 +138,7 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Product*">
+                    {{store.item.product}}
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product"

@@ -210,11 +210,11 @@ class ProductMedia extends VaahModel
             return $validation;
         }
 
-        if (!isset($inputs['images']) || empty($inputs['images'])) {
-            $response['success'] = false;
-            $response['messages'][] = "The image field is required.";
-            return $response;
-        }
+//        if (!isset($inputs['images']) || empty($inputs['images'])) {
+//            $response['success'] = false;
+//            $response['messages'][] = "The image field is required.";
+//            return $response;
+//        }
 
         // check if exist
         $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
@@ -939,8 +939,9 @@ class ProductMedia extends VaahModel
             'product'=> 'required',
             'product_variation'=> 'required',
             'vh_st_product_id'=> 'required',
-            'taxonomy_id_product_media_status'=> 'required',
             'images'=> 'required',
+            'taxonomy_id_product_media_status'=> 'required',
+
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
                 'max:250'
@@ -953,7 +954,7 @@ class ProductMedia extends VaahModel
             'vh_st_product_id.required' => 'The Product field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-            'images' => 'The Image field is required.',
+            'images' => 'The Media field is required.',
         ]
         );
         if($rules->fails()){
