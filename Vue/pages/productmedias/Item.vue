@@ -147,7 +147,7 @@ const toggleItemMenu = (event) => {
                         column === 'path'|| column === 'mime_type' ||column === 'url_thumbnail'|| column === 'thumbnail_size'
                         || column === 'base_path'|| column === 'images'||column === 'url'|| column === 'status'||
                         column === 'size'||column === 'meta'|| column === 'type'|| column === 'extension'||
-                        column === 'product_media_images' || column === 'deleted_by' || column==='product_variation_media' ">
+                        column === 'product_media_images' || column === 'deleted_by' || column==='product_variation_media'|| column==='listed_variation' || column==='taxonomy_id_product_media_status' ">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -190,18 +190,18 @@ const toggleItemMenu = (event) => {
                             </tr>
                         </template>
 
-                        <template v-else-if="column === 'taxonomy_id_product_media_status'">
-                            <tr>
-                                <td>
-                                    <b>Status</b>
-                                </td>
-                                <td colspan="2">
-                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
-                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
-                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
-                                </td>
-                            </tr>
-                        </template>
+<!--                        <template v-else-if="column === 'taxonomy_id_product_media_status'">-->
+<!--                            <tr>-->
+<!--                                <td>-->
+<!--                                    <b>Status</b>-->
+<!--                                </td>-->
+<!--                                <td colspan="2">-->
+<!--                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
+<!--                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
+<!--                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </template>-->
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user'|| column === 'product_media_images' ) && (typeof value === 'object' && value !== null)">
@@ -233,6 +233,16 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="yes-no"
                             />
+                            <tr >
+                                <td>
+                                    <b>Status</b>
+                                </td>
+                                <td colspan="2">
+                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                </td>
+                            </tr>
                         </template>
 
 
@@ -240,6 +250,7 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        />
+
                         </template>
 
 
