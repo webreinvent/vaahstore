@@ -365,7 +365,7 @@ class ProductMedia extends VaahModel
             return $query;
         }
         $search = $filter['product_variation'];
-        $query->whereHas('productVariation',function ($q) use ($search) {
+        $query->whereHas('productVariationMedia',function ($q) use ($search) {
             $q->whereIn('name',$search);
         });
 
