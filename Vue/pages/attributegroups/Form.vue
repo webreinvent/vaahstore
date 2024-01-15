@@ -139,7 +139,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                placeholder="Enter Name"
                                name="attributegroups-name"
@@ -148,7 +148,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                placeholder="Enter Slug"
                                name="attributegroups-slug"
@@ -156,7 +156,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <vhField label="Attributes">
+                <vhField label="Attributes*">
 
 
 
@@ -190,7 +190,7 @@ const toggleFormMenu = (event) => {
                                                           :autoResize="true"/>
                                             </VhField>
 
-                                            <VhField label="Is Active">
+                                            <VhField label="Is Active*">
                                                 <InputSwitch v-bind:false-value="0"
                                                              v-bind:true-value="1"
                                                              class="p-inputswitch"
