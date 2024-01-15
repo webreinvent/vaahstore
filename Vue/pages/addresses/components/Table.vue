@@ -26,7 +26,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-             <Column field="user" header="User"
+             <Column field="user.first_name" header="User"
                      :sortable="true">
 
                  <template #body="prop">
@@ -54,8 +54,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
+             <Column field="status" header="Status">
 
                  <template #body="prop">
 
@@ -81,7 +80,6 @@ const useVaah = vaah();
                 </Column>
 
              <Column field="is_default" v-if="store.isViewLarge()"
-                     :sortable="true"
                      style="width:100px;"
                      header="Is Default">
 
