@@ -776,29 +776,38 @@ class Brand extends VaahModel
     {
 
         $rules = array(
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|min:1|max:100',
+            'slug' => 'required|min:1|max:100',
+            'meta_title' => 'nullable|max:100',
+            'meta_description' => 'nullable|max:100',
+            'meta_keyword' => 'nullable|array|max:15',
             'registered_by'=> 'nullable',
             'registered_at'=> 'nullable',
             'approved_by'=> 'nullable',
             'approved_at'=> 'nullable',
             'status'=> 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
+            'status_notes' => 'nullable|min:1|max:250',
+
 
         );
 
+
+
         $custom_messages = array(
-            'status_notes.required_if' => 'The Status Notes is required for "Rejected" Status',
+            'name.required' => 'The Name field is required.',
+            'name.min' => 'The Name field must be at least :min characters.',
+            'name.max' => 'The Name field must not exceed :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.min' => 'The Slug field must be at least :min characters.',
+            'slug.max' => 'The Slug field must not exceed :max characters.',
+            'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
+            'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
+            'meta_keyword.max' => 'The Meta Keywords field must not have more than :max items.',
             'registered_by.required_with' => 'The Registered By field is required when Registered At is present.',
             'registered_at.required_with' => 'The Registered At field is required when Registered By is present.',
             'approved_by.required_with' => 'The Approved By field is required when Approved At is present.',
             'approved_at.required_with' => ' The Approved At field is required when Approved By is present.',
             'status_notes.max' => 'The Status Notes may not be greater than :max characters.',
-            'name' => 'The Name field is required.',
-            'slug' => 'The Slug field is required.',
             'status' => 'The Status field is required.',
         );
 
