@@ -22,6 +22,8 @@ const toggleSelectedMenuState = (event) => {
 const bulk_menu_state = ref();
 const toggleBulkMenuState = (event) => {
     bulk_menu_state.value.toggle(event);
+
+
 };
 //--------/bulk_menu_state
 </script>
@@ -37,15 +39,17 @@ const toggleBulkMenuState = (event) => {
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
-                    type="button"
-                    @click="toggleSelectedMenuState"
-                    data-testid="productattributes-actions-menu"
-                    aria-haspopup="true"
-                    aria-controls="overlay_menu">
+                        type="button"
+                        @click="toggleSelectedMenuState"
+                        data-testid="productattributes-actions-menu"
+                        aria-haspopup="true"
+                        aria-controls="overlay_menu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')">
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"
                            :value="store.action.items.length" />
                 </Button>
+
                 <Menu ref="selected_menu_state"
                       :model="store.list_selected_menu"
                       :popup="true" />
@@ -58,6 +62,7 @@ const toggleBulkMenuState = (event) => {
                     data-testid="productattributes-actions-bulk-menu"
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
+                    :disabled="!store.assets.permissions.includes('can-update-module')"
                     class="ml-1 p-button-sm">
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>
