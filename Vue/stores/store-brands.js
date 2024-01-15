@@ -281,11 +281,20 @@ export const useBrandStore = defineStore({
         setApprovedBy(event){
             let approved_by = toRaw(event.value);
             this.item.approved_by = approved_by ? approved_by.id : null ;
+            if(this.item.approved_by === null)
+            {
+                this.item.approved_at = null;
+            }
         },
         //---------------------------------------------------------------------
         setRegisteredBy(event){
-            let approved_by = toRaw(event.value);
-            this.item.registered_by = approved_by ? approved_by.id : null ;
+            let registered_by = toRaw(event.value);
+            this.item.registered_by = registered_by ? registered_by.id : null ;
+
+            if(this.item.registered_by === null)
+            {
+                this.item.registered_at = null;
+            }
         },
         //---------------------------------------------------------------------
         SetStatus(event){

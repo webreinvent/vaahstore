@@ -790,15 +790,24 @@ class Brand extends VaahModel
 
         );
 
-        $customMessages = array(
+        $custom_messages = array(
             'status_notes.required_if' => 'The Status Notes is required for "Rejected" Status',
+            'registered_by.required_with' => 'The Registered By field is required when Registered At is present.',
+            'registered_at.required_with' => 'The Registered At field is required when Registered By is present.',
+            'approved_by.required_with' => 'The Approved By field is required when Approved At is present.',
+            'approved_at.required_with' => ' The Approved At field is required when Approved By is present.',
             'status_notes.max' => 'The Status Notes may not be greater than :max characters.',
             'name' => 'The Name field is required.',
             'slug' => 'The Slug field is required.',
             'status' => 'The Status field is required.',
         );
 
-        $validator = \Validator::make($inputs, $rules,$customMessages);
+        $rules['registered_by'] = 'required_with:registered_at';
+        $rules['registered_at'] = 'required_with:registered_by';
+        $rules['approved_by'] = 'required_with:approved_at';
+        $rules['approved_at'] = 'required_with:approved_by';
+
+        $validator = \Validator::make($inputs, $rules,$custom_messages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
