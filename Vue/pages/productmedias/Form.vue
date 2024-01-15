@@ -137,7 +137,7 @@ const toggleFormMenu = (event) => {
 
 
 
-                <VhField label="Product">
+                <VhField label="Product*">
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product"
@@ -153,7 +153,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Product Variation" >
+                <VhField label="Product Variations*" >
 <!--                    {{store.item.product_variation}}-->
                     <MultiSelect v-model="store.item.product_variation"
                                  display="chip"
@@ -168,10 +168,8 @@ const toggleFormMenu = (event) => {
                                  class="w-full" />
                 </VhField>
 
-                <VhField label="Name">
-                    <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
-                </VhField>
-                <VhField label="Media">
+
+                <VhField label="Media*">
 
                     <FileUpload customUpload
                                 name="demo[]"
@@ -217,6 +215,9 @@ const toggleFormMenu = (event) => {
                         </template>
                     </FileUpload>
                 </VhField>
+                <VhField label="Alt Name">
+                    <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
+                </VhField>
                 <div v-if="store.item.images && store.item.images.length > 0">
                     <VhField label="Media Type" >
                     <InputText class="w-full"
@@ -228,7 +229,7 @@ const toggleFormMenu = (event) => {
                 </div>
 
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
