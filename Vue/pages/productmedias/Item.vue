@@ -229,7 +229,7 @@ const toggleItemMenu = (event) => {
                                                v-tooltip.top="store.item.name"/>
                                     </td>
                                 </tr>
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />

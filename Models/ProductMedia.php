@@ -1054,13 +1054,25 @@ class ProductMedia extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
 
-        $user = Product::where('is_active',1)->inRandomOrder()->first();
-        $inputs['vh_st_product_id'] =$user->id;
-        $inputs['product'] = $user;
+        $product = Product::where('is_active',1)->inRandomOrder()->first();
 
-        $owned_by = ProductVariation::where('is_active',1)->inRandomOrder()->first();
-        $inputs['vh_st_product_variation_id'] =$owned_by->id;
-        $inputs['product_variation'] = $owned_by;
+        if ($product) {
+            $inputs['vh_st_product_id'] = $product->id;
+            $inputs['product'] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+            ];
+            $variations = ProductVariation::where('is_active', 1)
+                ->where('vh_st_product_id', $product->id)
+                ->get(['id', 'name', 'slug']);
+
+            $inputs['listed_variation'] = $variations;
+        } else {
+            $response['success'] = false;
+        }
+
+
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-medias-status');
         $status_id = $taxonomy_status->pluck('id')->random();
