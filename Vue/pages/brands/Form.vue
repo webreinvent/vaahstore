@@ -178,7 +178,10 @@ watch(() => store.item.name, (item_name) => {
                 </VhField>
 
                 <VhField label="Meta Keyword" >
-                    <Chips class="w-full" v-model="store.item.meta_keyword" separator=","  />
+                    <Chips class="w-full"
+                           v-model="store.item.meta_keyword"
+                           placeholder="Enter meta keyword"
+                           separator=","  />
                 </VhField>
 
                 <VhField label="Registered By">
@@ -209,7 +212,7 @@ watch(() => store.item.name, (item_name) => {
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date"
+                              placeholder="Select date and time"
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
@@ -239,7 +242,7 @@ watch(() => store.item.name, (item_name) => {
                               data-testid="brands-approved_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date"
+                              placeholder="Select date and time"
                               v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
