@@ -159,7 +159,7 @@ const toggleFormMenu = (event) => {
                                  display="chip"
                                  :options="store.product_variation"
                                  optionLabel="name"
-                                 @change="store.setProductVariation($event)"
+
                                  placeholder="Select Product Variation"
                                  :maxSelectedLabels="3"
                                  filter

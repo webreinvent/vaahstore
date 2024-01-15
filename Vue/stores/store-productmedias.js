@@ -145,35 +145,16 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-       // async searchProductVariation(event) {
-       //      const query = event;
-       //      const options = {
-       //          params: query,
-       //          method: 'post',
-       //      };
-       //
-       //      await vaah().ajax(
-       //          this.ajax_url+'/search/product/variation',
-       //          this.searchProductVariationAfter,
-       //          options
-       //      );
-       //  },
-       //  //---------------------------------------------------------------------
-       //  searchProductVariationAfter(data,res) {
-       //      if(data)
-       //      {
-       //          this.product_variation_suggestion = data;
-       //      }
-       //  },
 
-        searchProductVariation(event) {
 
-            if (this.product_variation && this.product_variation.length > 0) {
-                this.product_variation_suggestion = this.product_variation.filter((product) => {
-                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                });
-            }
-        },
+        // searchProductVariation(event) {
+        //
+        //     if (this.product_variation && this.product_variation.length > 0) {
+        //         this.product_variation_suggestion = this.product_variation.filter((product) => {
+        //             return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+        //         });
+        //     }
+        // },
         //---------------------------------------------------------------------
         async onImageUpload(event){
             this.selectedFiles = event.files;
@@ -335,34 +316,16 @@ export const useProductMediaStore = defineStore({
               }
           },
         //---------------------------------------------------------------------
-        // setProduct(event){
+
+
+        //---------------------------------------------------------------------
+        // setProductVariation(event){
         //     if (event && event.value) {
-        //         let product = toRaw(event.value);
-        //         console.log(product)
-        //         this.item.vh_st_product_id = product.id;
+        //         let productVariation = toRaw(event.value);
+        //         // this.item.vh_st_product_id = product.id;
+        //         this.item.vh_st_product_variation_id = productVariation.id;
         //     }
         // },
-
-        //---------------------------------------------------------------------
-
-        // setProductFilter(event){
-        //
-        //     let product = toRaw(event.value);
-        //     this.item.vh_st_product_id = product.id;
-        //     if(product.slug)
-        //     {
-        //         this.query.filter.product = product.slug;
-        //     }
-        // },
-
-        //---------------------------------------------------------------------
-        setProductVariation(event){
-            if (event && event.value) {
-                let productVariation = toRaw(event.value);
-                // this.item.vh_st_product_id = product.id;
-                this.item.vh_st_product_variation_id = productVariation.id;
-            }
-        },
         //---------------------------------------------------------------------
         setStatus(event){
             let status = toRaw(event.value);
@@ -444,14 +407,6 @@ export const useProductMediaStore = defineStore({
             }
         },
 
-        searchProductVariations(event) {
-            if (this.product_variation && this.product_variation.length > 0) {
-                this.product_suggestion = this.product_variation.filter((product) => {
-                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                });
-                console.log( this.product_suggestion)
-            }
-        },
         //---------------------------------------------------------------------
         async getItemAfter(data, res)
         {
@@ -460,13 +415,8 @@ export const useProductMediaStore = defineStore({
                 this.item = data;
                 const images=data.images;
                 await this.getVariantdata();
-                this.item.product_variation = data.product_variation_media.map(variation => {
-                    return {
-                        id: variation.id,
-                        name: variation.name,
-                        slug: variation.slug
-                    };
-                });
+
+                this.item.product_variation=data.listed_variation;
 
                 // this.item.product=data.product;
                 if (images.length > 0) {
@@ -681,7 +631,6 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
         async formActionAfter (data)
         {
-            console.log(data)
             switch (this.form.action)
             {
                 case 'create-and-new':
@@ -689,7 +638,6 @@ export const useProductMediaStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     this.$router.push({name: 'productmedias.form'})
-                    vaah().toastSuccess(['Action Was Successful']);
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -702,13 +650,7 @@ export const useProductMediaStore = defineStore({
                     this.item.id = null;
                     this.item.images = null;
                     this.item.product_media_images = null;
-                    this.item.product_variation = data.product_variation_media.map(variation => {
-                        return {
-                            id: variation.id,
-                            name: variation.name,
-                            slug: variation.slug
-                        };
-                    });
+                    this.item.product_variation=data.listed_variation;
                     this.$router.push({name: 'productmedias.form'})
                     await this.getFormMenu();
                     break;
@@ -721,13 +663,7 @@ export const useProductMediaStore = defineStore({
                 case 'save':
                     if (data) {
                         this.item = data;
-                        this.item.product_variation = data.product_variation_media.map(variation => {
-                            return {
-                                id: variation.id,
-                                name: variation.name,
-                                slug: variation.slug
-                            };
-                        });
+                        this.item.product_variation=data.listed_variation;
                     }
                     break;
                 case 'delete':
@@ -1312,6 +1248,7 @@ export const useProductMediaStore = defineStore({
         {
             if(data){
                 this.product_variation = data;
+                this.item.product_variation=null;
 
             }
         },
