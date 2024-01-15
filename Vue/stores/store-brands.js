@@ -327,7 +327,7 @@ export const useBrandStore = defineStore({
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                        data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
