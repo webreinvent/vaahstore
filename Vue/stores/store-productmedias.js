@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/productmedias";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -367,7 +367,8 @@ export const useProductMediaStore = defineStore({
                 this.active_product_variations = data.active_product_variations;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    // this.query.rows = data.rows;
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -393,6 +394,7 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
 
             }
         },

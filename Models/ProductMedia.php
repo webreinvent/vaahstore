@@ -1034,7 +1034,13 @@ class ProductMedia extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
+//            $variations = ProductVariation::where('vh_st_product_id', $item->vh_st_product_id)->get();
+//            $item->productVariationMedia()->attach($variations);
 
+            $variations = ProductVariation::where('vh_st_product_id', $item->vh_st_product_id)->limit(1)->get();
+            if ($variations->count() >= 1) {
+                $item->productVariationMedia()->attach($variations->pluck('id'));
+            }
             $i++;
 
         }
