@@ -24,8 +24,6 @@ const toggleBulkMenuState = (event) => {
     bulk_menu_state.value.toggle(event);
 };
 //--------/bulk_menu_state
-
-const permission=store.assets.permission;
 </script>
 
 <template>

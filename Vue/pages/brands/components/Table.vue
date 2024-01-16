@@ -4,7 +4,6 @@ import { useBrandStore } from '../../../stores/store-brands'
 
 const store = useBrandStore();
 const useVaah = vaah();
-const permission=store.assets.permission;
 </script>
 
 <template>
@@ -114,7 +113,7 @@ const permission=store.assets.permission;
                                             class: props.modelValue ? 'bg-green-600' : ' '
                                         })
                                  }"
-                                 :disabled="!store.assets.permission.includes('can-update-module')"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
                 </template>
@@ -135,7 +134,7 @@ const permission=store.assets.permission;
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button v-if=" store.assets.permission.includes('can-update-module') "
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
                             class="p-button-tiny p-button-text"
                                 data-testid="brands-table-to-edit"
                                 v-tooltip.top="'Update'"
@@ -146,7 +145,7 @@ const permission=store.assets.permission;
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="brands-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at &&
-                                store.assets.permission.includes('can-update-module')"
+                                store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -155,7 +154,7 @@ const permission=store.assets.permission;
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="brands-table-action-restore"
                                 v-if="store.isViewLarge() && prop.data.deleted_at &&
-                             store.assets.permission.includes('can-update-module')"
+                             store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
