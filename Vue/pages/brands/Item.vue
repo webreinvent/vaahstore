@@ -208,40 +208,6 @@ const toggleItemMenu = (event) => {
                         </template>
 
 
-
-
-
-                        <template v-else-if="column === 'meta'">
-                            <tr>
-                                <td><b>Meta</b></td>
-                                <td v-if="value">
-                                    <Button icon="pi pi-eye"
-                                            label="view"
-                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
-                                            @click="store.openModal(store.item.meta_keyword)"
-                                            data-testid="meta-open_modal"
-                                    />
-                                </td>
-                                <td v-else> <Badge  severity="danger">No</Badge></td>
-
-
-                            </tr>
-
-                            <Dialog header="Meta Fields"
-                                    v-model:visible="store.display_meta_modal"
-                                    :breakpoints="{'960px': '75vw', '640px': '90vw'}"
-                                    :style="{width: '50vw'}" :modal="true"
-                            >
-                                <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
-                                <div class="mb-4 flex">
-                                    <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
-                                    <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
-                                </div>
-                                <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.itemString}}</p></div>
-                            </Dialog>
-                        </template>
-
-
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                          || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
                             <VhViewRow :label="column"
@@ -285,6 +251,20 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="yes-no"
                             />
+
+                            <tr>
+                                <td><b>Meta</b></td>
+                                <td>
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal()"
+                                            data-testid="meta-open_modal"
+                                    />
+                                </td>
+
+
+                            </tr>
                         </template>
 
                         <template v-else-if="column === 'is_default'">
@@ -313,5 +293,18 @@ const toggleItemMenu = (event) => {
         </Panel>
 
     </div>
+
+    <Dialog header="Meta Fields"
+            v-model:visible="store.display_meta_modal"
+            :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+            :style="{width: '50vw'}" :modal="true"
+    >
+        <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
+        <div class="mb-4 flex">
+            <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+            <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
+        </div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keyword}}</p></div>
+    </Dialog>
 
 </template>
