@@ -209,7 +209,8 @@ export const useAttributeGroupStore = defineStore({
                 // this.attribute_list = data.attributes;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    // this.query.rows = data.rows;
+                    data.rows  = this.query.rows
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -690,6 +691,7 @@ export const useAttributeGroupStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.item.is_active=null;
             this.$router.push({name: 'attributegroups.form'})
         },
         //---------------------------------------------------------------------

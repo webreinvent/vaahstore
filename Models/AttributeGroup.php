@@ -717,8 +717,7 @@ class AttributeGroup extends VaahModel
             'name' => 'required|max:100',
             'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'max:50',
-            'is_active' => 'required'
+            'description' => 'max:100',
         );
         $messages = array(
             'name.required' => 'The Name field is required.',
@@ -727,7 +726,6 @@ class AttributeGroup extends VaahModel
             'slug.max' => 'The slug field may not be greater than :max characters.',
             'active_attributes.required' => 'The  Attributes field is required.',
             'description.max' => 'The Description field may not be greater than :max characters.',
-            'is_active.required' => 'The Is Active field is required.'
         );
 
         $validator = \Validator::make($inputs, $rules,$messages);
