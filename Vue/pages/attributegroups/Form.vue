@@ -170,8 +170,16 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.active_attributes_name"
                                   @complete="store.searchActiveAttributes"
                                   placeholder="Select Attributes"
-
-                                  class="w-full " >
+                                  class="w-full "
+                                  :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      }
+                                  }"
+                    >
 <!--                        <template #option="slotProps">-->
 <!--                                                      <div class="flex align-items-center">-->
 <!--                                                         <span>{{slotProps.option.name}}</span>-->
