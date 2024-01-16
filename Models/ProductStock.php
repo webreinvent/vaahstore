@@ -222,8 +222,8 @@ class ProductStock extends VaahModel
     public static function productStockInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'vendor' => 'required',
             'product' => 'required',
             'product_variation' => 'required',
@@ -236,7 +236,10 @@ class ProductStock extends VaahModel
             ],
             'is_active' => 'required',
         ],
-            [
+            [    'name.required' => 'The Name field is required',
+                'name.max' => 'The Name field cannot be greater than :max characters',
+                'slug.required' => 'The Slug field is required',
+                'slug.max' => 'The Slug field cannot be greater than :max characters',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
@@ -709,7 +712,6 @@ class ProductStock extends VaahModel
         return $item;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {

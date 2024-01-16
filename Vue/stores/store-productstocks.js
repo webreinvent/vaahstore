@@ -541,6 +541,7 @@ export const useProductStockStore = defineStore({
             }
             this.current_list=this.list.data
             this.compareList(this.prev_list,this.current_list)
+
         },
         //---------------------------------------------------------------------
 
@@ -582,6 +583,10 @@ export const useProductStockStore = defineStore({
                     break;
                 case 'restore':
                     this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
+                case 'activate':
+                case 'deactivate':
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
