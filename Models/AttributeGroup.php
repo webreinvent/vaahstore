@@ -841,8 +841,8 @@ class AttributeGroup extends VaahModel
         $active_attribute = Attribute::where('is_active', 1);
 
         if ($query !== null) {
-            $active_attribute->where(function ($query_builder) use ($query) {
-                $query_builder->where('name', 'like', "%$query%")
+            $active_attribute->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%$query%")
                     ->orWhere('slug', 'like', "%$query%");
             });
         }
