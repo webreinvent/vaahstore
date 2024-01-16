@@ -590,9 +590,10 @@ class Address extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->get()->each(function ($record) {
+                    $record->update(['deleted_by' => null,'is_default' => 0]);
+                });
                 $list->restore();
-                $list->update(['deleted_by' => null,'is_default' => 0]);
-
                 break;
             case 'delete-all':
                 $list->forceDelete();
