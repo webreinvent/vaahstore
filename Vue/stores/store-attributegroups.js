@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/attributegroups";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -691,7 +691,6 @@ export const useAttributeGroupStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.item.is_active=null;
             this.$router.push({name: 'attributegroups.form'})
         },
         //---------------------------------------------------------------------
