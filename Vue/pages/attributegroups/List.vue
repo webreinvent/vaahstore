@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'AttributeGroups - Store';
+    document.title = 'Attributes Group - Store';
     /**
      * call onLoad action when List view loads
      */
