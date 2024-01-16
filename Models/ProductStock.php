@@ -382,7 +382,7 @@ class ProductStock extends VaahModel
         {
             $rows = $request->rows;
         }
-
+        
         $list = $list->paginate($rows);
 
         $response['success'] = true;
