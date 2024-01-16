@@ -39,8 +39,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
+             <Column field="status" header="Status">
                  <template #body="prop">
                      <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
@@ -66,7 +65,6 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
