@@ -1131,12 +1131,19 @@ export const useAttributeGroupStore = defineStore({
             );
         },
         //---------------------------------------------------------------------
-        searchActiveAttributesAfter(data,res) {
-            if(data)
-            {
+        searchActiveAttributesAfter(data, res) {
+            if (data){
                 this.active_attributes_name = data;
-            }
+                if (data && this.item.active_attributes) {
+                    this.active_attributes_name = data.filter((item) => {
+                        return !this.item.active_attributes.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
+        }
         },
+
         //---------------------------------------------------------------------
     }
 });

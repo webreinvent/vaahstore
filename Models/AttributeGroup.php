@@ -529,9 +529,12 @@ class AttributeGroup extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->get()->each(function ($record) {
+                    $record->update(['deleted_by' => null]);
+                });
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
+
             case 'delete-all':
                 $list->forceDelete();
                 break;
