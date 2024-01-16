@@ -1140,7 +1140,7 @@ export const useAddressStore = defineStore({
         async reloadPage()
         {
             await  this.getList()
-            vaah().toastSuccess(['Action Was Successful']);
+            vaah().toastSuccess(['Page Reloaded']);
         },
 
         //---------------------------------------------------------------------
@@ -1211,7 +1211,6 @@ export const useAddressStore = defineStore({
                 this.setUsersAfterPageRefreshAfter,
                 options
             );
-
 
         },
 

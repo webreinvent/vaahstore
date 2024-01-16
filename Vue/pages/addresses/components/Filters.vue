@@ -158,38 +158,6 @@ const store = useAddressStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Is Active:</b>
-                </template>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="active-all"
-                                 inputId="active-all"
-                                 value="null"
-                                 data-testid="addresses-filters-active-all"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-all" class="cursor-pointer">All</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-true"
-                                 inputId="active-true"
-                                 data-testid="addresses-filters-active-true"
-                                 value="true"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-true" class="cursor-pointer">Only Active</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-false"
-                                 inputId="active-false"
-                                 data-testid="addresses-filters-active-false"
-                                 value="false"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-false" class="cursor-pointer">Only Inactive</label>
-                </div>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
                     <b>Trashed:</b>
                 </template>
 
