@@ -24,8 +24,6 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-const permission=store.assets.permission;
-
 watch(() => store.item.name, (item_name) => {
     try {
         if (item_name.length === 0) {
@@ -47,7 +45,7 @@ watch(() => store.item.name, (item_name) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title"
-                         :disabled="!store.assets.permission.includes('can-update-module')">
+                         :disabled="!store.assets.permissions.includes('can-update-module')">
                         <span v-if="store.item && store.item.id">
                             Update
                         </span>
@@ -70,7 +68,7 @@ watch(() => store.item.name, (item_name) => {
                             v-if="store.item && store.item.id"
                             data-testid="brands-save"
                             @click="store.itemAction('save')"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -78,7 +76,7 @@ watch(() => store.item.name, (item_name) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="brands-create-and-new"
-                            :disabled="!store.assets.permission.includes('can-update-module')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="brands-document" icon="pi pi-info-circle"
@@ -94,7 +92,7 @@ watch(() => store.item.name, (item_name) => {
                         class="p-button-sm"
                         data-testid="brands-form-menu"
                         icon="pi pi-angle-down"
-                        :disabled="!store.assets.permission.includes('can-update-module')"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -282,7 +280,7 @@ watch(() => store.item.name, (item_name) => {
                                             class: props.modelValue ? 'bg-green-600' : ' '
                                         })
                                  }"
-                                 :disabled="!store.assets.permission.includes('can-update-module')"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                     />
                 </VhField>
 
