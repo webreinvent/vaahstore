@@ -559,6 +559,9 @@ export const useProductStockStore = defineStore({
                 case 'trash':
                     break;
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -704,7 +707,7 @@ export const useProductStockStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -715,6 +718,7 @@ export const useProductStockStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
