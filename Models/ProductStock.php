@@ -232,7 +232,7 @@ class ProductStock extends VaahModel
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
             'is_active' => 'required',
         ],
@@ -240,7 +240,12 @@ class ProductStock extends VaahModel
                 'name.max' => 'The Name field cannot be greater than :max characters',
                 'slug.required' => 'The Slug field is required',
                 'slug.max' => 'The Slug field cannot be greater than :max characters',
+                'vendor.required' => 'The Vendor field is required',
+                'product.required' => 'The Product field is required',
+                'product_variation' => 'The Product Variation field is required',
+                'vh_st_warehouse_id' => 'The Warehouse field is required',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
+                'status.required' => 'The Status field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
