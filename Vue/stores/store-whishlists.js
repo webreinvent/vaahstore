@@ -736,6 +736,34 @@ export const useWhishlistStore = defineStore({
             this.action.type = 'reject-all';
             vaah().confirmDialogRejectedAll(this.listAction);
         },
+        //---------------------------------------------------------------------
+
+        confirmHundredRecords()
+        {
+            this.action.type = 'create-100-records';
+            vaah().confirmHundredRecords(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmThousandsRecords()
+        {
+            this.action.type = 'create-1000-records';
+            vaah().confirmThousandsRecords(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmFiveThousandsRecords()
+        {
+            this.action.type = 'create-5000-records';
+            vaah().confirmFiveThousandsRecords(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmTenThousandsRecords()
+        {
+            this.action.type = 'create-1000-records';
+            vaah().confirmTenThousandsRecords(this.listAction);
+        },
         async delayedSearch()
         {
             let self = this;
@@ -1030,28 +1058,28 @@ export const useWhishlistStore = defineStore({
                     label: 'Create 100 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.listAction('create-100-records');
+                        this.confirmHundredRecords();
                     }
                 },
                 {
                     label: 'Create 1000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.listAction('create-1000-records');
+                        this.confirmThousandsRecords();
                     }
                 },
                 {
                     label: 'Create 5000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.listAction('create-5000-records');
+                        this.confirmFiveThousandsRecords();
                     }
                 },
                 {
                     label: 'Create 10,000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.listAction('create-10000-records');
+                        this.confirmTenThousandsRecords();
                     }
                 },
 

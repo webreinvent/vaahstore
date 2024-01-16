@@ -333,6 +333,27 @@ export const vaah = defineStore({
         },
 
         //----------------------------------------------------------
+        confirmHundredRecords(callbackOnAccept)
+        {
+            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 100 records ?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+        confirmThousandsRecords(callbackOnAccept)
+        {
+            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 1000 records ?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+        confirmFiveThousandsRecords(callbackOnAccept)
+        {
+            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 5000 records ?', callbackOnAccept);
+        },
+        //----------------------------------------------------------
+        confirmTenThousandsRecords(callbackOnAccept)
+        {
+            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 10000 records ?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));
