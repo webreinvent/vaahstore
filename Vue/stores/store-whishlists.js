@@ -276,7 +276,8 @@ export const useWhishlistStore = defineStore({
                 this.active_users = data.active_users;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
