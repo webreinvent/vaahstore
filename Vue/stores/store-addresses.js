@@ -21,6 +21,7 @@ let empty_states = {
             sort: null,
             date : null,
             users : null,
+            address_type : null,
         },
     },
     action: {
@@ -79,6 +80,7 @@ export const useAddressStore = defineStore({
         prev_list:[],
         current_list:[],
         filter_selected_users : null,
+        filter_selected_address_type : null,
     }),
     getters: {
 
@@ -106,7 +108,10 @@ export const useAddressStore = defineStore({
             {
                 this.setUsersAfterPageRefresh();
             }
-
+            if(this.query.filter.address_type)
+            {
+                this.setAddressTypeAfterPageRefresh();
+            }
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -261,7 +266,7 @@ export const useAddressStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -1193,6 +1198,36 @@ export const useAddressStore = defineStore({
         },
 
         //-----------------------------------------------------------------------
+
+        async setAddressTypeAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    users: this.query.filter.address_type,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/address-type',
+                this.setAddressTypeAfterPageRefreshAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+        setAddressTypeAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_address_type = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
 
         async setUsersAfterPageRefresh()
         {

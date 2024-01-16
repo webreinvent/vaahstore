@@ -20,7 +20,7 @@ const store = useAddressStore();
                 </template>
                 <div class="field-autocomplete">
                     <AutoComplete
-                        v-model="store.query.filter.address_type"
+                        v-model="store.filter_selected_address_type"
                         @change="store.setAddressTypeFilter($event)"
                         name="addresses-type"
                         :suggestions="store.type_suggestion"

@@ -541,7 +541,7 @@ class Address extends VaahModel
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
         }
-    
+
         $status = Taxonomy::getTaxonomyByType('address-status');
         $approve_id = $status->where('name','Approved')->pluck('id')->first();
         $reject_id = $status->where('name','Rejected')->pluck('id')->first();
@@ -946,6 +946,25 @@ class Address extends VaahModel
     {
 
         $query = $request['filter']['users'];
+        $users = User::whereIn('first_name',$query)->get();
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchAddressTypeUsingSlug($request)
+    {
+        $query = $request->input('query');
+        $address_type = TaxonomyType::getFirstOrCreate('address-types');
+
+        $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$address_type->id)
+                ->where('name',$query)
+                ->get();
+
+        dd($item);
         $users = User::whereIn('first_name',$query)->get();
         $response['success'] = true;
         $response['data'] = $users;

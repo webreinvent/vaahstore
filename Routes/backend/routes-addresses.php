@@ -84,5 +84,9 @@ function () {
     Route::post('/search/users-using-slug', 'AddressesController@searchUserUsingUrlSlug')
         ->name('vh.backend.store.addresses.search.filtered-user');
 
-
+    /**
+     * Search Address Type using Slug
+     */
+    Route::post('/search/address-type', 'AddressesController@searchAddressTypeUsingSlug')
+        ->name('vh.backend.store.addresses.search.filtered-address-type');
 });
