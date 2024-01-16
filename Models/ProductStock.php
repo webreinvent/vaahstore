@@ -132,11 +132,7 @@ class ProductStock extends VaahModel
     }
 
     //-------------------------------------------------
-    public function vendor(){
-        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id','name']);
-    }
 
-    //-------------------------------------------------
     public function product(){
         return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select(['id','name']);
     }
@@ -379,7 +375,7 @@ class ProductStock extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productStockFilter($request->filter);
-
+        $list->vendorsFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -825,12 +821,11 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchVendor($request){
 
-        $vendor = Vendor::select('id', 'name','is_default')->where('is_active',1);;
+        $vendor = Vendor::select('id', 'name','slug','is_default')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
             $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
         $vendor = $vendor->limit(10)->get();
-
         $response['success'] = true;
         $response['data'] = $vendor;
         return $response;
@@ -878,6 +873,33 @@ class ProductStock extends VaahModel
         return $response;
 
     }
+    //-------------------------------------------------
+    public function scopeVendorsFilter($query, $filter)
+    {
+
+        if(!isset($filter['vendors'])
+            || is_null($filter['vendors'])
+            || $filter['vendors'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $vendors = $filter['vendors'];
+
+        $query->whereHas('vendor', function ($query) use ($vendors) {
+            $query->whereIn('slug', $vendors);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')->select(['id','name','slug']);
+    }
+
     //-------------------------------------------------
 
 
