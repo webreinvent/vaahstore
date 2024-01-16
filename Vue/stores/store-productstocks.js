@@ -19,6 +19,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_stock_status:null,
+            vendors : null,
         },
     },
     action: {
@@ -79,6 +80,7 @@ export const useProductStockStore = defineStore({
         form_menu_list: [],
         prev_list:[],
         current_list:[],
+        selected_vendors : null,
     }),
     getters: {
 
@@ -1118,6 +1120,25 @@ export const useProductStockStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        addSelectedVendor() {
+
+            const unique_vendors = [];
+            const check_names = new Set();
+
+            for (const vendors of this.selected_vendors) {
+                if (!check_names.has(vendors.name)) {
+                    unique_vendors.push(vendors);
+                    check_names.add(vendors.name);
+                }
+            }
+            const vendors_slugs = unique_vendors.map(vendor => vendor.slug);
+            this.selected_vendors = unique_vendors;
+            this.query.filter.vendors = vendors_slugs;
+
+        },
+
+
 
     }
 });
