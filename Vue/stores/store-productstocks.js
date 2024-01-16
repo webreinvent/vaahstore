@@ -747,7 +747,7 @@ export const useProductStockStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
-
+            this.selected_vendors = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
