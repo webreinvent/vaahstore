@@ -811,7 +811,7 @@ export const useWarehouseStore = defineStore({
         confirmActivateAll()
         {
             this.action.type = 'activate-all';
-            vaah().confirmDialogActivate(this.listAction);
+            vaah().confirmDialogActivateAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -819,7 +819,7 @@ export const useWarehouseStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivate(this.listAction);
+            vaah().confirmDialogDeActivateAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
