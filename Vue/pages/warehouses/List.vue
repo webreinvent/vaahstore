@@ -88,7 +88,7 @@ const toggleCreateMenu = (event) => {
                     <Button data-testid="warehouses-list-create"
                             class="p-button-sm"
                             @click="store.toForm()"
-                            v-if="store.assets.permissions.includes('can-update-module')">
+                            :disabled="store.assets.is_guest_impersonating">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
@@ -103,13 +103,13 @@ const toggleCreateMenu = (event) => {
 
                     <Button v-if="root.assets
                                   && root.assets.module
-                                  && root.assets.module.is_dev
-                                  && store.assets.permissions.includes('can-update-module')"
+                                  && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
                         data-testid="warehouses-create-menu"
                         icon="pi pi-angle-down"
+                        :disabled="store.assets.is_guest_impersonating"
                         aria-haspopup="true"/>
 
                     <Menu ref="create_menu"

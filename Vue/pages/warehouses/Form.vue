@@ -59,6 +59,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="warehouses-save"
                             @click="store.itemAction('save')"
+                            :disabled="store.assets.is_guest_impersonating"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -66,6 +67,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="warehouses-create-and-new"
+                            :disabled="store.assets.is_guest_impersonating"
                             icon="pi pi-save"/>
 
                     <Button data-testid="warehouses-document" icon="pi pi-info-circle"
@@ -80,6 +82,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="warehouses-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="store.assets.is_guest_impersonating"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"

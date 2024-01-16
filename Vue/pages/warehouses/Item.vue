@@ -88,7 +88,9 @@ const toggleItemMenu = (event) => {
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="warehouses-item-to-edit"
-                            icon="pi pi-save"/>
+                            icon="pi pi-save"
+                            :disabled="store.assets.is_guest_impersonating"
+                    />
 
                     <!--item_menu-->
                     <Button
@@ -97,6 +99,7 @@ const toggleItemMenu = (event) => {
                         @click="toggleItemMenu"
                         data-testid="warehouses-item-menu"
                         icon="pi pi-angle-down"
+                        :disabled="store.assets.is_guest_impersonating"
                         aria-haspopup="true"/>
 
                     <Menu ref="item_menu_state"
@@ -134,6 +137,7 @@ const toggleItemMenu = (event) => {
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="warehouses-item-restore"
+                                    :disabled="store.assets.is_guest_impersonating"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
