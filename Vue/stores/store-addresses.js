@@ -264,9 +264,9 @@ export const useAddressStore = defineStore({
                 this.assets = data;
                 this.types = data.taxonomy.types;
                 this.status = data.taxonomy.status;
-                if(data.rows)
-                {
-                    data.rows = this.query.rows;
+
+                if (data.rows) {
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -292,6 +292,7 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -533,15 +534,19 @@ export const useAddressStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'addresses.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'restore':
-                case 'save':
                     this.item = data;
                     vaah().toastSuccess(['Action was successful']);
+                    break;
+                case 'save':
+                    this.item = data;
                     break;
                 case 'delete':
                     this.item = null;
@@ -738,6 +743,7 @@ export const useAddressStore = defineStore({
                 this.query.filter[key] = null;
             }
             this.selected_dates = null;
+            this.filter_selected_address_type = null;
             this.filter_selected_users = null;
             await this.updateUrlQueryString(this.query);
         },
@@ -1203,7 +1209,7 @@ export const useAddressStore = defineStore({
         {
             let query = {
                 filter: {
-                    users: this.query.filter.address_type,
+                    address_type: this.query.filter.address_type,
                 },
             };
             const options = {

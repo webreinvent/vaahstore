@@ -60,12 +60,8 @@ const toggleItemMenu = (event) => {
 
         <Panel class="is-small" v-if="store && store.item">
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <tr>
-                    <td  colspan="2" >
-                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                           <pre>{{store.item.status_notes}}</pre> </div>
-                    </td>
-                </tr>
+                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
+
             </Message>
             <template class="p-1" #header>
 

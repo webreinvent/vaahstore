@@ -13,7 +13,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Address extends VaahModel
 {
@@ -193,12 +193,14 @@ class Address extends VaahModel
         }
         $user_id = $inputs['vh_user_id'];
         $user = StoreUser::find($user_id);
+
+        //check if this address already exist for the user when address type is same
         $address = $user->addresses()
             ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
             ->where('address_line_1', $inputs['address_line_1'])
             ->where('address_line_2', $inputs['address_line_2'])
-
             ->first();
+
         if ($address) {
             $response = [];
             $response['errors'][] = 'This Address already exist for the user.';
@@ -212,6 +214,7 @@ class Address extends VaahModel
             $item->is_default = 1;
         }
 
+        //remove previous default address
         if(($inputs['is_default']) == 1)
         {
             $user = StoreUser::find($user_id);
@@ -656,12 +659,22 @@ class Address extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
-        $user_id = $inputs['vh_user_id'];
-        $user = StoreUser::find($user_id);
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
+        $user_id = $inputs['vh_user_id'];
+        $user = StoreUser::find($user_id);
+        $address = $user->addresses()
+            ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
+            ->where('address_line_1', $inputs['address_line_1'])
+            ->where('address_line_2', $inputs['address_line_2'])
+            ->whereNot('id',$inputs['id'])
+            ->first();
+        if ($address) {
+            $response = [];
+            $response['errors'][] = 'This Address already exist for the user.';
+            return $response;
+        }
+
         if(($inputs['is_default']) == 1)
         {
             $user = StoreUser::find($user_id);
@@ -957,18 +970,15 @@ class Address extends VaahModel
 
     public static function searchAddressTypeUsingSlug($request)
     {
-        $query = $request->input('query');
+        $query = $request['filter']['address_type'];
         $address_type = TaxonomyType::getFirstOrCreate('address-types');
-
         $item = Taxonomy::whereNotNull('is_active')
                 ->where('vh_taxonomy_type_id',$address_type->id)
-                ->where('name',$query)
-                ->get();
-
-        dd($item);
-        $users = User::whereIn('first_name',$query)->get();
+                ->where('slug',$query)
+                ->select('id','name','slug')
+                ->first();
         $response['success'] = true;
-        $response['data'] = $users;
+        $response['data'] = $item;
         return $response;
     }
 
