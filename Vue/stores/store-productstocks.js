@@ -1345,6 +1345,13 @@ export const useProductStockStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        async toReload()
+        {
+            await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
+        }
+
     }
 });
 
