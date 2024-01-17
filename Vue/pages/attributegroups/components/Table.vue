@@ -52,16 +52,16 @@ const useVaah = vaah();
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+<!--                <Column field="updated_at" header="Updated"-->
+<!--                        v-if="store.isViewLarge()"-->
+<!--                        style="width:150px;"-->
+<!--                        :sortable="true">-->
 
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
+<!--                    <template #body="prop">-->
+<!--                        {{useVaah.ago(prop.data.updated_at)}}-->
+<!--                    </template>-->
 
-                </Column>
+<!--                </Column>-->
 
             <Column field="is_active" v-if="store.isViewLarge()"
 
