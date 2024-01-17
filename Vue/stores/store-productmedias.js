@@ -97,6 +97,7 @@ export const useProductMediaStore = defineStore({
         ]),
         product_variation:null,
         selected_status:null,
+        selected_variation:null,
 
     }),
     product_suggestion_list:null,
@@ -1277,6 +1278,44 @@ export const useProductMediaStore = defineStore({
             const product_medias_slugs = unique_status.map(product_media => product_media.slug);
             this.selected_status = unique_status;
             this.query.filter.status = product_medias_slugs;
+
+        },
+        //---------------------------------------------------------------------
+        async searchVariation(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/variation',
+                this.searchVariationAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchVariationAfter(data,res) {
+            if(data)
+            {
+                this.variation_suggestion = data;
+            }
+        },
+
+        addVariation() {
+
+            const unique_variation = [];
+            const check_names = new Set();
+
+            for (const product_medias_variation of this.selected_variation) {
+                if (!check_names.has(product_medias_variation.name)) {
+                    unique_variation.push(product_medias_variation);
+                    check_names.add(product_medias_variation.name);
+                }
+            }
+            const product_medias_variation_slugs = unique_variation.map(product_medias_variation => product_medias_variation.slug);
+            this.selected_variation = unique_variation;
+            this.query.filter.product_variation = product_medias_variation_slugs;
 
         },
         //---------------------------------------------------------------------

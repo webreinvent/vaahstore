@@ -110,5 +110,7 @@ function () {
         ->name('vh.backend.store.productmedias.search.status');
 
     //---------------------------------------------------------
+    Route::post('/search/variation', 'ProductMediasController@searchVariation')
+        ->name('vh.backend.store.productmedias.search.filter.variation');
 
 });

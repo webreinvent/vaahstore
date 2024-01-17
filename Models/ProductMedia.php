@@ -366,7 +366,7 @@ class ProductMedia extends VaahModel
         }
         $search = $filter['product_variation'];
         $query->whereHas('productVariationMedia',function ($q) use ($search) {
-            $q->whereIn('name',$search);
+            $q->whereIn('slug',$search);
         });
 
     }
@@ -1174,6 +1174,32 @@ class ProductMedia extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $item;
+        return $response;
+
+    }
+
+    public static function searchVariation($request)
+    {
+//        $query = $request['filter']['q']['query'];
+        $query = $request->input('query');
+        if($query === null)
+        {
+            $attribute_name = ProductVariation::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attribute_name = ProductVariation::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attribute_name;
         return $response;
 
     }

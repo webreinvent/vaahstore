@@ -42,15 +42,19 @@ const store = useProductMediaStore();
                     <b>Product Variation By:</b>
                 </template>
                 <VhField label="Product Variation">
-                    <MultiSelect
-                        v-model="store.query.filter.product_variation"
-                        :options="store.assets.active_product_variations"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Product Variation"
-                        display="chip"
-                        class="w-full" />
+
+                    <AutoComplete name="productmedias-variation-filter"
+                                  data-testid="productmedias-variation-filter"
+                                  v-model="store.selected_variation"
+                                  @change = "store.addVariation()"
+                                  option-label = "name"
+                                  option-value = "name"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.variation_suggestion"
+                                  @complete="store.searchVariation($event)"
+                                  placeholder="Select Variations"
+                                  class="w-full " />
                 </VhField>
 
 
