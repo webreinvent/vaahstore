@@ -885,6 +885,7 @@ export const useProductMediaStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.product_variation=null;
             this.$router.push({name: 'productmedias.form'})
         },
         //---------------------------------------------------------------------

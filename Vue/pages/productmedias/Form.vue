@@ -138,7 +138,6 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Product*">
-                    {{store.item.product}}
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product"
@@ -146,6 +145,9 @@ const toggleFormMenu = (event) => {
                                             class="w-full"
                                             :suggestions="store.product_suggestion"
                                             @complete="store.searchProduct($event)"
+                                            :pt="{
+                                                panel: { class: 'w-16rem ' },
+                                                }"
                                             placeholder="Select Product"
                                             data-testid="productmedias-product"
                                             name="productmedias-product"
@@ -155,7 +157,6 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Product Variations*" >
-<!--                    {{store.item.product_variation}}-->
                     <MultiSelect v-model="store.item.product_variation"
                                  display="chip"
                                  :options="store.product_variation"
