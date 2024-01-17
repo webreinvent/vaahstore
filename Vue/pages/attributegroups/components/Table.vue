@@ -34,7 +34,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <div style=" width:200px; overflow-wrap: break-word; word-wrap:break-word;">
+                    <div style=" width:100px; overflow-wrap: break-word; word-wrap:break-word;">
                         {{prop.data.name}}
                     </div>
                 </template>
@@ -42,12 +42,12 @@ const useVaah = vaah();
             </Column>
 
              <Column field="attributes_list.name" header="Attributes">
-                 <template #body="prop" >
-                     <ul class="px-3">
-                         <template v-for="attribute in prop.data.attributes_list">
-                             <li>{{ attribute.name }}</li>
+                 <template #body="prop">
+                     <div class="flex flex-wrap gap-2 w-10rem">
+                         <template v-for="(attribute, index) in prop.data.attributes_list">
+                             <Badge class="mr-2 h-max max-w-full">{{attribute.name}}</Badge>
                          </template>
-                     </ul>
+                     </div>
                  </template>
              </Column>
 
