@@ -28,7 +28,8 @@ const store = useAddressStore();
                         placeholder="Select Type"
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-type"
-                        forceSelection>
+                        forceSelection
+                        class="w-full">
                     </AutoComplete>
                 </div>
 
@@ -67,7 +68,8 @@ const store = useAddressStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
-                          :manualInput="false"/>
+                          :manualInput="false"
+                          class="w-full"/>
 
             </VhFieldVertical >
 
