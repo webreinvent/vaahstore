@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductVariation;
@@ -22,12 +23,18 @@ class ProductMediasController extends Controller
 
     public function getAssets(Request $request)
     {
+        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
         try{
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductMedia::getFillableColumns();
@@ -160,6 +167,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::updateList($request);
         }catch (\Exception $e){
@@ -178,6 +191,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
 
         try{
@@ -198,6 +217,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::deleteList($request);
         }catch (\Exception $e){
@@ -215,6 +240,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::fillItem($request);
         }catch (\Exception $e){
@@ -232,6 +263,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::createItem($request);
         }catch (\Exception $e){
@@ -266,6 +303,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::updateItem($request,$id);
         }catch (\Exception $e){
@@ -283,6 +326,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::deleteItem($request,$id);
         }catch (\Exception $e){
@@ -300,6 +349,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::itemAction($request,$id,$action);
         }catch (\Exception $e){
