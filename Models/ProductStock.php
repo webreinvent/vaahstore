@@ -133,11 +133,7 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
-    public function product(){
-        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select(['id','name']);
-    }
 
-    //-------------------------------------------------
     public function productVariation(){
         return $this->hasOne(ProductVariation::class, 'id', 'vh_st_product_variation_id')->select(['id','name']);
     }
@@ -376,13 +372,14 @@ class ProductStock extends VaahModel
         $list->searchFilter($request->filter);
         $list->productStockFilter($request->filter);
         $list->vendorsFilter($request->filter);
+        $list->productsFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
         {
             $rows = $request->rows;
         }
-        
+
         $list = $list->paginate($rows);
 
         $response['success'] = true;
@@ -834,7 +831,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchProduct($request){
 
-        $product = Product::select('id', 'name','is_default')->where('is_active',1);;
+        $product = Product::select('id', 'name','slug','is_default')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
             $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
@@ -902,5 +899,30 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
+    public function scopeProductsFilter($query, $filter)
+    {
+
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $products = $filter['products'];
+
+        $query->whereHas('product', function ($query) use ($products) {
+            $query->whereIn('slug', $products);
+        });
+
+    }
+
+    //-------------------------------------------------
+    public function product(){
+        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')->select(['id','name','slug']);
+    }
+    
+    //-------------------------------------------------
 
 }
