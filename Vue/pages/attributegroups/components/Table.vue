@@ -43,7 +43,7 @@ const useVaah = vaah();
 
              <Column field="attributes_list.name" header="Attributes">
                  <template #body="prop">
-                     <div class="flex flex-wrap gap-2 w-10rem">
+                     <div class="flex flex-wrap gap-2 ">
                          <template v-for="(attribute, index) in prop.data.attributes_list">
                              <Badge class="mr-2 h-max max-w-full">{{attribute.name}}</Badge>
                          </template>
