@@ -318,7 +318,7 @@ export const useProductStockStore = defineStore({
                 this.product_variations = data.product_variations;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -344,6 +344,7 @@ export const useProductStockStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
