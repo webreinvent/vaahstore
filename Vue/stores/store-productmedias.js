@@ -19,9 +19,10 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
-            media_status:null,
+            status:null,
             product_variation:null,
             date:null,
+            attributes:null
         },
     },
     action: {
@@ -94,7 +95,8 @@ export const useProductMediaStore = defineStore({
                 ],
             },
         ]),
-        product_variation:null
+        product_variation:null,
+        selected_status:null,
 
     }),
     product_suggestion_list:null,
@@ -853,6 +855,7 @@ export const useProductMediaStore = defineStore({
         async resetQuery()
         {
             //reset query strings
+            this.selected_status = null;
             await this.resetQueryString();
             //reload page list
             await this.getList();
@@ -1258,6 +1261,23 @@ export const useProductMediaStore = defineStore({
                 this.item.product_variation=null;
 
             }
+        },
+        //---------------------------------------------------------------------
+        addStatus() {
+
+            const unique_status = [];
+            const check_names = new Set();
+
+            for (const product_medias of this.selected_status) {
+                if (!check_names.has(product_medias.name)) {
+                    unique_status.push(product_medias);
+                    check_names.add(product_medias.name);
+                }
+            }
+            const product_medias_slugs = unique_status.map(product_media => product_media.slug);
+            this.selected_status = unique_status;
+            this.query.filter.status = product_medias_slugs;
+
         },
         //---------------------------------------------------------------------
     }

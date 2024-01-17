@@ -347,13 +347,13 @@ class ProductMedia extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        if(!isset($filter['media_status']))
+        if(!isset($filter['status']))
         {
             return $query;
         }
-        $search = $filter['media_status'];
+        $search = $filter['status'];
         $query->whereHas('status' , function ($q) use ($search){
-            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
     }
     //-------------------------------------------------

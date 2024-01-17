@@ -17,15 +17,20 @@ const store = useProductMediaStore();
                     <b>Status By:</b>
                 </template>
                 <VhField label="Status">
-                    <MultiSelect
-                        v-model="store.query.filter.media_status"
-                        :options="store.assets.status"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full" />
+
+
+                    <AutoComplete name="productmedias-filter"
+                                  data-testid="productmedias-filter"
+                                  v-model="store.selected_status"
+                                  @change = "store.addStatus()"
+                                  option-label = "slug"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.status_suggestion"
+                                  @complete="store.searchStatus($event)"
+                                  placeholder="Select Status"
+                                  class="w-full " />
+
                 </VhField>
 
 
