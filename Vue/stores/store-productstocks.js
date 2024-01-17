@@ -21,6 +21,8 @@ let empty_states = {
             product_stock_status:null,
             vendors : null,
             products : null,
+            warehouses : null,
+            variations : null,
         },
     },
     action: {
@@ -83,6 +85,8 @@ export const useProductStockStore = defineStore({
         current_list:[],
         selected_vendors : null,
         selected_products : null,
+        selected_variations : null,
+        selected_warehouses : null,
     }),
     getters: {
 
@@ -750,6 +754,8 @@ export const useProductStockStore = defineStore({
                 this.query.filter[key] = null;
             }
             this.selected_vendors = null;
+            this.selected_products = null;
+            this.selected_variations = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1159,6 +1165,41 @@ export const useProductStockStore = defineStore({
         },
 
 
+        //---------------------------------------------------------------------
+
+        addSelectedVariation() {
+
+            const unique_variations = [];
+            const check_names = new Set();
+
+            for (const variations of this.selected_variations) {
+                if (!check_names.has(variations.name)) {
+                    unique_variations.push(variations);
+                    check_names.add(variations.name);
+                }
+            }
+            const variations_slug = unique_variations.map(variation => variation.slug);
+            this.selected_variations = unique_variations;
+            this.query.filter.variations = variations_slug;
+        },
+
+        //---------------------------------------------------------------------
+
+        addSelectedWarehouse() {
+
+            const unique_warehouses = [];
+            const check_names = new Set();
+
+            for (const warehouses of this.selected_warehouses) {
+                if (!check_names.has(warehouses.name)) {
+                    unique_warehouses.push(warehouses);
+                    check_names.add(warehouses.name);
+                }
+            }
+            const warehouses_slug = unique_warehouses.map(warehouse => warehouse.slug);
+            this.selected_warehouses = unique_warehouses;
+            this.query.filter.warehouses = warehouses_slug;
+        },
 
     }
 });

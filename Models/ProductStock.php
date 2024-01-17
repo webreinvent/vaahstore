@@ -128,19 +128,8 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_product_stock_status')->select(['id','name', 'slug']);
-    }
-
-    //-------------------------------------------------
-
-
-    public function productVariation(){
-        return $this->hasOne(ProductVariation::class, 'id', 'vh_st_product_variation_id')->select(['id','name']);
-    }
-
-    //-------------------------------------------------
-    public function warehouse(){
-        return $this->hasOne(Warehouse::class, 'id', 'vh_st_warehouse_id')->select(['id','name']);
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_product_stock_status')
+            ->select(['id','name', 'slug']);
     }
 
     //-------------------------------------------------
@@ -370,9 +359,10 @@ class ProductStock extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-        $list->productStockFilter($request->filter);
         $list->vendorsFilter($request->filter);
         $list->productsFilter($request->filter);
+        $list->variationsFilter($request->filter);
+        $list->warehousesFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -755,7 +745,8 @@ class ProductStock extends VaahModel
            $inputs['product'] = $product_id_data;
 
            $product_variation_id = ProductVariation::where('is_active', 1)->inRandomOrder()->value('id');
-           $product_variation_id_data = ProductVariation::where('is_active',1)->where('id',$product_variation_id)->first();
+           $product_variation_id_data = ProductVariation::where('is_active',1)
+               ->where('id',$product_variation_id)->first();
            $inputs['vh_st_product_variation_id'] =$product_variation_id;
            $inputs['product_variation'] = $product_variation_id_data;
 
@@ -845,7 +836,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchProductVariation($request){
 
-        $product_variation= ProductVariation::select('id', 'name','is_default')->where('is_active',1);;
+        $product_variation= ProductVariation::select('id', 'name','slug','is_default')->where('is_active',1);;
         if ($request->has('query') && $request->input('query')) {
             $product_variation->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
@@ -859,7 +850,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchWarehouse($request){
 
-        $warehouse = Warehouse::select('id', 'name')->where('is_active',1);
+        $warehouse = Warehouse::select('id', 'name','slug')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
             $warehouse->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
@@ -894,7 +885,8 @@ class ProductStock extends VaahModel
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')->select(['id','name','slug']);
+        return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')
+            ->select(['id','name','slug']);
     }
 
     //-------------------------------------------------
@@ -920,9 +912,65 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
     public function product(){
-        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')->select(['id','name','slug']);
+        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')
+            ->select(['id','name','slug']);
     }
-    
+
     //-------------------------------------------------
+
+    public function scopeVariationsFilter($query, $filter)
+    {
+
+        if(!isset($filter['variations'])
+            || is_null($filter['variations'])
+            || $filter['variations'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $variations = $filter['variations'];
+
+        $query->whereHas('productVariation', function ($query) use ($variations) {
+            $query->whereIn('slug', $variations);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function productVariation(){
+        return $this->belongsTo(ProductVariation::class, 'vh_st_product_variation_id', 'id')
+            ->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
+    public function warehouse(){
+        return $this->belongsTo(Warehouse::class, 'vh_st_warehouse_id', 'id')
+            ->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
+
+    public function scopeWarehousesFilter($query, $filter)
+    {
+
+        if(!isset($filter['warehouses'])
+            || is_null($filter['warehouses'])
+            || $filter['warehouses'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $warehouses = $filter['warehouses'];
+
+        $query->whereHas('warehouse', function ($query) use ($warehouses) {
+            $query->whereIn('slug', $warehouses);
+        });
+
+    }
 
 }

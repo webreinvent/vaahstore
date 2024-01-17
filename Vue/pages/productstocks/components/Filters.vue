@@ -18,8 +18,8 @@ const store = useProductStockStore();
                     <b>Vendor:</b>
                 </template>
 
-                <AutoComplete name="products-vendor-filter"
-                              data-testid="products-vendor-filter"
+                <AutoComplete name="product-stocks-vendor-filter"
+                              data-testid="product-stocks-vendor-filter"
                               v-model="store.selected_vendors"
                               @change = "store.addSelectedVendor()"
                               option-label = "name"
@@ -36,8 +36,8 @@ const store = useProductStockStore();
                     <b>Product:</b>
                 </template>
 
-                <AutoComplete name="products-vendor-filter"
-                              data-testid="products-vendor-filter"
+                <AutoComplete name="product-stocks-product-filter"
+                              data-testid="product-stocks-product-filter"
                               v-model="store.selected_products"
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
@@ -48,6 +48,43 @@ const store = useProductStockStore();
                               class="w-full " />
 
             </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Variation:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-variation-filter"
+                              data-testid="product-stocks-variation-filter"
+                              v-model="store.selected_variations"
+                              @change = "store.addSelectedVariation()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.product_variations_suggestion"
+                              @complete="store.searchProductVariation($event)"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Warehouse:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-warehouse-filter"
+                              data-testid="product-stocks-warehouse-filter"
+                              v-model="store.selected_warehouses"
+                              @change = "store.addSelectedWarehouse()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.warehouses_suggestion"
+                              @complete="store.searchWarehouse($event)"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
 
             <VhFieldVertical >
                 <template #label>
