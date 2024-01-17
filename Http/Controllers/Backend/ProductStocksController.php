@@ -401,5 +401,83 @@ class ProductStocksController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+    public function searchVendorUsingUrlSlug(Request $request)
+    {
+
+        try{
+            return ProductStock::searchVendorUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchProductUsingUrlSlug(Request $request)
+    {
+
+        try{
+            return ProductStock::searchProductUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function searchVariationUsingUrlSlug(Request $request)
+    {
+
+        try{
+            return ProductStock::searchVariationUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function searchWarehouseUsingUrlSlug(Request $request)
+    {
+        try{
+            return ProductStock::searchWarehouseUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+
 
 }

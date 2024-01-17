@@ -109,6 +109,22 @@ export const useProductStockStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.vendors)
+            {
+                this.setVendorsAfterPageRefresh();
+            }
+            if(this.query.filter.products)
+            {
+                this.setProductsAfterPageRefresh();
+            }
+            if(this.query.filter.variations)
+            {
+                this.setVariationsAfterPageRefresh();
+            }
+            if(this.query.filter.warehouses)
+            {
+                this.setWarehousesAfterPageRefresh();
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -759,6 +775,7 @@ export const useProductStockStore = defineStore({
             this.selected_vendors = null;
             this.selected_products = null;
             this.selected_variations = null;
+            this.selected_warehouses = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -1202,6 +1219,130 @@ export const useProductStockStore = defineStore({
             const warehouses_slug = unique_warehouses.map(warehouse => warehouse.slug);
             this.selected_warehouses = unique_warehouses;
             this.query.filter.warehouses = warehouses_slug;
+        },
+
+        //---------------------------------------------------------------------
+
+        async setVendorsAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    vendor: this.query.filter.vendors,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendors-using-url-slug',
+                this.setVendorsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setVendorsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_vendors = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setProductsAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/products-using-url-slug',
+                this.setProductsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setProductsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_products = data;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async setVariationsAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    variation: this.query.filter.variations,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/variations-using-url-slug',
+                this.setVariationsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setVariationsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setWarehousesAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    warehouse: this.query.filter.warehouses,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/warehouses-using-url-slug',
+                this.setWarehousesAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setWarehousesAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_warehouses = data;
+            }
         },
 
     }

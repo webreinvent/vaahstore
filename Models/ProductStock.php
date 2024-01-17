@@ -973,4 +973,62 @@ class ProductStock extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
+    public static function searchVendorUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['vendor'];
+        $vendors = Vendor::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+    }
+
+
+    //-------------------------------------------------
+
+    public static function searchProductUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['product'];
+        $products = Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVariationUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['variation'];
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchWarehouseUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['warehouse'];
+        $warehouses = Warehouse::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $warehouses;
+        return $response;
+    }
+
+
 }
