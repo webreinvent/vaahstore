@@ -311,17 +311,7 @@ export const useProductMediaStore = defineStore({
                   this.item.slug = vaah().strToSlug(name);
               }
           },
-        //---------------------------------------------------------------------
 
-
-        //---------------------------------------------------------------------
-        // setProductVariation(event){
-        //     if (event && event.value) {
-        //         let productVariation = toRaw(event.value);
-        //         // this.item.vh_st_product_id = product.id;
-        //         this.item.vh_st_product_variation_id = productVariation.id;
-        //     }
-        // },
         //---------------------------------------------------------------------
         setStatus(event){
             let status = toRaw(event.value);
@@ -1202,28 +1192,19 @@ export const useProductMediaStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+
         setDateRange() {
+            if (!this.selected_dates) return false;
 
-            if (!this.selected_dates) {
-                return false;
-            }
-            const dates = [];
-            for (const selected_date of this.selected_dates) {
+            const dates = this.selected_dates
+                .filter(selected_date => selected_date)
+                .map(selected_date => moment(selected_date).format('YYYY-MM-DD'));
 
-                if (!selected_date) {
-                    continue;
-                }
-                let search_date = moment(selected_date)
-                var UTC_date = search_date.format('YYYY-MM-DD');
-
-                if (UTC_date) {
-                    dates.push(UTC_date);
-                }
-                if (dates[0] != null && dates[1] != null) {
-                    this.query.filter.date = dates;
-                }
+            if (dates.length === 2) {
+                this.query.filter.date = dates;
             }
         },
+
 
         async getVariationForProduct(event){
             if (event && event.value && event.value.id) {
