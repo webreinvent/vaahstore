@@ -249,7 +249,7 @@ export const useProductStockStore = defineStore({
 
              if(!this.item.product)
              {
-                 vaah().toastErrors(['Please Choose a Product']);
+                 vaah().toastErrors(['Please Choose a Product First']);
                  return false;
              }
              const query = {
@@ -275,7 +275,16 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
        async searchWarehouse(event) {
-            const query = event;
+
+           if(!this.item.warehouse)
+           {
+               vaah().toastErrors(['Please Choose a Vendor first']);
+               return false;
+           }
+           const query = {
+               vendor_id: this.item.vh_st_product_id,
+               search: event
+           };
             const options = {
                 params: query,
                 method: 'post',
@@ -287,6 +296,7 @@ export const useProductStockStore = defineStore({
                 options
             );
         },
+
         //---------------------------------------------------------------------
         searchWarehouseAfter(data,res){
             if(data){

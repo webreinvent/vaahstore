@@ -854,8 +854,12 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchWarehouse($request){
 
-        $warehouse = Warehouse::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
+        $vendor_id = $request->input('vendor_id');
+
+        $warehouse = Warehouse::select('id', 'name','slug','vh_st_vendor_id')
+            ->where('is_active',1)
+            ->where('vh_st_vendor_id',$vendor_id);
+        if ($request->has('search.query'){
             $warehouse->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
         $warehouse = $warehouse->limit(10)->get();
