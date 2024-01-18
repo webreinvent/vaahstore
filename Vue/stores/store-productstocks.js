@@ -246,7 +246,10 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
          async searchProductVariation(event) {
-            const query = event;
+             const query = {
+                 product_id: this.item.vh_st_product_id,
+                 search: event
+             };
             const options = {
                 params: query,
                 method: 'post',
