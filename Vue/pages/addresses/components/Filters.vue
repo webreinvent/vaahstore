@@ -62,14 +62,15 @@ const store = useAddressStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date Range Filter:</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
-                          class="w-full"/>
+                          class="w-full"
+                          placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
 
