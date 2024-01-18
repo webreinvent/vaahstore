@@ -29,6 +29,9 @@ const store = useAttributeGroupStore();
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttributes"
+                              :pt="{
+                                                panel: { class: 'w-16rem ' },
+                                                }"
                               placeholder="Select Attributes"
                               class="w-full " />
 

@@ -1012,44 +1012,24 @@ export const useAttributeGroupStore = defineStore({
         },
         //---------------------------------------------------------------------
         setDateRange() {
+            if (!this.selected_dates) return false;
 
-            if (!this.selected_dates) {
-                return false;
-            }
-            const dates = [];
-            for (const selected_date of this.selected_dates) {
+            const dates = this.selected_dates
+                .filter(selected_date => selected_date)
+                .map(selected_date => moment(selected_date).format('YYYY-MM-DD'));
 
-                if (!selected_date) {
-                    continue;
-                }
-                let search_date = moment(selected_date)
-                var UTC_date = search_date.format('YYYY-MM-DD');
-
-                if (UTC_date) {
-                    dates.push(UTC_date);
-                }
-                if (dates[0] != null && dates[1] != null) {
-                    this.query.filter.date = dates;
-                }
+            if (dates.length === 2) {
+                this.query.filter.date = dates;
             }
         },
+
         //---------------------------------------------------------------------
         addAttributes() {
-
-            const unique_attributes = [];
-            const check_names = new Set();
-
-            for (const attributes_name of this.selected_attributes) {
-                if (!check_names.has(attributes_name.name)) {
-                    unique_attributes.push(attributes_name);
-                    check_names.add(attributes_name.name);
-                }
-            }
-            const attribute_slugs = unique_attributes.map(attributes => attributes.slug);
-            this.selected_attributes = unique_attributes;
-            this.query.filter.attributes = attribute_slugs;
-
+            const unique_attributes = Array.from(new Set(this.selected_attributes.map(attr => attr.name)));
+            this.selected_attributes = unique_attributes.map(name => this.selected_attributes.find(attr => attr.name === name));
+            this.query.filter.attributes = unique_attributes.map(attr => attr.slug);
         },
+
 
         setAttribute(event){
             let attribute = toRaw(event.value);
