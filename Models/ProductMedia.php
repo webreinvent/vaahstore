@@ -1217,6 +1217,23 @@ class ProductMedia extends VaahModel
         $response['data'] = $variations;
         return $response;
     }
+    
+    public static function searchStatusUsingUrlSlug($request)
+    {
+        $query = $request['filter']['status'];
+        $status_type = TaxonomyType::getFirstOrCreate('product-medias-status');
+
+        $item = Taxonomy::whereNotNull('is_active')
+            ->where('vh_taxonomy_type_id',$status_type->id)
+            ->whereIn('slug',$query)
+            ->get();
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
+
+
 
 
 }

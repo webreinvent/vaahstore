@@ -244,6 +244,9 @@ export const useProductMediaStore = defineStore({
             if(this.query.filter.product_variation)
             {
                 this.setVariationsAfterPageRefresh();
+            }if(this.query.filter.status)
+            {
+                this.setStatusAfterPageRefresh();
             }
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
@@ -1338,7 +1341,7 @@ export const useProductMediaStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/variations-using-slug',
-                this.setVariationsrPageRefreshAfter,
+                this.setVariationsPageRefreshAfter,
                 options
             );
 
@@ -1346,13 +1349,42 @@ export const useProductMediaStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setVariationsrPageRefreshAfter(data, res) {
+        setVariationsPageRefreshAfter(data, res) {
 
             if (data) {
                 this.selected_variation= data;
             }
         },
         //---------------------------------------------------------------------
+        async setStatusAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    status: this.query.filter.status,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status-using-slug',
+                this.setStatusPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setStatusPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_status= data;
+            }
+        },
     }
 });
 

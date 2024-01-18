@@ -116,4 +116,7 @@ function () {
     Route::post('/search/variations-using-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
         ->name('vh.backend.store.productmedias.search.filtered-variations');
 
+    Route::post('/search/status-using-slug', 'ProductMediasController@searchStatusUsingUrlSlug')
+        ->name('vh.backend.store.productmedias.search.filtered-status');
+
 });
