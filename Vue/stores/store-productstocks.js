@@ -276,13 +276,13 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
        async searchWarehouse(event) {
 
-           if(!this.item.warehouse)
+           if(!this.item.vendor)
            {
                vaah().toastErrors(['Please Choose a Vendor first']);
                return false;
            }
            const query = {
-               vendor_id: this.item.vh_st_product_id,
+               vendor_id: this.item.vh_st_vendor_id,
                search: event
            };
             const options = {

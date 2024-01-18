@@ -193,6 +193,10 @@ class ProductStock extends VaahModel
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
+        $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
+        $product_variation->quantity += $inputs['quantity'];
+        $product_variation->save();
+        
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -855,15 +859,14 @@ class ProductStock extends VaahModel
     public static function searchWarehouse($request){
 
         $vendor_id = $request->input('vendor_id');
-
         $warehouse = Warehouse::select('id', 'name','slug','vh_st_vendor_id')
             ->where('is_active',1)
             ->where('vh_st_vendor_id',$vendor_id);
-        if ($request->has('search.query'){
-            $warehouse->where('name', 'LIKE', '%' . $request->input('query') . '%');
+
+        if ($request->has('search.query')){
+            $warehouse->where('name', 'LIKE', '%' . $request->input('search')['query'] . '%');
         }
         $warehouse = $warehouse->limit(10)->get();
-
         $response['success'] = true;
         $response['data'] = $warehouse;
         return $response;
