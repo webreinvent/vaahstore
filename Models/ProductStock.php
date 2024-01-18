@@ -841,7 +841,7 @@ class ProductStock extends VaahModel
         $product_variations = ProductVariation::select('id', 'name', 'slug', 'is_default', 'vh_st_product_id')
             ->where('is_active', 1)
             ->where('vh_st_product_id', $product_id);
-        
+
         if ($request->has('search.query')) {
             $product_variations->where('name', 'LIKE', '%' .$request->input('search')['query'] . '%');
         }

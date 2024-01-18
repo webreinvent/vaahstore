@@ -246,11 +246,16 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
          async searchProductVariation(event) {
+
+             if(!this.item.product)
+             {
+                 vaah().toastErrors(['Please Choose a Product']);
+                 return false;
+             }
              const query = {
                  product_id: this.item.vh_st_product_id,
                  search: event
              };
-             console.log(query);
             const options = {
                 params: query,
                 method: 'post',
