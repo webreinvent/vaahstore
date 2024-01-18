@@ -172,6 +172,8 @@ class ProductStock extends VaahModel
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
+
+
         if ($item) {
             $response['success'] = false;
             $response['messages'][] = "This name is already exist.";
@@ -187,6 +189,17 @@ class ProductStock extends VaahModel
             return $response;
         }
 
+        $conditions = [
+            ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
+            ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
+        ];
+        $is_stock_exist = self::where($conditions)->withTrashed()->first();
+
+        if ($is_stock_exist) {
+            $response = [];
+            $response['errors'][] = false;
+            return $response;
+        }
 
         $item = new self();
         $item->fill($inputs);
