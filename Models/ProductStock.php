@@ -194,10 +194,10 @@ class ProductStock extends VaahModel
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
         $is_stock_exist = self::where($conditions)->withTrashed()->first();
-
+        
         if ($is_stock_exist) {
             $response = [];
-            $response['errors'][] = false;
+            $response['errors'][] = 'Product Stock already exist for this variation.';
             return $response;
         }
 
