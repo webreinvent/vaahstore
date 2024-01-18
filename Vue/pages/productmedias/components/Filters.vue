@@ -14,32 +14,7 @@ const store = useProductMediaStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
-                    <b>Status By:</b>
-                </template>
-                <VhField label="Status">
-
-
-                    <AutoComplete name="productmedias-filter"
-                                  data-testid="productmedias-filter"
-                                  v-model="store.selected_status"
-                                  @change = "store.addStatus()"
-                                  option-label = "slug"
-                                  multiple
-                                  :complete-on-focus = "true"
-                                  :suggestions="store.status_suggestion"
-                                  @complete="store.searchStatus($event)"
-                                  placeholder="Select Status"
-                                  class="w-full " />
-
-                </VhField>
-
-
-            </VhFieldVertical>
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product Variation By:</b>
+                    <b>Product Variations By:</b>
                 </template>
                 <VhField label="Product Variation">
 
@@ -59,6 +34,11 @@ const store = useProductMediaStore();
 
 
             </VhFieldVertical>
+
+
+
+
+
 
             <VhFieldVertical >
                 <template #label>
@@ -91,6 +71,30 @@ const store = useProductMediaStore();
                         placeholder="Select Media Type"
                         display="chip"
                         class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+
+
+                    <AutoComplete name="productmedias-filter"
+                                  data-testid="productmedias-filter"
+                                  v-model="store.selected_status"
+                                  @change = "store.addStatus()"
+                                  option-label = "slug"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.status_suggestion"
+                                  @complete="store.searchStatus($event)"
+                                  placeholder="Select Status"
+                                  class="w-full " />
+
                 </VhField>
 
 
