@@ -196,7 +196,7 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
         $product_variation->quantity += $inputs['quantity'];
         $product_variation->save();
-        
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -367,6 +367,7 @@ class ProductStock extends VaahModel
         $list->productsFilter($request->filter);
         $list->variationsFilter($request->filter);
         $list->warehousesFilter($request->filter);
+        $list->stockFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1041,5 +1042,25 @@ class ProductStock extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
+
+    public function scopeStockFilter($query, $filter)
+    {
+        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+
+        if ($in_stock === 'false') {
+            $query->where(function ($query) {
+                $query->Where('quantity',0);
+            });
+        } elseif ($in_stock === 'true') {
+            $query->where('quantity', '>=',1);
+        }
+
+        return $query;
+    }
 
 }

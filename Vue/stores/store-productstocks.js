@@ -23,6 +23,8 @@ let empty_states = {
             products : null,
             warehouses : null,
             variations : null,
+            quantity : null,
+            in_stock : null,
         },
     },
     action: {

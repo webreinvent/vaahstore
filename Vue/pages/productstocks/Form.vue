@@ -209,7 +209,7 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Quantity"
                         class="w-full"
                         data-testid="productstocks-quantity"
-                        :min="1"/>
+                        :min="0"/>
                 </VhField>
 
                 <VhField label="Status*">
