@@ -113,4 +113,7 @@ function () {
     Route::post('/search/variation', 'ProductMediasController@searchVariation')
         ->name('vh.backend.store.productmedias.search.filter.variation');
 
+    Route::post('/search/variations-using-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
+        ->name('vh.backend.store.productmedias.search.filtered-variations');
+
 });

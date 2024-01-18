@@ -1205,6 +1205,18 @@ class ProductMedia extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchVariationsUsingUrlSlug($request)
+    {
+        $query = $request['filter']['product_variation'];
+
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
 
 
 }
