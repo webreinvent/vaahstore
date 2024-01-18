@@ -62,15 +62,17 @@ const store = useProductMediaStore();
                     <b>Media Type:</b>
                 </template>
                 <VhField label="Type">
-                    <MultiSelect
-                        v-model="store.query.filter.type"
-                        :options="store.media_type"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Media Type"
-                        display="chip"
-                        class="w-full" />
+                    <AutoComplete name="productmedias-filter"
+                                  data-testid="productmedias-filter"
+                                  v-model="store.selected_media"
+                                  @change = "store.addMedia()"
+                                  option-label = "type"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.media_suggestion"
+                                  @complete="store.searchMediaType($event)"
+                                  placeholder="Select Media Type"
+                                  class="w-full " />
                 </VhField>
 
 

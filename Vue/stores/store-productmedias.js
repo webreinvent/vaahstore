@@ -82,22 +82,10 @@ export const useProductMediaStore = defineStore({
         date_null:null,
         prev_list:[],
         current_list:[],
-        media_type: ref([
-            { name: 'Image', code: 'image', mimeTypes: ['image/jpeg', 'image/png'] },
-            { name: 'Audio', code: 'audio', mimeTypes: ['audio/mpeg', 'audio/wav'] },
-            { name: 'Application', code: 'docs', mimeTypes: ['application/pdf', 'application/msword'] },
-            {
-                name: 'Presentation',
-                code: 'ppt',
-                mimeTypes: [
-                    'application/vnd.ms-powerpoint',
-                    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                ],
-            },
-        ]),
         product_variation:null,
         selected_status:null,
         selected_variation:null,
+        selected_media:null,
 
     }),
     product_suggestion_list:null,
@@ -241,16 +229,14 @@ export const useProductMediaStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
-            if(this.query.filter.product_variation)
-            {
-                this.setVariationsAfterPageRefresh();
-            }if(this.query.filter.status)
-            {
-                this.setStatusAfterPageRefresh();
-            }
-            if (route.query && route.query.filter && route.query.filter.date) {
-                this.selected_dates = route.query.filter.date;
-                this.selected_dates = this.selected_dates.join(' - ');
+
+            if (this.query.filter.product_variation) this.setVariationsAfterPageRefresh();
+            if (this.query.filter.status) this.setStatusAfterPageRefresh();
+            if (this.query.filter.type) this.setMediaAfterPageRefresh();
+
+            const { filter } = route.query;
+            if (filter && filter.date) {
+                this.selected_dates = filter.date.join(' - ');
             }
         },
         //---------------------------------------------------------------------
@@ -863,8 +849,7 @@ export const useProductMediaStore = defineStore({
         async resetQuery()
         {
             //reset query strings
-            this.selected_status = null;
-            this.selected_variation = null;
+            this.selected_status = this.selected_variation = this.selected_media = null;
             await this.resetQueryString();
             //reload page list
             await this.getList();
@@ -1273,21 +1258,11 @@ export const useProductMediaStore = defineStore({
         },
         //---------------------------------------------------------------------
         addStatus() {
-
-            const unique_status = [];
-            const check_names = new Set();
-
-            for (const product_medias of this.selected_status) {
-                if (!check_names.has(product_medias.name)) {
-                    unique_status.push(product_medias);
-                    check_names.add(product_medias.name);
-                }
-            }
-            const product_medias_slugs = unique_status.map(product_media => product_media.slug);
-            this.selected_status = unique_status;
-            this.query.filter.status = product_medias_slugs;
-
+            const uniqueStatus = Array.from(new Set(this.selected_status.map(status => status.name)));
+            this.selected_status = this.selected_status.filter(status => uniqueStatus.includes(status.name));
+            this.query.filter.status = this.selected_status.map(status => status.slug);
         },
+
         //---------------------------------------------------------------------
         async searchVariation(event) {
             const query = event;
@@ -1311,21 +1286,11 @@ export const useProductMediaStore = defineStore({
         },
 
         addVariation() {
-
-            const unique_variation = [];
-            const check_names = new Set();
-
-            for (const product_medias_variation of this.selected_variation) {
-                if (!check_names.has(product_medias_variation.name)) {
-                    unique_variation.push(product_medias_variation);
-                    check_names.add(product_medias_variation.name);
-                }
-            }
-            const product_medias_variation_slugs = unique_variation.map(product_medias_variation => product_medias_variation.slug);
-            this.selected_variation = unique_variation;
-            this.query.filter.product_variation = product_medias_variation_slugs;
-
+            const uniqueVariation = Array.from(new Set(this.selected_variation.map(v => v.name)));
+            this.selected_variation = uniqueVariation.map(name => this.selected_variation.find(v => v.name === name));
+            this.query.filter.product_variation = this.selected_variation.map(v => v.slug);
         },
+
         async setVariationsAfterPageRefresh()
         {
 
@@ -1383,6 +1348,63 @@ export const useProductMediaStore = defineStore({
 
             if (data) {
                 this.selected_status= data;
+            }
+        },
+
+        async searchMediaType(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/media',
+                this.searchMediaTypeAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchMediaTypeAfter(data,res) {
+            if(data)
+            {
+                this.media_suggestion = data;
+            }
+        },
+
+        addMedia() {
+            const uniqueMediaType = Array.from(new Set(this.selected_media.map(media => media.type)));
+            this.selected_media = uniqueMediaType.map(type => this.selected_media.find(media => media.type === type));
+            this.query.filter.type = uniqueMediaType;
+        },
+
+        async setMediaAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    type: this.query.filter.type,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/media-type',
+                this.setMediaPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setMediaPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_media= data;
             }
         },
     }

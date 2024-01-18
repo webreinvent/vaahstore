@@ -110,13 +110,34 @@ function () {
         ->name('vh.backend.store.productmedias.search.status');
 
     //---------------------------------------------------------
+    /**
+     * Search variation
+     */
     Route::post('/search/variation', 'ProductMediasController@searchVariation')
         ->name('vh.backend.store.productmedias.search.filter.variation');
-
+    //---------------------------------------------------------
+    /**
+     * Search variation after refresh
+     */
     Route::post('/search/variations-using-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
         ->name('vh.backend.store.productmedias.search.filtered-variations');
-
+    //---------------------------------------------------------
+    /**
+     * Search status after refresh
+     */
     Route::post('/search/status-using-slug', 'ProductMediasController@searchStatusUsingUrlSlug')
         ->name('vh.backend.store.productmedias.search.filtered-status');
+    //---------------------------------------------------------
+    /**
+     * Search media
+     */
+    Route::post('/search/media', 'ProductMediasController@searchMediaType')
+        ->name('vh.backend.store.productmedias.search.filter.media');
+    //---------------------------------------------------------
+    /**
+     * Search media type after refresh
+     */
+    Route::post('/search/media-type', 'ProductMediasController@searchMediaUsingUrlType')
+        ->name('vh.backend.store.productmedias.search.filtered-media');
 
 });

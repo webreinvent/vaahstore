@@ -1217,7 +1217,7 @@ class ProductMedia extends VaahModel
         $response['data'] = $variations;
         return $response;
     }
-    
+
     public static function searchStatusUsingUrlSlug($request)
     {
         $query = $request['filter']['status'];
@@ -1230,6 +1230,42 @@ class ProductMedia extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $item;
+        return $response;
+    }
+
+    public static function searchMediaType($request)
+    {
+        $query = $request->input('query');
+        if($query === null)
+        {
+            $media_type = self::select('id','name','slug','type')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $media_type = self::where('name', 'like', "%$query%")
+                ->orWhere('type','like',"%$query%")
+                ->select('id','name','slug','type')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $media_type;
+        return $response;
+
+    }
+    public static function searchMediaUsingUrlType($request)
+    {
+        $query = $request['filter']['type'];
+        $variations = self::whereIn('type',$query)
+
+            ->select('id','name','slug','type')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
         return $response;
     }
 
