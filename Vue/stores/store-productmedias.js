@@ -86,6 +86,7 @@ export const useProductMediaStore = defineStore({
         selected_status:null,
         selected_variation:null,
         selected_media:null,
+        product_variation_list:[],
 
     }),
     product_suggestion_list:null,
@@ -1233,6 +1234,13 @@ export const useProductMediaStore = defineStore({
         {
             if(data){
                 this.product_variation = data;
+                // if (data && this.product_variation) {
+                //     this.product_variation_list = data.filter((item) => {
+                //         return !this.item.product_variation.some((activeItem) => {
+                //             return activeItem.id === item.id;
+                //         });
+                //     });
+                // }
                 this.item.product_variation=null;
 
             }
@@ -1388,6 +1396,23 @@ export const useProductMediaStore = defineStore({
                 this.selected_media= data;
             }
         },
+        searchProductVariations(event) {
+            if (this.product_variation && this.product_variation.length > 0) {
+
+                this.product_variation_list = this.product_variation
+                    .filter((product) => {
+                        const variation_list= product.name.toLowerCase().startsWith(event.query.toLowerCase());
+                        const not_variation_list= this.item.product_variation
+                            ? !this.item.product_variation.some((activeItem) => activeItem.id === product.id)
+                            : true;
+                        return variation_list && not_variation_list;
+                    });
+            } else {
+                this.product_variation_list = [];
+            }
+        },
+
+
     }
 });
 
