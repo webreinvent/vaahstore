@@ -688,8 +688,8 @@ class Attribute extends VaahModel
     {
 
         $validated_data = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'description' => 'max:100',
             'value' => 'required|max:250',
             'value.*.value' => 'max:250',

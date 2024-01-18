@@ -1,7 +1,8 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\AttributeGroup';
 
@@ -11,14 +12,16 @@ let ajax_url = base_url + "/store/attributegroups";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
             trashed: null,
             sort: null,
             attributes_filter:null,
+            date:null,
+            attributes:null,
         },
     },
     action: {
@@ -66,7 +69,12 @@ export const useAttributeGroupStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:[],
+        prev_list:[],
+        current_list:[],
+        filtered_attributes:null,
+        selected_attributes:null,
     }),
     getters: {
 
@@ -89,6 +97,15 @@ export const useAttributeGroupStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if(this.query.filter.attributes)
+            {
+                this.setAttributesAfterPageRefresh();
+            }
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -154,14 +171,21 @@ export const useAttributeGroupStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-         watchItem(name)
+         watchItem()
           {
-              if(name && name !== "")
-              {
-                  this.item.name = vaah().capitalising(name);
-                  this.item.slug = vaah().strToSlug(name);
-              } else {
-                  this.item.slug = "";
+
+              if (this.item) {
+                  watch(() => this.item.name, (newVal, oldVal) => {
+                          if (newVal && newVal !== "") {
+                              this.item.name = vaah().capitalising(newVal);
+                              this.item.slug = vaah().strToSlug(newVal);
+                          }
+                          if (newVal == "") {
+                              this.item.slug = "";
+                          }
+
+                      }, {deep: true}
+                  )
               }
           },
         //---------------------------------------------------------------------
@@ -182,10 +206,11 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.attribute_list = data.attributes;
+                // this.attribute_list = data.attributes;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    // this.query.rows = data.rows;
+                    data.rows  = this.query.rows
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -211,6 +236,7 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -373,6 +399,7 @@ export const useAttributeGroupStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -409,10 +436,25 @@ export const useAttributeGroupStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -422,7 +464,10 @@ export const useAttributeGroupStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'attributegroups.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -432,10 +477,15 @@ export const useAttributeGroupStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'attributegroups.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -451,8 +501,10 @@ export const useAttributeGroupStore = defineStore({
             if(item.is_active)
             {
                 await this.itemAction('activate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             } else{
                 await this.itemAction('deactivate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             }
         },
         //---------------------------------------------------------------------
@@ -466,6 +518,7 @@ export const useAttributeGroupStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
@@ -519,7 +572,32 @@ export const useAttributeGroupStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmTrashAll()
+        {
+            this.action.type='trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmActivateAll()
+        {
+            this.action.type='activate-all';
+            vaah().confirmDialogActivateAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmDeactivateAll()
+        {
+            this.action.type='deactivate-all';
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -579,15 +657,19 @@ export const useAttributeGroupStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_attributes = null;
             //reset query strings
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action was successful']);
+            return false;
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -714,13 +796,13 @@ export const useAttributeGroupStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -730,14 +812,14 @@ export const useAttributeGroupStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -866,6 +948,14 @@ export const useAttributeGroupStore = defineStore({
                         }
                     },
                     {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
+                    {
                         label: is_deleted ? 'Restore': 'Trash',
                         icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
                         command: () => {
@@ -920,6 +1010,120 @@ export const useAttributeGroupStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        //---------------------------------------------------------------------
+        setDateRange() {
+            if (!this.selected_dates) return false;
+
+            const dates = this.selected_dates
+                .filter(selected_date => selected_date)
+                .map(selected_date => moment(selected_date).format('YYYY-MM-DD'));
+
+            if (dates.length === 2) {
+                this.query.filter.date = dates;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        addAttributes() {
+            const unique_attributes = Array.from(new Set(this.selected_attributes.map(attr => attr.name)));
+            this.selected_attributes = unique_attributes.map(name => this.selected_attributes.find(attr => attr.name === name));
+            this.query.filter.attributes = unique_attributes.map(attr => attr.slug);
+        },
+
+
+        setAttribute(event){
+            let attribute = toRaw(event.value);
+            this.item.vh_st_attribute_id = attribute.id;
+        },
+        //---------------------------------------------------------------------
+        async searchAttributes(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/attribute',
+                this.searchAttributesAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchAttributesAfter(data, res) {
+
+            if (data) {
+                this.filtered_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async setAttributesAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    attributes: this.query.filter.attributes,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/attributes-using-slug',
+                this.setAttributersrPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setAttributersrPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_attributes = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        async searchActiveAttributes(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-attributes',
+                this.searchActiveAttributesAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveAttributesAfter(data, res) {
+            if (data){
+                this.active_attributes_name = data;
+                if (data && this.item.active_attributes) {
+                    this.active_attributes_name = data.filter((item) => {
+                        return !this.item.active_attributes.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
+        }
+        },
+
         //---------------------------------------------------------------------
     }
 });
