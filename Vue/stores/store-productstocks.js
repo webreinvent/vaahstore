@@ -250,6 +250,7 @@ export const useProductStockStore = defineStore({
                  product_id: this.item.vh_st_product_id,
                  search: event
              };
+             console.log(query);
             const options = {
                 params: query,
                 method: 'post',
