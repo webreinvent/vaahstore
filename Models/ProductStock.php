@@ -607,11 +607,18 @@ class ProductStock extends VaahModel
 
         $inputs = $request->all();
 
-
         $item = self::where('id', $id)->withTrashed()->first();
+        // calculate difference between new and old quantity
+        $difference_in_quantity =$inputs['quantity'] - $item->quantity;
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
+
+        //update the quantity in variation table also
+        $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
+        $product_variation->quantity += $difference_in_quantity;
+        $product_variation->save();
+
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
