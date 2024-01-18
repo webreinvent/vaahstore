@@ -1205,6 +1205,90 @@ class ProductMedia extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchVariationsUsingUrlSlug($request)
+    {
+        $query = $request['filter']['product_variation'];
+
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    public static function searchStatusUsingUrlSlug($request)
+    {
+        $query = $request['filter']['status'];
+        $status_type = TaxonomyType::getFirstOrCreate('product-medias-status');
+
+        $item = Taxonomy::whereNotNull('is_active')
+            ->where('vh_taxonomy_type_id',$status_type->id)
+            ->whereIn('slug',$query)
+            ->get();
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
+
+    public static function searchMediaType($request)
+    {
+        $query = $request->input('query');
+        if($query === null)
+        {
+            $media_type = self::select('id','name','slug','type')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $media_type = self::where('name', 'like', "%$query%")
+                ->orWhere('type','like',"%$query%")
+                ->select('id','name','slug','type')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $media_type;
+        return $response;
+
+    }
+    public static function searchMediaUsingUrlType($request)
+    {
+        $query = $request['filter']['type'];
+        $variations = self::whereIn('type',$query)
+
+            ->select('id','name','slug','type')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    public static function searchVariationOfProduct($request)
+    {
+        $input = $request->all();
+        $q = $input['q'];
+        $id = $input['id'];
+        $variation = ProductVariation::where('vh_st_product_id', $id)
+            ->where(function ($query) use ($q) {
+                $query->orWhere('slug', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%$q%");
+            })
+            ->select('id', 'name', 'slug', 'vh_st_product_id')
+            ->get();
+
+        $response['success'] = true;
+        $response['data'] = $variation;
+
+        return $response;
+
+
+    }
 
 
 }
