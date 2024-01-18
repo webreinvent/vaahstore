@@ -836,15 +836,13 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function searchProductVariation($request){
 
-        dd($request->all());
         $product_id = $request->input('product_id');
-        dd($product_id);
-        dd($product_id,$request->all());
+
         $product_variations = ProductVariation::select('id', 'name', 'slug', 'is_default', 'vh_st_product_id')
             ->where('is_active', 1)
             ->where('vh_st_product_id', $product_id);
+        
         if ($request->has('search.query')) {
-            dd("hi");
             $product_variations->where('name', 'LIKE', '%' .$request->input('search')['query'] . '%');
         }
         $product_variations = $product_variations->limit(10)->get();
