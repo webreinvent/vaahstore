@@ -137,17 +137,6 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-
-
-        // searchProductVariation(event) {
-        //
-        //     if (this.product_variation && this.product_variation.length > 0) {
-        //         this.product_variation_suggestion = this.product_variation.filter((product) => {
-        //             return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-        //         });
-        //     }
-        // },
-        //---------------------------------------------------------------------
         async onImageUpload(event){
             this.selectedFiles = event.files;
             this.item.type = Array.from(new Set(this.selectedFiles.map(file => file.type.split('/')[0]))).join(', ');
@@ -403,7 +392,6 @@ export const useProductMediaStore = defineStore({
             {
                 this.item = data;
                 const images=data.images;
-                await this.getVariantdata();
 
                 this.item.product_variation=data.listed_variation;
 
@@ -526,7 +514,6 @@ export const useProductMediaStore = defineStore({
             }
 
             this.form.action = type;
-// this.item.vh_st_product_id=null;
             let ajax_url = this.ajax_url;
 
             let options = {
@@ -716,7 +703,7 @@ export const useProductMediaStore = defineStore({
                 }
                 this.item.images = [data.fill.images];
                 this.item.type = data.fill.images.mime_type;
-                this.product_variation=data.fill.listed_variation;
+                // this.product_variation=data.fill.listed_variation;
 
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
@@ -873,7 +860,7 @@ export const useProductMediaStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.product_variation=null;
+            this.item.vh_st_product_id=null;
             this.$router.push({name: 'productmedias.form'})
         },
         //---------------------------------------------------------------------
@@ -1207,44 +1194,11 @@ export const useProductMediaStore = defineStore({
         },
 
 
-        async getVariationForProduct(event){
-            if (event && event.value && event.value.id) {
-            let product = toRaw(event?.value);
+        async addProduct(event){
+            let product = toRaw(event.value);
             this.item.vh_st_product_id = product.id;
-                await this.getVariantdata();
-            } else {
-                console.error('Invalid product object');
-            }
-        },
-        //---------------------------------------------------------------------
-        async getVariantdata(){
-            let options = {
-                params: this.item.product,
-                method: 'POST'
-            };
-            await vaah().ajax(
-                this.ajax_url+'/getVariationForProduct',
-                this.afterGetVariationForProduct,
-                options
-            );
         },
 
-        //---------------------------------------------------------------------
-        afterGetVariationForProduct(data, res)
-        {
-            if(data){
-                this.product_variation = data;
-                // if (data && this.product_variation) {
-                //     this.product_variation_list = data.filter((item) => {
-                //         return !this.item.product_variation.some((activeItem) => {
-                //             return activeItem.id === item.id;
-                //         });
-                //     });
-                // }
-                this.item.product_variation=null;
-
-            }
-        },
         //---------------------------------------------------------------------
         addStatus() {
             const uniqueStatus = Array.from(new Set(this.selected_status.map(status => status.name)));
@@ -1396,19 +1350,35 @@ export const useProductMediaStore = defineStore({
                 this.selected_media= data;
             }
         },
-        searchProductVariations(event) {
-            if (this.product_variation && this.product_variation.length > 0) {
 
-                this.product_variation_list = this.product_variation
-                    .filter((product) => {
-                        const variation_list= product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                        const not_variation_list= this.item.product_variation
-                            ? !this.item.product_variation.some((activeItem) => activeItem.id === product.id)
-                            : true;
-                        return variation_list && not_variation_list;
+        async searchVariationOfProduct(event) {
+            const query = {
+                q:event.query,
+                id:this.item.vh_st_product_id
+            }
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variation',
+                this.searchVariationOfProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchVariationOfProductAfter(data,res) {
+            if(data)
+            {
+                this.product_variation_list = data;
+                if (data && this.item.product_variation) {
+                    this.product_variation_list = data.filter((item) => {
+                        return !this.item.product_variation.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
                     });
-            } else {
-                this.product_variation_list = [];
+                }
             }
         },
 

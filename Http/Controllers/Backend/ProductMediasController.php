@@ -437,30 +437,7 @@ class ProductMediasController extends Controller
         }
     }
 
-    public function variationForProduct(Request $request){
-        try{
-            $inputs = $request->all();
-            $response = [];
-            $data = ProductVariation::where('is_active', 1)->whereIn( 'vh_st_product_id', $inputs)
 
-                ->orderBy('vh_st_product_id')
-                ->orderBy('id')
-                ->get(['id','name','slug']);
-            $response['success'] = true;
-            $response['data']= $data;
-            return $response;
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-    }
 
     //----------------------------------------------------------
     public function searchVariationsUsingUrlSlug(Request $request)
@@ -517,6 +494,23 @@ class ProductMediasController extends Controller
     {
         try{
             return ProductMedia::searchMediaUsingUrlType($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    public function searchVariationOfProduct(Request $request)
+    {
+        try{
+            return ProductMedia::searchVariationOfProduct($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

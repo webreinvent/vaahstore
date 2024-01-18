@@ -1269,7 +1269,26 @@ class ProductMedia extends VaahModel
         return $response;
     }
 
+    public static function searchVariationOfProduct($request)
+    {
+        $input = $request->all();
+        $q = $input['q'];
+        $id = $input['id'];
+        $variation = ProductVariation::where('vh_st_product_id', $id)
+            ->where(function ($query) use ($q) {
+                $query->orWhere('slug', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%$q%");
+            })
+            ->select('id', 'name', 'slug', 'vh_st_product_id')
+            ->get();
 
+        $response['success'] = true;
+        $response['data'] = $variation;
+
+        return $response;
+
+
+    }
 
 
 }

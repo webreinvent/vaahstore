@@ -144,7 +144,7 @@ const toggleFormMenu = (event) => {
                     <AutoComplete
                                             value="id"
                                             v-model="store.item.product"
-                                            @change="store.getVariationForProduct($event)"
+                                            @change="store.addProduct($event)"
                                             class="w-full"
                                             :suggestions="store.product_suggestion"
                                             @complete="store.searchProduct($event)"
@@ -167,7 +167,7 @@ const toggleFormMenu = (event) => {
                         multiple
                         :complete-on-focus = "true"
                         :suggestions="store.product_variation_list"
-                        @complete="store.searchProductVariations($event)"
+                        @complete="store.searchVariationOfProduct($event)"
                         placeholder="Select Product Variation"
                         class="w-full "
 

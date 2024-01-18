@@ -60,8 +60,7 @@ function () {
     Route::post('/', 'ProductMediasController@createItem')
         ->name('vh.backend.store.productmedias.create');
 
-    Route::post('/getVariationForProduct', 'ProductMediasController@variationForProduct')
-        ->name('vh.backend.store.productmedias.list.productForStore');
+
     /**
      * Get Item
      */
@@ -138,6 +137,12 @@ function () {
      * Search media type after refresh
      */
     Route::post('/search/media-type', 'ProductMediasController@searchMediaUsingUrlType')
+        ->name('vh.backend.store.productmedias.search.filtered-media');
+
+    /**
+     * Search variation of a product
+     */
+    Route::post('/search/product-variation', 'ProductMediasController@searchVariationOfProduct')
         ->name('vh.backend.store.productmedias.search.filtered-media');
 
 });
