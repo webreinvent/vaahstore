@@ -49,7 +49,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.vendors_suggestion"
-                              @complete="store.searchVendor($event)"
+                              @complete="store.searchFilterSelectedVendor($event)"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -85,7 +85,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.product_variations_suggestion"
-                              @complete="store.searchProductVariation($event)"
+                              @complete="store.searchFilterSelectedProductVariation($event)"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -103,7 +103,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.warehouses_suggestion"
-                              @complete="store.searchWarehouse($event)"
+                              @complete="store.searchFilterSelectedWarehouse($event)"
                               class="w-full " />
 
             </VhFieldVertical>

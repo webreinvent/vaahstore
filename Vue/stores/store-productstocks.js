@@ -227,6 +227,28 @@ export const useProductStockStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
+        async searchFilterSelectedVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchFilterSelectedVendorAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchFilterSelectedVendorAfter(data,res){
+            if(data){
+                this.vendors_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
        async searchProduct(event) {
             const query = event;
             const options = {
@@ -276,6 +298,38 @@ export const useProductStockStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
+        async searchFilterSelectedProductVariation(event) {
+
+            if(!this.selected_products)
+            {
+                vaah().toastErrors(['Please Choose a Product First']);
+                return false;
+            }
+            const query = {
+                product_id: this.item.vh_st_product_id,
+                search: event
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product/variation',
+                this.searchFilterSelectedProductVariationAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchFilterSelectedProductVariationAfter(data,res){
+            if(data){
+                this.product_variations_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
        async searchWarehouse(event) {
 
            if(!this.item.vendor)
@@ -305,6 +359,37 @@ export const useProductStockStore = defineStore({
                 this.warehouses_suggestion = data;
             }
         },
+        //---------------------------------------------------------------------
+        async searchFilterSelectedWarehouse(event) {
+
+            if(!this.selected_vendors)
+            {
+                vaah().toastErrors(['Please Choose a Vendor first']);
+                return false;
+            }
+            const query = {
+                vendor_id: this.item.vh_st_vendor_id,
+                search: event
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/warehouse',
+                this.searchFilterSelectedWarehouseAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        searchFilterSelectedWarehouseAfter(data,res){
+            if(data){
+                this.warehouses_suggestion = data;
+            }
+        },
+
         //---------------------------------------------------------------------
         setVendor(event){
             let vendor = toRaw(event.value);

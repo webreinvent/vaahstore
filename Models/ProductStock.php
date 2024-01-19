@@ -189,12 +189,14 @@ class ProductStock extends VaahModel
             return $response;
         }
 
+        // check if stock already exist for this variation
+
         $conditions = [
             ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
         $is_stock_exist = self::where($conditions)->withTrashed()->first();
-        
+
         if ($is_stock_exist) {
             $response = [];
             $response['errors'][] = 'Product Stock already exist for this variation.';
@@ -621,6 +623,22 @@ class ProductStock extends VaahModel
         $inputs = $request->all();
 
         $item = self::where('id', $id)->withTrashed()->first();
+
+        //check stock we are adding for the variation is unique
+        $conditions = [
+            ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
+            ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
+        ];
+        $is_stock_exist = self::where($conditions)
+            ->whereNot('id',$item->id)
+            ->withTrashed()->first();
+        if ($is_stock_exist) {
+            $response = [];
+            $response['errors'][] = 'Product Stock already exist for this variation.';
+            return $response;
+        }
+
+
         // calculate difference between new and old quantity
         $difference_in_quantity =$inputs['quantity'] - $item->quantity;
         $item->fill($inputs);
@@ -679,7 +697,9 @@ class ProductStock extends VaahModel
                     $item->deleted_by = auth()->user()->id;
                     $item->save();
                 }
+                self::updateProductVariationAfterTrash($id);
                 break;
+
             case 'restore':
                 self::where('id', $id)
                     ->withTrashed()
@@ -687,7 +707,7 @@ class ProductStock extends VaahModel
                     $item = self::where('id',$id)->withTrashed()->first();
                     $item->deleted_by = null;
                     $item->save();
-
+                    self::updateProductVariationAfterRestore($id);
                 break;
         }
 
@@ -1081,6 +1101,28 @@ class ProductStock extends VaahModel
         }
 
         return $query;
+    }
+
+    //-------------------------------------------------
+
+    public static function updateProductVariationAfterTrash($id)
+    {
+        $item = self::where('id',$id)->withTrashed()->first();
+
+        $product_variation = ProductVariation::find($item->vh_st_product_variation_id);
+        $product_variation->quantity -= $item->quantity;
+        $product_variation->save();
+    }
+
+    //-------------------------------------------------
+
+    public static function updateProductVariationAfterRestore($id)
+    {
+        $item = self::where('id',$id)->withTrashed()->first();
+
+        $product_variation = ProductVariation::find($item->vh_st_product_variation_id);
+        $product_variation->quantity += $item->quantity;
+        $product_variation->save();
     }
 
 }
