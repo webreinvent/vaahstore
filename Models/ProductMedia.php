@@ -433,7 +433,7 @@ class ProductMedia extends VaahModel
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','product','productVariation');
+        $list = self::getSorted($request->filter)->with('status','product','productVariation','productVariationMedia','images');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

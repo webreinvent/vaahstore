@@ -28,7 +28,7 @@ const useVaah = vaah();
             </Column>
 
             <Column field="product.name" header="Product"
-                    :sortable="true">
+                    :sortable="true" >
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
@@ -44,38 +44,38 @@ const useVaah = vaah();
 
             </Column>
 
-<!--             <Column field="product_variation.name" header="Product Variation"-->
-<!--                     :sortable="true">-->
+             <Column field="product_variation.name" header="Product Variations" >
+                 <template #body="prop">
+                     <div class="flex flex-wrap gap-2 " v-if="prop.data.product_variation_media && prop.data.product_variation_media.length > 0">
+                         <template v-for="(variation, index) in prop.data.product_variation_media" :key="index">
+                             <Badge class=" h-max max-w-full" v-if="variation.name">{{ variation.name }}</Badge>
+                             <Badge  v-else value="Trashed" severity="danger"></Badge>
+                         </template>
+                     </div>
+                     <Badge v-else value="Trashed" severity="danger"></Badge>
+                 </template>
+             </Column>
 
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.product_variation == null"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <span v-else>-->
-<!--                     {{prop.data.product_variation.name}}-->
-<!--                         </span>-->
-<!--&lt;!&ndash;                     <span v-if="prop.data.product_variation.is_default == 1">&ndash;&gt;-->
-<!--&lt;!&ndash;                         <badge>&nbsp;(Default)</badge>&ndash;&gt;-->
-<!--&lt;!&ndash;                     </span>&ndash;&gt;-->
-<!--                 </template>-->
 
-<!--             </Column>-->
 
-<!--             <Column field="image_path" header="Image"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                     <Image v-if="prop.data.url"-->
-<!--                            :src="store.item.base_path+'/'+prop.data.url"-->
-<!--                            preview-->
-<!--                            alt="Image"-->
-<!--                            width="100" />-->
-<!--                     <Badge v-else-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                 </template>-->
 
 <!--             </Column>-->
+<!--             <Column field="image_path" header="Image" v-if="store.isViewLarge()" :sortable="true">-->
+<!--                 <template #body="prop">-->
+<!--                     <template v-if="prop.data.images && prop.data.images.length > 0">-->
+<!--                         <div v-for="(image, index) in prop.data.images" :key="index">-->
+<!--                             <Image v-if="image.url"-->
+<!--                                    :src="store.item.base_path + '/' + image.url"-->
+<!--                                    preview-->
+<!--                                    alt="Image"-->
+<!--                                    width="100"-->
+<!--                                    v-tooltip.top="image.name"/>-->
+<!--                         </div>-->
+<!--                     </template>-->
+<!--                     <Badge v-else value="Trashed" severity="danger"></Badge>-->
+<!--                 </template>-->
+<!--             </Column>-->
+
 
              <Column field="status.name" header="Status"
                      :sortable="true">
@@ -91,17 +91,17 @@ const useVaah = vaah();
 
              </Column>
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+<!--                <Column field="updated_at" header="Updated"-->
+<!--                        v-if="store.isViewLarge()"-->
+<!--                        style="width:150px;"-->
+<!--                        :sortable="true">-->
 
-                    <template #body="prop">
-<!--                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
+<!--                    <template #body="prop">-->
+<!--&lt;!&ndash;                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}&ndash;&gt;-->
+<!--                        {{useVaah.ago(prop.data.updated_at)}}-->
+<!--                    </template>-->
 
-                </Column>
+<!--                </Column>-->
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"
