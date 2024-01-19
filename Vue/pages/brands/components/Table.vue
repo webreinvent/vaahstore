@@ -33,7 +33,9 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{prop.data.name}}
+                    <div class="name-cell">
+                        {{ prop.data.name }}
+                    </div>
                 </template>
 
             </Column>
@@ -191,3 +193,12 @@ const useVaah = vaah();
     </div>
 
 </template>
+
+<style scoped>
+
+.name-cell{
+    min-width: 150px;
+}
+
+
+</style>
