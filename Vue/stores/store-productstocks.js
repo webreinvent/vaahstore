@@ -1256,7 +1256,7 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
 
         addSelectedVendor() {
-            alert("hi");
+
             const unique_vendors = [];
             const check_names = new Set();
 
