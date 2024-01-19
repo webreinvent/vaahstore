@@ -944,7 +944,7 @@ class ProductMedia extends VaahModel
 
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
         ],
         [
@@ -1040,6 +1040,10 @@ class ProductMedia extends VaahModel
             $variations = ProductVariation::where('vh_st_product_id', $item->vh_st_product_id)->limit(1)->get();
             if ($variations->count() >= 1) {
                 $item->productVariationMedia()->attach($variations->pluck('id'));
+
+                $item->images()->create([
+                    'url' => $inputs['images']['url'],
+                ]);
             }
             $i++;
 

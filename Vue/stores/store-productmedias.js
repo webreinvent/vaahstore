@@ -624,8 +624,8 @@ export const useProductMediaStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
-                    this.item.images = null;
-                    this.item.product_media_images = null;
+                    // this.item.images = null;
+                    // this.item.product_media_images = null;
                     this.item.product_variation=data.listed_variation;
                     this.$router.push({name: 'productmedias.form'})
                     await this.getFormMenu();
