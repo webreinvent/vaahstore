@@ -539,11 +539,17 @@ class ProductStock extends VaahModel
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
                     $items->update(['deleted_by' => auth()->user()->id]);
+                    foreach ($items_id as $item_id) {
+                        self::updateProductVariationAfterTrash($item_id);
+                    }
                 }
                 break;
             case 'restore':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
+                    foreach ($items_id as $item_id) {
+                        self::updateProductVariationAfterRestore($item_id);
+                    }
                 }
                 break;
             case 'delete':
@@ -559,11 +565,24 @@ class ProductStock extends VaahModel
                 break;
             case 'trash-all':
                 $list->update(['deleted_by'  => auth()->user()->id]);
+                $item_list = self::query();
+                $item_ids = $item_list->pluck('id')->toArray();
+                foreach($item_ids as $item_id)
+                    {
+                        self::updateProductVariationAfterTrash($item_id);
+                    }
                 $list->delete();
+
                 break;
             case 'restore-all':
                 $list->update(['deleted_by'  => null]);
                 $list->restore();
+                $item_list = self::query();
+                $item_ids = $item_list->pluck('id')->toArray();
+                foreach($item_ids as $item_id)
+                {
+                    self::updateProductVariationAfterRestore($item_id);
+                }
                 break;
             case 'delete-all':
                 $list->forceDelete();
