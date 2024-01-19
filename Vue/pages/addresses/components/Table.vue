@@ -87,8 +87,10 @@ const useVaah = vaah();
                      <InputSwitch v-model.bool="prop.data.is_default"
                                   data-testid="addresses-table-is-active"
                                   v-bind:false-value="0"  v-bind:true-value="1"
+                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                   class="p-inputswitch-sm"
-                                  @input="store.toggleIsDefault(prop.data)">
+                                  @input="store.toggleIsDefault(prop.data)"
+                                    >
                      </InputSwitch>
                  </template>
 
