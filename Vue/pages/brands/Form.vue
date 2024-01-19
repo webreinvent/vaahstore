@@ -199,7 +199,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                     </AutoComplete>
 
                 </VhField>
-{{store.item.registered_at}}
+                
                 <VhField label="Registered at">
                     <Calendar tabindex="0"
                               :showIcon="true"
