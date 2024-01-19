@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/addresses',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
         'namespace' => 'Backend',
 ],
 function () {
@@ -72,4 +72,21 @@ function () {
 
     //---------------------------------------------------------
 
+    /**
+     * Search User
+     */
+    Route::post('/search/user', 'AddressesController@searchUser')
+        ->name('vh.backend.store.addresses.search.user');
+
+    /**
+     * Search Users using Slug
+     */
+    Route::post('/search/users-using-slug', 'AddressesController@getUserBySlug')
+        ->name('vh.backend.store.addresses.search.filtered-user');
+
+    /**
+     * Search Address Type using Slug
+     */
+    Route::post('/search/address-type', 'AddressesController@getAddressTypeBySlug')
+        ->name('vh.backend.store.addresses.search.filtered-address-type');
 });
