@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                    :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -51,12 +51,13 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
+
                     style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="attributes-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -75,21 +76,22 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="attributes-table-to-view"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="attributes-table-to-edit"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="attributes-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at &&store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -97,7 +99,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="attributes-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -109,7 +111,9 @@ const useVaah = vaah();
 
 
             </Column>
-
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+             </template>
 
         </DataTable>
         <!--/table-->
