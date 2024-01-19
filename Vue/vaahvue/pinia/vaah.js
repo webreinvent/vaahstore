@@ -318,21 +318,21 @@ export const vaah = defineStore({
 
         confirmDialogPendingAll(callbackOnAccept)
         {
-            this.confirmDialog('Pending Confirmation', 'Do you want to mark all records as Pending?', callbackOnAccept);
+            this.confirmDialog('Pending Confirmation', 'Do you want to mark status of all records as Pending?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
 
         confirmDialogRejectAll(callbackOnAccept)
         {
-            this.confirmDialog('Reject Confirmation', 'Do you want to mark all records as Rejected?', callbackOnAccept);
+            this.confirmDialog('Reject Confirmation', 'Do you want to mark status of all records as Rejected?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
 
         confirmDialogApproveAll(callbackOnAccept)
         {
-            this.confirmDialog('Approve Confirmation', 'Do you want to mark all records as Approved?', callbackOnAccept);
+            this.confirmDialog('Approve Confirmation', 'Do you want to mark status of all records as Approved?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
