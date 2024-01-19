@@ -252,28 +252,6 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
         },
-
-        //----------------------------------------------------------
-        confirmDialogActivate(callbackOnAccept)
-        {
-            this.confirmDialog('Activate  Confirmation', 'Do you want to Activate record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-        confirmDialogDeActivate(callbackOnAccept)
-        {
-            this.confirmDialog('De-Activate  Confirmation', 'Do you want to De-Activate record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmDialogTrash(callbackOnAccept)
-        {
-            this.confirmDialog('Trash Confirmation', 'Do you want to Trash record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmDialogRestore(callbackOnAccept)
-        {
-            this.confirmDialog('Restore Confirmation', 'Do you want to Restore record(s)?', callbackOnAccept);
-        },
         //----------------------------------------------------------
         confirmDialogDeleteAll(callbackOnAccept)
         {
@@ -292,12 +270,12 @@ export const vaah = defineStore({
         //----------------------------------------------------------
         confirmDialogActivateAll(callbackOnAccept)
         {
-            this.confirmDialog('Activate  Confirmation', 'Do you want to Activate All record(s)?', callbackOnAccept);
+            this.confirmDialog('Activate  Confirmation', '  Do you want to activate all record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
         confirmDialogDeActivateAll(callbackOnAccept)
         {
-            this.confirmDialog('De-Activate Confirmation', 'Do you want to De-Activate All record(s)?', callbackOnAccept);
+            this.confirmDialog('De-Activate Confirmation',  ' Do you want to deactivate all record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
         clone: function (source)

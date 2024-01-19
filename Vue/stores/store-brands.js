@@ -679,50 +679,6 @@ export const useBrandStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
-        confirmTrash()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'trash';
-            vaah().confirmDialogTrash(this.listAction);
-        },
-        //---------------------------------------------------------------------
-        confirmRestore()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'restore';
-            vaah().confirmDialogRestore(this.listAction);
-        },
-        //---------------------------------------------------------------------
-        confirmActivate()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'activate';
-            vaah().confirmDialogActivate(this.listAction);
-        },
-        //---------------------------------------------------------------------
-        confirmDeactivate()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'deactivate';
-            vaah().confirmDialogDeActivate(this.listAction);
-        },
-        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
@@ -916,13 +872,13 @@ export const useBrandStore = defineStore({
                 {
                     label: 'Activate',
                     command: async () => {
-                        this.confirmActivate();
+                        await this.updateList('activate');
                     }
                 },
                 {
                     label: 'Deactivate',
                     command: async () => {
-                        this.confirmDeactivate();
+                        await this.updateList('deactivate');
                     }
                 },
                 {
@@ -932,21 +888,21 @@ export const useBrandStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrash();
+                        await this.updateList('trash');
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestore();
+                        await this.updateList('restore')
                     }
                 },
                 {
                     label: 'Delete',
                     icon: 'pi pi-trash',
                     command: () => {
-                        this.confirmDelete()
+                        this.confirmDelete();
                     }
                 },
             ]
