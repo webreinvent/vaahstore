@@ -956,7 +956,7 @@ class Address extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchUserUsingUrlSlug($request)
+    public static function getUserBySlug($request)
     {
 
         $query = $request['filter']['users'];
@@ -968,7 +968,7 @@ class Address extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchAddressTypeUsingSlug($request)
+    public static function getAddressTypeBySlug($request)
     {
         $query = $request['filter']['address_type'];
         $address_type = TaxonomyType::getFirstOrCreate('address-types');

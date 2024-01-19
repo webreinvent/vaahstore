@@ -81,12 +81,12 @@ function () {
     /**
      * Search Users using Slug
      */
-    Route::post('/search/users-using-slug', 'AddressesController@searchUserUsingUrlSlug')
+    Route::post('/search/users-using-slug', 'AddressesController@getUserBySlug')
         ->name('vh.backend.store.addresses.search.filtered-user');
 
     /**
      * Search Address Type using Slug
      */
-    Route::post('/search/address-type', 'AddressesController@searchAddressTypeUsingSlug')
+    Route::post('/search/address-type', 'AddressesController@getAddressTypeBySlug')
         ->name('vh.backend.store.addresses.search.filtered-address-type');
 });

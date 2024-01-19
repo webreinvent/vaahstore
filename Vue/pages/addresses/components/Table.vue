@@ -13,7 +13,7 @@ const useVaah = vaah();
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
-                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                    :rowClass="(rowData) => store.item?.id === rowData.id ? 'bg-yellow-100' : ''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">

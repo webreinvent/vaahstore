@@ -27,9 +27,6 @@ class AddressesController extends Controller
             $data = [];
 
             $data['permissions'] = \Auth::user()->permissions(true);
-            $data['active_permissions'] = Permission::getActiveItems();
-
-            Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Address::getFillableColumns();
@@ -256,11 +253,11 @@ class AddressesController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchUserUsingUrlSlug(Request $request)
+    public function getUserBySlug(Request $request)
     {
 
         try{
-            return Address::searchUserUsingUrlSlug($request);
+            return Address::getUserBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -275,11 +272,11 @@ class AddressesController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchAddressTypeUsingSlug(Request $request)
+    public function getAddressTypeBySlug(Request $request)
     {
 
         try{
-            return Address::searchAddressTypeUsingSlug($request);
+            return Address::getAddressTypeBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
