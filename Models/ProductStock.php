@@ -445,10 +445,18 @@ class ProductStock extends VaahModel
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
                 $items->update(['deleted_by' => auth()->user()->id]);
+                foreach ($items_id as $item_id)
+                {
+                    self::updateProductVariationAfterTrash($item_id);
+                }
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
                 $items->update(['deleted_by' => null]);
+                foreach ($items_id as $item_id)
+                {
+                    self::updateProductVariationAfterRestore($item_id);
+                }
                 break;
         }
 
