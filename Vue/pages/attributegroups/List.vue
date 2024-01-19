@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'AttributeGroups - Store';
+    document.title = 'Attributes Group - Store';
     /**
      * call onLoad action when List view loads
      */
@@ -87,6 +87,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="attributegroups-list-create"
                             class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
@@ -94,7 +95,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="attributegroups-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reload()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -105,6 +106,7 @@ const toggleCreateMenu = (event) => {
                         type="button"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="attributegroups-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
