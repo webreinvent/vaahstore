@@ -663,8 +663,10 @@ export const useProductMediaStore = defineStore({
             if(item.is_active)
             {
                 await this.itemAction('activate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             } else{
                 await this.itemAction('deactivate', item);
+                vaah().toastSuccess(['Action Was Successful']);
             }
         },
         //---------------------------------------------------------------------
@@ -861,6 +863,7 @@ export const useProductMediaStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.item.vh_st_product_id=null;
+            this.item.is_active=1;
             this.$router.push({name: 'productmedias.form'})
         },
         //---------------------------------------------------------------------

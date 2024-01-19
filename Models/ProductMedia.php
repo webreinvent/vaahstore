@@ -938,7 +938,7 @@ class ProductMedia extends VaahModel
         $rules = validator($inputs, [
             'product'=> 'required',
             'product_variation'=> 'required',
-            'vh_st_product_id'=> 'required',
+//            'vh_st_product_id'=> 'required',
             'images'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
 
@@ -951,7 +951,7 @@ class ProductMedia extends VaahModel
             'product.required' => 'The Product field is required.',
             'product_variation.required' => 'The Product Variations field is required.',
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
-            'vh_st_product_id.required' => 'The Product field is required',
+
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             'images' => 'The Media field is required.',
