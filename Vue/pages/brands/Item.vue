@@ -224,7 +224,9 @@ const toggleItemMenu = (event) => {
                                             @click="store.openModal()"
                                             :disabled="!store.item.meta_title &&
                                             !store.item.meta_description &&
-                                            !(store.item.meta_keyword.length > 0)"
+                                            !(store.item && store.item.meta_keyword && Array.isArray(store.item.meta_keyword) &&
+                                             store.item.meta_keyword.length > 0)"
+
                                             data-testid="meta-open_modal"
                                     />
                                 </td>
