@@ -264,6 +264,9 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
         },
+
+        //----------------------------------------------------------
+
         confirmDialogActivateAll(callbackOnAccept)
         {
             this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
@@ -275,6 +278,9 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
         },
+
+        //----------------------------------------------------------
+
         confirmDialogDeactivateAll(callbackOnAccept)
         {
             this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
@@ -286,6 +292,9 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
         },
+
+        //----------------------------------------------------------
+
         confirmDialogTrashAll(callbackOnAccept)
         {
             this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
@@ -297,14 +306,37 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
+
+        //----------------------------------------------------------
+
         confirmDialogRestoreAll(callbackOnAccept)
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
 
+        //----------------------------------------------------------
 
+        confirmDialogPendingAll(callbackOnAccept)
+        {
+            this.confirmDialog('Pending Confirmation', 'Do you want to mark all records as Pending?', callbackOnAccept);
+        },
 
         //----------------------------------------------------------
+
+        confirmDialogRejectAll(callbackOnAccept)
+        {
+            this.confirmDialog('Reject Confirmation', 'Do you want to mark all records as Rejected?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogApproveAll(callbackOnAccept)
+        {
+            this.confirmDialog('Approve Confirmation', 'Do you want to mark all records as Approved?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));
