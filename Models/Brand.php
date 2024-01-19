@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -105,6 +106,38 @@ class Brand extends VaahModel
         }
 
         return $empty_item;
+    }
+
+    //-------------------------------------------------
+    protected function registeredAt(): Attribute
+    {
+
+        return Attribute::make(
+            get: function (string $value = null) {
+                return self::getUserTimezoneDate($value);
+            },
+            set: function (string $value = null) {
+                return \Carbon::parse(strtotime($value))
+                    ->setTimezone(config('app.timezone'))
+                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
+            },
+        );
+    }
+
+    //-------------------------------------------------
+    protected function approvedAt(): Attribute
+    {
+
+        return Attribute::make(
+            get: function (string $value = null) {
+                return self::getUserTimezoneDate($value);
+            },
+            set: function (string $value = null) {
+                return \Carbon::parse(strtotime($value))
+                    ->setTimezone(config('app.timezone'))
+                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
+            },
+        );
     }
 
     //-------------------------------------------------
@@ -246,7 +279,9 @@ class Brand extends VaahModel
             return $response;
         }
 
+
         $inputs = $request->all();
+
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -665,7 +700,6 @@ class Brand extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
