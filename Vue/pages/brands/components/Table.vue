@@ -140,7 +140,7 @@ const useVaah = vaah();
                             class="p-button-tiny p-button-text"
                                 data-testid="brands-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && store.item && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 

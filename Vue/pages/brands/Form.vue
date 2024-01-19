@@ -24,7 +24,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
-watch(() => store.item.name, (item_name) => {
+watch(() => store && store.item && store.item.name, (item_name) => {
     try {
         if (item_name.length === 0) {
             store.item.slug = '';
@@ -199,14 +199,13 @@ watch(() => store.item.name, (item_name) => {
                     </AutoComplete>
 
                 </VhField>
-
+{{store.item.registered_at}}
                 <VhField label="Registered at">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
                               name="brands-registered_at"
                               id="registered_at"
-                              value="registered_at"
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
@@ -236,7 +235,6 @@ watch(() => store.item.name, (item_name) => {
                               class="w-full"
                               name="brands-approved_at"
                               id="approved_at"
-                              value="approved_at"
                               data-testid="brands-approved_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
