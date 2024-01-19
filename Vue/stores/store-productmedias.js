@@ -704,7 +704,7 @@ export const useProductMediaStore = defineStore({
                     this.item.product_variation=data.fill.listed_variation;
                 }
                 this.item.images = [data.fill.images];
-                this.item.type = data.fill.images.mime_type;
+                this.item.type = data.fill.images.type;
                 // this.product_variation=data.fill.listed_variation;
 
                 let self = this;
