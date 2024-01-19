@@ -85,7 +85,8 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-                    <Button data-testid="addresses-list-create"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            data-testid="addresses-list-create"
                             class="p-button-sm"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
@@ -94,7 +95,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="addresses-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reloadPage()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -103,6 +104,7 @@ const toggleCreateMenu = (event) => {
                     <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
                         type="button"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
                         data-testid="addresses-create-menu"
