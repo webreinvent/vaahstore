@@ -45,7 +45,7 @@ class ProductVariation extends VaahModel
         'price',
         'meta_description',
         'meta_title',
-        'meta_keyword',
+        'meta_keywords',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -57,6 +57,10 @@ class ProductVariation extends VaahModel
 
     //-------------------------------------------------
     protected $appends = [
+    ];
+    //-------------------------------------------------
+    protected $casts =[
+        'meta_keywords'=>'array',
     ];
 
     //-------------------------------------------------
