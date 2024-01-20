@@ -224,15 +224,7 @@ export const useWarehouseStore = defineStore({
             });
 
         },
-
-        //---------------------------------------------------------------------
-
-        searchVendors(event) {
-
-            this.vendor_suggestions = this.vendors.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
+        
 
         //---------------------------------------------------------------------
 
@@ -246,9 +238,10 @@ export const useWarehouseStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setVendor(event){
+        async setVendor(event){
             let vendor = toRaw(event.value);
             this.item.vh_st_vendor_id = vendor.id;
+
         },
 
         //---------------------------------------------------------------------
@@ -1101,6 +1094,26 @@ export const useWarehouseStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async searchActiveVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-vendor',
+                this.searchActiveVendorAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveVendorAfter(data,res) {
+            if(data)
+            {
+                this.vendor_suggestions = data;
+            }
+        },
     }
 });
 
