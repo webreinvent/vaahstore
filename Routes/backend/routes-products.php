@@ -162,4 +162,13 @@ function () {
     Route::post('/search/stores-using-slug', 'ProductsController@searchStoreUsingUrlSlug')
         ->name('vh.backend.store.products.search.filtered-stores');
 
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Type using Slug
+     */
+    Route::post('/search/product-types-using-slug', 'ProductsController@searchProductTypeUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-product-types');
+
 });

@@ -14,7 +14,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Product extends VaahModel
 {
@@ -1490,5 +1490,21 @@ class Product extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
 
+    public static function searchProductTypeUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['product_type'];
+        $product_types = TaxonomyType::getFirstOrCreate('product-types');
+        $item = Taxonomy::whereNotNull('is_active')
+            ->where('vh_taxonomy_type_id',$product_types->id)
+            ->whereIn('slug',$query)
+            ->select('id','name','slug')
+            ->get();
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
 }

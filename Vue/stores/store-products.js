@@ -255,6 +255,11 @@ export const useProductStore = defineStore({
             {
                 this.setStoresAfterPageRefresh();
             }
+            if(this.query.filter.product_types)
+            {
+                this.setProductTypeAfterPageRefresh();
+            }
+
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -2014,6 +2019,38 @@ export const useProductStore = defineStore({
                 this.filter_selected_store = data;
             }
         },
+
+        //---------------------------------------------------------------------
+        async setProductTypeAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    product_type: this.query.filter.product_types,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product-types-using-slug',
+                this.setProductTypeAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setProductTypeAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_product_type = data;
+            }
+        },
+
 
 
 
