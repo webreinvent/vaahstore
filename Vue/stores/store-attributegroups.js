@@ -1027,7 +1027,7 @@ export const useAttributeGroupStore = defineStore({
         addAttributes() {
             const unique_attributes = Array.from(new Set(this.selected_attributes.map(attr => attr.name)));
             this.selected_attributes = unique_attributes.map(name => this.selected_attributes.find(attr => attr.name === name));
-            this.query.filter.attributes = unique_attributes.map(attr => attr.slug);
+            this.query.filter.attributes =  this.selected_attributes .map(attr => attr.slug);
         },
 
 
