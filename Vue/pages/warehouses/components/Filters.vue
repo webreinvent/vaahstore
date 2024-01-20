@@ -46,13 +46,15 @@ const store = useWarehouseStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date Range Filter:</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
-                          :manualInput="false"/>
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose date range"/>
 
             </VhFieldVertical >
 
@@ -65,7 +67,7 @@ const store = useWarehouseStore();
 
                 <InputText v-model="store.query.filter.country_state"
                            @keyup.enter="store.countryStateSearch()"
-                           class="p-inputtext-md"
+                           class="p-inputtext-md w-full"
                            @keyup.enter.native="store.countryStateSearch()"
                            @keyup.13="store.countryStateSearch()"
                            data-testid="warehouses-actions-filter"

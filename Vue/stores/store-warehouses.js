@@ -101,6 +101,10 @@ export const useWarehouseStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            const { filter } = route.query;
+            if (filter && filter.date) {
+                this.selected_dates = filter.date.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
