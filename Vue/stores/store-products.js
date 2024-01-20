@@ -1884,12 +1884,7 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        toViewVendors(product)
-        {
-            this.$router.push({name: 'vendors.index'})
-        },
 
-        //---------------------------------------------------------------------
         openModal(item){
             this.seo_meta_value = JSON.stringify(item,null,2);
             this.display_seo_modal=true;
@@ -2051,7 +2046,41 @@ export const useProductStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
 
+        toViewVendors(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    products: [product.slug]
+                }
+            };
+            const route = {
+                name: 'vendors.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
+        //---------------------------------------------------------------------
+
+        toViewVariation(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    product: [product.slug]
+                }
+            };
+            const route = {
+                name: 'productvariations.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
 
 
     }

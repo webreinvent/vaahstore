@@ -103,7 +103,6 @@ export const useProductVariationStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
-
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -635,29 +634,6 @@ export const useProductVariationStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
-        confirmTrash()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'trash';
-            vaah().confirmDialogTrash(this.listAction);
-
-        },
-        //---------------------------------------------------------------------
-        confirmRestore()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'restore';
-            vaah().confirmDialogRestore(this.listAction);
-        },
-        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
@@ -674,7 +650,7 @@ export const useProductVariationStore = defineStore({
         confirmDeActivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
@@ -761,7 +737,6 @@ export const useProductVariationStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
-            this.selected_products = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -871,14 +846,15 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrash()
+                        await this.updateList('trash')
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestore()
+
+                        await this.updateList('restore');
                     }
                 },
                 {
@@ -1200,27 +1176,7 @@ export const useProductVariationStore = defineStore({
 
     //---------------------------------------------------------------------
 
-    toViewVariations(product)
-    {
-        alert("hi");
-        const filtered_product = {
-            id: product.id,
-            is_default: product.is_default,
-            name: product.name,
-            slug: product.slug
-        };
 
-        this.selected_product = filtered_product;
-        this.$router.push({name: 'productvariations.index'});
-
-    },
-
-    //---------------------------------------------------------------------
-
-    async updateProductFilterOnRedirection()
-    {
-        this.query.filter.products= this.filter_selected_products[0].slug;
-    }
 
 });
 

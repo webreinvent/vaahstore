@@ -1,13 +1,12 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
-import { useVendorStore} from "../../../stores/store-vendors";
-import {useProductVariationStore} from "../../../stores/store-productvariations";
-
+import { useVendorStore } from '../../../stores/store-vendors'
+import { useProductVariationStore } from '../../../stores/store-productvariations'
 const store = useProductStore();
 const vendorStore = useVendorStore();
 const variationStore = useProductVariationStore();
-const useVaah = vaah();
+const useVaah = vaah()
 
 </script>
 
@@ -85,7 +84,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon cursor-pointer"
                          v-tooltip.top="'View Variations'"
-                         @click="variationStore.toViewVariations(prop.data)">
+                         @click="store.toViewVariation(prop.data)">
                              <b v-if="prop.data.product_variations && prop.data.product_variations.length">
                                  {{prop.data.product_variations.length}}
                             </b>
@@ -94,7 +93,9 @@ const useVaah = vaah();
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Variations'"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @click="store.toVariation(prop.data)" />
+
                      </div>
                  </template>
              </Column>
@@ -105,7 +106,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon cursor-pointer"
                           v-tooltip.top="'View Vendors'"
-                          @click="vendorStore.toViewVendors(prop.data)">
+                          @click="store.toViewVendors(prop.data)">
                              <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
                                  {{prop.data.product_vendors.length}}
                             </b>
@@ -114,6 +115,7 @@ const useVaah = vaah();
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Vendors'"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @click="store.toVendor(prop.data)" />
                      </div>
                  </template>

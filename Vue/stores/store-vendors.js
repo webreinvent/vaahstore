@@ -107,7 +107,7 @@ export const useVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
-            this.updateProductFilterOnRedirection();
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -1277,26 +1277,7 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        toViewVendors(product)
-        {
-            const filtered_product = {
-                id: product.id,
-                is_default: product.is_default,
-                name: product.name,
-                slug: product.slug
-            };
 
-            this.filter_selected_products = [filtered_product];
-            this.$router.push({name: 'vendors.index'});
-
-        },
-
-        //---------------------------------------------------------------------
-
-        async updateProductFilterOnRedirection()
-        {
-            this.query.filter.products= [this.filter_selected_products[0].slug];
-        }
 
 
     }
