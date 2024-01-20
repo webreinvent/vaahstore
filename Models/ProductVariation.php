@@ -699,7 +699,7 @@ class ProductVariation extends VaahModel
                 break;
 
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
