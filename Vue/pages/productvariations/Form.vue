@@ -199,6 +199,30 @@ const permissions=store.assets.permissions;
                     </AutoComplete>
                 </VhField>
 
+                <VhField label="Meta Title">
+                    <InputText class="w-full"
+                               name="productvariations-meta_title"
+                               data-testid="productvariations-meta_title"
+                               placeholder="Enter Meta Title"
+                               v-model="store.item.meta_title"/>
+                </VhField>
+
+                <VhField label="Meta Description">
+                    <Textarea rows="3" class="w-full"
+                              name="productvariations-meta_description"
+                              data-testid="productvariations-meta_description"
+                              :autoResize="true"
+                              placeholder="Enter Meta Description"
+                              v-model="store.item.meta_description"/>
+                </VhField>
+
+                <VhField label="Meta Keyword" >
+                    <Chips class="w-full"
+                           v-model="store.item.meta_keywords"
+                           placeholder="Enter Meta keyword"
+                           separator=","  />
+                </VhField>
+
                 <VhField label="Status Notes">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
