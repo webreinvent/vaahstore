@@ -23,7 +23,7 @@ const store = useWarehouseStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
-                          placeholder="Choose date range"/>
+                          placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
 
@@ -48,16 +48,16 @@ const store = useWarehouseStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Country/State/Zip Code Filter:</b>
+                    <b>Search By State/City/Pin:</b>
                 </template>
 
-                <InputText v-model="store.query.filter.country_state"
+                <InputText v-model="store.query.filter.state_city"
                            @keyup.enter="store.countryStateSearch()"
                            class="p-inputtext-md w-full"
                            @keyup.enter.native="store.countryStateSearch()"
                            @keyup.13="store.countryStateSearch()"
                            data-testid="warehouses-actions-filter"
-                           placeholder="Filter"/>
+                           placeholder="Search State/City/Pin Code"/>
 
             </VhFieldVertical >
 

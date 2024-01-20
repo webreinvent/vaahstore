@@ -20,7 +20,7 @@ let empty_states = {
             trashed: null,
             sort: null,
             status:null,
-            country_state: null,
+            state_city: null,
             country:null,
         },
     },

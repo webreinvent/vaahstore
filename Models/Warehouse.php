@@ -320,14 +320,14 @@ class Warehouse extends VaahModel
     public function scopeCountryStateFilter($query, $filter)
     {
 
-        if (!isset($filter['country_state'])) {
+        if (!isset($filter['state_city'])) {
             return $query;
         }
 
-            $search = $filter['country_state'];
+            $search = $filter['state_city'];
             $query->where(function ($country_state) use ($search) {
-                $country_state->where('country', 'LIKE', '%' . $search . '%')
-                    ->orWhere('state', 'LIKE', '%' . $search . '%')
+                $country_state->where('state', 'LIKE', '%' . $search . '%')
+                    ->orWhere('city', 'LIKE', '%' . $search . '%')
                     ->orWhere('postal_code', 'LIKE', '%' . $search . '%');
             });
 
