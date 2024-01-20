@@ -1198,6 +1198,30 @@ export const useProductVariationStore = defineStore({
         }
     },
 
+    //---------------------------------------------------------------------
+
+    toViewVariations(product)
+    {
+        alert("hi");
+        const filtered_product = {
+            id: product.id,
+            is_default: product.is_default,
+            name: product.name,
+            slug: product.slug
+        };
+
+        this.selected_product = filtered_product;
+        this.$router.push({name: 'productvariations.index'});
+
+    },
+
+    //---------------------------------------------------------------------
+
+    async updateProductFilterOnRedirection()
+    {
+        this.query.filter.products= this.filter_selected_products[0].slug;
+    }
+
 });
 
 
