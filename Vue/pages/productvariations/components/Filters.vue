@@ -27,6 +27,10 @@ onMounted(async () => {
 
 
 });
+
+import { ref } from 'vue';
+
+const value = ref([20, 80]);
 </script>
 
 <template>
@@ -250,8 +254,41 @@ onMounted(async () => {
             </VhFieldVertical>
 
 
+            <Divider/>
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Quantity Count Range:</b>
+                </template>
+
+                <div class="card flex justify-content-center">
+                    <div class="w-14rem">
+
+                        <InputText class="w-full"
+                                   name="productvariations-name"
+                                   data-testid="productvariations-name"
+                                   placeholder="Maximum Quantity"
+                                   v-model="store.query.filter.quantity[0]"/>
+
+                        <InputText class="w-full mt-2"
+                                   name="productvariations-name"
+                                   data-testid="productvariations-name"
+                                   placeholder="Minimum Quantity"
+                                   v-model="store.query.filter.quantity[1]"/>
+
+                        <Slider v-model="store.query.filter.quantity"
+                                range
+                                class="w-14rem" />
+                    </div>
+                </div>
+
+            </VhFieldVertical>
+
+
 
         </Sidebar>
 
     </div>
 </template>
+

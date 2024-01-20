@@ -1,11 +1,17 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductVariationStore } from '../../../stores/store-productvariations'
+import {onMounted} from "vue";
 
 const store = useProductVariationStore();
 const useVaah = vaah();
 
 const permissions=store.assets.permissions;
+
+onMounted(async () => {
+
+    /*await store.sendMail();*/
+});
 
 </script>
 
