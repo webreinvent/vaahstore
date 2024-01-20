@@ -503,10 +503,11 @@ export const useWarehouseStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'warehouses.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
-                    this.item.id = null;
+                    // this.item.id = null;
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'warehouses.index'});
                     break;
@@ -514,10 +515,11 @@ export const useWarehouseStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     await this.getFormMenu();
+                    this.$router.push({name: 'warehouses.form'});
                     break;
                 case 'restore':
                 case 'trash':
-                    this.item = data;
+                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
@@ -717,8 +719,8 @@ export const useWarehouseStore = defineStore({
         toEdit(item)
         {
             this.item = item;
-            this.item.id = item.id;
-            this.getFormMenu();
+            // this.item.id = item.id;
+            // this.getFormMenu();
             this.$router.push({name: 'warehouses.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -982,6 +984,7 @@ export const useWarehouseStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1006,43 +1009,23 @@ export const useWarehouseStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-new');
-
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
