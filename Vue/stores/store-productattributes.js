@@ -2,9 +2,8 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-
+import moment from 'moment';
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductAttribute';
-
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
 let ajax_url = base_url + "/store/productattributes";
@@ -19,6 +18,8 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_variation : null,
+            date:null,
+            attributes : null,
         },
     },
     action: {
@@ -40,8 +41,7 @@ export const useProductAttributeStore = defineStore({
         filtered_product_variations: null,
         product_variation: null,
         filtered_attributes: null,
-        attribute: null,
-        list: null,
+        attribute: null,t: null,
         item: null,
         fillable:null,
         empty_query:empty_states.query,
@@ -70,29 +70,44 @@ export const useProductAttributeStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:null,
+        filter_selected_product_variation : null,
+        filter_selected_attribute : null,
+        prev_list:[],
+        current_list:[],
+        filter_default_product_variation : [],
     }),
-    getters: {
+        getters: {
 
-    },
-    actions: {
-        //---------------------------------------------------------------------
-        async onLoad(route)
-        {
-            /**
-             * Set initial routes
-             */
-            this.route = route;
+        },
+        actions: {
+            //---------------------------------------------------------------------
+            async onLoad(route)
+            {
+                /**
+                 * Set initial routes
+                 */
+                this.route = route;
 
-            /**
-             * Update with view and list css column number
-             */
-            this.setViewAndWidth(route.name);
+                /**
+                 * Update with view and list css column number
+                 */
+                this.setViewAndWidth(route.name);
 
-            /**
-             * Update query state with the query parameters of url
-             */
-            this.updateQueryFromUrl(route);
+                /**
+                 * Update query state with the query parameters of url
+                 */
+                this.updateQueryFromUrl(route);
+                if (route.query && route.query.filter && route.query.filter.date) {
+                    this.selected_dates = route.query.filter.date;
+                    this.selected_dates = this.selected_dates.join(' - ');
+                }
+                if (route.query && route.query.filter && route.query.filter.default_product_variation) {
+                    let default_product_variation = route.query.filter.default_product_variation;
+                    this.query.filter.default_product_variation = default_product_variation;
+                    this.filter_default_product_variation[0] = default_product_variation;
+                }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -253,8 +268,18 @@ export const useProductAttributeStore = defineStore({
         //---------------------------------------------------------------------
 
         setAttributeFilter(event){
-            let attribute = toRaw(event.value);
-            this.query.filter.attributes = attribute.slug;
+            const unique_attributes = [];
+            const check_names = new Set();
+
+            for (const attributes of this.filter_selected_attribute) {
+                if (!check_names.has(attributes.name)) {
+                    unique_attributes.push(attributes);
+                    check_names.add(attributes.name);
+                }
+            }
+            const attribute_slugs = unique_attributes.map(attribute => attribute.slug);
+            this.filter_selected_attribute = unique_attributes;
+            this.query.filter.attributes = attribute_slugs;
         },
 
         //---------------------------------------------------------------------
@@ -487,6 +512,7 @@ export const useProductAttributeStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -522,19 +548,37 @@ export const useProductAttributeStore = defineStore({
         {
             if(data)
             {
+                this.prev_list =this.list.data;
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
         },
         //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
         async formActionAfter (data)
         {
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -542,14 +586,22 @@ export const useProductAttributeStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'productattributes.index'});
                     break;
+
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'productattributes.form'});
+                    break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
                 case 'save':
                     this.item = data;
                     break;
@@ -608,7 +660,6 @@ export const useProductAttributeStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        //---------------------------------------------------------------------
         onItemSelection(items)
         {
             this.action.items = items;
@@ -633,9 +684,26 @@ export const useProductAttributeStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -694,7 +762,7 @@ export const useProductAttributeStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -702,16 +770,14 @@ export const useProductAttributeStore = defineStore({
         async resetQueryString()
         {
 
-            if(this.query.filter.q)
-            {
-                vaah().toastSuccess(['Action Was Successful']);
-            }
-
-
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
             }
+            this.filter_selected_product_variation = null;
+            this.filter_selected_attribute = null;
+            this.selected_dates = null;
+            this.filter_default_product_variation = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -742,6 +808,8 @@ export const useProductAttributeStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'productattributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -822,14 +890,14 @@ export const useProductAttributeStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -956,7 +1024,15 @@ export const useProductAttributeStore = defineStore({
 
                         }
                     },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-copy',
+                        command: () => {
 
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
@@ -1031,17 +1107,54 @@ export const useProductAttributeStore = defineStore({
 
         },
 
-
-
-
-
-
-
-
         //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await  this.getList()
+            vaah().toastSuccess(['Action Was Successful']);
+        },
+        //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+            }
+
+        },
+
+            //---------------------------------------------------------------------
+
+            updateDefaultProductVariation()
+            {
+                this.query.filter.default_product_variation = this.filter_default_product_variation[0];
+            }
+
     }
 });
-
 
 
 // Pinia hot reload

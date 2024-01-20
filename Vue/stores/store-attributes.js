@@ -2,6 +2,7 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Attribute';
 
@@ -18,6 +19,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            date:null,
         },
     },
     action: {
@@ -68,7 +70,10 @@ export const useAttributeStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:[],
+        prev_list:[],
+        current_list:[]
     }),
     getters: {
 
@@ -91,6 +96,10 @@ export const useAttributeStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -180,6 +189,7 @@ export const useAttributeStore = defineStore({
                 if (!this.item.value.some(item => item.value === new_array.value)) {
                     const new_value = { value: new_array.value , is_active :1 };
                     this.item.value.push(new_value);
+                    this.attribute_new_value=null;
                 }
                 else {
                     throw new Error('Value already added');
@@ -225,10 +235,10 @@ export const useAttributeStore = defineStore({
         //----------------------------------------------------------------------
 
         deleteAttributeValue(value_name){
-
             this.item.value.forEach((element, index)=>{
-                if (element.value == value_name){
+                if (element.value === value_name){
                     element.is_active = 0;
+                    element.value = null;
                 }
             })
         },
@@ -450,6 +460,7 @@ export const useAttributeStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -485,10 +496,26 @@ export const useAttributeStore = defineStore({
         {
             if(data)
             {
+                this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -497,9 +524,12 @@ export const useAttributeStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                    this.attribute_new_value = null;
                 case 'save-and-new':
+                    this.attribute_new_value = null;
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'attributes.form'})
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -510,10 +540,17 @@ export const useAttributeStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     this.attribute_new_value = null;
+                    this.$router.push({name: 'attributes.form'})
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    this.item = data;
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     this.attribute_new_value = null;
@@ -545,6 +582,7 @@ export const useAttributeStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
@@ -597,7 +635,31 @@ export const useAttributeStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmTrashAll()
+        {
+            this.action.type='trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmActivateAll()
+        {
+            this.action.type='activate-all';
+            vaah().confirmDialogActivateAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmDeactivateAll()
+        {
+            this.action.type='deactivate-all';
+            vaah().confirmDialogDeActivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -662,10 +724,13 @@ export const useAttributeStore = defineStore({
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action was successful']);
+            return false;
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -682,6 +747,7 @@ export const useAttributeStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'attributes.index'})
+            this.attribute_new_value=null;
         },
         //---------------------------------------------------------------------
         toForm()
@@ -700,6 +766,7 @@ export const useAttributeStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.attribute_new_value=null;
             this.$router.push({name: 'attributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -792,13 +859,13 @@ export const useAttributeStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -808,14 +875,14 @@ export const useAttributeStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -924,6 +991,7 @@ export const useAttributeStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -942,40 +1010,29 @@ export const useAttributeStore = defineStore({
 
                         }
                     },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
 
+                            this.itemAction('save-and-new');
+                        }
+                    },
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
@@ -1015,6 +1072,29 @@ export const useAttributeStore = defineStore({
 
             this.form_menu_list = form_menu;
 
+        },
+        //---------------------------------------------------------------------
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
         },
         //---------------------------------------------------------------------
     }

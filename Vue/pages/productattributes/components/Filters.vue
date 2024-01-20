@@ -14,39 +14,34 @@ const store = useProductAttributeStore();
                  position="right">
 
             <VhFieldVertical >
-                <template #label>
-                    <b>Product Variation:</b>
-                </template>
-
-                <AutoComplete v-model="store.query.filter.product_variation"
-                              class="w-full"
-                              data-testid="productattributes-product-variation-filter"
-                              :suggestions="store.filtered_product_variations"
-                              @complete="store.searchProductVariation"
-                              @change="store.setProductVariationFilter($event)"
-                              :dropdown="true"
-                              optionLabel="name"
-                              placeholder="Select Product variation"
-                              forceSelection>
-                </AutoComplete>
-
+                <div class="field-checkbox">
+                    <Checkbox name="default-product-variation-yes"
+                              data-testid="product-variation-yes"
+                              v-model = "store.filter_default_product_variation"
+                              @change="store.updateDefaultProductVariation"
+                              :value="'true'" />
+                    <label for="default-product-variation-yes">Default Product Variation </label>
+                </div>
             </VhFieldVertical>
+
 
             <VhFieldVertical >
                 <template #label>
                     <b>Attribute:</b>
                 </template>
 
-                <AutoComplete v-model="store.query.filter.attributes"
-                              class="w-full"
-                              placeholder="Select Attributes"
+                <AutoComplete
+                              name="productattributes-attributes-filter"
                               data-testid="productattributes-attributes-filter"
+                              v-model="store.filter_selected_attribute"
+                              @change="store.setAttributeFilter($event)"
+                              option-label="name"
+                              multiple
+                              :complete-on-focus = "true"
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttribute"
-                              @change="store.setAttributeFilter($event)"
-                              :dropdown="true"
-                              optionLabel="name"
-                              forceSelection>
+                              class="w-full"
+                              placeholder="Select Attributes">
                 </AutoComplete>
 
             </VhFieldVertical>
@@ -87,32 +82,20 @@ const store = useProductAttributeStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Is Active:</b>
+                    <b>Date:</b>
                 </template>
 
                 <div class="field-radiobutton">
-                    <RadioButton name="active-all"
-                                 inputId="active-all"
-                                 value="null"
-                                 data-testid="productattributes-filters-active-all"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-all" class="cursor-pointer">All</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-true"
-                                 inputId="active-true"
-                                 data-testid="productattributes-filters-active-true"
-                                 value="true"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-true" class="cursor-pointer">Only Active</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="active-false"
-                                 inputId="active-false"
-                                 data-testid="productattributes-filters-active-false"
-                                 value="false"
-                                 v-model="store.query.filter.is_active" />
-                    <label for="active-false" class="cursor-pointer">Only Inactive</label>
+
+                    <Calendar v-model="store.selected_dates"
+                              name="range-date"
+                              inputId="range-date"
+                              data-testid="productattributes-filters-range-date"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false" />
+
+                    <label for="range-date" class="cursor-pointer"></label>
                 </div>
 
             </VhFieldVertical>

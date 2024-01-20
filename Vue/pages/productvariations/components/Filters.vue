@@ -2,9 +2,31 @@
 
 import { useProductVariationStore } from '../../../stores/store-productvariations'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+const route = useRoute();
 
 const store = useProductVariationStore();
 
+onMounted(async () => {
+    if (route.query.filter && route.query.filter.product )
+    {
+        let product_slug = route.query.filter.product;
+        let product = store.active_products.find(product => product.slug === product_slug);
+        let filter_product = null;
+        if (product) {
+            filter_product = {
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+            };
+        }
+
+        store.selected_product = filter_product;
+    }
+
+
+});
 </script>
 
 <template>
@@ -18,16 +40,19 @@ const store = useProductVariationStore();
                     <b>Product:</b>
                 </template>
 
-                <AutoComplete name="product-variations-product-filter"
-                              data-testid="product-variations-product-filter"
-                              v-model="store.selected_products"
-                              @change = "store.addSelectedProduct()"
-                              option-label = "name"
-                              multiple
-                              :complete-on-focus = "true"
-                              :suggestions="store.filtered_products"
-                              @complete="store.searchProduct($event)"
-                              class="w-full " />
+
+                <AutoComplete
+                    value="id"
+                    v-model="store.selected_product"
+                    @change="store.setProductFilter($event)"
+                    class="w-full"
+                    :suggestions="store.filtered_products"
+                    @complete="store.searchProduct($event)"
+                    placeholder="Select Product"
+                    data-testid="productvariations-product"
+                    name="productvariations-product"
+                    :dropdown="true" optionLabel="name" forceSelection>
+                </AutoComplete>
 
             </VhFieldVertical>
 
@@ -201,6 +226,29 @@ const store = useProductVariationStore();
                 </div>
 
             </VhFieldVertical>
+
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Date:</b>
+                </template>
+
+                <div class="field-radiobutton">
+
+                    <Calendar v-model="store.selected_dates"
+                              name="range-date"
+                              inputId="range-date"
+                              data-testid="productvariation-filters-range-date"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false"/>
+
+                    <label for="range-date" class="cursor-pointer"></label>
+                </div>
+
+            </VhFieldVertical>
+
 
 
         </Sidebar>

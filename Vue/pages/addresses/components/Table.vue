@@ -1,7 +1,6 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useAddressStore } from '../../../stores/store-addresses'
-
 const store = useAddressStore();
 const useVaah = vaah();
 
@@ -9,12 +8,12 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
-                    :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                    :rowClass="(rowData) => store.item?.id === rowData.id ? 'bg-yellow-100' : ''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -27,7 +26,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-             <Column field="user" header="User"
+             <Column field="user.first_name" header="User"
                      :sortable="true">
 
                  <template #body="prop">
@@ -55,8 +54,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status"
-                     :sortable="true">
+             <Column field="status" header="Status">
 
                  <template #body="prop">
 
@@ -82,7 +80,6 @@ const useVaah = vaah();
                 </Column>
 
              <Column field="is_default" v-if="store.isViewLarge()"
-                     :sortable="true"
                      style="width:100px;"
                      header="Is Default">
 
@@ -90,8 +87,10 @@ const useVaah = vaah();
                      <InputSwitch v-model.bool="prop.data.is_default"
                                   data-testid="addresses-table-is-active"
                                   v-bind:false-value="0"  v-bind:true-value="1"
+                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                   class="p-inputswitch-sm"
-                                  @input="store.toggleIsDefault(prop.data)">
+                                  @input="store.toggleIsDefault(prop.data)"
+                                    >
                      </InputSwitch>
                  </template>
 
@@ -112,24 +111,25 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if="store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id "
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button  v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="addresses-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-success p-button-text"
                                 data-testid="addresses-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -141,6 +141,11 @@ const useVaah = vaah();
 
             </Column>
 
+             <template #empty="prop">
+
+                 <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+             </template>
 
         </DataTable>
         <!--/table-->
@@ -148,7 +153,7 @@ const useVaah = vaah();
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
-                   :first="(store.query.page-1)*store.query.rows"
+
                    @page="store.paginate($event)"
                    :rowsPerPageOptions="store.rows_per_page"
                    class="bg-white-alpha-0 pt-2">
