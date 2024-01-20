@@ -146,7 +146,7 @@ const permissions=store.assets.permissions;
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' || column === 'description'
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'
                         || column === 'price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
-                        || column === 'is_active'
+                        || column === 'is_active' || column === 'meta_keywords' || column === 'meta_description' || column === 'meta_title'
 ">
                         </template>
 
@@ -230,6 +230,24 @@ const permissions=store.assets.permissions;
                                     <Badge v-else value="No" severity="danger"></Badge>
                                 </td>
                             </tr>
+
+                            <tr>
+                                <td><b>Meta</b></td>
+                                <td>
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openMetaModal()"
+                                            :disabled="!store.item.meta_title &&
+                                            !store.item.meta_description &&
+                                            !(store.item && store.item.meta_keywords && Array.isArray(store.item.meta_keywords) &&
+                                             store.item.meta_keywords.length > 0)"
+
+                                            data-testid="meta-open_modal"
+                                    />
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'has_media'">
@@ -271,6 +289,19 @@ const permissions=store.assets.permissions;
         </Panel>
 
     </div>
+
+    <Dialog header="Meta Fields"
+            v-model:visible="store.meta_dialog"
+            :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+            :style="{width: '50vw'}" :modal="true"
+    >
+        <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
+        <div class="mb-4 flex">
+            <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+            <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
+        </div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keywords}}</p></div>
+    </Dialog>
 
 </template>
 

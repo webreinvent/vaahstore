@@ -81,6 +81,7 @@ export const useProductVariationStore = defineStore({
         current_list: [],
         filtered_products:null,
         selected_product : null,
+        meta_dialog:false
     }),
     getters: {
 
@@ -1173,7 +1174,14 @@ export const useProductVariationStore = defineStore({
                 return name.substring(0, 20) + '...';
             }
             return name;
-        }
+        },
+
+        //---------------------------------------------------------------------
+        openMetaModal  ()  {
+
+            this.meta_dialog=true;
+
+        },
     },
 
 });
