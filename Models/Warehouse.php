@@ -550,7 +550,9 @@ class Warehouse extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->get()->each(function ($record) {
+                    $record->update(['deleted_by' => null]);
+                });
                 $list->restore();
                 break;
             case 'delete-all':

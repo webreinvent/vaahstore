@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/warehouses";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -203,7 +203,8 @@ export const useWarehouseStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    // this.query.rows = data.rows;
+                    data.rows  = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -275,6 +276,7 @@ export const useWarehouseStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
