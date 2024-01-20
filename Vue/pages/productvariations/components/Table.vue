@@ -71,6 +71,19 @@ const permissions=store.assets.permissions;
 
              </Column>
 
+            <Column field="stock_status" header="Stock Status"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.quantity === 0 || prop.data.quantity === null"
+                           severity="danger">Out Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity > 0"
+                           :value="prop.data.quantity"
+                           severity="info">In Stock</Badge>
+                </template>
+
+            </Column>
+
              <Column field="status.name" header="Status">
 
                  <template #body="prop">
