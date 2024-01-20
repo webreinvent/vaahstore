@@ -21,6 +21,7 @@ let empty_states = {
             sort: null,
             status:null,
             country_state: null,
+            country:null,
         },
     },
     action: {

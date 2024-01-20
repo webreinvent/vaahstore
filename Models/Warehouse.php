@@ -334,6 +334,16 @@ class Warehouse extends VaahModel
 
     }
 
+    public function scopeCountryFilter($query, $filter)
+    {
+        if (!isset($filter['country'])) {
+            return $query;
+        }
+        $keywords = $filter['country'];
+        $query->whereIn('country', $keywords);
+        return $query;
+    }
+
     //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
@@ -367,6 +377,7 @@ class Warehouse extends VaahModel
         $list->statusFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->countryStateFilter($request->filter);
+        $list->countryFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if ($request->has('rows')) {
