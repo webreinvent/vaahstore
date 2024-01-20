@@ -150,20 +150,7 @@ const permissions=store.assets.permissions;
                                v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="Quantity">
-                    <InputNumber
-                        class="quantity-class"
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        name="productvariations-quantity"
-                        v-model="store.item.quantity"
-                        @input = "store.checkQuantity($event)"
-                        showButtons
-                        :min="0"
-                        data-testid="productvariations-quantity"/>
-                </VhField>
-
-                <VhField label="Price"  v-if="store.item.quantity">
+                <VhField label="Price">
                     <InputNumber
                         v-model="store.item.price"
                         placeholder="Enter Price"
@@ -171,16 +158,6 @@ const permissions=store.assets.permissions;
                         :min = 1
                         name="productvariations-price"
                         data-testid="productvariations-price"/>
-                </VhField>
-
-                <VhField label="In Stock">
-                    <InputSwitch
-                        v-bind:false-value="0"
-                        v-bind:true-value="1"
-                        @change="store.checkInStock()"
-                        name="productvariations-in_stock"
-                        data-testid="productvariations-in_stock"
-                        v-model="store.item.in_stock"/>
                 </VhField>
 
                 <VhField label="Status*">
