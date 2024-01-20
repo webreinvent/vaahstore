@@ -224,7 +224,7 @@ export const useWarehouseStore = defineStore({
             });
 
         },
-        
+
 
         //---------------------------------------------------------------------
 
@@ -239,8 +239,10 @@ export const useWarehouseStore = defineStore({
         //---------------------------------------------------------------------
 
         async setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
+            if (event.value) {
+                let vendor = toRaw(event.value);
+                this.item.vh_st_vendor_id = vendor.id;
+            }
 
         },
 
