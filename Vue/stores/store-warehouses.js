@@ -12,15 +12,16 @@ let ajax_url = base_url + "/store/warehouses";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
             trashed: null,
             sort: null,
             status:null,
-            country_state: null,
+            state_city: null,
+            country:null,
         },
     },
     action: {
@@ -101,6 +102,10 @@ export const useWarehouseStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            const { filter } = route.query;
+            if (filter && filter.date) {
+                this.selected_dates = filter.date.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -198,7 +203,8 @@ export const useWarehouseStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    // this.query.rows = data.rows;
+                    data.rows  = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -219,14 +225,6 @@ export const useWarehouseStore = defineStore({
 
         },
 
-        //---------------------------------------------------------------------
-
-        searchVendors(event) {
-
-            this.vendor_suggestions = this.vendors.filter((department) => {
-                return department.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
 
         //---------------------------------------------------------------------
 
@@ -240,9 +238,12 @@ export const useWarehouseStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
+        async setVendor(event){
+            if (event.value) {
+                let vendor = toRaw(event.value);
+                this.item.vh_st_vendor_id = vendor.id;
+            }
+
         },
 
         //---------------------------------------------------------------------
@@ -270,6 +271,7 @@ export const useWarehouseStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -498,10 +500,11 @@ export const useWarehouseStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'warehouses.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
-                    this.item.id = null;
+                    // this.item.id = null;
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'warehouses.index'});
                     break;
@@ -509,10 +512,11 @@ export const useWarehouseStore = defineStore({
                 case 'create-and-clone':
                     this.item.id = null;
                     await this.getFormMenu();
+                    this.$router.push({name: 'warehouses.form'});
                     break;
                 case 'restore':
                 case 'trash':
-                    this.item = data;
+                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
@@ -712,8 +716,8 @@ export const useWarehouseStore = defineStore({
         toEdit(item)
         {
             this.item = item;
-            this.item.id = item.id;
-            this.getFormMenu();
+            // this.item.id = item.id;
+            // this.getFormMenu();
             this.$router.push({name: 'warehouses.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -977,6 +981,7 @@ export const useWarehouseStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1001,43 +1006,23 @@ export const useWarehouseStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-new');
-
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
@@ -1111,6 +1096,26 @@ export const useWarehouseStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async searchActiveVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-vendor',
+                this.searchActiveVendorAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveVendorAfter(data,res) {
+            if(data)
+            {
+                this.vendor_suggestions = data;
+            }
+        },
     }
 });
 

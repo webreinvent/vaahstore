@@ -15,6 +15,56 @@ const store = useWarehouseStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose Date Range"/>
+
+            </VhFieldVertical >
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Country:</b>
+                </template>
+
+                <AutoComplete v-model="store.query.filter.country"
+                              value="id"
+                              class="w-full"
+                              data-testid="warehouses-country"
+                              multiple
+                              :suggestions="store.country_suggestions"
+                              @complete="store.searchCountry($event)"
+                              :dropdown="true"
+                              placeholder="Select Country"
+                              forceSelection />
+
+            </VhFieldVertical >
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Search By State/City/Pin:</b>
+                </template>
+
+                <InputText v-model="store.query.filter.state_city"
+                           @keyup.enter="store.countryStateSearch()"
+                           class="p-inputtext-md w-full"
+                           @keyup.enter.native="store.countryStateSearch()"
+                           @keyup.13="store.countryStateSearch()"
+                           data-testid="warehouses-actions-filter"
+                           placeholder="Search State/City/Pin Code"/>
+
+            </VhFieldVertical >
+
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status:</b>
                 </template>
 
@@ -44,34 +94,7 @@ const store = useWarehouseStore();
 
             <Divider/>
 
-            <VhFieldVertical >
-                <template #label>
-                    <b>Date Range Filter:</b>
-                </template>
 
-                <Calendar v-model="store.selected_dates"
-                          selectionMode="range"
-                          @date-select="store.setDateRange"
-                          :manualInput="false"/>
-
-            </VhFieldVertical >
-
-            <Divider/>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Country/State/Zip Code Filter:</b>
-                </template>
-
-                <InputText v-model="store.query.filter.country_state"
-                           @keyup.enter="store.countryStateSearch()"
-                           class="p-inputtext-md"
-                           @keyup.enter.native="store.countryStateSearch()"
-                           @keyup.13="store.countryStateSearch()"
-                           data-testid="warehouses-actions-filter"
-                           placeholder="Filter"/>
-
-            </VhFieldVertical >
 
             <Divider/>
 

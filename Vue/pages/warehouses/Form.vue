@@ -103,7 +103,30 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item" class="pt-2">
+            <div v-if="store.item" class="mt-2">
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Trashed {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
 
                 <VhField label="Name*">
                     <InputText class="w-full"
@@ -123,17 +146,18 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Vendor*">
-                    <AutoComplete v-model="store.item.vendor"
-                                  @change="store.setVendor($event)"
-                                  value="id"
-                                  class="w-full"
-                                  data-testid="warehouses-vendor"
-                                  :suggestions="store.vendor_suggestions"
-                                  @complete="store.searchVendors($event)"
-                                  :dropdown="true"
-                                  optionLabel="name"
-                                  placeholder="Select Vendor"
-                                  forceSelection />
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.vendor"
+                        @change="store.setVendor($event)"
+                        class="w-full"
+                        :suggestions="store.vendor_suggestions"
+                        @complete="store.searchActiveVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="warehouses-vendor"
+                        name="warehouses-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Country*">

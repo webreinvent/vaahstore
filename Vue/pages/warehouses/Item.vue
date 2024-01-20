@@ -152,7 +152,8 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' || column === 'status_notes' ||
-                                    column === 'vendor' || column === 'meta' || column === 'deleted_by' || column === 'deleted_at'">
+                                    column === 'vendor' || column === 'meta' || column === 'deleted_by'|| column === 'city'|| column === 'address_1'|| column === 'address_2'|| column === 'postal_code'
+                                    || column === 'state'|| column === 'country'|| column === 'taxonomy_id_warehouse_status'|| column === 'vh_st_vendor_id'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -168,7 +169,7 @@ const toggleItemMenu = (event) => {
                                     <b>Name</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -180,35 +181,72 @@ const toggleItemMenu = (event) => {
                                     <b>Slug</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
-                        </template>
+                            <VhViewRow label="Vendor"
+                                       :value="store.item.vendor"
+                                       type="vendor"
+                            />
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Country</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.country}}</div>
+                                </td>
+                            </tr>
 
-                        <template v-else-if="column === 'state'">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>State</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.state}}</div>
                                 </td>
                             </tr>
-                        </template>
-
-                        <template v-else-if="column === 'city'">
                             <tr>
                                 <td :style="{width: label_width}">
-                                    <b>City</b>
+                                    <b>City </b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.city}}</div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Address 1</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.address_1}}</div>
+                                </td>
+                            </tr><tr>
+                                <td :style="{width: label_width}">
+                                    <b>Address 2</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.address_2}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Pin Code</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.postal_code}}</div>
+                                </td>
+                            </tr>
+
+
                         </template>
+
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
@@ -218,22 +256,14 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'vh_st_vendor_id'">
-                            <VhViewRow label="Vendor"
-                                       :value="store.item.vendor"
-                                       type="user"
-                            />
-                        </template>
 
-                        <template v-else-if="column === 'taxonomy_id_warehouse_status'">
+
+                        <template v-else-if="column === 'is_active'">
                             <VhViewRow label="Status"
                                        :value="store.item.status"
                                        type="status"
                             />
-                        </template>
-
-                        <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
