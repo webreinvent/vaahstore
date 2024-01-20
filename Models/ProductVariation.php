@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Libraries\VaahMail;
+use WebReinvent\VaahCms\Mail\SecurityOtpMail;
+use WebReinvent\VaahCms\Models\Notification;
+use WebReinvent\VaahCms\Models\UserBase;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -274,7 +278,7 @@ class ProductVariation extends VaahModel
             return $response;
         }
 
-        if($inputs['in_stock'] == 1)
+        /*if($inputs['in_stock'] == 1)
         {
             if($inputs['quantity'] < 1)
             {
@@ -282,7 +286,7 @@ class ProductVariation extends VaahModel
                 $response['messages'][] = "Please Enter Quantity.";
                 return $response;
             }
-        }
+        }*/
 
         // handle if current record is default
         if($inputs['is_default']){
@@ -439,6 +443,26 @@ class ProductVariation extends VaahModel
         } elseif ($in_stock === 'true') {
             $query->where('in_stock', true)->where('quantity', '>', 1);
         }
+
+        return $query;
+    }
+
+
+    //-------------------------------------------------
+
+    public function scopeQuantityFilter($query, $filter)
+    {
+        if (!isset($filter['quantity']) || is_null($filter['quantity']) || $filter['quantity'] === 'null') {
+            return $query;
+        }
+
+        $quantity = $filter['quantity'];
+
+        $minQuantity = $filter['quantity'][0];
+        $maxQuantity = $filter['quantity'][1];
+
+        return $query->whereBetween('quantity', [$minQuantity, $maxQuantity]);
+
 
         return $query;
     }
@@ -810,16 +834,6 @@ class ProductVariation extends VaahModel
             self::where('is_default',1)->update(['is_default' => 0]);
         }
 
-        if($inputs['in_stock'] == 1)
-        {
-            if($inputs['quantity'] < 1)
-            {
-                $response['success'] = false;
-                $response['messages'][] = "Please Enter Quantity.";
-                return $response;
-            }
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
@@ -910,22 +924,11 @@ class ProductVariation extends VaahModel
             'sku' => 'required|min:1|max:50',
             'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
+            'price' => 'required',
 
             'status_notes' => [
                 'max:100',
             ],
-
-
-
-            'quantity' => 'nullable|numeric|digits_between:1,9',
-            'price' => [
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($inputs['quantity'] > 0 && $value == 0)  {
-                        $fail('The Price field is required if quantity is greater than 0');
-                    }
-                },
-            ],
-            'in_stock'=> 'required|numeric',
         ],
             [
                 'product.required' => 'Please Choose a Product',
@@ -936,6 +939,7 @@ class ProductVariation extends VaahModel
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'description.max' => 'The Description field may not be greater than :max characters.',
+                'price.required'=>'The Price field is required.',
 
 
             ]
@@ -1031,12 +1035,8 @@ class ProductVariation extends VaahModel
         $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
         $inputs['vh_st_product_id'] = $product_id;
         $inputs['product'] = $product;
-        $inputs['quantity'] = rand(1,500);
 
         $inputs['price'] = rand(1,100000);
-        $inputs['total_price'] = $inputs['quantity']*$inputs['price'];
-
-        $inputs['in_stock'] = 1;
         $inputs['is_active'] = rand(0,1);
         $inputs['is_default'] = 0;
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-variation-status');
@@ -1063,5 +1063,60 @@ class ProductVariation extends VaahModel
     }
 
     //-------------------------------------------------
+
+    //-------------------------------------------------
+
+    public static function sendMailForStock()
+    {
+
+        try{
+
+
+            $list_data = ProductVariation::all();
+            $name_data = $list_data->pluck('name')->toArray();
+            $quantities = $list_data->pluck('quantity')->toArray();
+
+            $filteredData = array_filter(array_combine($name_data, $quantities), function ($quantity) {
+                return $quantity == 0 || $quantity < 10;
+            });
+
+            $filteredNames = array_keys($filteredData);
+
+
+            $email_data = array_map(function ($name) {
+                $name_without_spaces = str_replace(' ', '', $name);
+                return $name_without_spaces . '@gmail.com';
+            }, $filteredNames);
+
+
+            if (!empty($filteredNames)) {
+                $subject = 'Low Stock Alert';
+
+                $message = 'Hello Everyone, the following items are low in stock:' . PHP_EOL;
+                foreach ($filteredNames as $index => $name) {
+                    $message .= ($index + 1) . '. <strong>' . $name . '</strong>' . PHP_EOL;
+                }
+
+                $send_mail = UserBase::notifySuperAdmins($subject, $message);
+            }
+
+            $response['success'] = true;
+
+
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+
+        return $response;
+
+    }
 
 }

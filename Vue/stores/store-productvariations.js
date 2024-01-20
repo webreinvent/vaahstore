@@ -22,7 +22,8 @@ let empty_states = {
             date: null,
             in_stock: null,
             default: null,
-            product:null
+            product:null,
+            quantity:([0,100]),
         },
     },
     action: {
@@ -81,7 +82,7 @@ export const useProductVariationStore = defineStore({
         current_list: [],
         filtered_products:null,
         selected_product : null,
-        meta_dialog:false
+        meta_dialog:false,
     }),
     getters: {
 
@@ -1005,28 +1006,9 @@ export const useProductVariationStore = defineStore({
             this.itemAction('delete', this.item);
         },
         //---------------------------------------------------------------------
-        checkQuantity(event) {
-            this.item.quantity = event.value;
-
-            if (this.item.quantity > 0) {
-                this.item.in_stock = 1;
-            } else {
-                this.item.in_stock = 0;
-                this.item.price = 0;
-            }
-        },
-        //---------------------------------------------------------------------
         checkPrice(event)
         {
             this.item.price = event.value;
-        },
-        //---------------------------------------------------------------------
-        checkInStock(event)
-        {
-            if(this.item.in_stock == 0)
-            {
-                this.item.quantity = 0;
-            }
         },
         //---------------------------------------------------------------------
         async getFormMenu()
@@ -1180,6 +1162,23 @@ export const useProductVariationStore = defineStore({
         openMetaModal  ()  {
 
             this.meta_dialog=true;
+
+        },
+        //---------------------------------------------------------------------
+
+        async sendMail(event) {
+
+            await vaah().ajax(
+                this.ajax_url+'/send/mail',
+                this.sendMailAfter,
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        sendMailAfter(data,res){
+
+            console.log(data,res);
 
         },
     },

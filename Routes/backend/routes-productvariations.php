@@ -78,5 +78,8 @@ function () {
 
     //---------------------------------------------------------
 
+    Route::any('/send/mail', 'ProductVariationsController@sendMailForStock')
+        ->name('vh.backend.store.productvariations.send.mail');
+
 
 });
