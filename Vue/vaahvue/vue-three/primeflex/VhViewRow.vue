@@ -132,20 +132,16 @@ const props = defineProps({
             </td>
         </template>
 
-        <template v-else-if="type==='attributeValues'">
 
-            <td colspan="2" >
-
-                <template v-if="typeof value === 'object' && value !== null">
-                    <span v-for="data in value">
-                        <span>
-                            {{data.name}}<b>({{data.type}})</b>&nbsp;<br />
-                        </span>
-                    </span>
+                <template v-else-if="type==='attributeValues'">
+                    <td colspan="2">
+                        <template v-if="typeof value === 'object' && value !== null">
+              <span v-for="data in value">
+<!--                <Tag :value="`${data.name} (${data.type})`" :rounded="true"  style="border-radius:20px;padding:5px 10px;"></Tag>-->
+<Tag :value="`${data.name} `" :rounded="true" style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;"></Tag>              </span>
+                        </template>
+                    </td>
                 </template>
-
-            </td>
-        </template>
 
         <template v-else-if="type==='productAttributeValues'">
 
@@ -205,7 +201,8 @@ const props = defineProps({
 
                 <template v-if="value !== null">
 
-                    <pre class="pre-tag"> {{value}}</pre>
+<!--                    <pre class="pre-tag"> {{value}}</pre>-->
+                    <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
                 </template>
             </td>
         </template>
