@@ -96,7 +96,7 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="warehouses-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 @click="store.toEdit(prop.data)"
                                 v-if="!store.assets.is_guest_impersonating"
                                 icon="pi pi-pencil" />
