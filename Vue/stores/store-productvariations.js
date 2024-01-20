@@ -280,7 +280,8 @@ export const useProductVariationStore = defineStore({
                 this.active_products = data.active_products
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -307,6 +308,7 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
