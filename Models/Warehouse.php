@@ -728,6 +728,7 @@ class Warehouse extends VaahModel
             'name.max' => 'The Name field may not be greater than :max characters.',
             'slug.required' => 'The Slug field is required.',
             'slug.max' => 'The slug field may not be greater than :max characters.',
+            'vendor.required' => 'The Vendor field is required.',
             'country.required' => 'The Country field is required.',
             'state.required' => 'The State field is required.',
             'state.max' => 'The State field may not be greater than :max characters.',
