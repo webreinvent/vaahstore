@@ -709,9 +709,10 @@ class Warehouse extends VaahModel
 //-------------------------------------------------
     public static function validation($inputs)
     {
-        $validated_data = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+
+        $rules = array(
+                        'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'vendor' => 'required',
             'country' => 'required',
             'state' => 'required|max:100',
@@ -719,33 +720,37 @@ class Warehouse extends VaahModel
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
-            'is_active' => 'required',
-        ],
-            [
-                'taxonomy_id_warehouse_status' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+        );
+        $messages = array(
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The slug field may not be greater than :max characters.',
+            'country.required' => 'The Country field is required.',
+            'state.required' => 'The State field is required.',
+            'state.max' => 'The State field may not be greater than :max characters.',
+            'city.required' => 'The City field is required.',
+            'city.max' => 'The City field may not be greater than :max characters.',
+            'status.required' => 'The Status field is required.',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
 
-            ]
         );
 
-        if($validated_data->fails()){
-            return [
-                'success' => false,
-                'errors' => $validated_data->errors()->all()
-            ];
+        $validator = \Validator::make($inputs, $rules,$messages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
         }
 
-        $validated_data = $validated_data->validated();
-        return [
-            'success' => true,
-            'data' => $validated_data
-        ];
+        $response['success'] = true;
+        return $response;
 
     }
-
     //-------------------------------------------------
     public static function getActiveItems()
     {
