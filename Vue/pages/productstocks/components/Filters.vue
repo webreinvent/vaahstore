@@ -108,6 +108,20 @@ const store = useProductStockStore();
 
             </VhFieldVertical>
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose Date Range"/>
+
+            </VhFieldVertical >
+
 
             <VhFieldVertical >
                 <template #label>
@@ -115,11 +129,11 @@ const store = useProductStockStore();
                 </template>
                 <VhField label="Status">
                     <MultiSelect
-                        v-model="store.query.filter.product_stock_status"
+                        v-model="store.query.filter.status"
                         :options="store.assets.taxonomy.status"
                         filter
-                        optionValue="name"
-                        optionLabel="name"
+                        optionValue="slug"
+                        optionLabel="slug"
                         placeholder="Select Status"
                         display="chip"
                         class="w-full" />

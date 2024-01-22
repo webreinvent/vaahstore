@@ -383,6 +383,8 @@ class ProductStock extends VaahModel
         $list->variationsFilter($request->filter);
         $list->warehousesFilter($request->filter);
         $list->stockFilter($request->filter);
+        $list->statusFilter($request->filter);
+        $list->dateFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1170,6 +1172,48 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::find($item->vh_st_product_variation_id);
         $product_variation->quantity += $item->quantity;
         $product_variation->save();
+    }
+
+    //-------------------------------------------------
+
+    public static function scopeStatusFilter($query, $filter)
+    {
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->whereIn('name', $status)
+                ->orWhereIn('slug',$status);
+        });
+    }
+
+    //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
     }
 
 }
