@@ -91,6 +91,9 @@ export const useProductStockStore = defineStore({
         selected_variations : null,
         selected_warehouses : null,
         selected_dates : null,
+        quantity:[],
+        min_quantity : 0,
+        max_quantity : 0,
     }),
     getters: {
 
@@ -1507,6 +1510,30 @@ export const useProductStockStore = defineStore({
                 }
 
 
+            }
+
+        },
+
+
+        //---------------------------------------------------------------------
+
+        quantityFilter(event){
+
+            this.min_quantity = this.quantity [0];
+
+            this.max_quantity = this.quantity [1];
+
+            if(!this.quantity){
+                return false;
+            }
+            for (const quantity of this.quantity) {
+                if(!quantity){
+                    continue ;
+                }
+                if(this.quantity[0] != null && this.quantity[1] !=null)
+                {
+                    this.query.filter.quantity = this.quantity;
+                }
             }
 
         },

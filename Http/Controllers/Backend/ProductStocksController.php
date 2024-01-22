@@ -59,6 +59,11 @@ class ProductStocksController extends Controller
                 $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultVendor()->id;
             }
 
+            $list_data = ProductStock::all();
+            $quantities = $list_data->pluck('quantity')->toArray();
+            $data['min_quantity'] = min($quantities);
+            $data['max_quantity'] = max($quantities);
+
             $get_product_data = self::getProductData();
             $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
 

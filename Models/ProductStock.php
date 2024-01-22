@@ -385,6 +385,7 @@ class ProductStock extends VaahModel
         $list->stockFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->quantityFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1217,6 +1218,28 @@ class ProductStock extends VaahModel
             ->toDateTimeString();
 
         return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeQuantityFilter($query, $filter)
+    {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
+            return $query;
+        }
+
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+
 
     }
 

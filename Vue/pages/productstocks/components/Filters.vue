@@ -125,6 +125,44 @@ const store = useProductStockStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Quantity Count Range:</b>
+                </template>
+
+                <div class="card flex justify-content-center">
+                    <div class="w-14rem">
+
+                        <InputText class="w-full"
+                                   name="productvariations-name"
+                                   data-testid="productvariations-name"
+                                   placeholder="Minimum Quantity"
+                                   disabled
+                                   v-model="store.min_quantity"/>
+
+                        <InputText class="w-full mt-2"
+                                   name="productvariations-name"
+                                   data-testid="productvariations-name"
+                                   placeholder="Maximum Quantity"
+                                   disabled
+                                   v-model="store.max_quantity"/>
+
+                        <Slider v-model="store.quantity"
+                                range
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
+                    </div>
+                </div>
+
+            </VhFieldVertical>
+
+
+
+
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status By:</b>
                 </template>
                 <VhField label="Status">
