@@ -81,7 +81,7 @@ onMounted(async () => {
                     :sortable="true">
 
                 <template #body="prop">
-                    <Badge v-if="prop.data.quantity === 0 || prop.data.quantity === null"
+                    <Badge v-if="prop.data.quantity === 0"
                            severity="danger">Out Stock</Badge>
                     <Badge v-else-if="prop.data.quantity > 0"
                            :value="prop.data.quantity"
