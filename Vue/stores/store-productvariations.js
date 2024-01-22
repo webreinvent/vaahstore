@@ -23,7 +23,7 @@ let empty_states = {
             in_stock: null,
             default: null,
             product:null,
-            quantity:([0,100]),
+            quantity:null,
         },
     },
     action: {
@@ -83,6 +83,9 @@ export const useProductVariationStore = defineStore({
         filtered_products:null,
         selected_product : null,
         meta_dialog:false,
+        quantity:[],
+        min_quantity : 0,
+        max_quantity : 0,
     }),
     getters: {
 
@@ -1179,6 +1182,27 @@ export const useProductVariationStore = defineStore({
         sendMailAfter(data,res){
 
             console.log(data,res);
+
+        },
+
+        quantityFilter(event){
+
+            this.min_quantity = this.quantity [0];
+
+            this.max_quantity = this.quantity [1];
+
+            if(!this.quantity){
+                return false;
+            }
+            for (const quantity of this.quantity) {
+                if(!quantity){
+                    continue ;
+                }
+                if(this.quantity[0] != null && this.quantity[1] !=null)
+                {
+                    this.query.filter.quantity = this.quantity;
+                }
+            }
 
         },
     },

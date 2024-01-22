@@ -268,18 +268,24 @@ const value = ref([20, 80]);
                         <InputText class="w-full"
                                    name="productvariations-name"
                                    data-testid="productvariations-name"
-                                   placeholder="Maximum Quantity"
-                                   v-model="store.query.filter.quantity[0]"/>
+                                   placeholder="Minimum Quantity"
+                                   disabled
+                                   v-model="store.min_quantity"/>
 
                         <InputText class="w-full mt-2"
                                    name="productvariations-name"
                                    data-testid="productvariations-name"
-                                   placeholder="Minimum Quantity"
-                                   v-model="store.query.filter.quantity[1]"/>
+                                   placeholder="Maximum Quantity"
+                                   disabled
+                                   v-model="store.max_quantity"/>
 
-                        <Slider v-model="store.query.filter.quantity"
+                        <Slider v-model="store.quantity"
                                 range
-                                class="w-14rem" />
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
                     </div>
                 </div>
 

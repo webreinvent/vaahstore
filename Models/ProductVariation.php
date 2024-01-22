@@ -452,19 +452,21 @@ class ProductVariation extends VaahModel
 
     public function scopeQuantityFilter($query, $filter)
     {
-        if (!isset($filter['quantity']) || is_null($filter['quantity']) || $filter['quantity'] === 'null') {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
             return $query;
         }
-
-        $quantity = $filter['quantity'];
 
         $minQuantity = $filter['quantity'][0];
         $maxQuantity = $filter['quantity'][1];
 
         return $query->whereBetween('quantity', [$minQuantity, $maxQuantity]);
-
-
-        return $query;
     }
 
 
@@ -529,6 +531,7 @@ class ProductVariation extends VaahModel
         $list->stockFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->dateRangeFilter($request->filter);
+        $list->quantityFilter($request->filter);
         $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
