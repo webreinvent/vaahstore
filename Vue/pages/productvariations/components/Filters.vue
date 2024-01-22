@@ -9,21 +9,10 @@ const route = useRoute();
 const store = useProductVariationStore();
 
 onMounted(async () => {
-    if (route.query.filter && route.query.filter.product )
-    {
-        let product_slug = route.query.filter.product;
-        let product = store.active_products.find(product => product.slug === product_slug);
-        let filter_product = null;
-        if (product) {
-            filter_product = {
-                id: product.id,
-                name: product.name,
-                slug: product.slug,
-            };
-        }
 
-        store.selected_product = filter_product;
-    }
+    await store.setQuantityRange();
+
+    await store.setProductInFilter();
 
 
 });
@@ -264,20 +253,11 @@ const value = ref([20, 80]);
 
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
+                        <div class="flex justify-content-between">
+                            <badge>{{ store.min_quantity | bold }}</badge>
+                            <badge>{{ store.max_quantity | bold }}</badge>
 
-                        <InputText class="w-full"
-                                   name="productvariations-name"
-                                   data-testid="productvariations-name"
-                                   placeholder="Minimum Quantity"
-                                   disabled
-                                   v-model="store.min_quantity"/>
-
-                        <InputText class="w-full mt-2"
-                                   name="productvariations-name"
-                                   data-testid="productvariations-name"
-                                   placeholder="Maximum Quantity"
-                                   disabled
-                                   v-model="store.max_quantity"/>
+                        </div>
 
                         <Slider v-model="store.quantity"
                                 range

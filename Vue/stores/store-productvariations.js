@@ -733,6 +733,14 @@ export const useProductVariationStore = defineStore({
             this.selected_dates=[];
             this.selected_product = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+
+            this.quantity =[];
+
+            this.min_quantity = 0;
+
+            this.max_quantity = this.assets.max_quantity;
+
+
             vaah().toastSuccess(['Action was successful']);
             await this.getList();
         },
@@ -1185,6 +1193,8 @@ export const useProductVariationStore = defineStore({
 
         },
 
+        //---------------------------------------------------------------------
+
         quantityFilter(event){
 
             this.min_quantity = this.quantity [0];
@@ -1205,6 +1215,49 @@ export const useProductVariationStore = defineStore({
             }
 
         },
+
+        //---------------------------------------------------------------------
+
+        async setQuantityRange(){
+
+            if(this.route.query.filter && this.route.query.filter.quantity)
+            {
+                this.quantity = this.route.query.filter.quantity;
+
+                this.min_quantity = this.route.query.filter.quantity[0];
+
+                this.max_quantity = this.route.query.filter.quantity[1];
+            }
+
+            if(!this.route.query.filter)
+            {
+                this.max_quantity = this.assets.max_quantity;
+                this.min_quantity = this.assets.min_quantity;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setProductInFilter(){
+
+            if (this.route.query.filter && this.route.query.filter.product )
+            {
+                let product_slug = this.route.query.filter.product;
+                let product = this.active_products.find(product => product.slug === product_slug);
+                let filter_product = null;
+                if (product) {
+                    filter_product = {
+                        id: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                    };
+                }
+
+                this.selected_product = filter_product;
+            }
+
+        },
+
     },
 
 });
