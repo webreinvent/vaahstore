@@ -135,7 +135,7 @@ export const useProductStockStore = defineStore({
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
             }
-            if(this.route.query.filter.quantity)
+            if(this.route.query.filter && this.route.query.filter.quantity)
             {
                 this.quantity = this.route.query.filter.quantity;
             }
@@ -898,6 +898,7 @@ export const useProductStockStore = defineStore({
             this.selected_variations = null;
             this.selected_warehouses = null;
             this.selected_dates = null;
+            this.quantity = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
