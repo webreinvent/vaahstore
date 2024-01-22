@@ -210,9 +210,11 @@ const permissions=store.assets.permissions;
                                     <badge>{{store.item.price}}</badge>
                                 </td>
                             </tr>
-                            <VhViewRow :label="column"
+
+
+                            <VhViewRow label="Stock Status"
                                        :value="value"
-                                       type="yes-no"
+                                       type="quantity"
                             />
                             <VhViewRow label="Status"
                                        :value="store.item.status"
