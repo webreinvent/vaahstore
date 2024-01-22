@@ -806,23 +806,43 @@ class ProductStock extends VaahModel
         }
           $inputs = $fillable['data']['fill'];
 
+            //fill the Vendor field here
            $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
            $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
            $inputs['vh_st_vendor_id'] =$vendor_id;
            $inputs['vendor'] = $vendor_id_data;
 
+            //fill the product field here
            $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
            $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
            $inputs['vh_st_product_id'] =$product_id;
            $inputs['product'] = $product_id_data;
 
-           $product_variation_id = ProductVariation::where('is_active', 1)->inRandomOrder()->value('id');
-           $product_variation_id_data = ProductVariation::where('is_active',1)
-               ->where('id',$product_variation_id)->first();
-           $inputs['vh_st_product_variation_id'] =$product_variation_id;
-           $inputs['product_variation'] = $product_variation_id_data;
+            //fill the product variation field on the basis of product selected
 
-           $warehouse_id = Warehouse::where('is_active', 1)->inRandomOrder()->value('id');
+            $inputs['vh_st_product_variation_id'] = ProductVariation::where('is_active', 1)
+                ->where('vh_st_product_id',$inputs['vh_st_product_id'])
+                ->inRandomOrder()->value('id');
+
+           $inputs['product_variation'] = ProductVariation::where('is_active',1)
+               ->where('id',$inputs['vh_st_product_variation_id'])->first();
+
+            //fill the Brand field on the basis of product selected
+
+            $brands = Brand::where('is_active',1);
+            $brand_ids = $brands->pluck('id')->toArray();
+            $brand_id = $brand_ids[array_rand($brand_ids)];
+            $brand = $brands->where('id',$brand_id)->first();
+            $inputs['brand'] = $brand;
+            $inputs['vh_st_brand_id'] = $brand_id;
+
+
+            //fill the warehouse field on the basis of warehouse selected
+
+           $warehouse_id = Warehouse::where('is_active', 1)
+                  ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
+                  ->inRandomOrder()->value('id');
+
            $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
            $inputs['vh_st_warehouse_id'] =$warehouse_id;
            $inputs['warehouse'] = $warehouse_id_data;
@@ -833,7 +853,7 @@ class ProductStock extends VaahModel
            $inputs['taxonomy_id_product_stock_status'] = $status_id;
            $inputs['status']=$status;
 
-           $inputs['quantity'] = rand(1,10);
+           $inputs['quantity'] = rand(1,5000);
 
          $faker = Factory::create();
 

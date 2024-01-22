@@ -51,6 +51,14 @@ class ProductStocksController extends Controller
             $get_vendor_data = self::getVendorData();
             $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
 
+            // set default values of Vendor if it is not null
+
+            if($this->getDefaultVendor() !== null)
+            {
+                $data['empty_item']['vendor'] = $this->getDefaultVendor();
+                $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultVendor()->id;
+            }
+
             $get_product_data = self::getProductData();
             $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
 
@@ -87,6 +95,13 @@ class ProductStocksController extends Controller
                 return $v;
             }
         }
+    }
+
+    //---------------------Get Default value of Vendor-------------------------------------
+
+    public function getDefaultVendor(){
+
+        return Vendor::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
     }
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){

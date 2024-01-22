@@ -141,16 +141,22 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' ||
                         column === 'vendor' || column === 'product' || column === 'product_variation'
-                        || column === 'warehouse' || column === 'deleted_by'">
+                        || column === 'warehouse' || column === 'deleted_by' || column === 'meta' || column === 'name'
+                         || column === 'slug'">
                         </template>
 
-                        <template v-else-if="column === 'id' || column === 'uuid'">
+                        <template v-else-if="column === 'id'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        :can_copy="true"
                             />
                         </template>
-                        <template v-else-if="column === 'name'">
+
+                        <template v-else-if="column === 'uuid'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       :can_copy="true"
+                            />
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Name</b>
@@ -160,9 +166,6 @@ const toggleItemMenu = (event) => {
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
-                        </template>
-
-                        <template v-else-if="column === 'slug'">
                             <tr>
                                 <td :style="{width: label_width}">
                                     <b>Slug</b>
