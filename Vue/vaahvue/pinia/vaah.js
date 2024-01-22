@@ -266,12 +266,6 @@ export const vaah = defineStore({
             this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
         },
 
-        //----------------------------------------------------------
-
-        confirmDialogActivateAll(callbackOnAccept)
-        {
-            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
-        },
 
         //----------------------------------------------------------
 

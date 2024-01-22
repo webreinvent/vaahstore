@@ -707,6 +707,8 @@ export const useProductStockStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'productstocks.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -813,7 +815,7 @@ export const useProductStockStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -1162,7 +1164,16 @@ export const useProductStockStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
             {

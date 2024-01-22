@@ -579,8 +579,8 @@ class ProductStock extends VaahModel
             case 'restore-all':
                 $list->update(['deleted_by'  => null]);
                 $list->restore();
-                $item_list = self::query();
-                $item_ids = $item_list->pluck('id')->toArray();
+
+                $item_ids = $list->pluck('id')->toArray();
                 foreach($item_ids as $item_id)
                 {
                     self::updateProductVariationAfterRestore($item_id);
@@ -1157,9 +1157,13 @@ class ProductStock extends VaahModel
     public static function updateProductVariationAfterTrash($id)
     {
         $item = self::where('id',$id)->withTrashed()->first();
+        $product_variation = ProductVariation::where('id',$item->vh_st_product_variation_id)
+            ->first();
+        if($product_variation->quantity)
+        {
+            $product_variation->quantity -= $item->quantity;
+        }
 
-        $product_variation = ProductVariation::find($item->vh_st_product_variation_id);
-        $product_variation->quantity -= $item->quantity;
         $product_variation->save();
     }
 
