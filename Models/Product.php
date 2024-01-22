@@ -1053,7 +1053,7 @@ class Product extends VaahModel
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
             'launch_at' => 'required_without_all:quantity,available_at,0',
             'available_at' => 'required_without_all:quantity,launch_at,0',
@@ -1153,7 +1153,7 @@ class Product extends VaahModel
         $inputs['summary']=$faker->text($max_summary_chars);
 
         // fill the product details field here
-        $max_details_chars = rand(5,100);
+        $max_details_chars = rand(5,250);
         $inputs['details']=$faker->text($max_details_chars);
 
         // fill the Seo title field here
@@ -1163,6 +1163,14 @@ class Product extends VaahModel
         // fill the Seo Description field here
         $max_seo_description_chars = rand(5,250);
         $inputs['seo_meta_description']=$faker->text($max_seo_description_chars);
+
+        //fill the available at and launch at fields here
+        $inputs['available_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
+        if(!$inputs['available_at'])
+        {
+            $inputs['launch_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
+        }
+
 
         // fill the Seo Keywords field here
         $max_seo_keywords = rand(2,10);
@@ -1218,7 +1226,7 @@ class Product extends VaahModel
         $inputs['type'] = $type;
         $inputs['taxonomy_id_product_type'] = $type_id ;
 
-        $number_of_characters = rand(5,100);
+        $number_of_characters = rand(5,250);
         $inputs['status_notes']=$faker->text($number_of_characters);
 
         /*
