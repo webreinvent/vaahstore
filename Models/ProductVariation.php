@@ -1051,6 +1051,12 @@ class ProductVariation extends VaahModel
         $inputs['status']=$status;
         $faker = Factory::create();
 
+        $max_words = 10;
+
+        $inputs['meta_keywords'] = array_map(function () use ($faker) {
+            return $faker->word;
+        }, range(1, $faker->numberBetween(2, $max_words)));
+
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
