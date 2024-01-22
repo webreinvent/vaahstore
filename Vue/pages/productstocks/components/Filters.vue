@@ -130,21 +130,10 @@ const store = useProductStockStore();
 
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
-
-                        <InputText class="w-full"
-                                   name="productvariations-name"
-                                   data-testid="productvariations-name"
-                                   placeholder="Minimum Quantity"
-                                   disabled
-                                   v-model="store.min_quantity"/>
-
-                        <InputText class="w-full mt-2"
-                                   name="productvariations-name"
-                                   data-testid="productvariations-name"
-                                   placeholder="Maximum Quantity"
-                                   disabled
-                                   v-model="store.max_quantity"/>
-
+                        <div class="flex justify-content-between">
+                            <div><b>{{ store.assets.min_quantity }}</b></div>
+                            <div><b>{{ store.assets.max_quantity }}</b></div>
+                        </div>
                         <Slider v-model="store.quantity"
                                 range
                                 :min="store.assets.min_quantity"

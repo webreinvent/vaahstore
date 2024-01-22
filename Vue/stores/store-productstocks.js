@@ -92,8 +92,6 @@ export const useProductStockStore = defineStore({
         selected_warehouses : null,
         selected_dates : null,
         quantity:[],
-        min_quantity : 0,
-        max_quantity : 0,
     }),
     getters: {
 
@@ -136,6 +134,10 @@ export const useProductStockStore = defineStore({
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
+            }
+            if(this.route.query.filter.quantity)
+            {
+                this.quantity = this.route.query.filter.quantity;
             }
 
         },
@@ -1537,6 +1539,12 @@ export const useProductStockStore = defineStore({
             }
 
         },
+
+        //---------------------------------------------------------------------
+        formatTooltipValue(value)
+        {
+            return value.toString();
+        }
 
     }
 });
