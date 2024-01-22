@@ -1540,12 +1540,6 @@ export const useProductStockStore = defineStore({
 
         },
 
-        //---------------------------------------------------------------------
-        formatTooltipValue(value)
-        {
-            return value.toString();
-        }
-
     }
 });
 
