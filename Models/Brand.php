@@ -813,7 +813,7 @@ class Brand extends VaahModel
             'name' => 'required|min:1|max:100',
             'slug' => 'required|min:1|max:100',
             'meta_title' => 'nullable|max:100',
-            'meta_description' => 'nullable|max:100',
+            'meta_description' => 'nullable|max:250',
             'meta_keyword' => 'nullable|array|max:15',
             'registered_by'=> 'nullable',
             'registered_at'=> 'nullable',
@@ -1037,7 +1037,6 @@ class Brand extends VaahModel
 
 
     public static function uploadImage($request){
-//        dd($request->all());
         if($request->hasFile('image')){
             $file = $request->file('image');
             $file_name = time().'.' .$file->getClientOriginalExtension();

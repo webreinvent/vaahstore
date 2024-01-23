@@ -15,9 +15,9 @@ class AddColumnVhStBrands extends Migration
     {
 
         Schema::table('vh_st_brands', function($table) {
-            $table->string('meta_title')->nullable();
+            $table->string('meta_title')->nullable()->index();
             $table->text('meta_description')->nullable();
-            $table->text('meta_keyword')->nullable();
+            $table->text('meta_keyword')->nullable()->index();
         });
     }
 

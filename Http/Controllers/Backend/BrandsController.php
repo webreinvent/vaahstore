@@ -324,7 +324,7 @@ class BrandsController extends Controller
 
     public function imageUploads(Request $request)
     {
-//        dd($request->all());
+
         try {
             return Brand::uploadImage($request);
         } catch (\Exception $e) {
