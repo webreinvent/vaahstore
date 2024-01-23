@@ -236,7 +236,7 @@ const toggleItemMenu = (event) => {
                             </tr>
                             <tr>
                                 <td :style="{width: label_width}">
-                                    <b>Pin Code</b>
+                                    <b>Postal Code</b>
                                 </td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
