@@ -62,8 +62,8 @@ const toggleItemMenu = (event) => {
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <tr>
                     <td  colspan="2" >
-                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                            {{store.item.status_notes}}</div>
+                        <pre class="text-right" style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">
+                            {{store.item.status_notes}}</pre>
                     </td>
                 </tr>
             </Message>

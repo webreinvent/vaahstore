@@ -204,8 +204,9 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.address_2"/>
                 </VhField>
 
-                <VhField label="Pin Code">
+                <VhField label="Postal Code">
                     <InputText class="w-full"
+                               type="number"
                                name="warehouses-postal_code"
                                data-testid="warehouses-postal_code"
                                placeholder="Enter Pin Code"

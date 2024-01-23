@@ -823,7 +823,7 @@ class Warehouse extends VaahModel
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-
+        $inputs['postal_code'] = $faker->randomNumber(6);
         if(!$is_response_return){
             return $inputs;
         }
