@@ -823,11 +823,12 @@ export const useWarehouseStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            vaah().confirmDialogDeactivate(this.listAction);
         },
 
         //---------------------------------------------------------------------
 
+        
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
