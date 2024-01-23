@@ -2,11 +2,9 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
@@ -15,7 +13,7 @@ use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use Illuminate\Support\Facades\DB;
+
 
 class Brand extends VaahModel
 {
@@ -48,14 +46,6 @@ class Brand extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
-        'image',
-        'meta_description',
-        'meta_title',
-        'meta_keyword'
-    ];
-
-    protected $casts =[
-        'meta_keyword'=>'array',
     ];
     //-------------------------------------------------
     protected $fill_except = [
@@ -106,38 +96,6 @@ class Brand extends VaahModel
         }
 
         return $empty_item;
-    }
-
-    //-------------------------------------------------
-    protected function registeredAt(): Attribute
-    {
-
-        return Attribute::make(
-            get: function (string $value = null) {
-                return self::getUserTimezoneDate($value);
-            },
-            set: function (string $value = null) {
-                return \Carbon::parse(strtotime($value))
-                    ->setTimezone(config('app.timezone'))
-                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
-            },
-        );
-    }
-
-    //-------------------------------------------------
-    protected function approvedAt(): Attribute
-    {
-
-        return Attribute::make(
-            get: function (string $value = null) {
-                return self::getUserTimezoneDate($value);
-            },
-            set: function (string $value = null) {
-                return \Carbon::parse(strtotime($value))
-                    ->setTimezone(config('app.timezone'))
-                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
-            },
-        );
     }
 
     //-------------------------------------------------
@@ -199,42 +157,10 @@ class Brand extends VaahModel
     }
 
     //-------------------------------------------------
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'vh_st_brand_id','id' );
-    }
-    //-------------------------------------------------
     public function scopeExclude($query, $columns)
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
-
-    //-------------------------------------------------
-
-    public function scopeDateFilter($query, $filter)
-    {
-
-
-        if(!isset($filter['date'])
-            || is_null($filter['date'])
-        )
-        {
-            return $query;
-        }
-
-        $dates = $filter['date'];
-        $from = \Carbon::parse($dates[0])
-            ->startOfDay()
-            ->toDateTimeString();
-
-        $to = \Carbon::parse($dates[1])
-            ->endOfDay()
-            ->toDateTimeString();
-
-        return $query->whereBetween('created_at', [$from, $to]);
-
-    }
-
 
     //-------------------------------------------------
 
@@ -272,16 +198,8 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
 
         $inputs = $request->all();
-
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -306,9 +224,6 @@ class Brand extends VaahModel
             $response['messages'][] = "This slug is already exist.";
             return $response;
         }
-
-        // check if meta title exist
-
 
         $item = new self();
         $item->fill($inputs);
@@ -395,15 +310,12 @@ class Brand extends VaahModel
         {
             return $query;
         }
-        $keywords = explode(' ',$filter['q']);
-        foreach($keywords as $search)
-        {
+        $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
                 ->orWhere('slug', 'LIKE', '%' . $search . '%')
                 ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
-        }
 
     }
     //-------------------------------------------------
@@ -428,7 +340,6 @@ class Brand extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
-        $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -437,11 +348,8 @@ class Brand extends VaahModel
             $rows = $request->rows;
         }
 
-        $list = $list->with(['registeredByUser','status',
-                             'approvedByUser','products.store'])
-            ->paginate($rows);
+        $list = $list->with(['registeredByUser','status','approvedByUser'])->paginate($rows);
 
-//
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -453,13 +361,6 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function updateList($request)
     {
-
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
 
         $inputs = $request->all();
 
@@ -521,13 +422,6 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
         $inputs = $request->all();
 
         $rules = array(
@@ -561,13 +455,6 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -628,8 +515,8 @@ class Brand extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
+                $list->update(['deleted_by' => null]);
                 break;
             case 'delete-all':
                 $list->forceDelete();
@@ -686,20 +573,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
+
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
@@ -707,7 +587,7 @@ class Brand extends VaahModel
 
         if ($item) {
             $response['success'] = false;
-            $response['errors'][] = "This Name already exists.";
+            $response['errors'][] = "This name is already exist.";
             return $response;
         }
 
@@ -721,9 +601,6 @@ class Brand extends VaahModel
             $response['errors'][] = "This slug is already exist.";
             return $response;
         }
-
-        // check if meta title exist
-
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -739,13 +616,6 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
@@ -763,13 +633,6 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
         switch($type)
         {
             case 'activate':
@@ -810,47 +673,26 @@ class Brand extends VaahModel
     {
 
         $rules = array(
-            'name' => 'required|min:1|max:100',
-            'slug' => 'required|min:1|max:100',
-            'meta_title' => 'nullable|max:100',
-            'meta_description' => 'nullable|max:250',
-            'meta_keyword' => 'nullable|array|max:15',
-            'registered_by'=> 'nullable',
-            'registered_at'=> 'nullable',
-            'approved_by'=> 'nullable',
-            'approved_at'=> 'nullable',
+            'name' => 'required|max:250',
+            'slug' => 'required|max:250',
+            'registered_by'=> 'required',
+            'registered_at'=> 'required',
+            'approved_by'=> 'required',
+            'approved_at'=> 'required',
             'status'=> 'required',
-            'status_notes' => 'nullable|min:1|max:250',
-
+            'status_notes' => [
+                'required_if:status.slug,==,rejected',
+                'max:250'
+            ],
 
         );
 
-
-
-        $custom_messages = array(
-            'name.required' => 'The Name field is required.',
-            'name.min' => 'The Name field must be at least :min characters.',
-            'name.max' => 'The Name field must not exceed :max characters.',
-            'slug.required' => 'The Slug field is required.',
-            'slug.min' => 'The Slug field must be at least :min characters.',
-            'slug.max' => 'The Slug field must not exceed :max characters.',
-            'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
-            'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
-            'meta_keyword.max' => 'The Meta Keywords field must not have more than :max items.',
-            'registered_by.required_with' => 'The Registered By field is required when Registered At is present.',
-            'registered_at.required_with' => 'The Registered At field is required when Registered By is present.',
-            'approved_by.required_with' => 'The Approved By field is required when Approved At is present.',
-            'approved_at.required_with' => ' The Approved At field is required when Approved By is present.',
+        $customMessages = array(
+            'status_notes.required_if' => 'The Status Notes is required for "Rejected" Status',
             'status_notes.max' => 'The Status Notes may not be greater than :max characters.',
-            'status' => 'The Status field is required.',
         );
 
-        $rules['registered_by'] = 'required_with:registered_at';
-        $rules['registered_at'] = 'required_with:registered_by';
-        $rules['approved_by'] = 'required_with:approved_at';
-        $rules['approved_at'] = 'required_with:approved_by';
-
-        $validator = \Validator::make($inputs, $rules,$custom_messages);
+        $validator = \Validator::make($inputs, $rules,$customMessages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -934,14 +776,7 @@ class Brand extends VaahModel
         $registered_by_data = User::where('is_active',1)->where('id',$registered_id)->first();
         $inputs['registered_by'] = $registered_id;
         $inputs['registered_by_user'] = $registered_by_data;
-        $image = UploadedFile::fake()->image('file1.png', 600, 600);
 
-        if($image){
-            $file_name = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('image/uploads/brands'), $file_name);
-            $image_default = $file_name;
-            $inputs['image'] = $image_default;
-        }
 
 
         $approved_ids = User::where('is_active',1)->pluck('id')->toArray();
@@ -951,16 +786,6 @@ class Brand extends VaahModel
         $inputs['approved_by_user'] = $approved_by_data;
 
         $faker = Factory::create();
-
-
-        $random_words = [];
-        $max_words = 10;
-
-        for ($i = 0; $i < $faker->numberBetween(2, $max_words); $i++) {
-            $random_words[] = $faker->word;
-        }
-
-        $inputs['meta_keyword'] = $random_words;
 
         /*
          * You can override the filled variables below this line.
@@ -1033,19 +858,6 @@ class Brand extends VaahModel
         $response['data'] = $item;
         return $response;
     }
-    //-------------------------------------------------
-
-
-    public static function uploadImage($request){
-        if($request->hasFile('image')){
-            $file = $request->file('image');
-            $file_name = time().'.' .$file->getClientOriginalExtension();
-            $file->move(public_path('image/uploads/brands'), $file_name);
-            $response['image_name'] = $file_name;
-            return $response;
-        }
-    }
-
     //-------------------------------------------------
 
 

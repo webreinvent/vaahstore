@@ -5,7 +5,7 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Brand;
 use WebReinvent\VaahCms\Entities\User;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-use WebReinvent\VaahCms\Models\Permission;
+
 
 class BrandsController extends Controller
 {
@@ -22,13 +22,11 @@ class BrandsController extends Controller
     public function getAssets(Request $request)
     {
 
-
         try{
 
             $data = [];
 
-            $data['permissions'] = \Auth::user()->permissions(true);
-
+            $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Brand::getFillableColumns();
@@ -320,26 +318,6 @@ class BrandsController extends Controller
         }
     }
 
-    //----------------------------------------------------------
-
-    public function imageUploads(Request $request)
-    {
-
-        try {
-            return Brand::uploadImage($request);
-        } catch (\Exception $e) {
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-            return $response;
-        }
-    }
     //----------------------------------------------------------
 
 

@@ -41,8 +41,7 @@ const toggleBulkMenuState = (event) => {
                     @click="toggleSelectedMenuState"
                     data-testid="brands-actions-menu"
                     aria-haspopup="true"
-                    aria-controls="overlay_menu"
-                        :disabled="!store.assets.permissions.includes('can-update-module')">
+                    aria-controls="overlay_menu">
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"
                            :value="store.action.items.length" />
@@ -59,8 +58,7 @@ const toggleBulkMenuState = (event) => {
                     data-testid="brands-actions-bulk-menu"
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
-                    class="ml-1 p-button-sm"
-                    :disabled="!store.assets.permissions.includes('can-update-module')">
+                    class="ml-1 p-button-sm">
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>
                 <Menu ref="bulk_menu_state"
