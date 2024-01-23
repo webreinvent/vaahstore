@@ -20,6 +20,10 @@ const props = defineProps({
     can_copy:{
         type: Boolean,
         default: false
+    },
+    meta_tags:{
+        type:Object,
+        default:null,
     }
 })
 
@@ -46,6 +50,18 @@ const props = defineProps({
 
             </td>
         </template>
+
+        <template v-else-if="type==='register-approve'">
+            <td colspan="2" >
+
+                <template v-if="typeof value === 'object' && value !== null">
+                    {{value.first_name}}
+                </template>
+
+            </td>
+        </template>
+
+
 
         <template v-else-if="type==='status'">
             <td colspan="2" >
@@ -162,13 +178,12 @@ const props = defineProps({
 
         <template v-else-if="type==='image_preview'">
 
-            <td colspan="2" >
-
-                <Image :src="value"
+            <td colspan="2" v-if="value">
+                <Image
+                       :src="`image/uploads/brands/`+value"
                        preview
                        alt="Image"
-                       width="150" />
-
+                       width="70"/>
             </td>
         </template>
 

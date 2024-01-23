@@ -2,6 +2,7 @@
 
 import { useBrandStore } from '../../../stores/store-brands'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useBrandStore();
 </script>
@@ -16,7 +17,7 @@ const store = useBrandStore();
                 <template #label>
                     <b>Status By:</b>
                 </template>
-                <VhField label="Brand Status">
+
                     <MultiSelect
                         v-model="store.query.filter.brand_status"
                         :options="store.assets.taxonomy.status"
@@ -25,9 +26,25 @@ const store = useBrandStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
-                </VhField>
+                        appendTo="self"
+                        class="w-full relative" />
+
             </VhFieldVertical>
+
+            <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          placeholder="Choose Date Range"
+                          :manualInput="false"/>
+
+            </VhFieldVertical >
 
             <Divider/>
 
@@ -64,6 +81,8 @@ const store = useBrandStore();
             </VhFieldVertical>
 
             <Divider/>
+
+
 
             <VhFieldVertical >
                 <template #label>

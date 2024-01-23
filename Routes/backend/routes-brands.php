@@ -89,6 +89,9 @@ function () {
     Route::any('/search/brand/status', 'BrandsController@searchBrandStatus')
         ->name('vh.backend.store.brands.search.status');
 
+    Route::post('image/upload', 'BrandsController@imageUploads')
+        ->name('vh.backend.store.brands.image.upload');
+
     //---------------------------------------------------------
 
 });

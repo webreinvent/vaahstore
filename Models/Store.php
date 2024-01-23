@@ -667,7 +667,7 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-
+//dd($request->filter);
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -678,6 +678,7 @@ class Store extends VaahModel
         $list->multiLanguageFilter($request->filter);
         $list->multiVendorFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->storeIdFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -1258,5 +1259,22 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
+
+
+    public function scopestoreIdFilter($query, $filter)
+    {
+
+        if(!isset($filter['store_ids']))
+        {
+            return $query;
+        }
+           $search = $filter['store_ids'];
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->whereIn('id', $search );
+
+                });
+            });
+    }
 
 }

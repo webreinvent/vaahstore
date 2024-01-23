@@ -2,7 +2,9 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-
+import {useStoreStore} from "./store-stores";
+import moment from "moment";
+import axios from "axios";
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Brand';
 
 
@@ -11,8 +13,8 @@ let ajax_url = base_url + "/store/brands";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -73,7 +75,13 @@ export const useBrandStore = defineStore({
         status_suggestion:null,
         registered_by_suggestion:null,
         approved_by_suggestion:null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates : null,
+        prev_list:[],
+        current_list:[],
+        display_meta_modal:false,
+        meta_content:[],
+        itemString:[],
     }),
     getters: {
 
@@ -228,6 +236,39 @@ export const useBrandStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
+
+        //---------------------------------------------------------------------
          watchItem(name)
           {
               if(name && name !== "")
@@ -239,12 +280,21 @@ export const useBrandStore = defineStore({
         //---------------------------------------------------------------------
         setApprovedBy(event){
             let approved_by = toRaw(event.value);
-            this.item.approved_by = approved_by.id;
+            this.item.approved_by = approved_by ? approved_by.id : null ;
+            if(this.item.approved_by === null)
+            {
+                this.item.approved_at = null;
+            }
         },
         //---------------------------------------------------------------------
         setRegisteredBy(event){
-            let approved_by = toRaw(event.value);
-            this.item.registered_by = approved_by.id;
+            let registered_by = toRaw(event.value);
+            this.item.registered_by = registered_by ? registered_by.id : null ;
+
+            if(this.item.registered_by === null)
+            {
+                this.item.registered_at = null;
+            }
         },
         //---------------------------------------------------------------------
         SetStatus(event){
@@ -277,7 +327,7 @@ export const useBrandStore = defineStore({
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                        data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -303,6 +353,7 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -465,9 +516,10 @@ export const useBrandStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
-                    ajax_url += '/'+item.id
+                    ajax_url += '/'+item.id;
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -501,9 +553,23 @@ export const useBrandStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+        },
+        //---------------------------------------------------------------------
+
+        compareList(prev_list, current_list) {
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -513,6 +579,8 @@ export const useBrandStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -525,9 +593,11 @@ export const useBrandStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
-                case 'trash':
-                    break;
                 case 'restore':
+                case 'trash':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -558,6 +628,7 @@ export const useBrandStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
@@ -611,8 +682,40 @@ export const useBrandStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
+        //---------------------------------------------------------------------
+
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivateAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmDeactivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivateAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+
         //---------------------------------------------------------------------
         async delayedSearch()
         {
@@ -673,9 +776,13 @@ export const useBrandStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
+            this.selected_dates = null;
 
             //reload page list
             await this.getList();
+
+            vaah().toastSuccess(['Action was successful']);
+            return false;
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -714,6 +821,8 @@ export const useBrandStore = defineStore({
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'brands.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -763,13 +872,13 @@ export const useBrandStore = defineStore({
                 {
                     label: 'Activate',
                     command: async () => {
-                        await this.updateList('activate')
+                        await this.updateList('activate');
                     }
                 },
                 {
                     label: 'Deactivate',
                     command: async () => {
-                        await this.updateList('deactivate')
+                        await this.updateList('deactivate');
                     }
                 },
                 {
@@ -779,7 +888,7 @@ export const useBrandStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.updateList('trash')
+                        await this.updateList('trash');
                     }
                 },
                 {
@@ -793,7 +902,7 @@ export const useBrandStore = defineStore({
                     label: 'Delete',
                     icon: 'pi pi-trash',
                     command: () => {
-                        this.confirmDelete()
+                        this.confirmDelete();
                     }
                 },
             ]
@@ -806,13 +915,13 @@ export const useBrandStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -822,14 +931,14 @@ export const useBrandStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -938,6 +1047,7 @@ export const useBrandStore = defineStore({
 
             if(this.item && this.item.id)
             {
+
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -955,7 +1065,16 @@ export const useBrandStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
@@ -1035,8 +1154,71 @@ export const useBrandStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
+
         //---------------------------------------------------------------------
-    }
+
+        upload(event){
+
+            let formData = new FormData();
+            formData.append('image',event.files[0]);
+            axios.post(
+                this.ajax_url + '/image/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            ).then(res => {
+                if(res) {
+
+                    this.item.image = res.data.image_name;
+
+                }
+            })
+        },
+        clearimage(){
+
+            this.item.image = null
+        },
+        //---------------------------------------------------------------------
+
+        openModal(item){
+
+            this.display_meta_modal=true;
+        },
+
+        //---------------------------------------------------------------------
+        countStore(products){
+            if (!Array.isArray(products)) {
+                throw new Error('Something went wrong');
+            }
+            const unique_store_ids = new Set();
+            products.forEach(product => {
+                if (product.store && product.store.id) {
+                    unique_store_ids.add(product.store.id);
+                }
+            });
+
+            return unique_store_ids.size;
+        },
+
+        storeIds(store_ids) {
+            const unique_store_ids = new Set();
+            store_ids.forEach(product => {
+                if (product.store && product.store.id) {
+                    unique_store_ids.add(product.store.id);
+                }
+            });
+            const unique_store_ids_array = [...unique_store_ids];
+            const resultString = `{${unique_store_ids_array.join(', ')}}`;
+
+            useStoreStore().storeids(unique_store_ids_array);
+            return unique_store_ids_array;
+
+        }
+
+    },
+
 });
 
 
