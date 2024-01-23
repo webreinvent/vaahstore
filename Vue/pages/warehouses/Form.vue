@@ -205,12 +205,13 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Postal Code">
-                    <InputText class="w-full"
-                               type="number"
-                               name="warehouses-postal_code"
-                               data-testid="warehouses-postal_code"
-                               placeholder="Enter Pin Code"
-                               v-model="store.item.postal_code"/>
+                    <InputNumber id="number-input"
+                                 name="warehouses-postal_code"
+                                 :useGrouping="false"
+                                 data-testid="warehouses-postal_code"
+                                 v-model="store.item.postal_code"
+                                 placeholder="Enter Postal Code"
+                                 class="w-full"/>
                 </VhField>
 
                 <VhField label="Status*">

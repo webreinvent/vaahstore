@@ -141,11 +141,12 @@ const toggleItemMenu = (event) => {
                 <Message severity="info" :closable="false" v-if="store.item.status_notes">
                     <tr>
                         <td  colspan="2" >
-                        <pre class="text-right" style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">
+                        <pre  style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">
                             {{store.item.status_notes}}</pre>
                         </td>
                     </tr>
                 </Message>
+
 
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                 <table class="p-datatable-table">
