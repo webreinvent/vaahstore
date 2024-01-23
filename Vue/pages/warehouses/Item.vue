@@ -59,14 +59,7 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-            <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <tr>
-                    <td  colspan="2" >
-                        <pre class="text-right" style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">
-                            {{store.item.status_notes}}</pre>
-                    </td>
-                </tr>
-            </Message>
+
 
             <template class="p-1" #header>
 
@@ -144,6 +137,14 @@ const toggleItemMenu = (event) => {
 
                     </div>
 
+                </Message>
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <tr>
+                        <td  colspan="2" >
+                        <pre class="text-right" style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">
+                            {{store.item.status_notes}}</pre>
+                        </td>
+                    </tr>
                 </Message>
 
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
