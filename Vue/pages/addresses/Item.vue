@@ -60,12 +60,8 @@ const toggleItemMenu = (event) => {
 
         <Panel class="is-small" v-if="store && store.item">
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <tr>
-                    <td  colspan="2" >
-                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                            {{store.item.status_notes}}</div>
-                    </td>
-                </tr>
+                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
+
             </Message>
             <template class="p-1" #header>
 
@@ -83,7 +79,8 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Edit"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="addresses-item-to-edit"
@@ -91,6 +88,7 @@ const toggleItemMenu = (event) => {
 
                     <!--item_menu-->
                     <Button
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
