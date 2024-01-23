@@ -186,20 +186,20 @@ const toggleItemMenu = (event) => {
                                        type="image_preview"
 
                             />
-                            <VhViewRow label="Register By"
+                            <VhViewRow label="Registered By"
                                        :value="store.item.registered_by_user"
                                        type="register-approve"
                             />
-                            <VhViewRow label="Register At"
+                            <VhViewRow label="Registered At"
                                        :value="store.item.registered_at"
 
                             />
 
-                            <VhViewRow label="Approve By"
+                            <VhViewRow label="Approved By"
                                        :value="store.item.approved_by_user"
                                        type="register-approve"
                             />
-                            <VhViewRow label="Approve At"
+                            <VhViewRow label="Approved At"
                                        :value="store.item.approved_at"
 
                             />

@@ -94,14 +94,12 @@ const useVaah = vaah();
                         :sortable="true">
 
                     <template #body="prop">
-<!--                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
                         {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
