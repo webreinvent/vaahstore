@@ -828,7 +828,7 @@ export const useWarehouseStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        
+
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
