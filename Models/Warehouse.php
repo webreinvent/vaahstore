@@ -717,9 +717,9 @@ class Warehouse extends VaahModel
             'country' => 'required',
             'state' => 'required|max:100',
             'city' => 'required|max:100',
-            'address_1' => 'max:150',
-            'address_2' => 'max:150',
-            'postal_code' => 'max:10',
+            'address_1' => 'nullable|max:150',
+            'address_2' => 'nullable|max:150',
+            'postal_code' => 'nullable|max:10',
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
