@@ -206,14 +206,14 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        searchProduct(event) {
-
-            if (this.product && this.product.length > 0) {
-                this.product_suggestion = this.product.filter((product) => {
-                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                });
-            }
-        },
+        // searchProduct(event) {
+        //
+        //     if (this.product && this.product.length > 0) {
+        //         this.product_suggestion = this.product.filter((product) => {
+        //             return product.name.toLowerCase().startsWith(event.query.toLowerCase());
+        //         });
+        //     }
+        // },
 
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -315,7 +315,7 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         async getProductsListForStore(){
             let options = {
-                params: this.item.store_vendor_product,
+                params: this.item.store_ids,
                 method: 'POST'
             };
             await vaah().ajax(
@@ -328,7 +328,7 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.product = data;
+                this.product_suggestion = data;
             }
         },
         //---------------------------------------------------------------------
@@ -430,6 +430,10 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.product = data.productList.data
                 this.item.taxonomy_id_product_vendor_status = data.status;
+                if (data.store_vendor_product) {
+                    this.store_name = data.store_vendor_product;
+                    this.item.store_ids = this.store_name.map(store => store.id);
+                }
 
                 this.item.vh_st_product_variation_id = data.product_variation;
             }else{
@@ -1254,6 +1258,11 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        async setStores(event) {
+            let stores = toRaw(event.value);
+            this.item.store_ids = stores.map(store => store.id);
+            console.log( this.item.store_ids);
+        }
     }
 });
 

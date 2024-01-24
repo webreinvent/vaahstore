@@ -236,7 +236,7 @@ class ProductVendorsController extends Controller
             $inputs = $request->all();
             $response = [];
             $ids = array_column($inputs, 'id');
-            $data = Product::where('is_active', 1)->whereIn( 'vh_st_store_id', $ids)
+            $data = Product::where('is_active', 1)->whereIn( 'vh_st_store_id', $inputs)
                 ->with('store')
                 ->orderBy('vh_st_store_id')
                 ->orderBy('id')

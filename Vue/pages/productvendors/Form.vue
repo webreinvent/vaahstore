@@ -16,7 +16,7 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
-    await store.getProductsListForStore();
+    // await store.getProductsListForStore();
 });
 
 //--------form_menu
@@ -175,7 +175,7 @@ const toggleFormMenu = (event) => {
                             :suggestions="store.active_stores"
                             @complete="store.searchActiveStores($event)"
                             placeholder="Select Store "
-                            @change="store.getProductsListForStore()"
+                            @change="store.setStores($event)"
                             class="w-full "
 
                         />
@@ -185,13 +185,16 @@ const toggleFormMenu = (event) => {
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
-                                  @complete="store.searchProduct($event)"
+                                  @complete="store.getProductsListForStore($event)"
                                   :suggestions="store.product_suggestion"
                                   class="w-full"
                                   placeholder="Select Product"
                                   data-testid="productvendors-product"
                                   name="productvendors-product"
                                   :dropdown="true"
+                                  :pt="{
+                                                panel: { class: 'w-16rem ' },
+                                                }"
                                   optionLabel="name"
                                   forceSelection>
                         <template #option="slotProps">
