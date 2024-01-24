@@ -113,4 +113,7 @@ function () {
     //---------------------------------------------------------
     Route::any('/search/active-store', 'ProductVendorsController@searchActiveStores')
         ->name('vh.backend.store.productvendors.search.active-store');
+
+    Route::post('/filter/search/product', 'ProductVendorsController@searchProductFilter')
+        ->name('vh.backend.store.productvendors.search.filter.product');
 });

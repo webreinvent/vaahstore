@@ -849,6 +849,7 @@ export const useProductVendorStore = defineStore({
         async resetQuery()
         {
             //reset query strings
+            this.selected_product=null;
             await this.resetQueryString();
 
             //reload page list
@@ -1261,8 +1262,33 @@ export const useProductVendorStore = defineStore({
         async setStores(event) {
             let stores = toRaw(event.value);
             this.item.store_ids = stores.map(store => store.id);
-            console.log( this.item.store_ids);
-        }
+        },
+        async searchProductforFilter(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/search/product',
+                this.searchProductforFilterAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductforFilterAfter(data,res) {
+            if(data)
+            {
+                this.filter_product_suggetion = data;
+            }
+        },
+
+        addProductFIlter() {
+            const uniqueVariation = Array.from(new Set(this.selected_product.map(v => v.name)));
+            this.selected_product = uniqueVariation.map(name => this.selected_product.find(v => v.name === name));
+            this.query.filter.product = this.selected_product.map(v => v.slug);
+        },
     }
 });
 

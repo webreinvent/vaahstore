@@ -376,6 +376,18 @@ class ProductVendor extends VaahModel
         return $query->whereBetween('created_at', [$from, $to]);
 
     }
+    public function scopeProductFilter($query, $filter)
+    {
+        if(!isset($filter['product']))
+        {
+            return $query;
+        }
+        $search = $filter['product'];
+        $query->whereHas('product',function ($q) use ($search) {
+            $q->whereIn('slug',$search);
+        });
+
+    }
     //-------------------------------------------------
     public static function getList($request)
     {
@@ -384,6 +396,7 @@ class ProductVendor extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->productVendorFilter($request->filter);
+        $list->productFilter($request->filter);
         $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -1049,6 +1062,32 @@ class ProductVendor extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $addedBy;
+        return $response;
+
+    }
+
+    public static function searchProductFilter($request)
+    {
+//        $query = $request['filter']['q']['query'];
+        $query = $request->input('query');
+        if($query === null)
+        {
+            $product_name = Product::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $product_name = Product::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $product_name;
         return $response;
 
     }
