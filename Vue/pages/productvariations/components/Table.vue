@@ -2,11 +2,15 @@
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductVariationStore } from '../../../stores/store-productvariations'
 import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+
 
 const store = useProductVariationStore();
 const useVaah = vaah();
+const route = useRoute();
 
 const permissions=store.assets.permissions;
+console.log(route && route.query && route.query.filter && route.query.filter.product)
 
 onMounted(async () => {
 
@@ -161,7 +165,7 @@ onMounted(async () => {
                                 class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id=== store.item && store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 

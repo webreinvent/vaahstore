@@ -113,6 +113,17 @@ class ProductVariation extends VaahModel
         return $empty_item;
     }
 
+    //----------------------------------------------
+
+    protected static function booted()
+    {
+        static::updated(function ($productVariation) {
+            if ($productVariation->isDirty('quantity')) {
+                self::sendMailForStock();
+            }
+        });
+    }
+
     //-------------------------------------------------
 
     public static function searchProduct($request)
@@ -1078,45 +1089,68 @@ class ProductVariation extends VaahModel
     public static function sendMailForStock()
     {
 
-        try{
+
+        try {
+            $list_data = ProductVariation::with('product')->get();
+
+            /*$is_mail_sent = $list_data->pluck('is_mail_sent')->toArray();*/
 
 
-            $list_data = ProductVariation::all();
-            $name_data = $list_data->pluck('name')->toArray();
-            $quantities = $list_data->pluck('quantity')->toArray();
 
-            $filteredData = array_filter(array_combine($name_data, $quantities), function ($quantity) {
-                return $quantity == 0 || $quantity < 10;
+            $filtered_data = $list_data->filter(function ($item) {
+                return $item->quantity == 0 || $item->quantity < 10;
             });
 
-            $filteredNames = array_keys($filteredData);
+            $subject = 'Low Stock Alert';
+            $message = '<html><body>';
+            $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
+            $message .= '<table border="1">';
+            $message .= '<tr><th>Product Name</th><th>Variation</th><th>Current Quantity</th></tr>';
+
+            foreach ($filtered_data as $index => $item) {
 
 
-            $email_data = array_map(function ($name) {
-                $name_without_spaces = str_replace(' ', '', $name);
-                return $name_without_spaces . '@gmail.com';
-            }, $filteredNames);
+                $product_name = isset($item->product) ? $item->product->name : '';
+                $product_slug = isset($item->product) ? $item->product->slug : '';
+                $variation_name = $item->name;
+                $current_quantity = $item->quantity;
+                $mail_sent = $item->is_mail_sent;
 
 
-            if (!empty($filteredNames)) {
-                $subject = 'Low Stock Alert';
+                $message .= '<tr>';
+                $message .= '<td>' . $product_name . '</td>';
+                $message .= '<td>' . $variation_name . '</td>';
+                $message .= '<td>' . $current_quantity . '</td>';
+                $message .= '</tr>';
+            }
 
-                $message = 'Hello Everyone, the following items are low in stock:' . PHP_EOL;
-                foreach ($filteredNames as $index => $name) {
-                    $message .= ($index + 1) . '. <strong>' . $name . '</strong>' . PHP_EOL;
+
+            $message .= '</table>';
+
+            if ($filtered_data->isNotEmpty()) {
+
+                /*$filter_param = http_build_query(['filter' => ['product' =>$product_slug]]);*/
+
+                $url = 'http://localhost/Sumit/store-dev/public/backend/store#/productvariations?page=1&rows=20&filter[product]='.$product_slug;
+
+                $message .= '<p>For more products, <a href="' . $url . '">click here</a>.</p>';
+
+                if ($mail_sent === null || $mail_sent === 0) {
+
+                    $send_mail = UserBase::notifySuperAdmins($subject, $message);
+
+
+                    $item->is_mail_sent = 1;
+                    $item->save();
                 }
-
-                $send_mail = UserBase::notifySuperAdmins($subject, $message);
             }
 
             $response['success'] = true;
-
-
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
 
-            if(env('APP_DEBUG')){
+            if (env('APP_DEBUG')) {
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
@@ -1125,7 +1159,9 @@ class ProductVariation extends VaahModel
         }
 
         return $response;
-
     }
+
+
+
 
 }
