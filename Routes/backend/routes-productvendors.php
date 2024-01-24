@@ -107,8 +107,8 @@ function () {
     /**
      * Product variation status
      */
-    Route::any('/search/product/variation', 'ProductVendorsController@searchProductVariation')
-        ->name('vh.backend.store.productvendors.search.variation');
+//    Route::any('/search/product/variation', 'ProductVendorsController@searchProductVariation')
+//        ->name('vh.backend.store.productvendors.search.variation');
 
     //---------------------------------------------------------
     Route::any('/search/active-store', 'ProductVendorsController@searchActiveStores')
@@ -122,4 +122,7 @@ function () {
 
     Route::post('/search/status-using-slug', 'ProductVendorsController@searchStatusUsingUrlSlug')
         ->name('vh.backend.store.productvendors.search.filtered-status');
+
+    Route::post('/search/product-variation', 'ProductVendorsController@searchVariationOfProduct')
+        ->name('vh.backend.store.productvendors.search.product-variation');
 });

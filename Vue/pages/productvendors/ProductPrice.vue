@@ -107,7 +107,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.product_variation"
                         class="w-full"
                         :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
+                        @complete="store.searchVariationOfProduct($event)"
                         placeholder="Select Product Variation"
                         data-testid="productprices-product_variation"
                         name="productprices-product_variation"

@@ -948,21 +948,21 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
-    public static function searchProductVariation($request)
-    {
-        $user = auth()->user();
-        $query = $request->input('filter.q.query');
-        $vendor =  ProductVariation::where('is_active', 1, $user->id)
-            ->select('id', 'name', 'slug');
-        if ($query !== null) {
-            $vendor->where('name', 'like', "%$query%");
-        }
-        $vendor = $vendor->get();
-        $response['success'] = true;
-        $response['data'] = $vendor;
-
-        return $response;
-    }
+//    public static function searchProductVariation($request)
+//    {
+//        $user = auth()->user();
+//        $query = $request->input('filter.q.query');
+//        $vendor =  ProductVariation::where('is_active', 1, $user->id)
+//            ->select('id', 'name', 'slug');
+//        if ($query !== null) {
+//            $vendor->where('name', 'like', "%$query%");
+//        }
+//        $vendor = $vendor->get();
+//        $response['success'] = true;
+//        $response['data'] = $vendor;
+//
+//        return $response;
+//    }
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
@@ -1117,6 +1117,26 @@ class ProductVendor extends VaahModel
         $response['success'] = true;
         $response['data'] = $item;
         return $response;
+    }
+    public static function searchVariationOfProduct($request)
+    {
+        $input = $request->all();
+        $q = $input['q'];
+        $id = $input['id'];
+        $variation = ProductVariation::where('vh_st_product_id', $id)
+            ->where(function ($query) use ($q) {
+                $query->orWhere('slug', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%$q%");
+            })
+            ->select('id', 'name', 'slug', 'vh_st_product_id')
+            ->get();
+
+        $response['success'] = true;
+        $response['data'] = $variation;
+
+        return $response;
+
+
     }
 
 }
