@@ -100,43 +100,74 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item">
 
-                <VhField label="Product Variation">
+<!--                <VhField label="Product Variation">-->
 
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.product_variation"
-                        class="w-full"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchVariationOfProduct($event)"
-                        placeholder="Select Product Variation"
-                        data-testid="productprices-product_variation"
-                        name="productprices-product_variation"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+<!--                    <AutoComplete-->
+<!--                        value="id"-->
+<!--                        v-model="store.item.product_variation"-->
+<!--                        class="w-full"-->
+<!--                        :suggestions="store.product_variation_suggestion"-->
+<!--                        @complete="store.searchVariationOfProduct($event)"-->
+<!--                        placeholder="Select Product Variation"-->
+<!--                        data-testid="productprices-product_variation"-->
+<!--                        name="productprices-product_variation"-->
+<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
+<!--                    </AutoComplete>-->
 
-                </VhField>
+<!--                </VhField>-->
 
-                <VhField label="Amount">
+<!--                <VhField label="Amount">-->
 
-                    <InputNumber
-                        placeholder="Enter a Amount"
-                        inputId="minmax-buttons"
-                        name="productprices-amount"
-                        v-model="store.item.amount"
-                        :min="0"
-                        :max="150000000000000"
-                        mode="decimal" showButtons
-                        data-testid="productprices-amount"/>
+<!--                    <InputNumber-->
+<!--                        placeholder="Enter a Amount"-->
+<!--                        inputId="minmax-buttons"-->
+<!--                        name="productprices-amount"-->
+<!--                        v-model="store.item.amount"-->
+<!--                        :min="0"-->
+<!--                        :max="150000000000000"-->
+<!--                        mode="decimal" showButtons-->
+<!--                        data-testid="productprices-amount"/>-->
 
-                </VhField>
+<!--                </VhField>-->
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="productprices-active"
-                                 data-testid="productprices-active"
-                                 v-model="store.item.is_active_product_price"/>
-                </VhField>
+
+<!--                <VhField >-->
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Variation Name</th>
+                            <th>Amount</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(variation, index) in store.product_variation_list" :key="index">
+                            <td>{{ variation.name }}</td>
+                            <td>
+                                <InputNumber
+                                    :placeholder="'Enter amount for ' + variation.name"
+                                    :inputId="'minmax-buttons-' + index"
+                                    :name="'productprices-amount-' + index"
+                                    v-model="variation.amount"
+                                    :min="0"
+                                    :max="150000000000000"
+                                    mode="decimal"
+                                    showButtons
+                                    :data-testid="'productprices-amount-' + index"
+                                />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+<!--                </VhField>-->
+
+
+<!--                <VhField label="Is Active">-->
+<!--                    <InputSwitch v-bind:false-value="0"-->
+<!--                                 v-bind:true-value="1"-->
+<!--                                 name="productprices-active"-->
+<!--                                 data-testid="productprices-active"-->
+<!--                                 v-model="store.item.is_active_product_price"/>-->
+<!--                </VhField>-->
 
             </div>
         </Panel>

@@ -888,6 +888,7 @@ export const useProductVendorStore = defineStore({
         toProductPrice(item)
         {
             this.item.vh_st_product_id=item.vh_st_product_id;
+            this.searchVariationOfProduct();
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
         },
@@ -1358,11 +1359,27 @@ export const useProductVendorStore = defineStore({
             }
         },
 
-        async searchVariationOfProduct(event) {
+        // async searchVariationOfProduct(event) {
+        //     const query = {
+        //         q:event.query,
+        //         id:this.item.vh_st_product_id
+        //     }
+        //     const options = {
+        //         params: query,
+        //         method: 'post',
+        //     };
+        //
+        //     await vaah().ajax(
+        //         this.ajax_url+'/search/product-variation',
+        //         this.searchVariationOfProductAfter,
+        //         options
+        //     );
+        // },
+        async searchVariationOfProduct() {
             const query = {
-                q:event.query,
-                id:this.item.vh_st_product_id
-            }
+
+                id: this.item.vh_st_product_id
+            };
             const options = {
                 params: query,
                 method: 'post',
@@ -1378,6 +1395,7 @@ export const useProductVendorStore = defineStore({
         searchVariationOfProductAfter(data,res) {
             if(data)
             {
+                this.product_variation_list=data;
                 this.product_variation_suggestion = data;
                 if (data && this.item.product_variation) {
                     this.product_variation_suggestion = data.filter((item) => {

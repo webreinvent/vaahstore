@@ -212,6 +212,8 @@ class ProductVendor extends VaahModel
         $response['messages'][] = 'Saved successfully.';
         return $response;
     }
+
+
     //-------------------------------------------------
     public static function createItem($request)
     {
@@ -1121,14 +1123,11 @@ class ProductVendor extends VaahModel
     public static function searchVariationOfProduct($request)
     {
         $input = $request->all();
-        $q = $input['q'];
+//        dd($input);
         $id = $input['id'];
         $variation = ProductVariation::where('vh_st_product_id', $id)
-            ->where(function ($query) use ($q) {
-                $query->orWhere('slug', 'like', "%$q%")
-                    ->orWhere('name', 'like', "%$q%");
-            })
-            ->select('id', 'name', 'slug', 'vh_st_product_id')
+
+
             ->get();
 
         $response['success'] = true;
