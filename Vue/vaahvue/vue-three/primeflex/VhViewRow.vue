@@ -50,7 +50,7 @@ const props = defineProps({
             <td colspan="2" >
 
                 <template v-if="typeof value === 'object' && value !== null">
-                    <span  @click="vaah().copy(value.name)"   >
+                    <span   >
                         {{value.name}}
                     </span>
 
