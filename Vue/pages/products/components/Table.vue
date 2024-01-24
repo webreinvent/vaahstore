@@ -82,13 +82,16 @@ const useVaah = vaah()
 
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon cursor-pointer"
-                         v-tooltip.top="'View Variations'"
-                         @click="store.toViewVariation(prop.data)">
-                             <b v-if="prop.data.product_variations && prop.data.product_variations.length">
-                                 {{prop.data.product_variations.length}}
-                            </b>
-                              <b v-else>0</b>
+                         <span  v-if="prop.data.product_variations && prop.data.product_variations.length"
+                                class="p-inputgroup-addon cursor-pointer"
+                                v-tooltip.top="'View Variations'"
+                                @click="store.toViewVariation(prop.data)">
+
+                             <b>{{prop.data.product_variations.length}}</b>
+
+                         </span>
+                         <span class="p-inputgroup-addon" v-else>
+                             <b>{{prop.data.product_variations.length}}</b>
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
@@ -105,12 +108,16 @@ const useVaah = vaah()
                  <template #body="prop">
                      <div class="p-inputgroup">
                          <span class="p-inputgroup-addon cursor-pointer"
-                          v-tooltip.top="'View Vendors'"
-                          @click="store.toViewVendors(prop.data)">
-                             <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
-                                 {{prop.data.product_vendors.length}}
-                            </b>
-                             <b v-else>0</b>
+                               v-tooltip.top="'View Vendors'"
+                               v-if="prop.data.product_vendors && prop.data.product_vendors.length"
+                               @click="store.toViewVendors(prop.data)">
+                             <b >{{prop.data.product_vendors.length}}</b>
+
+                         </span>
+                         <span class="p-inputgroup-addon"
+                               v-else>
+                             <b >{{prop.data.product_vendors.length}}</b>
+
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"

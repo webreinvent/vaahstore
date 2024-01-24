@@ -246,7 +246,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'seo_title'">
-                            <tr>
+                            <tr v-if="store.item.seo_title">
                                 <td><b>Seo Title</b></td>
                                 <td >
                                     <Button icon="pi pi-eye"
@@ -269,7 +269,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'seo_meta_description'">
-                            <tr>
+                            <tr v-if="store.item.seo_meta_description">
                                 <td><b>Seo Meta Description</b></td>
                                 <td >
                                     <Button icon="pi pi-eye"
@@ -292,7 +292,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'seo_meta_keyword'">
-                            <tr>
+                            <tr v-if="store.item.seo_meta_keyword">
                                 <td><b>Seo Meta Keywords</b></td>
                                 <td >
                                     <Button icon="pi pi-eye"

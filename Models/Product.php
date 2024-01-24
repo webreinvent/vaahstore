@@ -229,14 +229,14 @@ class Product extends VaahModel
             is_null($filter['quantity']) ||
             $filter['quantity'] === 'null' ||
             count($filter['quantity']) < 2 ||
-            is_null($filter['quantity'][0]) ||
-            is_null($filter['quantity'][1])
+            is_null($filter['quantity']['from']) ||
+            is_null($filter['quantity']['to'])
         ) {
             return $query;
         }
 
-        $min_quantity = $filter['quantity'][0];
-        $max_quantity = $filter['quantity'][1];
+        $min_quantity = $filter['quantity']['from'];
+        $max_quantity = $filter['quantity']['to'];
         return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
 
 

@@ -118,22 +118,33 @@ const store = useProductStore();
             <br/>
             <VhFieldVertical >
                 <template #label>
-                    <b>Quantity Count Range:</b>
+                    <b>Quantity Range Filter:</b>
                 </template>
 
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
-                        <div class="flex justify-content-between">
-                            <div><b>{{ store.assets.min_quantity }}</b></div>
-                            <div><b>{{ store.assets.max_quantity }}</b></div>
+                        <div class="flex">
+                            <label for="min-quantity" class="mr-2 mt-2" style="width:50px;">From:</label>
+                            <InputText
+                                       id="min-quantity"
+                                       name="productvariations-name"
+                                       data-testid="productvariations-name"
+                                       placeholder="Minimum Quantity"
+                                       v-model="store.quantity.from"
+                                       style="width: 200px;"/>
                         </div>
-                        <Slider v-model="store.quantity"
-                                range
-                                :min="store.assets.min_quantity"
-                                :max="store.assets.max_quantity"
-                                @change="store.quantityFilter()"
-                                class="w-14rem mt-2"
-                        />
+
+                        <div class="flex mt-2">
+                            <label for="max-quantity" class="mr-2 mt-2" style="width:50px;">To:</label>
+                            <InputText class="ml-3"
+                                       id="max-quantity"
+                                       name="productvariations-name"
+                                       data-testid="productvariations-name"
+                                       placeholder="Maximum Quantity"
+                                       v-model="store.quantity.to"
+                                       style="width: 200px;"/>
+                        </div>
+
                     </div>
                 </div>
 

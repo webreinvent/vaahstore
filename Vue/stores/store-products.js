@@ -24,6 +24,7 @@ let empty_states = {
             stores : null,
             brands : null,
             product_types : null,
+            quantity : null
         },
     },
     action: {
@@ -111,9 +112,12 @@ export const useProductStore = defineStore({
         filter_selected_brands : null,
         display_seo_modal : false,
         seo_meta_value : null,
-        quantity:[],
-        min_quantity : 0,
-        max_quantity : 0,
+        quantity:
+            {
+                from :null,
+                to :null,
+            },
+
     }),
     getters: {
 
@@ -267,6 +271,11 @@ export const useProductStore = defineStore({
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
             }
+            if(route.query && route.query.filter && route.query.filter.quantity)
+            {
+                this.quantity.from = route.query.filter.quantity.from;
+                this.quantity.to = route.query.filter.quantity.to;
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
@@ -349,6 +358,19 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        watchQuantity()
+        {
+            watch(() => [this.quantity.from, this.quantity.to], ([min, max]) => {
+                // Check if both from and too quantity are entered
+
+                if (min !== null && min !== '' && max !== null && max !== '') {
+                        this.query.filter.quantity = this.quantity;
+                }
+
+            });
+
+        },
 
         setStore(event) {
             let store = toRaw(event.value);
@@ -1297,6 +1319,8 @@ export const useProductStore = defineStore({
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
             this.selected_dates = null;
+            this.quantity.from = null;
+            this.quantity.to = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
