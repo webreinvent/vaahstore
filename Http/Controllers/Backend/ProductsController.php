@@ -69,9 +69,12 @@ class ProductsController extends Controller
 
             // get min and max quantity from the product filter
             $product = Product::all();
-            $quantities = $product->pluck('quantity')->toArray();
-            $data['min_quantity'] = min($quantities);
-            $data['max_quantity'] = max($quantities);
+            if($product->isNotEmpty())
+            {
+                $quantities = $product->pluck('quantity')->toArray();
+                $data['min_quantity'] = min($quantities);
+                $data['max_quantity'] = max($quantities);
+            }
 
             $data['taxonomy'] = [
                 "product_status" => Taxonomy::getTaxonomyByType('product-status'),
