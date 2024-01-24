@@ -964,6 +964,8 @@ class ProductVariation extends VaahModel
 
         $response=[];
         if($items_id){
+            $item_ids = self::where('vh_st_product_id',$items_id)->pluck('id');
+            ProductAttribute::deleteProductVariations($item_ids);
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
         }else{
@@ -977,14 +979,16 @@ class ProductVariation extends VaahModel
 
     public static function deleteProduct($items_id){
 
+        $response=[];
         if($items_id){
+            $item_id = self::where('vh_st_product_id',$items_id)->pluck('id')->first();
+            ProductAttribute::deleteProductVariation($item_id);
             self::where('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
-            $response['data'] = true;
         }else{
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
         }
+        return $response;
 
     }
 

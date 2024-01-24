@@ -572,14 +572,14 @@ class ProductPrice extends VaahModel
 
     public static function deleteProduct($items_id){
 
+        $response=[];
         if($items_id){
             self::where('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
-            $response['data'] = true;
         }else{
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
         }
+        return $response;
 
     }
 
