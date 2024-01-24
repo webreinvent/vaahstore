@@ -15,9 +15,10 @@ class AddColumnVhStWarehouses extends Migration
     {
 
         Schema::table('vh_st_warehouses', function($table) {
-            $table->string('address_1')->nullable();
-            $table->string('address_2')->nullable();
-            $table->string('postal_code')->nullable();
+            $table->string('postal_code')->nullable()->index()->after('is_active');
+            $table->string('address_1')->nullable()->after('postal_code');
+            $table->string('address_2')->nullable()->after('address_1');
+
         });
     }
 
