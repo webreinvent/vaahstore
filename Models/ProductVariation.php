@@ -964,7 +964,7 @@ class ProductVariation extends VaahModel
 
         $response=[];
         if($items_id){
-            $item_ids = self::where('vh_st_product_id',$items_id)->pluck('id');
+            $item_ids = self::whereIn('vh_st_product_id',$items_id)->pluck('id');
             ProductAttribute::deleteProductVariations($item_ids);
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
