@@ -232,6 +232,7 @@ export const useProductVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (this.query.filter.product) this.setProductsAfterPageRefresh();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1288,6 +1289,36 @@ export const useProductVendorStore = defineStore({
             const uniqueVariation = Array.from(new Set(this.selected_product.map(v => v.name)));
             this.selected_product = uniqueVariation.map(name => this.selected_product.find(v => v.name === name));
             this.query.filter.product = this.selected_product.map(v => v.slug);
+        },
+
+        async setProductsAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    product: this.query.filter.product,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/products-using-slug',
+                this.setProductsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setProductsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_product= data;
+            }
         },
     }
 });

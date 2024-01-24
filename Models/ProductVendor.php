@@ -1092,4 +1092,17 @@ class ProductVendor extends VaahModel
 
     }
 
+    public static function searchProductsUsingUrlSlug($request)
+    {
+        $query = $request['filter']['product'];
+
+        $products= Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+    }
+
 }
