@@ -206,22 +206,18 @@ class Warehouse extends VaahModel
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
+//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        $item = self::where('name', $inputs['name'])
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
+            ->withTrashed()
+            ->first();
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['messages'][] = "This Warehouse is already exist with this Vendor.";
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = new self();
         $item->fill($inputs);
@@ -618,27 +614,22 @@ class Warehouse extends VaahModel
             return $validation;
         }
 
+
+        $item = self::where('id', $id)->withTrashed()->first();
+
         // check if name exist
-        $item = self::where('id', '!=', $id)
+        $existing_item = self::where('id', '!=', $id)
+            ->where('name', $inputs['name'])
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->first();
 
-        if ($item) {
+        if ($existing_item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = "This Warehouse name is already exist with this Vendor.";
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
