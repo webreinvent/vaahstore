@@ -48,7 +48,7 @@ const store = useWarehouseStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Search By State/City/Pin:</b>
+                    <b>Search By State/City/Postal Code:</b>
                 </template>
 
                 <InputText v-model="store.query.filter.state_city"
@@ -57,7 +57,7 @@ const store = useWarehouseStore();
                            @keyup.enter.native="store.countryStateSearch()"
                            @keyup.13="store.countryStateSearch()"
                            data-testid="warehouses-actions-filter"
-                           placeholder="Search State/City/Pin Code"/>
+                           placeholder="Search State/City/Postal Code"/>
 
             </VhFieldVertical >
 
