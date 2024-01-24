@@ -501,5 +501,20 @@ class ProductVendorsController extends Controller
         }
     }
     //----------------------------------------------------------
-
+    public function searchActiveStores(Request $request)
+    {
+        try{
+            return ProductVendor::searchActiveStores($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
 }

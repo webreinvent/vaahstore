@@ -156,16 +156,29 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Store">
-                    <MultiSelect class="w-full"
-                                 v-model="store.item.store_vendor_product"
-                                 display="chip"
-                                 data-testid="productvendors-stores"
-                                 name="productvendors-stores"
-                                 :options="store.assets.active_stores"
-                                 optionLabel="name"
-                                 placeholder="Select Stores"
-                                 :maxSelectedLabels="3"
-                                 @change="store.getProductsListForStore()" />
+<!--                    <MultiSelect class="w-full"-->
+<!--                                 v-model="store.item.store_vendor_product"-->
+<!--                                 display="chip"-->
+<!--                                 data-testid="productvendors-stores"-->
+<!--                                 name="productvendors-stores"-->
+<!--                                 :options="store.assets.active_stores"-->
+<!--                                 optionLabel="name"-->
+<!--                                 placeholder="Select Stores"-->
+<!--                                 :maxSelectedLabels="3"-->
+<!--                                 @change="store.getProductsListForStore()" />-->
+                        <AutoComplete
+                            data-testid="productvendors-stores"
+                            v-model="store.item.store_vendor_product"
+                            optionLabel="name"
+                            multiple
+                            :complete-on-focus = "true"
+                            :suggestions="store.active_stores"
+                            @complete="store.searchActiveStores($event)"
+                            placeholder="Select Store "
+                            @change="store.getProductsListForStore()"
+                            class="w-full "
+
+                        />
                 </VhField>
 
                 <VhField label="Product" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">

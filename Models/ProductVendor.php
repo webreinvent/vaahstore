@@ -1040,4 +1040,17 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
+    public static function searchActiveStores($request){
+        $addedBy = Store::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
+
 }

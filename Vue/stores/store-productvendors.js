@@ -1232,6 +1232,26 @@ export const useProductVendorStore = defineStore({
                 }
             }
         },
+        async searchActiveStores(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-store',
+                this.searchActiveStoresAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveStoresAfter(data,res) {
+            if(data)
+            {
+                this.active_stores = data;
+            }
+        },
 
         //---------------------------------------------------------------------
     }

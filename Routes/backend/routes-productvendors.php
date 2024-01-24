@@ -111,5 +111,6 @@ function () {
         ->name('vh.backend.store.productvendors.search.variation');
 
     //---------------------------------------------------------
-
+    Route::any('/search/active-store', 'ProductVendorsController@searchActiveStores')
+        ->name('vh.backend.store.productvendors.search.active-store');
 });
