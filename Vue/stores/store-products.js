@@ -370,26 +370,8 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        checkQuantity(event) {
-            this.item.quantity = event.value;
-            if (this.item.quantity > 0) {
-                this.item.in_stock = 1;
-            } else {
-                this.item.in_stock = 0;
-            }
-        },
-
-        //---------------------------------------------------------------------
         updateQuantityFilter(event) {
             this.query.filter.quantity = event.value;
-        },
-        //---------------------------------------------------------------------
-        checkInStock(event) {
-
-            if (this.item.in_stock == 0) {
-                this.item.quantity = 0;
-            }
         },
         //---------------------------------------------------------------------
         setBrand(event) {

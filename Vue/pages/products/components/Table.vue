@@ -53,10 +53,10 @@ const useVaah = vaah()
                      v-if="store.isViewLarge()">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
+                     <Badge v-if="prop.data.quantity === 0"
                             value="No"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
+                     <Badge v-else
                             value="yes"
                             severity="success"></Badge>
                  </template>
