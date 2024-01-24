@@ -626,7 +626,7 @@ class Warehouse extends VaahModel
 
         if ($existing_item) {
             $response['success'] = false;
-            $response['errors'][] = "This Warehouse name is already exist with this Vendor.";
+            $response['errors'][] = "This Warehouse is already exist with this Vendor.";
             return $response;
         }
 
