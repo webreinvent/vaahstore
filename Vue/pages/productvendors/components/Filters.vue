@@ -35,7 +35,7 @@ const store = useProductVendorStore();
                 <template #label>
                     <b>Product By:</b>
                 </template>
-                <VhField label="Product">{{store.selected_product}}
+                <VhField label="Product">
                     <AutoComplete name="productvendors-filters-product"
                                   data-testid="productvendors-filters-product"
                                   v-model="store.selected_product"
@@ -47,7 +47,16 @@ const store = useProductVendorStore();
                                   :suggestions="store.filter_product_suggetion"
                                   @complete="store.searchProductforFilter($event)"
                                   placeholder="Select Product"
-                                  class="w-full " />
+                                  class="w-full "
+                                  :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                       panel: { class: 'w-16rem ' }
+                                  }"/>
                 </VhField>
 
 

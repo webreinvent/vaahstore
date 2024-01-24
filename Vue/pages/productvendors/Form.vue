@@ -193,8 +193,8 @@ const toggleFormMenu = (event) => {
                                   name="productvendors-product"
                                   :dropdown="true"
                                   :pt="{
-                                                panel: { class: 'w-16rem ' },
-                                                }"
+                                       panel: { class: 'w-16rem ' }
+                                  }"
                                   optionLabel="name"
                                   forceSelection>
                         <template #option="slotProps">
