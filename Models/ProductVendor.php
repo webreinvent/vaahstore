@@ -824,15 +824,15 @@ class ProductVendor extends VaahModel
     }
     //-------------------------------------------------
     public static function deleteProducts($items_id){
+
+        $response=[];
         if($items_id){
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
-            $response['data'] = true;
         }else{
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
         }
-
+        return $response;
     }
 
 }

@@ -719,13 +719,12 @@ class Product extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
         ProductVendor::deleteProducts($items_id);
         ProductVariation::deleteProducts($items_id);
         ProductMedia::deleteProducts($items_id);
         ProductPrice::deleteProducts($items_id);
         ProductStock::deleteProducts($items_id);
-
+        self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
         $response['messages'][] = 'Action was successful.';
@@ -781,12 +780,12 @@ class Product extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
-                    self::whereIn('id', $items_id)->forceDelete();
                     ProductVendor::deleteProducts($items_id);
                     ProductVariation::deleteProducts($items_id);
                     ProductMedia::deleteProducts($items_id);
                     ProductPrice::deleteProducts($items_id);
                     ProductStock::deleteProducts($items_id);
+                    self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
             case 'activate-all':
@@ -806,12 +805,12 @@ class Product extends VaahModel
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
                 ProductVendor::deleteProducts($items_id);
                 ProductVariation::deleteProducts($items_id);
                 ProductMedia::deleteProducts($items_id);
                 ProductPrice::deleteProducts($items_id);
                 ProductStock::deleteProducts($items_id);
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
