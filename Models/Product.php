@@ -224,23 +224,24 @@ class Product extends VaahModel
 
     public function scopeQuantityFilter($query, $filter)
     {
-        if(!isset($filter['quantity'])
-            || is_null($filter['quantity'])
-            || $filter['quantity'] === 'null'
-        )
-        {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
             return $query;
         }
-        else{
-            $quantity = $filter['quantity'];
-            return $query->where(function ($q) use($quantity) {
-                    $q->Where('quantity', '>', $quantity);
 
-            });
-        }
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
 
 
     }
+
     //-------------------------------------------------
 
     public function scopeExclude($query, $columns)

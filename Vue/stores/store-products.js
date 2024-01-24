@@ -111,6 +111,9 @@ export const useProductStore = defineStore({
         filter_selected_brands : null,
         display_seo_modal : false,
         seo_meta_value : null,
+        quantity:[],
+        min_quantity : 0,
+        max_quantity : 0,
     }),
     getters: {
 
@@ -2063,6 +2066,30 @@ export const useProductStore = defineStore({
             };
             this.$router.push(route);
         },
+
+        //---------------------------------------------------------------------
+
+        quantityFilter(event){
+
+            this.min_quantity = this.quantity [0];
+
+            this.max_quantity = this.quantity [1];
+
+            if(!this.quantity){
+                return false;
+            }
+            for (const quantity of this.quantity) {
+                if(!quantity){
+                    continue ;
+                }
+                if(this.quantity[0] != null && this.quantity[1] !=null)
+                {
+                    this.query.filter.quantity = this.quantity;
+                }
+            }
+
+        },
+
 
 
     }

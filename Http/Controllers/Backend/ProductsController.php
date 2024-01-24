@@ -67,6 +67,12 @@ class ProductsController extends Controller
                 $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand()->id;
             }
 
+            // get min and max quantity from the product filter
+            $product = Product::all();
+            $quantities = $product->pluck('quantity')->toArray();
+            $data['min_quantity'] = min($quantities);
+            $data['max_quantity'] = max($quantities);
+
             $data['taxonomy'] = [
                 "product_status" => Taxonomy::getTaxonomyByType('product-status'),
                 "types" => Taxonomy::getTaxonomyByType('product-types'),

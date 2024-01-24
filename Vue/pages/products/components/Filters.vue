@@ -115,6 +115,31 @@ const store = useProductStore();
                 </VhField>
 
             </VhFieldVertical>
+            <br/>
+            <VhFieldVertical >
+                <template #label>
+                    <b>Quantity Count Range:</b>
+                </template>
+
+                <div class="card flex justify-content-center">
+                    <div class="w-14rem">
+                        <div class="flex justify-content-between">
+                            <div><b>{{ store.assets.min_quantity }}</b></div>
+                            <div><b>{{ store.assets.max_quantity }}</b></div>
+                        </div>
+                        <Slider v-model="store.quantity"
+                                range
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
+                    </div>
+                </div>
+
+            </VhFieldVertical>
+
+            <br/>
 
             <VhFieldVertical >
                 <template #label>
@@ -187,7 +212,10 @@ const store = useProductStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
-                          :manualInput="false"/>
+                          :manualInput="false"
+                          class="w-full "
+
+                />
 
             </VhFieldVertical >
 
