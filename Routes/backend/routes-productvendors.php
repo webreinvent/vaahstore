@@ -119,4 +119,7 @@ function () {
 
     Route::post('/search/products-using-slug', 'ProductVendorsController@searchProductsUsingUrlSlug')
         ->name('vh.backend.store.productvendors.search.filtered-product');
+
+    Route::post('/search/status-using-slug', 'ProductVendorsController@searchStatusUsingUrlSlug')
+        ->name('vh.backend.store.productvendors.search.filtered-status');
 });

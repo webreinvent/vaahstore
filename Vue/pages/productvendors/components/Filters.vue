@@ -14,25 +14,6 @@ const store = useProductVendorStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
-                    <b>Status By:</b>
-                </template>
-                <VhField label="Status">
-                    <MultiSelect
-                        v-model="store.query.filter.product_vendor_status"
-                        :options="store.assets.taxonomy.status"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full" />
-                </VhField>
-
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
                     <b>Product By:</b>
                 </template>
                 <VhField label="Product">
@@ -79,6 +60,30 @@ const store = useProductVendorStore();
 
 
             </VhFieldVertical >
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+
+
+                    <AutoComplete name="productvendors-filter"
+                                  data-testid="productvendors-filter"
+                                  v-model="store.selected_status"
+                                  @change = "store.addStatus()"
+                                  option-label = "name"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  placeholder="Select Status"
+                                  class="w-full " />
+
+                </VhField>
+
+
+            </VhFieldVertical>
             <Divider/>
 
             <VhFieldVertical >

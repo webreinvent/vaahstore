@@ -1104,5 +1104,19 @@ class ProductVendor extends VaahModel
         $response['data'] = $products;
         return $response;
     }
+    public static function searchStatusUsingUrlSlug($request)
+    {
+        $query = $request['filter']['product_vendor_status'];
+        $status_type = TaxonomyType::getFirstOrCreate('product-vendor-status');
+
+        $item = Taxonomy::whereNotNull('is_active')
+            ->where('vh_taxonomy_type_id',$status_type->id)
+            ->whereIn('slug',$query)
+            ->get();
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
 
 }
