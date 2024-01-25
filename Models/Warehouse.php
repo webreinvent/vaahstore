@@ -204,9 +204,6 @@ class Warehouse extends VaahModel
             return $validation;
         }
 
-
-        // check if name exist
-//        $item = self::where('name', $inputs['name'])->withTrashed()->first();
         $item = self::where('name', $inputs['name'])
             ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
             ->withTrashed()
@@ -546,11 +543,10 @@ class Warehouse extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->onlyTrashed()->get()->each(function ($record) {
-                    $record->update(['deleted_by' => null]);
-                });
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
+
             case 'delete-all':
                 $list->forceDelete();
                 break;

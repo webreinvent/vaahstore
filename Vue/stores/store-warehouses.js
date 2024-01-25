@@ -206,7 +206,6 @@ export const useWarehouseStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    // this.query.rows = data.rows;
                     data.rows  = this.query.rows;
                 }
 
@@ -507,7 +506,6 @@ export const useWarehouseStore = defineStore({
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
-                    // this.item.id = null;
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'warehouses.index'});
                     break;
@@ -519,7 +517,6 @@ export const useWarehouseStore = defineStore({
                     break;
                 case 'restore':
                 case 'trash':
-                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
@@ -719,8 +716,6 @@ export const useWarehouseStore = defineStore({
         toEdit(item)
         {
             this.item = item;
-            // this.item.id = item.id;
-            // this.getFormMenu();
             this.$router.push({name: 'warehouses.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
