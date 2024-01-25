@@ -448,17 +448,27 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
 
                 // Update product_variation_list based on product_variations
+                // if (data.product_variations) {
+                //     this.product_variations = data.product_variations;
+                //     this.product_variation_list.forEach((listVariation, listIndex) => {
+                //         const matchingVariation = this.product_variations.find(
+                //             dataVariation => dataVariation.id === listVariation.id
+                //         );
+                //         if (matchingVariation) {
+                //             this.product_variation_list[listIndex] = matchingVariation;
+                //         }
+                //     });
+                // }
                 if (data.product_variations) {
                     this.product_variations = data.product_variations;
-                    this.product_variation_list.forEach((listVariation, listIndex) => {
+                    this.product_variation_list = this.product_variation_list.map(listVariation => {
                         const matchingVariation = this.product_variations.find(
                             dataVariation => dataVariation.id === listVariation.id
                         );
-                        if (matchingVariation) {
-                            this.product_variation_list[listIndex] = matchingVariation;
-                        }
+                        return matchingVariation || listVariation;
                     });
                 }
+
 
             }else{
                 this.$router.push({name: 'productvendors.index'});
@@ -769,6 +779,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item.store_vendor_product = [data.fill.store_vendor_product];
+                this.item.store_ids = this.item.store_vendor_product.map(store => store.id);
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
                     if (key !== 'store_vendor_product') {
@@ -1253,6 +1264,7 @@ export const useProductVendorStore = defineStore({
             this.form_menu_list = form_menu;
             if (!this.item.store_vendor_product) {
                 this.item.store_vendor_product = this.default_store;
+                this.item.store_ids = this.item.store_vendor_product.map(store => store.id);
             }
 
         },

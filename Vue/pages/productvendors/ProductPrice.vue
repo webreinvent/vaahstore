@@ -132,7 +132,8 @@ const toggleFormMenu = (event) => {
 
 
 <!--                <VhField >-->
-                    <table class="table">
+
+                    <table class="table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
                         <thead>
                         <tr>
                             <th>Variations Name</th>
@@ -144,7 +145,7 @@ const toggleFormMenu = (event) => {
                             <td>{{ variation.name }}</td>
                             <td>
                                 <InputNumber
-                                    :placeholder="'Enter price for ' + variation.name"
+                                    :placeholder="'Enter price '"
                                     :inputId="'minmax-buttons-' + index"
                                     :name="'productprices-amount-' + index"
                                     v-model="variation.amount"
@@ -158,6 +159,9 @@ const toggleFormMenu = (event) => {
                         </tr>
                         </tbody>
                     </table>
+                <p class="text-center text-2xl" v-else>No variations available</p>
+
+
 <!--                </VhField>-->
 
 
