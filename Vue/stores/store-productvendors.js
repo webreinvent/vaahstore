@@ -443,6 +443,17 @@ export const useProductVendorStore = defineStore({
                 }
 
                 this.item.vh_st_product_variation_id = data.product_variation;
+                this.product_variations = data.product_variations;
+                // Update product_variation_list based on product_variations
+                this.product_variation_list.forEach((listVariation, listIndex) => {
+                    const matchingVariation = this.product_variations.find(
+                        dataVariation => dataVariation.id === listVariation.id
+                    );
+                    if (matchingVariation) {
+                        this.product_variation_list[listIndex] = matchingVariation;
+                    }
+                });
+
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -562,6 +573,23 @@ export const useProductVendorStore = defineStore({
             let options = {
                 method: 'post',
             };
+
+            if (this.product_variation_list) {
+                const variations = [];
+
+                // Loop through the product_variation_list and push each variation to the array
+                for (const variation of this.product_variation_list) {
+                    variations.push({
+                        name: variation.name,
+                        id: variation.id,
+                        amount: variation.amount,
+                    });
+                }
+
+                // Set the variations array to store.item.product_variation
+                this.item.product_variation = variations;
+                console.log(this.item.product_variation);
+            }
 
             /**
              * Learn more about http request methods at
