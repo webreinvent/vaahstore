@@ -1102,9 +1102,14 @@ class ProductMedia extends VaahModel
 
 
         $image_data = ProductMediaImage::inRandomOrder()->get()->toArray();
-        $random_index = array_rand($image_data);
-        $random_image = $image_data[$random_index];
-        $inputs['images'] = $random_image;
+//        $random_index = array_rand($image_data);
+//        $random_image = $image_data[$random_index];
+//        $inputs['images'] = $random_image;
+        if (!empty($image_data)) {
+            $random_index = array_rand($image_data);
+            $random_image = $image_data[$random_index];
+            $inputs['images'] = $random_image;
+        }
 
 
 

@@ -703,8 +703,10 @@ export const useProductMediaStore = defineStore({
                 if (data.fill.product) {
                     this.item.product_variation=data.fill.listed_variation;
                 }
-                this.item.images = [data.fill.images];
-                this.item.type = data.fill.images.type;
+                if (data.fill.images) {
+                    this.item.images = [data.fill.images];
+                    this.item.type = data.fill.images.type;
+                }
                 // this.product_variation=data.fill.listed_variation;
 
                 let self = this;
