@@ -41,6 +41,7 @@ const toggleBulkMenuState = (event) => {
                     @click="toggleSelectedMenuState"
                     data-testid="attributes-actions-menu"
                     aria-haspopup="true"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                     aria-controls="overlay_menu">
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"

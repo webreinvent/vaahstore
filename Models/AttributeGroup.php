@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\Attribute;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 
-class AttributeGroup extends Model
+class AttributeGroup extends VaahModel
 {
 
     use SoftDeletes;
@@ -274,26 +275,76 @@ class AttributeGroup extends Model
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
 
     }
     //-------------------------------------------------
     public function scopeAttributesFilter($query, $filter)
     {
 
-        if(!isset($filter['attributes_filter']))
+        if(!isset($filter['attributes']))
         {
             return $query;
         }
-        $search = $filter['attributes_filter'];
+        $search = $filter['attributes'];
         $query->whereHas('attributesList' , function ($q) use ($search){
-            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
+    }
+    //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    public static function searchAttribute($request)
+    {
+        $query = $request['filter']['q']['query'];
+
+        if($query === null)
+        {
+            $attribute_name = Attribute::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attribute_name = Attribute::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attribute_name;
+        return $response;
+
     }
     //-------------------------------------------------
     public static function getList($request)
@@ -303,6 +354,7 @@ class AttributeGroup extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->attributesFilter($request->filter);
+        $list->dateFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -477,9 +529,12 @@ class AttributeGroup extends Model
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->get()->each(function ($record) {
+                    $record->update(['deleted_by' => null]);
+                });
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
+
             case 'delete-all':
                 $list->forceDelete();
                 break;
@@ -662,14 +717,21 @@ class AttributeGroup extends Model
     {
 
         $rules = array(
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'active_attributes' => 'required',
-            'description' => 'required|max:250',
-            'is_active' => 'required'
+            'description' => 'max:100',
+        );
+        $messages = array(
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The slug field may not be greater than :max characters.',
+            'active_attributes.required' => 'The  Attributes field is required.',
+            'description.max' => 'The Description field may not be greater than :max characters.',
         );
 
-        $validator = \Validator::make($inputs, $rules);
+        $validator = \Validator::make($inputs, $rules,$messages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -758,6 +820,39 @@ class AttributeGroup extends Model
     }
 
     //-------------------------------------------------
+    public static function searchAttributeUsingUrlSlug($request)
+    {
+        $query = $request['filter']['attributes'];
+
+        $attribute = Attribute::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $attribute;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function searchActiveAttribute($request)
+    {
+        $query = $request->input('filter.q.query');
+
+        $active_attribute = Attribute::where('is_active', 1);
+
+        if ($query !== null) {
+            $active_attribute->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%$query%")
+                    ->orWhere('slug', 'like', "%$query%");
+            });
+        }
+
+        $active_attribute = $active_attribute->select('id', 'name', 'slug', 'type')->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $active_attribute;
+        return $response;
+    }
     //-------------------------------------------------
 
 

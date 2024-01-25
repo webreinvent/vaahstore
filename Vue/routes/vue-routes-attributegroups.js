@@ -7,7 +7,7 @@ import Item from '../pages/attributegroups/Item.vue'
 
 routes_list = {
 
-    path: '/attributegroups',
+    path: '/attributesgroup',
     name: 'attributegroups.index',
     component: List,
     props: true,

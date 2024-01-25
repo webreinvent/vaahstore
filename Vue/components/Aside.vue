@@ -1,15 +1,25 @@
 <script setup>
-import {reactive, ref,watch,onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-
+import {reactive, ref} from 'vue';
+import { useRoute } from 'vue-router';
 import Menu from 'primevue/menu';
-const route = useRoute();
+
 const inputs = {
 }
 const data = reactive(inputs);
 const height = ref(window.innerHeight)
-
+const route = useRoute();
 const menu = ref();
+
+function isActive(routePaths) {
+    return routePaths.includes(route.path);
+}
+
+const selected_page = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
 
 const items = ref([
     {
@@ -129,7 +139,4 @@ const items = ref([
             </template>
         </Menu>
     </div>
-
 </template>
-
-

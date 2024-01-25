@@ -9,11 +9,12 @@ use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
-class Order extends Model
+class Order extends VaahModel
 {
 
     use SoftDeletes;

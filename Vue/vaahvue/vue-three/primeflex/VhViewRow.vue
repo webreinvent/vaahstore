@@ -132,20 +132,16 @@ const props = defineProps({
             </td>
         </template>
 
-        <template v-else-if="type==='attributeValues'">
 
-            <td colspan="2" >
-
-                <template v-if="typeof value === 'object' && value !== null">
-                    <span v-for="data in value">
-                        <span>
-                            {{data.name}}<b>({{data.type}})</b>&nbsp;<br />
-                        </span>
-                    </span>
+                <template v-else-if="type==='attributeValues'">
+                    <td colspan="2">
+                        <template v-if="typeof value === 'object' && value !== null">
+              <span v-for="data in value">
+<!--                <Tag :value="`${data.name} (${data.type})`" :rounded="true"  style="border-radius:20px;padding:5px 10px;"></Tag>-->
+<Tag :value="`${data.name} `" :rounded="true" style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;"></Tag>              </span>
+                        </template>
+                    </td>
                 </template>
-
-            </td>
-        </template>
 
         <template v-else-if="type==='productAttributeValues'">
 
@@ -154,8 +150,8 @@ const props = defineProps({
                 <template v-if="typeof value === 'object' && value !== null">
                     <table class="table">
                         <tbody>
-                            <tr v-for="data in value">
-                                <td><div style="word-break: break-word;">{{data.new_value}}</div></td>
+                            <tr>
+                                <td v-for="data in value"><div style="word-break: break-word;"><tag>{{data.new_value}}</tag></div></td>
                             </tr>
                         </tbody>
                     </table>
@@ -182,17 +178,35 @@ const props = defineProps({
                 <Badge v-else value="No" severity="danger"></Badge>
             </td>
         </template>
+        <template v-else-if="type==='description'">
+            <td colspan="2">
+
+                <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
+            </td>
+        </template>
         <template v-else-if="type==='multipleValues'">
             <td colspan="2">
                 <template v-if="typeof value === 'object' && value !== null">
                     <span v-for="data in value">
-                        <Button class="p-button-outlined p-button-secondary p-button-sm">
+                        <Tag class="p-button-outlined p-button-secondary p-button-sm m-1">
                             {{data.value}}
-                        </Button>&nbsp;
+                        </Tag>&nbsp;
                     </span>
                 </template>
             </td>
         </template>
+
+        <template v-else-if="type==='description'">
+            <td colspan="2">
+
+                <template v-if="value !== null">
+
+<!--                    <pre class="pre-tag"> {{value}}</pre>-->
+                    <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
+                </template>
+            </td>
+        </template>
+
 
         <template v-else>
             <td  colspan="2">{{value}}</td>
@@ -200,3 +214,14 @@ const props = defineProps({
 
     </tr>
 </template>
+
+<style scoped>
+
+.pre-tag{
+font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,
+sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
+Noto Color Emoji;
+
+}
+
+</style>

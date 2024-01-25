@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
-class Whishlist extends Model
+class Whishlist extends VaahModel
 {
 
     use SoftDeletes;

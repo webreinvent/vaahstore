@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-class ProductVariation extends Model
+class ProductVariation extends VaahModel
 {
 
     use SoftDeletes;
@@ -40,6 +41,8 @@ class ProductVariation extends Model
         'meta',
         'taxonomy_id_variation_status',
         'status_notes',
+        'description',
+        'price',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -96,7 +99,6 @@ class ProductVariation extends Model
         $empty_item['in_stock'] = 0;
         $empty_item['has_media'] = 0;
         $empty_item['quantity'] = 0;
-
         return $empty_item;
     }
 
@@ -231,6 +233,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function createItem($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $inputs = $request->all();
 
@@ -333,35 +341,6 @@ class ProductVariation extends Model
         }
 
     }
-    //-------------------------------------------------
-
-    public function scopeInStockFilter($query, $filter)
-    {
-
-        if(!isset($filter['in_stock'])
-            || is_null($filter['in_stock'])
-            || $filter['in_stock'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $in_stock = $filter['in_stock'];
-
-        if($in_stock == 'true')
-        {
-            return $query->where(function ($q){
-                $q->Where('in_stock', 1);
-            });
-        }
-        else{
-            return $query->where(function ($q){
-                $q->whereNull('in_stock')
-                    ->orWhere('in_stock', 0);
-            });
-        }
-
-    }
 
     //-------------------------------------------------
 
@@ -385,20 +364,32 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
-
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
 
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id','LIKE','%'.$search.'%');
+        $search_terms = explode(' ', $filter['q']);
+
+        $query->where(function ($query) use ($search_terms) {
+            foreach ($search_terms as $term) {
+                $query->where(function ($query) use ($term) {
+                    $query->where('id', 'LIKE', '%' . $term . '%')
+                        ->orWhere('name', 'LIKE', '%' . $term . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $term . '%');
+                });
+            }
+
+            $query->orWhereHas('product', function ($productQuery) use ($search_terms) {
+                foreach ($search_terms as $term) {
+                    $productQuery->where('name', 'LIKE', '%' . $term . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $term . '%');
+                }
+            });
         });
 
+        return $query;
     }
+
     //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
@@ -422,11 +413,35 @@ class ProductVariation extends Model
 
     }
 
+
+
     //-------------------------------------------------
+
+    public function scopeStockFilter($query, $filter)
+    {
+        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+
+        if ($in_stock === 'false') {
+            $query->where(function ($query) {
+                $query->where('in_stock', false)->orWhere('quantity', 0);
+            });
+        } elseif ($in_stock === 'true') {
+            $query->where('in_stock', true)->where('quantity', '>', 1);
+        }
+
+        return $query;
+    }
+
+
+    //-------------------------------------------------
+
 
     public function scopeProductFilter($query, $filter)
     {
-
         if(!isset($filter['product'])
             || is_null($filter['product'])
             || $filter['product'] === 'null'
@@ -435,13 +450,41 @@ class ProductVariation extends Model
             return $query;
         }
 
-        $product = $filter['product'];
+        $store = $filter['product'];
 
-        $query->whereHas('product', function ($query) use ($product) {
-            $query->Where('slug',$product);
+        $query->whereHas('product', function ($query) use ($store) {
+            $query->where('slug', $store);
+
         });
 
     }
+
+
+
+    //-------------------------------------------------
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
 
     //-------------------------------------------------
 
@@ -452,8 +495,9 @@ class ProductVariation extends Model
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->stockFilter($request->filter);
         $list->defaultFilter($request->filter);
-        $list->inStockFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
         $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
@@ -475,6 +519,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function updateList($request)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $inputs = $request->all();
 
@@ -535,6 +585,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -557,10 +614,10 @@ class ProductVariation extends Model
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
+        self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
         $response['messages'][] = 'Action was successful.';
@@ -570,6 +627,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -698,6 +762,13 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -755,6 +826,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
@@ -762,9 +839,10 @@ class ProductVariation extends Model
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
-        $item->forceDelete();
         ProductMedia::deleteProductVariation($item->id);
+        ProductPrice::deleteProductVariation($item->id);
         ProductAttribute::deleteProductVariation($item->id);
+        $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = 'Record has been deleted';
@@ -774,6 +852,12 @@ class ProductVariation extends Model
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return $response;
+        }
         switch($type)
         {
             case 'activate':
@@ -811,26 +895,42 @@ class ProductVariation extends Model
     public static function validation($inputs)
     {
 
+
         $rules = validator($inputs, [
             'product'=> 'required',
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
-            'sku' => 'required|max:50',
+            'name' => 'required|min:1|max:100',
+            'slug' => 'required|min:1|max:100',
+            'sku' => 'required|min:1|max:50',
+            'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
+
             'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100',
             ],
 
-            'quantity'  => 'required|digits_between:1,15',
+
+
+            'quantity' => 'nullable|numeric|digits_between:1,9',
+            'price' => [
+                function ($attribute, $value, $fail) use ($inputs) {
+                    if ($inputs['quantity'] > 0 && $value == 0)  {
+                        $fail('The Price field is required if quantity is greater than 0');
+                    }
+                },
+            ],
             'in_stock'=> 'required|numeric',
         ],
             [
-                'product.required' => 'Please choose a Product',
-                'taxonomy_id_variation_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
+                'product.required' => 'Please Choose a Product',
+                'name.required'=>'The Name field is required.',
+                'slug.required'=>'The Slug field is required.',
+                'taxonomy_id_variation_status.required' => 'The Status field is required.',
+                'sku.required'=>'The SKU field is required.',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'quantity.digits_between' => 'The quantity field must not be greater than 15 digits',
+                'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
+                'description.max' => 'The Description field may not be greater than :max characters.',
+
+
             ]
         );
         if($rules->fails()){
@@ -925,6 +1025,10 @@ class ProductVariation extends Model
         $inputs['vh_st_product_id'] = $product_id;
         $inputs['product'] = $product;
         $inputs['quantity'] = rand(1,500);
+
+        $inputs['price'] = rand(1,100000);
+        $inputs['total_price'] = $inputs['quantity']*$inputs['price'];
+
         $inputs['in_stock'] = 1;
         $inputs['is_active'] = rand(0,1);
         $inputs['is_default'] = 0;

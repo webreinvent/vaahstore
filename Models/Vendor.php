@@ -10,12 +10,13 @@ use VaahCms\Modules\Store\Models\ProductVendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
+use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Store;
 
-class Vendor extends Model
+class Vendor extends VaahModel
 {
 
     use SoftDeletes;
