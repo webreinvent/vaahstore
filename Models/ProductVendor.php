@@ -251,10 +251,48 @@ class ProductVendor extends VaahModel
 //    }
 
 
+//    public static function createProductPrice($request)
+//    {
+//        $inputs = $request->all();
+//        dd($inputs['product_variation']);
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
+//
+//        $response = [];
+//
+//        foreach ($inputs['product_variation'] as $key => $variation) {
+//            $check = ProductPrice::where([
+//                'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+//                'vh_st_product_id' => $inputs['vh_st_product_id'],
+//                'vh_st_product_variation_id' => $variation['id']
+//            ])->first();
+//
+//            if ($check) {
+//                // Update only if the variation exists
+//                $check->fill($inputs);  // Use $inputs to fill the base data
+//                $check->vh_st_product_variation_id = $variation['id'];
+//                $check->amount = $variation['amount'];
+//                $check->save();
+//                $response['messages'][] = 'Updated variation ' . $variation['id'] . ' successfully.';
+//            } else {
+//                // If the variation doesn't exist, create a new entry
+//                $newVariation = new ProductPrice;
+//                $newVariation->fill($inputs);  // Use $inputs to fill the base data
+//                $newVariation->vh_st_product_variation_id = $variation['id'];
+//                $newVariation->amount = $variation['amount'];
+//                $newVariation->save();
+//                $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
+//            }
+//        }
+//
+//        return $response;
+//    }
+
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
-        dd($inputs['product_variation']);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -270,25 +308,38 @@ class ProductVendor extends VaahModel
             ])->first();
 
             if ($check) {
-                // Update only if the variation exists
-                $check->fill($inputs);  // Use $inputs to fill the base data
-                $check->vh_st_product_variation_id = $variation['id'];
-                $check->amount = $variation['amount'];
-                $check->save();
-                $response['messages'][] = 'Updated variation ' . $variation['id'] . ' successfully.';
+                // Update only if the variation exists and 'amount' is provided
+                if (isset($variation['amount'])) {
+                    $check->fill([
+                        'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+                        'vh_st_product_id' => $inputs['vh_st_product_id'],
+                        'vh_st_product_variation_id' => $variation['id'],
+                        'amount' => $variation['amount'],
+                        // Include other fields from $inputs as needed
+                    ]);
+                    $check->save();
+                    $response['messages'][] = 'Updated variation ' . $variation['id'] . ' successfully.';
+                }
             } else {
-                // If the variation doesn't exist, create a new entry
-                $newVariation = new ProductPrice;
-                $newVariation->fill($inputs);  // Use $inputs to fill the base data
-                $newVariation->vh_st_product_variation_id = $variation['id'];
-                $newVariation->amount = $variation['amount'];
-                $newVariation->save();
-                $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
+                // If the variation doesn't exist and 'amount' is provided, create a new entry
+                if (isset($variation['amount'])) {
+                    $newVariation = new ProductPrice;
+                    $newVariation->fill([
+                        'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+                        'vh_st_product_id' => $inputs['vh_st_product_id'],
+                        'vh_st_product_variation_id' => $variation['id'],
+                        'amount' => $variation['amount'],
+                        // Include other fields from $inputs as needed
+                    ]);
+                    $newVariation->save();
+                    $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
+                }
             }
         }
 
         return $response;
     }
+
 
     //-------------------------------------------------
     public static function createItem($request)

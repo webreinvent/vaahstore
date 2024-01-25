@@ -135,8 +135,8 @@ const toggleFormMenu = (event) => {
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>Variation Name</th>
-                            <th>Amount</th>
+                            <th>Variations Name</th>
+                            <th>Price</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -144,7 +144,7 @@ const toggleFormMenu = (event) => {
                             <td>{{ variation.name }}</td>
                             <td>
                                 <InputNumber
-                                    :placeholder="'Enter amount for ' + variation.name"
+                                    :placeholder="'Enter price for ' + variation.name"
                                     :inputId="'minmax-buttons-' + index"
                                     :name="'productprices-amount-' + index"
                                     v-model="variation.amount"
