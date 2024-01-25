@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Address';
 
@@ -18,6 +19,9 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            date : null,
+            users : null,
+            address_type : null,
         },
     },
     action: {
@@ -72,6 +76,11 @@ export const useAddressStore = defineStore({
         active_users:null,
         types:null,
         address_type:null,
+        selected_dates : null,
+        prev_list:[],
+        current_list:[],
+        filter_selected_users : null,
+        filter_selected_address_type : null,
     }),
     getters: {
 
@@ -94,14 +103,19 @@ export const useAddressStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
-        },
-        //---------------------------------------------------------------------
 
-        searchUser(event) {
-
-            this.user_suggestion= this.active_users.filter((active_users) => {
-                return active_users.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+            if(this.query.filter.users)
+            {
+                this.setUsersAfterPageRefresh();
+            }
+            if(this.query.filter.address_type)
+            {
+                this.setAddressTypeAfterPageRefresh();
+            }
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
 
         //---------------------------------------------------------------------
@@ -248,12 +262,11 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.active_users = data.active_users;
                 this.types = data.taxonomy.types;
                 this.status = data.taxonomy.status;
-                if(data.rows)
-                {
-                    this.query.rows = data.rows;
+
+                if (data.rows) {
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -279,6 +292,7 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -441,6 +455,7 @@ export const useAddressStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -475,13 +490,32 @@ export const useAddressStore = defineStore({
         async itemActionAfter(data, res)
         {
             if(data)
-            {   this.item = data;
+            {
+                this.prev_list =this.list.data;
+                this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
         },
         //---------------------------------------------------------------------
+
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
             switch (this.form.action)
@@ -489,6 +523,8 @@ export const useAddressStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'addresses.form'});
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -498,11 +534,17 @@ export const useAddressStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'addresses.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -586,9 +628,50 @@ export const useAddressStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRejectAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmApproveAll()
+        {
+            this.action.type = 'approve-all';
+            vaah().confirmDialogApproveAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+
         async delayedSearch()
         {
             let self = this;
@@ -648,7 +731,7 @@ export const useAddressStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -659,6 +742,9 @@ export const useAddressStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.selected_dates = null;
+            this.filter_selected_address_type = null;
+            this.filter_selected_users = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -787,22 +873,21 @@ export const useAddressStore = defineStore({
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectAll();
                     }
                 },
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approve-all')
+                        this.confirmApproveAll();
                     }
                 },
-
 
                 {
                     separator: true
@@ -811,14 +896,14 @@ export const useAddressStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -946,6 +1031,15 @@ export const useAddressStore = defineStore({
                         }
                     },
 
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
+
                 ];
                 if(this.item.deleted_at)
                 {
@@ -1021,6 +1115,155 @@ export const useAddressStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+        async reloadPage()
+        {
+            await  this.getList()
+            vaah().toastSuccess(['Page Reloaded']);
+        },
+
+        //---------------------------------------------------------------------
+        async searchUser(event) {
+
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUserAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        searchUserAfter(data,res) {
+
+            if(data)
+            {
+                this.user_suggestion = data;
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+        setFilterUser() {
+
+            const unique_users = [];
+            const check_names = new Set();
+
+            for (const users of this.filter_selected_users) {
+                if (!check_names.has(users.first_name)) {
+                    unique_users.push(users);
+                    check_names.add(users.first_name);
+                }
+            }
+            const users_slug = unique_users.map(users => users.first_name);
+            this.filter_selected_users = unique_users;
+            this.query.filter.users = users_slug;
+
+        },
+
+        //-----------------------------------------------------------------------
+
+        async setAddressTypeAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    address_type: this.query.filter.address_type,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/address-type',
+                this.setAddressTypeAfterPageRefreshAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+        setAddressTypeAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_address_type = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setUsersAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    users: this.query.filter.users,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users-using-slug',
+                this.setUsersAfterPageRefreshAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+        setUsersAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_users = data;
+            }
+        },
+
+
     }
 });
 
