@@ -24,8 +24,12 @@ class WarehousesController extends Controller
         try{
 
             $data = [];
-
             $data['permission'] = [];
+
+            $manager = app('impersonate');
+
+            $data['is_guest_impersonating'] =  $manager->isImpersonating() && \Auth::user()->hasRole('guest');
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Warehouse::getFillableColumns();
@@ -34,10 +38,11 @@ class WarehousesController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('warehouse-status');
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['vendor'] = null;
+            $data['empty_item']['vendor'] = $this->getDefaultVendor();
             $data['empty_item']['status'] = null;
             $get_vendor_data = self::getVendorData();
-            $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
+            $data['empty_item']['vh_st_vendor_id'] = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
+                ->pluck('id')->first();
             $data = array_merge($data, $get_vendor_data);
 
             $data['actions'] = [];
@@ -280,7 +285,40 @@ class WarehousesController extends Controller
             return $response;
         }
     }
+
+    //------------------------Get Vendor data for dropdown----------------------------------
+    public function getDefaultVendor(){
+        try{
+            return  Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
+    public function searchActiveVendor(Request $request)
+    {
+        try{
+            return Warehouse::searchActiveVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
 
 
 }

@@ -46,6 +46,18 @@ const props = defineProps({
 
             </td>
         </template>
+        <template v-else-if="type==='vendor'">
+            <td colspan="2" >
+
+                <template v-if="typeof value === 'object' && value !== null">
+                    <span   >
+                        {{value.name}}
+                    </span>
+
+                </template>
+
+            </td>
+        </template>
 
         <template v-else-if="type==='status'">
             <td colspan="2" >

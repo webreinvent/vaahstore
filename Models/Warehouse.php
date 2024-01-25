@@ -39,6 +39,9 @@ class Warehouse extends VaahModel
         'created_by',
         'updated_by',
         'deleted_by',
+        'address_1',
+        'address_2',
+        'postal_code',
     ];
     //-------------------------------------------------
     protected $fill_except = [
@@ -147,6 +150,31 @@ class Warehouse extends VaahModel
     }
 
     //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -176,24 +204,17 @@ class Warehouse extends VaahModel
             return $validation;
         }
 
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
+        $item = self::where('name', $inputs['name'])
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
+            ->withTrashed()
+            ->first();
         if ($item) {
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['messages'][] = "This Warehouse is already exist with this Vendor.";
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
-        if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = new self();
         $item->fill($inputs);
@@ -275,12 +296,45 @@ class Warehouse extends VaahModel
         if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search)
+        {
         $query->where(function ($q) use ($search) {
             $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                ->orWhere('id', 'LIKE', '%' . $search . '%');
         });
+        }
 
+    }
+
+
+    //-------------------------------------------------
+    public function scopeCountryStateFilter($query, $filter)
+    {
+
+        if (!isset($filter['state_city'])) {
+            return $query;
+        }
+
+            $search = $filter['state_city'];
+            $query->where(function ($country_state) use ($search) {
+                $country_state->where('state', 'LIKE', '%' . $search . '%')
+                    ->orWhere('city', 'LIKE', '%' . $search . '%')
+                    ->orWhere('postal_code', 'LIKE', '%' . $search . '%');
+            });
+
+
+    }
+
+    public function scopeCountryFilter($query, $filter)
+    {
+        if (!isset($filter['country'])) {
+            return $query;
+        }
+        $keywords = $filter['country'];
+        $query->whereIn('country', $keywords);
+        return $query;
     }
 
     //-------------------------------------------------
@@ -314,6 +368,9 @@ class Warehouse extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->dateFilter($request->filter);
+        $list->countryStateFilter($request->filter);
+        $list->countryFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if ($request->has('rows')) {
@@ -443,6 +500,7 @@ class Warehouse extends VaahModel
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
+            $list->countryStateFilter($request->filter);
         }
 
         switch ($type) {
@@ -485,9 +543,10 @@ class Warehouse extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
+
             case 'delete-all':
                 $list->forceDelete();
                 break;
@@ -551,27 +610,22 @@ class Warehouse extends VaahModel
             return $validation;
         }
 
+
+        $item = self::where('id', $id)->withTrashed()->first();
+
         // check if name exist
-        $item = self::where('id', '!=', $id)
+        $existing_item = self::where('id', '!=', $id)
+            ->where('name', $inputs['name'])
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
             ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+            ->first();
 
-        if ($item) {
+        if ($existing_item) {
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = "This Warehouse is already exist with this Vendor.";
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
-            return $response;
-        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -642,43 +696,54 @@ class Warehouse extends VaahModel
 //-------------------------------------------------
     public static function validation($inputs)
     {
-        $validated_data = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+
+        $rules = array(
+                        'name' => 'required|max:100',
+            'slug' => 'required|max:100',
             'vendor' => 'required',
             'country' => 'required',
             'state' => 'required|max:100',
             'city' => 'required|max:100',
+            'address_1' => 'nullable|max:150',
+            'address_2' => 'nullable|max:150',
+            'postal_code' => 'nullable|max:10',
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
             ],
-            'is_active' => 'required',
-        ],
-            [
-                'taxonomy_id_warehouse_status' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+        );
+        $messages = array(
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The slug field may not be greater than :max characters.',
+            'vendor.required' => 'The Vendor field is required.',
+            'country.required' => 'The Country field is required.',
+            'state.required' => 'The State field is required.',
+            'state.max' => 'The State field may not be greater than :max characters.',
+            'city.required' => 'The City field is required.',
+            'address_1.max' => 'The Address 1 field may not be greater than :max characters.',
+            'city.max' => 'The City field may not be greater than :max characters.',
+            'postal_code.max' => 'The Postal Code field may not be greater than :max digits.',
+            'status.required' => 'The Status field is required.',
+            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
 
-            ]
         );
 
-        if($validated_data->fails()){
-            return [
-                'success' => false,
-                'errors' => $validated_data->errors()->all()
-            ];
+        $validator = \Validator::make($inputs, $rules,$messages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
         }
 
-        $validated_data = $validated_data->validated();
-        return [
-            'success' => true,
-            'data' => $validated_data
-        ];
+        $response['success'] = true;
+        return $response;
 
     }
-
     //-------------------------------------------------
     public static function getActiveItems()
     {
@@ -750,7 +815,7 @@ class Warehouse extends VaahModel
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-
+        $inputs['postal_code'] = $faker->randomNumber(6);
         if(!$is_response_return){
             return $inputs;
         }
@@ -761,6 +826,18 @@ class Warehouse extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchActiveVendor($request){
+        $addedBy = Vendor::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $addedBy = $addedBy->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $addedBy;
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 

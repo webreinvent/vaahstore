@@ -59,6 +59,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="warehouses-save"
                             @click="store.itemAction('save')"
+                            :disabled="store.assets.is_guest_impersonating"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -66,6 +67,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="warehouses-create-and-new"
+                            :disabled="store.assets.is_guest_impersonating"
                             icon="pi pi-save"/>
 
                     <Button data-testid="warehouses-document" icon="pi pi-info-circle"
@@ -80,6 +82,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="warehouses-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="store.assets.is_guest_impersonating"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -100,9 +103,32 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item" class="pt-2">
+            <div v-if="store.item" class="mt-2">
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
 
-                <VhField label="Name">
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Trashed {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="warehouses-name"
                                data-testid="warehouses-name"
@@ -111,7 +137,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="warehouses-slug"
                                data-testid="warehouses-slug"
@@ -119,21 +145,22 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Vendor">
-                    <AutoComplete v-model="store.item.vendor"
-                                  @change="store.setVendor($event)"
-                                  value="id"
-                                  class="w-full"
-                                  data-testid="warehouses-vendor"
-                                  :suggestions="store.vendor_suggestions"
-                                  @complete="store.searchVendors($event)"
-                                  :dropdown="true"
-                                  optionLabel="name"
-                                  placeholder="Select Vendor"
-                                  forceSelection />
+                <VhField label="Vendor*">
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.vendor"
+                        @change="store.setVendor($event)"
+                        class="w-full"
+                        :suggestions="store.vendor_suggestions"
+                        @complete="store.searchActiveVendor($event)"
+                        placeholder="Select Vendor"
+                        data-testid="warehouses-vendor"
+                        name="warehouses-vendor"
+                        :dropdown="true" optionLabel="name" forceSelection>
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Country">
+                <VhField label="Country*">
                     <AutoComplete v-model="store.item.country"
                                   value="id"
                                   class="w-full"
@@ -145,7 +172,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection />
                 </VhField>
 
-                <VhField label="State">
+                <VhField label="State*">
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
@@ -153,7 +180,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.state"/>
                 </VhField>
 
-                <VhField label="City">
+                <VhField label="City*">
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
@@ -161,7 +188,33 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.city"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Address 1">
+                    <InputText class="w-full"
+                               name="warehouses-address_1"
+                               data-testid="warehouses-address_1"
+                               placeholder="Enter Address 1"
+                               v-model="store.item.address_1"/>
+                </VhField>
+
+                <VhField label="Address 2">
+                    <InputText class="w-full"
+                               name="warehouses-address_2"
+                               data-testid="warehouses-address_2"
+                               placeholder="Enter Address 2"
+                               v-model="store.item.address_2"/>
+                </VhField>
+
+                <VhField label="Postal Code">
+                    <InputNumber id="number-input"
+                                 name="warehouses-postal_code"
+                                 :useGrouping="false"
+                                 data-testid="warehouses-postal_code"
+                                 v-model="store.item.postal_code"
+                                 placeholder="Enter Postal Code"
+                                 class="w-full"/>
+                </VhField>
+
+                <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
