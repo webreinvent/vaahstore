@@ -761,6 +761,42 @@ class Warehouse extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function deleteVendor($item_id){
+
+        $response=[];
+
+        if ($item_id) {
+            $item_exist = self::where('vh_st_vendor_id', $item_id)->first();
+            if ($item_exist) {
+
+                self::where('vh_st_vendor_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+
+    }
+    //-----------------------------------------------------
+
+    public static function deleteVendors($items_id){
+        $response=[];
+        if ($items_id) {
+            $items_exist = self::whereIn('vh_st_vendor_id', $items_id)->get();
+
+            if ($items_exist) {
+                self::whereIn('vh_st_vendor_id', $items_id)->forceDelete();
+                $response['success'] = true;
+            }
+        }
+
+        $response['success'] = false;
+
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 

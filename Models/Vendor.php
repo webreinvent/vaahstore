@@ -759,9 +759,9 @@ class Vendor extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
         ProductVendor::deleteVendors($items_id);
-
+        Warehouse::deleteVendors($items_id);
+        self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
         $response['messages'][] = 'Action was successful.';
@@ -850,9 +850,11 @@ class Vendor extends VaahModel
                 $list->restore();
                 $list->update(['deleted_by'  => null]);
                 break;
-            case 'delete-all':
+            /*case 'delete-all':
+                ProductVendor::deleteVendors($items_id);
+                Warehouse::deleteVendors($items_id);
                 $list->forceDelete();
-                break;
+                break;*/
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
@@ -990,8 +992,9 @@ class Vendor extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+        ProductVendor::deleteVendor($item->id);
+        Warehouse::deleteVendor($item->id);
         $item->forceDelete();
-        ProductVendor::deleteVendors([$item->id]);
 
         $response['success'] = true;
         $response['data'] = [];
