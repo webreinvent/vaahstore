@@ -850,11 +850,12 @@ class Vendor extends VaahModel
                 $list->restore();
                 $list->update(['deleted_by'  => null]);
                 break;
-            /*case 'delete-all':
+            case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
                 ProductVendor::deleteVendors($items_id);
                 Warehouse::deleteVendors($items_id);
-                $list->forceDelete();
-                break;*/
+                self::withTrashed()->forceDelete();
+                break;
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
