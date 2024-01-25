@@ -90,7 +90,8 @@ export const useProductVendorStore = defineStore({
         prev_list:[],
         current_list:[],
         selected_dates:[],
-        date_null:null
+        date_null:null,
+        product_variation_list:[],
 
     }),
     getters: {
@@ -348,7 +349,9 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
+            if (product && product.id) {
+                this.item.vh_st_product_id = product.id;
+            }
         },
         //---------------------------------------------------------------------
         setAddedBy(event){
@@ -443,9 +446,10 @@ export const useProductVendorStore = defineStore({
                 }
 
                 this.item.vh_st_product_variation_id = data.product_variation;
-                this.product_variations = data.product_variations;
+
                 // Update product_variation_list based on product_variations
-                if (this.product_variations) {
+                if (data.product_variations) {
+                    this.product_variations = data.product_variations;
                     this.product_variation_list.forEach((listVariation, listIndex) => {
                         const matchingVariation = this.product_variations.find(
                             dataVariation => dataVariation.id === listVariation.id

@@ -185,111 +185,6 @@ class ProductVendor extends VaahModel
     }
 
     //--------------------Add and update product price-----------------------------
-//    public static function createProductPrice($request){
-//
-//        $inputs = $request->all();
-//
-//        $validation = self::validationProductPrice($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//        $check = ProductPrice::where(['vh_st_vendor_id'=>$inputs['vh_st_vendor_id'],'vh_st_product_id'=>$inputs['vh_st_product_id']])->first();
-//
-//        if($check){
-//            $check->fill($inputs);
-//            $check->vh_st_product_variation_id = $inputs['product_variation']['id'];
-//            $check->is_active = $inputs['is_active_product_price'];
-//            $check->amount = $inputs['amount'];
-//            $check->save();
-//            $response['messages'][] = 'Updated successfully.';
-//            return $response;
-//        }
-//        $order_item = new ProductPrice;
-//        $order_item->fill($inputs);
-//        $order_item->vh_st_product_variation_id = $inputs['product_variation']['id'];
-//        $order_item->is_active = $inputs['is_active_product_price'];
-//        $order_item->save();
-//        $response['messages'][] = 'Saved successfully.';
-//        return $response;
-//    }
-
-
-
-
-//    public static function createProductPrice($request)
-//    {
-//        $inputs = $request->all();
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//
-//        $check = ProductPrice::where(['vh_st_vendor_id' => $inputs['vh_st_vendor_id'], 'vh_st_product_id' => $inputs['vh_st_product_id']])->first();
-//
-//        if ($check) {
-//            $check->fill($inputs);
-//            $check->save();
-//            $response['messages'][] = 'Updated successfully.';
-//            return $response;
-//        }
-//
-//        $response['messages'][] = 'Saved successfully.';
-////        $order_item = new ProductPrice;
-////        $order_item->fill($inputs);
-////        $order_item->save();
-//
-//        foreach ($inputs['product_variation'] as $key=>$variation) {
-//                $variationItem = new ProductPrice;
-//                $variationItem->fill($inputs);  // Use $inputs to fill the base data
-//                $variationItem->vh_st_product_variation_id = $variation['id'];
-//                $variationItem->amount = $variation['amount'];
-//                $variationItem->save();
-//
-//        }
-//
-//        return $response;
-//    }
-
-
-//    public static function createProductPrice($request)
-//    {
-//        $inputs = $request->all();
-//        dd($inputs['product_variation']);
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//
-//        $response = [];
-//
-//        foreach ($inputs['product_variation'] as $key => $variation) {
-//            $check = ProductPrice::where([
-//                'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
-//                'vh_st_product_id' => $inputs['vh_st_product_id'],
-//                'vh_st_product_variation_id' => $variation['id']
-//            ])->first();
-//
-//            if ($check) {
-//                // Update only if the variation exists
-//                $check->fill($inputs);  // Use $inputs to fill the base data
-//                $check->vh_st_product_variation_id = $variation['id'];
-//                $check->amount = $variation['amount'];
-//                $check->save();
-//                $response['messages'][] = 'Updated variation ' . $variation['id'] . ' successfully.';
-//            } else {
-//                // If the variation doesn't exist, create a new entry
-//                $newVariation = new ProductPrice;
-//                $newVariation->fill($inputs);  // Use $inputs to fill the base data
-//                $newVariation->vh_st_product_variation_id = $variation['id'];
-//                $newVariation->amount = $variation['amount'];
-//                $newVariation->save();
-//                $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
-//            }
-//        }
-//
-//        return $response;
-//    }
-
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
@@ -309,7 +204,6 @@ class ProductVendor extends VaahModel
 
             if ($check) {
                 // Update only if the variation exists and 'amount' is provided
-//                if (isset($variation['amount'])) {
                     $check->fill([
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
@@ -317,13 +211,11 @@ class ProductVendor extends VaahModel
 //                        'amount' => $variation['amount'],
                         'amount' => $variation['amount'] ?? null,
 
-                        // Include other fields from $inputs as needed
                     ]);
                     $check->save();
                     $response['messages'][] = 'Updated variation ' . $variation['name'] . ' successfully.';
 //                }
             } else {
-                // If the variation doesn't exist and 'amount' is provided, create a new entry
                 if (isset($variation['amount'])) {
                     $newVariation = new ProductPrice;
                     $newVariation->fill([
@@ -331,7 +223,6 @@ class ProductVendor extends VaahModel
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
                         'amount' => $variation['amount'],
-                        // Include other fields from $inputs as needed
                     ]);
                     $newVariation->save();
                     $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
@@ -751,44 +642,7 @@ class ProductVendor extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-//    public static function getItem($id)
-//    {
-//        $item = self::where('id', $id)
-//            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','product','vendor',
-//                'addedByUser','status','stores','storeVendorProduct'])
-//            ->withTrashed()
-//            ->first();
-//        $itemProduct = Product::where('id',$item->vh_st_product_id)->first();
-//        $item['productList'] = Product::where('vh_st_store_id',$itemProduct->vh_st_store_id)->select('id','name','slug');
-//        if(!$item)
-//        {
-//            $response['success'] = false;
-//            $response['errors'][] = 'Record not found with ID: '.$id;
-//            return $response;
-//        }
-//
-//        //To get data for dropdown of product price
-//        $array_item = $item->toArray();
-//        $check = ProductPrice::where('vh_st_vendor_id',$array_item['vh_st_vendor_id'])
-//            ->where('vh_st_product_id',$array_item['vh_st_product_id'])->first();
-//        if($check){
-//            $item['product_variation'] = ProductVariation::where('id',$check['vh_st_product_variation_id'])
-//                ->get(['id','name','slug','is_default'])->toArray()[0];
-//            $item['is_active_product_price'] = $check['is_active'];
-//            $item['amount'] = $check['amount'];
-//        }else{
-//            $item['is_active_product_price'] = 1;
-//        }
-//
-//        $item->storeVendorProduct->each(function ($store_vendor) {
-//            unset($store_vendor->pivot);
-//        });
-//
-//        $response['success'] = true;
-//        $response['data'] = $item;
-//        return $response;
-//
-//    }
+
     //-------------------------------------------------
     public static function getItem($id)
     {
@@ -805,26 +659,6 @@ class ProductVendor extends VaahModel
 
         $itemProduct = Product::where('id', $item->vh_st_product_id)->first();
         $item['productList'] = Product::where('vh_st_store_id', $itemProduct->vh_st_store_id)->select('id', 'name', 'slug');
-
-        // To get data for dropdown of product price
-//        $array_item = $item->toArray();
-//        $check = ProductPrice::where('vh_st_vendor_id', $array_item['vh_st_vendor_id'])
-//            ->where('vh_st_product_id', $array_item['vh_st_product_id'])
-//            ->get(['vh_st_product_variation_id', 'is_active', 'amount']);
-//
-//        $variations = [];
-//        foreach ($check as $variation) {
-//            $variationData = ProductVariation::where('id', $variation['vh_st_product_variation_id'])
-//                ->select('id', 'name', 'slug', 'is_default')
-//                ->first();
-//            $variations[] = [
-//                'variation' => $variationData,
-//                'is_active' => $variation['is_active'],
-//                'amount' => $variation['amount'],
-//            ];
-//        }
-//
-//        $item['product_variations'] = $variations;
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
@@ -1203,20 +1037,28 @@ class ProductVendor extends VaahModel
         $inputs['status']=$status;
 
         // fill the store field here
-        $stores = Store::where('is_active',1)->get();
+        $stores = Store::where('is_active', 1)->get();
         $store_ids = $stores->pluck('id')->toArray();
         $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id',$store_id)->first();
+        $store = $stores->where('id', $store_id)->first();
         $inputs['store_vendor_product'] = $store;
-        $inputs['vh_st_store_id'] = $store_id ;
+        $inputs['vh_st_store_id'] = $store_id;
 
+        $products = Product::where('is_active', 1)
+            ->where('vh_st_store_id', $store_id)
+            ->get();
 
-        $products = Product::where('is_active',1)->get();
+        if ($products->isEmpty()) {
+            $response['success'] = false;
+            $response['errors'][] = 'No products found for the selected store.';
+            return $response;
+        }
+
         $product_ids = $products->pluck('id')->toArray();
         $product_ids = $product_ids[array_rand($product_ids)];
-        $products = $products->where('id',$product_ids)->first();
+        $products = $products->where('id', $product_ids)->first();
         $inputs['product'] = $products;
-        $inputs['vh_st_product_id'] = $product_ids ;
+        $inputs['vh_st_product_id'] = $product_ids;
 
         $users = User::where('is_active',1)->get();
         $users_ids = $users->pluck('id')->toArray();
