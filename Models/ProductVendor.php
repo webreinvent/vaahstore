@@ -309,17 +309,19 @@ class ProductVendor extends VaahModel
 
             if ($check) {
                 // Update only if the variation exists and 'amount' is provided
-                if (isset($variation['amount'])) {
+//                if (isset($variation['amount'])) {
                     $check->fill([
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
-                        'amount' => $variation['amount'],
+//                        'amount' => $variation['amount'],
+                        'amount' => $variation['amount'] ?? null,
+
                         // Include other fields from $inputs as needed
                     ]);
                     $check->save();
-                    $response['messages'][] = 'Updated variation ' . $variation['id'] . ' successfully.';
-                }
+                    $response['messages'][] = 'Updated variation ' . $variation['name'] . ' successfully.';
+//                }
             } else {
                 // If the variation doesn't exist and 'amount' is provided, create a new entry
                 if (isset($variation['amount'])) {

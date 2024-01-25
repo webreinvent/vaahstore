@@ -445,14 +445,16 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
                 this.product_variations = data.product_variations;
                 // Update product_variation_list based on product_variations
-                this.product_variation_list.forEach((listVariation, listIndex) => {
-                    const matchingVariation = this.product_variations.find(
-                        dataVariation => dataVariation.id === listVariation.id
-                    );
-                    if (matchingVariation) {
-                        this.product_variation_list[listIndex] = matchingVariation;
-                    }
-                });
+                if (this.product_variations) {
+                    this.product_variation_list.forEach((listVariation, listIndex) => {
+                        const matchingVariation = this.product_variations.find(
+                            dataVariation => dataVariation.id === listVariation.id
+                        );
+                        if (matchingVariation) {
+                            this.product_variation_list[listIndex] = matchingVariation;
+                        }
+                    });
+                }
 
             }else{
                 this.$router.push({name: 'productvendors.index'});
