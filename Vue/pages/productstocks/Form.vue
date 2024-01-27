@@ -104,23 +104,6 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Name*">
-                    <InputText class="w-full"
-                               name="productstocks-name"
-                               data-testid="productstocks-name"
-                               placeholder="Enter Name"
-                               @update:modelValue="store.watchItem"
-                               v-model="store.item.name"/>
-                </VhField>
-
-                <VhField label="Slug*">
-                    <InputText class="w-full"
-                               name="productstocks-slug"
-                               data-testid="productstocks-slug"
-                               placeholder="Enter Slug"
-                               v-model="store.item.slug"/>
-                </VhField>
-
                 <VhField label="Vendor*">
                     <AutoComplete v-model="store.item.vendor"
                                   @change="store.setVendor($event)"
