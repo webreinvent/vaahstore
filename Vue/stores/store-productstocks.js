@@ -314,22 +314,14 @@ export const useProductStockStore = defineStore({
 
         async searchFilterSelectedProductVariation(event) {
 
-            if(!this.selected_products)
-            {
-                vaah().toastErrors(['Please Choose a Product First']);
-                return false;
-            }
-            const query = {
-                product_id: this.item.vh_st_product_id,
-                search: event
-            };
+            const query = event;
             const options = {
                 params: query,
                 method: 'post',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
+                this.ajax_url+'/search/filter-selected/variation',
                 this.searchFilterSelectedProductVariationAfter,
                 options
             );
@@ -375,22 +367,14 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
         async searchFilterSelectedWarehouse(event) {
 
-            if(!this.selected_vendors)
-            {
-                vaah().toastErrors(['Please Choose a Vendor first']);
-                return false;
-            }
-            const query = {
-                vendor_id: this.item.vh_st_vendor_id,
-                search: event
-            };
+            const query = event;
             const options = {
                 params: query,
                 method: 'post',
             };
-
+            
             await vaah().ajax(
-                this.ajax_url+'/search/warehouse',
+                this.ajax_url+'/search/filter-selected/warehouse',
                 this.searchFilterSelectedWarehouseAfter,
                 options
             );

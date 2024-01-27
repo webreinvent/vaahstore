@@ -1211,4 +1211,31 @@ class ProductStock extends VaahModel
 
     }
 
+    //-------------------------------------------------
+    public static function searchFilterSelectedProductVariation($request){
+
+        $product_variations = ProductVariation::select('id', 'name','slug','is_default')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $product_variations->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product_variations = $product_variations->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function searchFilterSelectedWarehouse($request){
+
+        $warehouses = Warehouse::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $warehouses->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $warehouses = $warehouses->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $warehouses;
+        return $response;
+
+    }
 }

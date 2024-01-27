@@ -504,6 +504,41 @@ class ProductStocksController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+    public function searchFilterSelectedProductVariation(Request $request)
+    {
+        try{
+            return ProductStock::searchFilterSelectedProductVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchFilterSelectedWarehouse(Request $request)
+    {
+        try{
+            return ProductStock::searchFilterSelectedWarehouse($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
 
 
 }

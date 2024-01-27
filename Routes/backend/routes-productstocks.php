@@ -89,10 +89,23 @@ function () {
         ->name('vh.backend.store.productstocks.search.variation');
 
     /**
+     * Search Filter Selected Product Variation
+     */
+    Route::any('/search/filter-selected/variation', 'ProductStocksController@searchFilterSelectedProductVariation')
+        ->name('vh.backend.store.productstocks.search.filter-selected-variation');
+
+    /**
      * Search warehouse
      */
     Route::any('/search/warehouse', 'ProductStocksController@searchWarehouse')
         ->name('vh.backend.store.productstocks.search.warehouse');
+
+    /**
+     * Search Filter Selected Warehouse
+     */
+    Route::any('/search/filter-selected/warehouse', 'ProductStocksController@searchFilterSelectedWarehouse')
+        ->name('vh.backend.store.productstocks.search.filter-selected-warehouse');
+
 
     //---------------------------------------------------------
     /**
