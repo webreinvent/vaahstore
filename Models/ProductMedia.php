@@ -199,7 +199,7 @@ class ProductMedia extends VaahModel
         $query->whereBetween('updated_at', [$from, $to]);
     }
 
-    
+
 
 
 
@@ -835,7 +835,8 @@ class ProductMedia extends VaahModel
     {
         $inputs = $request->all();
 
-        $product_variation = $inputs['product_variation'];
+        $product_variations = $inputs['product_variation'];
+        $product_id = $inputs['vh_st_product_id'];
 
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -850,14 +851,57 @@ class ProductMedia extends VaahModel
 
         // Find the item by ID
         $item = self::findOrFail($id);
-        if ($item->vh_st_product_id !== $inputs['vh_st_product_id'] && self::where('vh_st_product_id', $inputs['vh_st_product_id'])->exists()) {
-            $response['success'] = false;
-            $response['messages'][] = "The Product is already exist.";
-            return $response;
+//        if ($item->vh_st_product_id !== $inputs['vh_st_product_id'] && self::where('vh_st_product_id', $inputs['vh_st_product_id'])->exists()) {
+//            $response['success'] = false;
+//            $response['messages'][] = "The Product is already exist.";
+//            return $response;
+//        }
+        $pivotData = ['vh_st_product_id' => $product_id];
+
+        if (!empty($product_variations)) {
+            foreach ($product_variations as $product_variation) {
+
+                $media = self::find($id);
+
+                $is_exist=$media->productVariationMedia()->wherePivot('vh_st_product_variation_id',$product_variation['id'])->exists();
+
+                if($is_exist)
+                {
+
+                    $item->fill($inputs);
+
+                    $item->save();
+
+
+
+                }
+
+                else{
+
+                    $productVariationMedia = self::where('vh_st_product_id', $product_id)
+                        ->whereHas('productVariationMedia', function ($query) use ($product_variation) {
+                            $query->where('vh_st_product_variation_id', $product_variation['id']);
+                        })
+                        ->exists();
+
+                    if ($productVariationMedia) {
+                        $variation_name = ProductVariation::where('id', $product_variation['id'])->value('name');
+                        $response['errors'][] = "The variation '{$variation_name}' already exists.";
+                        return $response;
+                    }
+
+                    $item->fill($inputs);
+                    $item->save();
+
+                }
+
+            }
         }
         // Update the item with the new inputs
-        $item->fill($inputs);
-        $item->save();
+
+        $product_variation_ids = array_column($inputs['product_variation'], 'id');
+
+        $item->productVariationMedia()->sync($product_variation_ids);
 
         // Delete existing images
         $item->images()->delete();
@@ -887,13 +931,13 @@ class ProductMedia extends VaahModel
 //                $item->productVariationMedia()->attach($variation['id'],$inputs['vh_st_product_id']);
 //            }
 //        }
-        $item->productVariationMedia()->detach();
-
-        // Attach new variations with product ID in pivot table
-        foreach ($product_variation as $variation) {
-            $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
-            $item->productVariationMedia()->attach($variation['id'], $pivotData);
-        }
+//        $item->productVariationMedia()->detach();
+//
+//        // Attach new variations with product ID in pivot table
+//        foreach ($product_variation as $variation) {
+//            $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
+//            $item->productVariationMedia()->attach($variation['id'], $pivotData);
+//        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
