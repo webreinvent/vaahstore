@@ -322,7 +322,7 @@ class ProductStock extends VaahModel
             $q->Where('id', 'LIKE', '%' . $search . '%');
 
         });
-        
+
     }
 
     //-------------------------------------------------
