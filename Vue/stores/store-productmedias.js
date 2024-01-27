@@ -1200,9 +1200,11 @@ export const useProductMediaStore = defineStore({
 
 
         async addProduct(event){
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-            this.item.product_variation=null;
+            if (event && event.value) {
+                let product = toRaw(event.value);
+                this.item.vh_st_product_id = product.id;
+                this.item.product_variation = null;
+            }
         },
 
         //---------------------------------------------------------------------

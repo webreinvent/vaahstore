@@ -199,115 +199,43 @@ class ProductMedia extends VaahModel
         $query->whereBetween('updated_at', [$from, $to]);
     }
 
-    //-------------------------------------------------
-//    public static function createItem($request)
-//    {
-//        $inputs = $request->all();
-//        $product_variation = $inputs['product_variation'];
-//
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//
-////        if (!isset($inputs['images']) || empty($inputs['images'])) {
-////            $response['success'] = false;
-////            $response['messages'][] = "The image field is required.";
-////            return $response;
-////        }
-//
-//        // check if exist
-////        $item = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
-////        if ($item) {
-////            $response['success'] = false;
-////            $response['messages'][] = "This Product is already exist.";
-////            return $response;
-////        }
-//        $existingProduct = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
-//        if ($existingProduct) {
-//            // Check if variations are already associated with the existing product
-//            $existingVariations = $existingProduct->productVariationMedia()->pluck('vh_st_product_variation_id')->toArray();
-//            $newVariations = array_column($product_variation, 'vh_st_product_variation_id');
-//
-//            // Check if there is any intersection between existing and new variations
-//            $commonVariations = array_intersect($existingVariations, $newVariations);
-//
-//            if (!empty($commonVariations)) {
-//                $response['success'] = false;
-//                $response['messages'][] = "This Product already exists with the specified variations.";
-//                return $response;
-//            }
-//        }
-//            $item = new self();
-//            $item->fill($inputs);
-//            $item->save();
-////        }
-//
-//        foreach ($inputs['images'] as $image_details) {
-//            $image = new ProductMediaImage;
-//            $image->vh_st_product_media_id = $item->id;
-//            $image->name = $image_details['name'];
-//            $image->slug = $image_details['slug'];
-//            $image->url = $image_details['url'];
-//            $image->path = $image_details['path'];
-//            $image->size  = $image_details['size'];
-//            $image->type = $image_details['type'];
-//            $image->extension = $image_details['extension'];
-//            $image->mime_type = $image_details['mime_type'];
-//            $image->url_thumbnail = $image_details['url_thumbnail'];
-//            $image->thumbnail_size  = $image_details['thumbnail_size'];
-//            $image->save();
-//        }
-//
-//
-////        if (isset($product_variation) && is_array($product_variation)) {
-//////            $item->productVariationMedia()->detach();
-////
-////            foreach ($product_variation as $variation) {
-////                $item->productVariationMedia()->attach($variation['id']);
-////            }
-////        }
-//        if (isset($product_variation) && is_array($product_variation)) {
-//            foreach ($product_variation as $variation) {
-//                $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
-//
-//                $item->productVariationMedia()->attach($variation['id'], $pivotData);
-//            }
-//        }
-//
-//
-//        $response = self::getItem($item->id);
-//        $response['messages'][] = 'Saved successfully.';
-//
-//        return $response;
-//    }
+    
+
 
 
     public static function createItem($request)
     {
         $inputs = $request->all();
-        $product_variation = $inputs['product_variation'];
-
+        $product_id = $inputs['vh_st_product_id'];
+        $variation_lists = $inputs['product_variation'];
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
-
-        $existingProduct = self::where('vh_st_product_id', $inputs['vh_st_product_id'])->withTrashed()->first();
-        if ($existingProduct) {
-            // Check if variations are already associated with the existing product
-            $existingVariations = $existingProduct->productVariationMedia()->pluck('vh_st_product_variation_id')->toArray();
-            $newVariations = array_column($product_variation, 'id');
-
-            // Check if there is any intersection between existing and new variations
-            $commonVariations = array_intersect($existingVariations, $newVariations);
-
-            if (!empty($commonVariations)) {
-                $response['success'] = false;
-                $response['messages'][] = "This Product already exists with the specified variations.";
+       if (empty($variation_lists)){
+             $existingProduct = self::where('vh_st_product_id', $product_id)->withTrashed()->first();
+            if ($existingProduct) {
+                $response['errors'][] = "This Product already exists.";
                 return $response;
+    }
+}
+        if (!empty($variation_lists)) {
+            foreach ($variation_lists as $variation) {
+                $productVariationMedia = self::where('vh_st_product_id', $product_id)
+                    ->whereHas('productVariationMedia', function ($query) use ($variation) {
+                        $query->where('vh_st_product_variation_id', $variation['id']);
+                    })
+                    ->exists();
+
+                if ($productVariationMedia) {
+                    $variation_name = ProductVariation::where('id', $variation['id'])->value('name');
+                    $response['errors'][] = "The variation '{$variation_name}' already exists.";
+                    return $response;
+                }
             }
         }
+
+
 
         $item = new self();
         $item->fill($inputs);
@@ -329,10 +257,10 @@ class ProductMedia extends VaahModel
             $image->save();
         }
 
-        if (isset($product_variation) && is_array($product_variation)) {
-            foreach ($product_variation as $variation) {
-                $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
 
+        if (!empty($variation_lists)) {
+            foreach ($variation_lists as $variation) {
+                $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
                 $item->productVariationMedia()->attach($variation['id'], $pivotData);
             }
         }
@@ -342,6 +270,9 @@ class ProductMedia extends VaahModel
 
         return $response;
     }
+
+
+
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
     {
@@ -629,6 +560,9 @@ class ProductMedia extends VaahModel
         ProductMediaImage::whereIn('vh_st_product_media_id', $item_id)->forceDelete();
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('productVariationMedia')->whereIn('id', $item_id)->each(function ($item) {
+            $item->productVariationMedia()->detach();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -946,12 +880,19 @@ class ProductMedia extends VaahModel
         }
 
 
-        if (isset($product_variation) && is_array($product_variation)) {
-            $item->productVariationMedia()->detach();
+//        if (isset($product_variation) && is_array($product_variation)) {
+//            $item->productVariationMedia()->detach();
+//
+//            foreach ($product_variation as $variation) {
+//                $item->productVariationMedia()->attach($variation['id'],$inputs['vh_st_product_id']);
+//            }
+//        }
+        $item->productVariationMedia()->detach();
 
-            foreach ($product_variation as $variation) {
-                $item->productVariationMedia()->attach($variation['id']);
-            }
+        // Attach new variations with product ID in pivot table
+        foreach ($product_variation as $variation) {
+            $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
+            $item->productVariationMedia()->attach($variation['id'], $pivotData);
         }
 
         $response = self::getItem($item->id);
@@ -971,6 +912,11 @@ class ProductMedia extends VaahModel
 
         $ids = $item->images->pluck('id')->toArray();
         ProductMediaImage::whereIn('id', $ids)->forceDelete();
+
+        $variation_ids = $item->productVariationMedia->pluck('id')->toArray();
+        foreach ($variation_ids as $variation_id) {
+            $item->productVariationMedia()->detach($variation_id);
+        }
         $item->forceDelete();
 
         $response['success'] = true;
@@ -1023,7 +969,7 @@ class ProductMedia extends VaahModel
 
         $rules = validator($inputs, [
             'product'=> 'required',
-            'product_variation'=> 'required',
+//            'product_variation'=> 'required',
 //            'vh_st_product_id'=> 'required',
             'images'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
@@ -1035,7 +981,7 @@ class ProductMedia extends VaahModel
         ],
         [
             'product.required' => 'The Product field is required.',
-            'product_variation.required' => 'The Product Variations field is required.',
+//            'product_variation.required' => 'The Product Variations field is required.',
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
 
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
