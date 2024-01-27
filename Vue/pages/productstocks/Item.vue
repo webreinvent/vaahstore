@@ -160,24 +160,7 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        :can_copy="true"
                             />
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Name</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.name}}</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Slug</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.slug}}</div>
-                                </td>
-                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'status_notes'">

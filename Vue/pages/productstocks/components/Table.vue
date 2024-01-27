@@ -27,6 +27,15 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
+             <Column field="product.vendor" header="Vendor"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <div style="word-break: break-word;">{{ prop.data.vendor.name }}</div>
+                 </template>
+
+             </Column>
+
              <Column field="product.name" header="Product"
                      :sortable="true">
 
@@ -36,7 +45,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="product.variation" header="Product Variation"
+             <Column field="product.product_variation" header="Product Variation"
                      :sortable="true">
 
                  <template #body="prop">
@@ -60,16 +69,16 @@ const useVaah = vaah();
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+<!--                <Column field="updated_at" header="Updated"-->
+<!--                        v-if="store.isViewLarge()"-->
+<!--                        style="width:150px;"-->
+<!--                        :sortable="true">-->
 
-                    <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
-                    </template>
+<!--                    <template #body="prop">-->
+<!--                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
+<!--                    </template>-->
 
-                </Column>
+<!--                </Column>-->
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     style="width:100px;"
