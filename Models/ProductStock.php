@@ -168,7 +168,7 @@ class ProductStock extends VaahModel
         }
 
         $inputs = $request->all();
-        
+
         // check if stock already exist for this variation
 
         $conditions = [
@@ -202,8 +202,6 @@ class ProductStock extends VaahModel
     public static function productStockInputValidator($requestData){
 
         $validated_data = validator($requestData, [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
             'vendor' => 'required',
             'product' => 'required',
             'product_variation' => 'required',
@@ -216,10 +214,7 @@ class ProductStock extends VaahModel
             ],
             'is_active' => 'required',
         ],
-            [    'name.required' => 'The Name field is required',
-                'name.max' => 'The Name field cannot be greater than :max characters',
-                'slug.required' => 'The Slug field is required',
-                'slug.max' => 'The Slug field cannot be greater than :max characters',
+            [
                 'vendor.required' => 'The Vendor field is required',
                 'product.required' => 'The Product field is required',
                 'product_variation' => 'The Product Variation field is required',
@@ -354,7 +349,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','product','productVariation');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
