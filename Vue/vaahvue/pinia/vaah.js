@@ -255,6 +255,14 @@ export const vaah = defineStore({
         },
 
         //----------------------------------------------------------
+        confirmDialogDelete(callbackOnAccept)
+        {
+            this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
+
+        },
+
+        //----------------------------------------------------------
+
         confirmDialogDeleteAll(callbackOnAccept)
         {
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete all record(s)?', callbackOnAccept);

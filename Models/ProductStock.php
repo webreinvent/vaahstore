@@ -529,7 +529,11 @@ class ProductStock extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach ($items_id as $item_id) {
+                        self::updateProductVariationAfterTrash($item_id);
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
+
                 }
                 break;
             case 'activate-all':
@@ -560,6 +564,11 @@ class ProductStock extends VaahModel
                 }
                 break;
             case 'delete-all':
+                $item_ids = $list->pluck('id')->toArray();
+                foreach($item_ids as $item_id)
+                {
+                    self::updateProductVariationAfterTrash($item_id);
+                }
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -671,6 +680,14 @@ class ProductStock extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+        $product_variation = ProductVariation::find($item->vh_st_product_variation);
+        $product_variation->quantity += $item->quantity;
+        $product_variation->save();
+
+        $product = Product::find($item->vh_st_product_id);
+        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)->sum('quantity');
+        $product->save();
+        
         $item->forceDelete();
 
         $response['success'] = true;
