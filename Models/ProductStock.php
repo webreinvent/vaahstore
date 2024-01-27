@@ -192,6 +192,10 @@ class ProductStock extends VaahModel
         $product_variation->quantity += $inputs['quantity'];
         $product_variation->save();
 
+        $product = Product::find($inputs['vh_st_product_id']);
+        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])->sum('quantity');
+        $product->save();
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -643,11 +647,15 @@ class ProductStock extends VaahModel
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        //update the quantity in variation table also
+        //update the quantity in variation table
         $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
 
+        //update the quantity in product table
+        $product = Product::find($inputs['vh_st_product_id']);
+        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])->sum('quantity');
+        $product->save();
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -1134,6 +1142,9 @@ class ProductStock extends VaahModel
         }
 
         $product_variation->save();
+        $product = Product::find($item->vh_st_product_id);
+        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)->sum('quantity');
+        $product->save();
     }
 
     //-------------------------------------------------
@@ -1141,10 +1152,12 @@ class ProductStock extends VaahModel
     public static function updateProductVariationAfterRestore($id)
     {
         $item = self::where('id',$id)->withTrashed()->first();
-
         $product_variation = ProductVariation::find($item->vh_st_product_variation_id);
         $product_variation->quantity += $item->quantity;
         $product_variation->save();
+        $product = Product::find($item->vh_st_product_id);
+        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)->sum('quantity');
+        $product->save();
     }
 
     //-------------------------------------------------

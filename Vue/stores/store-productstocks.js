@@ -372,7 +372,7 @@ export const useProductStockStore = defineStore({
                 params: query,
                 method: 'post',
             };
-            
+
             await vaah().ajax(
                 this.ajax_url+'/search/filter-selected/warehouse',
                 this.searchFilterSelectedWarehouseAfter,
