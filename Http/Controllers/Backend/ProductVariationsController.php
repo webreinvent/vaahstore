@@ -39,8 +39,9 @@ class ProductVariationsController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['active_products'] = $this->getActiveProducts();
             $default_product=Product::where(['is_default'=>1,'deleted_at'=>null])->first();
-            if($this->getDefaultProduct() !== null)
+            if($default_product)
             {
+
                 $data['empty_item']['product'] = $default_product;
                 $data['empty_item']['vh_st_product_id'] = $default_product->id;
             }
