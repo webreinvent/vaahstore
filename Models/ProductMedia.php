@@ -219,7 +219,7 @@ class ProductMedia extends VaahModel
                  }
                  if($count !== $count_variatios)
                 {
-                    $response['errors'][] = "This Product already exists.";
+                    $response['errors'][] = "This Product Media is already exists.";
                     return $response;
                 }
              }
@@ -911,7 +911,7 @@ class ProductMedia extends VaahModel
                     }
                     if($count !== $count_variatios)
                     {
-                        $response['errors'][] = "This Product is already exists.";
+                        $response['errors'][] = "This Product Media is already exists.";
                         return $response;
                     }
                     else{
