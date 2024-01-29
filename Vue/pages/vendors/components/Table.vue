@@ -94,7 +94,7 @@ const permissions=store.assets.permissions;
                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
                     <Badge v-else
-                           severity="primary"> {{prop.data.status.name}} </Badge>
+                           severity="warning"> {{prop.data.status.name}} </Badge>
                 </template>
 
             </Column>
