@@ -287,7 +287,7 @@ const permissions=store.assets.permissions;
                                                                readonly />
                                                 </VhField>
 
-                                                <VhField label="Phone">
+                                                <VhField label="Phone Number">
                                                     <InputText class="w-full"
                                                                name="vendors-phone-number"
                                                                placeholder="Enter your phone number"

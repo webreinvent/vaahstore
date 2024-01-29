@@ -342,7 +342,7 @@ const permissions=store.assets.permissions;
                                        v-model="store.item.country_code"/>
                         </VhField>
 
-                        <VhField label="Phone">
+                        <VhField label="Phone Number">
                             <InputNumber class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
