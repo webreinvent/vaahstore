@@ -39,8 +39,10 @@ const useVaah = vaah();
              <Column field="product.name" header="Product"
                      :sortable="true">
 
-                 <template #body="prop">
-                        <div style="word-break: break-word;">{{ prop.data.product.name }}</div>
+                 <template #body="prop" >
+                        <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                            {{ prop.data.product.name }}
+                        </div>
                  </template>
 
              </Column>
@@ -48,8 +50,10 @@ const useVaah = vaah();
              <Column field="product.product_variation" header="Product Variation"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <div style="word-break: break-word;">{{ prop.data.product_variation.name }}</div>
+                 <template #body="prop" >
+                     <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
+                         {{ prop.data.product_variation.name }}
+                     </div>
                  </template>
 
              </Column>

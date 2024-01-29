@@ -391,11 +391,16 @@ export const useProductStockStore = defineStore({
         setVendor(event){
             let vendor = toRaw(event.value);
             this.item.vh_st_vendor_id = vendor.id;
+            this.item.warehouse = null;
+            this.item.vh_st_warehouse_id = null;
         },
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
             this.item.vh_st_product_id = product.id;
+            this.item.product_variation = null;
+            this.item.vh_st_product_variation_id = null;
+
         },
         //---------------------------------------------------------------------
         setProductVariation(event){
