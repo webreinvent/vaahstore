@@ -430,13 +430,12 @@ class Vendor extends VaahModel
 
         if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
             $rules['phone_number'] = [
-                'max:15',
+                'max:10',
                 'regex:/^[0-9]+$/', // Only allow numbers
             ];
 
             $rules['country_code'] = [
                 'max:4',
-                'regex:/^\+[0-9]+$/',
             ];
         }
 
@@ -463,7 +462,7 @@ class Vendor extends VaahModel
             'status_notes.max' => 'The Status notes field cannot not be greater than :max characters.',
             'phone_number.regex' => 'The Phone Number is required if the country code is provided and should contain only numbers.',
             'phone_number.max' => 'The Phone Number field should not be more than :max characters',
-            'country_code.regex' => 'The Country Code is required if the Phone Number is provided should contain only numbers with + sign',
+            'country_code.regex' => 'The Country Code is required if the Phone Number is provided should contain only numbers',
             'country_code.max' => 'The Country Code field should not be more than :max characters',
             'business_document_detail.max'=>'The Business Document  field should not be more than :max characters',
         ]);
@@ -1130,7 +1129,7 @@ class Vendor extends VaahModel
         $inputs['approved_by'] =$approved_by->id;
         $inputs['approved_by_user'] = $approved_by;
 
-        $inputs['phone_number'] = rand(10000000000,999999999999999);
+        $inputs['phone_number'] = rand(1000000000,9999999999);
 
         $inputs['email'] = $faker->email;
         $inputs['address'] = $faker->address;
@@ -1172,7 +1171,7 @@ class Vendor extends VaahModel
 
         $inputs['services_offered'] =  $faker->text($number_of_characters);
 
-        $inputs['country_code'] = '+' . rand(1, 999);
+        $inputs['country_code'] = rand(1, 999);
 
 
         /*
