@@ -1140,6 +1140,12 @@ class Vendor extends VaahModel
         $inputs['owned_by_user'] = $owned_by;
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
+        $count = count($taxonomy_status);
+        if ($count <= 0) {
+            $response['success'] = false;
+            $response['errors'][] = 'No Status types found. Please create or activate existing ones.';
+            return $response;
+        }
         $status_id = $taxonomy_status->pluck('id')->random();
         $status = $taxonomy_status->where('id', $status_id)->first();
         $inputs['taxonomy_id_vendor_status'] = $status_id;
@@ -1150,6 +1156,12 @@ class Vendor extends VaahModel
 
         // set business type field
         $taxonomy_business_type = Taxonomy::getTaxonomyByType('business-types');
+        $count = count($taxonomy_business_type);
+        if ($count <= 0) {
+            $response['success'] = false;
+            $response['errors'][] = 'No business types found. Please create or activate existing ones.';
+            return $response;
+        }
 
         $business_type_id = $taxonomy_business_type->pluck('id')->random();
         $business_type = $taxonomy_business_type->where('id', $business_type_id)->first();
