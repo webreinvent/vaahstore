@@ -171,39 +171,19 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'vh_st_product_variation_id'">
-<!--                            <tr>-->
-<!--                                <td>-->
-<!--                                    <b>Product Variation</b>-->
-<!--                                </td>-->
-<!--                                <td colspan="2" >-->
-<!--                                    {{store.item.product_variation?.name}}-->
-<!--                                </td>-->
-<!--                            </tr>-->
+
                             <tr>
                                 <td>
                                     <b>Product Variations</b>
                                 </td>
                                 <td colspan="2">
-                                    <li v-for="product in store.item.product_variation_media" :key="product.id">
+                                    <Tag style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;" v-for="product in store.item.product_variation_media" :key="product.id">
                                         {{ product.name }}
-                                    </li>
+                                    </Tag>
 
                                 </td>
                             </tr>
                         </template>
-
-<!--                        <template v-else-if="column === 'taxonomy_id_product_media_status'">-->
-<!--                            <tr>-->
-<!--                                <td>-->
-<!--                                    <b>Status</b>-->
-<!--                                </td>-->
-<!--                                <td colspan="2">-->
-<!--                                    <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
-<!--                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
-<!--                                    <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>-->
-<!--                                </td>-->
-<!--                            </tr>-->
-<!--                        </template>-->
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user'|| column === 'product_media_images' ) && (typeof value === 'object' && value !== null)">
