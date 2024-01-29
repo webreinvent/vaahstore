@@ -183,6 +183,7 @@ export const useProductMediaStore = defineStore({
                  this.item.type = remainingTypes.join(', ');
              } else {
                  this.item.type = null;
+                 this.item.name=null;
              }
         },
         //---------------------------------------------------------------------
@@ -197,6 +198,7 @@ export const useProductMediaStore = defineStore({
                 this.item.type = remainingTypes.join(', ');
             } else {
                 this.item.type = null;
+                this.item.name=null;
             }
             this.getItem(this.route.params.id);
         },

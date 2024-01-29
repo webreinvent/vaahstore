@@ -231,10 +231,15 @@ const toggleItemMenu = (event) => {
                                                v-tooltip.top="store.item.name"/>
                                     </td>
                                 </tr>
-                            <VhViewRow label="Is Active"
-                                       :value="value"
-                                       type="yes-no"
-                            />
+                            <tr>
+                                <td>
+                                    <b>Media Type</b>
+                                </td>
+                                <td colspan="2" >
+                                    {{store.item.type}}
+                                </td>
+                            </tr>
+
                             <tr >
                                 <td>
                                     <b>Status</b>
@@ -245,6 +250,10 @@ const toggleItemMenu = (event) => {
                                     <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                 </td>
                             </tr>
+                            <VhViewRow label="Is Active"
+                                       :value="value"
+                                       type="yes-no"
+                            />
                         </template>
 
 
