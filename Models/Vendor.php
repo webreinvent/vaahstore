@@ -330,6 +330,7 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms::messages.permission_denied");
@@ -345,12 +346,23 @@ class Vendor extends VaahModel
         }
 
 
+        $vendor = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
+
+        if ($vendor) {
+            $inputs['store']['is_default'] = $vendor->is_default;
+        }
+
+
+        if ($vendor) {
+            $inputs['store']['is_multi_vendor'] = $vendor->is_multi_vendor;
+        }
+
+
+
         if($inputs['store']['is_default'] === 0)
         {
             if($inputs['store']['is_multi_vendor'] === 0)
             {
-                $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])
-                    ->first();
                 if ($vendor) {
                     $response['errors'][] = "There is already a vendor associated with this store.";
                     return $response;
@@ -402,8 +414,8 @@ class Vendor extends VaahModel
         $rules = [
             'name' => [
                 'required',
-                'max:250',
-                'regex:/^[A-Za-z0-9.\'\-&\/ ]+$/',
+                'max:100',
+
             ],
             'slug' => 'required|max:250',
             'vh_st_store_id' => 'required',
@@ -934,7 +946,6 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms::messages.permission_denied");
@@ -949,22 +960,24 @@ class Vendor extends VaahModel
         }
 
         $inputs = $validation_result['data'];
-        // Check if current record is default
-        if($inputs['is_default']){
-            self::where('is_default',1)->update(['is_default' => 0]);
-        }
 
-        if($inputs['store']['is_multi_vendor'] === 0)
-        {
-            $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])
-                ->first();
-            if ($vendor) {
-                $response['errors'][] = "There is already a vendor associated with this store.";
-                return $response;
-            }
+        if ($inputs['is_default']) {
+            self::where('is_default', 1)->update(['is_default' => 0]);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
+
+        if ($item->store->is_multi_vendor !== $inputs['store']['is_multi_vendor']) {
+
+            $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])->first();
+
+            if($vendor->is_multi_vendor === 0)
+                $response=[];
+                    $response['errors'][] = "There is already a vendor associated with this store.";
+                    return $response;
+
+        }
+
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
@@ -974,8 +987,8 @@ class Vendor extends VaahModel
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
-
     }
+
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
