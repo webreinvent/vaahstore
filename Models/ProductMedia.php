@@ -1139,9 +1139,11 @@ class ProductMedia extends VaahModel
             if ($variations->count() >= 1) {
                 $item->productVariationMedia()->attach($variations->pluck('id'));
 
-                $item->images()->create([
-                    'url' => $inputs['images']['url'],
-                ]);
+                if (isset($inputs['images']) && isset($inputs['images']['url'])) {
+                    $item->images()->create([
+                        'url' => $inputs['images']['url'],
+                    ]);
+                }
             }
             $i++;
 
