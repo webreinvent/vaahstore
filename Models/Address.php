@@ -13,7 +13,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Address extends VaahModel
 {
@@ -191,25 +191,42 @@ class Address extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $user_id = $inputs['vh_user_id'];
+        $user = StoreUser::find($user_id);
 
+        //check if this address already exist for the user when address type is same
+        $address = $user->addresses()
+            ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
+            ->where('address_line_1', $inputs['address_line_1'])
+            ->where('address_line_2', $inputs['address_line_2'])
+            ->first();
+
+        if ($address) {
+            $response = [];
+            $response['errors'][] = 'This Address already exist for the user.';
+            return $response;
+        }
         $item = new self();
         $item->fill($inputs);
-        $user_id = $inputs['vh_user_id'];
+        $addresses = $user->addresses()->get();
+
+        if ($addresses->isEmpty()) {
+            $item->is_default = 1;
+        }
+
+        //remove previous default address
         if(($inputs['is_default']) == 1)
         {
             $user = StoreUser::find($user_id);
-            $addresses = $user->addresses()->where('is_default',1)->get();
-
-            foreach ($addresses as $address) {
-
-                $address->is_default = 0;
-                $address->save();
+            $previous_default_address = $user->addresses()->where('is_default',1)->first();
+            if($previous_default_address)
+            {
+                $previous_default_address->is_default = 0;
+                $previous_default_address->save();
             }
-
             $item->is_default=1;
         }
         $item->save();
-
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -264,30 +281,7 @@ class Address extends VaahModel
 
         return $query->orderBy($sort[0], $sort[1]);
     }
-    //-------------------------------------------------
-    public function scopeIsActiveFilter($query, $filter)
-    {
 
-        if(!isset($filter['is_active'])
-            || is_null($filter['is_active'])
-            || $filter['is_active'] === 'null'
-        )
-        {
-            return $query;
-        }
-        $is_active = $filter['is_active'];
-
-        if($is_active === 'true' || $is_active === true)
-        {
-            return $query->where('is_active', 1);
-        } else{
-            return $query->where(function ($q){
-                $q->whereNull('is_active')
-                    ->orWhere('is_active', 0);
-            });
-        }
-
-    }
     //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
@@ -314,13 +308,16 @@ class Address extends VaahModel
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('address_line_1', 'LIKE', '%' . $search . '%')
-                ->orWhere('address_line_2', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
-
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('address_line_1', 'LIKE', '%' . $search . '%')
+                        ->orWhere('address_line_2', 'LIKE', '%' . $search . '%');
+                })
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
     }
 
     //-------------------------------------------------
@@ -339,25 +336,6 @@ class Address extends VaahModel
 
         return $query->whereHas('addressType', function ($query) use ($address_type) {
             $query->where('slug', $address_type);
-        });
-    }
-
-    //-------------------------------------------------
-
-    public function scopeUserFilter($query, $filter)
-    {
-        if(!isset($filter['user'])
-            || is_null($filter['user'])
-            || $filter['user'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $user = $filter['user'];
-
-        return $query->whereHas('user', function ($query) use ($user) {
-            $query->where('first_name', $user);
         });
     }
 
@@ -420,9 +398,9 @@ class Address extends VaahModel
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('user','status','addressType');
-        $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->dateFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->addressTypeFilter($request->filter);
         $list->defaultFilter($request->filter);
@@ -563,7 +541,6 @@ class Address extends VaahModel
 
         if($request->has('filter')){
             $list->getSorted($request->filter);
-            $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
         }
@@ -616,10 +593,10 @@ class Address extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->update(['deleted_by' => null,'is_default' => 0]);
                 $list->restore();
-                $list->update(['deleted_by' => null,'is_default' => 0]);
-
                 break;
+                
             case 'delete-all':
                 $list->forceDelete();
                 break;
@@ -681,21 +658,31 @@ class Address extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $user_id = $inputs['vh_user_id'];
+        $user = StoreUser::find($user_id);
+        $address = $user->addresses()
+            ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
+            ->where('address_line_1', $inputs['address_line_1'])
+            ->where('address_line_2', $inputs['address_line_2'])
+            ->whereNot('id',$inputs['id'])
+            ->first();
+        if ($address) {
+            $response = [];
+            $response['errors'][] = 'This Address already exist for the user.';
+            return $response;
+        }
+
         if(($inputs['is_default']) == 1)
         {
             $user = StoreUser::find($user_id);
-            $addresses = $user->addresses()->where('is_default',1)->get();
-
-            foreach ($addresses as $address) {
-
-                $address->is_default = 0;
-                $address->save();
+            $previous_default_address = $user->addresses()->where('is_default',1)->first();
+            if($previous_default_address)
+            {
+                $previous_default_address->is_default = 0;
+                $previous_default_address->save();
             }
-
             $item->is_default=1;
         }
         $item->save();
@@ -779,8 +766,8 @@ class Address extends VaahModel
             [
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
-                'address_line_1'=>'required|max:250',
-                'address_line_2'=>'required|max:250',
+                'address_line_1'=>'required|max:150',
+                'address_line_2'=>'required|max:150',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
@@ -789,8 +776,13 @@ class Address extends VaahModel
             ],
             [
                 'vh_user_id.required' => 'The User field is required',
+                'address_line_1.required' => 'The Address Line 1 field is required',
+                'address_line_2.required' => 'The Address Line 2 field is required',
+                'address_line_1.max' => 'The Address Line 1 field cannot be more than :max characters.',
+                'address_line_2.max' => 'The Address Line 2 field cannot be more than :max characters.',
                 'taxonomy_id_address_types.required' => 'The Type field is required',
                 'taxonomy_id_address_status.required' => 'The Status field is required',
+
                 'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
             ]
@@ -894,8 +886,99 @@ class Address extends VaahModel
     }
 
     //-------------------------------------------------
-    //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
     //-------------------------------------------------
 
+    public static function searchUser($request)
+    {
+
+        $query = $request['filter']['q']['query'];
+        if($query === null)
+        {
+            $users = User::where('is_active',1)
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $users = User::where('first_name', 'like', "%$query%")
+                ->where('is_active',1)
+                ->get();
+        }
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public function scopeUserFilter($query, $filter)
+    {
+        if(!isset($filter['users'])
+            || is_null($filter['users'])
+            || $filter['users'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $users = $filter['users'];
+
+        return $query->whereHas('user', function ($query) use ($users) {
+            $query->whereIn('first_name', $users);
+        });
+    }
+
+    //-------------------------------------------------
+
+    public static function getUserBySlug($request)
+    {
+
+        $query = $request['filter']['users'];
+        $users = User::whereIn('first_name',$query)->get();
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function getAddressTypeBySlug($request)
+    {
+        $query = $request['filter']['address_type'];
+        $address_type = TaxonomyType::getFirstOrCreate('address-types');
+        $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$address_type->id)
+                ->where('slug',$query)
+                ->select('id','name','slug')
+                ->first();
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
 
 }

@@ -64,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="attributes-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
@@ -71,6 +72,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             data-testid="attributes-create-and-new"
                             icon="pi pi-save"/>
@@ -85,6 +87,7 @@ const toggleFormMenu = (event) => {
                         type="button"
                         @click="toggleFormMenu"
                         class="p-button-sm"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="attributes-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -107,10 +110,10 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item" class="mt-2">
+            <div class="mt-2" v-if="store.item">
 
                 <Message severity="error"
-                         class="p-container-message mb-3"
+                         class="p-container-message"
                          :closable="false"
                          icon="pi pi-trash"
                          v-if="store.item.deleted_at">
@@ -118,13 +121,13 @@ const toggleFormMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="articles-item-restore"
+                                    data-testid="attributes-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -177,6 +180,14 @@ const toggleFormMenu = (event) => {
                                data-testid="attributes-type"
                                placeholder="Enter Type"
                                v-model="store.item.type"/>
+                </VhField>
+
+                <VhField label="Description">
+                    <Textarea v-model="store.item.description"
+                              rows="3" class="w-full"
+                              placeholder="Enter Description"
+                              data-testid="attributes-description"
+                              :autoResize="true"/>
                 </VhField>
 
 

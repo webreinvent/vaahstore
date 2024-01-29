@@ -32,6 +32,7 @@ class Attribute extends VaahModel
         'name',
         'slug',
         'type',
+        'description',
         'is_active',
         'created_by',
         'updated_by',
@@ -161,17 +162,17 @@ class Attribute extends VaahModel
     }
 
     //-------------------------------------------------
+
+
     public static function createItem($request)
     {
-
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
 
-        // check if name exist
+        // check if name exists
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
@@ -180,7 +181,7 @@ class Attribute extends VaahModel
             return $response;
         }
 
-        // check if slug exist
+        // check if slug exists
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
@@ -189,38 +190,42 @@ class Attribute extends VaahModel
             return $response;
         }
 
-        $item = new self();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
-        $item->slug = Str::slug($inputs['slug']);
-        $item->save();
-        $new_array = null;
-        foreach ($inputs['value'] as $value) {
-            if ($value['is_active']) {
-                $new_array[] = $value;
+        $values_to_save = [];
+
+        foreach ($inputs['value'] as $key => $value) {
+            if ($value['is_active'] == 1 && $value['value'] !== null) {
+                $values_to_save[] = new AttributeValue(['value' => $value['value']]);
             }
         }
-        if(!$new_array)
-        {
+
+        if (empty($values_to_save)) {
             $response['success'] = false;
-            $response['messages'][] = "Please enter value.";
+            $response['messages'][] = "Please enter Value field.";
             return $response;
         }
-        foreach ($inputs['value'] as $key=>$value) {
-            if ($value['is_active'] == 1) {
-                $item1 = new AttributeValue();
-                $item1->vh_st_attribute_id = $item->id;
-                $item1->value = $value['value'];
-                $item1->save();
-            }
+
+        $item = new self();
+        $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
+        $item->save();
+
+        if (count($values_to_save) > 15) {
+            $item->delete();
+            $response['success'] = false;
+            $response['messages'][] = "Exceeded the maximum limit of 15 values.";
+            return $response;
         }
+
+        $item->value()->saveMany($values_to_save);
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
-
     }
+
+
+
+
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -295,12 +300,35 @@ class Attribute extends VaahModel
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id','LIKE','%'.$search.'%');
-        });
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
+    }
+    //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
     //-------------------------------------------------
@@ -310,6 +338,7 @@ class Attribute extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -568,9 +597,7 @@ class Attribute extends VaahModel
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->name = $inputs['name'];
-        $item->type = $inputs['type'];
-        $item->is_active = $inputs['is_active'];
+        $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
         $existing_attribute_values = $item->value()->get()->toArray();
@@ -661,16 +688,25 @@ class Attribute extends VaahModel
     {
 
         $validated_data = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'description' => 'max:100',
             'value' => 'required|max:250',
             'value.*.value' => 'max:250',
             'type' => 'required|max:250',
 
+
         ],
             [
-
+                'name.required' => 'The Name field is required.',
+                'value.required' => 'The Value field is required.',
+                'name.max' => 'The Name field may not be greater than :max characters.',
+                'slug.required' => 'The Slug field is required.',
+                'slug.max' => 'The Slug field may not be greater than :max characters.',
+                'type.required' => 'The Type field field is required.',
+                'type.max' => 'The Type field may not be greater than :max characters.',
                 'value.*.value' => 'The Value field may not be greater than :max characters.',
+                'description.max' => 'The Description field may not be greater than :max characters.',
 
             ]
         );

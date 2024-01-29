@@ -252,18 +252,8 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
         },
-        //----------------------------------------------------------
-        confirmDialogTrash(callbackOnAccept)
-        {
-            this.confirmDialog('Trash Confirmation', 'Do you want to Trash record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmDialogRestore(callbackOnAccept)
-        {
-            this.confirmDialog('Restore Confirmation', 'Do you want to Restore record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
 
+        //----------------------------------------------------------
         confirmDialogDeleteAll(callbackOnAccept)
         {
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete all record(s)?', callbackOnAccept);
@@ -277,9 +267,30 @@ export const vaah = defineStore({
 
         //----------------------------------------------------------
 
+        confirmDialogActivateAll(callbackOnAccept)
+        {
+            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
         confirmDialogDeactivate(callbackOnAccept)
         {
             this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogDeactivateAll(callbackOnAccept)
+        {
+            this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
+        confirmDialogTrash(callbackOnAccept)
+        {
+            this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
@@ -291,7 +302,7 @@ export const vaah = defineStore({
 
         //----------------------------------------------------------
 
-        confirmDialogRestoreAll(callbackOnAccept)
+        confirmDialogRestore(callbackOnAccept)
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
@@ -303,57 +314,34 @@ export const vaah = defineStore({
         },
         //----------------------------------------------------------
 
+        confirmDialogRestoreAll(callbackOnAccept)
+        {
+            this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
         confirmDialogPendingAll(callbackOnAccept)
         {
-            this.confirmDialog('Pending Status Confirmation', 'Do you want to Pending all record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogRejectedAll(callbackOnAccept)
-        {
-            this.confirmDialog('Reject Status Confirmation', 'Do you want to Reject all record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogApproved(callbackOnAccept)
-        {
-            this.confirmDialog('Approve Status Confirmation', 'Do you want to Approve  record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogPending(callbackOnAccept)
-        {
-            this.confirmDialog('Pending Status Confirmation', 'Do you want to Pending  record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogRejected(callbackOnAccept)
-        {
-            this.confirmDialog('Reject Status Confirmation', 'Do you want to Reject  record(s)?', callbackOnAccept);
+            this.confirmDialog('Pending Confirmation', 'Do you want to mark status of all records as Pending?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
-        confirmHundredRecords(callbackOnAccept)
+
+        confirmDialogRejectAll(callbackOnAccept)
         {
-            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 100 records ?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmThousandsRecords(callbackOnAccept)
-        {
-            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 1000 records ?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmFiveThousandsRecords(callbackOnAccept)
-        {
-            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 5000 records ?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-        confirmTenThousandsRecords(callbackOnAccept)
-        {
-            this.confirmDialog('Records Create Confirmation', 'Do you want to Create 10000 records ?', callbackOnAccept);
+            this.confirmDialog('Reject Confirmation', 'Do you want to mark status of all records as Rejected?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
+
+        confirmDialogApproveAll(callbackOnAccept)
+        {
+            this.confirmDialog('Approve Confirmation', 'Do you want to mark status of all records as Approved?', callbackOnAccept);
+        },
+
+        //----------------------------------------------------------
+
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));

@@ -34,7 +34,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <div style=" width:250px; overflow-wrap: break-word; word-wrap:break-word;">
+                    <div style=" width:100px; overflow-wrap: break-word; word-wrap:break-word;">
                         {{prop.data.name}}
                     </div>
                 </template>
@@ -43,31 +43,34 @@ const useVaah = vaah();
 
              <Column field="attributes_list.name" header="Attributes">
                  <template #body="prop">
-                     <template v-for="attributes in prop.data.attributes_list">
-                                 <li>{{ attributes.name }}</li>
-                     </template>
+                     <div class="flex flex-wrap gap-2 ">
+                         <template v-for="(attribute, index) in prop.data.attributes_list">
+                             <Badge class="mr-2 h-max max-w-full">{{attribute.name}}</Badge>
+                         </template>
+                     </div>
                  </template>
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+<!--                <Column field="updated_at" header="Updated"-->
+<!--                        v-if="store.isViewLarge()"-->
+<!--                        style="width:150px;"-->
+<!--                        :sortable="true">-->
 
-                    <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
-                    </template>
+<!--                    <template #body="prop">-->
+<!--                        {{useVaah.ago(prop.data.updated_at)}}-->
+<!--                    </template>-->
 
-                </Column>
+<!--                </Column>-->
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
+
                     style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="attributegroups-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -91,7 +94,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="attributegroups-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
@@ -100,7 +104,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="attributegroups-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -108,7 +112,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="attributegroups-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -121,7 +125,9 @@ const useVaah = vaah();
 
             </Column>
 
-
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+             </template>
         </DataTable>
         <!--/table-->
 

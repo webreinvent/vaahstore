@@ -25,6 +25,7 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+const permissions=store.assets.permissions;
 </script>
 <template>
 
@@ -36,7 +37,8 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="flex flex-row">
-                    <div class="p-panel-title">
+                    <div class="p-panel-title"
+                         :disabled="!store.assets.permissions.includes('can-update-module')">
                         <span v-if="store.item && store.item.id">
                             Update
                         </span>
@@ -59,6 +61,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="productvariations-save"
                             @click="store.itemAction('save')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -66,6 +69,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="productvariations-create-and-new"
+
                             icon="pi pi-save"/>
 
                     <Button data-testid="productvariations-document" icon="pi pi-info-circle"
@@ -80,6 +84,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="productvariations-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -147,6 +152,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Quantity">
                     <InputNumber
+                        class="quantity-class"
                         placeholder="Enter a Quantity"
                         inputId="minmax-buttons"
                         name="productvariations-quantity"
@@ -155,6 +161,16 @@ const toggleFormMenu = (event) => {
                         showButtons
                         :min="0"
                         data-testid="productvariations-quantity"/>
+                </VhField>
+
+                <VhField label="Price"  v-if="store.item.quantity">
+                    <InputNumber
+                        v-model="store.item.price"
+                        placeholder="Enter Price"
+                        @input = "store.checkPrice($event)"
+                        :min = 1
+                        name="productvariations-price"
+                        data-testid="productvariations-price"/>
                 </VhField>
 
                 <VhField label="In Stock">
@@ -191,6 +207,14 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.status_notes"/>
                 </VhField>
 
+                <VhField label="Description">
+                    <Textarea rows="3" class="w-full"
+                              placeholder="Enter a Description Here"
+                              name="productvariations-description"
+                              data-testid="productvariations-description"
+                              v-model="store.item.description"/>
+                </VhField>
+
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
@@ -204,12 +228,26 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  name="productvariations-active"
                                  data-testid="productvariations-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active"
+                                 :pt="{
+        slider: ({ props }) => ({
+            class: props.modelValue ? 'bg-green-400' : ''
+        })
+    }"
+                    />
                 </VhField>
-
             </div>
         </Panel>
 
     </div>
 
 </template>
+
+
+<style scoped>
+
+.quantity-class{
+    height:35px;
+}
+
+</style>

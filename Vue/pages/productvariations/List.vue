@@ -58,6 +58,7 @@ const toggleCreateMenu = (event) => {
 };
 //--------/form_menu
 
+const permissions=store.assets ? store.assets.permissions : 0;
 
 </script>
 <template>
@@ -87,14 +88,15 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="productvariations-list-create"
                             class="p-button-sm"
-                            @click="store.toForm()">
+                            @click="store.toForm()"
+                            :disabled="!store.assets.permissions.includes('can-update-module')">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
 
                     <Button data-testid="productvariations-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reloadPage()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -107,6 +109,7 @@ const toggleCreateMenu = (event) => {
                         class="p-button-sm"
                         data-testid="productvariations-create-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="create_menu"

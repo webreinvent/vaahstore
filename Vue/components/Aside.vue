@@ -1,15 +1,25 @@
 <script setup>
-import {reactive, ref,watch,onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-
+import {reactive, ref} from 'vue';
+import { useRoute } from 'vue-router';
 import Menu from 'primevue/menu';
-const route = useRoute();
+
 const inputs = {
 }
 const data = reactive(inputs);
 const height = ref(window.innerHeight)
-
+const route = useRoute();
 const menu = ref();
+
+function isActive(routePaths) {
+    return routePaths.includes(route.path);
+}
+
+const selected_page = ref({
+    menuitem: ({ props }) => ({
+        class: route.matched && route.matched[1] &&
+        route.matched[1].path === props.item.route ? 'p-focus' : ''
+    })
+});
 
 const items = ref([
     {
@@ -18,7 +28,7 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                route: "/stores",
+                route: "/stores"
             },
             {
                 label: 'Store Payment Methods',
@@ -28,7 +38,7 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                route: "/vendors",
+                route: "/vendors"
             },
             {
                 label: 'Vendor Products',
@@ -78,7 +88,7 @@ const items = ref([
             {
                 label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
-                route: "/attributegroups"
+                route: "/attributesgroup"
             },
             {
                 label: 'Orders',
@@ -109,19 +119,15 @@ const items = ref([
     },
 ]);
 
-const menu_pt = ref({
-    menuitem: ({ props }) => ({
-        class: route.matched && route.matched[1] &&
-        route.matched[1].path === props.item.route ? 'p-focus' : ''
-    })
-});
 </script>
 <template>
 
     <div v-if="height">
-        <Menu :model="items" :pt="menu_pt"  class="w-full" >
+        <Menu :model="items"  class="w-full" :pt="selected_page">
             <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom :class="props.class">
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom
+                 :class="{ 'router-link-active' : isActive(item.route) }"
+                >
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
                         <span :class="item.icon" />
                         <span class="ml-2">{{ item.label }}</span>
@@ -134,5 +140,4 @@ const menu_pt = ref({
             </template>
         </Menu>
     </div>
-
 </template>
