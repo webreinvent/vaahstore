@@ -218,7 +218,7 @@ const toggleItemMenu = (event) => {
 
                                 <tr>
                                     <td>
-                                        <b>Product Images</b>
+                                        <b>Product Media</b>
                                     </td>
                                     <td colspan="2" >
                                         <Image v-if="store.item.images && store.item.images.length > 0"

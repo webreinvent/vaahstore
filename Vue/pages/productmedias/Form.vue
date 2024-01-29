@@ -168,7 +168,7 @@ const toggleFormMenu = (event) => {
                         :complete-on-focus = "true"
                         :suggestions="store.product_variation_list"
                         @complete="store.searchVariationOfProduct($event)"
-                        placeholder="Select Product Variation"
+                        placeholder="Select Product Variations"
                         class="w-full "
 
                     />
@@ -221,7 +221,7 @@ const toggleFormMenu = (event) => {
                         </template>
                     </FileUpload>
                 </VhField>
-                <VhField label="Alt Name">
+                <VhField label="Alt Text">
                     <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
                 </VhField>
                 <div v-if="store.item.images && store.item.images.length > 0">
