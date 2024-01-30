@@ -1212,6 +1212,11 @@ export const useWhishlistStore = defineStore({
             }
         },
 
+        toProduct(item)
+        {
+            this.item = vaah().clone(item);
+            this.$router.push({name: 'whishlists.products', params:{id:item.id}})
+        },
     }
 });
 

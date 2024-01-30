@@ -407,20 +407,19 @@ class Whishlist extends VaahModel
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
         $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
         $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
 
-
         switch ($inputs['type']) {
-            case 'approved':
+            case 'approve':
                 $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
             case 'pending':
                 $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
                 break;
-            case 'rejected':
+            case 'reject':
                 $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash':
@@ -511,7 +510,7 @@ class Whishlist extends VaahModel
             $list->searchFilter($request->filter);
         }
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
         $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
         $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();

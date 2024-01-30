@@ -140,7 +140,8 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
-                                column === 'status'|| column === 'whishlist_type' || column ==='deleted_by'">
+                                column === 'status'|| column === 'whishlist_type' || column ==='deleted_by' ||
+                                column === 'meta' || column === 'taxonomy_id_whishlists_types'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -148,6 +149,19 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        :can_copy="true"
                             />
+                        </template>
+                        <template v-else-if="column === 'type'">
+                            <tr>
+                                <td :style="{width: label_width}">
+                                    <b>Type</b>
+                                </td>
+                                <td colspan="2">
+                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        <span v-if="store.item.type == 1">Public</span>
+                                        <span v-else>Private</span>
+                                    </div>
+                                </td>
+                            </tr>
                         </template>
                         <template v-else-if="column === 'status_notes'">
                             <tr>
@@ -179,13 +193,6 @@ const toggleItemMenu = (event) => {
                         <template v-else-if="column === 'vh_user_id'">
                             <VhViewRow label="User"
                                        :value="store.item.user"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_whishlists_types'">
-                            <VhViewRow label="Whishlists"
-                                       :value="store.item.whishlist_type"
                                        type="user"
                             />
                         </template>

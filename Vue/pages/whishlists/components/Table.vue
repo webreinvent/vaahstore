@@ -36,6 +36,26 @@ const useVaah = vaah();
 
              </Column>
 
+             <Column field="product" header="Product"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <div class="p-inputgroup">
+                         <span class="p-inputgroup-addon">
+<!--                             <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">-->
+<!--                                 {{prop.data.product_vendors.length}}-->
+<!--                            </b>-->
+<!--                              <b v-else>0</b>-->
+                         </span>
+                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                                 size="small"
+                                 v-tooltip.top="'Add Products'"
+                                 @click="store.toProduct(prop.data)" />
+                     </div>
+                 </template>
+
+             </Column>
+
              <Column field="user.name" header="User"
                      :sortable="true">
 
@@ -72,10 +92,10 @@ const useVaah = vaah();
 
                  <template #body="prop">
                      <span v-if="prop.data.type === 0" style="padding-left: 5px;">
-                       Public
+                       Private
                     </span>
                      <span v-else="prop.data.type === 1" style="padding-left: 5px;">
-                       Private
+                       Public
                     </span>
                  </template>
 
