@@ -95,6 +95,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="status.name" header="Status"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -102,8 +103,8 @@ const useVaah = vaah();
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status"
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
+                            severity="warning"> {{prop.data.status.name}}</Badge>
                  </template>
 
              </Column>
@@ -114,7 +115,7 @@ const useVaah = vaah();
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                        {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>

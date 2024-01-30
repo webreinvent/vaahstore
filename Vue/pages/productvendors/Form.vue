@@ -137,7 +137,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Vendor" >
+                <VhField label="Vendor*" >
                     <div class="p-inputgroup">
                     <AutoComplete
                         value="id"
@@ -155,7 +155,7 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Store">
+                <VhField label="Store*">
 <!--                    <MultiSelect class="w-full"-->
 <!--                                 v-model="store.item.store_vendor_product"-->
 <!--                                 display="chip"-->
@@ -174,14 +174,14 @@ const toggleFormMenu = (event) => {
                             :complete-on-focus = "true"
                             :suggestions="store.active_stores"
                             @complete="store.searchActiveStores($event)"
-                            placeholder="Select Store "
+                            placeholder="Select Stores "
                             @change="store.setStores($event)"
                             class="w-full "
 
                         />
                 </VhField>
 
-                <VhField label="Product" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
+                <VhField label="Product*" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
@@ -223,7 +223,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Added By">
+                <VhField label="Added By*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.added_by_user"
@@ -241,7 +241,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
 
                     <AutoComplete
                         value="id"

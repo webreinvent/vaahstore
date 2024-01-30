@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -14,7 +15,6 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Vendor;
-use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductVendor extends VaahModel
@@ -601,8 +601,8 @@ class ProductVendor extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
                 $details = ProductVendor::with('storeVendorProduct')->get();
@@ -811,13 +811,14 @@ class ProductVendor extends VaahModel
             'can_update'=> 'required|max:150',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
                              ],
             ],
         [
             'vh_st_vendor_id.required' => 'The Vendor field is required',
             'store_vendor_product.required' => 'The Store field is required',
             'vh_st_product_id.required' => 'The Product field is required',
+            'added_by.required' => 'The Added By field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
@@ -1172,6 +1173,35 @@ class ProductVendor extends VaahModel
         return $response;
 
 
+    }
+    public static function productForStore($request)
+    {
+        $inputs = $request->all();
+        $response = [];
+        $ids = $inputs['id'];
+        $q = $inputs['q'];
+
+        $query = Product::where('is_active', 1)
+            ->whereIn('vh_st_store_id', $ids);
+
+        if (!empty($q)) {
+            $query->where(function ($sub_query) use ($q) {
+                $sub_query->where('name', 'like', '%' . $q . '%')
+                    ->orWhere('slug', 'like', '%' . $q . '%');
+            });
+        }
+
+        $data = $query->with('store')
+            ->orderBy('vh_st_store_id')
+            ->orderBy('id')
+            ->when(empty($q), function ($query) {
+                return $query->take(10);
+            })
+            ->get(['id', 'name', 'slug', 'vh_st_store_id']);
+
+        $response['success'] = true;
+        $response['data'] = $data;
+        return $response;
     }
 
 }

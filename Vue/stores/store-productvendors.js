@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/productvendors";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -321,9 +321,13 @@ export const useProductVendorStore = defineStore({
               }
           },
         //---------------------------------------------------------------------
-        async getProductsListForStore(){
+        async getProductsListForStore(event){
+            const query = {
+                q:event.query,
+                id:this.item.store_ids
+            }
             let options = {
-                params: this.item.store_ids,
+                params: query,
                 method: 'POST'
             };
             await vaah().ajax(
@@ -345,6 +349,7 @@ export const useProductVendorStore = defineStore({
                 let vendor = toRaw(event.value);
                 this.item.vh_st_vendor_id = vendor.id;
             }
+            this.item.vh_st_vendor_id=null;
         },
         //---------------------------------------------------------------------
         setProduct(event){
@@ -359,6 +364,7 @@ export const useProductVendorStore = defineStore({
                 let user = toRaw(event.value);
                 this.item.added_by = user.id;
             }
+            this.item.added_by=null;
         },
         //---------------------------------------------------------------------
         setStatus(event){
@@ -394,7 +400,7 @@ export const useProductVendorStore = defineStore({
 
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -942,6 +948,7 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.item.is_active=1;
             this.$router.push({name: 'productvendors.form'})
         },
         //---------------------------------------------------------------------
@@ -1310,6 +1317,13 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.active_stores = data;
+                if (data && this.item.store_vendor_product) {
+                    this.active_stores = data.filter((item) => {
+                        return !this.item.store_vendor_product.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
             }
         },
 
@@ -1317,6 +1331,8 @@ export const useProductVendorStore = defineStore({
         async setStores(event) {
             let stores = toRaw(event.value);
             this.item.store_ids = stores.map(store => store.id);
+            this.item.vh_st_product_id=null;
+            this.item.product=null;
         },
         async searchProductforFilter(event) {
             const query = event;
