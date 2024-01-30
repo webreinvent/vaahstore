@@ -89,5 +89,9 @@ function () {
         ->name('vh.backend.store.whishlists.search.status');
 
     //---------------------------------------------------------
-
+    /**
+     * Search product
+     */
+    Route::any('/search/product', 'WhishlistsController@searchProduct')
+        ->name('vh.backend.store.whishlists.search.product');
 });

@@ -637,6 +637,7 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms::messages.permission_denied");
@@ -931,6 +932,19 @@ class Whishlist extends VaahModel
         return $response;
     }
     //-------------------------------------------------
+
+    public static function searchProduct($request){
+        $product = Product::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product = $product->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product;
+        return $response;
+
+    }
 
 
 }

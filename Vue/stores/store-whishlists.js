@@ -74,7 +74,10 @@ export const useWhishlistStore = defineStore({
         user_suggestion: null,
         form_menu_list: [],
         selected_dates:null,
-        date_null:null
+        date_null:null,
+        product_suggestion:null,
+        selected_product : null,
+        user_error_message: [],
     }),
     getters: {
 
@@ -1186,7 +1189,7 @@ export const useWhishlistStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
-        //---------------------------------------------------------------------
+
 
         //---------------------------------------------------------------------
         setDateRange() {
@@ -1212,11 +1215,66 @@ export const useWhishlistStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+
         toProduct(item)
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'whishlists.products', params:{id:item.id}})
         },
+
+        //---------------------------------------------------------------------
+        async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.product_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        addProduct() {
+
+            if (!this.item.products) {
+                this.item.products = []; // Initialize the products array if it's undefined
+            }
+            const exist = this.item.products.some(item => item.product.id === this.selected_product.id);
+
+           if(!exist)
+           {
+               const new_product = {
+                   product: this.selected_product,
+                   is_selected: false,
+               };
+               this.item.products.push(new_product);
+           }
+           else {
+               this.showUserErrorMessage(['This product is already present'], 4000);
+           }
+
+        },
+
+        //---------------------------------------------------------------------
+        showUserErrorMessage(message, time = 2500){
+            this.user_error_message = message;
+            setTimeout(()=>{
+                this.user_error_message = [];
+            },time);
+        },
+        //---------------------------------------------------------------------
+
     }
 });
 

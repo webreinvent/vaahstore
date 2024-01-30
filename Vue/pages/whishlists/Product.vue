@@ -5,7 +5,6 @@ import { useWhishlistStore } from '../../stores/store-whishlists'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-
 const store = useWhishlistStore();
 const route = useRoute();
 
@@ -56,7 +55,7 @@ const toggleSelectedMenuState = (event) => {
                             v-if="store.item && store.item.id"
                             class="p-button-sm"
                             data-testid="products-save"
-                            @click="store.saveVendor()"
+                            @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -87,21 +86,21 @@ const toggleSelectedMenuState = (event) => {
                 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-                        <Dropdown v-model="store.selected_vendor"
-                                  :options="store.active_vendors"
-                                  optionLabel="name"
-                                  placeholder="Select a Vendor"
-                                  class="w-full">
-                            <!--                            <template #optiongroup="slotProps">-->
-                            <!--                                <div class="flex align-items-center">-->
-                            <!--                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>-->
-                            <!--                                </div>-->
-                            <!--                            </template>-->
-                        </Dropdown>
+                        <AutoComplete
+                            name="addresses-user-filter"
+                            data-testid="addresses-user-filter"
+                            v-model="store.selected_product"
+                            option-label = "name"
+                            :complete-on-focus = "true"
+                            :suggestions="store.product_suggestion"
+                            @complete="store.searchProduct($event)"
+                            placeholder="Select Product"
+                            class="w-full">
+                        </AutoComplete>
                     </div>
 
                     <div class="p-2">
-                        <Button v-if="store.selected_vendor" type="button" label="Add" @click="store.addVendor()" />
+                        <Button v-if="store.selected_product" type="button" label="Add" @click="store.addProduct()" />
                     </div>
                 </div>
 
@@ -126,52 +125,36 @@ const toggleSelectedMenuState = (event) => {
 <!--                </div>-->
 
 <!--                &lt;!&ndash;added vendor's list&ndash;&gt;-->
-<!--                <div class="col-12"-->
-<!--                     v-if="store.item.vendors && store.item.vendors.length > 0">-->
-<!--                    <table class="table col-12 table-scroll table-striped">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th class="col-1">-->
-<!--                                <Checkbox v-model="store.select_all_vendor"-->
-<!--                                          :binary="true" @click="store.selectAllVendor()" />-->
-<!--                            </th>-->
-<!--                            <th scope="col">Vendor name</th>-->
-<!--                            <th scope="col">Can update</th>-->
-<!--                            <th scope="col">Status*</th>-->
-<!--                            <th scope="col">Status notes</th>-->
-<!--                            <th scope="col">Action</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody id="scroll-horizontal" class="pt-1">-->
-<!--                        <tr v-for="(item, index) in store.item.vendors">-->
-<!--                            <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>-->
-<!--                            <td>-->
-<!--                                <InputText v-model="item['vendor']['name']" class="w-full" disabled/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <InputSwitch v-model="item['can_update']" />-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <Dropdown v-model="item['status']"-->
-<!--                                          :options="store.product_vendor_status"-->
-<!--                                          optionLabel="name"-->
-<!--                                          placeholder="Select a status"-->
-<!--                                          class="w-full" />-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <InputText v-model="item['status_notes']" class="w-full" />-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <Button label="Remove"-->
-<!--                                        class="btn-danger"-->
-<!--                                        size="small"-->
-<!--                                        @click="store.removeVendor(item)" />-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
+                <div class="col-12"
+                     v-if="store.item.products && store.item.products.length > 0">
+                    <table class="table col-12 table-scroll table-striped">
+                        <thead>
+                        <tr>
+                            <th class="col-1">
+                                <Checkbox v-model="store.select_all_product"
+                                          :binary="true" @click="store.selectAllVendor()" />
+                            </th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="scroll-horizontal" class="pt-1">
+                        <tr v-for="(item, index) in store.item.products">
+                            <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
+                            <td>
+                                <InputText v-model="item['product']['name']" class="w-full" disabled/>
+                            </td>
+                            <td>
+                                <Button label="Remove"
+                                        class="btn-danger"
+                                        size="small"
+                                        @click="store.removeVendor(item)" />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
 
-<!--                </div>-->
+                </div>
 
             </div>
         </Panel>
