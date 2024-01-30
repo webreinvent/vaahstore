@@ -174,7 +174,7 @@ const toggleFormMenu = (event) => {
                             :complete-on-focus = "true"
                             :suggestions="store.active_stores"
                             @complete="store.searchActiveStores($event)"
-                            placeholder="Select Store "
+                            placeholder="Select Stores "
                             @change="store.setStores($event)"
                             class="w-full "
 
