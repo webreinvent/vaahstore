@@ -302,6 +302,7 @@ export const useVendorStore = defineStore({
        async bulkRemoveProductAfter(){
              await this.getList();
              this.item.products = [];
+             this.select_all_product=false;
         },
         //---------------------------------------------------------------------
         async removeProductAfter(data,res){
