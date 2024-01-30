@@ -601,8 +601,8 @@ class ProductVendor extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
                 $details = ProductVendor::with('storeVendorProduct')->get();
