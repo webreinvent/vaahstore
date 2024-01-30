@@ -215,7 +215,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td colspan="2">
                                     <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
-                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                    <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component p-badge-warning" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                     <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                 </td>
                             </tr>
@@ -229,17 +229,10 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-<!--                        <template v-else-if="column === 'can_update'">-->
-<!--                            <VhViewRow :label="column"-->
-<!--                                       :value="value"-->
-<!--                                       type="yes-no"-->
-<!--                            />-->
-
-<!--                        </template>-->
 
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />
