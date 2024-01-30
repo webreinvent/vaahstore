@@ -361,10 +361,20 @@ class Vendor extends VaahModel
 
         if($inputs['store']['is_default'] === 0)
         {
+
             if($inputs['store']['is_multi_vendor'] === 0)
             {
-                if ($vendor) {
-                    $response['errors'][] = "There is already a vendor associated with this store.";
+
+                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
+                    ->withTrashed()
+                    ->firstOrFail()
+                    ->vendors()
+                    ->count();
+
+
+
+                if ($vendor_count > 0) {
+                    $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
             }
@@ -898,7 +908,7 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
-        
+
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
@@ -962,15 +972,19 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)->withTrashed()->first();
 
-        if ($item->store->is_multi_vendor !== $inputs['store']['is_multi_vendor']) {
+        if($inputs['store']['is_multi_vendor'] === 0) {
 
-            $vendor = self::where('vh_st_store_id', $inputs['vh_st_store_id'])->first();
+            $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
+                ->withTrashed()
+                ->firstOrFail()
+                ->vendors()
+                ->count();
 
-            if($vendor->is_multi_vendor === 0)
-                $response=[];
-                    $response['errors'][] = "There is already a vendor associated with this store.";
-                    return $response;
 
+            if ($vendor_count > 0) {
+                $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
+                return $response;
+            }
         }
 
         $item->fill($inputs);
