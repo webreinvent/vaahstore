@@ -32,8 +32,10 @@ class Whishlist extends VaahModel
     protected $fillable = [
         'uuid',
         'vh_user_id',
+        'name',
+        'slug',
+
         'taxonomy_id_whishlists_status',
-        'taxonomy_id_whishlists_types',
         'is_default',
         'status_notes',
         'created_by',

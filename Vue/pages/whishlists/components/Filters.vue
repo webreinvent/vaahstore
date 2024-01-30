@@ -31,27 +31,6 @@ const store = useWhishlistStore();
 
             </VhFieldVertical>
 
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Type By:</b>
-                </template>
-                <VhField label="Wish List Status">
-                    <MultiSelect
-                        v-model="store.query.filter.wishlist_type"
-                        :options="store.assets.taxonomy.types"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Type"
-                        display="chip"
-                        class="w-full" />
-                </VhField>
-
-
-            </VhFieldVertical>
-
             <Divider/>
 
             <VhFieldVertical >

@@ -118,19 +118,30 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
+                <VhField label="Name*">
+                    <InputText class="w-full"
+                               placeholder="Enter Name"
+                               name="stores-name"
+                               data-testid="stores-name"
+                               @update:modelValue="store.watchItem"
+                               v-model="store.item.name"/>
+                </VhField>
+
+                <VhField label="Slug*">
+                    <InputText class="w-full"
+                               placeholder="Enter Slug"
+                               name="stores-slug"
+                               data-testid="stores-slug"
+                               v-model="store.item.slug"/>
+                </VhField>
+
                 <VhField label="Type">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.whishlist_type"
-                        @change="store.setWhishlistsType($event)"
-                        class="w-full"
-                        :suggestions="store.type_suggestion"
-                        @complete="store.searchType($event)"
-                        placeholder="Select Type"
-                        data-testid="whishlists-type"
-                        name="whishlists-type"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 class="p-inputswitch"
+                                 name="whishlists-is_default"
+                                 data-testid="whishlists-is_default"
+                                 v-model="store.item.type"/>
                 </VhField>
 
                 <VhField label="Status">
