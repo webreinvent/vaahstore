@@ -8,7 +8,7 @@ import Price from '../pages/productvendors/ProductPrice.vue'
 
 routes_list = {
 
-    path: '/productvendors',
+    path: '/vendorproducts',
     name: 'productvendors.index',
     component: List,
     props: true,
