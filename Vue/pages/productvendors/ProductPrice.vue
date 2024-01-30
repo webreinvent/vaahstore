@@ -132,17 +132,18 @@ const toggleFormMenu = (event) => {
 
 
 <!--                <VhField >-->
+                <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
 
-                    <table class="table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
+                    <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
                         <thead>
                         <tr>
                             <th>Variations Name</th>
                             <th>Price</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="p-datatable-tbody">
                         <tr v-for="(variation, index) in store.product_variation_list" :key="index">
-                            <td>{{ variation.name }}</td>
+                            <td style="width: 250px">{{ variation.name }}</td>
                             <td>
                                 <InputNumber
                                     :placeholder="'Enter price '"
@@ -152,6 +153,7 @@ const toggleFormMenu = (event) => {
                                     :min="0"
                                     :max="150000000000000"
                                     mode="decimal"
+                                    class="p-inputtext-sm h-2rem m-1"
                                     showButtons
                                     :data-testid="'productprices-amount-' + index"
                                 />
@@ -159,7 +161,8 @@ const toggleFormMenu = (event) => {
                         </tr>
                         </tbody>
                     </table>
-                <p class="text-center text-2xl" v-else>No variations available</p>
+                    <div v-else  style="text-align: center;font-size: 12px; color: #888;">No variation found.</div>
+                </div>
 
 
 <!--                </VhField>-->
