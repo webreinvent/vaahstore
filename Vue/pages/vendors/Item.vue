@@ -241,15 +241,6 @@ const permissions=store.assets.permissions;
                                     </td>
                                 </tr>
 
-                                <tr v-if="store.item.status && store.item.status.name">
-                                    <td>
-                                        <b>Status</b>
-                                    </td>
-                                    <td colspan="2" >
-                                        {{store.item.status.name}}
-                                    </td>
-                                </tr>
-
                                 <tr v-if="store.item.years_in_business">
                                     <td>
                                         <b>Years in Business</b>
@@ -384,6 +375,20 @@ const permissions=store.assets.permissions;
                                         </Accordion>
                                     </td>
 
+                                </tr>
+
+                                <tr v-if="store.item.status && store.item.status.name">
+                                    <td>
+                                        <b>Status</b>
+                                    </td>
+                                    <td colspan="2" >
+                                        <Badge v-if="store.item.status && store.item.status.name == 'Approved'"
+                                               severity="success"> {{store.item.status.name}} </Badge>
+                                        <Badge v-else-if="store.item.status &&store.item.status.name == 'Rejected'"
+                                               severity="danger"> {{store.item.status.name}} </Badge>
+                                        <Badge v-else
+                                               severity="warning"> {{store.item.status.name}} </Badge>
+                                    </td>
                                 </tr>
 
                             </template>
