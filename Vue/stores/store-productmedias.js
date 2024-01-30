@@ -396,7 +396,6 @@ export const useProductMediaStore = defineStore({
                 const images=data.images;
 
                 this.item.product_variation=data.listed_variation;
-
                 // this.item.product=data.product;
                 if (images.length > 0) {
                     this.item.type= images.map((file) => file.type).join(', ');
