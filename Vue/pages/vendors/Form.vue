@@ -276,28 +276,6 @@ const permissions=store.assets.permissions;
 
                 </VhField>
 
-                <VhField label="Status*">
-                    <AutoComplete v-model="store.item.status"
-                                  @change="store.setStatus($event)"
-                                  value="id"
-                                  data-testid="vendors-taxonomy_id_vendor_status"
-                                  name="vendors-taxonomy_id_vendor_status"
-                                  class="w-full"
-                                  placeholder="Select Status"
-                                  :suggestions="store.vendor_status_suggestions"
-                                  @complete="store.searchStatus($event)"
-                                  :dropdown="true"
-                                  optionLabel="name"
-                                  forceSelection />
-
-                </VhField>
-
-                <VhField label="Status Notes">
-                    <Textarea placeholder="Enter Status Note"
-                              v-model="store.item.status_notes" rows="3" class="w-full"
-                              data-testid="vendors-status_notes" name="vendors-status_notes" />
-                </VhField>
-
 
 
                 <VhField label="Years in Business">
@@ -437,6 +415,28 @@ const permissions=store.assets.permissions;
                     </AccordionTab>
 
                 </Accordion>
+
+                <VhField label="Status*">
+                    <AutoComplete v-model="store.item.status"
+                                  @change="store.setStatus($event)"
+                                  value="id"
+                                  data-testid="vendors-taxonomy_id_vendor_status"
+                                  name="vendors-taxonomy_id_vendor_status"
+                                  class="w-full"
+                                  placeholder="Select Status"
+                                  :suggestions="store.vendor_status_suggestions"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  forceSelection />
+
+                </VhField>
+
+                <VhField label="Status Notes">
+                    <Textarea placeholder="Enter Status Note"
+                              v-model="store.item.status_notes" rows="3" class="w-full"
+                              data-testid="vendors-status_notes" name="vendors-status_notes" />
+                </VhField>
 
                 <VhField label="Is Default">
                     <InputSwitch v-bind:false-value="0"
