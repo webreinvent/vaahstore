@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -14,7 +15,6 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Vendor;
-use VaahCms\Modules\Store\Models\Product;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class ProductVendor extends VaahModel
@@ -1172,6 +1172,28 @@ class ProductVendor extends VaahModel
         return $response;
 
 
+    }
+    public static function productForStore($request)
+    {
+        $inputs = $request->all();
+        $response = [];
+        $ids = $inputs['id'];
+        $q = $inputs['q'];
+
+        $data = Product::where('is_active', 1)
+            ->whereIn('vh_st_store_id', $ids)
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', '%' . $q . '%')
+                    ->orWhere('slug', 'like', '%' . $q . '%');
+            })
+            ->with('store')
+            ->orderBy('vh_st_store_id')
+            ->orderBy('id')
+            ->get(['id', 'name', 'slug', 'vh_st_store_id']);
+
+        $response['success'] = true;
+        $response['data'] = $data;
+        return $response;
     }
 
 }

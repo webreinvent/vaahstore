@@ -233,29 +233,22 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function productForStore(Request $request){
         try{
-            $inputs = $request->all();
-            $response = [];
-            $ids = array_column($inputs, 'id');
-            $data = Product::where('is_active', 1)->whereIn( 'vh_st_store_id', $inputs)
-                ->with('store')
-                ->orderBy('vh_st_store_id')
-                ->orderBy('id')
-                ->get(['id','name','slug','vh_st_store_id']);
-            $response['success'] = true;
-            $response['data']= $data;
-            return $response;
+            return ProductVendor::productForStore($request);
         }catch (\Exception $e){
             $response = [];
-            $response['status'] = 'failed';
+            $response['success'] = false;
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = 'Something went wrong.';
-                return $response;
+
             }
+            return $response;
         }
     }
+
+
     //----------------------------------------------------------
     public function updateList(Request $request)
     {

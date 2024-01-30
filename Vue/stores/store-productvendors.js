@@ -321,9 +321,13 @@ export const useProductVendorStore = defineStore({
               }
           },
         //---------------------------------------------------------------------
-        async getProductsListForStore(){
+        async getProductsListForStore(event){
+            const query = {
+                q:event.query,
+                id:this.item.store_ids
+            }
             let options = {
-                params: this.item.store_ids,
+                params: query,
                 method: 'POST'
             };
             await vaah().ajax(
