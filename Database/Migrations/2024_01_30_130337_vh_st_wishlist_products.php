@@ -17,8 +17,8 @@ class VhStWishlistProducts extends Migration
         Schema::create('vh_st_wishlist_products', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
-            $table->unsignedBigInteger('product_id')->nullable()->index();;
-            $table->unsignedBigInteger('whishlist_id');
+            $table->unsignedBigInteger('product_id')->index();
+            $table->unsignedBigInteger('whishlist_id')->index();
 
             //----common fields
             $table->text('meta')->nullable();
