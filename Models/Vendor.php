@@ -430,7 +430,7 @@ class Vendor extends VaahModel
                 'max:250'
             ],
             'store' => '',
-            'email' => 'email|max:100',
+            'email' => 'nullable|email|max:100',
             'address' => 'max:250',
             'business_document_type' => 'max:50',
             'business_document_detail'=>'max:50',
