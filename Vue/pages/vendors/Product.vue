@@ -103,6 +103,7 @@ const toggleSelectedMenuState = (event) => {
                         <Button type="button"
                                 label="Add"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                                style="margin-top:0.5rem"
                                 @click="store.addProduct()" />
                     </div>
                 </div>
