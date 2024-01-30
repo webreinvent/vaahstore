@@ -34,7 +34,7 @@ class Whishlist extends VaahModel
         'vh_user_id',
         'name',
         'slug',
-
+        'type',
         'taxonomy_id_whishlists_status',
         'is_default',
         'status_notes',
@@ -743,19 +743,21 @@ class Whishlist extends VaahModel
 
         $rules = array(
             'vh_user_id'=> 'required',
-            'taxonomy_id_whishlists_types'=> 'required',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'type' => '',
             'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
+            'status_notes' => 'max:250',
         );
 
         $customMessages = array(
-            'vh_user_id.required' => 'The user field is required.',
-            'taxonomy_id_whishlists_types.required' => 'The type field is required.',
-            'taxonomy_id_whishlists_status.required' => 'The status field is required.',
-            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'vh_user_id.required' => 'The User field is required.',
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The Slug field may not be greater than :max characters.',
+            'vh_user_id.required' => 'The User field is required.',
+            'taxonomy_id_whishlists_status.required' => 'The Status field is required.',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
@@ -811,14 +813,19 @@ class Whishlist extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
 
+        $faker = Factory::create();
+
+        // fill the user field here
+
         $users_ids = User::where('is_active',1)->pluck('id')->toArray();
         $users_id = $users_ids[array_rand($users_ids)];
         $users_id_data = User::where('is_active',1)->where('id',$users_id)->first();
         $inputs['vh_user_id'] =$users_id;
         $inputs['user'] = $users_id_data;
 
+        // fill the taxonomy status field here
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         if($taxonomy_status->isEmpty())
         {
@@ -832,9 +839,18 @@ class Whishlist extends VaahModel
         $inputs['taxonomy_id_whishlists_status'] = $status_id;
         $inputs['status']=$status;
 
+        // fill the name field here
+        $max_chars = rand(2,100);
+        $inputs['name']=$faker->text($max_chars);
 
+        // fill the slug field here
+        $inputs['slug']=Str::slug($inputs['name']);
+
+        // fill the is default field here
+
+        $inputs['type'] = 0;
         $inputs['is_default'] = 0;
-        $faker = Factory::create();
+
 
         /*
          * You can override the filled variables below this line.
@@ -896,9 +912,9 @@ class Whishlist extends VaahModel
     {
         $query = $request->input('query');
         if(empty($query)) {
-            $item = Taxonomy::getTaxonomyByType('wishlists-status');
+            $item = Taxonomy::getTaxonomyByType('whishlists-status');
         } else {
-            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-status');
+            $tax_type = TaxonomyType::getFirstOrCreate('whishlists-status');
 
             $item =array();
 

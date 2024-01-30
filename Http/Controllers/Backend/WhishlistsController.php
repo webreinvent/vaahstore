@@ -32,8 +32,8 @@ class WhishlistsController extends Controller
             $data['fillable']['columns'] = Whishlist::getFillableColumns();
             $data['fillable']['except'] = Whishlist::getUnFillableColumns();
             $data['empty_item'] = Whishlist::getEmptyItem();
-            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('wishlists-status');
-            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('wishlists-types');
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
+            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('whishlists-types');
 
             $data['actions'] = [];
 
