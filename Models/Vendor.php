@@ -898,12 +898,7 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
+        
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
