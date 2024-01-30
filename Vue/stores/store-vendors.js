@@ -51,6 +51,7 @@ export const useVendorStore = defineStore({
         user_error_message: [],
         selected_product: null,
         product_vendor_status: null,
+        product_status:null,
         active_products: null,
         select_all_product: false,
         product_selected_menu: [],
@@ -200,8 +201,14 @@ export const useVendorStore = defineStore({
                     }
                 })
                 if (exist == 0){
-                    let approved_status = this.product_vendor_status.find((item) => item.name === "Approved");
-                    this.item.status =approved_status;
+                    let approved_status = this.product_status.find(item => item.id === this.selected_product.taxonomy_id_product_status);
+
+                    if (approved_status) {
+                        this.item.status = approved_status;
+                    } else {
+                        this.item.status = null;
+                    }
+
                     this.item.taxonomy_id_vendor_status = approved_status.id;
                     let new_product = {
                         product: this.selected_product,
@@ -399,6 +406,8 @@ export const useVendorStore = defineStore({
                 this.selected_product = data.default_product;
                 this.business_types_list = data.taxonomy.business_type;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
+                this.product_status = data.taxonomy.product_status;
+
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {

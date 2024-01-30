@@ -68,6 +68,7 @@ class VendorsController extends Controller
             $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
             $data['taxonomy']['business_type'] = Taxonomy::getTaxonomyByType('business-types');
+            $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['urls']['upload'] = route('vh.backend.media.upload');
             $response['success'] = true;
             $response['data'] = $data;
@@ -116,7 +117,7 @@ class VendorsController extends Controller
 
     //----------------------------------------------------------
     public function getActiveProducts(){
-        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default','taxonomy_id_product_status']);
         if ($active_products){
             return [
                 'active_products' =>$active_products
