@@ -58,7 +58,7 @@ const getFileExtension = (filePath) => {
     return parts[parts.length - 1];
 };
 
-watch(() => store.item.name, (item_name) => {
+watch(() => store && store.item && store.item.name, (item_name) => {
     try {
         if (item_name.length === 0) {
             store.item.slug = '';
