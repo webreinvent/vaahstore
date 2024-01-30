@@ -414,10 +414,10 @@ class Vendor extends VaahModel
         $rules = [
             'name' => [
                 'required',
-                'max:100',
+                'max:150',
 
             ],
-            'slug' => 'required|max:250',
+            'slug' => 'required|max:150',
             'vh_st_store_id' => 'required',
             'years_in_business' => 'nullable|integer|min:1|max:100',
             'services_offered' => 'max:250',
