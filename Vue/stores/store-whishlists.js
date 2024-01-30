@@ -722,7 +722,7 @@ export const useWhishlistStore = defineStore({
         confirmApprovedAll()
         {
             this.action.type = 'approved-all';
-            vaah().confirmDialogApprovedAll(this.listAction);
+            vaah().confirmDialogApproveAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmPendingAll()
@@ -734,36 +734,11 @@ export const useWhishlistStore = defineStore({
         confirmRejectedAll()
         {
             this.action.type = 'reject-all';
-            vaah().confirmDialogRejectedAll(this.listAction);
+            vaah().confirmDialogRejectAll(this.listAction);
         },
+
         //---------------------------------------------------------------------
 
-        confirmHundredRecords()
-        {
-            this.action.type = 'create-100-records';
-            vaah().confirmHundredRecords(this.listAction);
-        },
-        //---------------------------------------------------------------------
-
-        confirmThousandsRecords()
-        {
-            this.action.type = 'create-1000-records';
-            vaah().confirmThousandsRecords(this.listAction);
-        },
-        //---------------------------------------------------------------------
-
-        confirmFiveThousandsRecords()
-        {
-            this.action.type = 'create-5000-records';
-            vaah().confirmFiveThousandsRecords(this.listAction);
-        },
-        //---------------------------------------------------------------------
-
-        confirmTenThousandsRecords()
-        {
-            this.action.type = 'create-1000-records';
-            vaah().confirmTenThousandsRecords(this.listAction);
-        },
         async delayedSearch()
         {
             let self = this;
@@ -918,21 +893,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Approved',
+                    label: 'Mark as Approved',
                     command: async () => {
-                        this.confirmApproved();
+                        await this.updateList('approve')
                     }
                 },
                 {
-                    label: 'Pending',
+                    label: 'Mark as Pending',
                     command: async () => {
-                        this.confirmPending()
+                        await this.updateList('pending')
                     }
                 },
                 {
-                    label: 'Rejected',
+                    label: 'Mark as Rejected',
                     command: async () => {
-                        this.confirmRejected()
+                        await this.updateList('reject')
                     }
                 },
                 {
@@ -942,14 +917,14 @@ export const useWhishlistStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrash()
+                        await this.updateList('trash')
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestore()
+                        await this.updateList('restore')
                     }
                 },
                 {
@@ -1058,28 +1033,28 @@ export const useWhishlistStore = defineStore({
                     label: 'Create 100 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.confirmHundredRecords();
+                        this.listAction('create-100-records');
                     }
                 },
                 {
                     label: 'Create 1000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.confirmThousandsRecords();
+                        this.listAction('create-1000-records');
                     }
                 },
                 {
                     label: 'Create 5000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.confirmFiveThousandsRecords();
+                        this.listAction('create-5000-records');
                     }
                 },
                 {
                     label: 'Create 10,000 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
-                        this.confirmTenThousandsRecords();
+                        this.listAction('create-10000-records');
                     }
                 },
 
@@ -1088,7 +1063,6 @@ export const useWhishlistStore = defineStore({
             this.list_create_menu = form_menu;
 
         },
-
         //---------------------------------------------------------------------
         confirmDeleteItem()
         {
