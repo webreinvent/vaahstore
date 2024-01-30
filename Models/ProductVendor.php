@@ -1180,15 +1180,22 @@ class ProductVendor extends VaahModel
         $ids = $inputs['id'];
         $q = $inputs['q'];
 
-        $data = Product::where('is_active', 1)
-            ->whereIn('vh_st_store_id', $ids)
-            ->where(function ($query) use ($q) {
-                $query->where('name', 'like', '%' . $q . '%')
+        $query = Product::where('is_active', 1)
+            ->whereIn('vh_st_store_id', $ids);
+
+        if (!empty($q)) {
+            $query->where(function ($sub_query) use ($q) {
+                $sub_query->where('name', 'like', '%' . $q . '%')
                     ->orWhere('slug', 'like', '%' . $q . '%');
-            })
-            ->with('store')
+            });
+        }
+
+        $data = $query->with('store')
             ->orderBy('vh_st_store_id')
             ->orderBy('id')
+            ->when(empty($q), function ($query) {
+                return $query->take(10);
+            })
             ->get(['id', 'name', 'slug', 'vh_st_store_id']);
 
         $response['success'] = true;

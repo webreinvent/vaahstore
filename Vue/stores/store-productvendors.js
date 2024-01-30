@@ -1314,6 +1314,13 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.active_stores = data;
+                if (data && this.item.store_vendor_product) {
+                    this.active_stores = data.filter((item) => {
+                        return !this.item.store_vendor_product.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
             }
         },
 
@@ -1321,6 +1328,8 @@ export const useProductVendorStore = defineStore({
         async setStores(event) {
             let stores = toRaw(event.value);
             this.item.store_ids = stores.map(store => store.id);
+            this.item.vh_st_product_id=null;
+            this.item.product=null;
         },
         async searchProductforFilter(event) {
             const query = event;
