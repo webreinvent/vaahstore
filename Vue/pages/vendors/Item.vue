@@ -167,7 +167,7 @@ const permissions=store.assets.permissions;
                                        || column === 'approved_by_user' || column === 'status_notes'
                                        || column === 'years_in_business' || column === 'services_offered'
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
-                                       || column === 'approved_by' || column === 'email'
+                                       || column === 'approved_by' || column === 'email' || column === 'registered_at' || column === 'approved_at'
                                        || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'
                                        || column === 'country_code'">
                             </template>
@@ -361,21 +361,6 @@ const permissions=store.assets.permissions;
                                                             :disabled="!store.item.business_document_file"  />
 
                                                     <Dialog v-model:visible="visible" modal header="File" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-
-
-<!--                                                        <img v-if="store.item.business_document_file"
-                                                             :src="store.item.business_document_file"
-                                                             style=" width: auto !important;
-                                                             height: auto !important;
-                                                             max-width: 100%;"
-                                                             alt="Uploaded Image"/>
-
-                                                        <a
-                                                            v-if="store.item.business_document_file"
-                                                            :href="store.item.business_document_file"
-                                                            :src="store.item.business_document_file"
-                                                        >Download</a>-->
-
 
                                                         <template v-if="store.item.business_document_file">
                                                             <template v-if="['png', 'jpg', 'jpeg'].includes(getFileExtension(store.item.business_document_file))">
