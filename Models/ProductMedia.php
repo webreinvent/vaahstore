@@ -393,16 +393,17 @@ class ProductMedia extends VaahModel
     }
     public function scopeMediaTypeFilter($query, $filter)
     {
-        if (!isset($filter['type']) || empty($filter['type'])) {
+        if(!isset($filter['type'])
+            || is_null($filter['type'])
+            || $filter['type'] === 'null'
+        )
+        {
             return $query;
         }
+        $users = $filter['type'];
 
-        $search = $filter['type'];
-
-        return $query->where(function ($query) use ($search) {
-            foreach ($search as $type) {
-                $query->orWhere('type', $type);
-            }
+        return $query->whereHas('images', function ($query) use ($users) {
+            $query->whereIn('type', $users);
         });
     }
     //-------------------------------------------------
@@ -1132,8 +1133,6 @@ class ProductMedia extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-//            $variations = ProductVariation::where('vh_st_product_id', $item->vh_st_product_id)->get();
-//            $item->productVariationMedia()->attach($variations);
 
             $variations = ProductVariation::where('vh_st_product_id', $item->vh_st_product_id)->limit(1)->get();
             if ($variations->count() >= 1) {
@@ -1142,6 +1141,7 @@ class ProductMedia extends VaahModel
                 if (isset($inputs['images']) && isset($inputs['images']['url'])) {
                     $item->images()->create([
                         'url' => $inputs['images']['url'],
+                        'type' => $inputs['images']['type'],
                     ]);
                 }
             }
@@ -1193,13 +1193,11 @@ class ProductMedia extends VaahModel
 
 
         $image_data = ProductMediaImage::inRandomOrder()->get()->toArray();
-//        $random_index = array_rand($image_data);
-//        $random_image = $image_data[$random_index];
-//        $inputs['images'] = $random_image;
         if (!empty($image_data)) {
             $random_index = array_rand($image_data);
             $random_image = $image_data[$random_index];
             $inputs['images'] = $random_image;
+            $inputs['type'] = $random_image['type'];
         }
 
 
@@ -1354,7 +1352,7 @@ class ProductMedia extends VaahModel
         $query = $request->input('query');
         if($query === null)
         {
-            $media_type = self::select('id','name','slug','type')
+            $media_type = ProductMediaImage::select('id','name','slug','type')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -1362,7 +1360,7 @@ class ProductMedia extends VaahModel
 
         else{
 
-            $media_type = self::where('name', 'like', "%$query%")
+            $media_type = ProductMediaImage::where('name', 'like', "%$query%")
                 ->orWhere('type','like',"%$query%")
                 ->select('id','name','slug','type')
                 ->get();
