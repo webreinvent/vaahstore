@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/vendors";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -401,7 +401,8 @@ export const useVendorStore = defineStore({
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows
                 }
 
                 if(this.route.params && !this.route.params.id){
