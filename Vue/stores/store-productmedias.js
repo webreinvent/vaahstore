@@ -396,9 +396,8 @@ export const useProductMediaStore = defineStore({
                 const images=data.images;
 
                 this.item.product_variation=data.listed_variation;
-                // this.item.product=data.product;
                 if (images.length > 0) {
-                    this.item.type= images.map((file) => file.type).join(', ');
+                    this.item.type=data.type;
                 } else {
                     this.item.type= '';
                 }
@@ -1317,12 +1316,16 @@ export const useProductMediaStore = defineStore({
             );
         },
         //---------------------------------------------------------------------
-        searchMediaTypeAfter(data,res) {
-            if(data)
-            {
-                this.media_suggestion = data;
+        searchMediaTypeAfter(data, res) {
+            if (data) {
+                let unique_media_type = Array.from(new Set(data.map(item => item.type)));
+                this.media_suggestion = unique_media_type.map(name => {
+                    let matching_type = data.filter(item => item.type === name);
+                    return matching_type[0];
+                });
             }
         },
+
 
         addMedia() {
             const uniqueMediaType = Array.from(new Set(this.selected_media.map(media => media.type)));

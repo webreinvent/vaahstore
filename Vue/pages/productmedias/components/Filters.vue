@@ -42,7 +42,7 @@ const store = useProductMediaStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Created Between:</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
