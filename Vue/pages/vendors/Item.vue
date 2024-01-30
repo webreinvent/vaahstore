@@ -169,7 +169,7 @@ const permissions=store.assets.permissions;
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
                                        || column === 'approved_by' || column === 'email' || column === 'registered_at' || column === 'approved_at'
                                        || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'
-                                       || column === 'country_code'">
+                                       || column === 'country_code' || column === 'taxonomy_id_vendor_status'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -392,17 +392,6 @@ const permissions=store.assets.permissions;
                                 </tr>
 
                             </template>
-                       <template v-else-if="column === 'taxonomy_id_vendor_status'">
-                            <tr>
-                                <td>
-                                    <b>Status</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.status?.name}}
-                                </td>
-                            </tr>
-
-                        </template>
 
                             <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
