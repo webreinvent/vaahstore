@@ -145,13 +145,17 @@ const toggleFormMenu = (event) => {
                                             value="id"
                                             v-model="store.item.product"
                                             @change="store.addProduct($event)"
-                                            class="w-full"
+                                            class="w-full relative"
                                             :suggestions="store.product_suggestion"
                                             @complete="store.searchProduct($event)"
                                             :pt="{
-                                                panel: { class: 'w-16rem ' },
+                                                panel: { class: 'w-16rem' },
+                                                item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
                                                 }"
                                             placeholder="Select Product"
+                                            append-to="self"
                                             data-testid="productmedias-product"
                                             name="productmedias-product"
                                             :dropdown="true" optionLabel="name" forceSelection>
