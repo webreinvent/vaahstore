@@ -811,13 +811,14 @@ class ProductVendor extends VaahModel
             'can_update'=> 'required|max:150',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:100'
                              ],
             ],
         [
             'vh_st_vendor_id.required' => 'The Vendor field is required',
             'store_vendor_product.required' => 'The Store field is required',
             'vh_st_product_id.required' => 'The Product field is required',
+            'added_by.required' => 'The Added By field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',

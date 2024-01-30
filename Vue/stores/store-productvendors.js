@@ -349,6 +349,7 @@ export const useProductVendorStore = defineStore({
                 let vendor = toRaw(event.value);
                 this.item.vh_st_vendor_id = vendor.id;
             }
+            this.item.vh_st_vendor_id=null;
         },
         //---------------------------------------------------------------------
         setProduct(event){
@@ -363,6 +364,7 @@ export const useProductVendorStore = defineStore({
                 let user = toRaw(event.value);
                 this.item.added_by = user.id;
             }
+            this.item.added_by=null;
         },
         //---------------------------------------------------------------------
         setStatus(event){
