@@ -228,13 +228,13 @@ class ProductMedia extends VaahModel
 
 
             foreach ($variation_lists as $variation) {
-                $productVariationMedia = self::where('vh_st_product_id', $product_id)
+                $product_variation_media = self::where('vh_st_product_id', $product_id)
                     ->whereHas('productVariationMedia', function ($query) use ($variation) {
                         $query->where('vh_st_product_variation_id', $variation['id']);
                     })
                     ->exists();
 
-                if ($productVariationMedia) {
+                if ($product_variation_media) {
                     $variation_name = ProductVariation::where('id', $variation['id'])->value('name');
                     $response['errors'][] = "The variation '{$variation_name}' media already exists.";
                     return $response;
@@ -269,8 +269,8 @@ class ProductMedia extends VaahModel
 
         if (!empty($variation_lists)) {
             foreach ($variation_lists as $variation) {
-                $pivotData = ['vh_st_product_id' => $inputs['vh_st_product_id']];
-                $item->productVariationMedia()->attach($variation['id'], $pivotData);
+                $pivot_data = ['vh_st_product_id' => $inputs['vh_st_product_id']];
+                $item->productVariationMedia()->attach($variation['id'], $pivot_data);
             }
         }
 
@@ -861,7 +861,6 @@ class ProductMedia extends VaahModel
         }
 
         $item = self::findOrFail($id);
-        $pivotData = ['vh_st_product_id' => $product_id];
 
         if (!empty($product_variations)) {
             foreach ($product_variations as $product_variation) {
@@ -875,13 +874,13 @@ class ProductMedia extends VaahModel
 
                 else{
                     // Check if media already exists for another product variation
-                    $productVariationMedia = self::where('vh_st_product_id', $product_id)
+                    $product_variation_media = self::where('vh_st_product_id', $product_id)
                         ->whereHas('productVariationMedia', function ($query) use ($product_variation) {
                             $query->where('vh_st_product_variation_id', $product_variation['id']);
                         })
                         ->exists();
 
-                    if ($productVariationMedia) {
+                    if ($product_variation_media) {
                         $variation_name = ProductVariation::where('id', $product_variation['id'])->value('name');
                         $response['errors'][] = "The variation '{$variation_name}' media already exists.";
                         return $response;
@@ -894,8 +893,8 @@ class ProductMedia extends VaahModel
 
             $product_variation_ids = array_column($inputs['product_variation'], 'id');
             $item->productVariationMedia()->detach();
-            $pivotData = ['vh_st_product_id' => $product_id];
-            $item->productVariationMedia()->attach($product_variation_ids,$pivotData);
+            $pivot_data = ['vh_st_product_id' => $product_id];
+            $item->productVariationMedia()->attach($product_variation_ids,$pivot_data);
         }
         if (empty($product_variation)) {
             $product_media_ids = self::whereNot('id', $id)

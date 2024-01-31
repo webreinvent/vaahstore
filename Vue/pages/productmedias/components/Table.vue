@@ -52,7 +52,6 @@ const useVaah = vaah();
                              <Badge  v-else value="Trashed" severity="danger"></Badge>
                          </template>
                      </div>
-<!--                     <Badge v-else value="Trashed" severity="danger"></Badge>-->
                  </template>
              </Column>
 
