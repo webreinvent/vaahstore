@@ -49,14 +49,9 @@ class ProductMediasController extends Controller
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 0;
 
-            $active_products = $this->getActiveProducts();
-            $active_product_variations = $this->getActiveProductVariations();
-
-            $data = array_merge($data, $active_products, $active_product_variations);
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
 
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultProduct();
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -74,37 +69,6 @@ class ProductMediasController extends Controller
         return $response;
     }
 
-    //----------------------------------------------------------
-    public function getDefaultProduct(){
-        return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
-
-    //----------------------------------------------------------
-    public function getActiveProducts(){
-        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-        if ($active_products){
-            return [
-                'active_products' =>$active_products
-            ];
-        }else{
-            return [
-                'active_products' => null
-            ];
-        }
-    }
-    //----------------------------------------------------------
-    public function getActiveProductVariations(){
-        $active_product_variations = ProductVariation::Where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','deleted_at','is_active']);
-        if ($active_product_variations){
-            return [
-                'active_product_variations' =>$active_product_variations
-            ];
-        }else{
-            return [
-                'active_product_variations' => null
-            ];
-        }
-    }
     //----------------------------------------------------------
     public function uploadImage(Request $request){
         try{

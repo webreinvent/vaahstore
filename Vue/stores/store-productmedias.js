@@ -306,19 +306,7 @@ export const useProductMediaStore = defineStore({
             let status = toRaw(event.value);
             this.item.taxonomy_id_product_media_status = status.id;
         },
-        //---------------------------------------------------------------------
-        setMediaStatus(){
-            if(this.item.is_active == '1'){
-                let approved_status = this.status_suggestion.find((item) => item.name === "Approved");
-                this.item.status =approved_status;
-                this.item.taxonomy_id_product_media_status = approved_status.id;
-            }else {
-                let pending_status = this.status_suggestion.find((item) => item.name === "Rejected");
-                this.item.status =pending_status;
-                this.item.taxonomy_id_product_media_status = pending_status.id;
-            }
 
-        },
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -620,8 +608,6 @@ export const useProductMediaStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
-                    // this.item.images = null;
-                    // this.item.product_media_images = null;
                     this.item.product_variation=data.listed_variation;
                     this.$router.push({name: 'productmedias.form'})
                     await this.getFormMenu();
@@ -1295,9 +1281,9 @@ export const useProductMediaStore = defineStore({
         //---------------------------------------------------------------------
 
         addMedia() {
-            const uniqueMediaType = Array.from(new Set(this.selected_media.map(media => media.type)));
-            this.selected_media = uniqueMediaType.map(type => this.selected_media.find(media => media.type === type));
-            this.query.filter.type = uniqueMediaType;
+            const unique_media_type = Array.from(new Set(this.selected_media.map(media => media.type)));
+            this.selected_media = unique_media_type.map(type => this.selected_media.find(media => media.type === type));
+            this.query.filter.type = unique_media_type;
         },
         //---------------------------------------------------------------------
 
@@ -1349,7 +1335,7 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/product-variations',
+                this.ajax_url+'/search/product/variations',
                 this.searchVariationsOfProductAfter,
                 options
             );
