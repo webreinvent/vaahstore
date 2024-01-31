@@ -53,6 +53,28 @@ const store = useWhishlistStore();
 
             </VhFieldVertical>
 
+            <VhFieldVertical>
+
+                <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete
+                    name="whishlists-user-filter"
+                    data-testid="whishlists-user-filter"
+                    v-model="store.selected_products"
+                    @change="store.setFilterSelectedProducts()"
+                    option-label = "name"
+                    multiple
+                    :complete-on-focus = "true"
+                    :suggestions="store.product_suggestion"
+                    @complete="store.searchProduct($event)"
+                    placeholder="Select Product"
+                    class="w-full">
+                </AutoComplete>
+
+            </VhFieldVertical>
+
             <Divider/>
 
             <VhFieldVertical >

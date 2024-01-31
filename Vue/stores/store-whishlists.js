@@ -23,6 +23,7 @@ let empty_states = {
             wishlist_type:null,
             date:null,
             users : null,
+            products : null,
         },
     },
     action: {
@@ -82,6 +83,7 @@ export const useWhishlistStore = defineStore({
         select_all_product : false,
         product_selected_menu : [],
         selected_users : null,
+
     }),
     getters: {
 
@@ -146,9 +148,20 @@ export const useWhishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchUsersAfter(data,res) {
-            if(data)
-            {
+            if (data) {
+
                 this.user_suggestion = data;
+
+                // Filter out the selected users from the user_suggestion list
+                if(this.selected_users)
+                {
+                    const filtered_suggestions = data.filter((user) => {
+                        return !this.selected_users.some((selectedUser) => selectedUser.id === user.id);
+                    });
+
+                    this.user_suggestion = filtered_suggestions;
+                }
+
             }
         },
         //---------------------------------------------------------------------
@@ -808,8 +821,9 @@ export const useWhishlistStore = defineStore({
 
             this.selected_dates=[];
             this.selected_users = null;
+            this.selected_products = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
-            
+
             //reload page list
             await this.getList();
         },
@@ -1263,6 +1277,14 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.product_suggestion = data;
+                if(this.selected_products)
+                {
+                    const filtered_suggestions = data.filter((product) => {
+                        return !this.selected_products.some((selected_product) => selected_product.id === product.id);
+                    });
+
+                    this.product_suggestion = filtered_suggestions;
+                }
             }
         },
         //---------------------------------------------------------------------
@@ -1285,9 +1307,6 @@ export const useWhishlistStore = defineStore({
            else {
                this.showUserErrorMessage(['This product is already present'], 4000);
            }
-
-
-
 
         },
 
@@ -1367,6 +1386,15 @@ export const useWhishlistStore = defineStore({
             const users_slug = unique_users.map(users => users.first_name);
             this.selected_users = unique_users;
             this.query.filter.users = users_slug;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setFilterSelectedProducts() {
+
+            const products_slug = this.selected_products.map(product => product.slug);
+            this.query.filter.products = products_slug;
 
         },
 

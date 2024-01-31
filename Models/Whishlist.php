@@ -360,6 +360,7 @@ class Whishlist extends VaahModel
         $list->wishlistTypeFilter($request->filter);
         $list->dateRangeFilter($request->filter);
         $list->userFilter($request->filter);
+        $list->productFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -995,5 +996,23 @@ class Whishlist extends VaahModel
         });
     }
 
+    //-------------------------------------------------
+
+    public function scopeProductFilter($query, $filter)
+    {
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $products = $filter['products'];
+
+        return $query->whereHas('products', function ($query) use ($products) {
+            $query->whereIn('slug', $products);
+        });
+    }
 
 }
