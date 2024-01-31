@@ -874,6 +874,7 @@ class ProductMedia extends VaahModel
                 }
 
                 else{
+                    // Check if media already exists for another product variation
                     $productVariationMedia = self::where('vh_st_product_id', $product_id)
                         ->whereHas('productVariationMedia', function ($query) use ($product_variation) {
                             $query->where('vh_st_product_variation_id', $product_variation['id']);
@@ -896,45 +897,43 @@ class ProductMedia extends VaahModel
             $pivotData = ['vh_st_product_id' => $product_id];
             $item->productVariationMedia()->attach($product_variation_ids,$pivotData);
         }
-        else{
-            $product_media_ids = self::whereNot('id',$id)->where('vh_st_product_id', $product_id)->withTrashed()->pluck('id')->toArray();
-                $count_variatios = 0;
-                if($product_media_ids)
-                {
-                    foreach($product_media_ids as $product_media_id)
-                    {
-                        $count = count($product_media_ids);
-                        $product_media = self::where('id',$product_media_id)->withTrashed()->first();
-                        if($product_media->productVariationMedia->isNotEmpty())
-                        {
-                            $count_variatios +=1;
-                        }
-                    }
-                    if($count !== $count_variatios)
-                    {
-                        $response['errors'][] = "This Product Media is already exists.";
-                        return $response;
-                    }
-                    else{
-                        $product_media_id = self::where('vh_st_product_id', $product_id)
-                            ->where('id',$id)
-                            ->withTrashed()->pluck('id')->first();
-                        $product_media = self::where('id',$product_media_id)->withTrashed()->first();
+        if (empty($product_variation)) {
+            $product_media_ids = self::whereNot('id', $id)
+                ->where('vh_st_product_id', $product_id)
+                ->withTrashed()
+                ->pluck('id')
+                ->toArray();
 
-                        if($product_media)
-                        {
-                            $product_media->productVariationMedia()->detach();
-                        }
+            $count_variations = collect($product_media_ids)
+                ->filter(function ($product_media_id) {
+                    $product_media = self::find($product_media_id);
 
-                    }
-                }
-                else{
-                    $old_media_id = self::where('id', $id)
-                        ->where('vh_st_product_id', $old_product_id)->withTrashed()->pluck('id')->first();
-                    $old_media = self::where('id',$old_media_id)->withTrashed()->first();
-                    $old_media->productVariationMedia()->detach();
-                }
+                    return $product_media->productVariationMedia->isNotEmpty();
+                })
+                ->count();
+
+            if (count($product_media_ids) !== $count_variations) {
+                $response['errors'][] = "This Product Media is already exists.";
+                return $response;
+            }
+
+            $product_media_id = self::where('vh_st_product_id', $product_id)
+                ->where('id', $id)
+                ->withTrashed()
+                ->pluck('id')
+                ->first();
+
+            $product_media = self::find($product_media_id);
+
+            if ($product_media) {
+                $product_media->productVariationMedia()->detach();
+            }
+            $old_media_id = self::where('id', $id)
+                ->where('vh_st_product_id', $old_product_id)->withTrashed()->pluck('id')->first();
+            $old_media = self::where('id',$old_media_id)->withTrashed()->first();
+            $old_media->productVariationMedia()->detach();
         }
+
         $item->fill($inputs);
         $item->save();
         $item->images()->delete();
@@ -1029,8 +1028,6 @@ class ProductMedia extends VaahModel
 
         $rules = validator($inputs, [
             'product'=> 'required',
-//            'product_variation'=> 'required',
-//            'vh_st_product_id'=> 'required',
             'images'=> 'required',
             'taxonomy_id_product_media_status'=> 'required',
 
@@ -1041,7 +1038,6 @@ class ProductMedia extends VaahModel
         ],
         [
             'product.required' => 'The Product field is required.',
-//            'product_variation.required' => 'The Product Variations field is required.',
             'taxonomy_id_product_media_status.required' => 'The Status field is required',
 
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
@@ -1294,7 +1290,6 @@ class ProductMedia extends VaahModel
 
     public static function searchVariation($request)
     {
-//        $query = $request['filter']['q']['query'];
         $query = $request->input('query');
         if($query === null)
         {

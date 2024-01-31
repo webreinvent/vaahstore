@@ -84,7 +84,6 @@ export const useProductMediaStore = defineStore({
         prev_list:[],
         current_list:[],
         product_variation:null,
-        selected_status:null,
         selected_variation:null,
         selected_media:null,
         product_variation_list:[],
@@ -169,8 +168,6 @@ export const useProductMediaStore = defineStore({
             if(data)
             {
                 this.item.images = data;
-                // let name = this.item.name;
-                // this.item = data;
                 this.item.name = data[0].name;
             }
         },
@@ -345,7 +342,6 @@ export const useProductMediaStore = defineStore({
                 this.active_product_variations = data.active_product_variations;
                 if(data.rows)
                 {
-                    // this.query.rows = data.rows;
                     data.rows=this.query.rows;
                 }
 
@@ -707,7 +703,6 @@ export const useProductMediaStore = defineStore({
                     this.item.images = [data.fill.images];
                     this.item.type = data.fill.images.type;
                 }
-                // this.product_variation=data.fill.listed_variation;
 
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
@@ -715,7 +710,6 @@ export const useProductMediaStore = defineStore({
                         self.item[key] = data.fill[key];
                     }
                 });
-                // this.onImageUpload();
             }
         },
 
@@ -831,7 +825,7 @@ export const useProductMediaStore = defineStore({
         async resetQuery()
         {
             //reset query strings
-            this.selected_status = this.selected_variation = this.selected_media = null;
+             this.selected_variation = this.selected_media = null;
             await this.resetQueryString();
             //reload page list
             await this.getList();

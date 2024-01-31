@@ -134,7 +134,6 @@ class ProductMediasController extends Controller
                 'data'  => $response_list
             ];
 
-//            return ProductMedia::saveUploadImage($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = false;
