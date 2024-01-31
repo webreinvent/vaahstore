@@ -154,7 +154,7 @@ const toggleItemMenu = (event) => {
                                      ||  column === 'image'
                                      ||  column === 'meta_title'
                                      ||  column === 'meta_description'
-                                     ||  column === 'meta_keyword'
+                                     ||  column === 'meta_keywords'
                                      ||  column === 'registered_by'
                                      ||  column === 'registered_at'
                                      ||  column === 'registered_by_user'
@@ -224,8 +224,8 @@ const toggleItemMenu = (event) => {
                                                 @click="store.openModal()"
                                                 :disabled="!store.item.meta_title &&
                                             !store.item.meta_description &&
-                                            !(store.item && store.item.meta_keyword && Array.isArray(store.item.meta_keyword) &&
-                                             store.item.meta_keyword.length > 0)"
+                                            !(store.item && store.item.meta_keywords && Array.isArray(store.item.meta_keywords) &&
+                                             store.item.meta_keywords.length > 0)"
 
                                                 data-testid="meta-open_modal"
                                         />
@@ -277,7 +277,7 @@ const toggleItemMenu = (event) => {
             <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
             <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
         </div>
-        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keyword}}</p></div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keywords}}</p></div>
     </Dialog>
 
 </template>

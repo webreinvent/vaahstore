@@ -177,7 +177,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
 
                 <VhField label="Meta Keyword" >
                     <Chips class="w-full"
-                           v-model="store.item.meta_keyword"
+                           v-model="store.item.meta_keywords"
                            placeholder="Enter Meta keyword"
                            separator=","  />
                 </VhField>
