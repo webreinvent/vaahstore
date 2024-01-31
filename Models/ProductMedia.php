@@ -1287,6 +1287,8 @@ class ProductMedia extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
     public static function searchVariation($request)
     {
         $query = $request->input('query');
@@ -1326,7 +1328,7 @@ class ProductMedia extends VaahModel
         return $response;
     }
 
-
+    //-------------------------------------------------
 
     public static function searchMediaType($request)
     {
@@ -1352,6 +1354,9 @@ class ProductMedia extends VaahModel
         return $response;
 
     }
+
+    //-------------------------------------------------
+
     public static function searchMediaUsingUrlType($request)
     {
         $query = $request['filter']['type'];
@@ -1363,6 +1368,8 @@ class ProductMedia extends VaahModel
         $response['data'] = $variations;
         return $response;
     }
+
+    //-------------------------------------------------
 
     public static function searchVariationOfProduct($request)
     {
@@ -1384,6 +1391,7 @@ class ProductMedia extends VaahModel
 
 
     }
+    //-------------------------------------------------
 
 
 }

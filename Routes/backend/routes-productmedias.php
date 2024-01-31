@@ -112,33 +112,31 @@ function () {
     /**
      * Search variation
      */
-    Route::post('/search/variation', 'ProductMediasController@searchVariation')
-        ->name('vh.backend.store.productmedias.search.filter.variation');
-    //---------------------------------------------------------
+    Route::post('/filter/search/variations', 'ProductMediasController@searchVariation')
+        ->name('vh.backend.store.productmedias.search.filter.variations');
+
     /**
      * Search variation after refresh
      */
-    Route::post('/search/variations-using-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
-        ->name('vh.backend.store.productmedias.search.filtered-variations');
-    //---------------------------------------------------------
+    Route::post('/filter/search/variations-by-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
+        ->name('vh.backend.store.productmedias.search.filtered.variations-slug');
 
-    //---------------------------------------------------------
     /**
      * Search media
      */
-    Route::post('/search/media', 'ProductMediasController@searchMediaType')
+    Route::post('/filter/search/media-type', 'ProductMediasController@searchMediaType')
         ->name('vh.backend.store.productmedias.search.filter.media');
-    //---------------------------------------------------------
+
     /**
      * Search media type after refresh
      */
-    Route::post('/search/media-type', 'ProductMediasController@searchMediaUsingUrlType')
-        ->name('vh.backend.store.productmedias.search.filtered-media');
+    Route::post('/filter/search/media-type-by-slug', 'ProductMediasController@searchMediaUsingUrlType')
+        ->name('vh.backend.store.productmedias.search.filter.media-type-slug');
 
     /**
-     * Search variation of a product
+     * Search variations of a product
      */
-    Route::post('/search/product-variation', 'ProductMediasController@searchVariationOfProduct')
-        ->name('vh.backend.store.productmedias.search.filtered-media');
+    Route::post('/search/product-variations', 'ProductMediasController@searchVariationOfProduct')
+        ->name('vh.backend.store.productmedias.search.product.variations');
 
 });

@@ -21,7 +21,7 @@ const store = useProductMediaStore();
                     <AutoComplete name="productmedias-variation-filter"
                                   data-testid="productmedias-variation-filter"
                                   v-model="store.selected_variation"
-                                  @change = "store.addVariation()"
+                                  @change = "store.setVariationFilter()"
                                   option-label = "name"
                                   option-value = "name"
                                   multiple

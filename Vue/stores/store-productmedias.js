@@ -1,4 +1,4 @@
-import {computed, ref, toRaw, watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -220,8 +220,8 @@ export const useProductMediaStore = defineStore({
              */
             this.updateQueryFromUrl(route);
 
-            if (this.query.filter.product_variation) this.setVariationsAfterPageRefresh();
-            if (this.query.filter.type) this.setMediaAfterPageRefresh();
+            if (this.query.filter.product_variation) this.variationsAfterRefresh();
+            if (this.query.filter.type) this.mediaTypeAfterRefresh();
 
             const { filter } = route.query;
             if (filter && filter.date) {
@@ -1192,7 +1192,7 @@ export const useProductMediaStore = defineStore({
             }
         },
 
-
+        //---------------------------------------------------------------------
         async addProduct(event){
             if (event && event.value) {
                 let product = toRaw(event.value);
@@ -1213,7 +1213,7 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/variation',
+                this.ajax_url+'/filter/search/variations',
                 this.searchVariationAfter,
                 options
             );
@@ -1226,13 +1226,17 @@ export const useProductMediaStore = defineStore({
             }
         },
 
-        addVariation() {
+        //---------------------------------------------------------------------
+
+        setVariationFilter() {
             const uniqueVariation = Array.from(new Set(this.selected_variation.map(v => v.name)));
             this.selected_variation = uniqueVariation.map(name => this.selected_variation.find(v => v.name === name));
             this.query.filter.product_variation = this.selected_variation.map(v => v.slug);
         },
 
-        async setVariationsAfterPageRefresh()
+        //---------------------------------------------------------------------
+
+        async variationsAfterRefresh()
         {
 
             let query = {
@@ -1246,8 +1250,8 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/variations-using-slug',
-                this.setVariationsPageRefreshAfter,
+                this.ajax_url+'/filter/search/variations-by-slug',
+                this.getVariationsAfterRefresh,
                 options
             );
 
@@ -1255,7 +1259,7 @@ export const useProductMediaStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setVariationsPageRefreshAfter(data, res) {
+        getVariationsAfterRefresh(data, res) {
 
             if (data) {
                 this.selected_variation= data;
@@ -1272,7 +1276,7 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/media',
+                this.ajax_url+'/filter/search/media-type',
                 this.searchMediaTypeAfter,
                 options
             );
@@ -1288,14 +1292,16 @@ export const useProductMediaStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
 
         addMedia() {
             const uniqueMediaType = Array.from(new Set(this.selected_media.map(media => media.type)));
             this.selected_media = uniqueMediaType.map(type => this.selected_media.find(media => media.type === type));
             this.query.filter.type = uniqueMediaType;
         },
+        //---------------------------------------------------------------------
 
-        async setMediaAfterPageRefresh()
+        async mediaTypeAfterRefresh()
         {
 
             let query = {
@@ -1309,23 +1315,30 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/media-type',
-                this.setMediaPageRefreshAfter,
+                this.ajax_url+'/filter/search/media-type-by-slug',
+                this.getMediaTypeAfterRefresh,
                 options
             );
 
 
         },
-
         //---------------------------------------------------------------------
-        setMediaPageRefreshAfter(data, res) {
+        getMediaTypeAfterRefresh(data, res) {
 
             if (data) {
-                this.selected_media= data;
-            }
+                let unique_media_types = new Set();
+                this.selected_media = data.filter(item => {
+                    if (!unique_media_types.has(item.type)) {
+                        unique_media_types.add(item.type);
+                        return true;
+                    }
+                    return false;
+                });            }
         },
 
-        async searchVariationOfProduct(event) {
+        //---------------------------------------------------------------------
+
+        async searchVariationsOfProduct(event) {
             const query = {
                 q:event.query,
                 id:this.item.vh_st_product_id
@@ -1336,13 +1349,13 @@ export const useProductMediaStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchVariationOfProductAfter,
+                this.ajax_url+'/search/product-variations',
+                this.searchVariationsOfProductAfter,
                 options
             );
         },
         //---------------------------------------------------------------------
-        searchVariationOfProductAfter(data,res) {
+        searchVariationsOfProductAfter(data,res) {
             if(data)
             {
                 this.product_variation_list = data;

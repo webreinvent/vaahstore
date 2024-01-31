@@ -419,6 +419,8 @@ class ProductMediasController extends Controller
             return $response;
         }
     }
+    //-------------------------------------------------
+
     public function searchVariation(Request $request)
     {
         try{
@@ -474,6 +476,9 @@ class ProductMediasController extends Controller
             return $response;
         }
     }
+
+    //-------------------------------------------------
+
     public function searchMediaUsingUrlType(Request $request)
     {
         try{
@@ -490,6 +495,8 @@ class ProductMediasController extends Controller
             }
         }
     }
+
+    //-------------------------------------------------
 
     public function searchVariationOfProduct(Request $request)
     {

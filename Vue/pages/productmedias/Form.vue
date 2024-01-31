@@ -183,7 +183,7 @@ const toggleFormMenu = (event) => {
                     panel: { class: 'w-16rem ' }
                                                 }"
                         :suggestions="store.product_variation_list"
-                        @complete="store.searchVariationOfProduct($event)"
+                        @complete="store.searchVariationsOfProduct($event)"
                         placeholder="Select Product Variations"
                         class="w-full "
 
