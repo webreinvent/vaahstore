@@ -76,18 +76,18 @@ const useVaah = vaah();
 <!--             </Column>-->
 
 
-             <Column field="status.name" header="Status"
-                     :sortable="true">
 
+             <Column field="status" header="Status">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge v-else-if="!prop.data.status"
+                            severity="primary"> null </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
-                            severity="warning"> {{prop.data.status.name}}</Badge>
+                     <Badge v-else
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
-
              </Column>
 
 <!--                <Column field="updated_at" header="Updated"-->

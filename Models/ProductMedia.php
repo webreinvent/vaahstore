@@ -400,10 +400,10 @@ class ProductMedia extends VaahModel
         {
             return $query;
         }
-        $users = $filter['type'];
+        $media_type = $filter['type'];
 
-        return $query->whereHas('images', function ($query) use ($users) {
-            $query->whereIn('type', $users);
+        return $query->whereHas('images', function ($query) use ($media_type) {
+            $query->whereIn('type', $media_type);
         });
     }
     //-------------------------------------------------
@@ -455,7 +455,7 @@ class ProductMedia extends VaahModel
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','product','productVariation','productVariationMedia','images');
+        $list = self::getSorted($request->filter)->with('status','product','productVariationMedia');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -1032,7 +1032,7 @@ class ProductMedia extends VaahModel
 
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:100'
+                'max:250'
             ],
         ],
         [
