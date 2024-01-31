@@ -58,22 +58,7 @@ const useVaah = vaah();
 
 
 
-<!--             </Column>-->
-<!--             <Column field="image_path" header="Image" v-if="store.isViewLarge()" :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                     <template v-if="prop.data.images && prop.data.images.length > 0">-->
-<!--                         <div v-for="(image, index) in prop.data.images" :key="index">-->
-<!--                             <Image v-if="image.url"-->
-<!--                                    :src="store.item.base_path + '/' + image.url"-->
-<!--                                    preview-->
-<!--                                    alt="Image"-->
-<!--                                    width="100"-->
-<!--                                    v-tooltip.top="image.name"/>-->
-<!--                         </div>-->
-<!--                     </template>-->
-<!--                     <Badge v-else value="Trashed" severity="danger"></Badge>-->
-<!--                 </template>-->
-<!--             </Column>-->
+
 
 
 
@@ -90,17 +75,7 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-<!--                <Column field="updated_at" header="Updated"-->
-<!--                        v-if="store.isViewLarge()"-->
-<!--                        style="width:150px;"-->
-<!--                        :sortable="true">-->
 
-<!--                    <template #body="prop">-->
-<!--&lt;!&ndash;                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}&ndash;&gt;-->
-<!--                        {{useVaah.ago(prop.data.updated_at)}}-->
-<!--                    </template>-->
-
-<!--                </Column>-->
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"

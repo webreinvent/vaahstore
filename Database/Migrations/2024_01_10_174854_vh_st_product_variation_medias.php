@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStProductVariationMedia extends Migration
+class VhStProductVariationMedias extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class VhStProductVariationMedia extends Migration
     public function up()
     {
 
-        Schema::create('vh_st_product_variation_media', function (Blueprint $table) {
+        Schema::create('vh_st_product_variation_medias', function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
             $table->integer('vh_st_product_media_id')->nullable()->index();
@@ -42,6 +42,6 @@ class VhStProductVariationMedia extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_product_variation_media');
+        Schema::dropIfExists('vh_st_product_variation_medias');
     }
 }

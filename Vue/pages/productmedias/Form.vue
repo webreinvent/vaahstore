@@ -204,6 +204,7 @@ const toggleFormMenu = (event) => {
                                     root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
                                 }"
                                 :maxFileSize="1000000"
+                                data-testid="productmedias-media"
                                 @remove="store.removeUploadedFile"
                     >
                         <template #empty>
@@ -243,8 +244,8 @@ const toggleFormMenu = (event) => {
                 <div v-if="store.item.images && store.item.images.length > 0">
                     <VhField label="Media Type" >
                     <InputText class="w-full"
-                               name="productmedias-type"
-                               data-testid="productmedias-type"
+                               name="productmedias-media-type"
+                               data-testid="productmedias-media_type"
                                disabled
                                v-model="store.item.type"/>
                 </VhField>

@@ -139,7 +139,7 @@ class ProductMedia extends VaahModel
     //-------------------------------------------------
     public  function productVariationMedia()
     {
-        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_media', 'vh_st_product_media_id', 'vh_st_product_variation_id')
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_medias', 'vh_st_product_media_id', 'vh_st_product_variation_id')
             ->withPivot('vh_st_product_id');
     }
 

@@ -18,8 +18,8 @@ const store = useProductMediaStore();
                 </template>
                 <VhField label="Product Variation">
 
-                    <AutoComplete name="productmedias-variation-filter"
-                                  data-testid="productmedias-variation-filter"
+                    <AutoComplete name="productmedias-variations-filter"
+                                  data-testid="productmedias-filters-variations"
                                   v-model="store.selected_variation"
                                   @change = "store.setVariationFilter()"
                                   option-label = "name"
@@ -60,6 +60,7 @@ const store = useProductMediaStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          data-testid="productmedias-filters-created_date"
                           :manualInput="false"
                           class="w-full"
                           placeholder="Choose date range"
@@ -75,7 +76,7 @@ const store = useProductMediaStore();
                 </template>
                 <VhField label="Type">
                     <AutoComplete name="productmedias-filter"
-                                  data-testid="productmedias-filter"
+                                  data-testid="productmedias-filters-media_type"
                                   v-model="store.selected_media"
                                   @change = "store.addMedia()"
                                   option-label = "type"
@@ -102,6 +103,7 @@ const store = useProductMediaStore();
                         filter
                         optionValue="name"
                         optionLabel="name"
+                        data-testid="productmedias-filters-status"
                         placeholder="Select Status"
                         display="chip"
                         class="w-full" />
