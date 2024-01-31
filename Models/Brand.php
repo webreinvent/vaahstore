@@ -51,11 +51,11 @@ class Brand extends VaahModel
         'image',
         'meta_description',
         'meta_title',
-        'meta_keyword'
+        'meta_keywords'
     ];
 
     protected $casts =[
-        'meta_keyword'=>'array',
+        'meta_keywords'=>'array',
     ];
     //-------------------------------------------------
     protected $fill_except = [
@@ -814,7 +814,7 @@ class Brand extends VaahModel
             'slug' => 'required|min:1|max:100',
             'meta_title' => 'nullable|max:100',
             'meta_description' => 'nullable|max:100',
-            'meta_keyword' => 'nullable|array|max:15',
+            'meta_keywords' => 'nullable|array|max:15',
             'registered_by'=> 'nullable',
             'registered_at'=> 'nullable',
             'approved_by'=> 'nullable',
@@ -836,7 +836,7 @@ class Brand extends VaahModel
             'slug.max' => 'The Slug field must not exceed :max characters.',
             'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
             'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
-            'meta_keyword.max' => 'The Meta Keywords field must not have more than :max items.',
+            'meta_keywords.max' => 'The Meta Keywords field must not have more than :max items.',
             'registered_by.required_with' => 'The Registered By field is required when Registered At is present.',
             'registered_at.required_with' => 'The Registered At field is required when Registered By is present.',
             'approved_by.required_with' => 'The Approved By field is required when Approved At is present.',
@@ -960,7 +960,7 @@ class Brand extends VaahModel
             $random_words[] = $faker->word;
         }
 
-        $inputs['meta_keyword'] = $random_words;
+        $inputs['meta_keywords'] = $random_words;
 
         /*
          * You can override the filled variables below this line.
