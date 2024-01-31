@@ -78,6 +78,8 @@ export const useWhishlistStore = defineStore({
         product_suggestion:null,
         selected_product : null,
         user_error_message: [],
+        select_all_product : false,
+        product_selected_menu : [],
     }),
     getters: {
 
@@ -937,6 +939,23 @@ export const useWhishlistStore = defineStore({
                     }
                 },
             ]
+            this.product_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProduct()
+                    }
+                },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllProduct()
+                    }
+                },
+
+            ]
 
         },
         //---------------------------------------------------------------------
@@ -1219,7 +1238,7 @@ export const useWhishlistStore = defineStore({
 
         toProduct(item)
         {
-            this.item = vaah().clone(item);
+            this.selected_product = null;
             this.$router.push({name: 'whishlists.products', params:{id:item.id}})
         },
 
@@ -1259,10 +1278,14 @@ export const useWhishlistStore = defineStore({
                    is_selected: false,
                };
                this.item.products.push(new_product);
+               this.selected_product = null;
            }
            else {
                this.showUserErrorMessage(['This product is already present'], 4000);
            }
+
+
+
 
         },
 
@@ -1274,6 +1297,57 @@ export const useWhishlistStore = defineStore({
             },time);
         },
         //---------------------------------------------------------------------
+        async removeProduct(product) {
+            this.item.products = this.item.products.filter(function (item) {
+                return item['product']['id'] != product['product']['id']
+            })
+
+        },
+
+        //---------------------------------------------------------------------
+        selectAllProduct() {
+            if (this.select_all_product) {
+                this.item.products.forEach((item) => {
+                    item.is_selected = false;
+                });
+            } else {
+                this.item.products.forEach((item) => {
+                    item.is_selected = true;
+                });
+            }
+        },
+
+        //---------------------------------------------------------------------
+        async removeAllProduct()
+        {
+            this.item.products = [];
+            this.select_all_product = false;
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveProduct() {
+
+            let selected_products = this.item.products.filter(product => product.is_selected);
+            let temp = null;
+            this.select_all_product = false;
+            temp = this.item.products.filter((item) => {
+                return item['is_selected'] === false;
+            });
+
+            if (selected_products.length === 0) {
+                vaah().toastErrors(['Select a product']);
+                return false;
+            }
+
+            else if (temp.length === this.item.products.length) {
+                this.item.products = [];
+            }
+            else {
+
+                this.item.products = temp;
+            }
+
+        },
 
     }
 });

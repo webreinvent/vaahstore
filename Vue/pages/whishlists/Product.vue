@@ -84,8 +84,8 @@ const toggleSelectedMenuState = (event) => {
                 </div>
 
                 <!--                dropdown to select vendor -->
-                <div class="flex flex-wrap gap-3 pb-2 p-1">
-                    <div class="col-10">
+                <div class="flex flex-wrap gap-4 pb-2 p-1">
+                    <div class="col-6">
                         <AutoComplete
                             name="addresses-user-filter"
                             data-testid="addresses-user-filter"
@@ -94,37 +94,42 @@ const toggleSelectedMenuState = (event) => {
                             :complete-on-focus = "true"
                             :suggestions="store.product_suggestion"
                             @complete="store.searchProduct($event)"
-                            placeholder="Select Product"
-                            class="w-full">
+                            placeholder="Search Product"
+                            class="w-full"
+                            style="height:35px;">
                         </AutoComplete>
                     </div>
 
                     <div class="p-2">
-                        <Button v-if="store.selected_product" type="button" label="Add" @click="store.addProduct()" />
+                        <Button v-if="store.selected_product"
+                                type="button"
+                                label="Add"
+                                style="height:35px;"
+                                @click="store.addProduct()" />
                     </div>
                 </div>
 
-<!--                &lt;!&ndash;                Bulk action &ndash;&gt;-->
-<!--                <div class="p-1 pl-2 flex flex-wrap col-12"-->
-<!--                     v-if="store.item.vendors  && store.item.vendors.length > 0">-->
-<!--                    <div class="col-10">-->
-<!--                        &lt;!&ndash;selected_menu&ndash;&gt;-->
-<!--                        <Button-->
-<!--                            type="button"-->
-<!--                            @click="toggleSelectedMenuState"-->
-<!--                            data-testid="products-actions-menu"-->
-<!--                            aria-haspopup="true"-->
-<!--                            aria-controls="overlay_menu">-->
-<!--                            <i class="pi pi-angle-down"></i>-->
-<!--                        </Button>-->
-<!--                        <Menu ref="selected_menu_state"-->
-<!--                              :model="store.vendor_selected_menu"-->
-<!--                              :popup="true" />-->
-<!--                        &lt;!&ndash;/selected_menu&ndash;&gt;-->
-<!--                    </div>-->
-<!--                </div>-->
+                <!--                Bulk action -->
+                <div class="p-1 pl-2 flex flex-wrap col-12"
+                     v-if="store.item.products  && store.item.products.length > 0">
+                    <div class="col-10">
+                        <!--selected_menu-->
+                        <Button
+                            type="button"
+                            @click="toggleSelectedMenuState"
+                            data-testid="products-actions-menu"
+                            aria-haspopup="true"
+                            aria-controls="overlay_menu">
+                            <i class="pi pi-angle-down"></i>
+                        </Button>
+                        <Menu ref="selected_menu_state"
+                              :model="store.product_selected_menu"
+                              :popup="true" />
+                        <!--/selected_menu-->
+                    </div>
+                </div>
 
-<!--                &lt;!&ndash;added vendor's list&ndash;&gt;-->
+                <!--added vendor's list-->
                 <div class="col-12"
                      v-if="store.item.products && store.item.products.length > 0">
                     <table class="table col-12 table-scroll table-striped">
@@ -132,7 +137,7 @@ const toggleSelectedMenuState = (event) => {
                         <tr>
                             <th class="col-1">
                                 <Checkbox v-model="store.select_all_product"
-                                          :binary="true" @click="store.selectAllVendor()" />
+                                          :binary="true" @click="store.selectAllProduct()" />
                             </th>
                             <th scope="col">Product Name</th>
                             <th scope="col">Action</th>
@@ -141,14 +146,15 @@ const toggleSelectedMenuState = (event) => {
                         <tbody id="scroll-horizontal" class="pt-1">
                         <tr v-for="(item, index) in store.item.products">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
-                            <td>
-                                <InputText v-model="item['product']['name']" class="w-full" disabled/>
+                            <td >
+                                <InputText v-model="item['product']['name']" class="w-full" style="height:30px;" disabled/>
                             </td>
-                            <td>
+                            <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
-                                        class="btn-danger"
-                                        size="small"
-                                        @click="store.removeVendor(item)" />
+                                        class="btn-danger "
+                                        style="height:30px;"
+                                        size="medium"
+                                        @click="store.removeProduct(item)" />
                             </td>
                         </tr>
                         </tbody>
