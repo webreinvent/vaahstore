@@ -145,6 +145,12 @@ const toggleFormMenu = (event) => {
                         @change="store.setVendor($event)"
                         :suggestions="store.active_vendors_list"
                         @complete="store.searchVendor($event)"
+                        :pt="{
+                                       panel: { class: 'w-16rem ' },
+                                       item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
+                                  }"
                         placeholder="Select Vendor"
                         data-testid="productvendors-vendor"
                         name="productvendors-vendor"
@@ -172,6 +178,18 @@ const toggleFormMenu = (event) => {
                             optionLabel="name"
                             multiple
                             :complete-on-focus = "true"
+                            :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
                             :suggestions="store.active_stores"
                             @complete="store.searchActiveStores($event)"
                             placeholder="Select Stores "
@@ -193,7 +211,10 @@ const toggleFormMenu = (event) => {
                                   name="productvendors-product"
                                   :dropdown="true"
                                   :pt="{
-                                       panel: { class: 'w-16rem ' }
+                                       panel: { class: 'w-16rem ' },
+                                       item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
                                   }"
                                   optionLabel="name"
                                   forceSelection>

@@ -36,6 +36,9 @@ const store = useProductVendorStore();
                                       removeTokenIcon: {
                                           class: 'min-w-max'
                                       },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
                                        panel: { class: 'w-16rem ' }
                                   }"/>
                 </VhField>
