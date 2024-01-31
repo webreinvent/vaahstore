@@ -68,6 +68,16 @@ class Whishlist extends VaahModel
     }
 
     //-------------------------------------------------
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','whishlist_id','product_id')
+            ->select('vh_st_products.id', 'vh_st_products.name')
+            ->withPivot([]);
+    }
+
+    //-------------------------------------------------
+
     public function user(){
         return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
     }
@@ -342,7 +352,7 @@ class Whishlist extends VaahModel
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','status','whishlistType');
+        $list = self::getSorted($request->filter)->with('user','status','whishlistType','products');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -618,7 +628,7 @@ class Whishlist extends VaahModel
 
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType','products'])
             ->withTrashed()
             ->first();
 
@@ -628,8 +638,20 @@ class Whishlist extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+        $products = $item->products->map(function ($product) {
+            return [
+                'is_selected' => false,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name
+                ]
+            ];
+        })->toArray();
+
+        $response['data'] = $item->toArray();
+        $response['data']['products'] = $products;
         $response['success'] = true;
-        $response['data'] = $item;
 
         return $response;
 
@@ -662,6 +684,13 @@ class Whishlist extends VaahModel
         $item->fill($inputs);
         $item->save();
 
+        if(isset($inputs['products']) && is_array($inputs['products'])){
+            $product_ids = collect($inputs['products'])->pluck('product.id')->toArray();
+
+           $item->products()->sync($product_ids,function($pivot){
+               $pivot->uuid = Str::uuid();
+           });
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
