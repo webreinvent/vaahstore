@@ -368,13 +368,13 @@ class ProductMedia extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        if(!isset($filter['status']))
+        if(!isset($filter['media_status']))
         {
             return $query;
         }
-        $search = $filter['status'];
+        $search = $filter['media_status'];
         $query->whereHas('status' , function ($q) use ($search){
-            $q->whereIn('slug' ,$search);
+            $q->whereIn('name' ,$search);
         });
     }
     //-------------------------------------------------
@@ -1332,20 +1332,7 @@ class ProductMedia extends VaahModel
         return $response;
     }
 
-    public static function searchStatusUsingUrlSlug($request)
-    {
-        $query = $request['filter']['status'];
-        $status_type = TaxonomyType::getFirstOrCreate('product-medias-status');
 
-        $item = Taxonomy::whereNotNull('is_active')
-            ->where('vh_taxonomy_type_id',$status_type->id)
-            ->whereIn('slug',$query)
-            ->get();
-
-        $response['success'] = true;
-        $response['data'] = $item;
-        return $response;
-    }
 
     public static function searchMediaType($request)
     {

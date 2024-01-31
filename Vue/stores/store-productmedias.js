@@ -22,6 +22,7 @@ let empty_states = {
             status:null,
             product_variation:null,
             date:null,
+            media_status:null,
             attributes:null
         },
     },
@@ -223,7 +224,6 @@ export const useProductMediaStore = defineStore({
             this.updateQueryFromUrl(route);
 
             if (this.query.filter.product_variation) this.setVariationsAfterPageRefresh();
-            if (this.query.filter.status) this.setStatusAfterPageRefresh();
             if (this.query.filter.type) this.setMediaAfterPageRefresh();
 
             const { filter } = route.query;
@@ -1208,11 +1208,7 @@ export const useProductMediaStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        addStatus() {
-            const uniqueStatus = Array.from(new Set(this.selected_status.map(status => status.name)));
-            this.selected_status = this.selected_status.filter(status => uniqueStatus.includes(status.name));
-            this.query.filter.status = this.selected_status.map(status => status.slug);
-        },
+
 
         //---------------------------------------------------------------------
         async searchVariation(event) {
@@ -1272,35 +1268,7 @@ export const useProductMediaStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async setStatusAfterPageRefresh()
-        {
 
-            let query = {
-                filter: {
-                    status: this.query.filter.status,
-                },
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/status-using-slug',
-                this.setStatusPageRefreshAfter,
-                options
-            );
-
-
-        },
-
-        //---------------------------------------------------------------------
-        setStatusPageRefreshAfter(data, res) {
-
-            if (data) {
-                this.selected_status= data;
-            }
-        },
 
         async searchMediaType(event) {
             const query = event;
