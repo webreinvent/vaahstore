@@ -24,6 +24,15 @@ const toggleFormMenu = (event) => {
 };
 //--------/form_menu
 
+watch(() => store && store.item && store.item.name, (item_name) => {
+    try {
+        if (item_name.length === 0) {
+            store.item.slug = '';
+        }
+    } catch (error) {
+    }
+});
+
 </script>
 <template>
 
@@ -35,7 +44,8 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="flex flex-row">
-                    <div class="p-panel-title">
+                    <div class="p-panel-title"
+                         :disabled="!store.assets.permissions.includes('can-update-module')">
                         <span v-if="store.item && store.item.id">
                             Update
                         </span>
@@ -58,6 +68,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="brands-save"
                             @click="store.itemAction('save')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -65,6 +76,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="brands-create-and-new"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button data-testid="brands-document" icon="pi pi-info-circle"
@@ -80,6 +92,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="brands-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -103,7 +116,7 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="brands-name"
                                data-testid="brands-name"
-                               placeholder="Enter a Name"
+                               placeholder="Enter Name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
@@ -112,11 +125,64 @@ const toggleFormMenu = (event) => {
                     <InputText class="w-full"
                                name="brands-slug"
                                data-testid="brands-slug"
-                               placeholder="Enter a Slug"
+                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Registered By*">
+                <VhField label="" class="mb-0">
+                    <Message v-if="!store.item.image" class="mt-2" severity="warn" :closable="false">Type: jpeg, jpg, png & Size: less than 1mb</Message>
+                </VhField>
+
+
+                <VhField label="Brand Logo">
+                    <FileUpload
+                        name="image"
+                        accept=".jpeg,.jpg,.png,"
+                        :maxFileSize="1024*1024"
+                        :custom-upload="true"
+                        mode="advanced"
+                        :multiple="false"
+                        @uploader="store.upload" >
+                        <template #empty class="flex">
+                            <p v-if="!store.item.image">Drag and drop files here to upload.</p>
+                            <p v-if="store.item.image">
+                                <img class="w-5 h-4rem" :src="`image/uploads/brands/`+store.item.image"/>
+                                <i class="pi pi-times text-2xl font-bold cursor-pointer text-red-500 ml-2" @click="store.clearimage"></i>
+
+                            </p>
+
+
+                        </template>
+
+                    </FileUpload>
+                </VhField>
+
+
+                <VhField label="Meta Title">
+                    <InputText class="w-full"
+                               name="brands-slug"
+                               data-testid="brands-meta_title"
+                               placeholder="Enter Meta Title"
+                               v-model="store.item.meta_title"/>
+                </VhField>
+
+                <VhField label="Meta Description">
+                    <Textarea rows="3" class="w-full"
+                              name="brands-meta_description"
+                              data-testid="brands-meta_description"
+                              :autoResize="true"
+                              placeholder="Enter Meta Description"
+                              v-model="store.item.meta_description"/>
+                </VhField>
+
+                <VhField label="Meta Keyword" >
+                    <Chips class="w-full"
+                           v-model="store.item.meta_keyword"
+                           placeholder="Enter Meta keyword"
+                           separator=","  />
+                </VhField>
+
+                <VhField label="Registered By">
 
                     <AutoComplete
                         value="id"
@@ -134,21 +200,20 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Registered at*">
+                <VhField label="Registered at">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
                               name="brands-registered_at"
                               id="registered_at"
-                              value="registered_at"
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date"
+                              placeholder="Select Date and Time"
                               v-model="store.item.registered_at"></Calendar>
                 </VhField>
 
-                <VhField label="Approved By*">
+                <VhField label="Approved By">
                     <AutoComplete
                         v-model="store.item.approved_by_user"
                         @change="store.setApprovedBy($event)"
@@ -164,17 +229,16 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Approved at*">
+                <VhField label="Approved at">
                     <Calendar tabindex="0"
                               :showIcon="true"
                               class="w-full"
                               name="brands-approved_at"
                               id="approved_at"
-                              value="approved_at"
                               data-testid="brands-approved_at"
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
-                              placeholder="Select date"
+                              placeholder="Select Date and Time"
                               v-model="store.item.approved_at"></Calendar>
                 </VhField>
 
@@ -208,8 +272,19 @@ const toggleFormMenu = (event) => {
                                  class="p-inputswitch"
                                  name="brands-active"
                                  data-testid="brands-active"
-                                 v-model="store.item.is_active"/>
+                                 v-model="store.item.is_active"
+                                 :pt="{
+                                        slider: ({ props }) => ({
+                                            class: props.modelValue ? 'bg-green-600' : ' '
+                                        })
+                                 }"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                    />
                 </VhField>
+
+
+
+
 
             </div>
         </Panel>
