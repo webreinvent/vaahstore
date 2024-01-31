@@ -26,6 +26,18 @@ const store = useProductMediaStore();
                                   option-value = "name"
                                   multiple
                                   :complete-on-focus = "true"
+                                  :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
                                   :suggestions="store.variation_suggestion"
                                   @complete="store.searchVariation($event)"
                                   placeholder="Select Variations"

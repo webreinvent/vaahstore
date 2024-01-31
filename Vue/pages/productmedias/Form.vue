@@ -170,6 +170,18 @@ const toggleFormMenu = (event) => {
                         optionLabel="name"
                         multiple
                         :complete-on-focus = "true"
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
                         :suggestions="store.product_variation_list"
                         @complete="store.searchVariationOfProduct($event)"
                         placeholder="Select Product Variations"
