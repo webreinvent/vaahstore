@@ -1237,14 +1237,14 @@ class ProductMedia extends VaahModel
     }
     //-------------------------------------------------
     public static function searchProduct($request){
-        $addedBy = Product::select('id', 'name','slug')->where('is_active',1);
+        $product = Product::select('id', 'name','slug')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
-        $addedBy = $addedBy->limit(10)->get();
+        $products = $product->limit(10)->get();
 
         $response['success'] = true;
-        $response['data'] = $addedBy;
+        $response['data'] = $products;
         return $response;
 
     }
@@ -1252,14 +1252,14 @@ class ProductMedia extends VaahModel
 
     //-------------------------------------------------
     public static function searchProductVariation($request){
-        $addedBy = ProductVariation::select('id', 'name','slug')->where('is_active',1);
+        $product_variations = ProductVariation::select('id', 'name','slug')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+            $product_variations->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
-        $addedBy = $addedBy->limit(10)->get();
+        $product_variations = $product_variations->limit(10)->get();
 
         $response['success'] = true;
-        $response['data'] = $addedBy;
+        $response['data'] = $product_variations;
         return $response;
 
     }
