@@ -78,7 +78,7 @@ const store = useProductMediaStore();
 
             </VhFieldVertical>
 
-           
+
             <VhFieldVertical >
                 <template #label>
                     <b>Status By:</b>
