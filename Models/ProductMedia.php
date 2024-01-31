@@ -1294,7 +1294,7 @@ class ProductMedia extends VaahModel
         $query = $request->input('query');
         if($query === null)
         {
-            $attribute_name = ProductVariation::select('id','name','slug')
+            $variations = ProductVariation::select('id','name','slug')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -1302,14 +1302,14 @@ class ProductMedia extends VaahModel
 
         else{
 
-            $attribute_name = ProductVariation::where('name', 'like', "%$query%")
+            $variations = ProductVariation::where('name', 'like', "%$query%")
                 ->orWhere('slug','like',"%$query%")
                 ->select('id','name','slug')
                 ->get();
         }
 
         $response['success'] = true;
-        $response['data'] = $attribute_name;
+        $response['data'] = $variations;
         return $response;
 
     }
