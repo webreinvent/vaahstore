@@ -22,6 +22,7 @@ let empty_states = {
             wishlist_status: null,
             wishlist_type:null,
             date:null,
+            users : null,
         },
     },
     action: {
@@ -80,6 +81,7 @@ export const useWhishlistStore = defineStore({
         user_error_message: [],
         select_all_product : false,
         product_selected_menu : [],
+        selected_users : null,
     }),
     getters: {
 
@@ -129,6 +131,7 @@ export const useWhishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
        async searchUsers(event) {
+
             const query = event;
             const options = {
                 params: query,
@@ -804,10 +807,9 @@ export const useWhishlistStore = defineStore({
             await this.resetQueryString();
 
             this.selected_dates=[];
-
+            this.selected_users = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
-
-
+            
             //reload page list
             await this.getList();
         },
@@ -1348,6 +1350,26 @@ export const useWhishlistStore = defineStore({
             }
 
         },
+
+        //---------------------------------------------------------------------
+
+        setFilterSelectedUsers() {
+
+            const unique_users = [];
+            const check_names = new Set();
+
+            for (const users of this.selected_users) {
+                if (!check_names.has(users.first_name)) {
+                    unique_users.push(users);
+                    check_names.add(users.first_name);
+                }
+            }
+            const users_slug = unique_users.map(users => users.first_name);
+            this.selected_users = unique_users;
+            this.query.filter.users = users_slug;
+
+        },
+
 
     }
 });
