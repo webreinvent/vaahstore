@@ -42,6 +42,6 @@ class VhStProductVariationMedia extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_prod_variation_media');
+        Schema::dropIfExists('vh_st_product_variation_media');
     }
 }
