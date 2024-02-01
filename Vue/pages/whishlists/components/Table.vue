@@ -1,7 +1,6 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useWhishlistStore } from '../../../stores/store-whishlists'
-
 const store = useWhishlistStore();
 const useVaah = vaah();
 
@@ -36,8 +35,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="product" header="Product"
-                     :sortable="true">
+             <Column field="product" header="Product">
 
                  <template #body="prop">
                      <div class="p-inputgroup">
@@ -77,29 +75,14 @@ const useVaah = vaah();
 
              </Column>
 
-<!--             <Column field="status.name" header="Status"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.status.slug == 'approved'"-->
-<!--                            severity="success"> {{prop.data.status.name}} </Badge>-->
-<!--                     <Badge v-else-if="prop.data.status.slug == 'rejected'"-->
-<!--                            severity="danger"> {{prop.data.status.name}} </Badge>-->
-<!--                     <Badge v-else-->
-<!--                            severity="warning"> {{prop.data.status.name}} </Badge>-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-             <Column field="type" header="Type"
-                     :sortable="true">
+             <Column field="type" header="Is Sharable">
 
                  <template #body="prop">
                      <span v-if="prop.data.type === 0" style="padding-left: 5px;">
-                       Private
+                       No
                     </span>
                      <span v-else="prop.data.type === 1" style="padding-left: 5px;">
-                       Public
+                      Yes
                     </span>
                  </template>
 
@@ -125,14 +108,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-view"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -151,6 +134,11 @@ const useVaah = vaah();
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
 
+                        <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="whishlists-table-action-share"
+                                v-tooltip.top="'Copy link'"
+                                v-if="prop.data.type"
+                                @click="useVaah.copy(`http://localhost/suraj-k001/store-dev/public/backend/store#/whishlists/${prop.data.id}/product`)"
+                                icon="pi pi-copy" />
 
                     </div>
 

@@ -192,7 +192,9 @@ class Whishlist extends VaahModel
 
         // Check if current record is default
         if($inputs['is_default']){
-            self::where('is_default',1)->update(['is_default' => 0]);
+            self::where('is_default',1)
+                ->where('vh_user_id',$inputs['vh_user_id'])
+                ->update(['is_default' => 0]);
         }
 
 
@@ -680,7 +682,9 @@ class Whishlist extends VaahModel
 
         // Check default
         if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::where('is_default',1)->update(['is_default' => 0]);
+            self::where('is_default',1)
+                ->where('vh_user_id',$inputs['vh_user_id'])
+                ->update(['is_default' => 0]);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
@@ -788,7 +792,6 @@ class Whishlist extends VaahModel
             'name.max' => 'The Name field may not be greater than :max characters.',
             'slug.required' => 'The Slug field is required.',
             'slug.max' => 'The Slug field may not be greater than :max characters.',
-            'vh_user_id.required' => 'The User field is required.',
             'taxonomy_id_whishlists_status.required' => 'The Status field is required.',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );

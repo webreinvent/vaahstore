@@ -156,17 +156,10 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
                         <template v-else-if="column === 'type'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Type</b>
-                                </td>
-                                <td colspan="2">
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        <span v-if="store.item.type == 1">Public</span>
-                                        <span v-else>Private</span>
-                                    </div>
-                                </td>
-                            </tr>
+                            <VhViewRow label="Is Shareable"
+                                       :value="value"
+                                       type="yes-no"
+                            />
                         </template>
                         <template v-else-if="column === 'status_notes'">
                             <tr>
