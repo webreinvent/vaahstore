@@ -83,7 +83,7 @@ export const useWhishlistStore = defineStore({
         select_all_product : false,
         product_selected_menu : [],
         selected_users : null,
-
+        filter_selected_products : null,
     }),
     getters: {
 
@@ -186,6 +186,14 @@ export const useWhishlistStore = defineStore({
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
             }
+
+            if(this.query.filter.products)
+            {
+                this.getProductsBySlug();
+            }
+
+
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -1410,6 +1418,40 @@ export const useWhishlistStore = defineStore({
                 },{deep: true}
             )
         },
+
+        //---------------------------------------------------------------------
+
+        async getProductsBySlug()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/products-by-slug',
+                this.getProductsBySlugAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+
+        getProductsBySlugAfter()
+        {
+            alert("hi");
+            if (data) {
+                this.selected_products = data;
+            }
+        },
+
 
     }
 });

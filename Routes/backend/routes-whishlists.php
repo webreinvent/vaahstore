@@ -94,4 +94,11 @@ function () {
      */
     Route::any('/search/product', 'WhishlistsController@searchProduct')
         ->name('vh.backend.store.whishlists.search.product');
+
+    /**
+     * Search Products By Slug
+     */
+    Route::post('/search/products-by-slug', 'WhishlistsController@searchProductBySlug')
+        ->name('vh.backend.store.whishlists.search.products-by-slug');
+
 });

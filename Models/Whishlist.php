@@ -13,7 +13,7 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
-
+use VaahCms\Modules\Store\Models\Product;
 class Whishlist extends VaahModel
 {
 
@@ -1014,6 +1014,20 @@ class Whishlist extends VaahModel
         return $query->whereHas('products', function ($query) use ($products) {
             $query->whereIn('slug', $products);
         });
+    }
+
+    //-------------------------------------------------
+
+    public static function searchProductBySlug($request)
+    {
+
+        $query = $request['filter']['product'];
+        $products = Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
     }
 
 }

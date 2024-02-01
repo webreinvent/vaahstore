@@ -62,7 +62,7 @@ const store = useWhishlistStore();
                 <AutoComplete
                     name="whishlists-user-filter"
                     data-testid="whishlists-user-filter"
-                    v-model="store.selected_products"
+                    v-model="store.filter_selected_products"
                     @change="store.setFilterSelectedProducts()"
                     option-label = "name"
                     multiple
