@@ -710,6 +710,7 @@ export const useProductMediaStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.item.is_active=1;
         },
         //---------------------------------------------------------------------
         confirmDelete()
