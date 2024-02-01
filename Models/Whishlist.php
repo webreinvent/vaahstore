@@ -1031,4 +1031,19 @@ class Whishlist extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
+
+    public static function searchUserBySlug($request)
+    {
+
+        $query = $request['filter']['user'];
+
+        $users = User::whereIn('first_name',$query)
+            ->select('id','first_name')->get();
+
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+    }
+
 }

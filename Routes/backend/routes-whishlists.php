@@ -101,4 +101,10 @@ function () {
     Route::post('/search/products-by-slug', 'WhishlistsController@searchProductBySlug')
         ->name('vh.backend.store.whishlists.search.products-by-slug');
 
+    /**
+     * Search Users By Slug
+     */
+    Route::post('/search/users-by-slug', 'WhishlistsController@searchUserBySlug')
+        ->name('vh.backend.store.whishlists.search.users-by-slug');
+
 });

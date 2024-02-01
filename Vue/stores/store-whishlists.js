@@ -192,6 +192,10 @@ export const useWhishlistStore = defineStore({
                 this.getProductsBySlug();
             }
 
+            if(this.query.filter.users)
+            {
+                this.getUsersBySlug();
+            }
 
 
         },
@@ -1445,11 +1449,44 @@ export const useWhishlistStore = defineStore({
 
         getProductsBySlugAfter(data,res)
         {
-           
+
             if (data) {
                 this.filter_selected_products = data;
             }
         },
+
+        //---------------------------------------------------------------------
+
+        async getUsersBySlug()
+        {
+            let query = {
+                filter: {
+                    user: this.query.filter.users,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users-by-slug',
+                this.getUsersBySlugAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        getUsersBySlugAfter(data,res)
+        {
+            if (data) {
+                this.selected_users = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
 
 
     }

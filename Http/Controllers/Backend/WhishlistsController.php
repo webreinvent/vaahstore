@@ -321,10 +321,28 @@ class WhishlistsController extends Controller
 
     public function searchProductBySlug(Request $request)
     {
-
-
         try{
             return Whishlist::searchProductBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function searchUserBySlug(Request $request)
+    {
+
+        try{
+            return Whishlist::searchUserBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
