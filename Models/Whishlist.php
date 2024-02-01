@@ -624,14 +624,7 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
-        }
-
-
+        
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType','products'])
             ->withTrashed()
@@ -875,7 +868,7 @@ class Whishlist extends VaahModel
         $inputs['status']=$status;
 
         // fill the name field here
-        $max_chars = rand(2,100);
+        $max_chars = rand(5,100);
         $inputs['name']=$faker->text($max_chars);
 
         // fill the slug field here
@@ -883,7 +876,7 @@ class Whishlist extends VaahModel
 
         // fill the is default field here
 
-        $inputs['type'] = 0;
+        $inputs['type'] = rand(0,1);
         $inputs['is_default'] = 0;
 
 

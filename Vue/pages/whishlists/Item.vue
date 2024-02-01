@@ -80,14 +80,15 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Edit"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="whishlists-item-to-edit"
                             icon="pi pi-save"/>
 
                     <!--item_menu-->
-                    <Button
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"

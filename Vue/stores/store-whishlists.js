@@ -1486,7 +1486,7 @@ export const useWhishlistStore = defineStore({
             }
         },
 
-       
+
 
 
     }

@@ -112,7 +112,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if="store.assets.permissions.includes('can-update-module')"
+                                class="p-button-tiny p-button-text"
                                 data-testid="whishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
@@ -121,7 +122,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="whishlists-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -129,14 +130,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="whishlists-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module') "
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="whishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                v-if="prop.data.type"
+                                v-if="prop.data.type && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`http://localhost/suraj-k001/store-dev/public/backend/store#/whishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
 
