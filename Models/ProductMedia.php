@@ -872,7 +872,7 @@ class ProductMedia extends VaahModel
                     $item->save();
                 }
 
-                else{
+                if(!$is_exist){
                     // Check if media already exists for another product variation
                     $product_variation_media = self::where('vh_st_product_id', $product_id)
                         ->whereHas('productVariationMedia', function ($query) use ($product_variation) {
