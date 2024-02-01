@@ -1055,7 +1055,6 @@ class Product extends VaahModel
             ],
             'launch_at' => 'required_without_all:quantity,available_at,0',
             'available_at' => 'required_without_all:quantity,launch_at,0',
-            'in_stock'=> 'required|numeric',
             'details' => 'max:250',
             ''
         ],
