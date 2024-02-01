@@ -1025,6 +1025,7 @@ class Whishlist extends VaahModel
         $products = Product::whereIn('name',$query)
             ->orWhereIn('slug',$query)
             ->select('id','name','slug')->get();
+
         $response['success'] = true;
         $response['data'] = $products;
         return $response;

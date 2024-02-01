@@ -829,7 +829,7 @@ export const useWhishlistStore = defineStore({
 
             this.selected_dates=[];
             this.selected_users = null;
-            this.selected_products = null;
+            this.filter_selected_products = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
 
             //reload page list
@@ -1285,10 +1285,10 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.product_suggestion = data;
-                if(this.selected_products)
+                if(this.filter_selected_products)
                 {
                     const filtered_suggestions = data.filter((product) => {
-                        return !this.selected_products.some((selected_product) => selected_product.id === product.id);
+                        return !this.filter_selected_products.some((selected_product) => selected_product.id === product.id);
                     });
 
                     this.product_suggestion = filtered_suggestions;
@@ -1401,7 +1401,7 @@ export const useWhishlistStore = defineStore({
 
         setFilterSelectedProducts() {
 
-            const products_slug = this.selected_products.map(product => product.slug);
+            const products_slug = this.filter_selected_products.map(product => product.slug);
             this.query.filter.products = products_slug;
 
         },
@@ -1439,16 +1439,15 @@ export const useWhishlistStore = defineStore({
                 options
             );
 
-
         },
 
         //---------------------------------------------------------------------
 
-        getProductsBySlugAfter()
+        getProductsBySlugAfter(data,res)
         {
-            alert("hi");
+           
             if (data) {
-                this.selected_products = data;
+                this.filter_selected_products = data;
             }
         },
 
