@@ -624,7 +624,7 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
-        
+
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType','products'])
             ->withTrashed()

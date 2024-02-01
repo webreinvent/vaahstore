@@ -49,7 +49,8 @@ const useVaah = vaah();
                          <span class="p-inputgroup-addon" v-else>
                              <b>{{prop.data.products.length}}</b>
                          </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                         <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                                icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Products'"
                                  @click="store.toProduct(prop.data)" />
@@ -137,7 +138,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="whishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                v-if="prop.data.type && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="prop.data.type && store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`http://localhost/suraj-k001/store-dev/public/backend/store#/whishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
 

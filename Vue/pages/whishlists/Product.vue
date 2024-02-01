@@ -52,7 +52,8 @@ const toggleSelectedMenuState = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Save"
                             v-if="store.item && store.item.id"
                             class="p-button-sm"
                             data-testid="products-save"
