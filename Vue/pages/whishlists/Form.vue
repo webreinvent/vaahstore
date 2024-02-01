@@ -135,7 +135,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Type">
+                <VhField label="Is Shareable">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
@@ -143,7 +143,7 @@ const toggleFormMenu = (event) => {
                                  data-testid="whishlists-is_default"
                                  v-model="store.item.type"/>
                 </VhField>
-
+                
                 <VhField label="Status">
                     <AutoComplete
                         value="id"
