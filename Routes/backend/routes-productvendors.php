@@ -111,17 +111,30 @@ function () {
 //        ->name('vh.backend.store.productvendors.search.variation');
 
     //---------------------------------------------------------
+    /**
+     * Search Active Stores
+     */
     Route::any('/search/active-store', 'ProductVendorsController@searchActiveStores')
         ->name('vh.backend.store.productvendors.search.active-store');
 
+    /**
+     * Search Products for filter
+     */
     Route::post('/filter/search/product', 'ProductVendorsController@searchProductFilter')
         ->name('vh.backend.store.productvendors.search.filter.product');
 
+    /**
+     * Search Products after refresh
+     */
     Route::post('/search/products-using-slug', 'ProductVendorsController@searchProductsUsingUrlSlug')
         ->name('vh.backend.store.productvendors.search.filtered-product');
 
+    /**
+     * Search Status after refresh
+     */
     Route::post('/search/status-using-slug', 'ProductVendorsController@searchStatusUsingUrlSlug')
         ->name('vh.backend.store.productvendors.search.filtered-status');
+
 
     Route::post('/search/product-variation', 'ProductVendorsController@searchVariationOfProduct')
         ->name('vh.backend.store.productvendors.search.product-variation');

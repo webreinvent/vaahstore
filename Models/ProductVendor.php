@@ -194,6 +194,7 @@ class ProductVendor extends VaahModel
         }
 
         $response = [];
+        $saved_variations = 0;
 
         foreach ($inputs['product_variation'] as $key => $variation) {
             $check = ProductPrice::where([
@@ -203,36 +204,43 @@ class ProductVendor extends VaahModel
             ])->first();
 
             if ($check) {
-                // Update only if the variation exists and 'amount' is provided
+                if ($variation['amount'] === null) {
+                    $check->forceDelete();
+//                    $response['messages'][] = 'Removed variation ' . $variation['name'] . '  amount.';
+                    $saved_variations++;
+                } else {
+                    // 'amount' is provided, update the record
                     $check->fill([
-                        'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
-                        'vh_st_product_id' => $inputs['vh_st_product_id'],
-                        'vh_st_product_variation_id' => $variation['id'],
-//                        'amount' => $variation['amount'],
-                        'amount' => $variation['amount'] ?? null,
-
-                    ]);
-                    $check->save();
-                    $response['messages'][] = 'Updated variation ' . $variation['name'] . ' successfully.';
-//                }
-            } else {
-                if (isset($variation['amount'])) {
-                    $newVariation = new ProductPrice;
-                    $newVariation->fill([
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
                         'amount' => $variation['amount'],
                     ]);
-                    $newVariation->save();
-                    $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
+                    $check->save();
+//                    $response['messages'][] = 'Updated variation ' . $variation['name'] . ' successfully.';
+                    $saved_variations++;
                 }
             }
-        }
 
+            if (!$check && isset($variation['amount'])) {
+                $newVariation = new ProductPrice;
+                $newVariation->fill([
+                    'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+                    'vh_st_product_id' => $inputs['vh_st_product_id'],
+                    'vh_st_product_variation_id' => $variation['id'],
+                    'amount' => $variation['amount'],
+                ]);
+                $newVariation->save();
+//                $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
+                $saved_variations++;
+
+            }
+        }
+        if ($saved_variations > 0) {
+            $response['messages'][] = 'Saved successfully.';
+        }
         return $response;
     }
-
 
     //-------------------------------------------------
     public static function createItem($request)
@@ -813,7 +821,9 @@ class ProductVendor extends VaahModel
                 'required_if:status.slug,==,rejected',
                 'max:100'
                              ],
-            ],
+            'product_variation.*.amount' => 'nullable|numeric|max:100000',
+        ],
+
         [
             'vh_st_vendor_id.required' => 'The Vendor field is required',
             'store_vendor_product.required' => 'The Store field is required',
@@ -822,6 +832,8 @@ class ProductVendor extends VaahModel
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+            'product_variation.*.amount.max' => 'The Amount field cannot be greater than :max.',
+
         ]
         );
 
@@ -931,6 +943,8 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
+
     public static function searchAddedBy(Request $request): array
     {
         $user = auth()->user();
@@ -939,8 +953,8 @@ class ProductVendor extends VaahModel
         $added_users = User::where('is_active', 1);
 
         if ($query !== null) {
-            $added_users->where(function ($query_builder) use ($query) {
-                $query_builder->where('first_name', 'like', "%$query%")
+            $added_users->where(function ($q) use ($query) {
+                $q->where('first_name', 'like', "%$query%")
                     ->orWhere('last_name', 'like', "%$query%")
                     ->orWhere('email', 'like', "%$query%");
             });
@@ -953,6 +967,8 @@ class ProductVendor extends VaahModel
 
         return $response;
     }
+
+    //-------------------------------------------------
 
     public static function searchStatus($request)
     {
@@ -979,22 +995,9 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
-//    public static function searchProductVariation($request)
-//    {
-//        $user = auth()->user();
-//        $query = $request->input('filter.q.query');
-//        $vendor =  ProductVariation::where('is_active', 1, $user->id)
-//            ->select('id', 'name', 'slug');
-//        if ($query !== null) {
-//            $vendor->where('name', 'like', "%$query%");
-//        }
-//        $vendor = $vendor->get();
-//        $response['success'] = true;
-//        $response['data'] = $vendor;
-//
-//        return $response;
-//    }
+
     //-------------------------------------------------
+
     public static function seedSampleItems($records=100)
     {
 
@@ -1092,22 +1095,25 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
+
     public static function searchActiveStores($request){
-        $addedBy = Store::select('id', 'name','slug')->where('is_active',1);
+        $active_store = Store::select('id', 'name','slug')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
-            $addedBy->where('name', 'LIKE', '%' . $request->input('query') . '%');
+            $active_store->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
-        $addedBy = $addedBy->limit(10)->get();
+        $active_stores = $active_store->limit(10)->get();
 
         $response['success'] = true;
-        $response['data'] = $addedBy;
+        $response['data'] = $active_stores;
         return $response;
 
     }
 
+    //-------------------------------------------------
+
     public static function searchProductFilter($request)
     {
-//        $query = $request['filter']['q']['query'];
         $query = $request->input('query');
         if($query === null)
         {
@@ -1131,6 +1137,8 @@ class ProductVendor extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
     public static function searchProductsUsingUrlSlug($request)
     {
         $query = $request['filter']['product'];
@@ -1143,6 +1151,8 @@ class ProductVendor extends VaahModel
         $response['data'] = $products;
         return $response;
     }
+    //-------------------------------------------------
+
     public static function searchStatusUsingUrlSlug($request)
     {
         $query = $request['filter']['product_vendor_status'];
@@ -1157,23 +1167,25 @@ class ProductVendor extends VaahModel
         $response['data'] = $item;
         return $response;
     }
+    //-------------------------------------------------
+
     public static function searchVariationOfProduct($request)
     {
         $input = $request->all();
-//        dd($input);
         $id = $input['id'];
-        $variation = ProductVariation::where('vh_st_product_id', $id)
-
-
+        $product_variations = ProductVariation::where('vh_st_product_id', $id)
             ->get();
 
         $response['success'] = true;
-        $response['data'] = $variation;
+        $response['data'] = $product_variations;
 
         return $response;
 
 
     }
+
+    //-------------------------------------------------
+
     public static function productForStore($request)
     {
         $inputs = $request->all();
@@ -1181,17 +1193,17 @@ class ProductVendor extends VaahModel
         $ids = $inputs['id'];
         $q = $inputs['q'];
 
-        $query = Product::where('is_active', 1)
+        $product = Product::where('is_active', 1)
             ->whereIn('vh_st_store_id', $ids);
 
         if (!empty($q)) {
-            $query->where(function ($sub_query) use ($q) {
+            $product->where(function ($sub_query) use ($q) {
                 $sub_query->where('name', 'like', '%' . $q . '%')
                     ->orWhere('slug', 'like', '%' . $q . '%');
             });
         }
 
-        $data = $query->with('store')
+        $product_for_store = $product->with('store')
             ->orderBy('vh_st_store_id')
             ->orderBy('id')
             ->when(empty($q), function ($query) {
@@ -1200,8 +1212,10 @@ class ProductVendor extends VaahModel
             ->get(['id', 'name', 'slug', 'vh_st_store_id']);
 
         $response['success'] = true;
-        $response['data'] = $data;
+        $response['data'] = $product_for_store;
         return $response;
     }
 
+    //-------------------------------------------------
+    //-------------------------------------------------
 }
