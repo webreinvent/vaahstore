@@ -41,11 +41,15 @@ const useVaah = vaah();
 
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
-                             <b v-if="prop.data.products && prop.data.products.length">
-                                 {{prop.data.products.length}}
-                            </b>
-                              <b v-else>0</b>
+                         <span
+                             v-if="prop.data.products && prop.data.products.length"
+                             class="p-inputgroup-addon cursor-pointer"
+                             v-tooltip.top="'View Products'"
+                               @click="store.toProduct(prop.data)">
+                             <b>{{prop.data.products.length}}</b>
+                         </span>
+                         <span class="p-inputgroup-addon" v-else>
+                             <b>{{prop.data.products.length}}</b>
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"

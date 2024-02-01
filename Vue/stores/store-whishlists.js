@@ -1398,6 +1398,18 @@ export const useWhishlistStore = defineStore({
 
         },
 
+        //---------------------------------------------------------------------
+
+        watchProducts()
+        {
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.products.some(item => !item.is_selected);
+                    // Update select_all_product variable
+                    this.select_all_product = !anyDeselected;
+                },{deep: true}
+            )
+        },
 
     }
 });

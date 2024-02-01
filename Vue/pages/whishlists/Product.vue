@@ -17,6 +17,7 @@ onMounted(async () => {
     }
 
     await store.watchItem();
+    await store.watchProducts();
 });
 
 //--------selected_menu_state
@@ -39,7 +40,7 @@ const toggleSelectedMenuState = (event) => {
 
                 <div class="flex flex-row">
                     <div class="p-panel-title">
-                        <b>Add Products</b>
+                        <b>Products</b>
                     </div>
 
                 </div>
@@ -152,7 +153,7 @@ const toggleSelectedMenuState = (event) => {
                             <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
                                         class="btn-danger "
-                                        style="height:30px;"
+                                        style="height:30px;color:black;"
                                         size="medium"
                                         @click="store.removeProduct(item)" />
                             </td>
