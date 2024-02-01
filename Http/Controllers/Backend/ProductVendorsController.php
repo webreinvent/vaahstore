@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
@@ -25,12 +26,18 @@ class ProductVendorsController extends Controller
 
     public function getAssets(Request $request)
     {
+        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
         try{
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductVendor::getFillableColumns();
@@ -199,6 +206,12 @@ class ProductVendorsController extends Controller
     //---------------------To save and update product price-------------------------------------
     public function createProductPrice(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::createProductPrice($request);
         }catch (\Exception $e){
@@ -252,6 +265,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::updateList($request);
         }catch (\Exception $e){
@@ -270,6 +289,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
 
         try{
@@ -290,6 +315,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::deleteList($request);
         }catch (\Exception $e){
@@ -307,6 +338,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::fillItem($request);
         }catch (\Exception $e){
@@ -324,6 +361,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::createItem($request);
         }catch (\Exception $e){
@@ -358,6 +401,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::updateItem($request,$id);
         }catch (\Exception $e){
@@ -375,6 +424,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::deleteItem($request,$id);
         }catch (\Exception $e){
@@ -392,6 +447,12 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductVendor::itemAction($request,$id,$action);
         }catch (\Exception $e){

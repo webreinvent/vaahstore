@@ -54,6 +54,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="productvendors-save"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             @click="store.itemAction('save-productprice')"
                             icon="pi pi-save"/>

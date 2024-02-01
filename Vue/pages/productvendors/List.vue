@@ -87,6 +87,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="productvendors-list-create"
                             class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
@@ -104,7 +105,8 @@ const toggleCreateMenu = (event) => {
                                                 && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
-                        class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
+                            class="p-button-sm"
                         data-testid="productvendors-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
