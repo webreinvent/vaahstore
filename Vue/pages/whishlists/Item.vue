@@ -59,7 +59,11 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">
+                    {{store.item.status_notes}}
+                </pre>
+            </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -141,7 +145,8 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
                                 column === 'status'|| column === 'whishlist_type' || column ==='deleted_by' ||
-                                column === 'meta' || column === 'taxonomy_id_whishlists_types'">
+                                column === 'meta' || column === 'taxonomy_id_whishlists_types' || column === 'products'
+                                || column === 'status_notes'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

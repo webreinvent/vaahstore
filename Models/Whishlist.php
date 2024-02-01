@@ -271,6 +271,7 @@ class Whishlist extends VaahModel
         }
 
     }
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
@@ -281,19 +282,19 @@ class Whishlist extends VaahModel
 
         $search_terms = explode(' ', $filter['q']);
 
-        $query->where(function ($query) use ($search_terms) {
+        foreach($search_terms as $search)
+        {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                })
 
-            $query->orWhereHas('user', function ($userQuery) use ($search_terms) {
-                foreach ($search_terms as $term) {
-                    $userQuery->where('first_name', 'LIKE', '%' . $term . '%')
-                        ->orWhere('middle_name', 'LIKE', '%' . $term . '%')
-                    ->orWhere('last_name', 'LIKE', '%' . $term . '%');
-                }
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
             });
-        });
+        }
 
         return $query;
-
 
     }
     //-------------------------------------------------

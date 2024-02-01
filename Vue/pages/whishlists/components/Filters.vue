@@ -21,7 +21,7 @@ const store = useWhishlistStore();
                         v-model="store.query.filter.wishlist_status"
                         :options="store.assets.taxonomy.status"
                         filter
-                        optionValue="name"
+                        optionValue="slug"
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
@@ -76,6 +76,28 @@ const store = useWhishlistStore();
             </VhFieldVertical>
 
             <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <div class="field-radiobutton">
+
+                    <Calendar v-model="store.selected_dates"
+                              name="range-date"
+                              inputId="range-date"
+                              data-testid="wishlist-filters-range-date"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              placeholder="Choose Date Range"
+                              class="w-full"
+                              :manualInput="false"/>
+
+                    <label for="range-date" class="cursor-pointer"></label>
+                </div>
+
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
@@ -142,29 +164,6 @@ const store = useWhishlistStore();
                 </div>
 
             </VhFieldVertical>
-
-            <Divider/>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Date:</b>
-                </template>
-
-                <div class="field-radiobutton">
-
-                    <Calendar v-model="store.selected_dates"
-                              name="range-date"
-                              inputId="range-date"
-                              data-testid="wishlist-filters-range-date"
-                              selectionMode="range"
-                              @date-select="store.setDateRange"
-                              :manualInput="false"/>
-
-                    <label for="range-date" class="cursor-pointer"></label>
-                </div>
-
-            </VhFieldVertical>
-
 
         </Sidebar>
 
