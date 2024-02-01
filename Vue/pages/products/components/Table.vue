@@ -68,7 +68,7 @@ const useVaah = vaah()
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0"
+                     <Badge v-if="prop.data.quantity == 0 || prop.data.quantity === null"
                             value="0"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.quantity > 0"

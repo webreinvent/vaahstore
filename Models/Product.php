@@ -42,7 +42,7 @@ class Product extends VaahModel
         'taxonomy_id_product_type',
         'vh_st_store_id',
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
-        'quantity', 'in_stock', 'is_active',
+        'is_active',
         'taxonomy_id_product_status', 'status_notes', 'meta',
         'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
@@ -919,7 +919,6 @@ class Product extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -1045,7 +1044,6 @@ class Product extends VaahModel
             'vh_st_store_id'=> 'required',
             'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
-            'quantity'  => 'required|numeric|min:0|digits_between:1,9',
             'details' => 'max:250',
             'seo_title' => 'max:100',
             'seo_meta_description' => 'max:250',
@@ -1212,11 +1210,7 @@ class Product extends VaahModel
         $inputs['is_active'] = 1;
         $inputs['is_featured_on_home_page'] = rand(0,1);
         $inputs['is_featured_on_category_page'] = rand(0,1);
-        $inputs['quantity'] = rand(1,10000000);
         $inputs['in_stock'] = 1;
-
-
-
 
         // fill the product type field here
         $types = Taxonomy::getTaxonomyByType('product-types');
