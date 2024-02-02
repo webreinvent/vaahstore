@@ -148,23 +148,6 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Summary">
-
-                    <Editor editor-style="height:50px"
-                            name="products-summary"
-                            data-testid="products-summary"
-                            placeholder="Enter Product Summary"
-                            v-model="store.item.summary">
-
-                        <template v-slot:toolbar>
-                            <span class="ql-formats">
-                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
-                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
-                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
-                            </span>
-                        </template>
-                    </Editor>
-                </VhField>
 
                 <VhField label="Store*">
 
@@ -262,6 +245,8 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.is_featured_on_category_page"/>
                 </VhField>
 
+
+
                 <VhField label="Product Details">
 
                     <Editor
@@ -289,6 +274,24 @@ const toggleFormMenu = (event) => {
                         }"
 
                     >
+                    </Editor>
+                </VhField>
+
+                <VhField label="Summary">
+
+                    <Editor editor-style="height:50px"
+                            name="products-summary"
+                            data-testid="products-summary"
+                            placeholder="Enter Product Summary"
+                            v-model="store.item.summary">
+
+                        <template v-slot:toolbar>
+                            <span class="ql-formats">
+                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+                            </span>
+                        </template>
                     </Editor>
                 </VhField>
 
