@@ -117,6 +117,8 @@ export const useProductStore = defineStore({
                 from :null,
                 to :null,
             },
+        prev_list:[],
+        current_list:[],
 
     }),
     getters: {
@@ -1104,15 +1106,32 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
+                this.prev_list =this.list.data;
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+        },
 
+        //---------------------------------------------------------------------
 
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
+
         //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
             console.log()
@@ -2115,7 +2134,18 @@ export const useProductStore = defineStore({
 
         },
 
+        //---------------------------------------------------------------------
+        updateMinQuantity(event)
+        {
+            this.quantity.from = event.value;
+        },
 
+        //---------------------------------------------------------------------
+
+        updateMaxQuantity(event)
+        {
+            this.quantity.to = event.value;
+        }
 
     }
 });
