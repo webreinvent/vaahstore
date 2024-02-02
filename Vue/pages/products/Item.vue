@@ -157,7 +157,7 @@ const toggleItemMenu = (event) => {
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
-                            || column === 'quantity'">
+                            || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -351,6 +351,23 @@ const toggleItemMenu = (event) => {
                                        :value="value"
                                        type="yes-no"
                             />
+                            <tr>
+                                <td><b>Meta</b></td>
+                                <td>
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openModal()"
+                                            :disabled="!store.item.seo_title &&
+                                            !store.item.seo_meta_description &&
+                                            !(store.item && store.item.seo_meta_keyword && Array.isArray(store.item.seo_meta_keyword) &&
+                                             store.item.seo_meta_keyword.length > 0)"
+
+                                            data-testid="meta-open_modal"
+                                    />
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'is_active'">
@@ -400,3 +417,15 @@ const toggleItemMenu = (event) => {
     </div>
 
 </template>
+<Dialog header="Meta Fields"
+        v-model:visible="store.display_seo_modal"
+        :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+        :style="{width: '50vw'}" :modal="true"
+>
+<div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.seo_title}}</p></div>
+<div class="mb-4 flex">
+    <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+    <pre style="font-family: Inter,ui-sans-serif">{{store.item.seo_meta_description}}</pre>
+</div>
+<div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.seo_meta_keywords}}</p></div>
+</Dialog>
