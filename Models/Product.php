@@ -473,6 +473,7 @@ class Product extends VaahModel
         // check if slug exist
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
+
         if ($item) {
             $response['success'] = false;
             $response['messages'][] = "This slug is already exist.";
@@ -480,6 +481,7 @@ class Product extends VaahModel
         }
 
         $item = new self();
+
         $item->fill($inputs);
 
         if(isset($item->seo_meta_keyword))
@@ -487,6 +489,10 @@ class Product extends VaahModel
             $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
         }
         $item->slug = Str::slug($inputs['slug']);
+
+        $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
+        $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
+
         $item->save();
 
         $response = self::getItem($item->id);
@@ -875,6 +881,8 @@ class Product extends VaahModel
             $item['vendors'] = [];
         }
 
+        $item['launch_at'] = date('Y-m-d', strtotime($item['launch_at']));
+        $item['available_at'] = date('Y-m-d', strtotime($item['available_at']));
         $item['seo_meta_keyword'] = json_decode($item['seo_meta_keyword']);
         $item['product_variation'] = null;
         $item['all_variation'] = [];
@@ -919,6 +927,8 @@ class Product extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->launch_at = Carbon::parse($item->launch_at)->addDay()->toDateString();
+        $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
 
         $response = self::getItem($item->id);
@@ -1162,11 +1172,10 @@ class Product extends VaahModel
         $inputs['seo_meta_description']=$faker->text($max_seo_description_chars);
 
         //fill the available at and launch at fields here
+
         $inputs['available_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
-        if(!$inputs['available_at'])
-        {
-            $inputs['launch_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
-        }
+
+        $inputs['launch_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
 
 
         // fill the Seo Keywords field here

@@ -60,6 +60,13 @@ const toggleItemMenu = (event) => {
 
         <Panel class="is-small" v-if="store && store.item">
 
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">
+                    {{store.item.status_notes}}
+                </pre>
+
+            </Message>
+
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -113,14 +120,7 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
-                <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                    <tr>
-                        <td  colspan="2" >
-                            <div  style="width:300px;word-break: break-word;">
-                                {{store.item.status_notes}}</div>
-                        </td>
-                    </tr>
-                </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
@@ -156,7 +156,8 @@ const toggleItemMenu = (event) => {
                             || column === 'store'|| column === 'type'|| column === 'status'||
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
-                            || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'">
+                            || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
+                            || column === 'quantity'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -241,6 +242,12 @@ const toggleItemMenu = (event) => {
                                 <td><b>Details</b></td>
                                 <td colspan="2">
                                     <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space:pre-wrap;"/>
+                                </td>
+                            </tr>
+                            <tr v-if="store.item.quantity > 0">
+                                <td><b>Quantity</b></td>
+                                <td colspan="2">
+                                    {{ store.item.quantity }}
                                 </td>
                             </tr>
                         </template>
