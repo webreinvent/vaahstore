@@ -179,6 +179,7 @@ const store = useProductStore();
                                        name="productvariations-name"
                                        data-testid="productvariations-name"
                                        placeholder="Minimum Quantity"
+                                       @input="updateMinQuantity()"
                                        v-model="store.quantity.from"
                                        style="width: 200px;"/>
                         </div>
@@ -190,6 +191,7 @@ const store = useProductStore();
                                        name="productvariations-name"
                                        data-testid="productvariations-name"
                                        placeholder="Maximum Quantity"
+                                         @input="updateMinQuantity()"
                                        v-model="store.quantity.to"
                                        style="width: 200px;"/>
                         </div>
