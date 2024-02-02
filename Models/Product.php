@@ -901,7 +901,7 @@ class Product extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
+       
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
@@ -1057,16 +1057,11 @@ class Product extends VaahModel
             'details' => 'max:250',
             'seo_title' => 'max:100',
             'seo_meta_description' => 'max:250',
-            'seo_meta_keyword' => 'max:100',
+            'seo_meta_keyword' => 'array|max:20',
             'taxonomy_id_product_status'=> 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
+            'status_notes' => 'max:250',
             'launch_at' => 'required_without_all:quantity,available_at,0',
             'available_at' => 'required_without_all:quantity,launch_at,0',
-            'details' => 'max:250',
-            ''
         ],
             [    'name.required' => 'The Name field is required',
                  'name.max' => 'The Name field may not be greater than :max characters',
@@ -1074,11 +1069,10 @@ class Product extends VaahModel
                 'slug.max' => 'The Slug field may not be greater than :max characters',
                 'summary.max' => 'The Summary field may not be greater than :max characters',
                 'details.max' => 'The Details field may not be greater than :max characters',
-                'seo_title.max' => 'The Details field may not be greater than :max characters',
-                'seo_meta_description.max' => 'The Details field may not be greater than :max characters',
-                'seo_meta_keyword.max' => 'The Details field may not be greater than :max characters',
+                'seo_title.max' => 'The Seo title field may not be greater than :max characters',
+                'seo_meta_description.max' => 'The Seo Description field may not be greater than :max characters',
+                'seo_meta_keyword.max' => 'The Seo Keywords field may not have greater than :max keywords',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'vh_st_brand_id.required' => 'The Brand field is required',
                 'vh_st_store_id.required' => 'The Store field is required',
