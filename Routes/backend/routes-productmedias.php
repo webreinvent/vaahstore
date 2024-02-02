@@ -36,11 +36,6 @@ function () {
     Route::post('/image/upload', 'ProductMediasController@uploadImage')
         ->name('vh.backend.store.productmedias.list.uploadImage');
 
-    /**
-     * Remove Single Product image
-     */
-    Route::get('/single/product/remove/{id}', 'ProductMediasController@singleProductRemove')
-        ->name('vh.backend.store.productmedias.singleProductRemove');
 
     /**
      * Fill Form Inputs
@@ -48,17 +43,14 @@ function () {
     Route::any('/fill', 'ProductMediasController@fillItem')
         ->name('vh.backend.store.productmedias.fill');
 
-    /**
-     * Fill Form Inputs
-     */
-    Route::any('/fill', 'ProductMediasController@fillItem')
-        ->name('vh.backend.store.productmedias.fill');
 
     /**
      * Create Item
      */
     Route::post('/', 'ProductMediasController@createItem')
         ->name('vh.backend.store.productmedias.create');
+
+
     /**
      * Get Item
      */
@@ -93,11 +85,6 @@ function () {
     Route::any('/search/product', 'ProductMediasController@searchProduct')
         ->name('vh.backend.store.productmedias.search.product');
 
-    /**
-     * Search product variation
-     */
-    Route::any('/search/product/variation', 'ProductMediasController@searchProductVariation')
-        ->name('vh.backend.store.productmedias.search.variation');
 
 
     /**
@@ -107,5 +94,34 @@ function () {
         ->name('vh.backend.store.productmedias.search.status');
 
     //---------------------------------------------------------
+    /**
+     * Search variation
+     */
+    Route::post('/filter/search/variations', 'ProductMediasController@searchVariation')
+        ->name('vh.backend.store.productmedias.search.filter.variations');
+
+    /**
+     * Search variation after refresh
+     */
+    Route::post('/filter/search/variations-by-slug', 'ProductMediasController@searchVariationsUsingUrlSlug')
+        ->name('vh.backend.store.productmedias.search.filtered.variations-by-slug');
+
+    /**
+     * Search media
+     */
+    Route::post('/filter/search/media-type', 'ProductMediasController@searchMediaType')
+        ->name('vh.backend.store.productmedias.search.filter.media');
+
+    /**
+     * Search media type after refresh
+     */
+    Route::post('/filter/search/media-type-by-slug', 'ProductMediasController@searchMediaUsingUrlType')
+        ->name('vh.backend.store.productmedias.search.filter.media-type-by-slug');
+
+    /**
+     * Search variations of a product
+     */
+    Route::post('/search/product/variations', 'ProductMediasController@searchVariationOfProduct')
+        ->name('vh.backend.store.productmedias.search.product.variations');
 
 });
