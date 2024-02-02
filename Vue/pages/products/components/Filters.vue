@@ -28,7 +28,20 @@ const store = useProductStore();
                               :suggestions="store.filtered_product_variations"
                               @complete="store.searchProductVariation"
                               placeholder="Select Product Variation"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                />
 
             </VhFieldVertical>
 
@@ -47,7 +60,19 @@ const store = useProductStore();
                               :suggestions="store.filtered_vendors"
                               @complete="store.searchProductVendor"
                               placeholder="Select Vendor"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"/>
 
             </VhFieldVertical>
 
@@ -66,7 +91,19 @@ const store = useProductStore();
                               :suggestions="store.filtered_brands"
                               @complete="store.searchBrand"
                               placeholder="Select Brand"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"/>
 
             </VhFieldVertical>
 
@@ -109,8 +146,20 @@ const store = useProductStore();
                         :suggestions="store.filtered_stores"
                         @complete="store.searchStore"
                         placeholder="Select Store"
-                    >
-                    </AutoComplete>
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                    />
+
 
                 </VhField>
 

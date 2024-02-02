@@ -161,7 +161,21 @@ const toggleFormMenu = (event) => {
                         placeholder="Select Store"
                         data-testid="products-store"
                         name="products-store"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true"
+                        optionLabel="name"
+                        forceSelection
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }">
                     </AutoComplete>
 
                 </VhField>
@@ -178,7 +192,22 @@ const toggleFormMenu = (event) => {
                         placeholder="Select Brand"
                         data-testid="products-brand"
                         name="products-brand"
-                        :dropdown="true" optionLabel="name" forceSelection>
+                        :dropdown="true"
+                        optionLabel="name"
+                        forceSelection
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                    >
                     </AutoComplete>
 
                 </VhField>
