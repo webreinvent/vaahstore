@@ -811,7 +811,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -837,6 +837,7 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -1804,7 +1805,7 @@ export const useProductStore = defineStore({
         async reloadPage()
         {
             await this.getList();
-            vaah().toastSuccess(["Action was successful"]);
+            vaah().toastSuccess(["Page Reloaded"]);
         },
         //---------------------------------------------------------------------
 

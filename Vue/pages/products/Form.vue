@@ -320,8 +320,9 @@ const toggleFormMenu = (event) => {
                            data-testid="products-seo-meta-keywords"
                            placeholder="Enter Seo Meta keywords"
                            v-model="store.item.seo_meta_keyword"
-                           type="Textarea"
-                            rows="3" cols="30"/>
+                           type="text"
+                           rows="3" cols="30"
+                            />
 
                 </VhField>
 

@@ -233,13 +233,13 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'summary'">
                             <tr>
-                                <td><b>Summary</b></td>
+                                <td><b>Product Summary</b></td>
                                 <td  colspan="2" >
                                     <pre v-html="store.item.summary" style="width:300px;word-break:break-word;white-space: pre-wrap;"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td><b>Details</b></td>
+                                <td><b>Product Details</b></td>
                                 <td colspan="2">
                                     <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space:pre-wrap;"/>
                                 </td>

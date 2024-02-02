@@ -125,7 +125,7 @@ const store = useProductStore();
                     <div class="w-14rem">
                         <div class="flex">
                             <label for="min-quantity" class="mr-2 mt-2" style="width:50px;">From:</label>
-                            <InputText
+                            <InputNumber
                                        id="min-quantity"
                                        name="productvariations-name"
                                        data-testid="productvariations-name"
@@ -136,7 +136,7 @@ const store = useProductStore();
 
                         <div class="flex mt-2">
                             <label for="max-quantity" class="mr-2 mt-2" style="width:50px;">To:</label>
-                            <InputText class="ml-3"
+                            <InputNumber class="ml-3"
                                        id="max-quantity"
                                        name="productvariations-name"
                                        data-testid="productvariations-name"

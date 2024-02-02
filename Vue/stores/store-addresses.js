@@ -292,7 +292,7 @@ export const useAddressStore = defineStore({
             if(data)
             {
                 this.list = data;
-                this.query.rows=data.per_page;
+                data.per_page = this.query.rows;
             }
         },
         //---------------------------------------------------------------------
