@@ -345,11 +345,10 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         setVendor(event) {
-            if (event.value) {
+            if (event && event.value) {
                 let vendor = toRaw(event.value);
                 this.item.vh_st_vendor_id = vendor.id;
             }
-            this.item.vh_st_vendor_id=null;
         },
         //---------------------------------------------------------------------
         setProduct(event){
