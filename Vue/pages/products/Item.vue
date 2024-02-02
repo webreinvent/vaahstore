@@ -194,7 +194,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                             </tr>
 
-                            <tr v-if="store.item.vh_st_store_id">
+                            <tr v-if="store.item.store">
                                 <td><b>Store</b></td>
                                 <td  colspan="2" >
                                     <Button class="p-button-outlined p-button-secondary p-button-sm">
@@ -211,7 +211,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                             </tr>
 
-                            <tr v-if="store.item.vh_st_brand_id">
+                            <tr>
                                 <td><b>Status</b></td>
                                 <td  colspan="2" >
                                     <Badge v-if="store.item.status.slug == 'approved'" severity="success">
@@ -415,17 +415,18 @@ const toggleItemMenu = (event) => {
         </Panel>
 
     </div>
+    <Dialog header="Meta Fields"
+            v-model:visible="store.display_seo_modal"
+            :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+            :style="{width: '50vw'}" :modal="true"
+    >
+        <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.seo_title}}</p></div>
+        <div class="mb-4 flex">
+            <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+            <pre style="font-family: Inter,ui-sans-serif">{{store.item.seo_meta_description}}</pre>
+        </div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.seo_meta_keyword}}</p></div>
+    </Dialog>
 
 </template>
-<Dialog header="Meta Fields"
-        v-model:visible="store.display_seo_modal"
-        :breakpoints="{'960px': '75vw', '640px': '90vw'}"
-        :style="{width: '50vw'}" :modal="true"
->
-<div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.seo_title}}</p></div>
-<div class="mb-4 flex">
-    <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
-    <pre style="font-family: Inter,ui-sans-serif">{{store.item.seo_meta_description}}</pre>
-</div>
-<div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.seo_meta_keywords}}</p></div>
-</Dialog>
+
