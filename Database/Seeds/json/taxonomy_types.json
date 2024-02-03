@@ -1,0 +1,59 @@
+[
+    {
+        "name": "Store Status"
+    },
+    {
+        "name": "Vendor Status"
+    },
+    {
+        "name": "Product Types"
+    },
+    {
+        "name": "Product Status"
+    },
+    {
+        "name": "Brand Status"
+    },
+    {
+        "name": "Product-vendor Status"
+    },
+    {
+        "name": "Product-variation Status"
+    },
+    {
+        "name": "Product-medias Status"
+    },
+    {
+        "name": "Warehouse Status"
+    },
+    {
+        "name": "Product-Stock Status"
+    },
+    {
+        "name": "Order Status"
+    },
+    {
+        "name": "Payment-methods Status"
+    },
+    {
+        "name": "Order-items Status"
+    },
+    {
+        "name": "Address Types"
+    },
+    {
+        "name": "Address Status"
+    },
+    {
+        "name": "Customer Groups Status"
+    },
+    {
+        "name": "Order-items Types"
+    },
+    {
+        "name": "Whishlists Types"
+    },
+    {
+        "name": "Whishlists Status"
+    }
+]

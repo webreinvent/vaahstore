@@ -1,0 +1,28 @@
+{
+    "name": "vaahcms/store",
+    "description": "Ecommerce for VaahCMS",
+    "version": "0.0.51",
+    "authors": [
+        {
+            "name": "vaah",
+            "email": "support@vaah.dev"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VaahCms\\Modules\\Store\\Providers\\StoreServiceProvider"
+            ],
+            "aliases": {
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "VaahCms\\Modules\\Store\\": ""
+        }
+    }
+}

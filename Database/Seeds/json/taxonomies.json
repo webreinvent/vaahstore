@@ -1,0 +1,247 @@
+[
+
+    {
+        "type_slug": "product-types",
+        "name": "Simple"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Configurable"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Digital"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Ticket"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Quotation"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Voucher"
+    },
+    {
+        "type_slug": "product-types",
+        "name": "Digital + Configurable"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "store-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "vendor-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "brand-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "product-vendor-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-vendor-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-vendor-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "product-variation-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-variation-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-variation-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "warehouse-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "warehouse-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "warehouse-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "product-medias-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-medias-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-medias-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "product-stock-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "payment-methods-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "payment-methods-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "payment-methods-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "COD"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "Card Payment"
+    },
+    {
+        "type_slug": "order-items-types",
+        "name": "EMI"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Home"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Business"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Billing"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Shipping"
+    },
+    {
+        "type_slug": "address-types",
+        "name": "Contact"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "address-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "customer-groups-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "order-items-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Approved"
+    },
+    {
+        "type_slug": "whishlists-status",
+        "name": "Rejected"
+    },
+    {
+        "type_slug": "whishlists-types",
+        "name": "Whishlist-type-1"
+    }
+]
