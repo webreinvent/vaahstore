@@ -169,7 +169,7 @@ class Vendor extends VaahModel
 
     //-------------------------------------------------
     public function status(){
-        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_status', 'id')->select(['id','name','slug']);
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_status', 'id');
     }
 
     //-------------------------------------------------

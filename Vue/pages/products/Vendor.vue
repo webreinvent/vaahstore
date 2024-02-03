@@ -169,10 +169,11 @@ const toggleSelectedMenuState = (event) => {
                             </td>
                             <td>
                                 <Dropdown v-model="item['status']"
-                                          :options="store.product_vendor_status"
-                                          optionLabel="name"
+                                          option-label="name"
                                           placeholder="Select a status"
                                           class="w-full"
+                                          disabled
+                                          :options="store.product_vendor_status"
                                           style="height:35px;"
                                 />
                             </td>

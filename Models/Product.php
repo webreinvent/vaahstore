@@ -348,11 +348,6 @@ class Product extends VaahModel
             $error_message = [];
 
             foreach ($data as $key=>$value){
-                if (!isset($value['status']) || empty($value['status'])){
-                    array_push($error_message, 'Status required');
-                }else if($value['status']['slug']=='rejected' && empty($value['status_notes'])){
-                    array_push($error_message, 'The Status notes field is required for "Rejected" Status');
-                }
                 if (!isset($value['vendor']) || empty($value['vendor'])){
                     array_push($error_message, 'Vendor required');
                 }
@@ -384,6 +379,7 @@ class Product extends VaahModel
     public static function createVendor($request){
 
         $input = $request->all();
+
         $product_id = $input['id'];
         $validation = self::validatedVendor($input['vendors']);
         if (!$validation['success']) {
@@ -416,12 +412,21 @@ class Product extends VaahModel
                 $item = new ProductVendor();
                 $item->vh_st_product_id = $product_id;
                 $item->vh_st_vendor_id = $value['vendor']['id'];
+
                 $item->added_by = $active_user->id;
+
                 $item->can_update = $value['can_update'];
+
                 $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
+                if($value['status_notes'])
+                {
+                
+                    $item->status_notes = $value['status_notes'];
+                }
+
                 $item->is_active = 1;
                 $item->save();
+
             }
         }
 
@@ -1311,12 +1316,10 @@ class Product extends VaahModel
     {
 
 
-        $vendors = Vendor::with(['status' => function ($query) {
-            $query->select('id', 'name', 'slug');
-        }])
+        $vendors = Vendor::with('status')
             ->where('is_active', 1)
-            ->select('id', 'name','slug');
-        
+            ->select('id', 'name','slug','taxonomy_id_vendor_status');
+
         if ($request->has('query') && $request->input('query')) {
 
             $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');

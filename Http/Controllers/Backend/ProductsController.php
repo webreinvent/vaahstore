@@ -79,7 +79,7 @@ class ProductsController extends Controller
             $data['taxonomy'] = [
                 "product_status" => Taxonomy::getTaxonomyByType('product-status'),
                 "types" => Taxonomy::getTaxonomyByType('product-types'),
-                "product_vendor_status" => Taxonomy::getTaxonomyByType('product-vendor-status'),
+                "product_vendor_status" => Taxonomy::getTaxonomyByType('vendor-status'),
             ];
             $data['actions'] = [];
 
