@@ -91,17 +91,16 @@ const toggleSelectedMenuState = (event) => {
                                   :options="store.active_vendors"
                                   optionLabel="name"
                                   placeholder="Select a Vendor"
-                                  class="w-full">
-<!--                            <template #optiongroup="slotProps">-->
-<!--                                <div class="flex align-items-center">-->
-<!--                                    <div>{{ slotProps.option }} <span v-if="slotProps.option.is_default == 1">(Default)</span></div>-->
-<!--                                </div>-->
-<!--                            </template>-->
+                                  class="w-full"
+                                  style="height:40px;">
                         </Dropdown>
                     </div>
 
                     <div class="p-2">
-                        <Button v-if="store.selected_vendor" type="button" label="Add" @click="store.addVendor()" />
+                        <Button v-if="store.selected_vendor"
+                                type="button" label="Add"
+                                @click="store.addVendor()"
+                                style="height:40px;width:50px;" />
                     </div>
                 </div>
 
@@ -146,25 +145,32 @@ const toggleSelectedMenuState = (event) => {
                         <tr v-for="(item, index) in store.item.vendors">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                             <td>
-                                <InputText v-model="item['vendor']['name']" class="w-full" disabled/>
+                                <InputText v-model="item['vendor']['name']"
+                                           class="w-full"
+                                           style="height:35px;"
+                                           disabled/>
                             </td>
-                            <td>
-                                <InputSwitch v-model="item['can_update']" />
+                            <td >
+                                <InputSwitch v-model="item['can_update']" style="margin-left:10px;height:30px;"/>
                             </td>
                             <td>
                                 <Dropdown v-model="item['status']"
                                           :options="store.product_vendor_status"
                                           optionLabel="name"
                                           placeholder="Select a status"
-                                          class="w-full" />
+                                          class="w-full"
+                                          style="height:35px;"
+                                />
                             </td>
                             <td>
-                                <InputText v-model="item['status_notes']" class="w-full" />
+                                <InputText v-model="item['status_notes']"
+                                           class="w-full"
+                                            style="height:35px;"/>
                             </td>
                             <td>
                                 <Button label="Remove"
-                                        class="btn-danger"
                                         size="small"
+                                        style="height:35px;margin-left:10px;"
                                         @click="store.removeVendor(item)" />
                             </td>
                         </tr>

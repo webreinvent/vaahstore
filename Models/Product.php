@@ -901,7 +901,7 @@ class Product extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-       
+
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
