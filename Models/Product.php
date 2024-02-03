@@ -420,7 +420,7 @@ class Product extends VaahModel
                 $item->taxonomy_id_product_vendor_status = $value['status']['id'];
                 if($value['status_notes'])
                 {
-                
+
                     $item->status_notes = $value['status_notes'];
                 }
 
@@ -1063,6 +1063,7 @@ class Product extends VaahModel
             'seo_title' => 'max:100',
             'seo_meta_description' => 'max:250',
             'seo_meta_keyword' => 'array|max:20',
+            'seo_meta_keyword.*' => 'max:50',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => 'max:250',
             'launch_at' => 'required_without_all:quantity,available_at,0',
@@ -1077,6 +1078,7 @@ class Product extends VaahModel
                 'seo_title.max' => 'The Seo title field may not be greater than :max characters',
                 'seo_meta_description.max' => 'The Seo Description field may not be greater than :max characters',
                 'seo_meta_keyword.max' => 'The Seo Keywords field may not have greater than :max keywords',
+                'seo_meta_keyword.*' => 'The Seo Keyword field may not have greater than :max characters',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'vh_st_brand_id.required' => 'The Brand field is required',

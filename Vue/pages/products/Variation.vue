@@ -139,68 +139,36 @@ const toggleSelectedAttributeMenuState = (event) => {
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-                    <!--                    <div class="pr-1">-->
-                    <!--                        <Button label="Remove All" @click="store.removeAllVendor()" class="btn-danger" size="small" />-->
-                    <!--                    </div>-->
-                </div>
 
-
-<!--                Product Attributes-->
-
-                <div class="col-12 ">
-<!--                    <div class="flex flex-wrap">-->
-<!--                        <span class="p-1" style="width: 80%">-->
-<!--                            <b>Product Attributes</b>-->
-<!--                        </span>-->
-<!--                        <span-->
-<!--                            v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">-->
-<!--                            <Button label="Remove All" @click="store.variation_item.product_attributes = []"-->
-<!--                                    class="btn-danger" size="small" />-->
-<!--                        </span>-->
-<!--                    </div>-->
-
-                    <div class="container col-12">
-                        <table class="table col-12 table-scroll table-striped" v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
-                            <thead>
-                            <tr>
-                                <th class="col-1">
-                                    <Checkbox v-model="store.select_all_attribute"
-                                              :binary="true" @click="store.selectAllAttribute()" />
-                                </th>
-                                <th>Attribute name</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody id="scroll-horizontal-variation" class="pt-1">
-                            <tr v-for="attribute in store.variation_item.product_attributes">
-                                <th class="col-1"><Checkbox v-model="attribute['is_selected']" :binary="true" /></th>
-                                <td>
-                                    <InputText v-model="attribute.name" class="w-full" disabled/>
-                                </td>
-                                <td class="flex justify-content-center">
-                                    <Button label="Remove"
-                                            size="small"
-                                            @click="store.removeProductAttribute(attribute)" />
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-<!--                        <div v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0"-->
-<!--                             v-for="attribute in store.variation_item.product_attributes" class="pb-1 flex flex-wrap">-->
-<!--                            <InputText-->
-<!--                                :placeholder="attribute.name"-->
-<!--                                v-model="attribute.name"-->
-<!--                                disabled="true"-->
-<!--                                class="col-10" />-->
-<!--                            <div class="pl-1">-->
-<!--                                <Button label="Remove" class="btn-danger pl-1" @click="store.removeProductAttribute(attribute)" />-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div v-else>-->
-<!--                            <div class="pb-1">-->
-<!--                                <small>No <b>Attribute</b> or <b>Attribute Group</b> is added</small>-->
-<!--                            </div>-->
-<!--                        </div>-->
+                    <!--                Product Attributes-->
+                    <div class="col-12 ">
+                        <div class="container col-12">
+                            <table class="table col-12 table-scroll table-striped" v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
+                                <thead>
+                                <tr>
+                                    <th class="col-1">
+                                        <Checkbox v-model="store.select_all_attribute"
+                                                  :binary="true" @click="store.selectAllAttribute()" />
+                                    </th>
+                                    <th>Attribute name</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="scroll-horizontal-variation" class="pt-1">
+                                <tr v-for="attribute in store.variation_item.product_attributes">
+                                    <th class="col-1"><Checkbox v-model="attribute['is_selected']" :binary="true" /></th>
+                                    <td>
+                                        <InputText v-model="attribute.name" class="w-full" disabled/>
+                                    </td>
+                                    <td class="flex justify-content-center">
+                                        <Button label="Remove"
+                                                size="small"
+                                                @click="store.removeProductAttribute(attribute)" />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
