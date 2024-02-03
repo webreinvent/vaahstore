@@ -32,6 +32,18 @@ Video: https://team.webreinvent.com
 
 ---
 
+### Additional Detail
+
+**Document PR Link :**
+
+**Document URL :**
+
+**Test-Video from Approver's side :**
+
+**QA Progress Report :**
+
+---
+
 ### Self Review Checklist
 
 #### Naming Conventions
