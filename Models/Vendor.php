@@ -972,18 +972,22 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)->withTrashed()->first();
 
-        if($inputs['store']['is_multi_vendor'] === 0) {
+        if(isset($inputs['store']['is_multi_vendor']) &&
+            $inputs['store']['is_multi_vendor'] !== $item->store->is_multi_vendor) {
 
-            $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
-                ->withTrashed()
-                ->firstOrFail()
-                ->vendors()
-                ->count();
+            if($inputs['store']['is_multi_vendor'] === 0) {
 
 
-            if ($vendor_count > 0) {
-                $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
-                return $response;
+                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
+                    ->withTrashed()
+                    ->firstOrFail()
+                    ->vendors()
+                    ->count();
+
+                if ($vendor_count >= 1) {
+                    $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
+                    return $response;
+                }
             }
         }
 
@@ -1058,6 +1062,7 @@ class Vendor extends VaahModel
                 $item = self::where('id',$id)->withTrashed()->first();
                 if($item->delete()) {
                     $item->deleted_by = auth()->user()->id;
+                    $item->is_default = null;
                     $item->save();
                 }
                 break;
