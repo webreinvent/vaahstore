@@ -268,13 +268,14 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date Range Filter:</b>
+                    <b>Select Created Date::</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
+                          placeholder="Choose Date Range"
                           class="w-full "
 
                 />

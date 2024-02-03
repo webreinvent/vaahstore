@@ -698,8 +698,9 @@ export const useProductStore = defineStore({
                 vaah().toastErrors(['Select a Variation to remove']);
                 return false;
             }
-            else if(temp.length === this.item.all_variation.structured_variation.length)
+            else if(temp.length === 0)
                 {
+
                     this.item.all_variation = {};
                 }
 
