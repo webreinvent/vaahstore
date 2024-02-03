@@ -345,12 +345,27 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Seo Keywords">
                     <Chips class="w-full"
+                           style="display:flex;flex-wrap:wrap;"
                            name="products-seo-meta-keywords"
                            data-testid="products-seo-meta-keywords"
                            placeholder="Enter Seo Meta keywords"
                            v-model="store.item.seo_meta_keyword"
-                           type="text"
-                           rows="3" cols="30"
+                           separator=","
+                           :pt="{
+                          token: {
+    class: 'max-w-full'
+},
+removeTokenIcon: {
+class: 'min-w-max'
+},
+input:{
+          class:'wrap'
+},
+item: { style: {
+textWrap: 'wrap'
+}  },
+panel: { class: 'w-16rem ' }
+                            }"
                             />
 
                 </VhField>
