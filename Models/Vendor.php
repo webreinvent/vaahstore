@@ -1298,4 +1298,22 @@ class Vendor extends VaahModel
     //-------------------------------------------------
 
 
+    public static function searchProduct($request)
+    {
+
+        $search_product = Product::select('id','name','slug','is_default','taxonomy_id_product_status')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
+            $query = $request->input('query');
+            $search_product->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+                $q->orwhere('slug', 'LIKE', '%' . $query . '%');
+            });
+        }
+        $search_product = $search_product->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $search_product;
+        return $response;
+    }
+
+
 }

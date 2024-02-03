@@ -96,6 +96,11 @@ Route::group(
             ->name('vh.backend.store.vendors.search.store');
 
         /**
+         * Search product
+         */
+        Route::any('/search/product', 'VendorsController@searchProduct')
+            ->name('vh.backend.store.vendors.search.product');
+        /**
          * Search approved by
          */
         Route::any('/search/approved/by', 'VendorsController@searchApprovedBy')

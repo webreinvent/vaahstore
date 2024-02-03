@@ -86,6 +86,7 @@ export const useVendorStore = defineStore({
         form_menu_list: [],
         selected_dates : null,
         business_types_list : null,
+        search_products: null
     }),
     getters: {
 
@@ -234,7 +235,6 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
        async removeProduct(attribute){
-            console.log(attribute.id);
             if(attribute.id){
                 const options = {
                     method: 'get',
@@ -1003,6 +1003,7 @@ export const useVendorStore = defineStore({
         {
             this.select_all_product = false;
             this.item = vaah().clone(item);
+            this.selected_product = null;
             this.$router.push({name: 'vendors.product', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -1402,6 +1403,30 @@ export const useVendorStore = defineStore({
             }
 
             return '';
+        },
+
+        //---------------------------------------------------------------------
+        async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.search_products = data;
+            }
         },
 
 

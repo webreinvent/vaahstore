@@ -12,7 +12,6 @@ const route = useRoute();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
-        // store.item = store.
         await store.getItem(route.params.id);
 
     }
@@ -87,16 +86,24 @@ const toggleSelectedMenuState = (event) => {
                 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-                        <Dropdown v-model="store.selected_product"
-                                  :options="store.shortProductName(store.active_products)"
-                                  optionLabel="name"
-                                  placeholder="Select a Product"
-                                  :disabled="!store.assets.permissions.includes('can-update-module')"
-                                  class="w-full">
-                            <template #option="slotProps">
-                                <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
-                            </template>
-                        </Dropdown>
+                            <AutoComplete v-model="store.selected_product"
+                                          value="id"
+                                          data-testid="vendors-taxonomy_id_vendor_status"
+                                          name="vendors-taxonomy_id_vendor_status"
+                                          class="w-full"
+                                          placeholder="Select Status"
+                                          :suggestions="store.search_products"
+                                          @complete="store.searchProduct($event)"
+                                          :dropdown="true"
+                                          optionLabel="name"
+                                          forceSelection >
+
+                        <template #option="slotProps">
+                            <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
+                        </template>
+                        </AutoComplete>
+
+
                     </div>
 
                     <div class="p-1">
