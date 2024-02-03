@@ -87,13 +87,27 @@ const toggleSelectedMenuState = (event) => {
 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-                        <Dropdown v-model="store.selected_vendor"
-                                  :options="store.active_vendors"
-                                  optionLabel="name"
-                                  placeholder="Select a Vendor"
-                                  class="w-full"
-                                  style="height:40px;">
-                        </Dropdown>
+<!--                        <Dropdown v-model="store.selected_vendor"-->
+<!--                                  :options="store.active_vendors"-->
+<!--                                  optionLabel="name"-->
+<!--                                  placeholder="Select a Vendor"-->
+<!--                                  class="w-full"-->
+<!--                                  style="height:40px;">-->
+<!--                        </Dropdown>-->
+
+                        <AutoComplete
+                            name="products-vendor-search"
+                            data-testid="products-vendor-search"
+                            v-model="store.selected_vendor"
+                            option-label = "name"
+                            :complete-on-focus = "true"
+                            :suggestions="store.vendor_suggestion"
+                            @complete="store.searchProductVendor($event)"
+                            placeholder="Search Vendor"
+                            class="w-full"
+                            style="height:40px;">
+                        </AutoComplete>
+
                     </div>
 
                     <div class="p-2">

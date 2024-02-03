@@ -46,7 +46,6 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        active_vendors:null,
         active_brands:null,
         active_stores:null,
         selected_vendor:null,
@@ -119,6 +118,7 @@ export const useProductStore = defineStore({
             },
         prev_list:[],
         current_list:[],
+        vendor_suggestion : null,
 
     }),
     getters: {
@@ -1886,12 +1886,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchProductVendor(event) {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
+            const query = event;
             const options = {
                 params: query,
                 method: 'post',
@@ -1908,7 +1903,7 @@ export const useProductStore = defineStore({
         searchProductVendorAfter(data, res) {
 
             if (data) {
-                this.filtered_vendors = data;
+                this.vendor_suggestion = data;
             }
         },
 
@@ -2145,7 +2140,40 @@ export const useProductStore = defineStore({
         updateMaxQuantity(event)
         {
             this.quantity.to = event.value;
-        }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchVendor(event) {
+
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchVendorAfter(data,res) {
+            if(data)
+            {
+
+                this.filtered_vendors = data;
+
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+
 
     }
 });

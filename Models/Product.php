@@ -155,7 +155,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
+        return $this->belongsTo(Taxonomy::class,'taxonomy_id_product_status','id')
             ->select('id','name','slug');
     }
 
@@ -1307,25 +1307,21 @@ class Product extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchVendor($request)
+    public static function searchProductVendor($request)
     {
-        $query = $request['filter']['q']['query'];
 
-        if($query === null)
-        {
-            $vendors = Vendor::select('id','name','slug')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
+
+        $vendors = Vendor::with(['status' => function ($query) {
+            $query->select('id', 'name', 'slug');
+        }])
+            ->where('is_active', 1)
+            ->select('id', 'name','slug');
+        
+        if ($request->has('query') && $request->input('query')) {
+
+            $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');
         }
-
-        else{
-
-            $vendors = Vendor::where('name', 'like', "%$query%")
-                ->orWhere('slug','like',"%$query%")
-                ->select('id','name','slug')
-                ->get();
-        }
+        $vendors = $vendors->limit(10)->get();
 
         $response['success'] = true;
         $response['data'] = $vendors;
@@ -1508,6 +1504,23 @@ class Product extends VaahModel
             ->get();
         $response['success'] = true;
         $response['data'] = $item;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVendor($request)
+    {
+
+        $vendors = Vendor::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+
+            $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $vendors = $vendors->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $vendors;
         return $response;
 
     }

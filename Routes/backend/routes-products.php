@@ -131,7 +131,7 @@ function () {
     /**
      * Search Product vendor
      */
-    Route::post('/search/product-vendor', 'ProductsController@searchVendor')
+    Route::post('/search/product-vendor', 'ProductsController@searchProductVendor')
         ->name('vh.backend.store.products.search.productvendor');
 
     /**
@@ -170,5 +170,19 @@ function () {
      */
     Route::post('/search/product-types-using-slug', 'ProductsController@searchProductTypeUsingUrlSlug')
         ->name('vh.backend.store.products.search.filtered-product-types');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Type using Slug
+     */
+    Route::post('/search/product-types-using-slug', 'ProductsController@searchProductTypeUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-product-types');
+
+    /**
+     * Search vendor
+     */
+    Route::post('/search/vendor', 'ProductsController@searchVendor')
+        ->name('vh.backend.store.products.search.vendor');
 
 });

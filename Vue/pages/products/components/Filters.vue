@@ -58,7 +58,7 @@ const store = useProductStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_vendors"
-                              @complete="store.searchProductVendor"
+                              @complete="store.searchProductVendor($event)"
                               placeholder="Select Vendor"
                               class="w-full "
                               :pt="{
