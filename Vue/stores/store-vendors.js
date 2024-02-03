@@ -194,7 +194,7 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         addProduct(){
-            if (this.selected_product != null){
+            /*if (this.selected_product != null){
                 let exist = 0;
                 this.item.products.forEach((item)=>{
                     if (item['product']['id'] == this.selected_product['id']){
@@ -223,7 +223,23 @@ export const useVendorStore = defineStore({
                     this.showUserErrorMessage(['This product is already present'], 4000);
                 }
 
+            }*/
+
+            if (!this.item.products) {
+                this.item.products = [];
             }
+            const exists = this.item.products.some(item => item.product.id === this.selected_product.id);
+
+            if (!exists) {
+                this.item.products.push({
+                    product: this.selected_product,
+                    is_selected: false,
+                });
+                this.selected_product = null;
+            } else {
+                this.showUserErrorMessage(['This Customer is already present'], 4000);
+            }
+
         },
 
         //---------------------------------------------------------------------
@@ -234,77 +250,61 @@ export const useVendorStore = defineStore({
             },time);
         },
         //---------------------------------------------------------------------
-       async removeProduct(attribute){
-            if(attribute.id){
-                const options = {
-                    method: 'get',
-                };
-                const id = attribute.id
-                await vaah().ajax(
-                    this.ajax_url+'/single/product/remove/'+id,
-                    this.removeProductAfter,
-                    options
-                );
-            }else{
-                 this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
-            }
-
-        },
         //---------------------------------------------------------------------
-        selectAllProduct(){
-            this.item.products.forEach((i)=>{
-                return  i['is_selected'] = !this.select_all_product;
+        async removeProduct(product) {
+            this.item.products = this.item.products.filter(function (item) {
+                return item['product']['id'] !== product['product']['id']
             })
+
         },
 
         //---------------------------------------------------------------------
-       async bulkRemoveProduct(id,all = null){
-            if (all){
-                const options = {
-                    method: 'get',
-                };
-
-                await vaah().ajax(
-                    this.ajax_url+'/bulk/product/remove/'+id,
-                     this.bulkRemoveProductAfter,
-                     options
-                );
-
-            }else{
-
-                let temp_select = null;
-                temp_select = this.item.products.filter((item) => {
-                    return item['is_selected'] == true;
+        selectAllProduct() {
+            if (this.select_all_product) {
+                this.item.products.forEach((item) => {
+                    item.is_selected = false;
                 });
-
-                if(temp_select.length  === this.item.products.length){
-                    let temp_select = null;
-                    temp_select = this.item.products.filter((item) => {
-                        return item['is_selected'] == true;
-                    });
-                    this.item.products = temp_select;
-                    this.select_all_product = false;
-                    let id = this.route.params.id;
-                    const options = {
-                        method: 'get',
-                    };
-
-                    await vaah().ajax(
-                        this.ajax_url+'/bulk/product/remove/'+id,
-                        this.bulkRemoveProductAfter,
-                        options
-                    );
-                }else{
-                    let temp = null;
-                    temp = this.item.products.filter((item) => {
-                        return item['is_selected'] != true;
-                    });
-                    this.item.products = temp;
-                    this.select_all_product = false;
-                    await this.itemAction('save-product');
-                }
+            } else {
+                this.item.products.forEach((item) => {
+                    item.is_selected = true;
+                });
             }
         },
+
+        //---------------------------------------------------------------------
+        async removeAllProduct()
+        {
+            this.item.products = [];
+            this.select_all_product = false;
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveProduct() {
+
+            let selected_products = this.item.products.filter(product => product.is_selected);
+            let temp = null;
+            this.select_all_product = false;
+            temp = this.item.products.filter((item) => {
+                return item['is_selected'] === false;
+            });
+
+            if (selected_products.length === 0) {
+                vaah().toastErrors(['Select a product']);
+                return false;
+            }
+
+            else if (temp.length === this.item.products.length) {
+                this.item.products = [];
+            }
+            else {
+
+                this.item.products = temp;
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
        async bulkRemoveProductAfter(){
              await this.getList();

@@ -193,9 +193,9 @@ class Vendor extends VaahModel
 
     public function vendorProducts()
     {
-        return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id')
-            ->where('vh_st_product_vendors.is_active', 1)
-            ->select();
+        return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')
+            ->select('vh_st_products.id','vh_st_products.name','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
+            ->withPivot([]);
     }
 
     //-------------------------------------------------
@@ -448,6 +448,7 @@ class Vendor extends VaahModel
             'is_default' => '',
             'auto_approve_products' => '',
             'is_active' => 'required',
+            'vendor_products' =>''
         ];
 
         if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
@@ -922,24 +923,18 @@ class Vendor extends VaahModel
             return $response;
         }
 
-        $array_item = $item->toArray();
-        $vendor_product = [];
-        if (!empty($array_item['vendor_products'])){
-            forEach($array_item['vendor_products'] as $key=>$value){
-                $new_array = [];
-                $new_array['id'] = $value['id'];
-                $new_array['is_selected'] = false;
-                $new_array['can_update'] = $value['can_update'] == 1 ? true : false;
-                $new_array['status_notes'] = $value['status_notes'];
-                $new_array['product'] = Product::where('id',$value['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-                $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
-                array_push($vendor_product, $new_array);
-            }
-            $item['products'] = $vendor_product;
-
-        }else{
-            $item['products'] = [];
-        }
+        $vendor_product = $item->vendorProducts->map(function ($vendor_product) {
+            return [
+                'is_selected' => false,
+                'product' => [
+                    'id' => $vendor_product->id,
+                    'name' => $vendor_product->name,
+                    'status_notes'=>$vendor_product->status_notes
+                ]
+            ];
+        })->toArray();
+        $response['data'] = $item->toArray();
+        $response['data']['products'] = $vendor_product;
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -957,6 +952,8 @@ class Vendor extends VaahModel
 
             return $response;
         }
+        $inputs = $request->all();
+//        dd($inputs['products']);
 
         $validation_result = self::vendorInputValidator($request->all());
 
@@ -964,7 +961,7 @@ class Vendor extends VaahModel
             return $validation_result;
         }
 
-        $inputs = $validation_result['data'];
+//        $inputs = $validation_result['data'];
 
         if ($inputs['is_default']) {
             self::where('is_default', 1)->update(['is_default' => 0]);
@@ -996,6 +993,25 @@ class Vendor extends VaahModel
         $item->registered_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->approved_at = \Carbon\Carbon::now()->toDateTimeString();
         $item->save();
+
+//        dd($inputs['products']);
+
+
+
+        if (isset($inputs['products']) && is_array($inputs['products'])) {
+            $productsData = collect($inputs['products'])->map(function ($product) {
+
+                return [
+                    'id' => $product['product']['id'],
+                    'status_notes' => $product['product']['status_notes'],
+                    'taxonomy_id_product_vendor_status' => $product['product']['taxonomy_id_product_status'],
+                ];
+            });
+
+
+
+            $item->vendorProducts()->sync($productsData);
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
