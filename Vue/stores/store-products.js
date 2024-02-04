@@ -2166,9 +2166,7 @@ export const useProductStore = defineStore({
         searchVendorAfter(data,res) {
             if(data)
             {
-
                 this.filtered_vendors = data;
-
             }
         },
 
