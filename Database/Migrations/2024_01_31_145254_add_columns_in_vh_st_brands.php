@@ -31,7 +31,7 @@ class AddColumnsInVhStBrands extends Migration
      */
     public function down()
     {
-        Schema::table('vh_st_product_variations', function($table) {
+        Schema::table('vh_st_brands', function($table) {
             $table->dropColumn(['image','meta_title','meta_description','meta_keywords']);
         });
     }
