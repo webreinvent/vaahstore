@@ -1202,6 +1202,8 @@ export const useBrandStore = defineStore({
             return unique_store_ids.size;
         },
 
+        //---------------------------------------------------------------------
+
         storeIds(store_ids) {
             const unique_store_ids = new Set();
             store_ids.forEach(product => {
