@@ -105,7 +105,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.user"
@@ -146,7 +146,7 @@ const toggleFormMenu = (event) => {
                                  v-model="store.item.type"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"

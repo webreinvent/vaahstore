@@ -98,7 +98,20 @@ const toggleSelectedMenuState = (event) => {
                             @complete="store.searchProduct($event)"
                             placeholder="Search Product"
                             class="w-full"
-                            style="height:35px;">
+                            style="height:35px;"
+                            :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         </AutoComplete>
                     </div>
 

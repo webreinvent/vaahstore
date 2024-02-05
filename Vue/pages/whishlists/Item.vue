@@ -59,11 +59,9 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-            <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">
-                    {{store.item.status_notes}}
-                </pre>
-            </Message>
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
+                </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">

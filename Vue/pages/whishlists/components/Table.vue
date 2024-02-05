@@ -28,9 +28,14 @@ const useVaah = vaah();
 
              <Column field="name" header="Name"
                      :sortable="true">
-
                  <template #body="prop">
-                        {{prop.data.name}}
+                     <template v-if="prop.data.is_default == 1">
+                         <Badge severity="primary" >Default</Badge>
+                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                     </template>
+                     <template v-else>
+                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                     </template>
                  </template>
 
              </Column>
@@ -138,7 +143,8 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="whishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                v-if="prop.data.type && store.assets.permissions.includes('can-update-module')"
+                                :disabled="!prop.data.type"
+                                v-if="store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/whishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
 
@@ -162,7 +168,6 @@ const useVaah = vaah();
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
-                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
                    :rowsPerPageOptions="store.rows_per_page"
                    class="bg-white-alpha-0 pt-2">
@@ -173,16 +178,3 @@ const useVaah = vaah();
 
 </template>
 
-<style scoped>
-
-.record-found {
-    font-family: Inter,ui-sans-serif,system-ui,
-    -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-    Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-    Noto Color Emoji;
-    font-size: .8rem;
-    margin-left: 19rem;
-    font-weight: 400;
-
-}
-</style>
