@@ -190,6 +190,24 @@ class Whishlist extends VaahModel
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This name already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['messages'][] = "This slug already exist.";
+            return $response;
+        }
+
         // Check if current record is default
         if($inputs['is_default']){
             self::where('is_default',1)
@@ -671,6 +689,28 @@ class Whishlist extends VaahModel
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
+        }
+
+        // check if name exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This name already exist.";
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $response['success'] = false;
+            $response['errors'][] = "This slug already exist.";
+            return $response;
         }
 
         // Check default

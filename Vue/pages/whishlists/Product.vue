@@ -166,8 +166,7 @@ const toggleSelectedMenuState = (event) => {
                             </td>
                             <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
-                                        class="btn-danger "
-                                        style="height:30px;color:black;"
+                                        style="height:30px;"
                                         size="medium"
                                         @click="store.removeProduct(item)" />
                             </td>

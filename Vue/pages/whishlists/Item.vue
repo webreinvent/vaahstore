@@ -154,22 +154,31 @@ const toggleItemMenu = (event) => {
                                        :can_copy="true"
                             />
                         </template>
+                        <template v-else-if="column === 'name'">
+                            <tr>
+                                <td>
+                                    <b>Name</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.name}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Slug</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.slug}}</div>
+                                </td>
+                            </tr>
+                        </template>
                         <template v-else-if="column === 'type'">
                             <VhViewRow label="Is Shareable"
                                        :value="value"
                                        type="yes-no"
                             />
-                        </template>
-                        <template v-else-if="column === 'status_notes'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Status Notes</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.status_notes}}</div>
-                                </td>
-                            </tr>
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
