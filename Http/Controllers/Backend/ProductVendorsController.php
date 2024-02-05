@@ -59,7 +59,6 @@ class ProductVendorsController extends Controller
             $data['empty_item']['added_by_user'] = $this->getActiveUser();
             $data['empty_item']['added_by'] = auth()->user()->id;
 
-
             $data['actions'] = [];
 
             $data['active_products'] = $this->getActiveProducts();

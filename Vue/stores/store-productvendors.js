@@ -359,11 +359,9 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         setAddedBy(event){
-            if (event.value) {
                 let user = toRaw(event.value);
                 this.item.added_by = user.id;
-            }
-            this.item.added_by=null;
+
         },
         //---------------------------------------------------------------------
         setStatus(event){
