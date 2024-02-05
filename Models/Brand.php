@@ -111,18 +111,22 @@ class Brand extends VaahModel
     //-------------------------------------------------
     protected function registeredAt(): Attribute
     {
-
         return Attribute::make(
             get: function (string $value = null) {
                 return self::getUserTimezoneDate($value);
             },
-            set: function (string $value = null) {
+            set: function (?string $value = null) {
+                if ($value === null || $value === '') {
+                    return null;
+                }
+
                 return \Carbon::parse(strtotime($value))
                     ->setTimezone(config('app.timezone'))
-                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
+                    ->format(config('settings.global.datetime_format', 'Y-m-d H:i:s'));
             },
         );
     }
+
 
     //-------------------------------------------------
     protected function approvedAt(): Attribute
@@ -132,10 +136,14 @@ class Brand extends VaahModel
             get: function (string $value = null) {
                 return self::getUserTimezoneDate($value);
             },
-            set: function (string $value = null) {
+            set: function (?string $value = null) {
+                if ($value === null || $value === '') {
+                    return null;
+                }
+
                 return \Carbon::parse(strtotime($value))
                     ->setTimezone(config('app.timezone'))
-                    ->format(config('settings.global.datetime_format','Y-m-d H:i:s'));
+                    ->format(config('settings.global.datetime_format', 'Y-m-d H:i:s'));
             },
         );
     }
@@ -314,6 +322,7 @@ class Brand extends VaahModel
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->taxonomy_id_brand_status = $inputs['status']['id'];
+
         $item->save();
 
         $response = self::getItem($item->id);
@@ -808,6 +817,7 @@ class Brand extends VaahModel
 
     public static function validation($inputs)
     {
+
 
         $rules = array(
             'name' => 'required|min:1|max:100',
