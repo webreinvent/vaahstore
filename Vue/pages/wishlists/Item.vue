@@ -2,12 +2,12 @@
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
-import { useWhishlistStore } from '../../stores/store-whishlists'
-
+import { useWishlistStore } from '../../stores/store-wishlists'
+import {vaah} from '../../vaahvue/pinia/vaah.js'
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const route = useRoute();
-
+const vaahStore = vaah();
 onMounted(async () => {
 
     /**
@@ -82,7 +82,7 @@ const toggleItemMenu = (event) => {
                             label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
-                            data-testid="whishlists-item-to-edit"
+                            data-testid="wishlists-item-to-edit"
                             icon="pi pi-save"/>
 
                     <!--item_menu-->
@@ -90,7 +90,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
-                        data-testid="whishlists-item-menu"
+                        data-testid="wishlists-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -101,7 +101,7 @@ const toggleItemMenu = (event) => {
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
-                            data-testid="whishlists-item-to-list"
+                            data-testid="wishlists-item-to-list"
                             @click="store.toList()"/>
 
                 </div>
@@ -128,7 +128,7 @@ const toggleItemMenu = (event) => {
                         <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="whishlists-item-restore"
+                                    data-testid="wishlists-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -145,7 +145,7 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
                                 column === 'status'|| column === 'whishlist_type' || column ==='deleted_by' ||
                                 column === 'meta' || column === 'taxonomy_id_whishlists_types' || column === 'products'
-                                || column === 'status_notes'">
+                                || column === 'status_notes' || column === 'slug' || column === 'vh_user_id'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -173,7 +173,19 @@ const toggleItemMenu = (event) => {
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
+                            <tr v-if="store.item.user && store.item.user.name">
+                                <td>
+                                    <b>User</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <Button  @click="vaahStore.copy(store.item.user.name)"  class="p-button-outlined p-button-secondary p-button-sm">
+                                        {{store.item.user.name}}
+                                    </Button>
+                                </td>
+                            </tr>
+
                         </template>
+
                         <template v-else-if="column === 'type'">
                             <VhViewRow label="Is Shareable"
                                        :value="value"
@@ -193,13 +205,6 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_user_id'">
-                            <VhViewRow label="User"
-                                       :value="store.item.user"
-                                       type="user"
                             />
                         </template>
 

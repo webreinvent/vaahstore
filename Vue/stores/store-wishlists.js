@@ -4,11 +4,11 @@ import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from 'moment';
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Whishlist';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Wishlist';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/store/whishlists";
+let ajax_url = base_url + "/store/wishlists";
 
 let empty_states = {
     query: {
@@ -20,7 +20,6 @@ let empty_states = {
             trashed: null,
             sort: null,
             wishlist_status: null,
-            wishlist_type:null,
             date:null,
             users : null,
             products : null,
@@ -32,8 +31,8 @@ let empty_states = {
     }
 };
 
-export const useWhishlistStore = defineStore({
-    id: 'whishlists',
+export const useWishlistStore = defineStore({
+    id: 'wishlists',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -55,7 +54,7 @@ export const useWhishlistStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'whishlists.',
+        route_prefix: 'wishlists.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -204,7 +203,7 @@ export const useWhishlistStore = defineStore({
         {
             switch(route_name)
             {
-                case 'whishlists.index':
+                case 'wishlists.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -254,14 +253,23 @@ export const useWhishlistStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchStates()
-        {
+        watchStates() {
             watch(this.query.filter, (newVal,oldVal) =>
                 {
                     this.delayedSearch();
                 },{deep: true}
             )
         },
+
+        //---------------------------------------------------------------------
+        watchShowFilter()
+        {
+            watch(()=>this.show_filters, (newVal,oldVal) =>
+                {
+                    document.body.style.overflow = this.show_filters ? 'hidden' : '';
+                });
+        },
+
         //---------------------------------------------------------------------
          watchItem(name)
           {
@@ -276,12 +284,9 @@ export const useWhishlistStore = defineStore({
             let user = toRaw(event.value);
             this.item.vh_user_id = user.id;
         },
+
         //---------------------------------------------------------------------
-        setWhishlistsType(event) {
-            let whishlist_type = toRaw(event.value);
-            this.item.taxonomy_id_whishlists_types = whishlist_type.id;
-        },
-        //---------------------------------------------------------------------
+
         setStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_whishlists_status = status.id;
@@ -335,6 +340,7 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -354,7 +360,7 @@ export const useWhishlistStore = defineStore({
             {
                 this.item = data;
             }else{
-                this.$router.push({name: 'whishlists.index'});
+                this.$router.push({name: 'wishlists.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -572,18 +578,20 @@ export const useWhishlistStore = defineStore({
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'whishlists.index'});
+                    this.$router.push({name: 'wishlists.index'});
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'wishlists.form'});
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
                     this.item.id = null;
                     await this.getFormMenu();
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'whishlists.form'});
+                    this.$router.push({name: 'wishlists.form'});
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'trash':
@@ -646,8 +654,6 @@ export const useWhishlistStore = defineStore({
                 });
             }
         },
-
-        //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
         onItemSelection(items)
@@ -853,32 +859,32 @@ export const useWhishlistStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'whishlists.index'})
+            this.$router.push({name: 'wishlists.index'})
         },
         //---------------------------------------------------------------------
         toList()
-        {
+        {   this.select_all_product = false;
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'whishlists.index'})
+            this.$router.push({name: 'wishlists.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'whishlists.form'})
+            this.$router.push({name: 'wishlists.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'whishlists.view', params:{id:item.id}})
+            this.$router.push({name: 'wishlists.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'whishlists.form', params:{id:item.id}})
+            this.$router.push({name: 'wishlists.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -1267,7 +1273,7 @@ export const useWhishlistStore = defineStore({
         toProduct(item)
         {
             this.selected_product = null;
-            this.$router.push({name: 'whishlists.products', params:{id:item.id}})
+            this.$router.push({name: 'wishlists.products', params:{id:item.id}})
         },
 
         //---------------------------------------------------------------------
@@ -1486,6 +1492,7 @@ export const useWhishlistStore = defineStore({
             }
         },
 
+        //--------------------------------------------------------------------
 
 
 
@@ -1496,5 +1503,5 @@ export const useWhishlistStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useWhishlistStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useWishlistStore, import.meta.hot))
 }

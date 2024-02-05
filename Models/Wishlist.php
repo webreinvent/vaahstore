@@ -14,7 +14,7 @@ use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use VaahCms\Modules\Store\Models\Product;
-class Whishlist extends VaahModel
+class Wishlist extends VaahModel
 {
 
     use SoftDeletes;
@@ -59,12 +59,7 @@ class Whishlist extends VaahModel
     }
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
-    }
-
-    //-------------------------------------------------
-    public function whishlistType(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_whishlists_status', 'id')->select(['id','name','slug']);
     }
 
     //-------------------------------------------------
@@ -373,7 +368,7 @@ class Whishlist extends VaahModel
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','status','whishlistType','products');
+        $list = self::getSorted($request->filter)->with('user','status','products');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -457,7 +452,7 @@ class Whishlist extends VaahModel
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
-                $items->update(['deleted_by' => auth()->user()->id]);
+                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
@@ -562,7 +557,7 @@ class Whishlist extends VaahModel
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
-                    $items->update(['deleted_by' => auth()->user()->id]);
+                    $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 }
                 break;
             case 'restore':
@@ -601,11 +596,11 @@ class Whishlist extends VaahModel
                 }
                 break;
             case 'trash-all':
-                $list->update(['deleted_by' => auth()->user()->id]);
+                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -644,7 +639,7 @@ class Whishlist extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType','products'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','products'])
             ->withTrashed()
             ->first();
 
@@ -790,6 +785,7 @@ class Whishlist extends VaahModel
                 $item = self::where('id', $id)->withTrashed()->first();
                 if($item->delete()){
                     $item->deleted_by = auth()->user()->id;
+                    $item->is_default = 0;
                     $item->save();
                 }
                 break;

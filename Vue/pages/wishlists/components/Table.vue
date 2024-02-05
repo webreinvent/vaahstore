@@ -1,7 +1,7 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
-import { useWhishlistStore } from '../../../stores/store-whishlists'
-const store = useWhishlistStore();
+import { useWishlistStore } from '../../../stores/store-wishlists'
+const store = useWishlistStore();
 const useVaah = vaah();
 
 </script>
@@ -30,10 +30,12 @@ const useVaah = vaah();
                      :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data.is_default == 1">
+                         <Badge v-if="prop.data.deleted_at" value="Trashed" severity="danger"></Badge>
                          <Badge severity="primary" >Default</Badge>
                          <div style="word-break: break-word;">{{ prop.data.name }}</div>
                      </template>
                      <template v-else>
+                         <Badge v-if="prop.data.deleted_at" value="Trashed" severity="danger"></Badge>
                          <div style="word-break: break-word;">{{ prop.data.name }}</div>
                      </template>
                  </template>
@@ -67,17 +69,7 @@ const useVaah = vaah();
              <Column field="user.name" header="User"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <Badge v-if="prop.data.user == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else style="padding-left: 5px;">
-                        {{prop.data.user.name}}
-                    </span>
-                 </template>
+                 <template #body="prop">{{prop.data.user.name}}</template>
 
              </Column>
 
@@ -112,7 +104,7 @@ const useVaah = vaah();
                     <div class="p-inputgroup ">
 
                         <Button class="p-button-tiny p-button-text"
-                                data-testid="whishlists-table-to-view"
+                                data-testid="wishlists-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 @click="store.toView(prop.data)"
@@ -120,14 +112,14 @@ const useVaah = vaah();
 
                         <Button v-if="store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-text"
-                                data-testid="whishlists-table-to-edit"
+                                data-testid="wishlists-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
-                                data-testid="whishlists-table-action-trash"
+                                data-testid="wishlists-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
@@ -135,17 +127,17 @@ const useVaah = vaah();
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
-                                data-testid="whishlists-table-action-restore"
+                                data-testid="wishlists-table-action-restore"
                                 v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module') "
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
 
-                        <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="whishlists-table-action-share"
+                        <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="wishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
                                 :disabled="!prop.data.type"
                                 v-if="store.assets.permissions.includes('can-update-module')"
-                                @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/whishlists/${prop.data.id}/product`)"
+                                @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/wishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
 
                     </div>

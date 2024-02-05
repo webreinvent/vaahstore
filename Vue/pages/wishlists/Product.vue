@@ -1,11 +1,11 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useWhishlistStore } from '../../stores/store-whishlists'
+import { useWishlistStore } from '../../stores/store-wishlists'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -117,6 +117,7 @@ const toggleSelectedMenuState = (event) => {
 
                     <div class="p-2">
                         <Button v-if="store.selected_product"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 type="button"
                                 label="Add"
                                 style="height:35px;"
@@ -132,6 +133,7 @@ const toggleSelectedMenuState = (event) => {
                         <Button
                             type="button"
                             @click="toggleSelectedMenuState"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="products-actions-menu"
                             aria-haspopup="true"
                             aria-controls="overlay_menu">
@@ -166,6 +168,7 @@ const toggleSelectedMenuState = (event) => {
                             </td>
                             <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
+                                        :disabled="!store.assets.permissions.includes('can-update-module')"
                                         style="height:30px;"
                                         size="medium"
                                         @click="store.removeProduct(item)" />

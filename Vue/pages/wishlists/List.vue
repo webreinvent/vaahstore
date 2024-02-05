@@ -2,13 +2,13 @@
 import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
-import {useWhishlistStore} from '../../stores/store-whishlists'
+import {useWishlistStore} from '../../stores/store-wishlists'
 import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
 
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const root = useRootStore();
 const route = useRoute();
 
@@ -35,12 +35,14 @@ onMounted(async () => {
      * changed
      */
     await store.watchStates();
+    await store.watchShowFilter();
 
     /**
      * fetch assets required for the crud
      * operation
      */
     await store.getAssets();
+
 
     /**
      * fetch list of records
@@ -86,14 +88,14 @@ const toggleCreateMenu = (event) => {
                     <div class="p-inputgroup">
 
                     <Button :disabled="!store.assets.permissions.includes('can-update-module')"
-                            data-testid="whishlists-list-create"
+                            data-testid="wishlists-list-create"
                             class="p-button-sm"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
 
-                    <Button data-testid="whishlists-list-reload"
+                    <Button data-testid="wishlists-list-reload"
                             class="p-button-sm"
                             @click="store.getList()">
                         <i class="pi pi-refresh mr-1"></i>
@@ -107,7 +109,7 @@ const toggleCreateMenu = (event) => {
                             :disabled="!store.assets.permissions.includes('can-update-module')"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
-                        data-testid="whishlists-create-menu"
+                        data-testid="wishlists-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 

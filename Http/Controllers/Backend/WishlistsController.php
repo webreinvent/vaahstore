@@ -2,12 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\Whishlist;
+use VaahCms\Modules\Store\Models\Wishlist;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 
 
-class WhishlistsController extends Controller
+class WishlistsController extends Controller
 {
 
 
@@ -29,11 +29,10 @@ class WhishlistsController extends Controller
             $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['columns'] = Whishlist::getFillableColumns();
-            $data['fillable']['except'] = Whishlist::getUnFillableColumns();
-            $data['empty_item'] = Whishlist::getEmptyItem();
-            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('whishlists-status');
-            $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('whishlists-types');
+            $data['fillable']['columns'] = Wishlist::getFillableColumns();
+            $data['fillable']['except'] = Wishlist::getUnFillableColumns();
+            $data['empty_item'] = Wishlist::getEmptyItem();
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('Whishlists-status');
 
             $data['actions'] = [];
 
@@ -78,7 +77,7 @@ class WhishlistsController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Whishlist::getList($request);
+            return Wishlist::getList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -95,7 +94,7 @@ class WhishlistsController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Whishlist::updateList($request);
+            return Wishlist::updateList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -115,7 +114,7 @@ class WhishlistsController extends Controller
 
 
         try{
-            return Whishlist::listAction($request, $type);
+            return Wishlist::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -133,7 +132,7 @@ class WhishlistsController extends Controller
     public function deleteList(Request $request)
     {
         try{
-            return Whishlist::deleteList($request);
+            return Wishlist::deleteList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -150,7 +149,7 @@ class WhishlistsController extends Controller
     public function fillItem(Request $request)
     {
         try{
-            return Whishlist::fillItem($request);
+            return Wishlist::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -167,7 +166,7 @@ class WhishlistsController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Whishlist::createItem($request);
+            return Wishlist::createItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -184,7 +183,7 @@ class WhishlistsController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Whishlist::getItem($id);
+            return Wishlist::getItem($id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -201,7 +200,7 @@ class WhishlistsController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Whishlist::updateItem($request,$id);
+            return Wishlist::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -218,7 +217,7 @@ class WhishlistsController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Whishlist::deleteItem($request,$id);
+            return Wishlist::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -235,7 +234,7 @@ class WhishlistsController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Whishlist::itemAction($request,$id,$action);
+            return Wishlist::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -252,7 +251,7 @@ class WhishlistsController extends Controller
     public function searchVaahUsers(Request $request)
     {
         try{
-            return Whishlist::searchVaahUsers($request);
+            return Wishlist::searchVaahUsers($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -269,7 +268,7 @@ class WhishlistsController extends Controller
     public function searchType(Request $request)
     {
         try{
-            return Whishlist::searchType($request);
+            return Wishlist::searchType($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -287,7 +286,7 @@ class WhishlistsController extends Controller
     public function searchStatus(Request $request)
     {
         try{
-            return Whishlist::searchStatus($request);
+            return Wishlist::searchStatus($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -304,7 +303,7 @@ class WhishlistsController extends Controller
     public function searchProduct(Request $request)
     {
         try{
-            return Whishlist::searchProduct($request);
+            return Wishlist::searchProduct($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -322,7 +321,7 @@ class WhishlistsController extends Controller
     public function searchProductBySlug(Request $request)
     {
         try{
-            return Whishlist::searchProductBySlug($request);
+            return Wishlist::searchProductBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -342,7 +341,7 @@ class WhishlistsController extends Controller
     {
 
         try{
-            return Whishlist::searchUserBySlug($request);
+            return Wishlist::searchUserBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

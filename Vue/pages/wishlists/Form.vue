@@ -1,12 +1,12 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useWhishlistStore } from '../../stores/store-whishlists'
+import { useWishlistStore } from '../../stores/store-wishlists'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -58,7 +58,7 @@ const toggleFormMenu = (event) => {
                             label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
-                            data-testid="whishlists-save"
+                            data-testid="wishlists-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
@@ -67,10 +67,10 @@ const toggleFormMenu = (event) => {
                             v-else
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
-                            data-testid="whishlists-create-and-new"
+                            data-testid="wishlists-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="whishlists-document" icon="pi pi-info-circle"
+                    <Button data-testid="wishlists-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             class="p-button-sm"
                             v-tooltip.top="'Documentation'"
@@ -81,7 +81,7 @@ const toggleFormMenu = (event) => {
                         type="button"
                         @click="toggleFormMenu"
                         class="p-button-sm"
-                        data-testid="whishlists-form-menu"
+                        data-testid="wishlists-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -93,7 +93,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
-                            data-testid="whishlists-to-list"
+                            data-testid="wishlists-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -114,8 +114,8 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.user_suggestion"
                         @complete="store.searchUsers($event)"
                         placeholder="Select User"
-                        data-testid="whishlists-user"
-                        name="whishlists-user"
+                        data-testid="wishlists-user"
+                        name="wishlists-user"
                         :dropdown="true" optionLabel="first_name" forceSelection>
                     </AutoComplete>
                 </VhField>
@@ -141,8 +141,8 @@ const toggleFormMenu = (event) => {
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
-                                 name="whishlists-is_default"
-                                 data-testid="whishlists-is_default"
+                                 name="wishlists-is_default"
+                                 data-testid="wishlists-is_default"
                                  v-model="store.item.type"/>
                 </VhField>
 
@@ -152,12 +152,12 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
                         class="w-full"
-                        name="whishlists-status"
+                        name="wishlists-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
-                        data-testid="whishlists-status"
+                        data-testid="wishlists-status"
                         forceSelection>
                     </AutoComplete>
                 </VhField>
@@ -166,8 +166,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status Notes">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
-                              name="whishlists-status_notes"
-                              data-testid="whishlists-status_notes"
+                              name="wishlists-status_notes"
+                              data-testid="wishlists-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
 
@@ -175,8 +175,8 @@ const toggleFormMenu = (event) => {
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
-                                 name="whishlists-is_default"
-                                 data-testid="whishlists-is_default"
+                                 name="wishlists-is_default"
+                                 data-testid="wishlists-is_default"
                                  v-model="store.item.is_default"/>
                 </VhField>
 
