@@ -22,7 +22,7 @@ const store = useBrandStore();
                     v-model="store.query.filter.brand_status"
                     :options="store.assets.taxonomy.status"
                     filter
-                    optionValue="name"
+                    option-value="slug"
                     optionLabel="name"
                     placeholder="Select Status"
                     display="chip"
