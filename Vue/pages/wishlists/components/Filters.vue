@@ -73,8 +73,8 @@ const store = useWishlistStore();
                 </template>
 
                 <AutoComplete
-                    name="wishlists-user-filter"
-                    data-testid="wishlists-user-filter"
+                    name="wishlists-product-filter"
+                    data-testid="wishlists-product-filter"
                     v-model="store.filter_selected_products"
                     @change="store.setFilterSelectedProducts()"
                     option-label = "name"
