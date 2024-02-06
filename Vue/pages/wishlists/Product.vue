@@ -87,7 +87,7 @@ const toggleSelectedMenuState = (event) => {
 
                 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-4 pb-2 p-1">
-                    <div class="col-6">
+                    <div class="col-12">
                         <AutoComplete
                             name="addresses-user-filter"
                             data-testid="addresses-user-filter"

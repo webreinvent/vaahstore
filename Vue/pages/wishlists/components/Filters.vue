@@ -48,7 +48,20 @@ const store = useWishlistStore();
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUsers($event)"
                     placeholder="Select User"
-                    class="w-full">
+                    class="w-full"
+                    :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                 </AutoComplete>
 
             </VhFieldVertical>

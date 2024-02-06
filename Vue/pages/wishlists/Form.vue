@@ -115,7 +115,22 @@ const toggleFormMenu = (event) => {
                         placeholder="Select User"
                         data-testid="wishlists-user"
                         name="wishlists-user"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        :dropdown="true"
+                        optionLabel="first_name"
+                        forceSelection
+                        :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                     </AutoComplete>
                 </VhField>
 
