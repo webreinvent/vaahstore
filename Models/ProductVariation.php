@@ -911,6 +911,7 @@ class ProductVariation extends VaahModel
                 ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
+                $item->is_default = null;
                 $item->save();
                 break;
             case 'restore':
