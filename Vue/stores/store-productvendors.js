@@ -354,8 +354,10 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setAddedBy(event) {
-            this.item.added_by = (event && event.value) ? toRaw(event.value).id : null;
+        setAddedBy(event){
+                let user = toRaw(event.value);
+                this.item.added_by = user.id;
+
         },
 
         //---------------------------------------------------------------------

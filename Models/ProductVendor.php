@@ -1065,11 +1065,11 @@ class ProductVendor extends VaahModel
         $inputs['vh_st_product_id'] = $product_ids;
 
         $users = User::where('is_active',1)->get();
-        $users_ids = $users->pluck('id')->toArray();
-        $users_ids = $users_ids[array_rand($users_ids)];
-        $users = $users->where('id',$users)->first();
-        $inputs['users'] = $users;
-        $inputs['added_by'] = $users_ids ;
+        $user_ids = $users->pluck('id')->toArray();
+        $user_id = $user_ids[array_rand($user_ids)];
+        $user = $users->where('id',$user_id)->first();
+        $inputs['added_by_user'] = $user;
+        $inputs['added_by'] = $user_id ;
 
         $vendors = Vendor::where('is_active',1)->get();
         $vendors_ids = $vendors->pluck('id')->toArray();
