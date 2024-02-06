@@ -345,33 +345,24 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         setVendor(event) {
-            if (event && event.value) {
-                let vendor = toRaw(event.value);
-                this.item.vh_st_vendor_id = vendor.id;
-            }
+            this.item.vh_st_vendor_id = (event && event.value) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
-        setProduct(event){
-            let product = toRaw(event.value);
-            if (product && product.id) {
-                this.item.vh_st_product_id = product.id;
-            }
+        setProduct(event) {
+            this.item.vh_st_product_id = (event && event.value && event.value.id) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
-        setAddedBy(event){
-            if (event.value) {
-                let user = toRaw(event.value);
-                this.item.added_by = user.id;
-            }
-            this.item.added_by=null;
+        setAddedBy(event) {
+            this.item.added_by = (event && event.value) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
-        setStatus(event){
-            if (event.value) {
-                let status = toRaw(event.value);
-                this.item.taxonomy_id_product_vendor_status = status.id;
-            }
+        setStatus(event) {
+            this.item.taxonomy_id_product_vendor_status = (event && event.value) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
         async getAssets() {
 
