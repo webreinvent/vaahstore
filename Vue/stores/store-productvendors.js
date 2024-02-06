@@ -186,40 +186,7 @@ export const useProductVendorStore = defineStore({
             this.query.filter.product_vendor_status = this.selected_status.map(status => status.slug);
         },
 
-        // async searchProductVariation(event) {
-        //     const query = {
-        //         filter: {
-        //             q: event,
-        //         },
-        //     };
-        //     const options = {
-        //         params: query,
-        //         method: 'post',
-        //     };
-        //
-        //     await vaah().ajax(
-        //         this.ajax_url+'/search/product/variation',
-        //         this.searchProductVariationAfter,
-        //         options
-        //     );
-        // },
-        //
-        // //---------------------------------------------------------------------
-        // searchProductVariationAfter(data,res){
-        //     if(data){
-        //         this.product_variation_suggestion = data;
-        //     }
-        // },
 
-        //---------------------------------------------------------------------
-        // searchProduct(event) {
-        //
-        //     if (this.product && this.product.length > 0) {
-        //         this.product_suggestion = this.product.filter((product) => {
-        //             return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-        //         });
-        //     }
-        // },
 
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -445,18 +412,6 @@ export const useProductVendorStore = defineStore({
 
                 this.item.vh_st_product_variation_id = data.product_variation;
 
-                // Update product_variation_list based on product_variations
-                // if (data.product_variations) {
-                //     this.product_variations = data.product_variations;
-                //     this.product_variation_list.forEach((listVariation, listIndex) => {
-                //         const matchingVariation = this.product_variations.find(
-                //             dataVariation => dataVariation.id === listVariation.id
-                //         );
-                //         if (matchingVariation) {
-                //             this.product_variation_list[listIndex] = matchingVariation;
-                //         }
-                //     });
-                // }
                 if (data.product_variations) {
                     this.product_variations = data.product_variations;
                     this.product_variation_list = this.product_variation_list.map(listVariation => {
@@ -602,7 +557,6 @@ export const useProductVendorStore = defineStore({
 
                 // Set the variations array to store.item.product_variation
                 this.item.product_variation = variations;
-                console.log(this.item.product_variation);
             }
 
             /**
@@ -1291,6 +1245,8 @@ export const useProductVendorStore = defineStore({
                 }
             }
         },
+        //---------------------------------------------------------------------
+
         async searchActiveStores(event) {
             const query = event;
             const options = {
@@ -1326,6 +1282,8 @@ export const useProductVendorStore = defineStore({
             this.item.vh_st_product_id=null;
             this.item.product=null;
         },
+        //---------------------------------------------------------------------
+
         async searchProductforFilter(event) {
             const query = event;
             const options = {
@@ -1347,11 +1305,17 @@ export const useProductVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+
+
         addProductFIlter() {
             const uniqueVariation = Array.from(new Set(this.selected_product.map(v => v.name)));
             this.selected_product = uniqueVariation.map(name => this.selected_product.find(v => v.name === name));
             this.query.filter.product = this.selected_product.map(v => v.slug);
         },
+
+        //---------------------------------------------------------------------
+
 
         async setProductsAfterPageRefresh()
         {
@@ -1382,6 +1346,8 @@ export const useProductVendorStore = defineStore({
                 this.selected_product= data;
             }
         },
+        //---------------------------------------------------------------------
+
 
         async setStatusAfterPageRefresh()
         {
@@ -1413,22 +1379,8 @@ export const useProductVendorStore = defineStore({
             }
         },
 
-        // async searchVariationOfProduct(event) {
-        //     const query = {
-        //         q:event.query,
-        //         id:this.item.vh_st_product_id
-        //     }
-        //     const options = {
-        //         params: query,
-        //         method: 'post',
-        //     };
-        //
-        //     await vaah().ajax(
-        //         this.ajax_url+'/search/product-variation',
-        //         this.searchVariationOfProductAfter,
-        //         options
-        //     );
-        // },
+        //---------------------------------------------------------------------
+
         async searchVariationOfProduct() {
             const query = {
 
@@ -1460,6 +1412,9 @@ export const useProductVendorStore = defineStore({
                 }
             }
         },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
+
     }
 });
 
