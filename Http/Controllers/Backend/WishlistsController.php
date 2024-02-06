@@ -33,7 +33,6 @@ class WishlistsController extends Controller
             $data['fillable']['except'] = Wishlist::getUnFillableColumns();
             $data['empty_item'] = Wishlist::getEmptyItem();
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('Whishlists-status');
-
             $data['actions'] = [];
 
             $get_user_data = self::getUserData();
@@ -111,8 +110,6 @@ class WishlistsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
-
-
         try{
             return Wishlist::listAction($request, $type);
         }catch (\Exception $e){

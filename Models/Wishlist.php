@@ -392,7 +392,6 @@ class Wishlist extends VaahModel
 
         return $response;
 
-
     }
 
     //-------------------------------------------------

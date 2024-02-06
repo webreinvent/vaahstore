@@ -5,7 +5,6 @@ import { useWishlistStore } from '../../stores/store-wishlists'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-
 const store = useWishlistStore();
 const route = useRoute();
 

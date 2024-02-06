@@ -186,8 +186,3 @@ const toggleSelectedMenuState = (event) => {
 
 </template>
 
-<style scoped>
-.btn-danger{
-    background-color: red !important;
-}
-</style>
