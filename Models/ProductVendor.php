@@ -188,7 +188,7 @@ class ProductVendor extends VaahModel
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
-        $validation = self::validation($inputs);
+        $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
         }
@@ -856,11 +856,11 @@ class ProductVendor extends VaahModel
     public static function validationProductPrice($inputs)
     {
         $rules = validator($inputs, [
-            'product_variation' => 'required|max:150',
-            'amount' => 'nullable|numeric|min:0|digits_between:1,15',
+            'vh_st_product_id'=> 'required',
+            'product_variation.*.amount' => 'nullable|numeric|max:100000',
         ], [
-            'amount.digits_between' => 'The amount must be between 1 to 15 digits',
-        ]);
+            'vh_st_product_id.required' => 'The Product field is required',
+            'product_variation.*.amount.max' => 'The Amount field cannot be greater than :max.',        ]);
         if($rules->fails()){
             return [
                 'success' => false,

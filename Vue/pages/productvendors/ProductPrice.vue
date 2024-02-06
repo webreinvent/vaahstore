@@ -72,20 +72,6 @@ const toggleFormMenu = (event) => {
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <!--form_menu-->
-<!--                    <Button-->
-<!--                        type="button"-->
-<!--                        class="p-button-sm"-->
-<!--                        @click="toggleFormMenu"-->
-<!--                        data-testid="productvendors-form-menu"-->
-<!--                        icon="pi pi-angle-down"-->
-<!--                        aria-haspopup="true"/>-->
-
-<!--                    <Menu ref="form_menu"-->
-<!--                          :model="store.form_menu_list"-->
-<!--                          :popup="true" />-->
-                    <!--/form_menu-->
-
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
@@ -99,41 +85,8 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
-
-<!--                <VhField label="Product Variation">-->
-
-<!--                    <AutoComplete-->
-<!--                        value="id"-->
-<!--                        v-model="store.item.product_variation"-->
-<!--                        class="w-full"-->
-<!--                        :suggestions="store.product_variation_suggestion"-->
-<!--                        @complete="store.searchVariationOfProduct($event)"-->
-<!--                        placeholder="Select Product Variation"-->
-<!--                        data-testid="productprices-product_variation"-->
-<!--                        name="productprices-product_variation"-->
-<!--                        :dropdown="true" optionLabel="name" forceSelection>-->
-<!--                    </AutoComplete>-->
-
-<!--                </VhField>-->
-
-<!--                <VhField label="Amount">-->
-
-<!--                    <InputNumber-->
-<!--                        placeholder="Enter a Amount"-->
-<!--                        inputId="minmax-buttons"-->
-<!--                        name="productprices-amount"-->
-<!--                        v-model="store.item.amount"-->
-<!--                        :min="0"-->
-<!--                        :max="150000000000000"-->
-<!--                        mode="decimal" showButtons-->
-<!--                        data-testid="productprices-amount"/>-->
-
-<!--                </VhField>-->
-
-
-<!--                <VhField >-->
-                <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
+<!--            <div v-if="store.item">-->
+                <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
 
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
                         <thead>
@@ -166,18 +119,7 @@ const toggleFormMenu = (event) => {
                 </div>
 
 
-<!--                </VhField>-->
-
-
-<!--                <VhField label="Is Active">-->
-<!--                    <InputSwitch v-bind:false-value="0"-->
-<!--                                 v-bind:true-value="1"-->
-<!--                                 name="productprices-active"-->
-<!--                                 data-testid="productprices-active"-->
-<!--                                 v-model="store.item.is_active_product_price"/>-->
-<!--                </VhField>-->
-
-            </div>
+<!--            </div>-->
         </Panel>
 
     </div>
