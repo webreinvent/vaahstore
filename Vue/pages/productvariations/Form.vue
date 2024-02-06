@@ -152,6 +152,7 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Price">
                     <InputNumber
+                        class="w-full"
                         v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
