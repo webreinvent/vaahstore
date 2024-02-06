@@ -117,6 +117,7 @@ const toggleFormMenu = (event) => {
                         name="wishlists-user"
                         :dropdown="true"
                         optionLabel="first_name"
+                        style="max-width:100%;word-wrap:break-word;">
                         forceSelection
                         :pt="{
                           token: {
@@ -130,7 +131,8 @@ const toggleFormMenu = (event) => {
                                 textWrap: 'wrap'
                                 }  },
                           panel: { class: 'w-16rem ' }
-                            }">
+                            }"
+
                     </AutoComplete>
                 </VhField>
 
