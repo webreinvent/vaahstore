@@ -224,7 +224,7 @@ const value = ref([20, 80]);
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date:</b>
+                    <b>Select Created Date :</b>
                 </template>
 
                 <div class="field-radiobutton">
@@ -232,6 +232,7 @@ const value = ref([20, 80]);
                     <Calendar v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
+                              placeholder="Choose date range"
                               data-testid="productvariation-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
