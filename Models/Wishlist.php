@@ -66,7 +66,7 @@ class Wishlist extends VaahModel
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','whishlist_id','product_id')
+        return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','vh_st_wishlist_id','vh_st_product_id')
             ->select('vh_st_products.id', 'vh_st_products.name')
             ->withPivot([]);
     }

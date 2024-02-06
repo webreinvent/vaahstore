@@ -89,8 +89,8 @@ const toggleSelectedMenuState = (event) => {
                 <div class="flex flex-wrap gap-4 pb-2 p-1">
                     <div class="col-10">
                         <AutoComplete
-                            name="addresses-user-filter"
-                            data-testid="addresses-user-filter"
+                            name="wishlists-product-search"
+                            data-testid="wishlists-product-search"
                             v-model="store.selected_product"
                             option-label = "name"
                             :complete-on-focus = "true"
@@ -134,7 +134,7 @@ const toggleSelectedMenuState = (event) => {
                             type="button"
                             @click="toggleSelectedMenuState"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
-                            data-testid="products-actions-menu"
+                            data-testid="wishlists-actions-menu"
                             aria-haspopup="true"
                             aria-controls="overlay_menu">
                             <i class="pi pi-angle-down"></i>

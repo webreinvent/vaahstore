@@ -138,8 +138,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Name*">
                     <InputText class="w-full"
                                placeholder="Enter Name"
-                               name="stores-name"
-                               data-testid="stores-name"
+                               name="wishlists-name"
+                               data-testid="wishlists-name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
                 </VhField>
@@ -147,8 +147,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Slug*">
                     <InputText class="w-full"
                                placeholder="Enter Slug"
-                               name="stores-slug"
-                               data-testid="stores-slug"
+                               name="wishlists-slug"
+                               data-testid="wishlists-slug"
                                v-model="store.item.slug"/>
                 </VhField>
 
@@ -156,8 +156,8 @@ const toggleFormMenu = (event) => {
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
-                                 name="wishlists-is_default"
-                                 data-testid="wishlists-is_default"
+                                 name="wishlists-is-shareable"
+                                 data-testid="wishlists-is-shareable"
                                  v-model="store.item.type"/>
                 </VhField>
 
