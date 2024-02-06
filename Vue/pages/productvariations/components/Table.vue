@@ -156,24 +156,24 @@ onMounted(async () => {
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item && store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id=== store.item && store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button
-                                class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 

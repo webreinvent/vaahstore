@@ -152,6 +152,7 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Price">
                     <InputNumber
+                        class="w-full"
                         v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
@@ -160,21 +161,7 @@ const permissions=store.assets.permissions;
                         data-testid="productvariations-price"/>
                 </VhField>
 
-                <VhField label="Status*">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.status"
-                        @change="store.setStatus($event)"
-                        class="w-full"
-                        name="productvariations-status"
-                        :suggestions="store.status_suggestion"
-                        @complete="store.searchStatus($event)"
-                        placeholder="Select Status"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="productvariations-status"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
+
 
                 <VhField label="Meta Title">
                     <InputText class="w-full"
@@ -198,6 +185,22 @@ const permissions=store.assets.permissions;
                            v-model="store.item.meta_keywords"
                            placeholder="Enter Meta keyword"
                            separator=","  />
+                </VhField>
+
+                <VhField label="Status*">
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
+                        class="w-full"
+                        name="productvariations-status"
+                        :suggestions="store.status_suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="productvariations-status"
+                        forceSelection>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Status Notes">
