@@ -189,8 +189,7 @@ class Wishlist extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name already exist.";
+            $response['errors'][] = "This Name already exists.";
             return $response;
         }
 
@@ -198,8 +197,7 @@ class Wishlist extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug already exist.";
+            $response['errors'][] = "This Slug already exists.";
             return $response;
         }
 
@@ -691,8 +689,7 @@ class Wishlist extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name already exist.";
+            $response['errors'][] = "This Name already exists.";
             return $response;
         }
 
@@ -702,8 +699,7 @@ class Wishlist extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug already exist.";
+            $response['errors'][] = "This Slug already exists.";
             return $response;
         }
 
