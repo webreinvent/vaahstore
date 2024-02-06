@@ -206,7 +206,6 @@ class ProductVendor extends VaahModel
             if ($check) {
                 if ($variation['amount'] === null) {
                     $check->forceDelete();
-//                    $response['messages'][] = 'Removed variation ' . $variation['name'] . '  amount.';
                     $saved_variations++;
                 } else {
                     // 'amount' is provided, update the record
@@ -217,7 +216,6 @@ class ProductVendor extends VaahModel
                         'amount' => $variation['amount'],
                     ]);
                     $check->save();
-//                    $response['messages'][] = 'Updated variation ' . $variation['name'] . ' successfully.';
                     $saved_variations++;
                 }
             }
@@ -231,7 +229,6 @@ class ProductVendor extends VaahModel
                     'amount' => $variation['amount'],
                 ]);
                 $newVariation->save();
-//                $response['messages'][] = 'Saved variation ' . $variation['id'] . ' successfully.';
                 $saved_variations++;
 
             }
@@ -821,7 +818,6 @@ class ProductVendor extends VaahModel
                 'required_if:status.slug,==,rejected',
                 'max:100'
                              ],
-            'product_variation.*.amount' => 'nullable|numeric|max:100000',
         ],
 
         [
@@ -832,7 +828,6 @@ class ProductVendor extends VaahModel
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
             'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-            'product_variation.*.amount.max' => 'The Amount field cannot be greater than :max.',
 
         ]
         );
