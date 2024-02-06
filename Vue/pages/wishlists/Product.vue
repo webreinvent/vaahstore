@@ -163,8 +163,10 @@ const toggleSelectedMenuState = (event) => {
                         <tbody id="scroll-horizontal" class="pt-1">
                         <tr v-for="(item, index) in store.item.products">
                             <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
-                            <td >
-                                <InputText v-model="item['product']['name']" class="w-full" style="height:30px;" disabled/>
+                            <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <div>
+                                    <InputText v-model="item['product']['name']" class="w-full" style="height:30px;" disabled/>
+                                </div>
                             </td>
                             <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
