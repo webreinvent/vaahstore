@@ -299,9 +299,8 @@ class Brand extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -309,9 +308,8 @@ class Brand extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -558,7 +556,7 @@ class Brand extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -643,8 +641,7 @@ class Brand extends VaahModel
 
                 if(!config('store.is_dev')){
                     $response['success'] = false;
-                    $response['errors'][] = trans("vaahcms-general.user_is_not_in_the_development_environment");
-
+                    $response['errors'][] = 'User is not in the development environment.';
                     return $response;
                 }
 
@@ -660,7 +657,7 @@ class Brand extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -706,8 +703,7 @@ class Brand extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
             $response['errors'][] = $error_message;
             return $response;
         }
@@ -718,8 +714,7 @@ class Brand extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
             $response['errors'][] = $error_message;
             return $response;
         }
