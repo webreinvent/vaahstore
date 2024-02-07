@@ -283,6 +283,8 @@ class Vendor extends VaahModel
 
            $item->is_active = 1;
            $item->save();
+           $vendor_product = ProductVendor::find($item->id);
+           $vendor_product->storeVendorProduct()->attach($value['product']['vh_st_store_id']);
         }
 
         $response = self::getItem($vendor_id);
@@ -910,7 +912,7 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
-                'status','vendorProducts','business_type'])
+                'status','business_type'])
             ->withTrashed()
             ->first();
         if(!$item)
@@ -1319,7 +1321,7 @@ class Vendor extends VaahModel
     public static function searchProduct($request)
     {
 
-        $search_product = Product::select('id','name','slug','is_default','taxonomy_id_product_status')->where('is_active', '1');
+        $search_product = Product::select('id','name','slug','is_default','taxonomy_id_product_status','vh_st_store_id')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_product->where(function($q) use ($query) {
