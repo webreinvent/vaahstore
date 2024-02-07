@@ -1436,9 +1436,25 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        toViewProducts(vendor)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    vendors: [vendor.slug]
+                }
+            };
+            const route = {
+                name: 'products.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
 
     }
-
         //---------------------------------------------------------------------
 
 

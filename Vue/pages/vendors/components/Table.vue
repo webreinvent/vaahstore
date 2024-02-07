@@ -64,17 +64,21 @@ const permissions=store.assets.permissions;
 
                 <template #body="prop">
                     <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.vendor_products && prop.data.vendor_products.length">
-                                {{prop.data.vendor_products.length}}
-                            </b>
-                            <b v-else>0</b>
+                        <span class="p-inputgroup-addon cursor-pointer"
+                              v-tooltip.top="'View Products'"
+                              v-if="prop.data.vendor_products && prop.data.vendor_products.length"
+                            @click="store.toViewProducts(prop.data)">
+                               <b>{{prop.data.vendor_products.length}}</b>
                         </span>
+                        <span class="p-inputgroup-addon"
+                              v-else>
+                             <b >{{prop.data.product_vendors.length}}</b>
+                         </span>
                         <button @click="store.toProduct(prop.data)"
-                                style="border-width : 0; background: #4f46e5;"
+                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
                                 :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
-                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }">
-
+                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
+                                v-tooltip.top="'Add Products'">
                            <i class="pi pi-plus" style="color: white"></i>
                         </button>
                     </div>
