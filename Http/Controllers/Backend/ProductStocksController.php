@@ -39,7 +39,7 @@ class ProductStocksController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 
             //set default value
-            $data['empty_item']['quantity'] = 1;
+            $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['vendor'] = null;
             $data['empty_item']['product'] = null;
