@@ -86,10 +86,10 @@ const toggleFormMenu = (event) => {
 
 
 <!--            <div v-if="store.item">-->
-                <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
+                <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
-                        <thead>
+                        <thead class="p-datatable-thead">
                         <tr>
                             <th>Variations Name</th>
                             <th>Price</th>
@@ -97,7 +97,7 @@ const toggleFormMenu = (event) => {
                         </thead>
                         <tbody class="p-datatable-tbody">
                         <tr v-for="(variation, index) in store.product_variation_list" :key="index">
-                            <td style="width: 250px">{{ variation.name }}</td>
+                            <td>{{ variation.name }}</td>
                             <td>
                                 <InputNumber
                                     :placeholder="'Enter price '"

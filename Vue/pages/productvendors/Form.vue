@@ -192,7 +192,7 @@ const toggleFormMenu = (event) => {
                         />
                 </VhField>
 
-                <VhField label="Product*" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
+                <VhField label="Product*" >
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
