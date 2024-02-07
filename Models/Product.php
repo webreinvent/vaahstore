@@ -206,8 +206,7 @@ class Product extends VaahModel
         $status = $filter['status'];
 
         $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+            $query->whereIn('slug', $status);
         });
 
     }

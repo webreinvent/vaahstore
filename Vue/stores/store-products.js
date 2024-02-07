@@ -24,7 +24,8 @@ let empty_states = {
             stores : null,
             brands : null,
             product_types : null,
-            quantity : null
+            quantity : null,
+            status:null,
         },
     },
     action: {
