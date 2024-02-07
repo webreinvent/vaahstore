@@ -280,9 +280,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -464,9 +468,13 @@ class Brand extends VaahModel
     public static function updateList($request)
     {
 
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -531,9 +539,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -571,9 +583,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -651,7 +667,7 @@ class Brand extends VaahModel
 
                 if(!config('store.is_dev')){
                     $response['success'] = false;
-                    $response['errors'][] = 'User is not in the development environment.';
+                    $response['errors'][] = trans("vaahcms-general.user_is_not_in_the_development_environment");
 
                     return $response;
                 }
@@ -697,9 +713,13 @@ class Brand extends VaahModel
     public static function updateItem($request, $id)
     {
 
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -751,9 +771,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
@@ -775,9 +799,13 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $permission_slug = 'can-update-module';
+        $response = [];
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+            $json_response = vh_get_permission_denied_json_response($permission_slug);
+            $content = $json_response->original;
+            $response['errors'][] = trans($content['hint'][0]);
 
             return $response;
         }
