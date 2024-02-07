@@ -176,8 +176,8 @@ const store = useProductStore();
                             <label for="min-quantity" class="mr-2 mt-2" style="width:50px;">From:</label>
                             <InputNumber
                                        id="min-quantity"
-                                       name="productvariations-name"
-                                       data-testid="productvariations-name"
+                                       name="products-min-quantity"
+                                       data-testid="products-min-quantity"
                                        placeholder="Minimum Quantity"
                                        @input="store.updateMinQuantity($event)"
                                        v-model="store.quantity.from"
@@ -188,8 +188,8 @@ const store = useProductStore();
                             <label for="max-quantity" class="mr-2 mt-2" style="width:50px;">To:</label>
                             <InputNumber class="ml-3"
                                        id="max-quantity"
-                                       name="productvariations-name"
-                                       data-testid="productvariations-name"
+                                       name="products-max-quantity"
+                                       data-testid="products-max-quantity"
                                        placeholder="Maximum Quantity"
                                          @input="store.updateMaxQuantity($event)"
                                        v-model="store.quantity.to"
@@ -211,20 +211,20 @@ const store = useProductStore();
                 <div class="field-radiobutton">
                     <RadioButton name="status-pending"
                                  value="pending"
-                                 data-testid="stores-filters-status-pending"
+                                 data-testid="products-filters-status-pending"
                                  v-model="store.query.filter.status" />
                     <label for="status-pending">Pending</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="status-approved"
-                                 data-testid="stores-filters-status-approved"
+                                 data-testid="products-filters-status-approved"
                                  value="approved"
                                  v-model="store.query.filter.status" />
                     <label for="status-approved">Approved</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="status-rejected"
-                                 data-testid="stores-filters-status-rejected"
+                                 data-testid="products-filters-status-rejected"
                                  value="rejected"
                                  v-model="store.query.filter.status" />
                     <label for="status-rejected">Rejected</label>
@@ -268,7 +268,7 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Select Created Date::</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <Calendar v-model="store.selected_dates"
