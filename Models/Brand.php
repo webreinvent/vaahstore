@@ -281,14 +281,8 @@ class Brand extends VaahModel
     public static function createItem($request)
     {
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
 
@@ -469,14 +463,8 @@ class Brand extends VaahModel
     {
 
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -540,14 +528,8 @@ class Brand extends VaahModel
     public static function deleteList($request): array
     {
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -584,14 +566,8 @@ class Brand extends VaahModel
     public static function listAction($request, $type): array
     {
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -714,14 +690,8 @@ class Brand extends VaahModel
     {
 
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -772,14 +742,8 @@ class Brand extends VaahModel
     public static function deleteItem($request, $id): array
     {
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
@@ -800,14 +764,8 @@ class Brand extends VaahModel
     public static function itemAction($request, $id, $type): array
     {
         $permission_slug = 'can-update-module';
-        $response = [];
-
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $json_response = vh_get_permission_denied_json_response($permission_slug);
-            $content = $json_response->original;
-            $response['errors'][] = trans($content['hint'][0]);
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         switch($type)
