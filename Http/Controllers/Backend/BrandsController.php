@@ -22,7 +22,6 @@ class BrandsController extends Controller
     public function getAssets(Request $request)
     {
 
-
         try{
 
             $data = [];
@@ -69,7 +68,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -88,7 +87,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -105,7 +104,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -122,7 +121,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -142,7 +141,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
@@ -160,7 +159,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -177,7 +176,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -194,7 +193,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -211,7 +210,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -228,7 +227,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -245,7 +244,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -262,7 +261,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -279,7 +278,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -297,7 +296,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -314,7 +313,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -333,7 +332,7 @@ class BrandsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
             return $response;
