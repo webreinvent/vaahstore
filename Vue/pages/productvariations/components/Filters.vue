@@ -41,6 +41,18 @@ const value = ref([20, 80]);
                     class="w-full"
                     :suggestions="store.filtered_products"
                     @complete="store.searchProduct($event)"
+                    :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
                     placeholder="Select Product"
                     data-testid="productvariations-product"
                     append-to="self"
