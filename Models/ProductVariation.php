@@ -735,6 +735,7 @@ class ProductVariation extends VaahModel
             case 'trash-all':
                 $user_id = auth()->user()->id;
                 $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
 
