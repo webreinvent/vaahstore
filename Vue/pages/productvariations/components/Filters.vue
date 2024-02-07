@@ -94,30 +94,22 @@ const value = ref([20, 80]);
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Status:</b>
+                    <b>Status By:</b>
                 </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.product_variation_status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        option-value="slug"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full relative"
+                        appendTo="self"
+                    />
+                </VhField>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="productVariations-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-approved"
-                                 data-testid="productVariations-filters-status-approved"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-rejected"
-                                 data-testid="productVariations-filters-status-approved"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
 
             </VhFieldVertical>
 

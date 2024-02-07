@@ -418,19 +418,14 @@ class ProductVariation extends VaahModel
     {
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
+        if(!isset($filter['product_variation_status']))
         {
             return $query;
         }
-
-        $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+        $search = $filter['product_variation_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
 
     }

@@ -24,6 +24,7 @@ let empty_states = {
             default: null,
             product:null,
             quantity:null,
+            product_variation_status:null,
         },
     },
     action: {
@@ -86,6 +87,7 @@ export const useProductVariationStore = defineStore({
         quantity:[],
         min_quantity : 0,
         max_quantity : 0,
+        product_variation_status:null,
     }),
     getters: {
 
@@ -282,6 +284,7 @@ export const useProductVariationStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
+                this.product_variation_status = data.taxonomy.vendor_status;
                 this.active_products = data.active_products
                 if(data.rows)
                 {
@@ -1257,7 +1260,7 @@ export const useProductVariationStore = defineStore({
             }
 
         },
-
+        //-----------------------------------------------------
     },
 
 });
