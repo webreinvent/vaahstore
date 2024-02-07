@@ -301,8 +301,9 @@ class Brand extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['messages'][] = $error_message;
             return $response;
         }
 
@@ -310,8 +311,9 @@ class Brand extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['messages'][] = $error_message;
             return $response;
         }
 
@@ -326,9 +328,8 @@ class Brand extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
-
     }
 
     //-------------------------------------------------
@@ -715,8 +716,9 @@ class Brand extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['errors'][] = "This Name already exists.";
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -726,8 +728,9 @@ class Brand extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -741,7 +744,7 @@ class Brand extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
