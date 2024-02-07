@@ -1324,6 +1324,7 @@ class Vendor extends VaahModel
         $search_product = Product::with('status')
             ->select('id','name','slug','is_default','taxonomy_id_product_status','vh_st_store_id')
             ->where('is_active', '1');
+
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_product->where(function($q) use ($query) {

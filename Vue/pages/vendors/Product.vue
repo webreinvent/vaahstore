@@ -170,7 +170,7 @@ const toggleSelectedMenuState = (event) => {
                                 <InputSwitch v-model="item['can_update']" style="margin-left:5px;" />
                             </td>
                             <td>
-                                <Dropdown v-model="item['product']['status']"
+                                <Dropdown v-model="item['status']"
                                           :options="store.product_status"
                                           optionLabel="name"
                                           placeholder="Select a status"
