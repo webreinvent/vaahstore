@@ -34,7 +34,7 @@ Route::group(
         /**
          * Create Product
          */
-        Route::post('/product', 'VendorsController@createProduct')
+        Route::post('/add/product', 'VendorsController@createProduct')
             ->name('vh.backend.store.vendors.createProduct');
 
         /**

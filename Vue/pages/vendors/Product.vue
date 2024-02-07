@@ -55,7 +55,7 @@ const toggleSelectedMenuState = (event) => {
                             data-testid="products-save"
                             class="p-button-sm"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.itemAction('save')"
+                            @click="store.saveProduct()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -83,20 +83,21 @@ const toggleSelectedMenuState = (event) => {
                     <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
-                <!--                dropdown to select vendor -->
+                <!--                dropdown to select Product -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
                             <AutoComplete v-model="store.selected_product"
                                           value="id"
                                           data-testid="vendors-taxonomy_id_vendor_status"
-                                          name="vendors-taxonomy_id_vendor_status"
+                                          name="vendors-products"
                                           class="w-full"
-                                          placeholder="Select Status"
+                                          placeholder="Search Product"
                                           :suggestions="store.search_products"
                                           @complete="store.searchProduct($event)"
                                           :dropdown="true"
                                           optionLabel="name"
-                                          forceSelection >
+                                          forceSelection
+                                            style="height:35px;">
 
                         <template #option="slotProps">
                             <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
@@ -110,7 +111,7 @@ const toggleSelectedMenuState = (event) => {
                         <Button type="button"
                                 label="Add"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
-                                style="margin-top:0.5rem"
+                                style="height:35px;margin-top:5px;"
                                 @click="store.addProduct()" />
                     </div>
                 </div>
@@ -136,13 +137,7 @@ const toggleSelectedMenuState = (event) => {
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
-                    <div class="pr-1">
-                        <Button label="Remove All"
-                                :disabled="!store.assets.permissions.includes('can-update-module')"
-                                @click="store.bulkRemoveProduct(store.item.id,true)"
-                                class="p-button-sm"
-                                size="small" />
-                    </div>
+                   
                 </div>
 
                 <!--                added vendor's list-->
@@ -169,25 +164,27 @@ const toggleSelectedMenuState = (event) => {
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
                             <td>
-                                <InputText v-model="item['product']['name']" class="w-full" disabled="" />
+                                <InputText v-model="item['product']['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-                                <InputSwitch v-model="item['can_update']" />
+                                <InputSwitch v-model="item['can_update']" style="margin-left:5px;" />
                             </td>
                             <td>
                                 <Dropdown v-model="item['status']"
                                           :options="store.product_status"
                                           optionLabel="name"
                                           placeholder="Select a status"
-                                          class="w-full" />
+                                          class="w-full"
+                                          style="height:35px;"/>
                             </td>
                             <td>
-                                <InputText v-model="item['status_notes']" class="w-full" />
+                                <InputText v-model="item['status_notes']" style="height:35px;" class="w-full" />
                             </td>
                             <td>
                                 <Button label="Remove"
                                         class="p-button-sm"
                                         size="small"
+                                        style="height:35px;"
                                         :disabled="!store.assets.permissions.includes('can-update-module')"
                                         @click="store.removeProduct(item)" />
                             </td>

@@ -253,43 +253,40 @@ class Vendor extends VaahModel
             return $validation;
         }
         $product_data = $input['products'];
+
         $active_user = auth()->user();
         ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
+
         foreach ($product_data as $key=>$value){
 
-            $precious_record = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
-            if (isset($value['id']) && !empty($value['id'])){
-                $item = ProductVendor::where('id',$value['id'])->first();
-                $item->vh_st_vendor_id = $vendor_id;
-                $item->vh_st_product_id = $value['product']['id'];
-                $item->added_by = $active_user->id;
-                $item->can_update = $value['can_update'];
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
-                $item->is_active = 1;
-                $item->save();
-            }else if($precious_record){
-                $precious_record->added_by = $active_user->id;
-                $precious_record->can_update = $value['can_update'];
-                $precious_record->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $precious_record->status_notes = $value['status_notes'];
-                $precious_record->is_active = 1;
-                $precious_record->save();
-            }else {
-                $item = new ProductVendor();
-                $item->vh_st_vendor_id = $vendor_id;
-                $item->vh_st_product_id = $value['product']['id'];
-                $item->added_by = $active_user->id;
-                $item->can_update = $value['can_update'];
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
-                $item->is_active = 1;
-                $item->save();
+            $vendor_product = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
+           if($vendor_product){
+                $response['errors'][] = "This Product '{$value['product']['name']}'  already exists.";
+                return $response;
             }
+
+           $item = new ProductVendor();
+
+           $item->vh_st_vendor_id = $vendor_id;
+
+           $item->vh_st_product_id = $value['product']['id'];
+
+           $item->added_by = $active_user->id;
+
+           $item->can_update = $value['can_update'];
+
+           $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+            if(isset($value['status_notes']))
+            {
+                $item->status_notes = $value['status_notes'];
+            }
+
+           $item->is_active = 1;
+           $item->save();
         }
 
         $response = self::getItem($vendor_id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = 'Product Added successfully.';
         return $response;
 
     }
@@ -1197,7 +1194,7 @@ class Vendor extends VaahModel
         $inputs['business_document_file'] = null;
 
         // set business type field
-        $taxonomy_business_type = Taxonomy::getTaxonomyByType('business-types');
+        $taxonomy_business_type = Taxonomy::getTaxonomyByType('business-type');
         $count = count($taxonomy_business_type);
         if ($count <= 0) {
             $response['success'] = false;

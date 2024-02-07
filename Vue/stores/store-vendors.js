@@ -194,36 +194,6 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         addProduct(){
-            /*if (this.selected_product != null){
-                let exist = 0;
-                this.item.products.forEach((item)=>{
-                    if (item['product']['id'] == this.selected_product['id']){
-                        exist = 1;
-                    }
-                })
-                if (exist == 0){
-                    let approved_status = this.product_status.find(item => item.id === this.selected_product.taxonomy_id_product_status);
-
-                    if (approved_status) {
-                        this.item.status = approved_status;
-                    } else {
-                        this.item.status = null;
-                    }
-
-                    this.item.taxonomy_id_vendor_status = approved_status.id;
-                    let new_product = {
-                        product: this.selected_product,
-                        is_selected : false,
-                        can_update : false,
-                        status : approved_status,
-                        status_notes : null,
-                    };
-                    this.item.products.push(new_product);
-                }else{
-                    this.showUserErrorMessage(['This product is already present'], 4000);
-                }
-
-            }*/
 
             if (!this.item.products) {
                 this.item.products = [];
@@ -237,7 +207,7 @@ export const useVendorStore = defineStore({
                 });
                 this.selected_product = null;
             } else {
-                this.showUserErrorMessage(['This Customer is already present'], 4000);
+                this.showUserErrorMessage(['This Product is already present'], 4000);
             }
 
         },
@@ -1117,6 +1087,14 @@ export const useVendorStore = defineStore({
                         this.bulkRemoveProduct()
                     }
                 },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllProduct()
+                    }
+                },
+
             ]
 
         },
@@ -1429,6 +1407,34 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //-----------------------------------------------------------------------
+
+        async saveProduct()
+        {
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+                params : this.item,
+            };
+            ajax_url += '/add/product';
+            await vaah().ajax(
+                ajax_url,
+                this.saveProductAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveProductAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.toList();
+
+            }
+        },
 
 
     }
