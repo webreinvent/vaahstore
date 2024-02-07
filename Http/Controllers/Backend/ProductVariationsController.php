@@ -36,8 +36,8 @@ class ProductVariationsController extends Controller
             $data['fillable']['columns'] = ProductVariation::getFillableColumns();
             $data['fillable']['except'] = ProductVariation::getUnFillableColumns();
             $data['empty_item'] = ProductVariation::getEmptyItem();
-
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
+            $data['taxonomy']['product_variation_status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['active_products'] = $this->getActiveProducts();
             $default_product=Product::where(['is_default'=>1,'deleted_at'=>null])->first();
             if($this->getDefaultProduct() !== null)
@@ -328,6 +328,8 @@ class ProductVariationsController extends Controller
             return $response;
         }
     }
+
+    //--------------------------------------------------------------------
 
 
 }

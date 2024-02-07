@@ -61,8 +61,8 @@ onMounted(async () => {
              <Column field="product.name" header="Product"
                      :sortable="true">
 
-                 <template #body="prop">
-                     {{store.shortCharacter(prop.data.product.name)}}
+                 <template #body="prop" >
+                     {{prop.data.product.name}}
                  </template>
 
              </Column>

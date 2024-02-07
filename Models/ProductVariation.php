@@ -418,19 +418,14 @@ class ProductVariation extends VaahModel
     {
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
+        if(!isset($filter['product_variation_status']))
         {
             return $query;
         }
-
-        $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+        $search = $filter['product_variation_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
 
     }
@@ -740,6 +735,7 @@ class ProductVariation extends VaahModel
             case 'trash-all':
                 $user_id = auth()->user()->id;
                 $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
 
@@ -1090,66 +1086,63 @@ class ProductVariation extends VaahModel
 
     public static function sendMailForStock()
     {
-
-
         try {
             $list_data = ProductVariation::with('product')->get();
 
-            /*$is_mail_sent = $list_data->pluck('is_mail_sent')->toArray();*/
-
-
-
             $filtered_data = $list_data->filter(function ($item) {
-                return $item->quantity == 0 || $item->quantity < 10;
+                return $item->quantity > 0 && $item->quantity < 10;
+            });
+
+            $product_variation_count = $filtered_data->groupBy('vh_st_product_id')->map(function ($variations) {
+                return [
+                    'count' => $variations->count(),
+                    'min_quantity' => $variations->min('quantity'),
+                    'max_quantity' => $variations->max('quantity')
+                ];
             });
 
             $subject = 'Low Stock Alert';
             $message = '<html><body>';
             $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
             $message .= '<table border="1">';
-            $message .= '<tr><th>Product Name</th><th>Variation</th><th>Current Quantity</th></tr>';
+            $message .= '<tr><th>Product Name</th><th>Variation Count</th><th>Quantity Range</th><th>Link</th></tr>';
 
-            foreach ($filtered_data as $index => $item) {
+            $processed_products = []; // Track processed products
 
-
+            foreach ($filtered_data as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
                 $product_slug = isset($item->product) ? $item->product->slug : '';
-                $variation_name = $item->name;
-                $current_quantity = $item->quantity;
-                $mail_sent = $item->is_mail_sent;
+                $product_id = $item->vh_st_product_id;
 
+                if (!in_array($product_name, $processed_products)) {
+                    $processed_products[] = $product_name;
 
-                $message .= '<tr>';
-                $message .= '<td>' . $product_name . '</td>';
-                $message .= '<td>' . $variation_name . '</td>';
-                $message .= '<td>' . $current_quantity . '</td>';
-                $message .= '</tr>';
+                    $message .= '<tr>';
+                    $message .= '<td>' . $product_name . '</td>';
+                    $message .= '<td>' . $product_variation_count[$product_id]['count'] . '</td>';
+                    $message .= '<td>' . $product_variation_count[$product_id]['min_quantity'] . ' to ' . $product_variation_count[$product_id]['max_quantity'] . '</td>';
+                    $message .= '<td><a href="http://localhost/Sumit/store-dev/public/backend/store#/productvariations?page=1&rows=20&filter[product]=' . $product_slug . '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
+                    $message .= '</tr>';
+                }
             }
-
 
             $message .= '</table>';
 
             if ($filtered_data->isNotEmpty()) {
+                // Send mail
+                $send_mail = UserBase::notifySuperAdmins($subject, $message);
 
-                /*$filter_param = http_build_query(['filter' => ['product' =>$product_slug]]);*/
-
-                $url = 'http://localhost/Sumit/store-dev/public/backend/store#/productvariations?page=1&rows=20&filter[product]='.$product_slug;
-
-                $message .= '<p>For more products, <a href="' . $url . '">click here</a>.</p>';
-
-                if ($mail_sent === null || $mail_sent === 0) {
-
-                    $send_mail = UserBase::notifySuperAdmins($subject, $message);
-
-
-                    $item->is_mail_sent = 1;
-                    $item->save();
+                // Update is_mail_sent flag
+                foreach ($filtered_data as $item) {
+                    if ($item->is_mail_sent === null || $item->is_mail_sent === 0) {
+                        $item->is_mail_sent = 1;
+                        $item->save();
+                    }
                 }
             }
 
             $response['success'] = true;
         } catch (\Exception $e) {
-            $response = [];
             $response['success'] = false;
 
             if (env('APP_DEBUG')) {
@@ -1162,6 +1155,9 @@ class ProductVariation extends VaahModel
 
         return $response;
     }
+
+
+
 
 
 
