@@ -413,6 +413,7 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
 
                 if (data.product_variations) {
+                    await this.searchVariationOfProduct();
                     this.product_variations = data.product_variations;
                     this.product_variation_list = this.product_variation_list.map(listVariation => {
                         const matchingVariation = this.product_variations.find(
