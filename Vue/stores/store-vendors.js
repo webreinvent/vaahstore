@@ -204,6 +204,7 @@ export const useVendorStore = defineStore({
                 this.item.products.push({
                     product: this.selected_product,
                     is_selected: false,
+                    can_update : false,
                 });
                 this.selected_product = null;
             } else {
