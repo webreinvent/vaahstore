@@ -159,7 +159,7 @@ export const useProductVariationStore = defineStore({
             if (data) {
                 this.filtered_products= data.map(products => ({
                     ...products,
-                    name: this.shortCharacter(products.name),
+                    name: products.name,
                 }));
             }
 
