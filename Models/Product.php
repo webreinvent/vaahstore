@@ -137,8 +137,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status')
-            ->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status');
     }
 
     //-------------------------------------------------

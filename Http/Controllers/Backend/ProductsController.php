@@ -417,7 +417,7 @@ class ProductsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
-        
+
         try{
             return Product::listAction($request, $type);
         }catch (\Exception $e){
