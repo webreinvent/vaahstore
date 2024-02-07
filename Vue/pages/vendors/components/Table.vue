@@ -72,7 +72,8 @@ const permissions=store.assets.permissions;
                         </span>
                         <span class="p-inputgroup-addon"
                               v-else>
-                             <b >{{prop.data.product_vendors.length}}</b>
+                             <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
+
                          </span>
                         <button @click="store.toProduct(prop.data)"
                                 style="border-width : 0; background: #4f46e5;cursor: pointer;"
