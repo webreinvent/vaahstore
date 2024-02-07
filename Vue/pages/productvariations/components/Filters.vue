@@ -43,6 +43,7 @@ const value = ref([20, 80]);
                     @complete="store.searchProduct($event)"
                     placeholder="Select Product"
                     data-testid="productvariations-product"
+                    append-to="self"
                     name="productvariations-product"
                     :dropdown="true" optionLabel="name" forceSelection>
                 </AutoComplete>
