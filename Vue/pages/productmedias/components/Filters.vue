@@ -14,6 +14,86 @@ const store = useProductMediaStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
+                    <b>Product Variations By:</b>
+                </template>
+                <VhField label="Product Variation">
+
+                    <AutoComplete name="productmedias-variations-filter"
+                                  data-testid="productmedias-filters-variations"
+                                  v-model="store.selected_variation"
+                                  @change = "store.setVariationFilter()"
+                                  option-label = "name"
+                                  option-value = "name"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                                  :suggestions="store.variation_suggestion"
+                                  @complete="store.searchVariation($event)"
+                                  placeholder="Select Variations"
+                                  class="w-full " />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+
+
+
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          data-testid="productmedias-filters-created_date"
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose date range"
+
+                />
+
+
+            </VhFieldVertical >
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Media Type:</b>
+                </template>
+                <VhField label="Type">
+                    <AutoComplete name="productmedias-filter"
+                                  data-testid="productmedias-filters-media_type"
+                                  v-model="store.selected_media"
+                                  @change = "store.addMedia()"
+                                  option-label = "type"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.media_suggestion"
+                                  @complete="store.searchMediaType($event)"
+                                  placeholder="Select Media Type"
+                                  class="w-full " />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status By:</b>
                 </template>
                 <VhField label="Status">
@@ -23,46 +103,8 @@ const store = useProductMediaStore();
                         filter
                         optionValue="name"
                         optionLabel="name"
+                        data-testid="productmedias-filters-status"
                         placeholder="Select Status"
-                        display="chip"
-                        class="w-full" />
-                </VhField>
-
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product:</b>
-                </template>
-                <AutoComplete
-                    name="product-medias-product-filter"
-                    data-testid="product-medias-product-filter"
-                    v-model="store.query.filter.product"
-                    @change="store.setProductFilter($event)"
-                    class="w-full"
-                    :suggestions="store.product_suggestion"
-                    @complete="store.searchProduct($event)"
-                    placeholder="Select Product"
-                    :dropdown="true"
-                    optionLabel="name"
-                    forceSelection>
-                </AutoComplete>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product Variation By:</b>
-                </template>
-                <VhField label="Product Variation">
-                    <MultiSelect
-                        v-model="store.query.filter.product_variation"
-                        :options="store.assets.active_product_variations"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Product Variation"
                         display="chip"
                         class="w-full" />
                 </VhField>
