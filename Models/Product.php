@@ -266,8 +266,8 @@ class Product extends VaahModel
             // check if product  variation exist for product
             $item = ProductVariation::where('name', $value['variation_name'])->where('vh_st_product_id',$product_id) ->withTrashed()->first();
             if ($item) {
-                $response['success'] = false;
-                $response['messages'][] = "This Variation name '{$value['variation_name']}' is already exist.";
+
+                $response['errors'][] = "This Variation name '{$value['variation_name']}' is already exist.";
                 return $response;
             }
 

@@ -105,6 +105,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                         <Dropdown v-model="store.variation_item.selected_attribute"
                                   :options="store.variation_item.attribute_options"
                                   optionLabel="name"
+                                  filter
                                   placeholder="Select a Attribute or Attribute group"
                                   class="w-full"
                                     style="height:35px;">

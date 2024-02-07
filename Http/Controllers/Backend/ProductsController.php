@@ -100,7 +100,6 @@ class ProductsController extends Controller
         return $response;
     }
 
-    //----------------------------------------------------------
 
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
