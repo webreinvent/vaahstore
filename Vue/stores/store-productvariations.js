@@ -88,6 +88,7 @@ export const useProductVariationStore = defineStore({
         min_quantity : 0,
         max_quantity : 0,
         product_variation_status:null,
+        first_element: null,
     }),
     getters: {
 
@@ -105,6 +106,7 @@ export const useProductVariationStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            this.first_element = ((this.query.page - 1) * this.query.rows);
 
             /**
              * Update query state with the query parameters of url
@@ -316,6 +318,7 @@ export const useProductVariationStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.first_element = this.query.rows * (this.query.page - 1);
                 this.query.rows=data.per_page;
             }
         },
@@ -589,6 +592,8 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },
