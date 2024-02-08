@@ -14,6 +14,7 @@ use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use VaahCms\Modules\Store\Models\Product;
+
 class Wishlist extends VaahModel
 {
 
@@ -171,11 +172,10 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+        $permission_slug = 'can-update-module';
 
-            return $response;
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -189,7 +189,8 @@ class Wishlist extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['errors'][] = "This Name already exists.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -197,7 +198,8 @@ class Wishlist extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['errors'][] = "This Slug already exists.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -214,7 +216,7 @@ class Wishlist extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -395,21 +397,21 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function updateList($request)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
 
         $rules = array(
             'type' => 'required',
+            'items' => 'required',
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -459,7 +461,7 @@ class Wishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -467,11 +469,9 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -482,8 +482,8 @@ class Wishlist extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -500,18 +500,16 @@ class Wishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -627,7 +625,7 @@ class Wishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -643,7 +641,7 @@ class Wishlist extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
 
@@ -668,13 +666,10 @@ class Wishlist extends VaahModel
     public static function updateItem($request, $id)
     {
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
-
 
         $inputs = $request->all();
 
@@ -689,7 +684,8 @@ class Wishlist extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['errors'][] = "This Name already exists.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -699,7 +695,8 @@ class Wishlist extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['errors'][] = "This Slug already exists.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -722,43 +719,40 @@ class Wishlist extends VaahModel
            });
         }
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
 
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
         $item->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+        $permission_slug = 'can-update-module';
 
-            return $response;
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         switch($type)

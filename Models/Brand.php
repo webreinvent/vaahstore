@@ -285,15 +285,11 @@ class Brand extends VaahModel
             return vh_get_permission_denied_response($permission_slug);
         }
 
-
         $inputs = $request->all();
-
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
-
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
@@ -447,7 +443,6 @@ class Brand extends VaahModel
             'approvedByUser','products.store'])
             ->paginate($rows);
 
-//
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -868,7 +863,6 @@ class Brand extends VaahModel
         return $item;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
     public static function seedSampleItems($records=100)
     {
