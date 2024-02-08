@@ -86,7 +86,8 @@ export const useVendorStore = defineStore({
         form_menu_list: [],
         selected_dates : null,
         business_types_list : null,
-        search_products: null
+        search_products: null,
+        first_element:null
     }),
     getters: {
 
@@ -104,6 +105,7 @@ export const useVendorStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            this.first_element = ((this.query.page - 1) * this.query.rows);
 
             /**
              * Update query state with the query parameters of url
@@ -502,6 +504,7 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.first_element = this.query.rows * (this.query.page - 1);
             }
         },
         //---------------------------------------------------------------------
@@ -783,6 +786,8 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },
