@@ -744,9 +744,9 @@ export const useProductVariationStore = defineStore({
 
             this.quantity =[];
 
-            this.min_quantity = 0;
+            this.min_quantity = this.assets.min_max_quantity.min_quantity;
 
-            this.max_quantity = this.assets.max_quantity;
+            this.max_quantity = this.assets.min_max_quantity.max_quantity;
 
 
             vaah().toastSuccess(['Action was successful']);
@@ -1239,8 +1239,8 @@ export const useProductVariationStore = defineStore({
 
             if(!this.route.query.filter)
             {
-                this.max_quantity = this.assets.max_quantity;
-                this.min_quantity = this.assets.min_quantity;
+                this.max_quantity = this.assets.min_max_quantity.max_quantity;
+                this.min_quantity = this.assets.min_max_quantity.min_quantity;
             }
         },
 

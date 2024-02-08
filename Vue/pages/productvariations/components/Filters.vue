@@ -267,8 +267,8 @@ const value = ref([20, 80]);
 
                         <Slider v-model="store.quantity"
                                 range
-                                :min="store.assets.min_quantity"
-                                :max="store.assets.max_quantity"
+                                :min="store.assets.min_max_quantity.min_quantity"
+                                :max="store.assets.min_max_quantity.max_quantity"
                                 @change="store.quantityFilter()"
                                 class="w-14rem mt-2"
                         />

@@ -42,23 +42,10 @@ class ProductVariationsController extends Controller
             $default_product=Product::where(['is_default'=>1,'deleted_at'=>null])->first();
             if($this->getDefaultProduct() !== null)
             {
-                $data['empty_item']['product'] = $default_product;
-                $data['empty_item']['vh_st_product_id'] = $default_product->id;
+                $data['empty_item']['product'] = $default_product ?? null;
+                $data['empty_item']['vh_st_product_id'] = $default_product->id ?? null;
             }
-
-
-            $list_data = ProductVariation::all();
-            $quantities = $list_data->pluck('quantity')->toArray();
-            $min_quantity = min($quantities);
-            $max_quantity = max($quantities);
-
-            $data['max_quantity'] = $max_quantity;
-            $data['min_quantity'] = $min_quantity;
-
-
-
-
-
+            $data['min_max_quantity'] = ProductVariation::getMinMaxQuantity();
             $data['actions'] = [];
             $response['success'] = true;
             $response['data'] = $data;
