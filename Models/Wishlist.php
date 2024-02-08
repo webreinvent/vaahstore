@@ -68,8 +68,7 @@ class Wishlist extends VaahModel
     public function products()
     {
         return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','vh_st_wishlist_id','vh_st_product_id')
-            ->select('vh_st_products.id', 'vh_st_products.name')
-            ->withPivot([]);
+            ->select('vh_st_products.id', 'vh_st_products.name');
     }
 
     //-------------------------------------------------
@@ -496,6 +495,11 @@ class Wishlist extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach($items_id as $item_id)
+        {
+            $item = self::where('id', $item_id)->withTrashed()->first();
+            $item->products()->detach();
+        }
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -563,6 +567,11 @@ class Wishlist extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach($items_id as $item_id)
+                    {
+                        $item = self::where('id', $item_id)->withTrashed()->first();
+                        $item->products()->detach();
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -599,6 +608,12 @@ class Wishlist extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
+                $item_ids=$list->pluck('id')->toArray();
+                foreach($item_ids as $item_id)
+                {
+                    $item = self::where('id', $item_id)->withTrashed()->first();
+                    $item->products()->detach();
+                }
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -731,13 +746,13 @@ class Wishlist extends VaahModel
             return vh_get_permission_denied_response($permission_slug);
         }
 
-
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        $item->products()->detach();
         $item->forceDelete();
 
         $response['success'] = true;

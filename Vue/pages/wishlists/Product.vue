@@ -85,7 +85,7 @@ const toggleSelectedMenuState = (event) => {
                     <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
-                <!--                dropdown to select vendor -->
+                <!--                dropdown to select product -->
                 <div class="flex flex-wrap gap-4 pb-2 p-1">
                     <div class="col-10">
                         <AutoComplete
