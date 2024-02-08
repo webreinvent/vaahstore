@@ -68,7 +68,7 @@ class VendorsController extends Controller
             $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
             $data['taxonomy']['business_type'] = Taxonomy::getTaxonomyByType('business-type');
-            $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('store-status');
             $data['urls']['upload'] = route('vh.backend.media.upload');
             $response['success'] = true;
             $response['data'] = $data;
