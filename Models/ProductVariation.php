@@ -1080,7 +1080,7 @@ class ProductVariation extends VaahModel
         return $response;
     }
 
-    //-------------------------------------------------
+
 
     //-------------------------------------------------
 
@@ -1093,11 +1093,26 @@ class ProductVariation extends VaahModel
                 return $item->quantity > 0 && $item->quantity < 10;
             });
 
+
+            foreach ($list_data as $item) {
+                if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
+                    $item->is_mail_sent = 0;
+                    $item->save();
+                }
+            }
+
             $product_variation_count = $filtered_data->groupBy('vh_st_product_id')->map(function ($variations) {
+                $min_quantity = $variations->min('quantity');
+                $max_quantity = $variations->max('quantity');
+
+                if ($min_quantity === $max_quantity) {
+                    $min_quantity = 0;
+                }
+
                 return [
                     'count' => $variations->count(),
-                    'min_quantity' => $variations->min('quantity'),
-                    'max_quantity' => $variations->max('quantity')
+                    'min_quantity' => $min_quantity,
+                    'max_quantity' => $max_quantity
                 ];
             });
 
@@ -1107,7 +1122,7 @@ class ProductVariation extends VaahModel
             $message .= '<table border="1">';
             $message .= '<tr><th>Product Name</th><th>Variation Count</th><th>Quantity Range</th><th>Link</th></tr>';
 
-            $processed_products = []; // Track processed products
+            $processed_products = [];
 
             foreach ($filtered_data as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
@@ -1155,6 +1170,7 @@ class ProductVariation extends VaahModel
 
         return $response;
     }
+
 
     //--------------------------------------------------------------
 
