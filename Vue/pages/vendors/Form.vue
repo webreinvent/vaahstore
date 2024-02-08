@@ -26,12 +26,9 @@ const toggleFormMenu = (event) => {
 
 const handleFileUploaded = (responseData) => {
 
-    console.log(responseData.data.name);
-
     const file_name =responseData.data.name;
 
     const path = responseData.data.path;
-    console.log(path);
 
     if (responseData.data && responseData.data.url) {
 
@@ -42,8 +39,6 @@ const handleFileUploaded = (responseData) => {
 
         console.error('image not found');
     }
-
-   /* response.value = JSON.stringify(responseData, null, 2);*/
 
 };
 

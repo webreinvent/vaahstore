@@ -15,8 +15,6 @@ onMounted(async () => {
         await store.getItem(route.params.id);
 
     }
-
-    /*await store.watchItem();*/
 });
 
 //--------selected_menu_state

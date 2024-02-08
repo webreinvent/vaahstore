@@ -115,7 +115,6 @@ async function uploadFile(e) {
 function selectFile (data){
 
     let temp_file = upload_refs.value.files[upload_refs.value.files.length-1];
-    // store.item[props.store_label] = null;
     upload_refs.value.files = [];
     upload_refs.value.uploadedFiles = [];
     upload_refs.value.files[0] = temp_file;
