@@ -2,12 +2,12 @@
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
-import { useWhishlistStore } from '../../stores/store-whishlists'
-
+import { useWishlistStore } from '../../stores/store-wishlists'
+import {vaah} from '../../vaahvue/pinia/vaah.js'
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const route = useRoute();
-
+const vaahStore = vaah();
 onMounted(async () => {
 
     /**
@@ -32,17 +32,7 @@ onMounted(async () => {
      * Watch if url record id is changed, if changed
      * then fetch the new records from database
      */
-    /*watch(route, async (newVal,oldVal) =>
-        {
-            if(newVal.params && !newVal.params.id
-                && newVal.name === 'articles.view')
-            {
-                store.toList();
 
-            }
-            await store.getItem(route.params.id);
-        }, { deep: true }
-    )*/
 
 });
 
@@ -59,7 +49,9 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
+                </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -76,18 +68,19 @@ const toggleItemMenu = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Edit"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
-                            data-testid="whishlists-item-to-edit"
+                            data-testid="wishlists-item-to-edit"
                             icon="pi pi-save"/>
 
                     <!--item_menu-->
-                    <Button
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
-                        data-testid="whishlists-item-menu"
+                        data-testid="wishlists-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -98,7 +91,7 @@ const toggleItemMenu = (event) => {
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
-                            data-testid="whishlists-item-to-list"
+                            data-testid="wishlists-item-to-list"
                             @click="store.toList()"/>
 
                 </div>
@@ -125,7 +118,7 @@ const toggleItemMenu = (event) => {
                         <div class="ml-3">
                             <Button label="Restore"
                                     class="p-button-sm"
-                                    data-testid="whishlists-item-restore"
+                                    data-testid="wishlists-item-restore"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -140,7 +133,9 @@ const toggleItemMenu = (event) => {
                     <template v-for="(value, column) in store.item ">
 
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
-                                column === 'status'|| column === 'whishlist_type' || column ==='deleted_by'">
+                                column === 'status'|| column === 'whishlist_type' || column ==='deleted_by' ||
+                                column === 'meta' || column === 'taxonomy_id_whishlists_types' || column === 'products'
+                                || column === 'status_notes' || column === 'slug' || column === 'vh_user_id'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -149,16 +144,43 @@ const toggleItemMenu = (event) => {
                                        :can_copy="true"
                             />
                         </template>
-                        <template v-else-if="column === 'status_notes'">
+                        <template v-else-if="column === 'name'">
                             <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Status Notes</b>
+                                <td>
+                                    <b>Name</b>
                                 </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.status_notes}}</div>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.name}}</div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    <b>Slug</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        {{store.item.slug}}</div>
+                                </td>
+                            </tr>
+                            <tr v-if="store.item.user && store.item.user.name">
+                                <td>
+                                    <b>User</b>
+                                </td>
+                                <td  colspan="2" >
+                                    <Button  @click="vaahStore.copy(store.item.user.name)"  class="p-button-outlined p-button-secondary p-button-sm">
+                                        {{store.item.user.name}}
+                                    </Button>
+                                </td>
+                            </tr>
+
+                        </template>
+
+                        <template v-else-if="column === 'type'">
+                            <VhViewRow label="Is Shareable"
+                                       :value="value"
+                                       type="yes-no"
+                            />
                         </template>
 
                         <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  ||
@@ -173,20 +195,6 @@ const toggleItemMenu = (event) => {
                             <VhViewRow :label="column"
                                        :value="value"
                                        type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'vh_user_id'">
-                            <VhViewRow label="User"
-                                       :value="store.item.user"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'taxonomy_id_whishlists_types'">
-                            <VhViewRow label="Whishlists"
-                                       :value="store.item.whishlist_type"
-                                       type="user"
                             />
                         </template>
 

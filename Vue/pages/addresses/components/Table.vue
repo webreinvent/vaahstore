@@ -153,7 +153,6 @@ const useVaah = vaah();
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
-
                    @page="store.paginate($event)"
                    :rowsPerPageOptions="store.rows_per_page"
                    class="bg-white-alpha-0 pt-2">

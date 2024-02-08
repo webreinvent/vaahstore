@@ -1,10 +1,10 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
-import { useWhishlistStore } from '../../../stores/store-whishlists'
+import { useWishlistStore} from '../../../stores/store-wishlists'
 
 import Filters from './Filters.vue'
 
-const store = useWhishlistStore();
+const store = useWishlistStore();
 
 onMounted(async () => {
     store.getListSelectedMenu();
@@ -39,9 +39,9 @@ const toggleBulkMenuState = (event) => {
                 <Button class="p-button-sm"
                     type="button"
                     @click="toggleSelectedMenuState"
-                    data-testid="whishlists-actions-menu"
+                    data-testid="wishlists-actions-menu"
                     aria-haspopup="true"
-                    aria-controls="overlay_menu">
+                    aria-controls="overlay_menu" :disabled="!store.assets.permissions.includes('can-update-module')">
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"
                            :value="store.action.items.length" />
@@ -55,10 +55,12 @@ const toggleBulkMenuState = (event) => {
                 <Button
                     type="button"
                     @click="toggleBulkMenuState"
-                    data-testid="whishlists-actions-bulk-menu"
+                    data-testid="wishlists-actions-bulk-menu"
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
-                    class="ml-1 p-button-sm">
+                    class="ml-1 p-button-sm"
+                    :disabled="!store.assets.permissions.includes('can-update-module')"
+                    >
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>
                 <Menu ref="bulk_menu_state"
@@ -84,17 +86,17 @@ const toggleBulkMenuState = (event) => {
                                        class="p-inputtext-sm"
                                        @keyup.enter.native="store.delayedSearch()"
                                        @keyup.13="store.delayedSearch()"
-                                       data-testid="whishlists-actions-search"
+                                       data-testid="wishlists-actions-search"
                                        placeholder="Search"/>
                             <Button @click="store.delayedSearch()"
                                     class="p-button-sm"
-                                    data-testid="whishlists-actions-search-button"
+                                    data-testid="wishlists-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
                                 type="button"
                                 class="p-button-sm"
-                                data-testid="whishlists-actions-show-filters"
-                                @click="store.show_filters = true">
+                                data-testid="wishlists-actions-show-filters"
+                                @click="store.show_filters = true;">
                                 Filters
                                 <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>
                             </Button>
@@ -102,7 +104,7 @@ const toggleBulkMenuState = (event) => {
                             <Button
                                 type="button"
                                 icon="pi pi-filter-slash"
-                                data-testid="whishlists-actions-reset-filters"
+                                data-testid="wishlists-actions-reset-filters"
                                 class="p-button-sm"
                                 label="Reset"
                                 @click="store.resetQuery()" />

@@ -44,6 +44,6 @@ include_once __DIR__."/backend/routes-paymentmethods.php";
 include_once __DIR__."/backend/routes-storepaymentmethods.php";
 include_once __DIR__."/backend/routes-addresses.php";
 include_once __DIR__."/backend/routes-customergroups.php";
-include_once __DIR__."/backend/routes-whishlists.php";
+include_once __DIR__."/backend/routes-wishlists.php";
 include_once __DIR__."/backend/routes-productattributes.php";
 include_once __DIR__."/backend/routes-attributegroups.php";

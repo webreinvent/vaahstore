@@ -28,7 +28,7 @@ const useVaah = vaah();
             </Column>
 
             <Column field="product.name" header="Product"
-                    :sortable="true">
+                    :sortable="true" >
 
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
@@ -44,63 +44,38 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="product_variation.name" header="Product Variation"
-                     :sortable="true">
-
+             <Column field="product_variation.name" header="Product Variations" >
                  <template #body="prop">
-                     <Badge v-if="prop.data.product_variation == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.product_variation.name}}
-                         </span>
-                     <span v-if="prop.data.product_variation.is_default == 1">
-                         <badge>&nbsp;(Default)</badge>
-                     </span>
+                     <div class="flex flex-wrap gap-2 " v-if="prop.data.product_variation_media && prop.data.product_variation_media.length > 0">
+                         <template v-for="(variation, index) in prop.data.product_variation_media" :key="index">
+                             <Badge class=" h-max max-w-full" v-if="variation.name">{{ variation.name }}</Badge>
+                             <Badge  v-else value="Trashed" severity="danger"></Badge>
+                         </template>
+                     </div>
                  </template>
-
              </Column>
 
-<!--             <Column field="image_path" header="Image"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                     <Image v-if="prop.data.url"-->
-<!--                            :src="store.item.base_path+'/'+prop.data.url"-->
-<!--                            preview-->
-<!--                            alt="Image"-->
-<!--                            width="100" />-->
-<!--                     <Badge v-else-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                 </template>-->
 
-<!--             </Column>-->
 
-             <Column field="status.name" header="Status"
-                     :sortable="true">
 
+
+
+
+
+             <Column field="status" header="Status">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge v-else-if="!prop.data.status"
+                            severity="primary"> null </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
-
              </Column>
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
 
-                    <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"
@@ -109,6 +84,7 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="productmedias-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -132,7 +108,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="productmedias-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
@@ -141,7 +118,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productmedias-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -149,7 +126,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productmedias-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -161,8 +138,10 @@ const useVaah = vaah();
 
 
             </Column>
-
-
+<!--For empty table-->
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+             </template>
         </DataTable>
         <!--/table-->
 
