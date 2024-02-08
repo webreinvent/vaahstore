@@ -228,7 +228,8 @@ export const useVendorStore = defineStore({
         async removeProduct(product) {
             this.item.products = this.item.products.filter(function (item) {
                 return item['product']['id'] !== product['product']['id']
-            })
+            });
+            this.select_all_product = false;
 
         },
 
