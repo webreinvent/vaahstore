@@ -1156,6 +1156,36 @@ class ProductVariation extends VaahModel
         return $response;
     }
 
+    //--------------------------------------------------------------
+
+    public static function getMinMaxQuantity()
+    {
+        try {
+            $list_data = self::all();
+            if ($list_data->isEmpty()) {
+                $min_quantity = 0;
+                $max_quantity = 0;
+            } else {
+                $quantities = $list_data->pluck('quantity')->toArray();
+                $min_quantity = min($quantities);
+                $max_quantity = max($quantities);
+            }
+            return [
+                'min_quantity' => $min_quantity,
+                'max_quantity' => $max_quantity,
+            ];
+        } catch (\Exception $e) {
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+    }
+
 
 
 
