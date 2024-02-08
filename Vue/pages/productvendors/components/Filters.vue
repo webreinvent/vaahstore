@@ -58,6 +58,7 @@ const store = useProductVendorStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          data-testid="productvendors-filters-create_date_range"
                           placeholder="Select Data Range"
                 />
 

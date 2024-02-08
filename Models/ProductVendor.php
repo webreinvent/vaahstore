@@ -234,7 +234,7 @@ class ProductVendor extends VaahModel
             }
         }
         if ($saved_variations > 0) {
-            $response['messages'][] = 'Saved successfully.';
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
         }
         return $response;
     }
@@ -280,7 +280,7 @@ class ProductVendor extends VaahModel
 
 
             $response = self::getItem($item->id);
-            $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
             return $response;
     }
 
@@ -454,7 +454,7 @@ class ProductVendor extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -497,7 +497,7 @@ class ProductVendor extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -513,8 +513,8 @@ class ProductVendor extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -538,8 +538,7 @@ class ProductVendor extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
-
+        $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }
     //-------------------------------------------------
@@ -642,8 +641,7 @@ class ProductVendor extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
-
+        $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }
     //-------------------------------------------------
@@ -667,24 +665,25 @@ class ProductVendor extends VaahModel
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
-        $check = ProductPrice::where('vh_st_vendor_id', $array_item['vh_st_vendor_id'])
-            ->where('vh_st_product_id', $array_item['vh_st_product_id'])
-            ->get(['vh_st_product_variation_id', 'is_active', 'amount']);
-
         $variations = [];
-        foreach ($check as $variation) {
-            $variationData = ProductVariation::where('id', $variation['vh_st_product_variation_id'])
-                ->select('id', 'name', 'slug', 'is_default')
+        $variations_data = ProductVariation::where('vh_st_product_id',$array_item['vh_st_product_id'])->
+        select('id', 'name', 'slug', 'is_default','price')->get();
+        foreach($variations_data as $variation_data)
+        {
+            $price = ProductPrice::where('vh_st_vendor_id', $array_item['vh_st_vendor_id'])
+                ->where('vh_st_product_variation_id', $variation_data['id'])
+                ->pluck('amount')
                 ->first();
             $variations[] = [
-                'name' => $variationData['name'],
-                'id' => $variationData['id'],
-                'amount' => $variation['amount'],
+                'name' => $variation_data['name'],
+                'id' => $variation_data['id'],
+                'amount' => $price === null ? $variation_data['price']:$price,
             ];
+
+
         }
 
         $item['product_variations'] = $variations;
-
 
         $item->storeVendorProduct->each(function ($store_vendor) {
             unset($store_vendor->pivot);
@@ -741,7 +740,7 @@ class ProductVendor extends VaahModel
             $item->storeVendorProduct()->sync($storeIds);
 
             $response = self::getItem($item->id);
-            $response['messages'][] = 'Saved successfully.';
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
             return $response;
     }
     //-------------------------------------------------
@@ -751,7 +750,7 @@ class ProductVendor extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
 
@@ -762,7 +761,7 @@ class ProductVendor extends VaahModel
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['errors'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }

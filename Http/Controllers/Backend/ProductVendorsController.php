@@ -26,12 +26,6 @@ class ProductVendorsController extends Controller
 
     public function getAssets(Request $request)
     {
-        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
-        }
 
         try{
 
@@ -78,7 +72,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -116,7 +110,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -132,7 +126,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -148,7 +142,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -164,7 +158,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -180,7 +174,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -197,7 +191,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -205,11 +199,9 @@ class ProductVendorsController extends Controller
     //---------------------To save and update product price-------------------------------------
     public function createProductPrice(Request $request)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::createProductPrice($request);
@@ -220,7 +212,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -237,7 +229,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -253,7 +245,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -264,11 +256,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::updateList($request);
@@ -279,7 +269,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -288,11 +278,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
 
@@ -305,7 +293,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
@@ -314,11 +302,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::deleteList($request);
@@ -329,7 +315,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -337,11 +323,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::fillItem($request);
@@ -352,7 +336,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -360,11 +344,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::createItem($request);
@@ -375,7 +357,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -392,7 +374,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -400,11 +382,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::updateItem($request,$id);
@@ -415,7 +395,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -423,11 +403,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::deleteItem($request,$id);
@@ -438,7 +416,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -446,11 +424,9 @@ class ProductVendorsController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
-        if (!Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         try{
             return ProductVendor::itemAction($request,$id,$action);
@@ -461,7 +437,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -478,7 +454,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -495,7 +471,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -514,7 +490,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -531,7 +507,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -549,7 +525,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -568,7 +544,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -586,7 +562,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -605,7 +581,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -624,7 +600,7 @@ class ProductVendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
