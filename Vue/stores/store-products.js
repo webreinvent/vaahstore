@@ -750,6 +750,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async getItemAfter(data, res)
         {
+
             if(data)
             {
                 this.item = data;
