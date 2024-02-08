@@ -94,6 +94,18 @@ const toggleSelectedMenuState = (event) => {
                                           @complete="store.searchProduct($event)"
                                           :dropdown="true"
                                           optionLabel="name"
+                                          :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
                                           forceSelection
                                             style="height:35px;">
 
