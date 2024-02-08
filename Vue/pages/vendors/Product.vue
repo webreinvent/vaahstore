@@ -165,7 +165,7 @@ const toggleSelectedMenuState = (event) => {
                                 <InputText v-model="item['product']['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-                                <InputSwitch v-model="item['can_update']" style="margin-left:5px;" />
+                                <InputSwitch v-model="item['can_update']" style="margin-left:5px; margin-top:0.5rem" />
                             </td>
                             <td>
                                 <Dropdown v-model="item['status']"
