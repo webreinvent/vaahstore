@@ -184,7 +184,7 @@ const permissions=store.assets.permissions;
                                         <b>Name</b>
                                     </td>
                                     <td colspan="2" >
-                                        <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        <div style=" overflow-wrap: break-word; word-wrap:break-word;">
                                             {{store.item.name}}</div>
                                     </td>
                                 </tr>
@@ -195,7 +195,7 @@ const permissions=store.assets.permissions;
                                         <b>Slug</b>
                                     </td>
                                     <td colspan="2" >
-                                        <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
+                                        <div style="  overflow-wrap: break-word; word-wrap:break-word;">
                                             {{store.item.slug}}</div>
                                     </td>
                                 </tr>
@@ -267,7 +267,7 @@ const permissions=store.assets.permissions;
                                     <td colspan="3">
                                         <Accordion class="mt-3 mb-3">
 
-                                            <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
+                                            <AccordionTab header="Contact Info">
 
                                                 <VhField label="Country Code">
                                                     <InputText class="w-full"
@@ -324,7 +324,7 @@ const permissions=store.assets.permissions;
                                     <td colspan="3">
                                         <Accordion class="mt-3 mb-3">
 
-                                            <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
+                                            <AccordionTab header="Business Details">
                                                 <VhField label="Document Type">
                                                     <InputText class="w-full"
                                                                name="vendors-document-type"
