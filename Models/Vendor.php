@@ -239,11 +239,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function createProduct($request){
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $input = $request->all();
@@ -295,11 +293,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function bulkProductRemove($request ,$id){
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
             ProductVendor::where('vh_st_vendor_id', $id)->update(['is_active'=>0]);
@@ -312,11 +308,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function singleProductRemove($request ,$id){
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         ProductVendor::where('id', $id)->update(['is_active'=>0]);
@@ -330,11 +324,9 @@ class Vendor extends VaahModel
     public static function createItem($request)
     {
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -679,11 +671,9 @@ class Vendor extends VaahModel
     public static function updateList($request)
     {
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
 
@@ -750,11 +740,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
 
@@ -793,11 +781,9 @@ class Vendor extends VaahModel
     public static function listAction($request, $type): array
     {
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -945,11 +931,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
         $inputs = $request->all();
 //        dd($inputs['products']);
@@ -1020,11 +1004,9 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
@@ -1047,11 +1029,9 @@ class Vendor extends VaahModel
     public static function itemAction($request, $id, $type): array
     {
 
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         switch($type)
