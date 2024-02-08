@@ -350,26 +350,21 @@ class Vendor extends VaahModel
 
 
 
-        if($inputs['store']['is_default'] === 0)
-        {
+        if(isset($inputs['store']['is_multi_vendor'])) {
 
-            if($inputs['store']['is_multi_vendor'] === 0)
-            {
+            if($inputs['store']['is_multi_vendor'] === 0) {
 
-                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
-                    ->withTrashed()
-                    ->firstOrFail()
-                    ->vendors()
-                    ->count();
-
-
-
-                if ($vendor_count > 0) {
+                $store = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
+                $is_store_exist=$store->vendors()->get();
+                if($is_store_exist)
+                {
                     $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
+
             }
         }
+
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
@@ -440,7 +435,6 @@ class Vendor extends VaahModel
             'business_document_file' => '',
             'is_default' => '',
             'auto_approve_products' => '',
-            'is_active' => 'required',
             'vendor_products' =>''
         ];
 
@@ -975,22 +969,19 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)->withTrashed()->first();
 
-        if(isset($inputs['store']['is_multi_vendor']) &&
-            $inputs['store']['is_multi_vendor'] !== $item->store->is_multi_vendor) {
+        if(isset($inputs['store']['is_multi_vendor'])) {
 
             if($inputs['store']['is_multi_vendor'] === 0) {
 
 
-                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
-                    ->withTrashed()
-                    ->firstOrFail()
-                    ->vendors()
-                    ->count();
-
-                if ($vendor_count >= 1) {
+                $store = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
+                $is_store_exist=$store->vendors()->get();
+                if($is_store_exist)
+                {
                     $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
+
             }
         }
 
