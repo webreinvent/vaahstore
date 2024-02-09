@@ -85,7 +85,6 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-<!--            <div v-if="store.item">-->
                 <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
@@ -119,7 +118,6 @@ const toggleFormMenu = (event) => {
                 </div>
 
 
-<!--            </div>-->
         </Panel>
 
     </div>

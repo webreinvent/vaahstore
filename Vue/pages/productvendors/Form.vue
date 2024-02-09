@@ -16,7 +16,6 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
-    // await store.getProductsListForStore();
 });
 
 //--------form_menu

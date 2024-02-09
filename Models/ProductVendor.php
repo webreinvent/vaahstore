@@ -197,38 +197,37 @@ class ProductVendor extends VaahModel
         $saved_variations = 0;
 
         foreach ($inputs['product_variation'] as $key => $variation) {
-            $check = ProductPrice::where([
+            $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
                 'vh_st_product_variation_id' => $variation['id']
             ])->first();
 
-            if ($check) {
+            if ($variation_price) {
                 if ($variation['amount'] === null) {
-                    $check->forceDelete();
-                    $saved_variations++;
+                    $variation_price->forceDelete();
                 } else {
                     // 'amount' is provided, update the record
-                    $check->fill([
+                    $variation_price->fill([
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
                         'amount' => $variation['amount'],
                     ]);
-                    $check->save();
-                    $saved_variations++;
+                    $variation_price->save();
                 }
+                $saved_variations++;
             }
 
-            if (!$check && isset($variation['amount'])) {
-                $newVariation = new ProductPrice;
-                $newVariation->fill([
+            if (!$variation_price && isset($variation['amount'])) {
+                $new_variation_price = new ProductPrice;
+                $new_variation_price->fill([
                     'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                     'vh_st_product_id' => $inputs['vh_st_product_id'],
                     'vh_st_product_variation_id' => $variation['id'],
                     'amount' => $variation['amount'],
                 ]);
-                $newVariation->save();
+                $new_variation_price->save();
                 $saved_variations++;
 
             }
@@ -257,8 +256,8 @@ class ProductVendor extends VaahModel
             ->first();
 
             if ($item) {
-                $response['success'] = false;
-                $response['messages'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist.";
+                $error_message = "This vendor and product (" . $inputs['product']['name'] . ") is already exists".($item->deleted_at?' in trash.':'.');
+                $response['errors'][] = $error_message;
                 return $response;
             }
 
@@ -376,9 +375,9 @@ class ProductVendor extends VaahModel
         if (!isset($filter['status'])) {
             return $query;
         }
-        $search = $filter['status'];
-        $query->whereHas('status', function ($q) use ($search) {
-            $q->whereIn('name', $search);
+        $status = $filter['status'];
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('name', $status);
         });
     }
     //-------------------------------------------------
@@ -409,9 +408,9 @@ class ProductVendor extends VaahModel
         {
             return $query;
         }
-        $search = $filter['product'];
-        $query->whereHas('product',function ($q) use ($search) {
-            $q->whereIn('slug',$search);
+        $product = $filter['product'];
+        $query->whereHas('product',function ($q) use ($product) {
+            $q->whereIn('slug',$product);
         });
 
     }

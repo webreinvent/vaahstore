@@ -629,7 +629,6 @@ export const useProductVendorStore = defineStore({
                 if (data.store_vendor_product) {
                     this.store_name = data.store_vendor_product;
                     this.item.store_ids = this.store_name.map(store => store.id);
-                    console.log(this.item.store_ids);
                 }
                 await this.getList();
                 await this.formActionAfter(data);
