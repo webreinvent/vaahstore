@@ -650,7 +650,7 @@ class ProductVariation extends VaahModel
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
         ProductStock::deleteProductVariations($items_id);
-        self::updateQuantity($items_id->pluck('id')->toArray());
+        self::updateQuantity($items_id);
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -675,7 +675,6 @@ class ProductVariation extends VaahModel
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
-
             $items = self::whereIn('id', $items_id)
                 ->withTrashed();
         }
@@ -715,6 +714,7 @@ class ProductVariation extends VaahModel
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
 
+
                     ProductMedia::deleteProductVariations($items_id);
                     ProductPrice::deleteProductVariations($items_id);
                     ProductAttribute::deleteProductVariations($items_id);
@@ -741,13 +741,13 @@ class ProductVariation extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
+
                 $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
                 ProductMedia::deleteProductVariations($items_id);
                 ProductPrice::deleteProductVariations($items_id);
                 ProductAttribute::deleteProductVariations($items_id);
                 ProductStock::deleteProductVariations($items_id);
-                self::updateQuantity($items_id->pluck('id')->toArray());
+                self::updateQuantity($items_id);
                 self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
@@ -1208,7 +1208,6 @@ class ProductVariation extends VaahModel
 
     public static function updateQuantity($ids)
     {
-        dd($ids);
         if (!is_array($ids)) {
             $ids = [$ids];
         }
