@@ -1215,10 +1215,7 @@ class Vendor extends VaahModel
         $inputs['country_code'] = rand(1, 999);
 
 
-        /*
-         * You can override the filled variables below this line.
-         * You should also return relationship from here
-         */
+        
 
         if(!$is_response_return){
             return $inputs;
