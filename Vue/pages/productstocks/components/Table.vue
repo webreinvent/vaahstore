@@ -47,7 +47,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="product.product_variation" header="Product Variation"
+             <Column field="product_variation.name" header="Product Variation"
                      :sortable="true">
 
                  <template #body="prop" >

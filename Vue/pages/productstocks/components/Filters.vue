@@ -51,7 +51,20 @@ const store = useProductStockStore();
                               :suggestions="store.vendors_suggestion"
                               @complete="store.searchFilterSelectedVendor($event)"
                               placeholder = "select vendor"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
 
             </VhFieldVertical>
 
@@ -70,7 +83,20 @@ const store = useProductStockStore();
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
                               placeholder = "select product"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
 
             </VhFieldVertical>
 
@@ -89,7 +115,21 @@ const store = useProductStockStore();
                               :suggestions="store.product_variations_suggestion"
                               @complete="store.searchFilterSelectedProductVariation($event)"
                               placeholder = "select product variation"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"
+                />
 
             </VhFieldVertical>
 
@@ -108,7 +148,20 @@ const store = useProductStockStore();
                               :suggestions="store.warehouses_suggestion"
                               @complete="store.searchFilterSelectedWarehouse($event)"
                               placeholder="select warehouse"
-                              class="w-full " />
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
 
             </VhFieldVertical>
 

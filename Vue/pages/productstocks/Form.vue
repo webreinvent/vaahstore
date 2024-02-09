@@ -115,7 +115,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Vendor"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -135,7 +148,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Product"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -155,7 +181,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Product Variation"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -175,7 +214,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Warehouse"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>

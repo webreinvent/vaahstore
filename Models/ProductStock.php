@@ -482,7 +482,6 @@ class ProductStock extends VaahModel
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
-
         if(isset($inputs['items']))
         {
             $items_id = collect($inputs['items'])

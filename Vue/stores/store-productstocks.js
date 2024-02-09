@@ -1252,8 +1252,8 @@ export const useProductStockStore = defineStore({
 
         confirmDeactivateAll()
         {
-            this.action.type='deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
