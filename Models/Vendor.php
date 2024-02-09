@@ -199,40 +199,40 @@ class Vendor extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function validatedProduct($data){
-        if (isset($data) && !empty($data)){
-            $error_message = [];
-
-            foreach ($data as $key=>$value){
-                if (!isset($value['status']) || empty($value['status'])){
-                    array_push($error_message, 'Status required');
-                }
-                if (!isset($value['product']) || empty($value['product'])){
-                    array_push($error_message, 'product required');
-                }
-                if (!isset($value['can_update'])){
-                    array_push($error_message, 'Can Update required');
-                }
-            }
-
-            if (empty($error_message)){
-                return [
-                    'success' => true
-                ];
-            }else{
-                return [
-                    'success' => false,
-                    'errors' => $error_message
-                ];
-            }
-
-        }else{
+    public static function validatedProduct($data) {
+        if (!isset($data) || empty($data)) {
             return [
                 'success' => false,
                 'errors' => ['Product is empty.']
             ];
         }
+
+        $error_message = [];
+
+        foreach ($data as $key => $value) {
+            if (!isset($value['status']) || empty($value['status'])) {
+                $error_message[] = 'Status required';
+            }
+            if (!isset($value['product']) || empty($value['product'])) {
+                $error_message[] = 'Product required';
+            }
+            if (!isset($value['can_update'])) {
+                $error_message[] = 'Can Update required';
+            }
+        }
+
+        if (empty($error_message)) {
+            return [
+                'success' => true
+            ];
+        }
+
+        return [
+            'success' => false,
+            'errors' => $error_message
+        ];
     }
+
 
     //-------------------------------------------------
     public static function createProduct($request){
