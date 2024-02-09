@@ -124,6 +124,8 @@ class ProductVariation extends VaahModel
         });
     }
 
+
+
     //-------------------------------------------------
 
     public static function searchProduct($request)
@@ -288,16 +290,6 @@ class ProductVariation extends VaahModel
             $response['messages'][] = "This slug is already exist.";
             return $response;
         }
-
-        /*if($inputs['in_stock'] == 1)
-        {
-            if($inputs['quantity'] < 1)
-            {
-                $response['success'] = false;
-                $response['messages'][] = "Please Enter Quantity.";
-                return $response;
-            }
-        }*/
 
         // handle if current record is default
         if($inputs['is_default']){
@@ -657,6 +649,7 @@ class ProductVariation extends VaahModel
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
+        ProductStock::deleteProductVariations($items_id);
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -720,10 +713,12 @@ class ProductVariation extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
-                    self::whereIn('id', $items_id)->forceDelete();
+
                     ProductMedia::deleteProductVariations($items_id);
                     ProductPrice::deleteProductVariations($items_id);
                     ProductAttribute::deleteProductVariations($items_id);
+                    ProductStock::deleteProductVariations($items_id);
+                    self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
             case 'activate-all':
@@ -749,7 +744,8 @@ class ProductVariation extends VaahModel
                 ProductMedia::deleteProductVariations($items_id);
                 ProductPrice::deleteProductVariations($items_id);
                 ProductAttribute::deleteProductVariations($items_id);
-
+                ProductStock::deleteProductVariations($items_id);
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -873,6 +869,7 @@ class ProductVariation extends VaahModel
         ProductMedia::deleteProductVariation($item->id);
         ProductPrice::deleteProductVariation($item->id);
         ProductAttribute::deleteProductVariation($item->id);
+        ProductStock::deleteProductVariation($item->id);
         $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
@@ -1204,7 +1201,6 @@ class ProductVariation extends VaahModel
             }
         }
     }
-
 
 
 
