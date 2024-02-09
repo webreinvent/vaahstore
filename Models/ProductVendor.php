@@ -1113,7 +1113,7 @@ class ProductVendor extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchProductFilter($request)
+    public static function getProduct($request)
     {
         $query = $request->input('query');
         if($query === null)
@@ -1140,7 +1140,7 @@ class ProductVendor extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchProductsUsingUrlSlug($request)
+    public static function getProductsBySlug($request)
     {
         $query = $request['filter']['product'];
 
@@ -1154,20 +1154,7 @@ class ProductVendor extends VaahModel
     }
     //-------------------------------------------------
 
-    public static function searchStatusUsingUrlSlug($request)
-    {
-        $query = $request['filter']['product_vendor_status'];
-        $status_type = TaxonomyType::getFirstOrCreate('product-vendor-status');
 
-        $item = Taxonomy::whereNotNull('is_active')
-            ->where('vh_taxonomy_type_id',$status_type->id)
-            ->whereIn('slug',$query)
-            ->get();
-
-        $response['success'] = true;
-        $response['data'] = $item;
-        return $response;
-    }
     //-------------------------------------------------
 
     public static function searchVariationOfProduct($request)
@@ -1217,6 +1204,5 @@ class ProductVendor extends VaahModel
         return $response;
     }
 
-    //-------------------------------------------------
     //-------------------------------------------------
 }

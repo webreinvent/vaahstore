@@ -533,10 +533,10 @@ class ProductVendorsController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchProductFilter(Request $request)
+    public function getProduct(Request $request)
     {
         try{
-            return ProductVendor::searchProductFilter($request);
+            return ProductVendor::getProduct($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -551,10 +551,10 @@ class ProductVendorsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function searchProductsUsingUrlSlug(Request $request)
+    public function getProductsBySlug(Request $request)
     {
         try{
-            return ProductVendor::searchProductsUsingUrlSlug($request);
+            return ProductVendor::getProductsBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -570,22 +570,7 @@ class ProductVendorsController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchStatusUsingUrlSlug(Request $request)
-    {
-        try{
-            return ProductVendor::searchStatusUsingUrlSlug($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-                return $response;
-            }
-        }
-    }
+
 
     //----------------------------------------------------------
 

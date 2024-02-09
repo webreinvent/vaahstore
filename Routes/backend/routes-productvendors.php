@@ -120,20 +120,16 @@ function () {
     /**
      * Search Products for filter
      */
-    Route::post('/filter/search/product', 'ProductVendorsController@searchProductFilter')
+    Route::post('/filter/search/product', 'ProductVendorsController@getProduct')
         ->name('vh.backend.store.productvendors.search.filter.product');
 
     /**
      * Search Products after refresh
      */
-    Route::post('/search/products-using-slug', 'ProductVendorsController@searchProductsUsingUrlSlug')
+    Route::post('/search/products-by-slug', 'ProductVendorsController@getProductsBySlug')
         ->name('vh.backend.store.productvendors.search.filtered-product');
 
-    /**
-     * Search Status after refresh
-     */
-    Route::post('/search/status-using-slug', 'ProductVendorsController@searchStatusUsingUrlSlug')
-        ->name('vh.backend.store.productvendors.search.filtered-status');
+
 
 
     Route::post('/search/product-variation', 'ProductVendorsController@searchVariationOfProduct')

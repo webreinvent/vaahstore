@@ -201,7 +201,7 @@ export const useProductVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
-            if (this.query.filter.product) this.setProductsAfterPageRefresh();
+            if (this.query.filter.product) this.getProductsBySlug();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1285,7 +1285,7 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async searchProductforFilter(event) {
+        async getProduct(event) {
             const query = event;
             const options = {
                 params: query,
@@ -1294,12 +1294,12 @@ export const useProductVendorStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/filter/search/product',
-                this.searchProductforFilterAfter,
+                this.getProductAfter,
                 options
             );
         },
         //---------------------------------------------------------------------
-        searchProductforFilterAfter(data,res) {
+        getProductAfter(data,res) {
             if(data)
             {
                 this.filter_product_suggetion = data;
@@ -1310,15 +1310,15 @@ export const useProductVendorStore = defineStore({
 
 
         addProductFIlter() {
-            const uniqueVariation = Array.from(new Set(this.selected_product.map(v => v.name)));
-            this.selected_product = uniqueVariation.map(name => this.selected_product.find(v => v.name === name));
+            const unique_product = Array.from(new Set(this.selected_product.map(v => v.name)));
+            this.selected_product = unique_product.map(name => this.selected_product.find(v => v.name === name));
             this.query.filter.product = this.selected_product.map(v => v.slug);
         },
 
         //---------------------------------------------------------------------
 
 
-        async setProductsAfterPageRefresh()
+        async getProductsBySlug()
         {
 
             let query = {
@@ -1332,8 +1332,8 @@ export const useProductVendorStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/products-using-slug',
-                this.setProductsAfterPageRefreshAfter,
+                this.ajax_url+'/search/products-by-slug',
+                this.getProductsBySlugAfterRefresh,
                 options
             );
 
@@ -1341,7 +1341,7 @@ export const useProductVendorStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setProductsAfterPageRefreshAfter(data, res) {
+        getProductsBySlugAfterRefresh(data, res) {
 
             if (data) {
                 this.selected_product= data;
