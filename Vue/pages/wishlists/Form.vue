@@ -1,12 +1,11 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useWhishlistStore } from '../../stores/store-whishlists'
+import { useWishlistStore } from '../../stores/store-wishlists'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-
-const store = useWhishlistStore();
+const store = useWishlistStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -54,32 +53,34 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
-                            data-testid="whishlists-save"
+                            data-testid="wishlists-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
-                    <Button label="Create & New"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
-                            data-testid="whishlists-create-and-new"
+                            data-testid="wishlists-create-and-new"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="whishlists-document" icon="pi pi-info-circle"
+                    <Button data-testid="wishlists-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             class="p-button-sm"
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
                     <!--form_menu-->
-                    <Button
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                         type="button"
                         @click="toggleFormMenu"
                         class="p-button-sm"
-                        data-testid="whishlists-form-menu"
+                        data-testid="wishlists-form-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
 
@@ -91,7 +92,7 @@ const toggleFormMenu = (event) => {
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
-                            data-testid="whishlists-to-list"
+                            data-testid="wishlists-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -103,7 +104,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="User">
+                <VhField label="User*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.user"
@@ -112,39 +113,66 @@ const toggleFormMenu = (event) => {
                         :suggestions="store.user_suggestion"
                         @complete="store.searchUsers($event)"
                         placeholder="Select User"
-                        data-testid="whishlists-user"
-                        name="whishlists-user"
-                        :dropdown="true" optionLabel="first_name" forceSelection>
+                        data-testid="wishlists-user"
+                        name="wishlists-user"
+                        :dropdown="true"
+                        optionLabel="first_name"
+                        forceSelection
+                        :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"
+                        >
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Type">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.whishlist_type"
-                        @change="store.setWhishlistsType($event)"
-                        class="w-full"
-                        :suggestions="store.type_suggestion"
-                        @complete="store.searchType($event)"
-                        placeholder="Select Type"
-                        data-testid="whishlists-type"
-                        name="whishlists-type"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                <VhField label="Name*">
+                    <InputText class="w-full"
+                               placeholder="Enter Name"
+                               name="wishlists-name"
+                               data-testid="wishlists-name"
+                               @update:modelValue="store.watchItem"
+                               v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Slug*">
+                    <InputText class="w-full"
+                               placeholder="Enter Slug"
+                               name="wishlists-slug"
+                               data-testid="wishlists-slug"
+                               v-model="store.item.slug"/>
+                </VhField>
+
+                <VhField label="Is Shareable">
+                    <InputSwitch v-bind:false-value="0"
+                                 v-bind:true-value="1"
+                                 class="p-inputswitch"
+                                 name="wishlists-is-shareable"
+                                 data-testid="wishlists-is-shareable"
+                                 v-model="store.item.type"/>
+                </VhField>
+
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
                         class="w-full"
-                        name="whishlists-status"
+                        name="wishlists-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
-                        data-testid="whishlists-status"
+                        data-testid="wishlists-status"
                         forceSelection>
                     </AutoComplete>
                 </VhField>
@@ -153,8 +181,8 @@ const toggleFormMenu = (event) => {
                 <VhField label="Status Notes">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Status Note"
-                              name="whishlists-status_notes"
-                              data-testid="whishlists-status_notes"
+                              name="wishlists-status_notes"
+                              data-testid="wishlists-status_notes"
                               v-model="store.item.status_notes"/>
                 </VhField>
 
@@ -162,8 +190,8 @@ const toggleFormMenu = (event) => {
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
-                                 name="whishlists-is_default"
-                                 data-testid="whishlists-is_default"
+                                 name="wishlists-is_default"
+                                 data-testid="wishlists-is_default"
                                  v-model="store.item.is_default"/>
                 </VhField>
 

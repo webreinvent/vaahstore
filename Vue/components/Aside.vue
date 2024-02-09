@@ -113,7 +113,7 @@ const items = ref([
             {
                 label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
-                route: "/whishlists"
+                route: "/wishlists"
             },
         ]
     },
