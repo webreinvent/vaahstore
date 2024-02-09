@@ -440,6 +440,8 @@ class Product extends VaahModel
             return $validation;
         }
 
+
+
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
@@ -1134,7 +1136,7 @@ class Product extends VaahModel
         $inputs['vh_st_brand_id'] = $brand_id;
 
         // fill the taxonomy status field here
-        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
         $inputs['taxonomy_id_product_status'] = $status_id;
