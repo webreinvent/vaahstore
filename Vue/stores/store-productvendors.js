@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductVendor';
 
@@ -11,14 +12,16 @@ let ajax_url = base_url + "/store/productvendors";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
             trashed: null,
             sort: null,
             product_vendor_status:null,
+            selected_dates:null,
+            status:null,
         },
     },
     action: {
@@ -81,35 +84,59 @@ export const useProductVendorStore = defineStore({
         status: null,
         product_variation_suggestion:null,
         disable_approved_by:true,
+        status_suggestion_list:null,
+        user_suggestion_list:null,
+        active_users_list:null,
+        active_vendors_list:null,
+        prev_list:[],
+        current_list:[],
+        selected_dates:[],
+        date_null:null,
+        product_variation_list:[],
+
     }),
     getters: {
 
     },
     actions: {
         //---------------------------------------------------------------------
-       async searchProductVariation(event) {
-            const query = event;
+
+
+
+
+        async searchVendor(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
             const options = {
                 params: query,
                 method: 'post',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/search/product/variation',
-                this.searchProductVariationAfter,
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
-        searchProductVariationAfter(data,res){
+        searchVendorAfter(data,res){
             if(data){
-                this.product_variation_suggestion = data;
+
+                this.active_vendors_list = data;
             }
         },
         //---------------------------------------------------------------------
-       async searchAddedBy(event) {
-            const query = event;
+
+        async searchAddedBy(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
             const options = {
                 params: query,
                 method: 'post',
@@ -125,12 +152,17 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         searchAddedByAfter(data,res){
             if(data){
-                this.added_by_suggestion = data;
+                this.active_users_list = data;
             }
         },
         //---------------------------------------------------------------------
-       async searchStatus(event) {
-            const query = event;
+
+        async searchStatus(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
             const options = {
                 params: query,
                 method: 'post',
@@ -146,42 +178,11 @@ export const useProductVendorStore = defineStore({
 
         searchStatusAfter(data,res){
             if(data){
-                this.status_suggestion = data;
+                this.status_suggestion_list = data;
             }
         },
 
-        //---------------------------------------------------------------------
-       async searchVendor(event) {
-           const query = event;
-           const options = {
-               params: query,
-               method: 'post',
-           };
 
-            await vaah().ajax(
-                this.ajax_url+'/search/vendor',
-                this.searchVendorAfter,
-                options
-            );
-        },
-
-        //---------------------------------------------------------------------
-        searchVendorAfter(data,res){
-            if(data){
-
-                this.vendor_suggestion = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-        searchProduct(event) {
-
-            if (this.product && this.product.length > 0) {
-                this.product_suggestion = this.product.filter((product) => {
-                    return product.name.toLowerCase().startsWith(event.query.toLowerCase());
-                });
-            }
-        },
 
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -200,6 +201,11 @@ export const useProductVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (this.query.filter.product) this.getProductsBySlug();
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -277,9 +283,13 @@ export const useProductVendorStore = defineStore({
               }
           },
         //---------------------------------------------------------------------
-        async getProductsListForStore(){
+        async getProductsListForStore(event){
+            const query = {
+                q:event.query,
+                id:this.item.store_ids
+            }
             let options = {
-                params: this.item.store_vendor_product,
+                params: query,
                 method: 'POST'
             };
             await vaah().ajax(
@@ -292,29 +302,31 @@ export const useProductVendorStore = defineStore({
         afterGetProductsListforStore(data, res)
         {
             if(data){
-                this.product = data;
+                this.product_suggestion = data;
             }
         },
         //---------------------------------------------------------------------
-        setVendor(event){
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
+        setVendor(event) {
+            this.item.vh_st_vendor_id = (event && event.value) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
-        setProduct(event){
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
+        setProduct(event) {
+            this.item.vh_st_product_id = (event && event.value && event.value.id) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
         setAddedBy(event){
-            let user = toRaw(event.value);
-            this.item.added_by = user.id;
+                let user = toRaw(event.value);
+                this.item.added_by = user.id;
+
         },
+
         //---------------------------------------------------------------------
-        setStatus(event){
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_product_vendor_status = status.id;
+        setStatus(event) {
+            this.item.taxonomy_id_product_vendor_status = (event && event.value) ? toRaw(event.value).id : null;
         },
+
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -333,15 +345,16 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status = data.taxonomy.status;
+                this.status_option = data.taxonomy.status;
                 this.active_vendors = data.active_vendors;
                 this.active_users = data.active_users;
                 this.active_products = data.active_products;
-                this.product_variations = data.active_product_variations
+                this.default_store = data.active_stores.filter(store => store.is_default === 1);
+                this.active_product_variation = data.active_product_variations
 
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -387,11 +400,25 @@ export const useProductVendorStore = defineStore({
                 this.item = data;
                 this.product = data.productList.data
                 this.item.taxonomy_id_product_vendor_status = data.status;
+                if (data.store_vendor_product) {
+                    this.store_name = data.store_vendor_product;
+                    this.item.store_ids = this.store_name.map(store => store.id);
+                }
 
                 this.item.vh_st_product_variation_id = data.product_variation;
-                if(data.store_vendor_product.length != 0){
-                    this.getProductsListForStore();
+
+                if (data.product_variations) {
+                    await this.searchVariationOfProduct();
+                    this.product_variations = data.product_variations;
+                    this.product_variation_list = this.product_variation_list.map(listVariation => {
+                        const matchingVariation = this.product_variations.find(
+                            dataVariation => dataVariation.id === listVariation.id
+                        );
+                        return matchingVariation || listVariation;
+                    });
                 }
+
+
             }else{
                 this.$router.push({name: 'productvendors.index'});
             }
@@ -503,7 +530,7 @@ export const useProductVendorStore = defineStore({
             {
                 item = this.item;
             }
-
+            this.action.type = type;
             this.form.action = type;
 
             let ajax_url = this.ajax_url;
@@ -511,6 +538,22 @@ export const useProductVendorStore = defineStore({
             let options = {
                 method: 'post',
             };
+
+            if (this.product_variation_list) {
+                const variations = [];
+
+                // Loop through the product_variation_list and push each variation to the array
+                for (const variation of this.product_variation_list) {
+                    variations.push({
+                        name: variation.name,
+                        id: variation.id,
+                        amount: variation.amount,
+                    });
+                }
+
+                // Set the variations array to store.item.product_variation
+                this.item.product_variation = variations;
+            }
 
             /**
              * Learn more about http request methods at
@@ -536,6 +579,7 @@ export const useProductVendorStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -578,15 +622,32 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
-
                 this.item.vh_st_product_variation_id = data.product_variation;
+                if (data.store_vendor_product) {
+                    this.store_name = data.store_vendor_product;
+                    this.item.store_ids = this.store_name.map(store => store.id);
+                }
                 await this.getList();
-                await this.formActionAfter();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+
+        },
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -596,7 +657,10 @@ export const useProductVendorStore = defineStore({
             {
                 case 'create-and-new':
                 case 'save-and-new':
+                    this.item.id = null;
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'productvendors.form'})
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -606,10 +670,15 @@ export const useProductVendorStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'productvendors.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -618,6 +687,7 @@ export const useProductVendorStore = defineStore({
                     this.toList();
                     break;
             }
+
         },
         //---------------------------------------------------------------------
         async toggleIsActive(item)
@@ -640,6 +710,7 @@ export const useProductVendorStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
@@ -659,14 +730,18 @@ export const useProductVendorStore = defineStore({
         getFormInputsAfter: function (data, res) {
             if(data)
             {
+                this.item.store_vendor_product = [data.fill.store_vendor_product];
+                this.item.store_ids = this.item.store_vendor_product.map(store => store.id);
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
+                    if (key !== 'store_vendor_product') {
                     self.item[key] = data.fill[key];
+                    }
                 });
+
             }
         },
 
-        //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
         onItemSelection(items)
@@ -693,7 +768,31 @@ export const useProductVendorStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmTrashAll()
+        {
+            this.action.type='trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmActivateAll()
+        {
+            this.action.type='activate-all';
+            vaah().confirmDialogActivate(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmDeactivateAll()
+        {
+            this.action.type='deactivate-all';
+            vaah().confirmDialogDeactivate(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -754,14 +853,18 @@ export const useProductVendorStore = defineStore({
         async resetQuery()
         {
             //reset query strings
+            this.selected_product=null;
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action was successful']);
+            return false;
         },
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -781,6 +884,8 @@ export const useProductVendorStore = defineStore({
         },
         toProductPrice(item)
         {
+            this.item.vh_st_product_id=item.vh_st_product_id;
+            this.searchVariationOfProduct();
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
         },
@@ -789,6 +894,7 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.item.is_active=1;
             this.$router.push({name: 'productvendors.form'})
         },
         //---------------------------------------------------------------------
@@ -798,9 +904,12 @@ export const useProductVendorStore = defineStore({
             this.$router.push({name: 'productvendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+
         toEdit(item)
         {
             this.item = item;
+            this.item.id = item.id;
+            this.getFormMenu();
             this.$router.push({name: 'productvendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
@@ -893,13 +1002,13 @@ export const useProductVendorStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -909,14 +1018,15 @@ export const useProductVendorStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
+
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -1036,6 +1146,14 @@ export const useProductVendorStore = defineStore({
                         }
                     },
                     {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
+                    {
                         label: 'Save & Clone',
                         icon: 'pi pi-copy',
                         command: () => {
@@ -1097,9 +1215,178 @@ export const useProductVendorStore = defineStore({
             },)
 
             this.form_menu_list = form_menu;
+            if (!this.item.store_vendor_product) {
+                this.item.store_vendor_product = this.default_store;
+                this.item.store_ids = this.item.store_vendor_product.map(store => store.id);
+            }
 
         },
+
         //---------------------------------------------------------------------
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async searchActiveStores(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/active-store',
+                this.searchActiveStoresAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchActiveStoresAfter(data,res) {
+            if(data)
+            {
+                this.active_stores = data;
+                if (data && this.item.store_vendor_product) {
+                    this.active_stores = data.filter((item) => {
+                        return !this.item.store_vendor_product.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
+            }
+        },
+
+        //---------------------------------------------------------------------
+        async setStores(event) {
+            let stores = toRaw(event.value);
+            this.item.store_ids = stores.map(store => store.id);
+            this.item.vh_st_product_id=null;
+            this.item.product=null;
+        },
+        //---------------------------------------------------------------------
+
+        async getProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/search/product',
+                this.getProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        getProductAfter(data,res) {
+            if(data)
+            {
+                this.filter_product_suggetion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+        addProductFIlter() {
+            const unique_product = Array.from(new Set(this.selected_product.map(v => v.name)));
+            this.selected_product = unique_product.map(name => this.selected_product.find(v => v.name === name));
+            this.query.filter.product = this.selected_product.map(v => v.slug);
+        },
+
+        //---------------------------------------------------------------------
+
+
+        async getProductsBySlug()
+        {
+
+            let query = {
+                filter: {
+                    product: this.query.filter.product,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/products-by-slug',
+                this.getProductsBySlugAfterRefresh,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        getProductsBySlugAfterRefresh(data, res) {
+
+            if (data) {
+                this.selected_product= data;
+            }
+        },
+        //---------------------------------------------------------------------
+
+
+
+
+        //---------------------------------------------------------------------
+
+        async searchVariationOfProduct() {
+            const query = {
+
+                id: this.item.vh_st_product_id
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product-variation',
+                this.searchVariationOfProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchVariationOfProductAfter(data,res) {
+            if(data)
+            {
+                this.product_variation_list=data;
+                this.product_variation_suggestion = data;
+                if (data && this.item.product_variation) {
+                    this.product_variation_suggestion = data.filter((item) => {
+                        return !this.item.product_variation.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
+
     }
 });
 
