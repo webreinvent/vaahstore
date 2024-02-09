@@ -650,6 +650,7 @@ class ProductVariation extends VaahModel
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
         ProductStock::deleteProductVariations($items_id);
+        self::updateQuantity($items_id->pluck('id')->toArray());
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -718,6 +719,7 @@ class ProductVariation extends VaahModel
                     ProductPrice::deleteProductVariations($items_id);
                     ProductAttribute::deleteProductVariations($items_id);
                     ProductStock::deleteProductVariations($items_id);
+                    self::updateQuantity($items_id);
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -745,6 +747,7 @@ class ProductVariation extends VaahModel
                 ProductPrice::deleteProductVariations($items_id);
                 ProductAttribute::deleteProductVariations($items_id);
                 ProductStock::deleteProductVariations($items_id);
+                self::updateQuantity($items_id->pluck('id')->toArray());
                 self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
@@ -870,6 +873,7 @@ class ProductVariation extends VaahModel
         ProductPrice::deleteProductVariation($item->id);
         ProductAttribute::deleteProductVariation($item->id);
         ProductStock::deleteProductVariation($item->id);
+        self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
@@ -1201,6 +1205,27 @@ class ProductVariation extends VaahModel
             }
         }
     }
+
+    public static function updateQuantity($ids)
+    {
+        dd($ids);
+        if (!is_array($ids)) {
+            $ids = [$ids];
+        }
+
+        $items = self::whereIn('id', $ids)->get();
+        $product_ids = $items->pluck('vh_st_product_id')->unique();
+
+        foreach ($product_ids as $product_id) {
+            $product = Product::find($product_id);
+            if ($product) {
+                $product->quantity -= $items->where('vh_st_product_id', $product_id)->sum('quantity');
+                $product->save();
+            }
+        }
+    }
+
+
 
 
 
