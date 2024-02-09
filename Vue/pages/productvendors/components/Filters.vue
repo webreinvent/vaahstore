@@ -65,25 +65,22 @@ const store = useProductVendorStore();
 
             </VhFieldVertical >
 
+
             <VhFieldVertical >
                 <template #label>
                     <b>Status By:</b>
                 </template>
                 <VhField label="Status">
-
-
-                    <AutoComplete name="productvendors-filter"
-                                  data-testid="productvendors-filter"
-                                  v-model="store.selected_status"
-                                  @change = "store.addStatus()"
-                                  option-label = "name"
-                                  multiple
-                                  :complete-on-focus = "true"
-                                  :suggestions="store.status_suggestion_list"
-                                  @complete="store.searchStatus($event)"
-                                  placeholder="Select Status"
-                                  class="w-full " />
-
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.status_option"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        data-testid="productvendors-filter"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
                 </VhField>
 
 

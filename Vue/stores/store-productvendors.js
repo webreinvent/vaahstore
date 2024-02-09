@@ -20,7 +20,8 @@ let empty_states = {
             trashed: null,
             sort: null,
             product_vendor_status:null,
-            selected_dates:null
+            selected_dates:null,
+            status:null,
         },
     },
     action: {
@@ -180,11 +181,6 @@ export const useProductVendorStore = defineStore({
                 this.status_suggestion_list = data;
             }
         },
-        addStatus() {
-            const uniqueStatus = Array.from(new Set(this.selected_status.map(status => status.name)));
-            this.selected_status = this.selected_status.filter(status => uniqueStatus.includes(status.name));
-            this.query.filter.product_vendor_status = this.selected_status.map(status => status.slug);
-        },
 
 
 
@@ -206,7 +202,6 @@ export const useProductVendorStore = defineStore({
              */
             this.updateQueryFromUrl(route);
             if (this.query.filter.product) this.setProductsAfterPageRefresh();
-            if (this.query.filter.product_vendor_status) this.setStatusAfterPageRefresh();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -854,7 +849,7 @@ export const useProductVendorStore = defineStore({
         async resetQuery()
         {
             //reset query strings
-            this.selected_product=this.selected_status=null;
+            this.selected_product=null;
             await this.resetQueryString();
 
             //reload page list
@@ -1350,35 +1345,7 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
 
 
-        async setStatusAfterPageRefresh()
-        {
 
-            let query = {
-                filter: {
-                    product_vendor_status: this.query.filter.product_vendor_status,
-                },
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/search/status-using-slug',
-                this.setStatusPageRefreshAfter,
-                options
-            );
-
-
-        },
-
-        //---------------------------------------------------------------------
-        setStatusPageRefreshAfter(data, res) {
-
-            if (data) {
-                this.selected_status= data;
-            }
-        },
 
         //---------------------------------------------------------------------
 

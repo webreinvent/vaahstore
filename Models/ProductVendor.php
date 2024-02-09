@@ -370,13 +370,13 @@ class ProductVendor extends VaahModel
 
     }
     //-------------------------------------------------
-    public function scopeProductVendorFilter($query, $filter)
+    public function scopeStatusFilter($query, $filter)
     {
 
-        if (!isset($filter['product_vendor_status'])) {
+        if (!isset($filter['status'])) {
             return $query;
         }
-        $search = $filter['product_vendor_status'];
+        $search = $filter['status'];
         $query->whereHas('status', function ($q) use ($search) {
             $q->whereIn('name', $search);
         });
@@ -422,7 +422,7 @@ class ProductVendor extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
-        $list->productVendorFilter($request->filter);
+        $list->statusFilter($request->filter);
         $list->productFilter($request->filter);
         $list->dateFilter($request->filter);
 
