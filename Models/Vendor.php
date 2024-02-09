@@ -348,22 +348,25 @@ class Vendor extends VaahModel
             $inputs['store']['is_multi_vendor'] = $vendor->is_multi_vendor;
         }
 
+            if($inputs['store']['is_multi_vendor'] === 0)
+            {
+
+                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
+                    ->withTrashed()
+                    ->firstOrFail()
+                    ->vendors()
+                    ->count();
 
 
-        if(isset($inputs['store']['is_multi_vendor'])) {
 
-            if($inputs['store']['is_multi_vendor'] === 0) {
-
-                $store = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
-                $is_store_exist=$store->vendors()->get();
-                if($is_store_exist)
-                {
+                if ($vendor_count > 0) {
                     $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
-
             }
-        }
+
+
+
 
 
         // check if name exist
@@ -969,21 +972,25 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)->withTrashed()->first();
 
-        if(isset($inputs['store']['is_multi_vendor'])) {
+        if(isset($inputs['store']['is_multi_vendor']) &&
+            $inputs['store']['is_multi_vendor'] !== $item->store->is_multi_vendor) {
 
             if($inputs['store']['is_multi_vendor'] === 0) {
 
 
-                $store = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
-                $is_store_exist=$store->vendors()->get();
-                if($is_store_exist)
-                {
+                $vendor_count = Store::where('id', $inputs['vh_st_store_id'])
+                    ->withTrashed()
+                    ->firstOrFail()
+                    ->vendors()
+                    ->count();
+
+                if ($vendor_count >= 1) {
                     $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
-
             }
         }
+
 
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
