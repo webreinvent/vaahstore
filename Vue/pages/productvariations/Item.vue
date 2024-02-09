@@ -215,10 +215,10 @@ const permissions=store.assets.permissions;
                                 <td><b>Low Stock Alert Notification</b></td>
                                 <td colspan="2">
                                     <Badge v-if="store.item.is_mail_sent === 1" severity="success">
-                                        Send
+                                        Yes
                                     </Badge>
                                     <Badge v-else severity="success">
-                                        Not Send
+                                        No
                                     </Badge>
                                 </td>
                             </tr>
