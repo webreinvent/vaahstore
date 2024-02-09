@@ -626,6 +626,11 @@ export const useProductVendorStore = defineStore({
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
                 this.item.vh_st_product_variation_id = data.product_variation;
+                if (data.store_vendor_product) {
+                    this.store_name = data.store_vendor_product;
+                    this.item.store_ids = this.store_name.map(store => store.id);
+                    console.log(this.item.store_ids);
+                }
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();

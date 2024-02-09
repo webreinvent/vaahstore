@@ -532,7 +532,8 @@ class ProductVendor extends VaahModel
             $item = self::find($value);
             $item->storeVendorProduct()->detach();
         }
-
+        $vendors_id = collect($inputs['items'])->pluck('vh_st_vendor_id')->toArray();
+        ProductPrice::whereIn('vh_st_vendor_id', $vendors_id)->forceDelete();
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         self::whereIn('id', $items_id)->forceDelete();
 
@@ -610,12 +611,16 @@ class ProductVendor extends VaahModel
                 break;
             case 'delete-all':
                 $details = ProductVendor::with('storeVendorProduct')->get();
+                $items_id = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
+                $item_ids = self::withTrashed()->pluck('id')->toArray();
 
                 foreach ($details as $item) {
                     $item->storeVendorProduct()->detach();
                 }
-
+                ProductPrice::whereIn('vh_st_vendor_id', $items_id)->forceDelete();
                 ProductVendor::whereIn('id', $details->pluck('id'))->forceDelete();
+                $list = self::withTrashed();
+                $list->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -755,6 +760,8 @@ class ProductVendor extends VaahModel
         }
 
         // Detach the record from the storeVendorProduct relationship
+        $items_id = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
+        ProductPrice::whereIn('vh_st_vendor_id', $items_id)->forceDelete();
         $item->storeVendorProduct()->detach();
 
         $item->forceDelete();
