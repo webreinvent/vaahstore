@@ -334,18 +334,6 @@ class Vendor extends VaahModel
             return $validation_result;
         }
 
-
-        $vendor = Store::where('id', $inputs['vh_st_store_id'])->withTrashed()->first();
-
-        if ($vendor) {
-            $inputs['store']['is_default'] = $vendor->is_default;
-        }
-
-
-        if ($vendor) {
-            $inputs['store']['is_multi_vendor'] = $vendor->is_multi_vendor;
-        }
-
             if($inputs['store']['is_multi_vendor'] === 0)
             {
 
@@ -355,19 +343,12 @@ class Vendor extends VaahModel
                     ->vendors()
                     ->count();
 
-
-
                 if ($vendor_count > 0) {
                     $response['errors'][] = "A vendor is already associated with this non-multi-vendor store.";
                     return $response;
                 }
             }
-
-
-
-
-
-        // check if name exist
+            // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
