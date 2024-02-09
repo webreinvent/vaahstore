@@ -527,15 +527,14 @@ class ProductVendor extends VaahModel
         }
 
         // delete value from pivot table
-        $item_id = collect($inputs['items'])->pluck('id')->toArray();
-        foreach ($item_id as $key => $value) {
+        $item_ids = collect($inputs['items'])->pluck('id')->toArray();
+        foreach ($item_ids as $key => $value) {
             $item = self::find($value);
             $item->storeVendorProduct()->detach();
         }
         $vendors_id = collect($inputs['items'])->pluck('vh_st_vendor_id')->toArray();
         ProductPrice::whereIn('vh_st_vendor_id', $vendors_id)->forceDelete();
-        $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
+        self::whereIn('id', $item_ids)->forceDelete();
 
         $response['success'] = true;
         $response['data'] = true;
@@ -610,15 +609,13 @@ class ProductVendor extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $details = ProductVendor::with('storeVendorProduct')->get();
-                $items_id = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
+                $vendor_ids = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
                 $item_ids = self::withTrashed()->pluck('id')->toArray();
-
-                foreach ($details as $item) {
+                foreach ($item_ids as $item_id) {
+                    $item = self::where('id',$item_id)->withTrashed()->first();
                     $item->storeVendorProduct()->detach();
                 }
-                ProductPrice::whereIn('vh_st_vendor_id', $items_id)->forceDelete();
-                ProductVendor::whereIn('id', $details->pluck('id'))->forceDelete();
+                ProductPrice::whereIn('vh_st_vendor_id', $vendor_ids)->forceDelete();
                 $list = self::withTrashed();
                 $list->forceDelete();
                 break;
@@ -759,11 +756,9 @@ class ProductVendor extends VaahModel
             return $response;
         }
 
-        // Detach the record from the storeVendorProduct relationship
-        $items_id = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
-        ProductPrice::whereIn('vh_st_vendor_id', $items_id)->forceDelete();
+        $vendor_id = self::withTrashed()->where('id',$id)->pluck('vh_st_vendor_id')->first();
+        ProductPrice::where('vh_st_vendor_id', $vendor_id)->forceDelete();
         $item->storeVendorProduct()->detach();
-
         $item->forceDelete();
 
         $response['success'] = true;
