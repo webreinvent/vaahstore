@@ -206,8 +206,6 @@ class Vendor extends VaahModel
             foreach ($data as $key=>$value){
                 if (!isset($value['status']) || empty($value['status'])){
                     array_push($error_message, 'Status required');
-                }else if($value['status']['slug']=='rejected' && empty($value['status_notes'])){
-                    array_push($error_message, 'The Status notes field is required for "Rejected" Status');
                 }
                 if (!isset($value['product']) || empty($value['product'])){
                     array_push($error_message, 'product required');
@@ -1215,7 +1213,7 @@ class Vendor extends VaahModel
         $inputs['country_code'] = rand(1, 999);
 
 
-        
+
 
         if(!$is_response_return){
             return $inputs;
