@@ -1061,7 +1061,7 @@ class Product extends VaahModel
             'details' => 'max:250',
             'seo_title' => 'max:100',
             'seo_meta_description' => 'max:250',
-            'seo_meta_keyword' => 'array|max:20',
+            'seo_meta_keyword' => 'max:20',
             'seo_meta_keyword.*' => 'max:50',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => 'max:250',
