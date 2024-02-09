@@ -110,7 +110,7 @@ const toggleSelectedMenuState = (event) => {
                                             style="height:35px;">
 
                         <template #option="slotProps">
-                            <div v-tooltip.top="store.getFullName(slotProps.option)">{{ slotProps.option.name }}</div>
+                            <div>{{ slotProps.option.name }}</div>
                         </template>
                         </AutoComplete>
 
