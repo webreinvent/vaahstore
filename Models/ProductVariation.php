@@ -124,6 +124,8 @@ class ProductVariation extends VaahModel
         });
     }
 
+
+
     //-------------------------------------------------
 
     public static function searchProduct($request)
@@ -288,16 +290,6 @@ class ProductVariation extends VaahModel
             $response['messages'][] = "This slug is already exist.";
             return $response;
         }
-
-        /*if($inputs['in_stock'] == 1)
-        {
-            if($inputs['quantity'] < 1)
-            {
-                $response['success'] = false;
-                $response['messages'][] = "Please Enter Quantity.";
-                return $response;
-            }
-        }*/
 
         // handle if current record is default
         if($inputs['is_default']){
@@ -657,6 +649,8 @@ class ProductVariation extends VaahModel
         ProductMedia::deleteProductVariations($items_id);
         ProductPrice::deleteProductVariations($items_id);
         ProductAttribute::deleteProductVariations($items_id);
+        ProductStock::deleteProductVariations($items_id);
+        self::updateQuantity($items_id);
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -681,7 +675,6 @@ class ProductVariation extends VaahModel
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
-
             $items = self::whereIn('id', $items_id)
                 ->withTrashed();
         }
@@ -720,10 +713,14 @@ class ProductVariation extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
-                    self::whereIn('id', $items_id)->forceDelete();
+
+
                     ProductMedia::deleteProductVariations($items_id);
                     ProductPrice::deleteProductVariations($items_id);
                     ProductAttribute::deleteProductVariations($items_id);
+                    ProductStock::deleteProductVariations($items_id);
+                    self::updateQuantity($items_id);
+                    self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
             case 'activate-all':
@@ -744,12 +741,14 @@ class ProductVariation extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
+
                 $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
                 ProductMedia::deleteProductVariations($items_id);
                 ProductPrice::deleteProductVariations($items_id);
                 ProductAttribute::deleteProductVariations($items_id);
-
+                ProductStock::deleteProductVariations($items_id);
+                self::updateQuantity($items_id);
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -873,6 +872,8 @@ class ProductVariation extends VaahModel
         ProductMedia::deleteProductVariation($item->id);
         ProductPrice::deleteProductVariation($item->id);
         ProductAttribute::deleteProductVariation($item->id);
+        ProductStock::deleteProductVariation($item->id);
+        self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
@@ -1090,9 +1091,8 @@ class ProductVariation extends VaahModel
             $list_data = ProductVariation::with('product')->get();
 
             $filtered_data = $list_data->filter(function ($item) {
-                return $item->quantity > 0 && $item->quantity < 10;
+                return $item->quantity >= 0 && $item->quantity < 10;
             });
-
 
             foreach ($list_data as $item) {
                 if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
@@ -1105,6 +1105,7 @@ class ProductVariation extends VaahModel
                 $min_quantity = $variations->min('quantity');
                 $max_quantity = $variations->max('quantity');
 
+                // If min_quantity is same as max_quantity, set min_quantity to 0
                 if ($min_quantity === $max_quantity) {
                     $min_quantity = 0;
                 }
@@ -1120,9 +1121,9 @@ class ProductVariation extends VaahModel
             $message = '<html><body>';
             $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
             $message .= '<table border="1">';
-            $message .= '<tr><th>Product Name</th><th>Variation Count</th><th>Quantity Range</th><th>Link</th></tr>';
+            $message .= '<tr><th>Product Name</th><th>Low Quantity Variations Count</th><th>Quantity Range Between </th><th>Link</th></tr>';
 
-            $processed_products = [];
+            $processed_products = []; // Track processed products
 
             foreach ($filtered_data as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
@@ -1172,6 +1173,9 @@ class ProductVariation extends VaahModel
     }
 
 
+
+
+
     //--------------------------------------------------------------
 
     public static function getMinMaxQuantity()
@@ -1201,6 +1205,25 @@ class ProductVariation extends VaahModel
             }
         }
     }
+
+    public static function updateQuantity($ids)
+    {
+        if (!is_array($ids)) {
+            $ids = [$ids];
+        }
+
+        $items = self::whereIn('id', $ids)->get();
+        $product_ids = $items->pluck('vh_st_product_id')->unique();
+
+        foreach ($product_ids as $product_id) {
+            $product = Product::find($product_id);
+            if ($product) {
+                $product->quantity -= $items->where('vh_st_product_id', $product_id)->sum('quantity');
+                $product->save();
+            }
+        }
+    }
+
 
 
 

@@ -146,7 +146,7 @@ const permissions=store.assets.permissions;
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' || column === 'description'
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'
                         || column === 'price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
-                        || column === 'is_active' || column === 'meta_keywords' || column === 'meta_description' || column === 'meta_title'
+                        || column === 'is_active' || column === 'meta_keywords' || column === 'meta_description' || column === 'meta_title'  || column === 'is_mail_sent'
 ">
                         </template>
 
@@ -161,7 +161,7 @@ const permissions=store.assets.permissions;
                             <tr>
                                 <td><b>Name</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -170,14 +170,14 @@ const permissions=store.assets.permissions;
                             <tr>
                                 <td><b>Slug</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>SKU</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.sku}}</div>
                                 </td>
                             </tr>
@@ -208,6 +208,18 @@ const permissions=store.assets.permissions;
                                 <td><b>Price</b></td>
                                 <td  colspan="2" >
                                     <badge>{{store.item.price}}</badge>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><b>Low Stock Alert Notification</b></td>
+                                <td colspan="2">
+                                    <Badge v-if="store.item.is_mail_sent === 1" severity="success">
+                                        Yes
+                                    </Badge>
+                                    <Badge v-else severity="success">
+                                        No
+                                    </Badge>
                                 </td>
                             </tr>
 
@@ -258,6 +270,8 @@ const permissions=store.assets.permissions;
                                        type="yes-no"
                             />
                         </template>
+
+
 
 
                         <template v-else-if="column === 'vh_st_product_id'">
