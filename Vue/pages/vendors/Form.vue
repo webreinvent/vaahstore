@@ -316,15 +316,13 @@ const permissions=store.assets.permissions;
                         </VhField>
 
                         <VhField label="Phone Number">
-                            <InputText class="w-full"
+
+                            <InputNumber v-model="store.item.phone_number"
+                                         class="w-full"
                                          name="vendors-phone-number"
                                          placeholder="Enter your phone number"
                                          data-testid="vendors-phone-number"
-                                         v-model="store.item.phone_number"
-                                         type="number"
-                                         inputmode="numeric"
-                                         pattern="[0-9]*"
-                            />
+                                         :useGrouping="false" />
                         </VhField>
 
                         <VhField label="Email">

@@ -1348,14 +1348,6 @@ export const useVendorStore = defineStore({
             this.item.business_document_file = null;
         },
 
-        //--------------------------------------------------------------------
-
-        checkPhoneNumber(event)
-        {
-            alert(event.value);
-            const phone_number = event.value.replace(/,/g, '');
-
-        },
 
         //---------------------------------------------------------------------
 
