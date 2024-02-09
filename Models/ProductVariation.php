@@ -1090,9 +1090,8 @@ class ProductVariation extends VaahModel
             $list_data = ProductVariation::with('product')->get();
 
             $filtered_data = $list_data->filter(function ($item) {
-                return $item->quantity > 0 && $item->quantity < 10;
+                return $item->quantity >= 0 && $item->quantity < 10;
             });
-
 
             foreach ($list_data as $item) {
                 if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
@@ -1105,6 +1104,7 @@ class ProductVariation extends VaahModel
                 $min_quantity = $variations->min('quantity');
                 $max_quantity = $variations->max('quantity');
 
+                // If min_quantity is same as max_quantity, set min_quantity to 0
                 if ($min_quantity === $max_quantity) {
                     $min_quantity = 0;
                 }
@@ -1120,9 +1120,9 @@ class ProductVariation extends VaahModel
             $message = '<html><body>';
             $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
             $message .= '<table border="1">';
-            $message .= '<tr><th>Product Name</th><th>Variation Count</th><th>Quantity Range</th><th>Link</th></tr>';
+            $message .= '<tr><th>Product Name</th><th>Low Quantity Variations Count</th><th>Quantity Range Between </th><th>Link</th></tr>';
 
-            $processed_products = [];
+            $processed_products = []; // Track processed products
 
             foreach ($filtered_data as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
@@ -1170,6 +1170,9 @@ class ProductVariation extends VaahModel
 
         return $response;
     }
+
+
+
 
 
     //--------------------------------------------------------------
