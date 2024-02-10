@@ -86,7 +86,7 @@ onMounted(async () => {
 
                 <template #body="prop">
                     <Badge v-if="prop.data.quantity === 0"
-                           severity="danger">Out Stock</Badge>
+                           severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
                     <Badge v-else-if="prop.data.quantity > 0"
                            :value="prop.data.quantity"
                            severity="info">In Stock</Badge>
