@@ -229,19 +229,6 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Availablity Date">
-                    <Calendar tabindex="0"
-                              :showIcon="true"
-                              class="w-full"
-                              name="brands-registered_at"
-                              id="registered_at"
-                              value="registered_at"
-                              data-testid="brands-registered_at"
-                              dateFormat="yy-mm-dd"
-                              placeholder="Select date"
-                              v-model="store.item.available_at"></Calendar>
-                </VhField>
-
                 <VhField label="Launch Date">
                     <Calendar tabindex="0"
                               :showIcon="true"
@@ -252,7 +239,23 @@ const toggleFormMenu = (event) => {
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
                               placeholder="Select date"
-                              v-model="store.item.launch_at"></Calendar>
+                              v-model="store.item.launch_at"
+                    ></Calendar>
+                </VhField>
+
+                <VhField label="Availablity Date">
+                    <Calendar tabindex="0"
+                              :showIcon="true"
+                              class="w-full"
+                              name="brands-registered_at"
+                              id="registered_at"
+                              value="registered_at"
+                              data-testid="brands-registered_at"
+                              dateFormat="yy-mm-dd"
+                              placeholder="Select date"
+                              v-model="store.item.available_at"
+                              @date-select="store.checkDate()"
+                    ></Calendar>
                 </VhField>
 
 
@@ -295,7 +298,6 @@ const toggleFormMenu = (event) => {
                         toolbar: [
                             ['bold', 'italic', 'underline','strike'],
                             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                             [{ 'color': [] }, { 'background': [] }],
                              [{ 'font': [] }],
                             [{ 'align': '' }, {'align': 'center'}, {'align': 'right'}],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],

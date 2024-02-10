@@ -354,6 +354,7 @@ export const useProductStore = defineStore({
                         }
                     }, {deep: true}
                 )
+
             }
             if (this.form_menu_list.length === 0) {
                 this.getFormMenu();
@@ -375,6 +376,7 @@ export const useProductStore = defineStore({
 
         },
 
+        //---------------------------------------------------------------------
         setStore(event) {
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
@@ -2172,6 +2174,18 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        checkDate()
+        {
+            if (moment(this.item.available_at).isBefore(this.item.launch_date))
+            {
+                this.item.available_at = null;
+                vaah().toastErrors(['Avaialble date should be after launch date']);
+
+            }
+
+
+        },
 
 
 
