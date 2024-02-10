@@ -912,7 +912,23 @@ export const useProductStockStore = defineStore({
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'productstocks.view', params:{id:item.id}})
+
+            // const query = {
+            //     page: 1,
+            //     rows: 20,
+            //     filter: {
+            //             products: [product.slug]
+            //     }
+            //     };
+            //     const route = {
+            //         name: 'productstocks.view',
+            //         query: query
+            //     };
+            //     this.$router.push(route);
+            // },
+
+            this.$router.push({name: 'productstocks.view', params:{id:item.id,}})
+            this.route.query = this.query.filter;
         },
         //---------------------------------------------------------------------
         toEdit(item)
