@@ -241,6 +241,7 @@ const value = ref([20, 80]);
                               data-testid="productvariation-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
+                              class="w-full"
                               :manualInput="false"/>
 
                     <label for="range-date" class="cursor-pointer"></label>
