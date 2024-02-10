@@ -87,14 +87,6 @@ const toggleSelectedMenuState = (event) => {
 <!--                dropdown to select vendor -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-<!--                        <Dropdown v-model="store.selected_vendor"-->
-<!--                                  :options="store.active_vendors"-->
-<!--                                  optionLabel="name"-->
-<!--                                  placeholder="Select a Vendor"-->
-<!--                                  class="w-full"-->
-<!--                                  style="height:40px;">-->
-<!--                        </Dropdown>-->
-
                         <AutoComplete
                             name="products-vendor-search"
                             data-testid="products-vendor-search"
@@ -201,8 +193,3 @@ const toggleSelectedMenuState = (event) => {
 
 </template>
 
-<style scoped>
-.btn-danger{
-    background-color: red !important;
-}
-</style>

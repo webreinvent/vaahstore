@@ -1,11 +1,7 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
-import { useVendorStore } from '../../../stores/store-vendors'
-import { useProductVariationStore } from '../../../stores/store-productvariations'
 const store = useProductStore();
-const vendorStore = useVendorStore();
-const variationStore = useProductVariationStore();
 const useVaah = vaah()
 
 </script>

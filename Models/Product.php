@@ -267,7 +267,7 @@ class Product extends VaahModel
             $item = ProductVariation::where('name', $value['variation_name'])->where('vh_st_product_id',$product_id) ->withTrashed()->first();
             if ($item) {
 
-                $response['errors'][] = "This Variation name '{$value['variation_name']}' is already exist.";
+                $response['errors'][] = "This Variation name '{$value['variation_name']}' already exists.";
                 return $response;
             }
 
@@ -779,7 +779,7 @@ class Product extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':

@@ -32,17 +32,6 @@ onMounted(async () => {
      * Watch if url record id is changed, if changed
      * then fetch the new records from database
      */
-    /*watch(route, async (newVal,oldVal) =>
-        {
-            if(newVal.params && !newVal.params.id
-                && newVal.name === 'articles.view')
-            {
-                store.toList();
-
-            }
-            await store.getItem(route.params.id);
-        }, { deep: true }
-    )*/
 
 });
 

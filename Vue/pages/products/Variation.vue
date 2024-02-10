@@ -176,11 +176,6 @@ const toggleSelectedAttributeMenuState = (event) => {
 <!--                Product Variations-->
                 <div class="flex flex-wrap col-12"
                      v-if="store.variation_item.product_attributes && store.variation_item.product_attributes.length > 0">
-<!--                    <div class="col-9">-->
-<!--                        <span>-->
-<!--                            <b>Product Variations</b>-->
-<!--                        </span>-->
-<!--                    </div>-->
                     <div class="flex col-3">
                         <div class="pr-1">
                             <Button label="Create" @click="store.generateProductVariation()" severity="primary" size="small" />
@@ -189,43 +184,10 @@ const toggleSelectedAttributeMenuState = (event) => {
                     </div>
                 </div>
 
-<!--                &lt;!&ndash;                create variation table form&ndash;&gt;-->
-<!--                <div class="col-12" v-if="store.variation_item.show_create_form">-->
-<!--                    <table class="table col-12 table-scroll table-striped">-->
-<!--                        <thead>-->
-<!--                        <tr>-->
-<!--                            <th class="col-md-1">Variation name</th>-->
-<!--                            <th v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">-->
-<!--                                {{ item }}-->
-<!--                            </th>-->
-<!--                            <th class="col-md-2">Action</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody v-if="store.variation_item.show_create_form">-->
-<!--                        <tr>-->
-<!--                            <th class="col-md-1">-->
-<!--                                <InputText v-model="store.variation_item.new_variation['variation_name']"-->
-<!--                                           class="w-full md:w-5rem" />-->
-<!--                            </th>-->
-<!--                            <th class="col-md-2"-->
-<!--                                v-for="(item, index) in store.variation_item.create_variation_data.all_attribute_name">-->
-<!--                                <Dropdown v-model="store.variation_item.new_variation[item]"-->
-<!--                                          :options="store.variation_item.create_variation_data['create_attribute_values'][item]"-->
-<!--                                          optionLabel="value"-->
-<!--                                          class="w-full md:w-5rem" />-->
-<!--                            </th>-->
-<!--                            <th class="col-md-1">-->
-<!--                                <Button label="Add" size="small" @click="store.addNewProductVariation()" />-->
-<!--                            </th>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                </div>-->
-
 
 <!--                Bulk action -->
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.item.all_variation && Object.keys(store.item.all_variation).length > 0">
+                     v-if="store.item.all_variation && store.item.all_variation.structured_variation && store.item.all_variation.structured_variation.length > 0 && Object.keys(store.item.all_variation).length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -295,8 +257,3 @@ const toggleSelectedAttributeMenuState = (event) => {
 
 </template>
 
-<style scoped>
-.btn-danger{
-    background-color: red !important;
-}
-</style>

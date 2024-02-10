@@ -1,9 +1,7 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductStore } from '../../../stores/store-products'
-
 import Filters from './Filters.vue'
-
 const store = useProductStore();
 
 onMounted(async () => {
@@ -16,7 +14,6 @@ const selected_menu_state = ref();
 const toggleSelectedMenuState = (event) => {
     selected_menu_state.value.toggle(event);
 };
-//--------/selected_menu_state
 
 //--------bulk_menu_state
 const bulk_menu_state = ref();

@@ -621,6 +621,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         addNewProductAttribute(data = null){
 
+            this.select_all_attribute = null;
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 let  new_attribute = {
                     ...this.variation_item.selected_attribute,
@@ -654,6 +655,7 @@ export const useProductStore = defineStore({
 
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
                 this.getAttributeValues(this.afterGenerateVariations, 'generate');
+                this.select_all_variation = null;
             }
         },
         //---------------------------------------------------------------------

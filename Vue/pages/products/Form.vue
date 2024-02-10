@@ -5,7 +5,6 @@ import Editor from 'primevue/editor';
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
-
 const store = useProductStore();
 const route = useRoute();
 
