@@ -296,7 +296,7 @@ class Product extends VaahModel
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Variation Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
 
@@ -418,7 +418,7 @@ class Product extends VaahModel
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Vendor Added successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -457,8 +457,8 @@ class Product extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -467,8 +467,8 @@ class Product extends VaahModel
 
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -480,6 +480,7 @@ class Product extends VaahModel
         {
             $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
         }
+
         $item->slug = Str::slug($inputs['slug']);
 
         $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
@@ -488,31 +489,11 @@ class Product extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
 
-    //-------------------------------------------------
-
-    public static function removeVendor($request ,$id){
-
-        ProductVendor::where('id', $id)->update(['is_active'=>0]);
-        $product = ProductVendor::select('vh_st_product_id')->where('id', $id)->first();
-        $response = self::getItem($product->vh_st_product_id);
-        $response['messages'][] = 'Action Successful.';
-        return $response;
-
-    }
-
-    //------------------------------------------------
-
-    public static function bulkRemoveVendor($request ,$id){
-
-        ProductVendor::where('vh_st_product_id', $id)->update(['is_active'=>0]);
-        $response['messages'][] = 'Action Successful';
-        return $response;
-    }
 
     //------------------------------------------------
 
@@ -643,7 +624,7 @@ class Product extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -687,7 +668,7 @@ class Product extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -703,8 +684,8 @@ class Product extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -725,7 +706,7 @@ class Product extends VaahModel
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -834,7 +815,7 @@ class Product extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -852,7 +833,7 @@ class Product extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $array_item = $item->toArray();
@@ -900,8 +881,8 @@ class Product extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -911,8 +892,8 @@ class Product extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -924,7 +905,7 @@ class Product extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -934,7 +915,7 @@ class Product extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
         $item->forceDelete();
@@ -945,7 +926,7 @@ class Product extends VaahModel
         ProductStock::deleteProduct($item->id);
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }

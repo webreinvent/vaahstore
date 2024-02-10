@@ -372,7 +372,6 @@ class ProductsController extends Controller
 
             return [
                 'data' => [
-        //          'combination' => $combination,
                     'structured_variation' => $structured_variation,
                     'all_attribute_name' => $all_attribute_name
                 ]
