@@ -615,6 +615,7 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+
         if (!\Auth::user()->hasPermission('can-update-module')) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms::messages.permission_denied");
@@ -644,10 +645,14 @@ class ProductVariation extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        ProductMedia::deleteProductVariations($items_id);
-        ProductPrice::deleteProductVariations($items_id);
-        ProductAttribute::deleteProductVariations($items_id);
-        ProductStock::deleteProductVariations($items_id);
+        foreach ($items_id as $item_id)
+        {
+            self::deleteRelatedItem($item_id, ProductMedia::class);
+            self::deleteRelatedItem($item_id, ProductPrice::class);
+            self::deleteRelatedItem($item_id, ProductStock::class);
+            self::deleteProductAttribute($item_id);
+
+        }
         self::updateQuantity($items_id);
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
@@ -712,11 +717,14 @@ class ProductVariation extends VaahModel
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
 
+                    foreach ($items_id as $item_id)
+                    {
+                        self::deleteRelatedItem($item_id, ProductMedia::class);
+                        self::deleteRelatedItem($item_id, ProductPrice::class);
+                        self::deleteRelatedItem($item_id, ProductStock::class);
+                        self::deleteProductAttribute($item_id);
 
-                    ProductMedia::deleteProductVariations($items_id);
-                    ProductPrice::deleteProductVariations($items_id);
-                    ProductAttribute::deleteProductVariations($items_id);
-                    ProductStock::deleteProductVariations($items_id);
+                    }
                     self::updateQuantity($items_id);
                     self::whereIn('id', $items_id)->forceDelete();
                 }
@@ -741,10 +749,14 @@ class ProductVariation extends VaahModel
             case 'delete-all':
 
                 $items_id = self::all()->pluck('id')->toArray();
-                ProductMedia::deleteProductVariations($items_id);
-                ProductPrice::deleteProductVariations($items_id);
-                ProductAttribute::deleteProductVariations($items_id);
-                ProductStock::deleteProductVariations($items_id);
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedItem($item_id, ProductMedia::class);
+                    self::deleteRelatedItem($item_id, ProductPrice::class);
+                    self::deleteRelatedItem($item_id, ProductStock::class);
+                    self::deleteProductAttribute($item_id);
+
+                }
                 self::updateQuantity($items_id);
                 self::withTrashed()->forceDelete();
                 break;
@@ -867,10 +879,11 @@ class ProductVariation extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
-        ProductMedia::deleteProductVariation($item->id);
-        ProductPrice::deleteProductVariation($item->id);
-        ProductAttribute::deleteProductVariation($item->id);
-        ProductStock::deleteProductVariation($item->id);
+
+        self::deleteRelatedItem($item->id, ProductMedia::class);
+        self::deleteRelatedItem($item->id, ProductPrice::class);
+        self::deleteRelatedItem($item->id, ProductStock::class);
+        self::deleteProductAttribute($item->id);
         self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
@@ -1210,17 +1223,72 @@ class ProductVariation extends VaahModel
             $ids = [$ids];
         }
 
-        $items = self::whereIn('id', $ids)->get();
+        $items = Product::whereIn('id', $ids)->get();
         $product_ids = $items->pluck('vh_st_product_id')->unique();
 
         foreach ($product_ids as $product_id) {
-            $product = Product::find($product_id);
+            $product = Product::where('id',$product_id )->withTrashed()->first();
             if ($product) {
                 $product->quantity -= $items->where('vh_st_product_id', $product_id)->sum('quantity');
                 $product->save();
             }
         }
     }
+
+    //--------------------------------------------------------------------------------------
+
+
+    public static function deleteRelatedItem($item_id, $related_model)
+    {
+        $response = [];
+
+        if ($item_id) {
+            $item_exist = $related_model::where('vh_st_product_variation_id', $item_id)->first();
+            if ($item_exist) {
+                $related_model::where('vh_st_product_variation_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+    }
+    //--------------------------------------------------------------------------------------
+
+    public static function deleteProductAttribute($item_id){
+
+        $response=[];
+
+        if ($item_id) {
+            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+
+                $attribute_ids = $item_exist->pluck('id')->toArray();
+
+                foreach ($attribute_ids as $attribute_id) {
+                    $attribute_values = ProductAttributeValue::where('vh_st_product_attribute_id', $attribute_id)->get();
+
+                    if ($attribute_values) {
+                        $attribute_values->each(function ($value) {
+                            $value->forceDelete();
+                        });
+                    }
+                }
+                ProductAttribute::where('vh_st_product_variation_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+
+    }
+
+
+
 
 
 
