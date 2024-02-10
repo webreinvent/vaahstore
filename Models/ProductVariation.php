@@ -936,7 +936,7 @@ class ProductVariation extends VaahModel
             'sku' => 'required|min:1|max:50',
             'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
-            'price' => 'required',
+            'price' => 'nullable|numeric|max:9999999',
 
             'status_notes' => [
                 'max:100',
@@ -951,7 +951,7 @@ class ProductVariation extends VaahModel
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'description.max' => 'The Description field may not be greater than :max characters.',
-                'price.required'=>'The Price field is required.',
+                'price.max'=>'The Price field may not be greater than :max digits.',
 
 
             ]
