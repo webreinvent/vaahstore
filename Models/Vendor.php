@@ -748,8 +748,12 @@ class Vendor extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        ProductVendor::deleteVendors($items_id);
-        Warehouse::deleteVendors($items_id);
+        foreach ($items_id as $item_id)
+        {
+            self::deleteRelatedItem($item_id, ProductVendor::class);
+            self::deleteRelatedItem($item_id, Warehouse::class);
+
+        }
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -816,6 +820,12 @@ class Vendor extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach ($items_id as $item_id)
+                    {
+                        self::deleteRelatedItem($item_id, ProductVendor::class);
+                        self::deleteRelatedItem($item_id, Warehouse::class);
+
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -839,8 +849,13 @@ class Vendor extends VaahModel
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
-                ProductVendor::deleteVendors($items_id);
-                Warehouse::deleteVendors($items_id);
+
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedItem($item_id, ProductVendor::class);
+                    self::deleteRelatedItem($item_id, Warehouse::class);
+
+                }
                 self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
@@ -1015,8 +1030,8 @@ class Vendor extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        ProductVendor::deleteVendor($item->id);
-        Warehouse::deleteVendor($item->id);
+            self::deleteRelatedItem($item->id, ProductVendor::class);
+            self::deleteRelatedItem($item->id, Warehouse::class);
         $item->forceDelete();
 
         $response['success'] = true;
@@ -1312,6 +1327,25 @@ class Vendor extends VaahModel
         $search_product = $search_product->limit(10)->get();
         $response['success'] = true;
         $response['data'] = $search_product;
+        return $response;
+    }
+
+    //-----------------------------------------------------------------
+
+    public static function deleteRelatedItem($item_id, $related_model)
+    {
+        $response = [];
+
+        if ($item_id) {
+            $item_exist = $related_model::where('vh_st_vendor_id', $item_id)->first();
+            if ($item_exist) {
+                $related_model::where('vh_st_vendor_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
         return $response;
     }
 
