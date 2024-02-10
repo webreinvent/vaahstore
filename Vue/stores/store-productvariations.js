@@ -89,6 +89,8 @@ export const useProductVariationStore = defineStore({
         max_quantity : 0,
         product_variation_status:null,
         first_element: null,
+        products_suggestion:null,
+        products:null
     }),
     getters: {
 
@@ -112,6 +114,7 @@ export const useProductVariationStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -138,9 +141,7 @@ export const useProductVariationStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
         async searchProduct(event) {
-
             const query = event;
             const options = {
                 params: query,
@@ -153,18 +154,11 @@ export const useProductVariationStore = defineStore({
                 options
             );
         },
-
         //---------------------------------------------------------------------
-
         searchProductAfter(data,res){
-
-            if (data) {
-                this.filtered_products= data.map(products => ({
-                    ...products,
-                    name: products.name,
-                }));
+            if(data){
+                this.products_suggestion = data;
             }
-
         },
 
         //---------------------------------------------------------------------
@@ -287,7 +281,8 @@ export const useProductVariationStore = defineStore({
                 this.assets = data;
                 this.status = data.taxonomy.status;
                 this.product_variation_status = data.taxonomy.vendor_status;
-                this.active_products = data.active_products
+                this.active_products = data.active_products;
+                this.products = data.products;
                 if(data.rows)
                 {
 
@@ -739,7 +734,7 @@ export const useProductVariationStore = defineStore({
         {
             await this.resetQueryString();
             this.selected_dates=[];
-            this.selected_product = null;
+            this.selected_products = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
 
             this.quantity =[];
@@ -1183,23 +1178,6 @@ export const useProductVariationStore = defineStore({
             this.meta_dialog=true;
 
         },
-        //---------------------------------------------------------------------
-
-        async sendMail(event) {
-
-            await vaah().ajax(
-                this.ajax_url+'/send/mail',
-                this.sendMailAfter,
-            );
-        },
-
-        //---------------------------------------------------------------------
-
-        sendMailAfter(data,res){
-
-            console.log(data,res);
-
-        },
 
         //---------------------------------------------------------------------
 
@@ -1243,29 +1221,55 @@ export const useProductVariationStore = defineStore({
                 this.min_quantity = this.assets.min_max_quantity.min_quantity;
             }
         },
+        //-----------------------------------------------------
+
+        addSelectedProduct () {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.selected_products) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const products_slug = unique_products.map(product => product.slug);
+            this.selected_products = unique_products;
+            this.query.filter.products = products_slug;
+        },
+        //-----------------------------------------------------
+
+        async setProductInFilter()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/route-query-products',
+                this.setProductInFilterAfter,
+                options
+            );
+
+
+        },
 
         //---------------------------------------------------------------------
 
-        async setProductInFilter(){
+        setProductInFilterAfter(data, res) {
 
-            if (this.route.query.filter && this.route.query.filter.product )
-            {
-                let product_slug = this.route.query.filter.product;
-                let product = this.active_products.find(product => product.slug === product_slug);
-                let filter_product = null;
-                if (product) {
-                    filter_product = {
-                        id: product.id,
-                        name: product.name,
-                        slug: product.slug,
-                    };
-                }
-
-                this.selected_product = filter_product;
+            if (data) {
+                this.selected_products = data;
             }
-
         },
-        //-----------------------------------------------------
+
     },
 
 });

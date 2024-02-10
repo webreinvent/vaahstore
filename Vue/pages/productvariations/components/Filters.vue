@@ -11,7 +11,6 @@ const store = useProductVariationStore();
 onMounted(async () => {
 
     await store.setQuantityRange();
-
     await store.setProductInFilter();
 
 
@@ -33,32 +32,30 @@ const value = ref([20, 80]);
                     <b>Product:</b>
                 </template>
 
-
-                <AutoComplete
-                    value="id"
-                    v-model="store.selected_product"
-                    @change="store.setProductFilter($event)"
-                    class="w-full"
-                    :suggestions="store.filtered_products"
-                    @complete="store.searchProduct($event)"
-                    :pt="{
-                                      token: {
-                                        class: 'max-w-full'
-                                      },
-                                      removeTokenIcon: {
-                                          class: 'min-w-max'
-                                      },
-                                      item: { style: {
-                                                    textWrap: 'wrap'
-                                                }  },
-                                       panel: { class: 'w-16rem ' }
-                                  }"
-                    placeholder="Select Product"
-                    data-testid="productvariations-product"
-                    append-to="self"
-                    name="productvariations-product"
-                    :dropdown="true" optionLabel="name" forceSelection>
-                </AutoComplete>
+                <AutoComplete name="product-variations-product-filter"
+                              data-testid="product-variations-product-filter"
+                              v-model="store.selected_products"
+                              @change = "store.addSelectedProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.products_suggestion"
+                              @complete="store.searchProduct($event)"
+                              placeholder = "select product"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
 
             </VhFieldVertical>
 
@@ -70,7 +67,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="in-stock-yes"
                                  value="true"
-                                 data-testid="stores-filters-in-stock-yes"
+                                 data-testid="product-variations-filters-in-stock-yes"
                                  v-model="store.query.filter.in_stock" />
                     <label for="in-stock-yes">Yes</label>
                 </div>
@@ -78,7 +75,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="in-stock-no"
                                  value="false"
-                                 data-testid="stores-filters-in-stock-no"
+                                 data-testid="product-variations-filters-in-stock-no"
                                  v-model="store.query.filter.in_stock" />
                     <label for="in-stock-no">No</label>
                 </div>
@@ -92,14 +89,14 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="default-product-variation-yes"
                                  value="true"
-                                 data-testid="stores-filters-default-product-variation-yes"
+                                 data-testid="product-variations-filters-default-product-variation-yes"
                                  v-model="store.query.filter.default" />
                     <label for="default-product-variation-yes">Yes</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="default-product-variation-no"
                                  value="false"
-                                 data-testid="stores-filters-default-product-variation-no"
+                                 data-testid="product-variations-filters-default-product-variation-no"
                                  v-model="store.query.filter.default" />
                     <label for="default-product-variation-no">No</label>
                 </div>
@@ -119,6 +116,7 @@ const value = ref([20, 80]);
                         placeholder="Select Status"
                         display="chip"
                         class="w-full relative"
+                        data-testid="product-variations-status-filters"
                         appendTo="self"
                     />
                 </VhField>
@@ -135,7 +133,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="sort-none"
                                  inputId="sort-none"
-                                 data-testid="productvariations-filters-sort-none"
+                                 data-testid="product-variations-filters-sort-none"
                                  value=""
                                  v-model="store.query.filter.sort" />
                     <label for="sort-none" class="cursor-pointer">None</label>
@@ -143,7 +141,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="sort-ascending"
                                  inputId="sort-ascending"
-                                 data-testid="productvariations-filters-sort-ascending"
+                                 data-testid="product-variations-filters-sort-ascending"
                                  value="updated_at"
                                  v-model="store.query.filter.sort" />
                     <label for="sort-ascending" class="cursor-pointer">Updated (Ascending)</label>
@@ -151,7 +149,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="sort-descending"
                                  inputId="sort-descending"
-                                 data-testid="productvariations-filters-sort-descending"
+                                 data-testid="product-variations-filters-sort-descending"
                                  value="updated_at:desc"
                                  v-model="store.query.filter.sort" />
                     <label for="sort-descending" class="cursor-pointer">Updated (Descending)</label>
@@ -170,14 +168,14 @@ const value = ref([20, 80]);
                     <RadioButton name="active-all"
                                  inputId="active-all"
                                  value="null"
-                                 data-testid="productvariations-filters-active-all"
+                                 data-testid="product-variations-filters-active-all"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-all" class="cursor-pointer">All</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="active-true"
                                  inputId="active-true"
-                                 data-testid="productvariations-filters-active-true"
+                                 data-testid="product-variations-filters-active-true"
                                  value="true"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-true" class="cursor-pointer">Only Active</label>
@@ -185,7 +183,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="active-false"
                                  inputId="active-false"
-                                 data-testid="productvariations-filters-active-false"
+                                 data-testid="product-variations-filters-active-false"
                                  value="false"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-false" class="cursor-pointer">Only Inactive</label>
@@ -201,7 +199,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-exclude"
                                  inputId="trashed-exclude"
-                                 data-testid="productvariations-filters-trashed-exclude"
+                                 data-testid="product-variations-filters-trashed-exclude"
                                  value=""
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-exclude" class="cursor-pointer">Exclude Trashed</label>
@@ -209,7 +207,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-include"
                                  inputId="trashed-include"
-                                 data-testid="productvariations-filters-trashed-include"
+                                 data-testid="product-variations-filters-trashed-include"
                                  value="include"
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-include" class="cursor-pointer">Include Trashed</label>
@@ -217,7 +215,7 @@ const value = ref([20, 80]);
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-only"
                                  inputId="trashed-only"
-                                 data-testid="productvariations-filters-trashed-only"
+                                 data-testid="product-variations-filters-trashed-only"
                                  value="only"
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-only" class="cursor-pointer">Only Trashed</label>
@@ -238,7 +236,7 @@ const value = ref([20, 80]);
                               name="range-date"
                               inputId="range-date"
                               placeholder="Choose date range"
-                              data-testid="productvariation-filters-range-date"
+                              data-testid="product-variation-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               class="w-full"
@@ -270,6 +268,7 @@ const value = ref([20, 80]);
                                 range
                                 :min="store.assets.min_max_quantity.min_quantity"
                                 :max="store.assets.min_max_quantity.max_quantity"
+                                data-testid="product-variation-sliders"
                                 @change="store.quantityFilter()"
                                 class="w-14rem mt-2"
                         />

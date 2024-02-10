@@ -471,18 +471,20 @@ class ProductVariation extends VaahModel
 
     public function scopeProductFilter($query, $filter)
     {
-        if(!isset($filter['product'])
-            || is_null($filter['product'])
-            || $filter['product'] === 'null'
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
         )
         {
             return $query;
         }
 
-        $store = $filter['product'];
+        $product = $filter['products'];
 
-        $query->whereHas('product', function ($query) use ($store) {
-            $query->where('slug', $store);
+
+
+        $query->whereHas('product', function ($query) use ($product) {
+            $query->whereIn('slug', $product);
 
         });
 
@@ -1148,7 +1150,7 @@ class ProductVariation extends VaahModel
                     $message .= '<td>' . $product_name . '</td>';
                     $message .= '<td>' . $product_variation_count[$product_id]['count'] . '</td>';
                     $message .= '<td>' . $product_variation_count[$product_id]['min_quantity'] . ' to ' . $product_variation_count[$product_id]['max_quantity'] . '</td>';
-                    $message .= '<td><a href="http://localhost/Sumit/store-dev/public/backend/store#/productvariations?page=1&rows=20&filter[product]=' . $product_slug . '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
+                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[products][]=' . $product_slug. '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
                     $message .= '</tr>';
                 }
             }
@@ -1286,6 +1288,21 @@ class ProductVariation extends VaahModel
         return $response;
 
     }
+
+    //------------------------------------------------------------------------------
+
+    public static function setProductInFilter($request)
+    {
+
+        $query = $request['filter']['product'];
+        $products = Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+    }
+
 
 
 
