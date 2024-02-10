@@ -18,7 +18,7 @@ onMounted(async () => {
     /**
      * call onLoad action when List view loads
      */
-     document.title = 'Users - Store';
+     document.title = 'Customers - Store';
     await store.onLoad(route);
 
     /**
@@ -54,7 +54,7 @@ onMounted(async () => {
                 <template class="p-1" #header>
                     <div class="flex flex-row">
                         <div >
-                            <b class="mr-1">Users</b>
+                            <b class="mr-1">Customers</b>
                             <Badge v-if="store.list && store.list.total > 0"
                                    :value="store.list.total"
                             />
