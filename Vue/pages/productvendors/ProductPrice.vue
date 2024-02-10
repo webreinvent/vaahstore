@@ -54,6 +54,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="productvendors-save"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             @click="store.itemAction('save-productprice')"
                             icon="pi pi-save"/>
@@ -71,20 +72,6 @@ const toggleFormMenu = (event) => {
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <!--form_menu-->
-<!--                    <Button-->
-<!--                        type="button"-->
-<!--                        class="p-button-sm"-->
-<!--                        @click="toggleFormMenu"-->
-<!--                        data-testid="productvendors-form-menu"-->
-<!--                        icon="pi pi-angle-down"-->
-<!--                        aria-haspopup="true"/>-->
-
-<!--                    <Menu ref="form_menu"-->
-<!--                          :model="store.form_menu_list"-->
-<!--                          :popup="true" />-->
-                    <!--/form_menu-->
-
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
@@ -98,47 +85,39 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item">
+                <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 
-                <VhField label="Product Variation">
+                    <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
+                        <thead class="p-datatable-thead">
+                        <tr>
+                            <th>Variations Name</th>
+                            <th>Price</th>
+                        </tr>
+                        </thead>
+                        <tbody class="p-datatable-tbody">
+                        <tr v-for="(variation, index) in store.product_variation_list" :key="index">
+                            <td>{{ variation.name }}</td>
+                            <td>
+                                <InputNumber
+                                    :placeholder="'Enter price '"
+                                    :inputId="'minmax-buttons-' + index"
+                                    :name="'productprices-amount-' + index"
+                                    v-model="variation.amount"
+                                    :min="0"
+                                    :max="150000000000000"
+                                    mode="decimal"
+                                    class="p-inputtext-sm h-2rem m-1"
+                                    showButtons
+                                    :data-testid="'productprices-amount-' + index"
+                                />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div v-else  style="text-align: center;font-size: 12px; color: #888;">No variation found.</div>
+                </div>
 
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.product_variation"
-                        class="w-full"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
-                        placeholder="Select Product Variation"
-                        data-testid="productprices-product_variation"
-                        name="productprices-product_variation"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
 
-                </VhField>
-
-                <VhField label="Amount">
-
-                    <InputNumber
-                        placeholder="Enter a Amount"
-                        inputId="minmax-buttons"
-                        name="productprices-amount"
-                        v-model="store.item.amount"
-                        :min="0"
-                        :max="150000000000000"
-                        mode="decimal" showButtons
-                        data-testid="productprices-amount"/>
-
-                </VhField>
-
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="productprices-active"
-                                 data-testid="productprices-active"
-                                 v-model="store.item.is_active_product_price"/>
-                </VhField>
-
-            </div>
         </Panel>
 
     </div>

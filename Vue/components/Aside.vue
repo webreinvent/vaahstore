@@ -43,7 +43,7 @@ const items = ref([
             {
                 label: 'Vendor Products',
                 icon: 'fa-regular fa-clone',
-                route: "/productvendors"
+                route: "/vendorproducts"
             },
             {
                 label: 'Products',
@@ -113,7 +113,7 @@ const items = ref([
             {
                 label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
-                route: "/whishlists"
+                route: "/wishlists"
             },
         ]
     },

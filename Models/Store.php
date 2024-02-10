@@ -190,7 +190,7 @@ class Store extends VaahModel
             ->endOfDay()
             ->toDateTimeString();
 
-       return $query->whereBetween('created_at', [$from, $to]);
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
 
@@ -667,7 +667,7 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-
+//dd($request->filter);
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -678,6 +678,7 @@ class Store extends VaahModel
         $list->multiLanguageFilter($request->filter);
         $list->multiVendorFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->storeIdFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -874,21 +875,21 @@ class Store extends VaahModel
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -1085,8 +1086,8 @@ class Store extends VaahModel
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
                 $item->is_default = null;
@@ -1258,5 +1259,22 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
+
+
+    public function scopestoreIdFilter($query, $filter)
+    {
+
+        if(!isset($filter['store_ids']))
+        {
+            return $query;
+        }
+        $search = $filter['store_ids'];
+        $query->where(function ($q) use ($search) {
+            $q->where(function ($q) use ($search) {
+                $q->whereIn('id', $search );
+
+            });
+        });
+    }
 
 }

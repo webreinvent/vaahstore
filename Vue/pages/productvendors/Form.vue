@@ -64,6 +64,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="productvendors-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
@@ -71,6 +72,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             data-testid="productvendors-create-and-new"
                             icon="pi pi-save"/>
@@ -86,6 +88,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         class="p-button-sm"
                         data-testid="productvendors-form-menu"
                         icon="pi pi-angle-down"
@@ -136,14 +139,20 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Vendor" >
+                <VhField label="Vendor*" >
                     <div class="p-inputgroup">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
                         @change="store.setVendor($event)"
-                        :suggestions="store.vendor_suggestion"
+                        :suggestions="store.active_vendors_list"
                         @complete="store.searchVendor($event)"
+                        :pt="{
+                                       panel: { class: 'w-16rem ' },
+                                       item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
+                                  }"
                         placeholder="Select Vendor"
                         data-testid="productvendors-vendor"
                         name="productvendors-vendor"
@@ -154,30 +163,51 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Store">
-                    <MultiSelect class="w-full"
-                                 v-model="store.item.product_variation_store"
-                                 display="chip"
-                                 data-testid="productvendors-stores"
-                                 name="productvendors-stores"
-                                 :options="store.assets.active_stores"
-                                 optionLabel="name"
-                                 placeholder="Select Stores"
-                                 :maxSelectedLabels="3"
-                                 @change="store.getProductsListForStore()" />
+                <VhField label="Store*">
+                        <AutoComplete
+                            data-testid="productvendors-stores"
+                            v-model="store.item.store_vendor_product"
+                            optionLabel="name"
+                            multiple
+                            :complete-on-focus = "true"
+                            :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
+                            :suggestions="store.active_stores"
+                            @complete="store.searchActiveStores($event)"
+                            placeholder="Select Stores "
+                            @change="store.setStores($event)"
+                            class="w-full "
+
+                        />
                 </VhField>
 
-                <VhField label="Product" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
+                <VhField label="Product*" >
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
-                                  @complete="store.searchProduct($event)"
+                                  @complete="store.getProductsListForStore($event)"
                                   :suggestions="store.product_suggestion"
                                   class="w-full"
                                   placeholder="Select Product"
                                   data-testid="productvendors-product"
                                   name="productvendors-product"
                                   :dropdown="true"
+                                  :pt="{
+                                       panel: { class: 'w-16rem ' },
+                                       item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
+                                  }"
                                   optionLabel="name"
                                   forceSelection>
                         <template #option="slotProps">
@@ -193,11 +223,11 @@ const toggleFormMenu = (event) => {
                         <div class="col-4">
                             <div class="p-selectbutton p-buttonset p-component" role="group" aria-labelledby="single" style="box-shadow: none;">
                                 <div role="radio" class="p-button p-component" :class="store.item.can_update == 0 ? 'bg-red-500 text-white' : ''">
-                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">no</span>
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 0">No</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                                 <div role="radio" class="p-button p-component"  :class="store.item.can_update == 1 ? 'p-highlight' : ''">
-                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">yes</span>
+                                    <span data-testid="productvendors-can_update" name="productvendors-can_update" class="p-button-label" @click="store.item.can_update = 1">Yes</span>
                                     <span class="p-ink" role="presentation" aria-hidden="true"></span>
                                 </div>
                             </div>
@@ -206,7 +236,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Added By">
+                <VhField label="Added By*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.added_by_user"
@@ -215,7 +245,7 @@ const toggleFormMenu = (event) => {
                         name="productvendors-added_by"
                         id="added_by"
                         data-testid="productvendors-added_by"
-                        :suggestions="store.added_by_suggestion"
+                        :suggestions="store.active_users_list"
                         @complete="store.searchAddedBy($event)"
                         placeholder="Select Added by"
                         :dropdown="true"
@@ -224,7 +254,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
 
                     <AutoComplete
                         value="id"
@@ -233,7 +263,7 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         data-testid="productvendors-status"
                         name="productvendors-status"
-                        :suggestions="store.status_suggestion"
+                        :suggestions="store.status_suggestion_list"
                         @complete="store.searchStatus($event)"
                         placeholder="Select Status"
                         :dropdown="true"

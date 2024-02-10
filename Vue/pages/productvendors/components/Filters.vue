@@ -14,15 +14,70 @@ const store = useProductVendorStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
+                    <b>Product By:</b>
+                </template>
+                <VhField label="Product">
+                    <AutoComplete name="productvendors-filters-product"
+                                  data-testid="productvendors-filters-product"
+                                  v-model="store.selected_product"
+                                  @change = "store.addProductFIlter()"
+                                  option-label = "name"
+                                  option-value = "name"
+                                  multiple
+                                  :complete-on-focus = "true"
+                                  :suggestions="store.filter_product_suggetion"
+                                  @complete="store.getProduct($event)"
+                                  placeholder="Select Product"
+                                  class="w-full "
+                                  :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"/>
+                </VhField>
+
+
+            </VhFieldVertical>
+
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Created Between:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          class="w-full"
+                          data-testid="productvendors-filters-create_date_range"
+                          placeholder="Select Data Range"
+                />
+
+
+            </VhFieldVertical >
+
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Status By:</b>
                 </template>
                 <VhField label="Status">
                     <MultiSelect
-                        v-model="store.query.filter.product_vendor_status"
-                        :options="store.assets.taxonomy.status"
+                        v-model="store.query.filter.status"
+                        :options="store.status_option"
                         filter
                         optionValue="name"
                         optionLabel="name"
+                        data-testid="productvendors-filter"
                         placeholder="Select Status"
                         display="chip"
                         class="w-full" />
@@ -30,6 +85,7 @@ const store = useProductVendorStore();
 
 
             </VhFieldVertical>
+            <Divider/>
 
             <VhFieldVertical >
                 <template #label>
