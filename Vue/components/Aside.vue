@@ -115,6 +115,11 @@ const items = ref([
                 icon: 'fa-regular fa-chart-bar',
                 route: "/wishlists"
             },
+            {
+                label: 'Customers',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/users"
+            },
         ]
     },
 ]);
