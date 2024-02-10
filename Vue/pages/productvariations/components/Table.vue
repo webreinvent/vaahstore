@@ -124,7 +124,6 @@ onMounted(async () => {
             <Column
                 field="is_active"
                 v-if="store.isViewLarge()"
-                :sortable="true"
                 style="width:100px;"
                 header="Is Active"
             >
@@ -193,22 +192,11 @@ onMounted(async () => {
 
             </Column>
 
-             <template #empty>
-                 <tr>
-                     <td>
+            <template #empty="prop">
 
+                <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
 
-                         <h1 style="font-family: Inter,ui-sans-serif,system-ui,
-                         -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-                         Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-                         Noto Color Emoji;
-                         font-size: .8rem;
-                         margin-left: 19rem;
-                         font-weight: 400;">No Record found.</h1>
-
-                     </td>
-                 </tr>
-             </template>
+            </template>
 
         </DataTable>
         <!--/table-->
