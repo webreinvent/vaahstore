@@ -182,39 +182,30 @@ const store = useProductStore();
             <br/>
             <VhFieldVertical >
                 <template #label>
-                    <b>Quantity Range Filter:</b>
+                    <b>Quantity Count Range:</b>
                 </template>
 
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
-                        <div class="flex">
-                            <label for="min-quantity" class="mr-2 mt-2" style="width:50px;">From:</label>
-                            <InputNumber
-                                       id="min-quantity"
-                                       name="products-min-quantity"
-                                       data-testid="products-min-quantity"
-                                       placeholder="Minimum Quantity"
-                                       @input="store.updateMinQuantity($event)"
-                                       v-model="store.quantity.from"
-                                       style="width: 200px;"/>
+                        <div class="flex justify-content-between">
+                            <badge>{{ store.min_quantity | bold }}</badge>
+                            <badge>{{ store.max_quantity | bold }}</badge>
+
                         </div>
 
-                        <div class="flex mt-2">
-                            <label for="max-quantity" class="mr-2 mt-2" style="width:50px;">To:</label>
-                            <InputNumber class="ml-3"
-                                       id="max-quantity"
-                                       name="products-max-quantity"
-                                       data-testid="products-max-quantity"
-                                       placeholder="Maximum Quantity"
-                                         @input="store.updateMaxQuantity($event)"
-                                       v-model="store.quantity.to"
-                                       style="width: 200px;"/>
-                        </div>
-
+                        <Slider v-model="store.quantity"
+                                range
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                data-testid="product-variation-sliders"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
                     </div>
                 </div>
 
             </VhFieldVertical>
+
 
             <br/>
 

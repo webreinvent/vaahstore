@@ -120,6 +120,8 @@ export const useProductStore = defineStore({
         prev_list:[],
         current_list:[],
         vendor_suggestion : null,
+        min_quantity : null,
+        max_quantity : null,
 
     }),
     getters: {
@@ -276,8 +278,9 @@ export const useProductStore = defineStore({
             }
             if(route.query && route.query.filter && route.query.filter.quantity)
             {
-                this.quantity.from = route.query.filter.quantity.from;
-                this.quantity.to = route.query.filter.quantity.to;
+                this.quantity=route.query.filter.quantity;
+                this.min_quantity = route.query.filter.quantity[0];
+                this.max_quantity = route.query.filter.quantity[1];
             }
         },
         //---------------------------------------------------------------------
@@ -818,6 +821,8 @@ export const useProductStore = defineStore({
                 this.types = data.taxonomy.types;
                 this.active_vendors = data.active_vendors;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
+                this.min_quantity = data.min_quantity;
+                this.max_quantity = data.max_quantity;
                 if(data.rows)
                 {
                     data.rows = this.query.rows;
