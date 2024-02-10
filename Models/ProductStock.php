@@ -34,8 +34,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug','vh_st_vendor_id','vh_st_product_id',
+        'vh_st_vendor_id','vh_st_product_id',
         'vh_st_product_variation_id','vh_st_warehouse_id',
         'quantity','taxonomy_id_product_stock_status','status_notes',
         'is_active',
@@ -185,17 +184,20 @@ class ProductStock extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
-        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
+        //update quantity in product variation
+        $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
+            ->withTrashed()->first();
         $product_variation->quantity += $inputs['quantity'];
         $product_variation->save();
 
-        $product = Product::find($inputs['vh_st_product_id']);
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])->sum('quantity');
+        //update quantity in product
+        $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
+        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
+            ->withTrashed()->sum('quantity');
         $product->save();
-
+            
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -539,11 +541,6 @@ class ProductStock extends VaahModel
                 break;
             case 'trash-all':
                 $list->update(['deleted_by'  => auth()->user()->id]);
-                $item_ids = $list->pluck('id')->toArray();
-                foreach($item_ids as $item_id)
-                {
-                    self::updateStock($item_id);
-                }
                 $list->delete();
                 break;
             case 'restore-all':
@@ -552,10 +549,9 @@ class ProductStock extends VaahModel
                 break;
             case 'delete-all':
                 $item_ids = $list->pluck('id')->toArray();
-
                 foreach($item_ids as $item_id)
                 {
-                    self::increaseStock($item_id);
+                    self::updateStock($item_id);
                 }
                 $list->forceDelete();
                 break;
@@ -645,15 +641,16 @@ class ProductStock extends VaahModel
         $item->save();
 
         //update the quantity in variation table
-        $product_variation = ProductVariation::find($inputs['vh_st_product_variation_id']);
+        $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
+            ->withTrashed()->first();
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
 
         //update the quantity in product table
-        $product = Product::find($inputs['vh_st_product_id']);
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])->sum('quantity');
+        $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
+        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
+            ->withTrashed()->sum('quantity');
         $product->save();
-
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -669,7 +666,7 @@ class ProductStock extends VaahModel
             return $response;
         }
 
-        self::increaseStock($id);
+        self::updateStock($id);
         $item->forceDelete();
 
         $response['success'] = true;
@@ -702,7 +699,6 @@ class ProductStock extends VaahModel
                     $item->deleted_by = auth()->user()->id;
                     $item->save();
                 }
-                self::updateStock($id);
                 break;
 
             case 'restore':
@@ -712,7 +708,6 @@ class ProductStock extends VaahModel
                     $item = self::where('id',$id)->withTrashed()->first();
                     $item->deleted_by = null;
                     $item->save();
-                    self::updateStock($id);
                 break;
         }
 
@@ -1133,16 +1128,17 @@ class ProductStock extends VaahModel
     public static function updateStock($id)
     {
         $item = self::where('id',$id)->withTrashed()->first();
-        $product_variation = ProductVariation::where('id',$item->vh_st_product_variation_id)
-            ->first();
+        $product_variation = ProductVariation::where('id', $item->vh_st_product_variation_id)
+            ->withTrashed()->first();
         if($product_variation->quantity)
         {
             $product_variation->quantity -= $item->quantity;
         }
 
         $product_variation->save();
-        $product = Product::find($item->vh_st_product_id);
-        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)->sum('quantity');
+        $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
+        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)
+            ->withTrashed()->sum('quantity');
         $product->save();
     }
 
