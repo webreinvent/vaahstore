@@ -435,11 +435,9 @@ class ProductVariation extends VaahModel
         $in_stock = $filter['in_stock'];
 
         if ($in_stock === 'false') {
-            $query->where(function ($query) {
-                $query->where('in_stock', false)->orWhere('quantity', 0);
-            });
+            $query->where('quantity', '=', 0);
         } elseif ($in_stock === 'true') {
-            $query->where('in_stock', true)->where('quantity', '>', 1);
+            $query->where('quantity', '>', 0);
         }
 
         return $query;
