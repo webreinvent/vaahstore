@@ -974,6 +974,34 @@ export const useCustomerGroupStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        async getCustomers(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customers',
+                this.getCustomersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        getCustomersAfter(data,res) {
+            if(data)
+            {
+                this.customer_suggestions_list = data;
+            }
+        },
+        updateCustomerList() {
+            const unique_selected_customers = new Set(this.item.customers);
+
+            this.item.customers = Array.from(unique_selected_customers);
+
+        },
     }
 });
 

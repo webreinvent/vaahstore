@@ -121,25 +121,35 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Customer Count">
-                    <InputNumber
-                        placeholder="Enter a Customer Count"
-                        name="customergroups-customer_count"
-                        v-model="store.item.customer_count"
-                        inputId="minmaxfraction" showButtons
-                        :min=0
-                        data-testid="customergroups-customer_count"/>
+
+                <VhField label="Add Customers">
+                    <AutoComplete
+                        name="customergroups-customer-filter"
+                        data-testid="customergroups-customer-filter"
+                        v-model="store.item.customers"
+                        @change="store.updateCustomerList()"
+                        option-label = "display_name"
+                        multiple
+                        :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
+                        :complete-on-focus = "true"
+                        :suggestions="store.customer_suggestions_list"
+                        @complete="store.getCustomers($event)"
+                        placeholder="Select Customers"
+                        class="w-full">
+                    </AutoComplete>
                 </VhField>
 
-                <VhField label="Order Count">
-                    <InputNumber
-                        placeholder="Enter a Order Count"
-                        name="customergroups-order_count"
-                        v-model="store.item.order_count"
-                        :min=0
-                        inputId="minmaxfraction" showButtons
-                        data-testid="customergroups-order_count"/>
-                </VhField>
 
                 <VhField label="Status">
                     <AutoComplete

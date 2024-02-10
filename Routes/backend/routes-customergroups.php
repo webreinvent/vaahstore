@@ -85,5 +85,6 @@ Route::group(
             ->name('vh.backend.store.customergroups.item.action');
 
         //---------------------------------------------------------
-
+        Route::post('/search/customers', 'CustomerGroupsController@searchCustomers')
+            ->name('vh.backend.store.customergroups.search.customer');
     });

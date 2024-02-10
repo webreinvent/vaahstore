@@ -762,6 +762,32 @@ class CustomerGroup extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchCustomers($request){
+        $customerQuery = User::select('id', 'first_name', 'last_name','display_name')
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            });
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $customerQuery->where(function ($q) use ($query) {
+                $q->where('display_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $customers = $customerQuery->limit(10)->get()->map(function ($customer) {
+            $customer['name'] = $customer['display_name'] ;
+            return $customer;
+        });
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 
