@@ -68,7 +68,7 @@ class ProductsController extends Controller
             }
 
             // get min and max quantity from the product filter
-            $product = Product::all();
+            $product = Product::withTrashed()->get();
             if($product->isNotEmpty())
             {
                 $quantities = $product->pluck('quantity')->toArray();

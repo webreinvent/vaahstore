@@ -1040,8 +1040,8 @@ class Product extends VaahModel
     public static function  validation($inputs)
     {
         $rules = validator($inputs, [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
             'summary' => 'max:100',
             'vh_st_store_id'=> 'required',
             'vh_st_brand_id'=> 'required',
@@ -1115,6 +1115,14 @@ class Product extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
+            if(isset($item->seo_meta_keyword))
+            {
+                $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
+            }
+            $item->slug = Str::slug($inputs['slug']);
+
+            $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
+            $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
             $item->save();
 
             $i++;
@@ -1196,7 +1204,7 @@ class Product extends VaahModel
         $inputs['vh_st_brand_id'] = $brand_id;
 
         // fill the taxonomy status field here
-        $taxonomy_status = Taxonomy::getTaxonomyByType('store-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
         $inputs['taxonomy_id_product_status'] = $status_id;
@@ -1246,7 +1254,6 @@ class Product extends VaahModel
         }
 
     }
-
     //-------------------------------------------------
 
     public function scopeDateFilter($query, $filter)

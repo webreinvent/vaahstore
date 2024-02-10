@@ -80,17 +80,13 @@ const store = useProductStore();
                               @complete="store.searchVendor($event)"
                               placeholder="Select Vendor"
                               class="w-full "
-                              :pt="{
-                                              token: {
-                        class: 'max-w-full'
-                    },
-                    removeTokenIcon: {
-                    class: 'min-w-max'
-                    },
-                    item: { style: {
-                    textWrap: 'wrap'
-                    }  },
-                    panel: { class: 'w-16rem ' }
+                              :pt="{ token:
+                               {class: 'max-w-full'},
+                               removeTokenIcon: {class: 'min-w-max'},
+                               item: { style: {
+                                      textWrap: 'wrap'
+                                      }  },
+                               panel: { class: 'w-16rem ' }
                                                 }"/>
 
             </VhFieldVertical>
