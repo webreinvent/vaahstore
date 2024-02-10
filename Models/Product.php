@@ -380,6 +380,7 @@ class Product extends VaahModel
         $input = $request->all();
 
         $product_id = $input['id'];
+        $store_id = $input['vh_st_store_id'];
         $validation = self::validatedVendor($input['vendors']);
         if (!$validation['success']) {
             return $validation;
@@ -392,41 +393,28 @@ class Product extends VaahModel
 
             $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
 
-            if (isset($value['id']) && !empty($value['id'])){
-
-                $item = ProductVendor::where('id',$value['id'])->first();
-                $item->vh_st_product_id = $product_id;
-                $item->vh_st_vendor_id = $value['vendor']['id'];
-                $item->added_by = $active_user->id;
-                $item->can_update = $value['can_update'];
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
-                $item->is_active = 1;
-                $item->save();
-            }else if($product_vendor){
-                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' is already exist.";
+            if($product_vendor){
+                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' already exists.";
                 return $response;
-            }else {
-
-                $item = new ProductVendor();
-                $item->vh_st_product_id = $product_id;
-                $item->vh_st_vendor_id = $value['vendor']['id'];
-
-                $item->added_by = $active_user->id;
-
-                $item->can_update = $value['can_update'];
-
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                if($value['status_notes'])
-                {
-
-                    $item->status_notes = $value['status_notes'];
-                }
-
-                $item->is_active = 1;
-                $item->save();
-
             }
+
+            $item = new ProductVendor();
+            $item->vh_st_product_id = $product_id;
+            $item->vh_st_vendor_id = $value['vendor']['id'];
+
+            $item->added_by = $active_user->id;
+
+            $item->can_update = $value['can_update'];
+
+            $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+            if($value['status_notes'])
+            {
+                $item->status_notes = $value['status_notes'];
+            }
+
+            $item->is_active = 1;
+            $item->save();
+            $item->storeVendorProduct()->attach([$store_id]);
         }
 
         $response = self::getItem($product_id);
