@@ -279,8 +279,11 @@ export const useProductStore = defineStore({
             if(route.query && route.query.filter && route.query.filter.quantity)
             {
                 this.quantity=route.query.filter.quantity;
-                this.min_quantity = route.query.filter.quantity[0];
-                this.max_quantity = route.query.filter.quantity[1];
+                this.min_quantity = this.quantity[0];
+                this.max_quantity = this.quantity[1];
+                // this.assets.min_quantity = route.query.filter.quantity[0];
+                // this.assets.max_quantity = route.query.filter.quantity[1];
+
             }
         },
         //---------------------------------------------------------------------
