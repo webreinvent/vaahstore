@@ -954,6 +954,12 @@ class ProductVariation extends VaahModel
             'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
             'price' => 'nullable|numeric|max:9999999',
+            'meta_title' => 'nullable|max:100',
+            'meta_description' => 'nullable|max:100',
+            'meta_keywords' => 'nullable|array|max:15',
+            'meta_keywords.*' => 'max:100',
+
+
 
             'status_notes' => [
                 'max:100',
@@ -969,6 +975,11 @@ class ProductVariation extends VaahModel
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'description.max' => 'The Description field may not be greater than :max characters.',
                 'price.max'=>'The Price field may not be greater than :max digits.',
+                'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
+                'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
+                'meta_keywords.max' => 'The Meta Keywords field must not have more than :max items.',
+                'meta_keywords.*' => 'The Meta Keyword field may not have greater than :max characters',
+
 
 
             ]
