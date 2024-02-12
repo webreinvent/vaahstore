@@ -1395,11 +1395,6 @@ class Store extends VaahModel
         $is_stock_exist = ProductStock::where('vh_st_vendor_id',$item->id)->withTrashed()->get();
         if($is_stock_exist)
         {
-            $product_stock_ids = ProductStock::where('vh_st_vendor_id',$item->id)->withTrashed()->pluck('id')->toArray();
-            foreach($product_stock_ids as $product_stock_id)
-            {
-                
-            }
             ProductStock::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
 
         }
