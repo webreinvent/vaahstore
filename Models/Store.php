@@ -782,6 +782,10 @@ class Store extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach($items_id as $item_id)
+        {
+            self::deleteRelatedRecords($item_id);
+        }
         self::whereIn('id', $items_id)->forceDelete();
         StorePaymentMethod::deleteStores($items_id);
         Vendor::deleteStores($items_id);
@@ -843,6 +847,10 @@ class Store extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach($items_id as $item_id)
+                    {
+                        self::deleteRelatedRecords($item_id);
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                     StorePaymentMethod::deleteStores($items_id);
                     Vendor::deleteStores($items_id);
@@ -865,6 +873,11 @@ class Store extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::all()->pluck('id')->toArray();
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedRecords($item_id);
+                }
                 $list->forceDelete();
                 StorePaymentMethod::deleteStores($items_id);
                 Vendor::deleteStores($items_id);
@@ -1055,10 +1068,8 @@ class Store extends VaahModel
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
+        self::deleteRelatedRecords($item->id);
         $item->forceDelete();
-        StorePaymentMethod::deleteStores($item->id);
-        Vendor::deleteStores($item->id);
-        Product::deleteStores($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
@@ -1276,5 +1287,95 @@ class Store extends VaahModel
             });
         });
     }
+
+    //------------------------------------------------
+    public static function deleteRelatedRecords($id)
+    {
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+            return $response;
+        }
+        self::deletePaymentMethod($item->id);
+        self::deleteVendor($item->id);
+        self::deleteProduct($item->id);
+    }
+
+    //------------------------------------------------
+
+    public static function deletePaymentMethod($id)
+    {
+        $response=[];
+        $is_exist = StorePaymentMethod::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            StorePaymentMethod::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
+    //------------------------------------------------
+
+    public static function deleteVendor($id)
+    {
+
+        $response=[];
+        $is_exist = Vendor::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            $vendor_ids = Vendor::where('vh_st_store_id',$id)->withTrashed()->pluck('id')->toArray();
+            foreach($vendor_ids as $vendor_id)
+            {
+                self:deleteVendorRelatedRecords($vendor_id);
+            }
+            Vendor::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //------------------------------------------------
+
+    public static function deleteProduct($id)
+    {
+
+        $response=[];
+        $is_exist = Product::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            $product_ids = Product::where('vh_st_store_id',$id)->withTrashed()->pluck('id')->toArray();
+            foreach($product_ids as $product_id)
+            {
+                Product::deleteRelatedRecords($product_id);
+            }
+            Product::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //------------------------------------------------
+    
+    public static function deleteVendorRelatedRecords($id)
+    {
+
+    }
+
 
 }

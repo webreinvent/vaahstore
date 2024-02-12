@@ -276,15 +276,14 @@ export const useProductStore = defineStore({
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
             }
+
             if(route.query && route.query.filter && route.query.filter.quantity)
             {
                 this.quantity=route.query.filter.quantity;
                 this.min_quantity = this.quantity[0];
                 this.max_quantity = this.quantity[1];
-                // this.assets.min_quantity = route.query.filter.quantity[0];
-                // this.assets.max_quantity = route.query.filter.quantity[1];
-
             }
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
@@ -826,6 +825,11 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
+                {
+                    this.min_quantity=this.route.query.filter.quantity[0];
+                    this.max_quantity=this.route.query.filter.quantity[1];
+                }
                 if(data.rows)
                 {
                     data.rows = this.query.rows;
@@ -834,6 +838,7 @@ export const useProductStore = defineStore({
                 if(this.route.params && !this.route.params.id){
                     this.item = vaah().clone(data.empty_item);
                 }
+
 
             }
         },
@@ -1355,8 +1360,9 @@ export const useProductStore = defineStore({
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
             this.selected_dates = null;
-            this.quantity.from = null;
-            this.quantity.to = null;
+            this.min_quantity = this.assets.min_quantity;
+            this.max_quantity = this.assets.max_quantity;
+            this.quantity = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
@@ -2127,7 +2133,6 @@ export const useProductStore = defineStore({
         quantityFilter(event){
 
             this.min_quantity = this.quantity [0];
-
             this.max_quantity = this.quantity [1];
 
             if(!this.quantity){

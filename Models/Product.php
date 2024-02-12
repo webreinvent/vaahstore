@@ -9,6 +9,11 @@ use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\ProductVendor;
+use VaahCms\Modules\Store\Models\ProductAttribute;
+use VaahCms\Modules\Store\Models\ProductMedia;
+use VaahCms\Modules\Store\Models\ProductPrice;
+use VaahCms\Modules\Store\Models\ProductStock;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -698,11 +703,11 @@ class Product extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        ProductVendor::deleteProducts($items_id);
-        ProductVariation::deleteProducts($items_id);
-        ProductMedia::deleteProducts($items_id);
-        ProductPrice::deleteProducts($items_id);
-        ProductStock::deleteProducts($items_id);
+        foreach ($items_id as $item_id)
+        {
+            self::deleteRelatedRecords($item_id);
+        }
+
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -759,11 +764,10 @@ class Product extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
-                    ProductVendor::deleteProducts($items_id);
-                    ProductVariation::deleteProducts($items_id);
-                    ProductMedia::deleteProducts($items_id);
-                    ProductPrice::deleteProducts($items_id);
-                    ProductStock::deleteProducts($items_id);
+                    foreach ($items_id as $item_id) {
+
+                        self::deleteRelatedRecords($item_id);
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -784,11 +788,10 @@ class Product extends VaahModel
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
-                ProductVendor::deleteProducts($items_id);
-                ProductVariation::deleteProducts($items_id);
-                ProductMedia::deleteProducts($items_id);
-                ProductPrice::deleteProducts($items_id);
-                ProductStock::deleteProducts($items_id);
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedRecords($item_id);
+                }
                 self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
@@ -918,12 +921,8 @@ class Product extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        self::deleteRelatedRecords($item->id);
         $item->forceDelete();
-        ProductVendor::deleteProduct($item->id);
-        ProductVariation::deleteProduct($item->id);
-        ProductMedia::deleteProduct($item->id);
-        ProductPrice::deleteProduct($item->id);
-        ProductStock::deleteProduct($item->id);
         $response['success'] = true;
         $response['data'] = [];
         $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
@@ -1504,4 +1503,116 @@ class Product extends VaahModel
         return $response;
 
     }
+
+    //-------------------------------------------------
+
+    public static function deleteRelatedRecords($id)
+    {
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+            return $response;
+        }
+        self::deleteProductVendor($item->id);
+        self::deleteProductVariation($item->id);
+        self::deleteProductMedia($item->id);
+        self::deleteProductPrice($item->id);
+        self::deleteProductStock($item->id);
+
+    }
+
+    //-------------------------------------------------
+    public static function deleteProductVendor($id)
+    {
+        $response=[];
+        $is_exist = ProductVendor::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            ProductVendor::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductVariation($id){
+
+        $response=[];
+        $is_exist = ProductVariation::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            $item_ids = ProductVariation::where('vh_st_product_id',$id)->withTrashed()->pluck('id');
+            foreach ($item_ids as $item_id)
+            {
+                ProductAttribute::deleteProductVariation($item_id);
+            }
+            ProductVariation::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function deleteProductMedia($id){
+
+        $response=[];
+        $is_exist = ProductMedia::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductMedia::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductPrice($id){
+
+        $response=[];
+        $is_exist = ProductPrice::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductPrice::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductStock($id){
+
+        $response=[];
+        $is_exist = ProductStock::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductStock::where('vh_st_product_id',$id)->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
 }

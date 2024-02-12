@@ -228,7 +228,7 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Product Details</b></td>
                                 <td colspan="2">
-                                    <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space:pre-wrap;"/>
+                                    <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space: pre-wrap;overflow-wrap:break-word;word-wrap:break-word;"/>
                                 </td>
                             </tr>
                             <tr v-if="store.item.quantity > 0">
