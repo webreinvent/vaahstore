@@ -75,6 +75,10 @@ class ProductVariation extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function medias()
+    {
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id');
+    }
     public static function getUnFillableColumns()
     {
         return [
@@ -644,11 +648,13 @@ class ProductVariation extends VaahModel
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
         foreach ($items_id as $item_id)
         {
+            $item = self::where('id', $item_id)->withTrashed()->first();
             self::deleteRelatedItem($item_id, ProductMedia::class);
             self::deleteRelatedItem($item_id, ProductPrice::class);
             self::deleteRelatedItem($item_id, ProductStock::class);
             self::deleteProductAttribute($item_id);
-            self::updateQuantity($items_id);
+            $item->medias()->detach();
+            self::updateQuantity($item->id);
 
         }
         self::whereIn('id', $items_id)->forceDelete();
@@ -715,11 +721,13 @@ class ProductVariation extends VaahModel
 
                     foreach ($items_id as $item_id)
                     {
+                        $item = self::where('id', $item_id)->withTrashed()->first();
                         self::deleteRelatedItem($item_id, ProductMedia::class);
                         self::deleteRelatedItem($item_id, ProductPrice::class);
                         self::deleteRelatedItem($item_id, ProductStock::class);
                         self::deleteProductAttribute($item_id);
-                        self::updateQuantity($items_id);
+                        $item->medias()->detach();
+                        self::updateQuantity($item->id);
 
                     }
                     self::whereIn('id', $items_id)->forceDelete();
@@ -747,11 +755,13 @@ class ProductVariation extends VaahModel
                 $items_id = self::all()->pluck('id')->toArray();
                 foreach ($items_id as $item_id)
                 {
+                    $item = self::where('id', $item_id)->withTrashed()->first();
                     self::deleteRelatedItem($item_id, ProductMedia::class);
                     self::deleteRelatedItem($item_id, ProductPrice::class);
                     self::deleteRelatedItem($item_id, ProductStock::class);
                     self::deleteProductAttribute($item_id);
-                    self::updateQuantity($items_id);
+                    $item->medias()->detach();
+                    self::updateQuantity($item->id);
 
                 }
                 self::withTrashed()->forceDelete();
@@ -878,6 +888,7 @@ class ProductVariation extends VaahModel
         self::deleteRelatedItem($item->id, ProductPrice::class);
         self::deleteRelatedItem($item->id, ProductStock::class);
         self::deleteProductAttribute($item->id);
+        $item->medias()->detach();
         self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
@@ -1225,17 +1236,11 @@ class ProductVariation extends VaahModel
     {
 
 
-        $items=self::where('id', $id)->withTrashed()->first();
+        $item=self::where('id', $id)->withTrashed()->first();
 
-
-        if ($items)
-        {
-            $product_id = $items->pluck('vh_st_product_id');
-        }
-
-            $product = Product::where('id',$product_id )->withTrashed()->first();
+        $product = Product::where('id',$item->vh_st_product_id)->withTrashed()->first();
             if ($product) {
-                $product->quantity -= $items->where('vh_st_product_id', $product_id)->sum('quantity');
+                $product->quantity -= $item->quantity;
                 $product->save();
             }
 
