@@ -87,4 +87,18 @@ Route::group(
         //---------------------------------------------------------
         Route::post('/search/customers', 'CustomerGroupsController@searchCustomers')
             ->name('vh.backend.store.customergroups.search.customer');
+
+        /**
+         * Search customers for filter
+         */
+
+        Route::post('/filter/get/customers', 'CustomerGroupsController@getCustomers')
+            ->name('vh.backend.store.customergroups.get.filter.customers');
+
+        /**
+         * get customers after refresh
+         */
+
+        Route::post('/search/customers-by-slug', 'CustomerGroupsController@getCustomersBySlug')
+            ->name('vh.backend.store.customergroups.search.filter-customer-by-slug');
     });

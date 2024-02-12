@@ -51,11 +51,11 @@ const useVaah = vaah();
                         <span class="p-inputgroup-addon" v-else>
                              <b>0</b>
                          </span>
-                        <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                size="small"
-                                v-tooltip.top="'Add Customers'"
-                                @click="store.toCustomers(prop.data)"
-                        />
+<!--                        <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"-->
+<!--                                size="small"-->
+<!--                                v-tooltip.top="'Add Customers'"-->
+<!--                                @click="store.toCustomers(prop.data)"-->
+<!--                        />-->
                     </div>
                 </template>
 

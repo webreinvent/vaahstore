@@ -301,23 +301,52 @@ class CustomerGroup extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
+        if(!isset($filter['status']))
+        {
+            return $query;
+        }
+        $search = $filter['status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+        });
+    }
+
+    //-------------------------------------------------
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
         )
         {
             return $query;
         }
 
-        $status = $filter['status'];
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
 
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orwhere('slug',$status);
-        });
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
+    //-------------------------------------------------
+    public function scopeCustomerFilter($query, $filter)
+    {
+        if (!isset($filter['customers']) || is_null($filter['customers']) || $filter['customers'] === 'null') {
+            return $query;
+        }
 
+        $display_names = $filter['customers'];
+
+        return $query->whereHas('customers', function ($q) use ($display_names) {
+            $q->whereIn('display_name', $display_names);
+        });
+    }
     //-------------------------------------------------
 
     public static function getList($request)
@@ -327,6 +356,8 @@ class CustomerGroup extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
+        $list->customerFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -789,22 +820,23 @@ class CustomerGroup extends VaahModel
 
     //-------------------------------------------------
     public static function searchCustomers($request){
-        $customerQuery = User::select('id', 'first_name', 'last_name','display_name')
+        $active_customers = User::select('id', 'first_name', 'last_name','display_name')
             ->whereHas('activeRoles', function ($query) {
                 $query->where('slug', 'customer');
-            });
+            })
+            ->where('is_active', 1);
 
         if ($request->has('query') && $request->input('query')) {
             $query = $request->input('query');
 
-            $customerQuery->where(function ($q) use ($query) {
+            $active_customers->where(function ($q) use ($query) {
                 $q->where('display_name', 'LIKE', '%' . $query . '%')
                     ->orWhere('first_name', 'LIKE', '%' . $query . '%')
                     ->orWhere('last_name', 'LIKE', '%' . $query . '%');
             });
         }
 
-        $customers = $customerQuery->limit(10)->get()->map(function ($customer) {
+        $customers = $active_customers->limit(10)->get()->map(function ($customer) {
             $customer['name'] = $customer['display_name'] ;
             return $customer;
         });
@@ -815,7 +847,47 @@ class CustomerGroup extends VaahModel
 
     }
     //-------------------------------------------------
+    public static function getCustomers($request): array {
+        $customer = User::select('id', 'first_name', 'last_name','display_name')
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            });
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $customer->where(function ($q) use ($query) {
+                $q->where('display_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $customers = $customer->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+    }
     //-------------------------------------------------
+    //-------------------------------------------------
+
+    public static function getCustomersBySlug($request)
+    {
+        $queries = $request->input('filter.customers');
+
+        $customers = User::where(function ($q) use ($queries) {
+            $q->where(function ($query) use ($q, $queries) {
+                foreach ($queries as $query) {
+                    $q->orWhere('display_name', 'LIKE', '%' . $query . '%');
+                }
+            });
+        })->select('id', 'first_name', 'last_name','display_name')->get();
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+    }
 
 
 }

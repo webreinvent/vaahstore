@@ -143,8 +143,8 @@ const toggleFormMenu = (event) => {
                                        panel: { class: 'w-16rem ' }
                                   }"
                         :complete-on-focus = "true"
-                        :suggestions="store.customer_suggestions_list"
-                        @complete="store.getCustomers($event)"
+                        :suggestions="store.customer_suggestions"
+                        @complete="store.searchCustomers($event)"
                         placeholder="Select Customers"
                         class="w-full">
                     </AutoComplete>

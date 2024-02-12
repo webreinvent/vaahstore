@@ -1,7 +1,8 @@
-import {watch,toRaw} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from 'moment';
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\CustomerGroup';
 
@@ -18,6 +19,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            date:null,
         },
     },
     action: {
@@ -70,6 +72,8 @@ export const useCustomerGroupStore = defineStore({
         status:null,
         prev_list:[],
         current_list:[],
+        selected_dates:null,
+        filter_selected_customers:null,
     }),
     getters: {
 
@@ -92,6 +96,11 @@ export const useCustomerGroupStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (this.query.filter.customers) this.getCustomersBySlug();
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
@@ -672,6 +681,8 @@ export const useCustomerGroupStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_dates=[];
+            this.filter_selected_customers=null;
             //reset query strings
             await this.resetQueryString();
 
@@ -1054,7 +1065,7 @@ export const useCustomerGroupStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        async getCustomers(event) {
+        async searchCustomers(event) {
             const query = event;
             const options = {
                 params: query,
@@ -1063,6 +1074,67 @@ export const useCustomerGroupStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/customers',
+                this.searchCustomersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCustomersAfter(data,res) {
+            if(data)
+            {
+                this.customer_suggestions = data;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        updateCustomerList() {
+            const unique_selected_customers = new Set(this.item.customers);
+
+            this.item.customers = Array.from(unique_selected_customers);
+
+        },
+
+        //---------------------------------------------------------------------
+
+
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async getCustomers(event) {
+
+            const options = {
+                params: {
+                    query: event.query
+                },
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/get/customers',
                 this.getCustomersAfter,
                 options
             );
@@ -1076,12 +1148,44 @@ export const useCustomerGroupStore = defineStore({
                 this.customer_suggestions_list = data;
             }
         },
-        updateCustomerList() {
-            const unique_selected_customers = new Set(this.item.customers);
 
-            this.item.customers = Array.from(unique_selected_customers);
+        //---------------------------------------------------------------------
+        setFilterSelectedCustomers() {
+
+            this.query.filter.customers = this.filter_selected_customers.map(customer => customer.display_name);
 
         },
+        //---------------------------------------------------------------------
+        async getCustomersBySlug()
+        {
+
+            let query = {
+                filter: {
+                    customers: this.query.filter.customers,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customers-by-slug',
+                this.getCustomersAfterRefresh,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        getCustomersAfterRefresh(data, res) {
+
+            if (data) {
+                this.filter_selected_customers= data;
+            }
+        },
+
     }
 });
 
