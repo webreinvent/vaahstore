@@ -77,7 +77,8 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public  function medias()
     {
-        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id');
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')
+            ->withPivot('id','vh_st_product_id');
     }
     public static function getUnFillableColumns()
     {
@@ -890,27 +891,18 @@ class ProductVariation extends VaahModel
         self::deleteRelatedItem($item->id, ProductPrice::class);
         self::deleteRelatedItem($item->id, ProductStock::class);
         self::deleteProductAttribute($item->id);
-        dd($item->medias()->get());
-        $is_count = $item->medias()->count();
 
-dd($is_count);
-        if($is_count <= 1)
-        {
-
-            $product_media_ids=$item->medias()->pluck('vh_st_product_media_id')->toArray();
-            dd($product_media_ids);
-            foreach ($product_media_ids as $id)
-            {
-                $product_media = ProductMedia::where('id',$id)->withTrashed()->get();
-                if($product_media)
-                {
-                    ProductMedia::where('id',$id)->withTrashed()->forceDelete();
-                }
-
-            }
-
-        }
+        $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
         $item->medias()->detach();
+        $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
+        if($product_media->productVariationMedia())
+        {
+            $is_count = $product_media->productVariationMedia()->count();
+        }
+        if(!$is_count)
+        {
+            ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
+        }
         self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
@@ -1340,17 +1332,6 @@ dd($is_count);
         }
         return $response;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
