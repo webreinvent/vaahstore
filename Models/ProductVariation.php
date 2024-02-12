@@ -460,10 +460,10 @@ class ProductVariation extends VaahModel
             return $query;
         }
 
-        $minQuantity = $filter['quantity'][0];
-        $maxQuantity = $filter['quantity'][1];
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
 
-        return $query->whereBetween('quantity', [$minQuantity, $maxQuantity]);
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
     }
 
 
