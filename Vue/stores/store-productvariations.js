@@ -115,6 +115,12 @@ export const useProductVariationStore = defineStore({
              */
             this.updateQueryFromUrl(route);
 
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -553,6 +559,8 @@ export const useProductVariationStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'productvariations.form'});
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
