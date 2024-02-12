@@ -71,5 +71,10 @@ function () {
         ->name('vh.backend.store.warehouses.item.action');
 
     //---------------------------------------------------------
+    /**
+     * active vendors
+     */
+    Route::any('/search/active-vendor', 'WarehousesController@searchActiveVendor')
+        ->name('vh.backend.store.warehouses.search.vendor');
 
 });

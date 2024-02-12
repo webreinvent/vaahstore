@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import { useProductMediaStore } from '../../stores/store-productmedias'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
@@ -65,6 +65,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="productmedias-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
@@ -72,6 +73,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             data-testid="productmedias-create-and-new"
                             icon="pi pi-save"/>
@@ -86,6 +88,7 @@ const toggleFormMenu = (event) => {
                     <Button
                         type="button"
                         @click="toggleFormMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         class="p-button-sm"
                         data-testid="productmedias-form-menu"
                         icon="pi pi-angle-down"
@@ -135,41 +138,60 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Product">
 
+
+                <VhField label="Product*">
                     <AutoComplete
-                        value="id"
-                        v-model="store.item.product"
-                        @change="store.setProduct($event)"
-                        class="w-full"
-                        :suggestions="store.product_suggestion"
-                        @complete="store.searchProduct($event)"
-                        placeholder="Select Product"
-                        data-testid="productmedias-product"
-                        name="productmedias-product"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                                            value="id"
+                                            v-model="store.item.product"
+                                            @change="store.addProduct($event)"
+                                            class="w-full relative"
+                                            :suggestions="store.product_suggestion"
+                                            @complete="store.searchProduct($event)"
+                                            :pt="{
+                                                panel: { class: 'w-16rem' },
+                                                item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  }
+                                                }"
+                                            placeholder="Select Product"
+                                            append-to="self"
+                                            data-testid="productmedias-product"
+                                            name="productmedias-product"
+                                            :dropdown="true" optionLabel="name" forceSelection>
+                                        </AutoComplete>
 
                 </VhField>
 
-                <VhField label="Product Variation">
-
+                <VhField label="Product Variations" >
                     <AutoComplete
-                        value="id"
-                        v-model="store.item.product_variation"
-                        @change="store.setProductVariation($event)"
-                        class="w-full"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
-                        placeholder="Select Product Variation"
                         data-testid="productmedias-product_variation"
-                        name="productmedias-product_variation"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
+                        v-model="store.item.product_variation"
+                        optionLabel="name"
+                        multiple
+                        :complete-on-focus = "true"
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                        :suggestions="store.product_variation_list"
+                        @complete="store.searchVariationsOfProduct($event)"
+                        placeholder="Select Product Variations"
+                        class="w-full "
 
+                    />
                 </VhField>
 
-                <VhField label="Image">
+
+                <VhField label="Media*">
 
                     <FileUpload customUpload
                                 name="demo[]"
@@ -182,6 +204,7 @@ const toggleFormMenu = (event) => {
                                     root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
                                 }"
                                 :maxFileSize="1000000"
+                                data-testid="productmedias-media"
                                 @remove="store.removeUploadedFile"
                     >
                         <template #empty>
@@ -215,9 +238,21 @@ const toggleFormMenu = (event) => {
                         </template>
                     </FileUpload>
                 </VhField>
+                <VhField label="Alt Text">
+                    <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
+                </VhField>
+                <div v-if="store.item.images && store.item.images.length > 0">
+                    <VhField label="Media Type" >
+                    <InputText class="w-full"
+                               name="productmedias-media-type"
+                               data-testid="productmedias-media_type"
+                               disabled
+                               v-model="store.item.type"/>
+                </VhField>
+                </div>
 
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"

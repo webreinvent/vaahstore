@@ -17,7 +17,7 @@ import paymentmethods from "./vue-routes-paymentmethods";
 import storepaymentmethods from "./vue-routes-storepaymentmethods";
 import addresses from "./vue-routes-addresses";
 import customergroups from "./vue-routes-customergroups";
-import whishlists from "./vue-routes-whishlists";
+import wishlists from "./vue-routes-wishlists";
 import productAttribute from "./vue-routes-productattributes";
 
 // routes = routes.concat(dashboard);
@@ -36,7 +36,7 @@ routes = routes.concat(paymentmethods);
 routes = routes.concat(storepaymentmethods);
 routes = routes.concat(addresses);
 routes = routes.concat(customergroups);
-routes = routes.concat(whishlists);
+routes = routes.concat(wishlists);
 routes = routes.concat(attributeGroups);
 routes = routes.concat(productAttribute);
 

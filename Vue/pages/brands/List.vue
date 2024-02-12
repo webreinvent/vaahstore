@@ -59,6 +59,7 @@ const toggleCreateMenu = (event) => {
 //--------/form_menu
 
 
+
 </script>
 <template>
 
@@ -85,35 +86,37 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-                    <Button data-testid="brands-list-create"
-                            class="p-button-sm"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>
+                        <Button data-testid="brands-list-create"
+                                class="p-button-sm"
+                                @click="store.toForm()"
+                                :disabled="!store.assets.permissions.includes('can-update-module')">
+                            <i class="pi pi-plus mr-1"></i>
+                            Create
+                        </Button>
 
-                    <Button data-testid="brands-list-reload"
-                            class="p-button-sm"
-                            @click="store.getList()">
-                        <i class="pi pi-refresh mr-1"></i>
-                    </Button>
+                        <Button data-testid="brands-list-reload"
+                                class="p-button-sm"
+                                @click="store.reload()">
+                            <i class="pi pi-refresh mr-1"></i>
+                        </Button>
 
-                    <!--form_menu-->
+                        <!--form_menu-->
 
-                    <Button v-if="root.assets && root.assets.module
+                        <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
-                        type="button"
-                        @click="toggleCreateMenu"
-                        class="p-button-sm"
-                        data-testid="brands-create-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>
+                                type="button"
+                                @click="toggleCreateMenu"
+                                class="p-button-sm"
+                                data-testid="brands-create-menu"
+                                icon="pi pi-angle-down"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
+                                aria-haspopup="true"/>
 
-                    <Menu ref="create_menu"
-                          :model="store.list_create_menu"
-                          :popup="true" />
+                        <Menu ref="create_menu"
+                              :model="store.list_create_menu"
+                              :popup="true" />
 
-                    <!--/form_menu-->
+                        <!--/form_menu-->
 
                     </div>
 

@@ -87,26 +87,29 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="warehouses-list-create"
                             class="p-button-sm"
-                            @click="store.toForm()">
+                            @click="store.toForm()"
+                            :disabled="store.assets.is_guest_impersonating">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
 
                     <Button data-testid="warehouses-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reload()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
                     <!--form_menu-->
 
-                    <Button v-if="root.assets && root.assets.module
-                                                && root.assets.module.is_dev"
+                    <Button v-if="root.assets
+                                  && root.assets.module
+                                  && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
                         data-testid="warehouses-create-menu"
                         icon="pi pi-angle-down"
+                        :disabled="store.assets.is_guest_impersonating"
                         aria-haspopup="true"/>
 
                     <Menu ref="create_menu"

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductVariation;
@@ -22,12 +23,18 @@ class ProductMediasController extends Controller
 
     public function getAssets(Request $request)
     {
+        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
         try{
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductMedia::getFillableColumns();
@@ -42,14 +49,9 @@ class ProductMediasController extends Controller
             $data['actions'] = [];
             $data['empty_item']['is_active'] = 0;
 
-            $active_products = $this->getActiveProducts();
-            $active_product_variations = $this->getActiveProductVariations();
-
-            $data = array_merge($data, $active_products, $active_product_variations);
 
             $data['status'] = Taxonomy::getTaxonomyByType('product-medias-status');
 
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultProduct();
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -67,37 +69,6 @@ class ProductMediasController extends Controller
         return $response;
     }
 
-    //----------------------------------------------------------
-    public function getDefaultProduct(){
-        return Product::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
-
-    //----------------------------------------------------------
-    public function getActiveProducts(){
-        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
-        if ($active_products){
-            return [
-                'active_products' =>$active_products
-            ];
-        }else{
-            return [
-                'active_products' => null
-            ];
-        }
-    }
-    //----------------------------------------------------------
-    public function getActiveProductVariations(){
-        $active_product_variations = ProductVariation::Where(['is_active'=>1,'deleted_at'=>null])->get(['id','name','slug','deleted_at','is_active']);
-        if ($active_product_variations){
-            return [
-                'active_product_variations' =>$active_product_variations
-            ];
-        }else{
-            return [
-                'active_product_variations' => null
-            ];
-        }
-    }
     //----------------------------------------------------------
     public function uploadImage(Request $request){
         try{
@@ -127,7 +98,6 @@ class ProductMediasController extends Controller
                 'data'  => $response_list
             ];
 
-//            return ProductMedia::saveUploadImage($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = false;
@@ -160,6 +130,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::updateList($request);
         }catch (\Exception $e){
@@ -178,6 +154,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
 
 
         try{
@@ -198,6 +180,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::deleteList($request);
         }catch (\Exception $e){
@@ -215,6 +203,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::fillItem($request);
         }catch (\Exception $e){
@@ -232,6 +226,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::createItem($request);
         }catch (\Exception $e){
@@ -266,6 +266,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::updateItem($request,$id);
         }catch (\Exception $e){
@@ -283,6 +289,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::deleteItem($request,$id);
         }catch (\Exception $e){
@@ -300,6 +312,12 @@ class ProductMediasController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
+        if (!Auth::user()->hasPermission('can-update-module')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
         try{
             return ProductMedia::itemAction($request,$id,$action);
         }catch (\Exception $e){
@@ -365,9 +383,101 @@ class ProductMediasController extends Controller
             return $response;
         }
     }
+    //-------------------------------------------------
+
+    public function searchVariation(Request $request)
+    {
+        try{
+            return ProductMedia::searchVariation($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+
+
 
     //----------------------------------------------------------
+    public function searchVariationsUsingUrlSlug(Request $request)
+    {
+        try{
+            return ProductMedia::searchVariationsUsingUrlSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
+
+
+    public function searchMediaType(Request $request)
+    {
+        try{
+            return ProductMedia::searchMediaType($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+
+    //-------------------------------------------------
+
+    public function searchMediaUsingUrlType(Request $request)
+    {
+        try{
+            return ProductMedia::searchMediaUsingUrlType($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    //-------------------------------------------------
+
+    public function searchVariationOfProduct(Request $request)
+    {
+        try{
+            return ProductMedia::searchVariationOfProduct($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
 
 
 }
