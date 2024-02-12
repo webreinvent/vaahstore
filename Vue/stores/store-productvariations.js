@@ -115,6 +115,12 @@ export const useProductVariationStore = defineStore({
              */
             this.updateQueryFromUrl(route);
 
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
