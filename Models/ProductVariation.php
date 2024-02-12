@@ -654,9 +654,9 @@ class ProductVariation extends VaahModel
             self::deleteRelatedItem($item_id, ProductPrice::class);
             self::deleteRelatedItem($item_id, ProductStock::class);
             self::deleteProductAttribute($item_id);
+            self::updateQuantity($items_id);
 
         }
-        self::updateQuantity($items_id);
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
@@ -727,9 +727,9 @@ class ProductVariation extends VaahModel
                         self::deleteRelatedItem($item_id, ProductPrice::class);
                         self::deleteRelatedItem($item_id, ProductStock::class);
                         self::deleteProductAttribute($item_id);
+                        self::updateQuantity($items_id);
 
                     }
-                    self::updateQuantity($items_id);
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -759,9 +759,9 @@ class ProductVariation extends VaahModel
                     self::deleteRelatedItem($item_id, ProductPrice::class);
                     self::deleteRelatedItem($item_id, ProductStock::class);
                     self::deleteProductAttribute($item_id);
+                    self::updateQuantity($items_id);
 
                 }
-                self::updateQuantity($items_id);
                 self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
@@ -885,7 +885,6 @@ class ProductVariation extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        $item->forceDelete();
 
         self::deleteRelatedItem($item->id, ProductMedia::class);
         self::deleteRelatedItem($item->id, ProductPrice::class);
@@ -1224,22 +1223,25 @@ class ProductVariation extends VaahModel
         }
     }
 
-    public static function updateQuantity($ids)
+    //--------------------------------------------------------------
+    public static function updateQuantity($id)
     {
-        if (!is_array($ids)) {
-            $ids = [$ids];
+
+
+        $items=self::where('id', $id)->withTrashed()->first();
+
+
+        if ($items)
+        {
+            $product_id = $items->pluck('vh_st_product_id');
         }
 
-        $items = Product::whereIn('id', $ids)->get();
-        $product_ids = $items->pluck('vh_st_product_id')->unique();
-
-        foreach ($product_ids as $product_id) {
             $product = Product::where('id',$product_id )->withTrashed()->first();
             if ($product) {
                 $product->quantity -= $items->where('vh_st_product_id', $product_id)->sum('quantity');
                 $product->save();
             }
-        }
+
     }
 
     //--------------------------------------------------------------------------------------
