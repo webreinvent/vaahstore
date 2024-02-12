@@ -30,7 +30,7 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}">
+        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
 
             <!--left-->
             <div v-if="store.view === 'large'">
@@ -38,6 +38,7 @@ const toggleBulkMenuState = (event) => {
                 <!--selected_menu-->
                 <Button class="p-button-sm"
                         aria-haspopup="true"
+                        type="button"
                         aria-controls="overlay_menu"
                         data-testid="users-action_menu"
                         @click="toggleSelectedMenuState"
@@ -55,13 +56,15 @@ const toggleBulkMenuState = (event) => {
                 <!--/selected_menu-->
 
                 <!--bulk_menu-->
-                <Button class="p-button-sm ml-1"
-                        icon="pi pi-ellipsis-h"
+                <Button class="ml-1 p-button-sm"
+                        type="button"
                         aria-haspopup="true"
                         aria-controls="bulk_menu_state"
                         data-testid="users-action_bulk_menu"
-                        @click="toggleBulkMenuState"
-                        />
+                        @click="toggleBulkMenuState">
+                <i class="pi pi-ellipsis-h"></i>
+
+                </Button>
 
                 <Menu ref="bulk_menu_state"
                       :model="store.list_bulk_menu"
@@ -97,7 +100,7 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="users-action_filter"
                                     @click="store.show_filters = true"
                             >
-
+                                Filters
                                 <Badge v-if="store.count_filters > 0"
                                        :value="store.count_filters"
                                 />

@@ -66,23 +66,25 @@ onMounted(async () => {
                     <div class="p-inputgroup">
                         <Button class="p-button-sm"
                                 label="Create"
-                                icon="pi pi-plus"
                                 @click="store.toForm()"
                                 data-testid="users-create"
-                                />
+                                >
+                            <i class="pi pi-plus mr-1"></i>
+                            Create
+                        </Button>
 
                         <Button class="p-button-sm"
-                                icon="pi pi-refresh"
                                 :loading="store.is_btn_loading"
                                 data-testid="users-list_refresh"
                                 @click="store.sync()"
-                        />
+                        >
+                            <i class="pi pi-refresh mr-1"></i>
+                        </Button>
                     </div>
                 </template>
 
                 <Actions/>
 
-                <br/>
 
                 <Table/>
             </Panel>
