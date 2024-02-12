@@ -62,7 +62,9 @@ onMounted(async () => {
                      :sortable="true">
 
                  <template #body="prop" >
-                     {{prop.data.product.name}}
+                     <span v-if="prop.data && prop.data.product">
+                         {{prop.data.product.name}}
+                     </span>
                  </template>
 
              </Column>
