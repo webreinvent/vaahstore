@@ -45,7 +45,7 @@ const useVaah = vaah();
                 <template #body="prop">
                     <div class="p-inputgroup">
                         <span v-if="prop.data.customers && prop.data.customers.length"
-                              class="p-inputgroup-addon" @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
+                              class="p-inputgroup-addon cursor-pointer" @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
                             <Badge severity="success">{{prop.data.customers.length}}</Badge>
 
                         </span>

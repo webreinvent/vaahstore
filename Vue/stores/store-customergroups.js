@@ -478,6 +478,7 @@ export const useCustomerGroupStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'customergroups.form'})
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
@@ -549,9 +550,13 @@ export const useCustomerGroupStore = defineStore({
         getFakerAfter: function (data, res) {
             if(data)
             {
+
+                this.item.customers = [data.fill.customers];
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
-                    self.item[key] = data.fill[key];
+                    if (key !== 'customers') {
+                        self.item[key] = data.fill[key];
+                    }
                 });
             }
         },
@@ -963,6 +968,7 @@ export const useCustomerGroupStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -989,40 +995,21 @@ export const useCustomerGroupStore = defineStore({
                             this.itemAction('save-and-new');
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
@@ -1056,7 +1043,7 @@ export const useCustomerGroupStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 

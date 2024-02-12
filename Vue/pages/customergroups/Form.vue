@@ -104,6 +104,30 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Trashed {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
                 <VhField label="Name">
                     <InputText class="w-full"
                                placeholder="Enter a Name"

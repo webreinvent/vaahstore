@@ -455,8 +455,8 @@ class CustomerGroup extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -469,11 +469,16 @@ class CustomerGroup extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach ($items_id as $item_id)
+        {
+            $item = self::where('id', $item_id)->withTrashed()->first();
+            $item->customers()->detach();
+        }
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -550,10 +555,17 @@ class CustomerGroup extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+                foreach ($items_id as $item_id) {
+
+                    $item = self::where('id', $item_id)->withTrashed()->first();
+                    $item->customers()->detach();
+                }
+                $list = self::withTrashed();
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -659,14 +671,16 @@ class CustomerGroup extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+
+        $item->customers()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['errors'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
@@ -803,6 +817,24 @@ class CustomerGroup extends VaahModel
 
         $inputs['taxonomy_id_customer_groups_status'] = $status_id;
         $inputs['status']=$status;
+        $customer_group_data = \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
+            $query->where('slug', 'customer');
+        })->get();
+
+        if ($customer_group_data->isEmpty()) {
+            $response['success'] = false;
+            $response['errors'][] = 'No customer exists.';
+            return $response;
+        }
+
+        $randomCustomerGroup = $customer_group_data->random();
+
+        $inputs['customers'] = [
+            'id' => $randomCustomerGroup->id,
+            'first_name' => $randomCustomerGroup->first_name,
+            'last_name' => $randomCustomerGroup->last_name,
+            'display_name' => $randomCustomerGroup->display_name,
+        ];
         $faker = Factory::create();
 
         /*
