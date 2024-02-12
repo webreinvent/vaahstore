@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
         <DataTable :value="store.list.data"
                    dataKey="id"
-                   :rowClass="(rowData) => rowData.id == store.item.id ?'bg-yellow-100' : ''"
+                   :rowClass="(rowData) => rowData.id === store.item?.id ?'bg-yellow-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -40,19 +40,40 @@ const useVaah = vaah();
             </Column>
 
             <Column field="customer_count" header="Customer Count"
-                    :sortable="true">
+            >
 
                 <template #body="prop">
-                    <Badge severity="info" v-if="prop.data.customer_count">{{prop.data.customer_count}}</Badge>
+                    <div class="p-inputgroup">
+                        <span v-if="prop.data.customers && prop.data.customers.length"
+                              class="p-inputgroup-addon" @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
+                              <b >{{prop.data.customers.length}}</b>
+                        </span>
+                        <span class="p-inputgroup-addon" v-else>
+                             <b>0</b>
+                         </span>
+                        <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                                size="small"
+                                v-tooltip.top="'Add Customers'"
+                                @click="store.toCustomers(prop.data)"
+                        />
+                    </div>
                 </template>
 
             </Column>
 
             <Column field="order_count" header="Order Count"
-                    :sortable="true">
+            >
 
                 <template #body="prop">
-                    <Badge severity="info" v-if="prop.data.order_count">{{prop.data.order_count}}</Badge>
+                    <div class="p-inputgroup">
+                        <span v-if="prop.data.order_items && prop.data.order_items.length"
+                              class="p-inputgroup-addon">
+                              <b >{{prop.data.order_items.length}}</b>
+                        </span>
+                        <span class="p-inputgroup-addon" v-else>
+                             <b>0</b>
+                         </span>
+                    </div>
                 </template>
 
             </Column>
@@ -89,14 +110,14 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-view"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-edit"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
@@ -122,6 +143,9 @@ const useVaah = vaah();
 
 
             </Column>
+            <template #empty="prop">
+                <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+            </template>
 
 
         </DataTable>

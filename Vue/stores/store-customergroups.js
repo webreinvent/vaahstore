@@ -68,6 +68,8 @@ export const useCustomerGroupStore = defineStore({
         form_menu_list: [],
         status_suggestion:null,
         status:null,
+        prev_list:[],
+        current_list:[],
     }),
     getters: {
 
@@ -389,6 +391,7 @@ export const useCustomerGroupStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -426,8 +429,27 @@ export const useCustomerGroupStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
+                this.prev_list =this.list.data;
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+            const prev_set = new Set(prev_list.map(item => item.id));
+
+            const current_set = new Set(current_list.map(item => item.id));
+
+            const removed_items = prev_list.filter(item => !current_set.has(item.id));
+
+            this.action.items = this.action.items.filter(item => current_set.has(item.id));
+
+            if (removed_items.length > 0) {
+                // Do something with removed items
+
+                //may update this in future
             }
         },
         //---------------------------------------------------------------------
@@ -436,8 +458,8 @@ export const useCustomerGroupStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -449,9 +471,19 @@ export const useCustomerGroupStore = defineStore({
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
+                case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'customergroups.form'});
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -482,6 +514,7 @@ export const useCustomerGroupStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         async getFaker () {
@@ -538,11 +571,49 @@ export const useCustomerGroupStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
+        //---------------------------------------------------------------------
+
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmApproveAll()
+        {
+            this.action.type = 'approve-all';
+            vaah().confirmDialogApproveAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmRejectedAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
         async delayedSearch()
         {
@@ -606,6 +677,7 @@ export const useCustomerGroupStore = defineStore({
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action Was Successful']);
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -742,19 +814,19 @@ export const useCustomerGroupStore = defineStore({
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectedAll();
                     }
                 },
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approve-all')
+                        this.confirmApproveAll();
                     }
                 },
                 {
@@ -764,14 +836,14 @@ export const useCustomerGroupStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -896,6 +968,14 @@ export const useCustomerGroupStore = defineStore({
 
                             this.itemAction('save-and-clone');
 
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
 
