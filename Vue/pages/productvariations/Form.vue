@@ -114,7 +114,7 @@ const permissions=store.assets.permissions;
                         v-model="store.item.product"
                         @change="store.setProduct($event)"
                         class="w-full"
-                        :suggestions="store.filtered_products"
+                        :suggestions="store.products_suggestion"
                         @complete="store.searchProduct($event)"
                         :pt="{
                                       token: {
