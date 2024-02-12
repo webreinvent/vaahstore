@@ -780,9 +780,10 @@ export const useUserStore = defineStore({
         //---------------------------------------------------------------------
         async sync() {
             this.is_btn_loading = true;
-            this.query.recount = true;
+            // this.query.recount = true;
 
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         onItemSelection(items)

@@ -89,6 +89,23 @@ class User extends UserBase
     }
 
     //----------------------------------------------------------
+    public function scopeSearchFilter($query, $filter)
+    {
+
+        if(!isset($filter['q']))
+        {
+            return $query;
+        }
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('display_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+    }
+    //----------------------------------------------------------
 
     public static function getList($request,$excluded_columns = [])
     {

@@ -74,7 +74,8 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="status" header="Status">
+            <Column field="status" header="Status"
+                    v-if="store.isViewLarge()">
                 <template #body="prop">
                     <Badge v-if="prop.data.status.slug === 'approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>

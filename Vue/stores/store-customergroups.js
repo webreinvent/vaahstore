@@ -1186,6 +1186,23 @@ export const useCustomerGroupStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        toViewCustomers(customer)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    customer_group: [customer.slug]
+                }
+            };
+            const route = {
+                name: 'users.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
     }
 });
 
