@@ -1299,14 +1299,22 @@ class ProductVariation extends VaahModel
     public static function setProductInFilter($request)
     {
 
-        $query = $request['filter']['product'];
-        $products = Product::whereIn('name',$query)
-            ->orWhereIn('slug',$query)
-            ->select('id','name','slug')->get();
-        $response['success'] = true;
-        $response['data'] = $products;
+        if(isset($request['filter']['product']) && !empty($request['filter']['product'])) {
+            $query = $request['filter']['product'];
+            $products = Product::whereIn('name', $query)
+                ->orWhereIn('slug', $query)
+                ->select('id', 'name', 'slug')
+                ->get();
+            $response['success'] = true;
+            $response['data'] = $products;
+        } else {
+            $response['success'] = false;
+            $response['message'] = 'No filter or products provided';
+            $response['data'] = [];
+        }
         return $response;
     }
+
 
 
 
