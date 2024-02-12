@@ -1,5 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\User as UserBase;
@@ -150,6 +151,74 @@ class User extends UserBase
         $response['data']['item'] = $reg;
         $response['messages'][] = trans('vaahcms-general.saved_successfully');
         return $response;
+
+    }
+
+
+    public static function bulkChangeRoleStatus($request)
+    {
+
+        $inputs = $request->all();
+
+        $role = Role::find($inputs['inputs']['role_id']);
+
+        if($role && $inputs['inputs']['id'] == 1 && $role->slug == 'super-administrator'
+            && $inputs['data']['is_active'] == 0)
+        {
+            $response['success'] = false;
+            $response['errors'][] = trans('vaahcms-user.first_user_super_administrator');
+            return $response;
+        }
+
+        $item = self::find($inputs['inputs']['id']);
+
+
+        $data = [
+            'is_active' => $inputs['data']['is_active'],
+            'updated_at' => Carbon::now()
+        ];
+
+
+        if($inputs['inputs']['role_id']){
+            $pivot = $item->roles->find($inputs['inputs']['role_id'])->pivot;
+
+            if($pivot->is_active === null && !$pivot->created_by){
+                //$data['created_by'] = Auth::user()->id;
+                $data['created_at'] = Carbon::now();
+            }
+
+            $item->roles()->updateExistingPivot(
+                $inputs['inputs']['role_id'],
+                $data
+            );
+
+        }else{
+            $role_ids = [];
+            if(isset($inputs['inputs']['query']) && isset($inputs['inputs']['query']['q'])){
+                $role_ids = Role::where(function ($q) use($inputs){
+                    $q->where('name', 'LIKE', '%'.$inputs['inputs']['query']['q'].'%')
+                        ->orWhere('slug', 'LIKE', '%'.$inputs['inputs']['query']['q'].'%');
+                })->pluck('id');
+            }
+
+            $item_roles = $item->roles()
+                ->newPivotStatement()
+                ->where('vh_user_id', '=', $item->id);
+
+            if(count($role_ids) > 0){
+                $item_roles->whereIn('vh_role_id',$role_ids);
+            }
+
+            $item_roles->update($data);
+        }
+
+        Role::recountRelations();
+
+        $response['success'] = true;
+        $response['data'] = [];
+
+        return $response;
+
 
     }
 
