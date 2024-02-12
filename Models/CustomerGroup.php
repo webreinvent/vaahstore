@@ -32,8 +32,6 @@ class CustomerGroup extends VaahModel
         'uuid',
         'name',
         'slug',
-        'customer_count',
-        'order_count',
         'taxonomy_id_customer_groups_status',
         'status_notes',
         'created_by',
@@ -139,6 +137,17 @@ class CustomerGroup extends VaahModel
     }
 
     //-------------------------------------------------
+    public function customers()
+    {
+        return $this->belongsToMany(User::class, 'vh_st_user_customer_groups','vh_st_customer_group_id','vh_st_user_id')
+            ->select('vh_users.id','vh_users.first_name','vh_users.last_name','vh_users.display_name');
+    }
+    //-------------------------------------------------
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'vh_st_customer_group_id');
+    }
+    //-------------------------------------------------
 
     public function scopeBetweenDates($query, $from, $to)
     {
@@ -193,6 +202,13 @@ class CustomerGroup extends VaahModel
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
+        if (isset($inputs['customers']) && is_array($inputs['customers'])) {
+            $customer_ids = collect($inputs['customers'])->pluck('id')->toArray();
+//            dd($customer_ids);
+            $item->customers()->sync($customer_ids, function ($pivot) use ($item) {
+                $pivot->group_id = $item->id;
+            });
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -539,7 +555,7 @@ class CustomerGroup extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','customers'])
             ->withTrashed()
             ->first();
 
@@ -591,6 +607,12 @@ class CustomerGroup extends VaahModel
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
+        if (isset($inputs['customers']) && is_array($inputs['customers'])) {
+            $product_ids = collect($inputs['customers'])->pluck('id')->toArray();
+            $item->customers()->sync($product_ids, function ($pivot) use ($item) {
+                $pivot->group_id = $item->id;
+            });
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -657,20 +679,24 @@ class CustomerGroup extends VaahModel
     {
 
         $rules = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
-            'customer_count'=> 'required',
-            'order_count'=> 'required',
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
+            'customers'=>'required',
             'taxonomy_id_customer_groups_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:150'
             ],
         ],
             [
-                'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field must not exceed :max characters',
+                'name.required'=>'The Name field is required.',
+                'name.max'=>'The Name  field must not exceed :max characters.',
+                'slug.required'=>'The Slug field is required.',
+                'slug.max'=>'The Slug  field must not exceed :max characters.',
+                'customers.required'=>'The Customer field is required.',
+                'taxonomy_id_customer_groups_status.required' => 'The Status field is required.',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status.',
+                'status_notes.max' => 'The Status notes field must not exceed :max characters.',
             ]
         );
 
