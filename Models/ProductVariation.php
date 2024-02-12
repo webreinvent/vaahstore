@@ -649,11 +649,15 @@ class ProductVariation extends VaahModel
         foreach ($items_id as $item_id)
         {
             $item = self::where('id', $item_id)->withTrashed()->first();
-            self::deleteRelatedItem($item_id, ProductMedia::class);
             self::deleteRelatedItem($item_id, ProductPrice::class);
             self::deleteRelatedItem($item_id, ProductStock::class);
             self::deleteProductAttribute($item_id);
-            $item->medias()->detach();
+            if($item->medias())
+            {
+
+                $item->medias()->detach();
+            }
+
             self::updateQuantity($item->id);
 
         }
@@ -883,11 +887,29 @@ class ProductVariation extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-
-        self::deleteRelatedItem($item->id, ProductMedia::class);
         self::deleteRelatedItem($item->id, ProductPrice::class);
         self::deleteRelatedItem($item->id, ProductStock::class);
         self::deleteProductAttribute($item->id);
+        dd($item->medias()->get());
+        $is_count = $item->medias()->count();
+
+dd($is_count);
+        if($is_count <= 1)
+        {
+
+            $product_media_ids=$item->medias()->pluck('vh_st_product_media_id')->toArray();
+            dd($product_media_ids);
+            foreach ($product_media_ids as $id)
+            {
+                $product_media = ProductMedia::where('id',$id)->withTrashed()->get();
+                if($product_media)
+                {
+                    ProductMedia::where('id',$id)->withTrashed()->forceDelete();
+                }
+
+            }
+
+        }
         $item->medias()->detach();
         self::updateQuantity($item->id);
         $item->forceDelete();
