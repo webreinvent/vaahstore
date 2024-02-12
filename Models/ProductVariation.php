@@ -653,12 +653,17 @@ class ProductVariation extends VaahModel
             self::deleteRelatedItem($item_id, ProductPrice::class);
             self::deleteRelatedItem($item_id, ProductStock::class);
             self::deleteProductAttribute($item_id);
-            if($item->medias())
+            $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
+            $item->medias()->detach();
+            $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
+            if($product_media->productVariationMedia())
             {
-
-                $item->medias()->detach();
+                $is_count = $product_media->productVariationMedia()->count();
             }
-
+            if(!$is_count)
+            {
+                ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
+            }
             self::updateQuantity($item->id);
 
         }
@@ -731,7 +736,17 @@ class ProductVariation extends VaahModel
                         self::deleteRelatedItem($item_id, ProductPrice::class);
                         self::deleteRelatedItem($item_id, ProductStock::class);
                         self::deleteProductAttribute($item_id);
+                        $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
                         $item->medias()->detach();
+                        $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
+                        if($product_media->productVariationMedia())
+                        {
+                            $is_count = $product_media->productVariationMedia()->count();
+                        }
+                        if(!$is_count)
+                        {
+                            ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
+                        }
                         self::updateQuantity($item->id);
 
                     }
@@ -765,7 +780,17 @@ class ProductVariation extends VaahModel
                     self::deleteRelatedItem($item_id, ProductPrice::class);
                     self::deleteRelatedItem($item_id, ProductStock::class);
                     self::deleteProductAttribute($item_id);
+                    $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
                     $item->medias()->detach();
+                    $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
+                    if($product_media->productVariationMedia())
+                    {
+                        $is_count = $product_media->productVariationMedia()->count();
+                    }
+                    if(!$is_count)
+                    {
+                        ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
+                    }
                     self::updateQuantity($item->id);
 
                 }
