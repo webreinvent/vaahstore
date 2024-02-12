@@ -553,6 +553,8 @@ export const useProductVariationStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'productvariations.form'});
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
