@@ -1334,7 +1334,7 @@ class Store extends VaahModel
             $vendor_ids = Vendor::where('vh_st_store_id',$id)->withTrashed()->pluck('id')->toArray();
             foreach($vendor_ids as $vendor_id)
             {
-                self:deleteVendorRelatedRecords($vendor_id);
+                self::deleteVendorRelatedRecords($vendor_id);
             }
             Vendor::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
             $response['success'] = true;
@@ -1371,9 +1371,38 @@ class Store extends VaahModel
     }
 
     //------------------------------------------------
-    
+
     public static function deleteVendorRelatedRecords($id)
     {
+
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['messages'][] = 'Record does not exist.';
+            return $response;
+        }
+        $is_product_exist = ProductVendor::where('vh_st_vendor_id',$item->id)->withTrashed()->get();
+        if($is_product_exist)
+        {
+            ProductVendor::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+        }
+        $is_warehouse_exist = Warehouse::where('vh_st_vendor_id',$item->id)->withTrashed()->get();
+        if($is_warehouse_exist)
+        {
+            Warehouse::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+        }
+
+        $is_stock_exist = ProductStock::where('vh_st_vendor_id',$item->id)->withTrashed()->get();
+        if($is_stock_exist)
+        {
+            $product_stock_ids = ProductStock::where('vh_st_vendor_id',$item->id)->withTrashed()->pluck('id')->toArray();
+            foreach($product_stock_ids as $product_stock_id)
+            {
+                
+            }
+            ProductStock::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+
+        }
 
     }
 
