@@ -46,16 +46,12 @@ const useVaah = vaah();
                     <div class="p-inputgroup">
                         <span v-if="prop.data.customers && prop.data.customers.length"
                               class="p-inputgroup-addon" @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
-                              <b >{{prop.data.customers.length}}</b>
+                            <Badge severity="success">{{prop.data.customers.length}}</Badge>
+
                         </span>
                         <span class="p-inputgroup-addon" v-else>
-                             <b>0</b>
+                             <Badge severity="success">0</Badge>
                          </span>
-<!--                        <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"-->
-<!--                                size="small"-->
-<!--                                v-tooltip.top="'Add Customers'"-->
-<!--                                @click="store.toCustomers(prop.data)"-->
-<!--                        />-->
                     </div>
                 </template>
 
@@ -68,10 +64,10 @@ const useVaah = vaah();
                     <div class="p-inputgroup">
                         <span v-if="prop.data.order_items && prop.data.order_items.length"
                               class="p-inputgroup-addon">
-                              <b >{{prop.data.order_items.length}}</b>
+                              <Badge severity="success">{{prop.data.order_items.length}}</Badge>
                         </span>
                         <span class="p-inputgroup-addon" v-else>
-                             <b>0</b>
+                             <Badge severity="success">0</Badge>
                          </span>
                     </div>
                 </template>

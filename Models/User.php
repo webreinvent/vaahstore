@@ -12,6 +12,17 @@ class User extends UserBase
         return $this->belongsToMany(UserBase::class,'id','vh_st_user_id','vh_st_role_id');
     }
 
+    //----------------------------------------------------------
+
+    public function customerGroups()
+    {
+        return $this->belongsToMany(CustomerGroup::class,
+            'vh_st_user_customer_groups', 'vh_st_user_id','vh_st_customer_group_id'
+        );
+    }
+
+    //----------------------------------------------------------
+
     public static function getPivotData($pivot)
     {
         $data = array();
@@ -35,6 +46,49 @@ class User extends UserBase
         return $data;
 
     }
+    //----------------------------------------------------------
+
+
+    public function scopeCustomerGroupFilter($query, $filter)
+    {
+
+        if(!isset($filter['customer_group']))
+        {
+            return $query;
+        }
+        $search = $filter['customer_group'];
+        $query->whereHas('customerGroups',function ($q) use ($search) {
+            $q->whereIn('slug',$search);
+        });
+
+    }
+    //----------------------------------------------------------
+
+
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    //----------------------------------------------------------
 
     public static function getList($request,$excluded_columns = [])
     {
@@ -46,12 +100,15 @@ class User extends UserBase
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->customerGroupFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
 
         if (isset($request['from']) && isset($request['to'])) {
             $list->betweenDates($request['from'],$request['to']);
         }
 
         $rows = config('vaahcms.per_page');
+        $list->with('customerGroups');
 
         if ($request->has('rows')) {
             $rows = $request->rows;
@@ -72,6 +129,8 @@ class User extends UserBase
 
         return $response;
     }
+
+    //----------------------------------------------------------
 
     public static function createItem($request)
     {
@@ -155,6 +214,8 @@ class User extends UserBase
     }
 
 
+    //----------------------------------------------------------
+
     public static function bulkChangeRoleStatus($request)
     {
 
@@ -221,6 +282,53 @@ class User extends UserBase
 
 
     }
+
+    //----------------------------------------------------------
+
+
+    public static function searchCustomerGroups($request)
+    {
+        $query = $request->input('query');
+        if($query === null)
+        {
+            $attribute_name = CustomerGroup::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $attribute_name = CustomerGroup::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $attribute_name;
+        return $response;
+
+    }
+
+    //----------------------------------------------------------
+
+    public static function getCustomerGroupsBySlug($request)
+    {
+        $query = $request['filter']['customer_group'];
+
+        $customer_group = CustomerGroup::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $customer_group;
+        return $response;
+    }
+
+    //----------------------------------------------------------
+    //----------------------------------------------------------
+
 
 
 }

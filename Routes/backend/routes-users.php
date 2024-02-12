@@ -3,9 +3,9 @@
 Route::group(
     [
         'prefix' => 'backend/store/users',
-                
+
                 'middleware' => ['web', 'has.backend.access'],
-                
+
                 'namespace' => 'Backend',
     ],
     function () {
@@ -79,4 +79,14 @@ Route::group(
         Route::post('/avatar/remove', 'UsersController@removeAvatar')
             ->name('vh.backend.store.users.avatar.remove');
         //---------------------------------------------------------
+        /**
+         * Search Customer Group filter
+         */
+        Route::post('/search/customergroup', 'UsersController@searchCustomerGroups')
+            ->name('vh.backend.store.users.search.filter.customergroup');
+        /**
+         * Search Customer Group filter After Refresh
+         */
+        Route::post('/search/customer-group-by-slug', 'UsersController@getCustomerGroupsBySlug')
+            ->name('vh.backend.store.users.search.filter-customergroup-by-slug');
     });

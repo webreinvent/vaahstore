@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { vaah } from '../vaahvue/pinia/vaah'
 import { useRootStore } from "./root";
 import qs from 'qs'
+import moment from 'moment';
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\User';
 
@@ -19,6 +20,7 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            date:null,
         },
         recount: null,
     },
@@ -124,6 +126,7 @@ export const useUserStore = defineStore({
         bio_modal_data: null,
         firstElement: null,
         rolesFirstElement: null,
+        selected_dates:null,
         email_error:{
             class:'',
             msg:''
@@ -152,6 +155,11 @@ export const useUserStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (this.query.filter.customer_group) this.getCustomerGroupsBySlug();
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -861,6 +869,8 @@ export const useUserStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_customer_group = null;
+            this.selected_dates=[];
             //reset query strings
             await this.resetQueryString();
 
@@ -1280,6 +1290,107 @@ export const useUserStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        toViewCustomerGroups(customer)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    customers: [customer.display_name]
+                }
+            };
+            const route = {
+                name: 'customergroups.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
+        //---------------------------------------------------------------------
+
+
+        async searchCustomerGroup(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customergroup',
+                this.searchCustomerGroupAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchCustomerGroupAfter(data,res) {
+            if(data)
+            {
+                this.customer_group_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        addCustomerGroup() {
+            const unique_customer_group = Array.from(new Set(this.selected_customer_group.map(v => v.name)));
+            this.selected_customer_group = unique_customer_group.map(name => this.selected_customer_group.find(v => v.name === name));
+            this.query.filter.customer_group = this.selected_customer_group.map(v => v.slug);
+        },
+        //---------------------------------------------------------------------
+        async getCustomerGroupsBySlug()
+        {
+
+            let query = {
+                filter: {
+                    customer_group: this.query.filter.customer_group,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customer-group-by-slug',
+                this.getCustomerGroupsAfterRefresh,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        getCustomerGroupsAfterRefresh(data, res) {
+
+            if (data) {
+                this.selected_customer_group= data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
 
     }
 });

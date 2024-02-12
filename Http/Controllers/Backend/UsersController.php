@@ -569,4 +569,38 @@ class UsersController extends Controller
         return response()->json($response);
     }
     //----------------------------------------------------------
+    public function searchCustomerGroups(Request $request)
+    {
+        try{
+            return User::searchCustomerGroups($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function getCustomerGroupsBySlug(Request $request)
+    {
+        try{
+            return User::getCustomerGroupsBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
 }
