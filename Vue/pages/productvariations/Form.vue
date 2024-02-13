@@ -192,8 +192,9 @@ const permissions=store.assets.permissions;
                               v-model="store.item.meta_description"/>
                 </VhField>
 
-                <VhField label="Meta Keyword" >
+                <VhField label="Meta Keyword">
                     <Chips class="w-full"
+                           name="productvariations-meta_keywords"
                            v-model="store.item.meta_keywords"
                            placeholder="Enter Meta keyword"
                            separator=","  />
