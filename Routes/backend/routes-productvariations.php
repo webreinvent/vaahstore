@@ -78,5 +78,15 @@ function () {
 
     //---------------------------------------------------------
 
+    Route::any('/send/mail', 'ProductVariationsController@sendMailForStock')
+        ->name('vh.backend.store.productvariations.send.mail');
+
+    //----------------------------------------------------------
+
+
+    Route::post('/search/route-query-products', 'ProductVariationsController@setProductInFilter')
+        ->name('vh.backend.store.productvariations.search.products-using-url-slug');
+
+
 
 });
