@@ -67,6 +67,7 @@ onMounted(async () => {
                         <Button class="p-button-sm"
                                 label="Create"
                                 @click="store.toForm()"
+                                :disabled="!store.assets || !store.assets.permissions.includes('can-update-module')"
                                 data-testid="users-create"
                                 >
                             <i class="pi pi-plus mr-1"></i>
