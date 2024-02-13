@@ -194,9 +194,10 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Meta Keyword">
                     <Chips class="w-full"
-                           name="productvariations-meta_keywords"
                            v-model="store.item.meta_keywords"
                            placeholder="Enter Meta keyword"
+                           data-testid="productvariations-meta_keywords"
+                           style="max-width: min-content;"
                            separator=","  />
                 </VhField>
 
