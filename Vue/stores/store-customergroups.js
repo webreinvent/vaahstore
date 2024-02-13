@@ -527,7 +527,7 @@ export const useCustomerGroupStore = defineStore({
             vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
 
             let params = {
                 model_namespace: this.model,
@@ -541,13 +541,13 @@ export const useCustomerGroupStore = defineStore({
             };
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
+                this.getFormInputsAfter,
                 options
             );
 
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
 

@@ -254,6 +254,56 @@ class User extends UserBase
     }
 
     //----------------------------------------------------------
+    public static function deleteList($request): array
+    {
+        $inputs = $request->all();
+
+        $rules = array(
+            'type' => 'required',
+            'items' => 'required',
+        );
+
+        $messages = array(
+            'type.required' => trans('vaahcms-general.action_type_is_required'),
+            'items.required' => trans('vaahcms-general.select_items'),
+        );
+
+        $validator = \Validator::make($inputs, $rules, $messages);
+        if ($validator->fails()) {
+            $errors = errorsToArray($validator->errors());
+            $response['success'] = false;
+            $response['errors'] = $errors;
+            return $response;
+        }
+
+        $response['errors'] = [];
+
+        foreach($inputs['items'] as $item) {
+            $is_restricted = self::restrictedActions('delete', $item['id']);
+
+            if(isset($is_restricted['success']) && !$is_restricted['success'])
+            {
+                $response['errors'][] = '<b>'.$item['email'].'</b>: '.$is_restricted['errors'][0];
+                continue;
+            }
+
+            $item = self::query()->where('id', $item['id'])->withTrashed()->first();
+
+            if ($item) {
+                $item->roles()->detach();
+                $item->forceDelete();
+            }
+        }
+
+        $response['success'] = true;
+        $response['data'] = true;
+
+        if(count($inputs['items']) !== count($response['errors'])){
+            $response['messages'][] = trans('vaahcms-general.action_successful');
+        }
+
+        return $response;
+    }
     //----------------------------------------------------------
 
 
