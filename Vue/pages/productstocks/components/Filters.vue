@@ -15,6 +15,25 @@ const store = useProductStockStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status By:</b>
+                </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.assets.taxonomy.status"
+                        filter
+                        optionValue="slug"
+                        optionLabel="slug"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>In Stock:</b>
                 </template>
 
@@ -202,30 +221,6 @@ const store = useProductStockStore();
                 </div>
 
             </VhFieldVertical>
-
-
-
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Status By:</b>
-                </template>
-                <VhField label="Status">
-                    <MultiSelect
-                        v-model="store.query.filter.status"
-                        :options="store.assets.taxonomy.status"
-                        filter
-                        optionValue="slug"
-                        optionLabel="slug"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full" />
-                </VhField>
-
-
-            </VhFieldVertical>
-
 
 
             <VhFieldVertical >
