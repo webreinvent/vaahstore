@@ -78,6 +78,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="customergroups-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -86,6 +87,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="customergroups-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>

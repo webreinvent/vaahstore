@@ -184,8 +184,8 @@ class CustomerGroup extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -193,8 +193,8 @@ class CustomerGroup extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -204,14 +204,13 @@ class CustomerGroup extends VaahModel
         $item->save();
         if (isset($inputs['customers']) && is_array($inputs['customers'])) {
             $customer_ids = collect($inputs['customers'])->pluck('id')->toArray();
-//            dd($customer_ids);
             $item->customers()->sync($customer_ids, function ($pivot) use ($item) {
                 $pivot->group_id = $item->id;
             });
         }
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -308,9 +307,9 @@ class CustomerGroup extends VaahModel
         {
             return $query;
         }
-        $search = $filter['status'];
-        $query->whereHas('status' , function ($q) use ($search){
-            $q->whereIn('name' ,$search);
+        $status = $filter['status'];
+        $query->whereHas('status' , function ($q) use ($status){
+            $q->whereIn('name' ,$status);
         });
     }
 
@@ -389,7 +388,7 @@ class CustomerGroup extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -439,7 +438,7 @@ class CustomerGroup extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -592,8 +591,7 @@ class CustomerGroup extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
-
+        $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }
     //-------------------------------------------------
@@ -608,7 +606,7 @@ class CustomerGroup extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $response['success'] = true;
@@ -633,8 +631,8 @@ class CustomerGroup extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -644,8 +642,8 @@ class CustomerGroup extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -661,7 +659,7 @@ class CustomerGroup extends VaahModel
         }
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -822,9 +820,10 @@ class CustomerGroup extends VaahModel
         })->get();
 
         if ($customer_group_data->isEmpty()) {
-            $response['success'] = false;
-            $response['errors'][] = 'No customer exists.';
+            $error_message = "No customer exists.";
+            $response['errors'][] = $error_message;
             return $response;
+
         }
 
         $randomCustomerGroup = $customer_group_data->random();

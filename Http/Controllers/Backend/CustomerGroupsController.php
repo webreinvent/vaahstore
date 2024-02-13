@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\CustomerGroup;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerGroupsController extends Controller
 {
@@ -24,7 +25,7 @@ class CustomerGroupsController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = CustomerGroup::getFillableColumns();
@@ -43,7 +44,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -62,7 +63,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -70,6 +71,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function updateList(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::updateList($request);
         }catch (\Exception $e){
@@ -79,7 +85,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -88,6 +94,10 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function listAction(Request $request, $type)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
 
         try{
@@ -99,7 +109,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
@@ -108,6 +118,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function deleteList(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::deleteList($request);
         }catch (\Exception $e){
@@ -117,7 +132,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -125,6 +140,10 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function fillItem(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         try{
             return CustomerGroup::fillItem($request);
@@ -135,7 +154,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -143,6 +162,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::createItem($request);
         }catch (\Exception $e){
@@ -152,7 +176,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -169,7 +193,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -177,6 +201,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::updateItem($request,$id);
         }catch (\Exception $e){
@@ -186,7 +215,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -194,6 +223,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function deleteItem(Request $request,$id)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::deleteItem($request,$id);
         }catch (\Exception $e){
@@ -203,7 +237,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -211,6 +245,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function itemAction(Request $request,$id,$action)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         try{
             return CustomerGroup::itemAction($request,$id,$action);
         }catch (\Exception $e){
@@ -220,7 +259,7 @@ class CustomerGroupsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -228,6 +267,11 @@ class CustomerGroupsController extends Controller
     //----------------------------------------------------------
     public function searchCustomers(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
 
         try{
             return CustomerGroup::searchCustomers($request);
@@ -248,6 +292,11 @@ class CustomerGroupsController extends Controller
 
     public function getCustomers(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
 
         try{
             return CustomerGroup::getCustomers($request);

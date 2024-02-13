@@ -45,7 +45,7 @@ const useVaah = vaah();
                 <template #body="prop">
                     <div class="p-inputgroup">
                         <span v-if="prop.data.customers && prop.data.customers.length"
-                              class="p-inputgroup-addon cursor-pointer" @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
+                              class="p-inputgroup-addon cursor-pointer"  @click="store.toViewCustomers(prop.data)" v-tooltip.top="'View Customers'">
                             <Badge severity="success">{{prop.data.customers.length}}</Badge>
 
                         </span>
@@ -111,7 +111,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="customergroups-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
@@ -120,7 +121,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="customergroups-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -128,7 +129,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="customergroups-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
