@@ -113,7 +113,7 @@ const items = ref([
             {
                 label: 'Customers',
                 icon: 'fa-regular fa-chart-bar',
-                route: "/users"
+                route: "/customers"
             },
             {
                 label: 'Customer Groups',

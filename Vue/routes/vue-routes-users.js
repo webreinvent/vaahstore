@@ -8,7 +8,7 @@ import UserRole from '../pages/users/ViewRole.vue';
 
 routes_list = {
 
-    path: '/users',
+    path: '/customers',
     name: 'users.index',
     component: List,
     props: true,
