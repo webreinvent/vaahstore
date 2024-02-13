@@ -9,14 +9,6 @@ const store = useProductVariationStore();
 const useVaah = vaah();
 const route = useRoute();
 
-const permissions=store.assets.permissions;
-console.log(route && route.query && route.query.filter && route.query.filter.product)
-
-onMounted(async () => {
-
-    /*await store.sendMail();*/
-});
-
 </script>
 
 <template>
