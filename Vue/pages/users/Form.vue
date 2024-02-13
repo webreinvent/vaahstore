@@ -314,7 +314,7 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
-                <VhField label="bio" v-if="!store.isHidden('bio')">
+                <VhField label="bio" v-if="store.isHidden('bio')">
                     <Editor v-model="store.item.bio"
                             editorStyle="height: 320px"
                             name="users-bio"

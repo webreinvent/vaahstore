@@ -139,7 +139,10 @@ const toggleItemMenu = (event) => {
                                 <template v-if="column === 'avatar_url' || column === 'avatar' || column === 'country_code'" />
                                 <template v-else-if="column === 'created_by' || column === 'updated_by'|| column === 'country' ||
                                 column === 'username'|| column === 'display_name'|| column === 'deleted_by'|| column === 'status'|| column === 'name'||
-                                 column === 'foreign_user_id'|| column === 'registration_id'|| column === 'meta'" />
+                                 column === 'foreign_user_id'|| column === 'registration_id'|| column === 'meta'|| column === 'mfa_methods'|| column === 'last_login_at'|| column === 'last_login_ip'
+                                 || column === 'activated_at'|| column === 'security_code'|| column === 'security_code_expired_at'|| column === 'affiliate_code'|| column === 'affiliate_code_used_at'|| column === 'reset_password_code_sent_at'
+                                 || column === 'reset_password_code_used_at'|| column === 'created_ip'|| column === 'bio'
+                                 "/>
 
                                 <template v-else-if="column === 'id' ||
                                                      column === 'uuid' ">
@@ -152,11 +155,11 @@ const toggleItemMenu = (event) => {
                                 <template v-else-if="column === 'email'">
                                     <tr>
                                         <td :style="{width: label_width}">
-                                            <b>Email</b>
+                                            <b>Username</b>
                                         </td>
                                         <td colspan="2" >
                                             <div style="overflow-wrap: break-word;word-wrap:break-word;">
-                                                {{store.item.email}}</div>
+                                                {{store.item.username}}</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -168,6 +171,16 @@ const toggleItemMenu = (event) => {
                                                 {{store.item.display_name}}</div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td :style="{width: label_width}">
+                                            <b>Email</b>
+                                        </td>
+                                        <td colspan="2" >
+                                            <div style="overflow-wrap: break-word;word-wrap:break-word;">
+                                                {{store.item.email}}</div>
+                                        </td>
+                                    </tr>
+
 
                                 </template>
 
