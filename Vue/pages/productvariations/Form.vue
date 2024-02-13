@@ -114,8 +114,20 @@ const permissions=store.assets.permissions;
                         v-model="store.item.product"
                         @change="store.setProduct($event)"
                         class="w-full"
-                        :suggestions="store.filtered_products"
+                        :suggestions="store.products_suggestion"
                         @complete="store.searchProduct($event)"
+                        :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"
                         placeholder="Select Product"
                         data-testid="productvariations-product"
                         name="productvariations-product"
@@ -150,21 +162,9 @@ const permissions=store.assets.permissions;
                                v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="Quantity">
+                <VhField label="Price">
                     <InputNumber
-                        class="quantity-class"
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        name="productvariations-quantity"
-                        v-model="store.item.quantity"
-                        @input = "store.checkQuantity($event)"
-                        showButtons
-                        :min="0"
-                        data-testid="productvariations-quantity"/>
-                </VhField>
-
-                <VhField label="Price"  v-if="store.item.quantity">
-                    <InputNumber
+                        class="w-full"
                         v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
@@ -173,14 +173,30 @@ const permissions=store.assets.permissions;
                         data-testid="productvariations-price"/>
                 </VhField>
 
-                <VhField label="In Stock">
-                    <InputSwitch
-                        v-bind:false-value="0"
-                        v-bind:true-value="1"
-                        @change="store.checkInStock()"
-                        name="productvariations-in_stock"
-                        data-testid="productvariations-in_stock"
-                        v-model="store.item.in_stock"/>
+
+                <VhField label="Meta Title">
+                    <InputText class="w-full"
+                               name="productvariations-meta_title"
+                               data-testid="productvariations-meta_title"
+                               placeholder="Enter Meta Title"
+                               v-model="store.item.meta_title"/>
+                </VhField>
+
+                <VhField label="Meta Description">
+                    <Textarea rows="3" class="w-full"
+                              name="productvariations-meta_description"
+                              data-testid="productvariations-meta_description"
+                              :autoResize="true"
+                              placeholder="Enter Meta Description"
+                              v-model="store.item.meta_description"/>
+                </VhField>
+
+                <VhField label="Meta Keyword">
+                    <Chips class="w-full"
+                           v-model="store.item.meta_keywords"
+                           placeholder="Enter Meta keyword"
+                           data-testid="productvariations-meta_keywords"
+                           separator=","  />
                 </VhField>
 
                 <VhField label="Status*">

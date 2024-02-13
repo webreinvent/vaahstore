@@ -258,12 +258,6 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Delete Confirmation', 'Do you want to Delete all record(s)?', callbackOnAccept);
         },
-        //----------------------------------------------------------
-
-        confirmDialogActivate(callbackOnAccept)
-        {
-            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
-        },
 
         //----------------------------------------------------------
 
@@ -274,23 +268,9 @@ export const vaah = defineStore({
 
         //----------------------------------------------------------
 
-        confirmDialogDeactivate(callbackOnAccept)
-        {
-            this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
         confirmDialogDeactivateAll(callbackOnAccept)
         {
             this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogTrash(callbackOnAccept)
-        {
-            this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
         },
 
         //----------------------------------------------------------
