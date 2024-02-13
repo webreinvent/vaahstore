@@ -28,7 +28,7 @@ class UsersController extends Controller
         try {
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['except'] = [
@@ -81,7 +81,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -100,15 +100,18 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function updateList(Request $request): JsonResponse
+    public function updateList(Request $request)
     {
-
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         try {
             $response = User::updateList($request);
         } catch (\Exception $e) {
@@ -119,16 +122,18 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
-            }
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");            }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function listAction(Request $request, $type): JsonResponse
+    public function listAction(Request $request, $type)
     {
-
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         try {
             $response = User::listAction($request, $type);
         } catch (\Exception $e) {
@@ -139,15 +144,19 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function deleteList(Request $request): JsonResponse
+    public function deleteList(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         try {
             $response = User::deleteList($request);
         } catch (\Exception $e) {
@@ -158,15 +167,19 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function createItem(Request $request): JsonResponse
+    public function createItem(Request $request)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         try {
             $response = User::createItem($request);
@@ -178,7 +191,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -198,15 +211,19 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function updateItem(Request $request,$id): JsonResponse
+    public function updateItem(Request $request,$id)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         try {
             $item = User::query()->where('id', $id)->first();
@@ -227,15 +244,19 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function deleteItem(Request $request,$id): JsonResponse
+    public function deleteItem(Request $request,$id)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         try {
             $response = User::deleteItem($request, $id);
@@ -247,15 +268,19 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function itemAction(Request $request,$id,$action): JsonResponse
+    public function itemAction(Request $request,$id,$action)
     {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         try {
             $response = User::itemAction($request,$id,$action);
@@ -267,136 +292,136 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return response()->json($response);
     }
     //----------------------------------------------------------
-    public function getItemRoles(Request $request, $id): JsonResponse
-    {
-
-        try {
-            $item = User::withTrashed()->where('id', $id)->first();
-
-            $response['data']['item'] = $item;
-
-            if ($request->has("q")) {
-                $list = $item->roles()->where(function ($q) use ($request){
-                    $q->where('name', 'LIKE', '%'.$request->q.'%')
-                        ->orWhere('slug', 'LIKE', '%'.$request->q.'%');
-                });
-            } else {
-                $list = $item->roles();
-            }
-
-            $list->orderBy('pivot_is_active', 'desc');
-            $rows = config('vaahcms.per_page');
-
-            if ($request->rows) {
-                $rows = $request->rows;
-            }
-
-            $list = $list->paginate($rows);
-
-            foreach ($list as $role) {
-
-                $data = User::getPivotData($role->pivot);
-
-                $role['json'] = $data;
-                $role['json_length'] = count($data);
-            }
-
-            $response['data']['list'] = $list;
-            $response['success'] = true;
-        } catch (\Exception $e) {
-            $response = [];
-            $response['success'] = false;
-
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'][] = $e->getTrace();
-            } else {
-                $response['errors'][] = 'Something went wrong.';
-            }
-        }
-
-        return response()->json($response);
-
-    }
+//    public function getItemRoles(Request $request, $id): JsonResponse
+//    {
+//
+//        try {
+//            $item = User::withTrashed()->where('id', $id)->first();
+//
+//            $response['data']['item'] = $item;
+//
+//            if ($request->has("q")) {
+//                $list = $item->roles()->where(function ($q) use ($request){
+//                    $q->where('name', 'LIKE', '%'.$request->q.'%')
+//                        ->orWhere('slug', 'LIKE', '%'.$request->q.'%');
+//                });
+//            } else {
+//                $list = $item->roles();
+//            }
+//
+//            $list->orderBy('pivot_is_active', 'desc');
+//            $rows = config('vaahcms.per_page');
+//
+//            if ($request->rows) {
+//                $rows = $request->rows;
+//            }
+//
+//            $list = $list->paginate($rows);
+//
+//            foreach ($list as $role) {
+//
+//                $data = User::getPivotData($role->pivot);
+//
+//                $role['json'] = $data;
+//                $role['json_length'] = count($data);
+//            }
+//
+//            $response['data']['list'] = $list;
+//            $response['success'] = true;
+//        } catch (\Exception $e) {
+//            $response = [];
+//            $response['success'] = false;
+//
+//            if(env('APP_DEBUG')){
+//                $response['errors'][] = $e->getMessage();
+//                $response['hint'][] = $e->getTrace();
+//            } else {
+//                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+//            }
+//        }
+//
+//        return response()->json($response);
+//
+//    }
     //----------------------------------------------------------
-    public function postActions(Request $request, $action) : JsonResponse
-    {
-        try {
-            $rules = array(
-                'inputs' => 'required',
-            );
-
-            $validator = \Validator::make( $request->all(), $rules);
-            if ( $validator->fails() ) {
-
-                $errors             = errorsToArray($validator->errors());
-                $response['success'] = false;
-                $response['errors'][] = $errors;
-                return response()->json($response);
-            }
-
-            $response = [];
-
-            $request->merge(['action'=>$action]);
-
-            switch ($action)
-            {
-                //------------------------------------
-                case 'bulk-change-status':
-
-
-                    $response = User::bulkStatusChange($request);
-
-                    break;
-                //------------------------------------
-                case 'bulk-trash':
-
-
-                    $response = User::bulkTrash($request);
-
-                    break;
-                //------------------------------------
-                case 'bulk-restore':
-
-
-                    $response = User::bulkRestore($request);
-
-                    break;
-                //------------------------------------
-                case 'bulk-delete':
-
-                    $response = User::bulkDelete($request);
-
-                    break;
-                //------------------------------------
-                case 'toggle-role-active-status':
-
-                    $response = User::bulkChangeRoleStatus($request);
-
-                    break;
-                //------------------------------------
-            }
-        } catch (\Exception $e) {
-            $response = [];
-            $response['success'] = false;
-
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'][] = $e->getTrace();
-            } else {
-                $response['errors'][] = 'Something went wrong.';
-            }
-        }
-
-        return response()->json($response);
-    }
+//    public function postActions(Request $request, $action) : JsonResponse
+//    {
+//        try {
+//            $rules = array(
+//                'inputs' => 'required',
+//            );
+//
+//            $validator = \Validator::make( $request->all(), $rules);
+//            if ( $validator->fails() ) {
+//
+//                $errors             = errorsToArray($validator->errors());
+//                $response['success'] = false;
+//                $response['errors'][] = $errors;
+//                return response()->json($response);
+//            }
+//
+//            $response = [];
+//
+//            $request->merge(['action'=>$action]);
+//
+//            switch ($action)
+//            {
+//                //------------------------------------
+//                case 'bulk-change-status':
+//
+//
+//                    $response = User::bulkStatusChange($request);
+//
+//                    break;
+//                //------------------------------------
+//                case 'bulk-trash':
+//
+//
+//                    $response = User::bulkTrash($request);
+//
+//                    break;
+//                //------------------------------------
+//                case 'bulk-restore':
+//
+//
+//                    $response = User::bulkRestore($request);
+//
+//                    break;
+//                //------------------------------------
+//                case 'bulk-delete':
+//
+//                    $response = User::bulkDelete($request);
+//
+//                    break;
+//                //------------------------------------
+//                case 'toggle-role-active-status':
+//
+//                    $response = User::bulkChangeRoleStatus($request);
+//
+//                    break;
+//                //------------------------------------
+//            }
+//        } catch (\Exception $e) {
+//            $response = [];
+//            $response['success'] = false;
+//
+//            if(env('APP_DEBUG')){
+//                $response['errors'][] = $e->getMessage();
+//                $response['hint'][] = $e->getTrace();
+//            } else {
+//                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+//            }
+//        }
+//
+//        return response()->json($response);
+//    }
     //----------------------------------------------------------
     public function getProfile(Request $request): JsonResponse
     {
@@ -415,7 +440,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -448,7 +473,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -480,7 +505,8 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['messages'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+
             }
         }
 
@@ -499,7 +525,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -524,7 +550,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -543,7 +569,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -562,7 +588,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -580,7 +606,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -597,7 +623,7 @@ class UsersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }

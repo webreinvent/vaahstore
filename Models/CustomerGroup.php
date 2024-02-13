@@ -739,7 +739,7 @@ class CustomerGroup extends VaahModel
                 'name.max'=>'The Name  field must not exceed :max characters.',
                 'slug.required'=>'The Slug field is required.',
                 'slug.max'=>'The Slug  field must not exceed :max characters.',
-                'customers.required'=>'The Customer field is required.',
+                'customers.required'=>'The Customers field is required.',
                 'taxonomy_id_customer_groups_status.required' => 'The Status field is required.',
                 'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status.',
                 'status_notes.max' => 'The Status notes field must not exceed :max characters.',
@@ -817,7 +817,7 @@ class CustomerGroup extends VaahModel
         $inputs['status']=$status;
         $customer_group_data = \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
             $query->where('slug', 'customer');
-        })->get();
+        })->where('is_active', 1)->get();
 
         if ($customer_group_data->isEmpty()) {
             $error_message = "No customer exists.";
