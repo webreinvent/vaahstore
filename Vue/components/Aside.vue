@@ -106,11 +106,6 @@ const items = ref([
                 route: "/addresses"
             },
             {
-                label: 'Customer Groups',
-                icon: 'fa-regular fa-user',
-                route: "/customergroups"
-            },
-            {
                 label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
                 route: "/wishlists"
@@ -119,6 +114,11 @@ const items = ref([
                 label: 'Customers',
                 icon: 'fa-regular fa-chart-bar',
                 route: "/users"
+            },
+            {
+                label: 'Customer Groups',
+                icon: 'fa-regular fa-user',
+                route: "/customergroups"
             },
         ]
     },

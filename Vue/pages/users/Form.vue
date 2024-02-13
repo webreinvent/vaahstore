@@ -18,7 +18,7 @@ onMounted(async () => {
         await store.getItem(route.params.id);
     }
 
-    store.getFormMenu();
+   await store.getFormMenu();
 
 });
 
@@ -43,12 +43,13 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
     <div class="col-5" >
-        <Panel >
+        <Panel class="is-small">
             <template class="p-1" #header>
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span v-if="store.item && store.item.id">
-                            {{ store.item.name }}
+<!--                            {{ store.item.name }}-->
+                            Update
                         </span>
 
                         <span v-else>
@@ -60,12 +61,12 @@ const toggleFormMenu = (event) => {
 
             <template #icons>
                 <div class="p-inputgroup">
-                    <Button v-if="store.item && store.item.id"
-                            class="p-button-sm"
-                            :label=" '#' + store.item.id "
-                            data-testid="users-form_id"
-                            @click="useVaah.copy(store.item.id)"
-                    />
+<!--                    <Button v-if="store.item && store.item.id"-->
+<!--                            class="p-button-sm"-->
+<!--                            :label=" '#' + store.item.id "-->
+<!--                            data-testid="users-form_id"-->
+<!--                            @click="useVaah.copy(store.item.id)"-->
+<!--                    />-->
 
                     <Button v-if="store.item && store.item.id"
                             label="Save"
@@ -82,6 +83,10 @@ const toggleFormMenu = (event) => {
                             data-testid="users-new_save"
                             icon="pi pi-save"
                             />
+                    <Button data-testid="users-document" icon="pi pi-info-circle"
+                            href="https://vaah.dev/store"
+                            v-tooltip.top="'Documentation'"
+                            onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
 
                     <!--form_menu-->
@@ -98,13 +103,13 @@ const toggleFormMenu = (event) => {
                     />
                     <!--/form_menu-->
 
-                    <Button v-if="store.item && store.item.id"
-                            class="p-button-sm"
-                            icon="pi pi-eye"
-                            v-tooltip.top="'View'"
-                            data-testid="users-form_view"
-                            @click="store.toView(store.item)"
-                    />
+<!--                    <Button v-if="store.item && store.item.id"-->
+<!--                            class="p-button-sm"-->
+<!--                            icon="pi pi-eye"-->
+<!--                            v-tooltip.top="'View'"-->
+<!--                            data-testid="users-form_view"-->
+<!--                            @click="store.toView(store.item)"-->
+<!--                    />-->
 
                     <Button class="p-button-sm"
                             icon="pi pi-times"
@@ -118,7 +123,32 @@ const toggleFormMenu = (event) => {
             </template>
 
 
-            <div v-if="store.item && store.assets">
+            <div v-if="store.item && store.assets" class="pt-2">
+
+                <Message severity="error"
+                         class="p-container-message mb-3"
+                         :closable="false"
+                         icon="pi pi-trash"
+                         v-if="store.item.deleted_at">
+
+                    <div class="flex align-items-center justify-content-between">
+
+                        <div class="">
+                            Trashed {{store.item.deleted_at}}
+                        </div>
+
+                        <div class="ml-3">
+                            <Button label="Restore"
+                                    class="p-button-sm"
+                                    data-testid="articles-item-restore"
+                                    @click="store.itemAction('restore')">
+                            </Button>
+                        </div>
+
+                    </div>
+
+                </Message>
+
                 <div class="field mb-4 flex justify-content-between align-items-center"
                      v-if="store.item.id">
 

@@ -878,6 +878,7 @@ export const useUserStore = defineStore({
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action Was Successful']);
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1090,13 +1091,13 @@ export const useUserStore = defineStore({
                 }
             });
 
-            item_menu.push({
-                label: 'Generate new API Token',
-                icon: 'pi pi-key',
-                command: () => {
-                    this.itemAction('generate-new-token');
-                }
-            });
+            // item_menu.push({
+            //     label: 'Generate new API Token',
+            //     icon: 'pi pi-key',
+            //     command: () => {
+            //         this.itemAction('generate-new-token');
+            //     }
+            // });
 
             this.item_menu_list = item_menu;
         },

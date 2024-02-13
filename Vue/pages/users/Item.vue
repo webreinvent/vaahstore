@@ -43,7 +43,7 @@ onMounted(async () => {
         }, { deep: true }
     )*/
 
-    await store.getItemMenu();
+    // await store.getItemMenu();
 
 });
 
@@ -57,26 +57,26 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
     <div class="col-5" >
-        <Panel v-if="store && store.item">
+        <Panel class="is-small" v-if="store && store.item">
             <template class="p-1" #header>
                 <div class="flex flex-row">
-                    <div class="font-semibold text-sm">
-                        {{ store.item.name }}
+                    <div class="p-panel-title">
+                        #{{ store.item.id }}
                     </div>
                 </div>
             </template>
 
             <template #icons>
                 <div class="p-inputgroup">
-                    <Button class="p-button-sm"
-                            :label=" '#' + store.item.id "
-                            @click="useVaah.copy(store.item.id)"
-                            data-testid="users-item_id"
-                    />
+<!--                    <Button class="p-button-sm"-->
+<!--                            :label=" '#' + store.item.id "-->
+<!--                            @click="useVaah.copy(store.item.id)"-->
+<!--                            data-testid="users-item_id"-->
+<!--                    />-->
 
                     <Button label="Edit"
                             @click="store.toEdit(store.item)"
-                            icon="pi pi-pencil"
+                            icon="pi pi-save"
                             class="p-button-sm"
                             data-testid="users-item_edit"
                             />
@@ -113,7 +113,7 @@ const toggleItemMenu = (event) => {
 
                     <div class="flex align-items-center justify-content-between">
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Trashed {{store.item.deleted_at}}
                         </div>
 
                         <div class="ml-3">
