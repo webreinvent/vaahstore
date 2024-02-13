@@ -12,8 +12,8 @@ let ajax_url = base_url + "/store/customergroups";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -211,7 +211,7 @@ export const useCustomerGroupStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                      data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
