@@ -599,6 +599,7 @@ export const useUserStore = defineStore({
                 method: method,
                 show_success: false
             };
+            options.params.query = vaah().clone(this.query);
             await vaah().ajax(
                 url,
                 this.updateListAfter,
@@ -734,11 +735,11 @@ export const useUserStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
         async paginate(event) {
             this.query.page = event.page+1;
-            this.query.rows = event.rows;
-            this.firstElement = this.query.rows * (this.query.page - 1);
             await this.getList();
+            await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         async reload()
