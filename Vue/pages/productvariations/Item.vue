@@ -106,13 +106,11 @@ const permissions=store.assets.permissions;
             <div class="mt-2" v-if="store.item">
 
                 <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                    <tr>
-                        <td  colspan="2" >
-                            <div  style="width:300px;word-break: break-word;">
-                                <pre>{{store.item.status_notes}}</pre></div>
-                        </td>
-                    </tr>
+                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                        <pre v-html="store.item.status_notes"></pre>
+                    </div>
                 </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
