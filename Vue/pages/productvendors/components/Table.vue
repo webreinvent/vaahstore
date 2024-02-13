@@ -39,9 +39,7 @@ const useVaah = vaah();
                      <span v-else>
                      {{prop.data.vendor.name}}
                          </span>
-                     <span v-if="prop.data.vendor && prop.data.vendor.is_default && prop.data.vendor.is_default == 1">
-                         <badge>&nbsp;(Default)</badge>
-                     </span>
+
 
                  </template>
 
@@ -95,6 +93,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="status.name" header="Status"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -102,8 +101,8 @@ const useVaah = vaah();
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status"
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
+                            severity="warning"> {{prop.data.status.name}}</Badge>
                  </template>
 
              </Column>
@@ -114,7 +113,7 @@ const useVaah = vaah();
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                        {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>
@@ -126,6 +125,7 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="productvendors-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -149,7 +149,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="productvendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
@@ -158,7 +159,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvendors-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -166,7 +167,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productvendors-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -179,7 +180,9 @@ const useVaah = vaah();
 
             </Column>
 
-
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+             </template>
         </DataTable>
         <!--/table-->
 

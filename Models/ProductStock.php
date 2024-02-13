@@ -937,300 +937,46 @@ class ProductStock extends VaahModel
     public function scopeVendorsFilter($query, $filter)
     {
 
-        if(!isset($filter['vendors'])
-            || is_null($filter['vendors'])
-            || $filter['vendors'] === 'null'
-        )
-        {
-            return $query;
+    public static function deleteProductVariations($items_id){
+
+        $response=[];
+
+        if ($items_id) {
+            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
+
+            if ($items_exist) {
+                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
+                $response['success'] = true;
+            }
         }
 
-        $vendors = $filter['vendors'];
+        $response['success'] = false;
 
-        $query->whereHas('vendor', function ($query) use ($vendors) {
-            $query->whereIn('slug', $vendors);
-        });
-
-    }
-
-    //-------------------------------------------------
-
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')
-            ->select(['id','name','slug']);
-    }
-
-    //-------------------------------------------------
-
-    public function scopeProductsFilter($query, $filter)
-    {
-
-        if(!isset($filter['products'])
-            || is_null($filter['products'])
-            || $filter['products'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $products = $filter['products'];
-
-        $query->whereHas('product', function ($query) use ($products) {
-            $query->whereIn('slug', $products);
-        });
-
-    }
-
-    //-------------------------------------------------
-    public function product(){
-        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')
-            ->select(['id','name','slug']);
-    }
-
-    //-------------------------------------------------
-
-    public function scopeVariationsFilter($query, $filter)
-    {
-
-        if(!isset($filter['variations'])
-            || is_null($filter['variations'])
-            || $filter['variations'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $variations = $filter['variations'];
-
-        $query->whereHas('productVariation', function ($query) use ($variations) {
-            $query->whereIn('slug', $variations);
-        });
-
-    }
-
-    //-------------------------------------------------
-
-    public function productVariation(){
-        return $this->belongsTo(ProductVariation::class, 'vh_st_product_variation_id', 'id')
-            ->select(['id','name','slug']);
-    }
-
-    //-------------------------------------------------
-
-    public function warehouse(){
-        return $this->belongsTo(Warehouse::class, 'vh_st_warehouse_id', 'id')
-            ->select(['id','name','slug']);
-    }
-
-    //-------------------------------------------------
-
-
-    public function scopeWarehousesFilter($query, $filter)
-    {
-
-        if(!isset($filter['warehouses'])
-            || is_null($filter['warehouses'])
-            || $filter['warehouses'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $warehouses = $filter['warehouses'];
-
-        $query->whereHas('warehouse', function ($query) use ($warehouses) {
-            $query->whereIn('slug', $warehouses);
-        });
-
-    }
-
-    //-------------------------------------------------
-
-    public static function searchVendorUsingUrlSlug($request)
-    {
-
-        $query = $request['filter']['vendor'];
-        $vendors = Vendor::whereIn('name',$query)
-            ->orWhereIn('slug',$query)
-            ->select('id','name','slug')->get();
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
-    }
-
-
-    //-------------------------------------------------
-
-    public static function searchProductUsingUrlSlug($request)
-    {
-
-        $query = $request['filter']['product'];
-        $products = Product::whereIn('name',$query)
-            ->orWhereIn('slug',$query)
-            ->select('id','name','slug')->get();
-        $response['success'] = true;
-        $response['data'] = $products;
-        return $response;
-    }
-
-    //-------------------------------------------------
-
-    public static function searchVariationUsingUrlSlug($request)
-    {
-
-        $query = $request['filter']['variation'];
-        $variations = ProductVariation::whereIn('name',$query)
-            ->orWhereIn('slug',$query)
-            ->select('id','name','slug')->get();
-        $response['success'] = true;
-        $response['data'] = $variations;
-        return $response;
-    }
-
-    //-------------------------------------------------
-
-    public static function searchWarehouseUsingUrlSlug($request)
-    {
-
-        $query = $request['filter']['warehouse'];
-        $warehouses = Warehouse::whereIn('name',$query)
-            ->orWhereIn('slug',$query)
-            ->select('id','name','slug')->get();
-        $response['success'] = true;
-        $response['data'] = $warehouses;
-        return $response;
-    }
-
-    //-------------------------------------------------
-
-    public function scopeStockFilter($query, $filter)
-    {
-        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
-            return $query;
-        }
-
-        $in_stock = $filter['in_stock'];
-
-        if ($in_stock === 'false') {
-            $query->where(function ($query) {
-                $query->Where('quantity',0);
-            });
-        } elseif ($in_stock === 'true') {
-            $query->where('quantity', '>=',1);
-        }
-
-        return $query;
-    }
-
-    //-------------------------------------------------
-
-    public static function updateStock($id)
-    {
-        $item = self::where('id',$id)->withTrashed()->first();
-        $product_variation = ProductVariation::where('id', $item->vh_st_product_variation_id)
-            ->withTrashed()->first();
-        if($product_variation->quantity)
-        {
-            $product_variation->quantity -= $item->quantity;
-        }
-
-        $product_variation->save();
-        $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)
-            ->withTrashed()->sum('quantity');
-        $product->save();
-    }
-
-    //-------------------------------------------------
-
-    public static function scopeStatusFilter($query, $filter)
-    {
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $status = $filter['status'];
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->whereIn('name', $status)
-                ->orWhereIn('slug',$status);
-        });
-    }
-
-    //-------------------------------------------------
-    public function scopeDateFilter($query, $filter)
-    {
-        if(!isset($filter['date'])
-            || is_null($filter['date'])
-        )
-        {
-            return $query;
-        }
-
-        $dates = $filter['date'];
-        $from = \Carbon::parse($dates[0])
-            ->startOfDay()
-            ->toDateTimeString();
-
-        $to = \Carbon::parse($dates[1])
-            ->endOfDay()
-            ->toDateTimeString();
-
-        return $query->whereBetween('created_at', [$from, $to]);
-
-    }
-
-    //-------------------------------------------------
-
-    public function scopeQuantityFilter($query, $filter)
-    {
-        if (
-            !isset($filter['quantity']) ||
-            is_null($filter['quantity']) ||
-            $filter['quantity'] === 'null' ||
-            count($filter['quantity']) < 2 ||
-            is_null($filter['quantity'][0]) ||
-            is_null($filter['quantity'][1])
-        ) {
-            return $query;
-        }
-
-        $min_quantity = $filter['quantity'][0];
-        $max_quantity = $filter['quantity'][1];
-        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
-
-
-    }
-
-    //-------------------------------------------------
-    public static function searchFilterSelectedProductVariation($request){
-
-        $product_variations = ProductVariation::select('id', 'name','slug','is_default')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $product_variations->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $product_variations = $product_variations->limit(10)->get();
-        $response['success'] = true;
-        $response['data'] = $product_variations;
         return $response;
 
     }
 
     //-------------------------------------------------
-    public static function searchFilterSelectedWarehouse($request){
 
-        $warehouses = Warehouse::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $warehouses->where('name', 'LIKE', '%' . $request->input('query') . '%');
+    public static function deleteProductVariation($item_id){
+
+        $response = [];
+
+        if ($item_id) {
+            $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+                self::where('vh_st_product_variation_id', $item_id)->forceDelete();
+
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
         }
-        $warehouses = $warehouses->limit(10)->get();
-        $response['success'] = true;
-        $response['data'] = $warehouses;
+
         return $response;
 
     }
+
+
 }
