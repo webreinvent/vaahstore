@@ -174,7 +174,6 @@ const permissions=store.assets.permissions;
                 </VhField>
 
 
-
                 <VhField label="Meta Title">
                     <InputText class="w-full"
                                name="productvariations-meta_title"
@@ -197,7 +196,6 @@ const permissions=store.assets.permissions;
                            v-model="store.item.meta_keywords"
                            placeholder="Enter Meta keyword"
                            data-testid="productvariations-meta_keywords"
-                           style="max-width: min-content;"
                            separator=","  />
                 </VhField>
 
