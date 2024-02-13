@@ -655,15 +655,21 @@ class ProductVariation extends VaahModel
             self::deleteProductAttribute($item_id);
             $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
             $item->medias()->detach();
-            $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
-            if($product_media->productVariationMedia())
-            {
-                $is_count = $product_media->productVariationMedia()->count();
+
+            if ($product_media_id) {
+                $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                if ($product_media) {
+                    if ($product_media->productVariationMedia()) {
+                        $is_count = $product_media->productVariationMedia()->count();
+                    }
+
+                    if (!isset($is_count) || !$is_count) {
+                        $product_media->forceDelete();
+                    }
+                }
             }
-            if(!$is_count)
-            {
-                ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
-            }
+
             self::updateQuantity($item->id);
 
         }
@@ -738,15 +744,21 @@ class ProductVariation extends VaahModel
                         self::deleteProductAttribute($item_id);
                         $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
                         $item->medias()->detach();
-                        $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
-                        if($product_media->productVariationMedia())
-                        {
-                            $is_count = $product_media->productVariationMedia()->count();
+
+                        if ($product_media_id) {
+                            $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                            if ($product_media) {
+                                if ($product_media->productVariationMedia()) {
+                                    $is_count = $product_media->productVariationMedia()->count();
+                                }
+
+                                if (!isset($is_count) || !$is_count) {
+                                    $product_media->forceDelete();
+                                }
+                            }
                         }
-                        if(!$is_count)
-                        {
-                            ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
-                        }
+
                         self::updateQuantity($item->id);
 
                     }
@@ -782,15 +794,21 @@ class ProductVariation extends VaahModel
                     self::deleteProductAttribute($item_id);
                     $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
                     $item->medias()->detach();
-                    $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
-                    if($product_media->productVariationMedia())
-                    {
-                        $is_count = $product_media->productVariationMedia()->count();
+
+                    if ($product_media_id) {
+                        $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                        if ($product_media) {
+                            if ($product_media->productVariationMedia()) {
+                                $is_count = $product_media->productVariationMedia()->count();
+                            }
+
+                            if (!isset($is_count) || !$is_count) {
+                                $product_media->forceDelete();
+                            }
+                        }
                     }
-                    if(!$is_count)
-                    {
-                        ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
-                    }
+
                     self::updateQuantity($item->id);
 
                 }
@@ -919,15 +937,21 @@ class ProductVariation extends VaahModel
 
         $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
         $item->medias()->detach();
-        $product_media = ProductMedia::where('id',$product_media_id)->withTrashed()->first();
-        if($product_media->productVariationMedia())
-        {
-            $is_count = $product_media->productVariationMedia()->count();
+
+        if ($product_media_id) {
+            $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+            if ($product_media) {
+                if ($product_media->productVariationMedia()) {
+                    $is_count = $product_media->productVariationMedia()->count();
+                }
+
+                if (!isset($is_count) || !$is_count) {
+                    $product_media->forceDelete();
+                }
+            }
         }
-        if(!$is_count)
-        {
-            ProductMedia::where('id',$product_media_id)->withTrashed()->forceDelete();
-        }
+
         self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
