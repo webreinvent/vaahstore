@@ -128,7 +128,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                placeholder="Enter a Name"
                                name="customergroups-name"
@@ -137,7 +137,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                name="customergroups-slug"
                                placeholder="Enter a Slug"
@@ -146,7 +146,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
-                <VhField label="Add Customers">
+                <VhField label="Customers*">
                     <AutoComplete
                         name="customergroups-customer-filter"
                         data-testid="customergroups-customer-filter"
@@ -175,7 +175,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete
                         v-model="store.item.status"
                         @change="store.setStatus($event)"

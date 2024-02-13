@@ -1071,7 +1071,15 @@ export const useCustomerGroupStore = defineStore({
         searchCustomersAfter(data,res) {
             if(data)
             {
+                // this.customer_suggestions = data;
                 this.customer_suggestions = data;
+                if (data && this.item.customers) {
+                    this.customer_suggestions = data.filter((item) => {
+                        return !this.item.customers.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
             }
         },
         //---------------------------------------------------------------------
@@ -1138,8 +1146,9 @@ export const useCustomerGroupStore = defineStore({
 
         //---------------------------------------------------------------------
         setFilterSelectedCustomers() {
-
-            this.query.filter.customers = this.filter_selected_customers.map(customer => customer.display_name);
+            const unique_customers = Array.from(new Set(this.filter_selected_customers.map(v => v.display_name)));
+            this.filter_selected_customers = unique_customers.map(name => this.filter_selected_customers.find(v => v.display_name === name));
+            this.query.filter.customers = this.filter_selected_customers.map(v => v.display_name);
 
         },
         //---------------------------------------------------------------------
