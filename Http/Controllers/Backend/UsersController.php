@@ -18,12 +18,6 @@ class UsersController extends Controller
     //----------------------------------------------------------
     public function getAssets(Request $request): JsonResponse
     {
-        /*if (!Auth::user()->hasPermission('has-access-of-users-section')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return response()->json($response);
-        } */
 
         try {
             $data = [];

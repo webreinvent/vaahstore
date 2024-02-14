@@ -205,7 +205,7 @@ class CustomerGroup extends VaahModel
         if (isset($inputs['customers']) && is_array($inputs['customers'])) {
             $customer_ids = collect($inputs['customers'])->pluck('id')->toArray();
             $item->customers()->sync($customer_ids, function ($pivot) use ($item) {
-                $pivot->group_id = $item->id;
+                $pivot->vh_st_customer_group_id = $item->id;
             });
         }
 
@@ -629,7 +629,7 @@ class CustomerGroup extends VaahModel
         if (isset($inputs['customers']) && is_array($inputs['customers'])) {
             $product_ids = collect($inputs['customers'])->pluck('id')->toArray();
             $item->customers()->sync($product_ids, function ($pivot) use ($item) {
-                $pivot->group_id = $item->id;
+                $pivot->vh_st_customer_group_id = $item->id;
             });
         }
 
