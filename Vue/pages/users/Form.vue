@@ -178,7 +178,7 @@ const toggleFormMenu = (event) => {
 
                 </div>
 
-                <VhField label="Email">
+                <VhField label="Email*">
                     <InputText :class="'w-full '+ store.email_error.class"
                                v-model="store.item.email"
                                @input="store.validateEmail"
@@ -240,7 +240,7 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
-                <VhField label="First Name">
+                <VhField label="First Name*">
                     <InputText class="w-full"
                                v-model="store.item.first_name"
                                name="users-first_name"
@@ -373,7 +373,7 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <Dropdown class="w-full"
                               v-model="store.item.status"
                               :options="store.status_options"
@@ -386,7 +386,7 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
-                <VhField label="Is Active">
+                <VhField label="Is Active*">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="users-is_active"
