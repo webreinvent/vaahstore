@@ -8,7 +8,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use Illuminate\Support\Facades\Auth;
 
 class ProductStocksController extends Controller
 {
