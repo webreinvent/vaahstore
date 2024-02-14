@@ -160,7 +160,7 @@ class ProductStock extends VaahModel
     public static function createItem($request)
     {
 
-        $validation_result = self::productStockInputValidator($request->all());
+        $validation_result = self::validation($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
@@ -178,7 +178,7 @@ class ProductStock extends VaahModel
 
         if ($is_stock_exist) {
             $response = [];
-            $response['errors'][] = 'Product Stock already exist for this variation.';
+            $response['errors'][] = 'Product Stock already exists for this variation.';
             return $response;
         }
 
@@ -199,20 +199,20 @@ class ProductStock extends VaahModel
         $product->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
 
     //-------------------------------------------------
-    public static function productStockInputValidator($requestData){
+    public static function validation($requestData){
 
         $validated_data = validator($requestData, [
             'vendor' => 'required',
             'product' => 'required',
             'product_variation' => 'required',
             'vh_st_warehouse_id' => 'required',
-            'quantity' => 'required',
+            'quantity' => 'required|min:1',
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -356,7 +356,6 @@ class ProductStock extends VaahModel
         $list->productsFilter($request->filter);
         $list->variationsFilter($request->filter);
         $list->warehousesFilter($request->filter);
-        $list->stockFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->quantityFilter($request->filter);
@@ -388,7 +387,7 @@ class ProductStock extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -439,7 +438,7 @@ class ProductStock extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -454,8 +453,8 @@ class ProductStock extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -476,7 +475,7 @@ class ProductStock extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -544,7 +543,7 @@ class ProductStock extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by'  => null]);
+                $list->onlyTrashed()->update(['deleted_by'  => null]);
                 $list->restore();
                 break;
             case 'delete-all':
@@ -579,7 +578,7 @@ class ProductStock extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -595,7 +594,7 @@ class ProductStock extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
 
@@ -624,15 +623,16 @@ class ProductStock extends VaahModel
             ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
+
         $is_stock_exist = self::where($conditions)
             ->whereNot('id',$item->id)
             ->withTrashed()->first();
+
         if ($is_stock_exist) {
             $response = [];
             $response['errors'][] = 'Product Stock already exist for this variation.';
             return $response;
         }
-
 
         // calculate difference between new and old quantity
         $difference_in_quantity =$inputs['quantity'] - $item->quantity;
@@ -651,6 +651,7 @@ class ProductStock extends VaahModel
         $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
             ->withTrashed()->sum('quantity');
         $product->save();
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -662,7 +663,7 @@ class ProductStock extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
 
@@ -671,7 +672,7 @@ class ProductStock extends VaahModel
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
@@ -712,28 +713,6 @@ class ProductStock extends VaahModel
         }
 
         return self::getItem($id);
-    }
-    //-------------------------------------------------
-
-    public static function validation($inputs)
-    {
-
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
-        }
-
-        $response['success'] = true;
-        return $response;
-
     }
 
     //-------------------------------------------------
@@ -1100,27 +1079,6 @@ class ProductStock extends VaahModel
         $response['success'] = true;
         $response['data'] = $warehouses;
         return $response;
-    }
-
-    //-------------------------------------------------
-
-    public function scopeStockFilter($query, $filter)
-    {
-        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
-            return $query;
-        }
-
-        $in_stock = $filter['in_stock'];
-
-        if ($in_stock === 'false') {
-            $query->where(function ($query) {
-                $query->Where('quantity',0);
-            });
-        } elseif ($in_stock === 'true') {
-            $query->where('quantity', '>=',1);
-        }
-
-        return $query;
     }
 
     //-------------------------------------------------

@@ -34,29 +34,6 @@ const store = useProductStockStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>In Stock:</b>
-                </template>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-yes"
-                                 value="true"
-                                 data-testid="stocks-filters-in-stock-yes"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-yes">Yes</label>
-                </div>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-no"
-                                 value="false"
-                                 data-testid="stocks-filters-in-stock-no"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-no">No</label>
-                </div>
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
                     <b>Vendor:</b>
                 </template>
 

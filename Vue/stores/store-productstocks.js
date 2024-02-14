@@ -448,7 +448,11 @@ export const useProductStockStore = defineStore({
                 {
                     data.rows=this.query.rows;
                 }
-                
+                if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
+                {
+                    this.min_quantity=this.route.query.filter.quantity[0];
+                    this.max_quantity=this.route.query.filter.quantity[1];
+                }
                 if(this.route.params && !this.route.params.id){
                     this.item = vaah().clone(data.empty_item);
                 }
@@ -892,7 +896,10 @@ export const useProductStockStore = defineStore({
             this.selected_warehouses = null;
             this.selected_dates = null;
             this.quantity = null;
+            this.min_quantity = this.assets.min_quantity;
+            this.max_quantity = this.assets.max_quantity;
             await this.updateUrlQueryString(this.query);
+
         },
         //---------------------------------------------------------------------
         closeForm()
