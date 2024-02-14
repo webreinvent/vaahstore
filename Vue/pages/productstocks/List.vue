@@ -85,7 +85,8 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-                    <Button data-testid="productstocks-list-create"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            data-testid="productstocks-list-create"
                             class="p-button-sm"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
@@ -100,7 +101,8 @@ const toggleCreateMenu = (event) => {
 
                     <!--form_menu-->
 
-                    <Button v-if="root.assets && root.assets.module
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                        v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
@@ -110,6 +112,7 @@ const toggleCreateMenu = (event) => {
                         aria-haspopup="true"/>
 
                     <Menu ref="create_menu"
+                          :disabled="!store.assets.permissions.includes('can-update-module')"
                           :model="store.list_create_menu"
                           :popup="true" />
 
