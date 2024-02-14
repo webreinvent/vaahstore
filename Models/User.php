@@ -21,10 +21,6 @@ class User extends UserBase
             'deleted_by',
         ];
     }
-    public function user()
-    {
-        return $this->belongsToMany(UserBase::class,'id','vh_st_user_id','vh_st_role_id');
-    }
 
     //----------------------------------------------------------
 
@@ -36,10 +32,6 @@ class User extends UserBase
     }
 
     //----------------------------------------------------------
-
-    //----------------------------------------------------------
-
-
     public function scopeCustomerGroupFilter($query, $filter)
     {
 
@@ -219,13 +211,7 @@ class User extends UserBase
         return $response;
 
     }
-
-
     //----------------------------------------------------------
-
-
-    //----------------------------------------------------------
-
 
     public static function searchCustomerGroups($request)
     {

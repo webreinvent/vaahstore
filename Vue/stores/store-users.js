@@ -657,7 +657,6 @@ export const useUserStore = defineStore({
                 except: this.assets.fillable.except,
             };
 
-            // let url = this.base_url+'/faker';
             let url = this.ajax_url+'/fill';
             let options = {
                 params: params,
@@ -792,11 +791,7 @@ export const useUserStore = defineStore({
             }
             await this.updateUrlQueryString(this.query);
         },
-        //---------------------------------------------------------------------
-        async resetUserRolesFilters() {
-            this.user_roles_query.q = null;
-            this.user_roles_query.rows = this.assets.rows;
-        },
+
         //---------------------------------------------------------------------
         closeForm()
         {
@@ -1143,10 +1138,7 @@ export const useUserStore = defineStore({
             return false;
         },
         //---------------------------------------------------------------------
-        openModal(item){
-            this.meta_content = JSON.stringify(item,null,2);
-            this.display_meta_modal=true;
-        },
+
         //---------------------------------------------------------------------
         setIsActiveStatus() {
             if (this.item.status === 'active') {
@@ -1156,10 +1148,6 @@ export const useUserStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async displayBioModal(item) {
-            this.display_bio_modal = true;
-            this.bio_modal_data = item;
-        },
         //---------------------------------------------------------------------
         validateEmail() {
             if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.item.email)) {

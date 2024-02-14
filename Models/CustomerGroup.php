@@ -239,30 +239,6 @@ class CustomerGroup extends VaahModel
         return $query->orderBy($sort[0], $sort[1]);
     }
     //-------------------------------------------------
-//    public function scopeIsActiveFilter($query, $filter)
-//    {
-//
-//        if(!isset($filter['is_active'])
-//            || is_null($filter['is_active'])
-//            || $filter['is_active'] === 'null'
-//        )
-//        {
-//            return $query;
-//        }
-//        $is_active = $filter['is_active'];
-//
-//        if($is_active === 'true' || $is_active === true)
-//        {
-//            return $query->where('is_active', 1);
-//        } else{
-//            return $query->where(function ($q){
-//                $q->whereNull('is_active')
-//                    ->orWhere('is_active', 0);
-//            });
-//        }
-//
-//    }
-    //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -354,7 +330,6 @@ class CustomerGroup extends VaahModel
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','customers','orderItems');
-//        $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);

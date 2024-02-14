@@ -67,11 +67,7 @@ Route::group(
         //---------------------------------------------------------
 
         //---------------------------------------------------------
-        Route::get('/item/{id}/roles', 'UsersController@getItemRoles')
-            ->name('vh.backend.store.users.role');
 
-        Route::post('/actions/{action_name}', 'UsersController@postActions')
-            ->name('vh.backend.store.users.actions');
         //---------------------------------------------------------
         Route::post('/avatar/store', 'UsersController@storeAvatar')
             ->name('vh.backend.store.users.avatar.store');
@@ -89,7 +85,9 @@ Route::group(
          */
         Route::post('/search/customer-group-by-slug', 'UsersController@getCustomerGroupsBySlug')
             ->name('vh.backend.store.users.search.filter-customergroup-by-slug');
-
+        /**
+         * fill record
+         */
         Route::any('/fill', 'UsersController@fillItem')
             ->name('vh.backend.store.users.fill');
     });
