@@ -458,6 +458,30 @@ class User extends UserBase
         $inputs['phone'] = $random_phone_number;
         $random_dob = $faker->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d');
         $inputs['birth'] = $random_dob;
+        $inputs['foreign_user_id'] = rand(1,10);
+        $status_options = [
+            [
+                'label' => 'Active',
+                'value' => 'active'
+            ],
+            [
+                'label' => 'Inactive',
+                'value' => 'inactive'
+            ],
+            [
+                'label' => 'Blocked',
+                'value' => 'blocked'
+            ],
+            [
+                'label' => 'Banned',
+                'value' => 'banned'
+            ],
+        ];
+
+        $random_index = array_rand($status_options);
+        $random_status = $status_options[$random_index]['value'];
+
+        $inputs['status'] = $random_status;
 
         /*
          * You can override the filled variables below this line.

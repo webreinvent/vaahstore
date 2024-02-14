@@ -74,7 +74,7 @@ const store = useCustomerGroupStore();
                         v-model="store.query.filter.status"
                         :options="store.status"
                         filter
-                        optionValue="name"
+                        optionValue="slug"
                         optionLabel="name"
                         data-testid="customergroups-filters-status"
                         placeholder="Select Status"

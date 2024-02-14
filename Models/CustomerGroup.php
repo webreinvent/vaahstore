@@ -285,7 +285,7 @@ class CustomerGroup extends VaahModel
         }
         $status = $filter['status'];
         $query->whereHas('status' , function ($q) use ($status){
-            $q->whereIn('name' ,$status);
+            $q->whereIn('slug' ,$status);
         });
     }
 
@@ -479,7 +479,6 @@ class CustomerGroup extends VaahModel
 
         if($request->has('filter')){
             $list->getSorted($request->filter);
-//            $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
         }
