@@ -305,6 +305,67 @@ class User extends UserBase
         return $response;
     }
     //----------------------------------------------------------
+    public static function listAction($request, $type): array
+    {
+        $response = [];
+        $inputs = $request->all();
+
+        $list = self::getSorted($inputs['query']['filter']);
+        $list->isActiveFilter($inputs['query']['filter']);
+        $list->trashedFilter($inputs['query']['filter']);
+        $list->searchFilter($inputs['query']['filter']);
+
+        if (isset($request['from']) && isset($request['to'])) {
+            $list->betweenDates($request['from'],$request['to']);
+        }
+
+        $list_array = $list->get()->toArray();
+
+        foreach($list_array as $item){
+            $is_restricted = self::restrictedActions($type, $item['id']);
+
+            if(isset($is_restricted['success']) && !$is_restricted['success'])
+            {
+                $response['errors'][] = '<b>'.$item['email'].'</b>: '.$is_restricted['errors'][0];
+                $list->where('id','!=',$item['id']);
+            }
+        }
+
+        switch ($type) {
+            case 'activate-all':
+                $list->update(['is_active' => 1]);
+                break;
+            case 'deactivate-all':
+                $list->update(['is_active' => null]);
+                break;
+            case 'trash-all':
+                $list->whereHas('activeRoles', function ($query) {
+                    $query->where('slug', 'customer');
+                })->delete();
+                break;
+            case 'restore-all':
+                $list->withTrashed()->restore();
+                break;
+            case 'delete-all':
+                \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                $list->withTrashed()->forceDelete();
+                \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                break;
+        }
+
+        $response['success'] = true;
+        $response['data'] = true;
+
+        if(!isset($response['errors']) ||
+            (count($list_array) !== count($response['errors']))){
+
+            $response['messages'][] = trans('vaahcms-general.action_successful');
+
+        }
+
+        return $response;
+    }
+    //----------------------------------------------------------
 
 
 
