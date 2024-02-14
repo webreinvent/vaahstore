@@ -83,18 +83,9 @@ export const useUserStore = defineStore({
         filtered_country_codes:[],
         form_menu_list: [],
         gender_options: [
-            {
-                label: 'Male',
-                value: 'male'
-            },
-            {
-                label: 'Female',
-                value: 'female'
-            },
-            {
-                label: 'Others',
-                value: 'others'
-            }
+            {label:'Male',value:'m',icon: ''},
+            {label:'Female',value:'f',icon: ''},
+            {label:'Others',value:'o',icon: ''},
         ],
         status_options: [
             {
@@ -772,8 +763,8 @@ export const useUserStore = defineStore({
                 except: this.assets.fillable.except,
             };
 
-            let url = this.base_url+'/faker';
-
+            // let url = this.base_url+'/faker';
+            let url = this.ajax_url+'/fill';
             let options = {
                 params: params,
                 method: 'post',
@@ -928,6 +919,7 @@ export const useUserStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.item.is_active=1;
             this.$router.push({name: 'users.form'})
         },
         //---------------------------------------------------------------------

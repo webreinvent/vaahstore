@@ -629,4 +629,24 @@ class UsersController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function fillItem(Request $request)
+    {
+        $permission_slug = 'can-update-module';
+        if (!Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+        try{
+            return User::fillItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }

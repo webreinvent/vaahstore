@@ -89,4 +89,7 @@ Route::group(
          */
         Route::post('/search/customer-group-by-slug', 'UsersController@getCustomerGroupsBySlug')
             ->name('vh.backend.store.users.search.filter-customergroup-by-slug');
+
+        Route::any('/fill', 'UsersController@fillItem')
+            ->name('vh.backend.store.users.fill');
     });

@@ -1,9 +1,13 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
+use Faker\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\User as UserBase;
+use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class User extends UserBase
 {
@@ -373,7 +377,69 @@ class User extends UserBase
 
         return $response;
     }
+
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
     //----------------------------------------------------------
+    public static function fillItem($is_response_return = true)
+    {
+        $request = new Request([
+            'model_namespace' => self::class,
+            'except' => self::getUnFillableColumns()
+        ]);
+        $fillable = VaahSeeder::fill($request);
+        if(!$fillable['success']){
+            return $fillable;
+        }
+
+        $country_list = VaahCountry::getList();
+        $countries = array_column($country_list, 'name');
+        $inputs = $fillable['data']['fill'];
+        $random_country = $countries[array_rand($countries)];
+        $selected_country = collect($country_list)->where('name', $random_country)->first();
+
+        $inputs['country'] = $random_country;
+        $inputs['country_calling_code'] = $selected_country ? $selected_country['calling_code'] : null;
+        $inputs['is_active'] = rand(0,1);
+
+
+
+        $name_titles = vh_name_titles();
+        $random_title = collect($name_titles)->random()['name'];
+
+        $inputs['title'] = $random_title;
+
+        $timezones = vh_get_timezones();
+        $random_zone = collect($timezones)->random()['slug'];
+        $inputs['timezone'] = $random_zone;
+
+        $faker = Factory::create();
+        $phone_number_length = 10;
+        $random_phone_number= $faker->numerify(str_repeat('#', $phone_number_length));
+        $inputs['phone'] = $random_phone_number;
+        $random_dob = $faker->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d');
+        $inputs['birth'] = $random_dob;
+
+        /*
+         * You can override the filled variables below this line.
+         * You should also return relationship from here
+         */
+
+        if(!$is_response_return){
+            return $inputs;
+        }
+
+        $response['success'] = true;
+        $response['data']['fill'] = $inputs;
+        return $response;
+    }
 
 
 
