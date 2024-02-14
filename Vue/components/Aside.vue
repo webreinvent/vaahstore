@@ -106,14 +106,19 @@ const items = ref([
                 route: "/addresses"
             },
             {
-                label: 'Customer Groups',
-                icon: 'fa-regular fa-user',
-                route: "/customergroups"
-            },
-            {
                 label: 'Wishlists',
                 icon: 'fa-regular fa-chart-bar',
                 route: "/wishlists"
+            },
+            {
+                label: 'Customers',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/customers"
+            },
+            {
+                label: 'Customer Groups',
+                icon: 'fa-regular fa-user',
+                route: "/customergroups"
             },
         ]
     },
