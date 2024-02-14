@@ -122,11 +122,11 @@ class ProductVariation extends VaahModel
 
     protected static function booted()
     {
-        static::updated(function ($productVariation) {
-            if ($productVariation->isDirty('quantity')) {
-                self::sendMailForStock();
-            }
-        });
+//        static::updated(function ($productVariation) {
+//            if ($productVariation->isDirty('quantity')) {
+//                self::sendMailForStock();
+//            }
+//        });
     }
 
 

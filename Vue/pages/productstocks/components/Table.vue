@@ -31,7 +31,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <div style="word-break: break-word;">{{ prop.data.vendor.name }}</div>
+                     <div style="word-break: break-word;" v-if="prop.data.vendor && prop.data.vendor.name">{{ prop.data.vendor.name }}</div>
                  </template>
 
              </Column>

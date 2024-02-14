@@ -212,7 +212,7 @@ class ProductStock extends VaahModel
             'product' => 'required',
             'product_variation' => 'required',
             'vh_st_warehouse_id' => 'required',
-            'quantity' => 'required|min:1',
+            'quantity' => 'required',
             'status' => 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
@@ -608,7 +608,7 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
-        $validation_result = self::productStockInputValidator($request->all());
+        $validation_result = self::validation($request->all());
 
         if ($validation_result['success'] != true){
             return $validation_result;
@@ -738,6 +738,17 @@ class ProductStock extends VaahModel
             $item->fill($inputs);
             $item->save();
 
+            //update quantity in product variation
+            $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
+                ->withTrashed()->first();
+            $product_variation->quantity += $inputs['quantity'];
+            $product_variation->save();
+
+            //update quantity in product
+            $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
+            $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
+                ->withTrashed()->sum('quantity');
+            $product->save();
             $i++;
 
         }
@@ -772,24 +783,17 @@ class ProductStock extends VaahModel
 
         //fill the product variation field on the basis of product selected
 
-        $inputs['vh_st_product_variation_id'] = ProductVariation::where('is_active', 1)
+        $product_variation_id = ProductVariation::where('is_active', 1)
             ->where('vh_st_product_id',$inputs['vh_st_product_id'])
             ->inRandomOrder()->value('id');
+
+        $inputs['vh_st_product_variation_id'] = $product_variation_id;
 
         $inputs['product_variation'] = ProductVariation::where('is_active',1)
             ->where('id',$inputs['vh_st_product_variation_id'])->first();
 
-        //fill the Brand field on the basis of product selected
 
-        $brands = Brand::where('is_active',1);
-        $brand_ids = $brands->pluck('id')->toArray();
-        $brand_id = $brand_ids[array_rand($brand_ids)];
-        $brand = $brands->where('id',$brand_id)->first();
-        $inputs['brand'] = $brand;
-        $inputs['vh_st_brand_id'] = $brand_id;
-
-
-        //fill the warehouse field on the basis of warehouse selected
+        //fill the warehouse field on the basis of vendor selected
 
         $warehouse_id = Warehouse::where('is_active', 1)
             ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
