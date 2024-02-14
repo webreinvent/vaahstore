@@ -197,7 +197,7 @@ class ProductStock extends VaahModel
         $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
             ->withTrashed()->sum('quantity');
         $product->save();
-            
+
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
@@ -560,21 +560,21 @@ class ProductStock extends VaahModel
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -692,8 +692,8 @@ class ProductStock extends VaahModel
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 if($item->delete()) {
                     $item->deleted_by = auth()->user()->id;
@@ -705,9 +705,9 @@ class ProductStock extends VaahModel
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
-                    $item = self::where('id',$id)->withTrashed()->first();
-                    $item->deleted_by = null;
-                    $item->save();
+                $item = self::where('id',$id)->withTrashed()->first();
+                $item->deleted_by = null;
+                $item->save();
                 break;
         }
 
@@ -777,58 +777,58 @@ class ProductStock extends VaahModel
         if(!$fillable['success']){
             return $fillable;
         }
-          $inputs = $fillable['data']['fill'];
+        $inputs = $fillable['data']['fill'];
 
-            //fill the Vendor field here
-           $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
-           $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-           $inputs['vh_st_vendor_id'] =$vendor_id;
-           $inputs['vendor'] = $vendor_id_data;
+        //fill the Vendor field here
+        $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
+        $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
+        $inputs['vh_st_vendor_id'] =$vendor_id;
+        $inputs['vendor'] = $vendor_id_data;
 
-            //fill the product field here
-           $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-           $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
-           $inputs['vh_st_product_id'] =$product_id;
-           $inputs['product'] = $product_id_data;
+        //fill the product field here
+        $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+        $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
+        $inputs['vh_st_product_id'] =$product_id;
+        $inputs['product'] = $product_id_data;
 
-            //fill the product variation field on the basis of product selected
+        //fill the product variation field on the basis of product selected
 
-            $inputs['vh_st_product_variation_id'] = ProductVariation::where('is_active', 1)
-                ->where('vh_st_product_id',$inputs['vh_st_product_id'])
-                ->inRandomOrder()->value('id');
+        $inputs['vh_st_product_variation_id'] = ProductVariation::where('is_active', 1)
+            ->where('vh_st_product_id',$inputs['vh_st_product_id'])
+            ->inRandomOrder()->value('id');
 
-           $inputs['product_variation'] = ProductVariation::where('is_active',1)
-               ->where('id',$inputs['vh_st_product_variation_id'])->first();
+        $inputs['product_variation'] = ProductVariation::where('is_active',1)
+            ->where('id',$inputs['vh_st_product_variation_id'])->first();
 
-            //fill the Brand field on the basis of product selected
+        //fill the Brand field on the basis of product selected
 
-            $brands = Brand::where('is_active',1);
-            $brand_ids = $brands->pluck('id')->toArray();
-            $brand_id = $brand_ids[array_rand($brand_ids)];
-            $brand = $brands->where('id',$brand_id)->first();
-            $inputs['brand'] = $brand;
-            $inputs['vh_st_brand_id'] = $brand_id;
+        $brands = Brand::where('is_active',1);
+        $brand_ids = $brands->pluck('id')->toArray();
+        $brand_id = $brand_ids[array_rand($brand_ids)];
+        $brand = $brands->where('id',$brand_id)->first();
+        $inputs['brand'] = $brand;
+        $inputs['vh_st_brand_id'] = $brand_id;
 
 
-            //fill the warehouse field on the basis of warehouse selected
+        //fill the warehouse field on the basis of warehouse selected
 
-           $warehouse_id = Warehouse::where('is_active', 1)
-                  ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
-                  ->inRandomOrder()->value('id');
+        $warehouse_id = Warehouse::where('is_active', 1)
+            ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
+            ->inRandomOrder()->value('id');
 
-           $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
-           $inputs['vh_st_warehouse_id'] =$warehouse_id;
-           $inputs['warehouse'] = $warehouse_id_data;
+        $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
+        $inputs['vh_st_warehouse_id'] =$warehouse_id;
+        $inputs['warehouse'] = $warehouse_id_data;
 
-           $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
-           $status_id = $taxonomy_status->pluck('id')->random();
-           $status = $taxonomy_status->where('id',$status_id)->first();
-           $inputs['taxonomy_id_product_stock_status'] = $status_id;
-           $inputs['status']=$status;
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
+        $status_id = $taxonomy_status->pluck('id')->random();
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['taxonomy_id_product_stock_status'] = $status_id;
+        $inputs['status']=$status;
 
-           $inputs['quantity'] = rand(1,5000);
+        $inputs['quantity'] = rand(1,5000);
 
-         $faker = Factory::create();
+        $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.
@@ -937,46 +937,300 @@ class ProductStock extends VaahModel
     public function scopeVendorsFilter($query, $filter)
     {
 
-    public static function deleteProductVariations($items_id){
-
-        $response=[];
-
-        if ($items_id) {
-            $items_exist = self::whereIn('vh_st_product_variation_id', $items_id)->get();
-
-            if ($items_exist) {
-                self::whereIn('vh_st_product_variation_id', $items_id)->forceDelete();
-                $response['success'] = true;
-            }
+        if(!isset($filter['vendors'])
+            || is_null($filter['vendors'])
+            || $filter['vendors'] === 'null'
+        )
+        {
+            return $query;
         }
 
-        $response['success'] = false;
+        $vendors = $filter['vendors'];
 
-        return $response;
+        $query->whereHas('vendor', function ($query) use ($vendors) {
+            $query->whereIn('slug', $vendors);
+        });
 
     }
 
     //-------------------------------------------------
 
-    public static function deleteProductVariation($item_id){
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')
+            ->select(['id','name','slug']);
+    }
 
-        $response = [];
+    //-------------------------------------------------
 
-        if ($item_id) {
-            $item_exist = self::where('vh_st_product_variation_id', $item_id)->first();
+    public function scopeProductsFilter($query, $filter)
+    {
 
-            if ($item_exist) {
-                self::where('vh_st_product_variation_id', $item_id)->forceDelete();
-
-                $response['success'] = true;
-            }
-        } else {
-            $response['success'] = false;
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
+        )
+        {
+            return $query;
         }
 
+        $products = $filter['products'];
+
+        $query->whereHas('product', function ($query) use ($products) {
+            $query->whereIn('slug', $products);
+        });
+
+    }
+
+    //-------------------------------------------------
+    public function product(){
+        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')
+            ->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
+    public function scopeVariationsFilter($query, $filter)
+    {
+
+        if(!isset($filter['variations'])
+            || is_null($filter['variations'])
+            || $filter['variations'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $variations = $filter['variations'];
+
+        $query->whereHas('productVariation', function ($query) use ($variations) {
+            $query->whereIn('slug', $variations);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function productVariation(){
+        return $this->belongsTo(ProductVariation::class, 'vh_st_product_variation_id', 'id')
+            ->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
+    public function warehouse(){
+        return $this->belongsTo(Warehouse::class, 'vh_st_warehouse_id', 'id')
+            ->select(['id','name','slug']);
+    }
+
+    //-------------------------------------------------
+
+
+    public function scopeWarehousesFilter($query, $filter)
+    {
+
+        if(!isset($filter['warehouses'])
+            || is_null($filter['warehouses'])
+            || $filter['warehouses'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $warehouses = $filter['warehouses'];
+
+        $query->whereHas('warehouse', function ($query) use ($warehouses) {
+            $query->whereIn('slug', $warehouses);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVendorUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['vendor'];
+        $vendors = Vendor::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+    }
+
+
+    //-------------------------------------------------
+
+    public static function searchProductUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['product'];
+        $products = Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVariationUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['variation'];
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchWarehouseUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['warehouse'];
+        $warehouses = Warehouse::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+        $response['success'] = true;
+        $response['data'] = $warehouses;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public function scopeStockFilter($query, $filter)
+    {
+        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+            return $query;
+        }
+
+        $in_stock = $filter['in_stock'];
+
+        if ($in_stock === 'false') {
+            $query->where(function ($query) {
+                $query->Where('quantity',0);
+            });
+        } elseif ($in_stock === 'true') {
+            $query->where('quantity', '>=',1);
+        }
+
+        return $query;
+    }
+
+    //-------------------------------------------------
+
+    public static function updateStock($id)
+    {
+        $item = self::where('id',$id)->withTrashed()->first();
+        $product_variation = ProductVariation::where('id', $item->vh_st_product_variation_id)
+            ->withTrashed()->first();
+        if($product_variation->quantity)
+        {
+            $product_variation->quantity -= $item->quantity;
+        }
+
+        $product_variation->save();
+        $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
+        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)
+            ->withTrashed()->sum('quantity');
+        $product->save();
+    }
+
+    //-------------------------------------------------
+
+    public static function scopeStatusFilter($query, $filter)
+    {
+        if(!isset($filter['status'])
+            || is_null($filter['status'])
+            || $filter['status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['status'];
+        $query->whereHas('status', function ($query) use ($status) {
+            $query->whereIn('name', $status)
+                ->orWhereIn('slug',$status);
+        });
+    }
+
+    //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeQuantityFilter($query, $filter)
+    {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
+            return $query;
+        }
+
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+
+
+    }
+
+    //-------------------------------------------------
+    public static function searchFilterSelectedProductVariation($request){
+
+        $product_variations = ProductVariation::select('id', 'name','slug','is_default')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $product_variations->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product_variations = $product_variations->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $product_variations;
         return $response;
 
     }
 
+    //-------------------------------------------------
+    public static function searchFilterSelectedWarehouse($request){
 
+        $warehouses = Warehouse::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $warehouses->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $warehouses = $warehouses->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $warehouses;
+        return $response;
+
+    }
 }

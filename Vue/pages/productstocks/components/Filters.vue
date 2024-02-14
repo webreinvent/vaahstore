@@ -207,8 +207,8 @@ const store = useProductStockStore();
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
                         <div class="flex justify-content-between">
-                            <div><b>{{ store.assets.min_quantity }}</b></div>
-                            <div><b>{{ store.assets.max_quantity }}</b></div>
+                            <div><b>{{ store.min_quantity | bold }}</b></div>
+                            <div><b>{{ store.max_quantity | bold }}</b></div>
                         </div>
                         <Slider v-model="store.quantity"
                                 range

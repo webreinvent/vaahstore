@@ -92,6 +92,8 @@ export const useProductStockStore = defineStore({
         selected_warehouses : null,
         selected_dates : null,
         quantity:[],
+        min_quantity : null,
+        max_quantity : null,
     }),
     getters: {
 
@@ -440,11 +442,13 @@ export const useProductStockStore = defineStore({
                 this.products = data.products;
                 this.warehouses = data.warehouses;
                 this.product_variations = data.product_variations;
+                this.min_quantity = data.min_quantity;
+                this.max_quantity = data.max_quantity;
                 if(data.rows)
                 {
                     data.rows=this.query.rows;
                 }
-
+                
                 if(this.route.params && !this.route.params.id){
                     this.item = vaah().clone(data.empty_item);
                 }
