@@ -78,6 +78,7 @@ export const useUserStore = defineStore({
         list_selected_menu: [],
         list_bulk_menu: [],
         item_menu_list: [],
+        list_create_menu: [],
         item_menu_state: null,
         filtered_timezone_codes:[],
         filtered_country_codes:[],
@@ -586,7 +587,7 @@ export const useUserStore = defineStore({
                     method = 'DELETE';
                     break;
             }
-
+            this.action.filter = this.query.filter;
             let options = {
                 params: this.action,
                 method: method,
@@ -1403,6 +1404,46 @@ export const useUserStore = defineStore({
                     this.query.filter.date = dates;
                 }
             }
+        },
+
+        async getListCreateMenu()
+        {
+            let form_menu = [];
+
+            form_menu.push(
+                {
+                    label: 'Create 100 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-100-records');
+                    }
+                },
+                {
+                    label: 'Create 1000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-1000-records');
+                    }
+                },
+                {
+                    label: 'Create 5000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-5000-records');
+                    }
+                },
+                {
+                    label: 'Create 10,000 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10000-records');
+                    }
+                },
+
+            )
+
+            this.list_create_menu = form_menu;
+
         },
 
     }

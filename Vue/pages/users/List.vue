@@ -3,11 +3,12 @@ import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
 import {useUserStore} from '../../stores/store-users'
-
+import {useRootStore} from "../../stores/root";
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
 
 const store = useUserStore();
+const root = useRootStore();
 const route = useRoute();
 
 import { useConfirm } from "primevue/useconfirm";
@@ -44,8 +45,16 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
+
+    await store.getListCreateMenu();
 });
 
+
+
+const create_menu = ref();
+const toggleCreateMenu = (event) => {
+    create_menu.value.toggle(event);
+};
 </script>
 <template>
     <div class="grid">
@@ -81,6 +90,18 @@ onMounted(async () => {
                         >
                             <i class="pi pi-refresh mr-1"></i>
                         </Button>
+
+                        <Button v-if="root.assets && root.assets.module
+                                                && root.assets.module.is_dev"
+                                type="button"
+                                @click="toggleCreateMenu"
+                                class="p-button-sm"  data-testid="customers-create-menu"
+                                icon="pi pi-angle-down"
+                                aria-haspopup="true"/>
+
+                        <Menu ref="create_menu"
+                              :model="store.list_create_menu"
+                              :popup="true" />
                     </div>
                 </template>
 

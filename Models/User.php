@@ -11,6 +11,16 @@ use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class User extends UserBase
 {
+
+    public static function getUnFillableColumns()
+    {
+        return [
+            'uuid',
+            'created_by',
+            'updated_by',
+            'deleted_by',
+        ];
+    }
     public function user()
     {
         return $this->belongsToMany(UserBase::class,'id','vh_st_user_id','vh_st_role_id');
@@ -363,6 +373,28 @@ class User extends UserBase
                 })->withTrashed()->forceDelete();
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1');
                 break;
+
+            case 'create-100-records':
+            case 'create-1000-records':
+            case 'create-5000-records':
+            case 'create-10000-records':
+
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
+
+                    return $response;
+                }
+
+                preg_match('/-(.*?)-/', $type, $matches);
+
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
+                break;
+
         }
 
         $response['success'] = true;
@@ -378,14 +410,27 @@ class User extends UserBase
         return $response;
     }
 
-    public static function getUnFillableColumns()
+    //----------------------------------------------------------
+    public static function seedSampleItems($records=100)
     {
-        return [
-            'uuid',
-            'created_by',
-            'updated_by',
-            'deleted_by',
-        ];
+
+        $i = 0;
+
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
+
+            $item =  new self();
+            $item->fill($inputs);
+            $item->save();
+            Role::syncRolesWithUsers();
+            $registered_role = Role::where('slug', 'customer')->first();
+            $registered_role->users()->updateExistingPivot($item, ['is_active' => 1]);
+
+            $i++;
+
+        }
+
     }
     //----------------------------------------------------------
     public static function fillItem($is_response_return = true)
