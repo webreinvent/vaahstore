@@ -179,8 +179,8 @@ class User extends UserBase
         $user = self::withTrashed()->where('email',$inputs['email'])->first();
 
         if ($user) {
-            $response['success'] = false;
-            $response['errors'][] = trans('vaahcms-user.email_already_registered');
+            $error_message = trans('vaahcms-user.email_already_registered').($user->deleted_at?' and exists in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -188,8 +188,8 @@ class User extends UserBase
         $user = self::withTrashed()->where('username',$inputs['username'])->first();
 
         if ($user) {
-            $response['success'] = false;
-            $response['errors'][] = trans('vaahcms-user.username_already_registered');
+            $error_message = trans('vaahcms-user.username_already_registered').($user->deleted_at?' and exists in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -232,7 +232,7 @@ class User extends UserBase
         $query = $request->input('query');
         if($query === null)
         {
-            $attribute_name = CustomerGroup::select('id','name','slug')
+            $customer_group_name = CustomerGroup::select('id','name','slug')
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
@@ -240,14 +240,14 @@ class User extends UserBase
 
         else{
 
-            $attribute_name = CustomerGroup::where('name', 'like', "%$query%")
+            $customer_group_name = CustomerGroup::where('name', 'like', "%$query%")
                 ->orWhere('slug','like',"%$query%")
                 ->select('id','name','slug')
                 ->get();
         }
 
         $response['success'] = true;
-        $response['data'] = $attribute_name;
+        $response['data'] = $customer_group_name;
         return $response;
 
     }
