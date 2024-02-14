@@ -46,27 +46,6 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-<!--            <Column  v-if="store.isViewLarge()"-->
-<!--                     field="last_login_at"-->
-<!--                     header="Last Login At"-->
-<!--            >-->
-<!--                <template #body="prop">-->
-<!--                    {{ prop.data.last_login_at }}-->
-<!--                </template>-->
-<!--            </Column>-->
-
-<!--            <Column field="roles"-->
-<!--                    header="Roles"-->
-<!--                    >-->
-<!--                <template #body="prop">-->
-<!--                    <Button class="p-button-sm p-button-rounded white-space-nowrap"-->
-<!--                            data-testid="users-list_data_role"-->
-<!--                            @click="store.toRole(prop.data)"-->
-<!--                    >-->
-<!--                        {{ prop.data.active_roles_count }} / {{ store.assets.totalRole }}-->
-<!--                    </Button>-->
-<!--                </template>-->
-<!--            </Column>-->
             <Column field="customer_groups" header="Groups"
             >
                 <template #body="prop">

@@ -163,7 +163,5 @@ const useVaah = vaah();
 
 </template>
 <style scoped>
-.surface-200 {
-    background-colour : yellow;
-}
+
 </style>

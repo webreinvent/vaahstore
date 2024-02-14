@@ -23,13 +23,6 @@ onMounted(async () => {
 });
 
 
-// if (store && store.item && store.item.email) {
-//     watchEffect(store.item.email, (currentValue, oldValue) => {
-//         alert(currentValue);
-//         store.item.email = currentValue;
-//         store.validateEmail(currentValue);
-//     });
-// }
 
 const myUploader = ref();
 
@@ -48,7 +41,6 @@ const toggleFormMenu = (event) => {
                 <div class="flex flex-row">
                     <div class="p-panel-title">
                         <span v-if="store.item && store.item.id">
-<!--                            {{ store.item.name }}-->
                             Update
                         </span>
 
@@ -61,13 +53,6 @@ const toggleFormMenu = (event) => {
 
             <template #icons>
                 <div class="p-inputgroup">
-<!--                    <Button v-if="store.item && store.item.id"-->
-<!--                            class="p-button-sm"-->
-<!--                            :label=" '#' + store.item.id "-->
-<!--                            data-testid="users-form_id"-->
-<!--                            @click="useVaah.copy(store.item.id)"-->
-<!--                    />-->
-
                     <Button v-if="store.item && store.item.id"
                             label="Save"
                             class="p-button-sm"
@@ -101,15 +86,6 @@ const toggleFormMenu = (event) => {
                           :model="store.form_menu_list"
                           :popup="true"
                     />
-                    <!--/form_menu-->
-
-<!--                    <Button v-if="store.item && store.item.id"-->
-<!--                            class="p-button-sm"-->
-<!--                            icon="pi pi-eye"-->
-<!--                            v-tooltip.top="'View'"-->
-<!--                            data-testid="users-form_view"-->
-<!--                            @click="store.toView(store.item)"-->
-<!--                    />-->
 
                     <Button class="p-button-sm"
                             icon="pi pi-times"
@@ -373,18 +349,6 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
-<!--                <VhField label="Status*">-->
-<!--                    <Dropdown class="w-full"-->
-<!--                              v-model="store.item.status"-->
-<!--                              :options="store.status_options"-->
-<!--                              optionLabel="label"-->
-<!--                              optionValue="value"-->
-<!--                              id="account-status"-->
-<!--                              name="users-status"-->
-<!--                              data-testid="users-status"-->
-<!--                              @change="store.setIsActiveStatus"-->
-<!--                    />-->
-<!--                </VhField>-->
 
                 <VhField label="Is Active*">
                     <InputSwitch v-bind:false-value="0"
