@@ -464,109 +464,109 @@ export const useUserStore = defineStore({
             }
         },
         //--------------------------------------------------------------------
-        async getUserRoles () {
-            this.showProgress();
-
-            let url = this.ajax_url+'/item/' + this.item.id + '/roles';
-
-            let params = {
-                query: this.user_roles_query,
-                method: 'get',
-            };
-
-             vaah().ajax(
-                url,
-                await this.afterGetUserRoles,
-                params
-            );
-        },
+        // async getUserRoles () {
+        //     this.showProgress();
+        //
+        //     let url = this.ajax_url+'/item/' + this.item.id + '/roles';
+        //
+        //     let params = {
+        //         query: this.user_roles_query,
+        //         method: 'get',
+        //     };
+        //
+        //      vaah().ajax(
+        //         url,
+        //         await this.afterGetUserRoles,
+        //         params
+        //     );
+        // },
         //---------------------------------------------------------------------
-        async afterGetUserRoles(data, res) {
-            this.hideProgress();
-
-            if (data) {
-                this.user_roles = data;
-            }
-        },
+        // async afterGetUserRoles(data, res) {
+        //     this.hideProgress();
+        //
+        //     if (data) {
+        //         this.user_roles = data;
+        //     }
+        // },
         //---------------------------------------------------------------------
-        async delayedUserRolesSearch() {
-            let self = this;
-
-            if (self.item && self.item.id) {
-                clearTimeout(this.search.delay_timer);
-                this.search.delay_timer = setTimeout(async function() {
-                    await self.getUserRoles();
-                },this.search.delay_time)
-            }
-        },
+        // async delayedUserRolesSearch() {
+        //     let self = this;
+        //
+        //     if (self.item && self.item.id) {
+        //         clearTimeout(this.search.delay_timer);
+        //         this.search.delay_timer = setTimeout(async function() {
+        //             await self.getUserRoles();
+        //         },this.search.delay_time)
+        //     }
+        // },
+        // //---------------------------------------------------------------------
+        // async userRolesPaginate(event) {
+        //     this.user_roles_query.page = event.page + 1;
+        //     this.user_roles_query.rows = event.rows;
+        //     await this.getUserRoles();
+        // },
         //---------------------------------------------------------------------
-        async userRolesPaginate(event) {
-            this.user_roles_query.page = event.page + 1;
-            this.user_roles_query.rows = event.rows;
-            await this.getUserRoles();
-        },
+        // async changeUserRole(item,id){
+        //     let params = {
+        //         id : id,
+        //         role_id : item.id,
+        //     };
+        //
+        //     let data = {};
+        //
+        //     if (item.pivot.is_active) {
+        //         data.is_active = 0;
+        //     } else {
+        //         data.is_active = 1;
+        //     }
+        //
+        //     await this.actions(false, 'toggle-role-active-status', params, data)
+        //
+        // },
         //---------------------------------------------------------------------
-        async changeUserRole(item,id){
-            let params = {
-                id : id,
-                role_id : item.id,
-            };
-
-            let data = {};
-
-            if (item.pivot.is_active) {
-                data.is_active = 0;
-            } else {
-                data.is_active = 1;
-            }
-
-            await this.actions(false, 'toggle-role-active-status', params, data)
-
-        },
+        // async bulkActions (input, action) {
+        //
+        //     let params = {
+        //         id: this.item.id,
+        //         role_id: null
+        //     };
+        //
+        //     let data = {
+        //         is_active: input
+        //     };
+        //
+        //     await this.actions(false, action, params, data)
+        //
+        // },
         //---------------------------------------------------------------------
-        async bulkActions (input, action) {
-
-            let params = {
-                id: this.item.id,
-                role_id: null
-            };
-
-            let data = {
-                is_active: input
-            };
-
-            await this.actions(false, action, params, data)
-
-        },
+        // async actions(e, action, inputs, data) {
+        //     if (e) {
+        //         e.preventDefault();
+        //     }
+        //
+        //     let url = this.ajax_url+"/actions/"+action;
+        //
+        //     let params = {
+        //         inputs: inputs,
+        //         data: data,
+        //     };
+        //
+        //     let options = {
+        //         params: params,
+        //         method: 'post',
+        //     };
+        //
+        //     vaah().ajax(
+        //         url,
+        //         await this.afterActions,
+        //         options
+        //     );
+        // },
         //---------------------------------------------------------------------
-        async actions(e, action, inputs, data) {
-            if (e) {
-                e.preventDefault();
-            }
-
-            let url = this.ajax_url+"/actions/"+action;
-
-            let params = {
-                inputs: inputs,
-                data: data,
-            };
-
-            let options = {
-                params: params,
-                method: 'post',
-            };
-
-            vaah().ajax(
-                url,
-                await this.afterActions,
-                options
-            );
-        },
-        //---------------------------------------------------------------------
-        async afterActions(data,res){
-            await this.getList();
-            await this.getUserRoles();
-        },
+        // async afterActions(data,res){
+        //     await this.getList();
+        //     await this.getUserRoles();
+        // },
         //---------------------------------------------------------------------
         showModal(item){
             this.displayModal = true;
@@ -943,11 +943,11 @@ export const useUserStore = defineStore({
             this.$router.push({name: 'users.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        async toRole(item) {
-            this.item = item;
-            await this.getUserRoles();
-            this.$router.push({name: 'users.role', params: { id: item.id }})
-        },
+        // async toRole(item) {
+        //     this.item = item;
+        //     await this.getUserRoles();
+        //     this.$router.push({name: 'users.role', params: { id: item.id }})
+        // },
         //---------------------------------------------------------------------
         isViewLarge()
         {
