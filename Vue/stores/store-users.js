@@ -808,7 +808,6 @@ export const useUserStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.item.is_active=1;
             this.$router.push({name: 'users.form'})
         },
         //---------------------------------------------------------------------

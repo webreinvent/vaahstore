@@ -349,6 +349,19 @@ const toggleFormMenu = (event) => {
                     />
                 </VhField>
 
+                <VhField label="Status*">
+                                        <Dropdown class="w-full"
+                                                  v-model="store.item.status"
+                                                  :options="store.status_options"
+                                                  optionLabel="label"
+                                                  optionValue="value"
+                                                  id="account-status"
+                                                  name="users-status"
+                                                  data-testid="users-status"
+                                                  @change="store.setIsActiveStatus"
+                                        />
+                                    </VhField>
+
 
                 <VhField label="Is Active*">
                     <InputSwitch v-bind:false-value="0"
