@@ -333,10 +333,14 @@ class User extends UserBase
 
         switch ($type) {
             case 'activate-all':
-                $list->update(['is_active' => 1]);
+                $list->whereHas('activeRoles', function ($query) {
+                    $query->where('slug', 'customer');
+                })->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                $list->update(['is_active' => null]);
+                $list->whereHas('activeRoles', function ($query) {
+                    $query->where('slug', 'customer');
+                })->update(['is_active' => null]);
                 break;
             case 'trash-all':
                 $list->whereHas('activeRoles', function ($query) {
@@ -344,11 +348,15 @@ class User extends UserBase
                 })->delete();
                 break;
             case 'restore-all':
-                $list->withTrashed()->restore();
+                $list->whereHas('activeRoles', function ($query) {
+                    $query->where('slug', 'customer');
+                })->withTrashed()->restore();
                 break;
             case 'delete-all':
                 \DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                $list->withTrashed()->forceDelete();
+                $list->whereHas('activeRoles', function ($query) {
+                    $query->where('slug', 'customer');
+                })->withTrashed()->forceDelete();
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1');
                 break;
         }

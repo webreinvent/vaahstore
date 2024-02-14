@@ -225,11 +225,11 @@ export const useUserStore = defineStore({
                 },{deep: true}
             );
 
-            watch(this.user_roles_query, async (newVal,oldVal) =>
-                {
-                    await this.delayedUserRolesSearch();
-                },{deep: true}
-            )
+            // watch(this.user_roles_query, async (newVal,oldVal) =>
+            //     {
+            //         await this.delayedUserRolesSearch();
+            //     },{deep: true}
+            // )
         },
         //---------------------------------------------------------------------
         async getAssets() {
