@@ -25,11 +25,17 @@ class ProductStocksController extends Controller
     public function getAssets(Request $request)
     {
 
+        if (!Auth::user()->hasPermission('has-access-of-module-section')) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms::messages.permission_denied");
+
+            return response()->json($response);
+        }
+
         try{
 
             $data = [];
-
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductStock::getFillableColumns();

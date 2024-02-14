@@ -160,6 +160,11 @@ class ProductStock extends VaahModel
     public static function createItem($request)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $validation_result = self::validation($request->all());
 
         if ($validation_result['success'] != true){
@@ -380,6 +385,11 @@ class ProductStock extends VaahModel
     public static function updateList($request)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -446,6 +456,10 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $inputs = $request->all();
         $rules = array(
             'type' => 'required',
@@ -482,6 +496,10 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $inputs = $request->all();
         if(isset($inputs['items']))
         {
@@ -608,6 +626,10 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $validation_result = self::validation($request->all());
 
         if ($validation_result['success'] != true){
@@ -660,6 +682,11 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
@@ -679,6 +706,11 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         switch($type)
         {
             case 'activate':
@@ -728,6 +760,11 @@ class ProductStock extends VaahModel
     public static function seedSampleItems($records=100)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $i = 0;
 
         while($i < $records)
@@ -759,6 +796,10 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function fillItem($is_response_return = true)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $request = new Request([
             'model_namespace' => self::class,
             'except' => self::getUnFillableColumns()
@@ -829,6 +870,10 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public static function deleteProducts($items_id){
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         if($items_id){
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
@@ -843,6 +888,10 @@ class ProductStock extends VaahModel
 
     public static function deleteProduct($items_id){
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         if($items_id){
             self::where('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
@@ -1089,6 +1138,10 @@ class ProductStock extends VaahModel
 
     public static function updateStock($id)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $item = self::where('id',$id)->withTrashed()->first();
         $product_variation = ProductVariation::where('id', $item->vh_st_product_variation_id)
             ->withTrashed()->first();
