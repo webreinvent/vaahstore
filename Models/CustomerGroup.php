@@ -621,7 +621,6 @@ class CustomerGroup extends VaahModel
             $response['errors'][] = $error_message;
             return $response;
         }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
