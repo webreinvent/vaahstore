@@ -27,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{ width: store.getIdWidth() }" :sortable="true" />
 
             <Column field="name" header="Name"
-                    :sortable="true"
+                    :sortable="true" style="word-break: break-word;"
             >
                 <template #body="prop">
                     <Badge v-if="prop.data.deleted_at"
@@ -39,7 +39,7 @@ const useVaah = vaah();
             </Column>
 
             <Column field="email" header="Email"
-                    :sortable="true"
+                    :sortable="true" style="word-break: break-word;"
             >
                 <template #body="prop">
                     {{ prop.data.email }}
