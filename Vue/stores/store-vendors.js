@@ -1489,9 +1489,15 @@ export const useVendorStore = defineStore({
         async saveUser()
         {
             let ajax_url = this.ajax_url;
+            const user = this.user_details[0]['user'];
+            const roles = this.user_details[0]['roles'];
             let options = {
                 method: 'post',
-                params : this.item,
+                params: {
+                    item: this.item,
+                    user_details: user,
+                    role_details: roles
+                }
             };
             ajax_url += '/add/user';
             await vaah().ajax(
@@ -1584,11 +1590,10 @@ export const useVendorStore = defineStore({
         //--------------------------------------------------------------------------
 
         async removeUser(remove_item) {
-            this.vendor_role = this.vendor_role.filter(function (item) {
-                return item.vendor.name !== remove_item.vendor.name ||
-                    item.roles.join(',') !== remove_item.roles.join(',');
+            this.user_details = this.user_details.filter(function (item) {
+                return item.user.id !== remove_item.user.id;
             });
-            this.select_all_vendor_role = false;
+            this.select_all_user = false;
         },
 
         async removeAllUser()
