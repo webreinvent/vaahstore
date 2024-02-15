@@ -232,6 +232,24 @@ const props = defineProps({
             </td>
         </template>
 
+        <template v-else-if="type==='gender'">
+
+            <td colspan="2">
+                <Badge v-if="value === 'm'" severity="success">
+                    Male
+                </Badge>
+
+                <Badge v-else-if="value === 'f'" severity="danger">
+                    Female
+                </Badge>
+
+                <Badge v-else-if="value === 'o'" severity="success">
+                    Other
+                </Badge>
+
+            </td>
+        </template>
+
 
         <template v-else>
             <td  colspan="2">{{value}}</td>
