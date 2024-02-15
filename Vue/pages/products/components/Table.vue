@@ -45,20 +45,20 @@ const useVaah = vaah()
 
             </Column>
 
-             <Column field="in_stock" header="In Stock"
-                     style="width:60px;"
-                     v-if="store.isViewLarge()">
+             <Column field="store.name" header="Store"
+                     :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity === 0 || prop.data.quantity === null"
-                            value="No"
+                     <Badge v-if="prop.data.store.deleted_at"
+                            value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else
-                            value="yes"
-                            severity="success"></Badge>
+                     <span>
+                        <div style="word-break: break-word;">{{ prop.data.store.name }}</div>
+                         </span>
                  </template>
 
              </Column>
+
 
              <Column field="quantity" header="Quantity"
                      v-if="store.isViewLarge()"
@@ -141,16 +141,6 @@ const useVaah = vaah()
                  </template>
 
              </Column>
-
-             <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        :sortable="true">
-
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     style="width:80px;"
