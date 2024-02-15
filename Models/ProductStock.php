@@ -990,7 +990,8 @@ class ProductStock extends VaahModel
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vh_st_vendor_id', 'id')
-            ->select(['id','name','slug']);
+            ->withTrashed()
+            ->select(['id','name','slug','deleted_at']);
     }
 
     //-------------------------------------------------
@@ -1017,7 +1018,8 @@ class ProductStock extends VaahModel
     //-------------------------------------------------
     public function product(){
         return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')
-            ->select(['id','name','slug']);
+            ->withTrashed()
+            ->select(['id','name','slug','deleted_at'])->withTrashed();
     }
 
     //-------------------------------------------------
@@ -1045,7 +1047,8 @@ class ProductStock extends VaahModel
 
     public function productVariation(){
         return $this->belongsTo(ProductVariation::class, 'vh_st_product_variation_id', 'id')
-            ->select(['id','name','slug']);
+            ->withTrashed()
+            ->select(['id','name','slug','deleted_at']);
     }
 
     //-------------------------------------------------

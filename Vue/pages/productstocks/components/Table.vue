@@ -31,6 +31,9 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
+                     <Badge v-if="prop.data.vendor && prop.data.vendor.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
                      <div style="word-break: break-word;" v-if="prop.data.vendor && prop.data.vendor.name">{{ prop.data.vendor.name }}</div>
                  </template>
 
@@ -40,6 +43,9 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop" >
+                     <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
                         <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
                             {{ prop.data.product.name }}
                         </div>
@@ -51,6 +57,9 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop" >
+                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
                      <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
                          {{ prop.data.product_variation.name }}
                      </div>
