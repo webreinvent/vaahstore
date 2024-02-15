@@ -1373,10 +1373,29 @@ class Vendor extends VaahModel
                 ->wherePivot('is_active', 1);
         }])->get();
 
+
+        $filtered_users = $users->filter(function ($user) {
+            return $user->roles->isNotEmpty();
+        });
+
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+            $filtered_users = $filtered_users->filter(function ($user) use ($query) {
+                return stripos($user->first_name, $query) !== false ||
+                    stripos($user->last_name, $query) !== false ||
+                stripos($user->display_name, $query) !== false;
+
+            });
+        }
+
+        $filtered_users = $filtered_users->take(10)->values();
+
         $response['success'] = true;
-        $response['data'] = $users;
+        $response['data'] = $filtered_users;
         return $response;
     }
+
 
 
 }
