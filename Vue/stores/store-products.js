@@ -2221,12 +2221,26 @@ export const useProductStore = defineStore({
             watch(this.item, (newVal,oldVal) =>
                 {
                     const anyDeselected = newVal.all_variation.structured_variation.some(item => !item.is_selected);
-                    // Update select_all_product variable
                     this.variation_item.select_all_variation = !anyDeselected;
                 },{deep: true}
             )
 
         },
+
+        //---------------------------------------------------------------------
+
+        watchVendors()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.vendors.some(item => !item.is_selected);
+                    this.select_all_vendor = !anyDeselected;
+                },{deep: true}
+            )
+
+        },
+
 
     }
 });

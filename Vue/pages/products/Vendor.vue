@@ -18,6 +18,7 @@ onMounted(async () => {
     }
 
     await store.watchItem();
+    await store.watchVendors();
 });
 
 //--------selected_menu_state
