@@ -2199,12 +2199,34 @@ export const useProductStore = defineStore({
                 vaah().toastErrors(['Avaialble date should be after launch date']);
 
             }
-
-
         },
 
+        //---------------------------------------------------------------------
 
+        watchAttributes()
+        {
+            watch(this.variation_item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.product_attributes.some(item => !item.is_selected);
+                    // Update select_all_product variable
+                    this.select_all_attribute = !anyDeselected;
+                },{deep: true}
+            )
+        },
 
+        //---------------------------------------------------------------------
+        watchVariations()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.all_variation.structured_variation.some(item => !item.is_selected);
+                    // Update select_all_product variable
+                    this.variation_item.select_all_variation = !anyDeselected;
+                },{deep: true}
+            )
+
+        },
 
     }
 });
