@@ -70,6 +70,7 @@ class VendorsController extends Controller
             $data['taxonomy']['business_type'] = Taxonomy::getTaxonomyByType('business-type');
             $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['urls']['upload'] = route('vh.backend.media.upload');
+            $data['vendor_roles'] = Vendor::VendorRole();
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -466,10 +467,44 @@ class VendorsController extends Controller
 
     //------------------------------------------------------------
 
-    public function searchVendorRoleUser(Request $request)
+    public function searchVendorRole(Request $request)
     {
         try{
-            return Vendor::searchVendorRoleUser($request);
+            return Vendor::searchVendorRole($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    public function searchUser(Request $request)
+    {
+        try{
+            return Vendor::searchUser($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
+    public function createVendorUser(Request $request)
+    {
+        try{
+            return Vendor::createVendorUser($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
