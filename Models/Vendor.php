@@ -212,7 +212,6 @@ class Vendor extends VaahModel
             ->select('vh_st_products.id','vh_st_products.name','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
             ->withPivot([]);
     }
-
     //---------------------------------------------------
 
 
@@ -1397,6 +1396,31 @@ class Vendor extends VaahModel
         $response['success'] = true;
         $response['data'] = $search_user;
         return $response;
+    }
+
+    public static function createVendorUser($request)
+    {
+        $inputs = $request->all();
+
+        $item = $inputs['item'];
+
+        if($item)
+        {
+            $item_id = $item['id'];
+        }
+        $user_details = $inputs['user_details'];
+
+        if($user_details){
+            $user_id = $user_details['id'];
+        }
+
+        $role_details = $inputs['role_details'];
+        if($role_details){
+
+            $role_id = $role_details['id'];
+        }
+
+
     }
 
 
