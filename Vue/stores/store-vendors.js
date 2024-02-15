@@ -1525,12 +1525,12 @@ export const useVendorStore = defineStore({
 
         //--------------------------------------------------------------------------
 
-        async removeVendorRole(product) {
+        async removeVendorRole(remove_item) {
             this.vendor_role = this.vendor_role.filter(function (item) {
-                return item['vendor'] !== item['vendor']
+                return item.vendor.name !== remove_item.vendor.name ||
+                    item.roles.join(',') !== remove_item.roles.join(',');
             });
-            this.select_all_product = false;
-
+            this.select_all_vendor_role = false;
         },
 
 
