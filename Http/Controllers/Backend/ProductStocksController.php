@@ -429,11 +429,11 @@ class ProductStocksController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchVendorUsingUrlSlug(Request $request)
+    public function getVendorBySlug(Request $request)
     {
 
         try{
-            return ProductStock::searchVendorUsingUrlSlug($request);
+            return ProductStock::getVendorBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -448,31 +448,11 @@ class ProductStocksController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchProductUsingUrlSlug(Request $request)
+    public function getProductBySlug(Request $request)
     {
 
         try{
-            return ProductStock::searchProductUsingUrlSlug($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-                return $response;
-            }
-        }
-    }
-
-    //----------------------------------------------------------
-
-    public function searchVariationUsingUrlSlug(Request $request)
-    {
-
-        try{
-            return ProductStock::searchVariationUsingUrlSlug($request);
+            return ProductStock::getProductBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -488,10 +468,30 @@ class ProductStocksController extends Controller
 
     //----------------------------------------------------------
 
-    public function searchWarehouseUsingUrlSlug(Request $request)
+    public function getVariationBySlug(Request $request)
+    {
+
+        try{
+            return ProductStock::getVariationBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getWarehouseBySlug(Request $request)
     {
         try{
-            return ProductStock::searchWarehouseUsingUrlSlug($request);
+            return ProductStock::getWarehouseBySlug($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

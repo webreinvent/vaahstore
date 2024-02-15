@@ -111,7 +111,7 @@ function () {
     /**
      * Search Vendors using Slug
      */
-    Route::post('/search/vendors-using-url-slug', 'ProductStocksController@searchVendorUsingUrlSlug')
+    Route::post('/search/vendors-using-url-slug', 'ProductStocksController@getVendorBySlug')
         ->name('vh.backend.store.productstocks.search.vendors-using-url-slug');
 
     //---------------------------------------------------------
@@ -119,7 +119,7 @@ function () {
     /**
      * Search Products using Slug
      */
-    Route::post('/search/products-using-url-slug', 'ProductStocksController@searchProductUsingUrlSlug')
+    Route::post('/search/products-using-url-slug', 'ProductStocksController@getProductBySlug')
         ->name('vh.backend.store.productstocks.search.products-using-url-slug');
 
     //---------------------------------------------------------
@@ -127,7 +127,7 @@ function () {
     /**
      * Search Variations using Slug
      */
-    Route::post('/search/variations-using-url-slug', 'ProductStocksController@searchVariationUsingUrlSlug')
+    Route::post('/search/variations-using-url-slug', 'ProductStocksController@getVariationBySlug')
         ->name('vh.backend.store.productstocks.search.variations-using-url-slug');
 
     //---------------------------------------------------------
@@ -136,7 +136,7 @@ function () {
      * Search Warehouses using Slug
      */
 
-    Route::post('/search/warehouses-using-url-slug', 'ProductStocksController@searchWarehouseUsingUrlSlug')
+    Route::post('/search/warehouses-using-url-slug', 'ProductStocksController@getWarehouseBySlug')
         ->name('vh.backend.store.productstocks.search.warehouses-using-url-slug');
 
 

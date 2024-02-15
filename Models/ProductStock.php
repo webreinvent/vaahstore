@@ -1082,7 +1082,7 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchVendorUsingUrlSlug($request)
+    public static function getVendorBySlug($request)
     {
 
         $query = $request['filter']['vendor'];
@@ -1097,7 +1097,7 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchProductUsingUrlSlug($request)
+    public static function getProductBySlug($request)
     {
 
         $query = $request['filter']['product'];
@@ -1111,7 +1111,7 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchVariationUsingUrlSlug($request)
+    public static function getVariationBySlug($request)
     {
 
         $query = $request['filter']['variation'];
@@ -1125,7 +1125,7 @@ class ProductStock extends VaahModel
 
     //-------------------------------------------------
 
-    public static function searchWarehouseUsingUrlSlug($request)
+    public static function getWarehouseBySlug($request)
     {
 
         $query = $request['filter']['warehouse'];
