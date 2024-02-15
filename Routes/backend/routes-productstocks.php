@@ -106,7 +106,7 @@ function () {
     Route::any('/search/filter-selected/warehouse', 'ProductStocksController@searchWarehouses')
         ->name('vh.backend.store.productstocks.search.filter-selected-warehouse');
 
-    
+
     //---------------------------------------------------------
     /**
      * Search Vendors using Slug
