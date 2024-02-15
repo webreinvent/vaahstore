@@ -136,7 +136,7 @@ const useVaah = vaah();
                         <Button
                                 class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productstocks-table-action-restore"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
