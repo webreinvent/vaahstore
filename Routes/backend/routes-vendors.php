@@ -121,4 +121,7 @@ Route::group(
         Route::any('/search/vendor/user', 'VendorsController@searchUser')
             ->name('vh.backend.store.vendors.search.role.user');
 
+        Route::post('/add/user', 'VendorsController@createVendorUser')
+            ->name('vh.backend.store.vendors.createVendorUser');
+
     });

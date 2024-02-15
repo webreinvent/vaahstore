@@ -88,7 +88,7 @@ const permissions=store.assets.permissions;
             </Column>
 
 
-            <Column field="vendor" header="Vendor Role"
+            <Column field="vendor" header="Vendor User"
                     :sortable="false">
 
                 <template #body="prop">

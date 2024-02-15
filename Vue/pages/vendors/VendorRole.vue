@@ -53,7 +53,7 @@ const toggleSelectedMenuState = (event) => {
                             data-testid="products-save"
                             class="p-button-sm"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.saveProduct()"
+                            @click="store.saveUser()"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
