@@ -89,9 +89,9 @@ function () {
         ->name('vh.backend.store.productstocks.search.variation');
 
     /**
-     * Search Filter Selected Product Variation
+     * Search variation for filters page
      */
-    Route::any('/search/filter-selected/variation', 'ProductStocksController@searchFilterSelectedProductVariation')
+    Route::any('/search/filter-selected/variation', 'ProductStocksController@searchVariations')
         ->name('vh.backend.store.productstocks.search.filter-selected-variation');
 
     /**
@@ -101,12 +101,12 @@ function () {
         ->name('vh.backend.store.productstocks.search.warehouse');
 
     /**
-     * Search Filter Selected Warehouse
+     * Search Warehouses for filter page
      */
-    Route::any('/search/filter-selected/warehouse', 'ProductStocksController@searchFilterSelectedWarehouse')
+    Route::any('/search/filter-selected/warehouse', 'ProductStocksController@searchWarehouses')
         ->name('vh.backend.store.productstocks.search.filter-selected-warehouse');
 
-
+    
     //---------------------------------------------------------
     /**
      * Search Vendors using Slug

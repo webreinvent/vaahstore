@@ -1225,7 +1225,7 @@ class ProductStock extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function searchFilterSelectedProductVariation($request){
+    public static function searchVariations($request){
 
         $product_variations = ProductVariation::select('id', 'name','slug','is_default')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
@@ -1239,7 +1239,7 @@ class ProductStock extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function searchFilterSelectedWarehouse($request){
+    public static function searchWarehouses($request){
 
         $warehouses = Warehouse::select('id', 'name','slug')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {

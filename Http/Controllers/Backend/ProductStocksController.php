@@ -506,10 +506,10 @@ class ProductStocksController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchFilterSelectedProductVariation(Request $request)
+    public function searchVariations(Request $request)
     {
         try{
-            return ProductStock::searchFilterSelectedProductVariation($request);
+            return ProductStock::searchVariations($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -524,10 +524,10 @@ class ProductStocksController extends Controller
     }
 
     //----------------------------------------------------------
-    public function searchFilterSelectedWarehouse(Request $request)
+    public function searchWarehouses(Request $request)
     {
         try{
-            return ProductStock::searchFilterSelectedWarehouse($request);
+            return ProductStock::searchWarehouses($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

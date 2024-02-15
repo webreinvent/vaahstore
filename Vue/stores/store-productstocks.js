@@ -126,11 +126,11 @@ export const useProductStockStore = defineStore({
             }
             if(this.query.filter.variations)
             {
-                this.setVariationsAfterPageRefresh();
+                this.getVariationsBySlug();
             }
             if(this.query.filter.warehouses)
             {
-                this.setWarehousesAfterPageRefresh();
+                this.getWarehousesBySlug();
             }
 
             if (route.query && route.query.filter && route.query.filter.date) {
@@ -1418,7 +1418,7 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async setVariationsAfterPageRefresh()
+        async getVariationsBySlug()
         {
             let query = {
                 filter: {
@@ -1432,7 +1432,7 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/variations-using-url-slug',
-                this.setVariationsAfterPageRefreshAfter,
+                this.getVariationsBySlugAfter,
                 options
             );
 
@@ -1440,7 +1440,7 @@ export const useProductStockStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setVariationsAfterPageRefreshAfter(data, res) {
+        getVariationsBySlugAfter(data, res) {
 
             if (data) {
                 this.selected_variations = data;
@@ -1449,7 +1449,7 @@ export const useProductStockStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async setWarehousesAfterPageRefresh()
+        async getWarehousesBySlug()
         {
             let query = {
                 filter: {
@@ -1463,7 +1463,7 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/warehouses-using-url-slug',
-                this.setWarehousesAfterPageRefreshAfter,
+                this.getWarehousesBySlugAfter,
                 options
             );
 
@@ -1471,7 +1471,7 @@ export const useProductStockStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setWarehousesAfterPageRefreshAfter(data, res) {
+        getWarehousesBySlugAfter(data, res) {
 
             if (data) {
                 this.selected_warehouses = data;
