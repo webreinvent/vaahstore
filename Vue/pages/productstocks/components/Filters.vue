@@ -45,7 +45,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.vendors_suggestion"
-                              @complete="store.searchFilterSelectedVendor($event)"
+                              @complete="store.searchVendors($event)"
                               placeholder = "select vendor"
                               class="w-full "
                               :pt="{
@@ -109,7 +109,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.product_variations_suggestion"
-                              @complete="store.searchFilterSelectedProductVariation($event)"
+                              @complete="store.searchVariations($event)"
                               placeholder = "select product variation"
                               class="w-full "
                               :pt="{
@@ -142,7 +142,7 @@ const store = useProductStockStore();
                               multiple
                               :complete-on-focus = "true"
                               :suggestions="store.warehouses_suggestion"
-                              @complete="store.searchFilterSelectedWarehouse($event)"
+                              @complete="store.searchWarehouses($event)"
                               placeholder="select warehouse"
                               class="w-full "
                               :pt="{

@@ -118,11 +118,11 @@ export const useProductStockStore = defineStore({
             this.updateQueryFromUrl(route);
             if(this.query.filter.vendors)
             {
-                this.setVendorsAfterPageRefresh();
+                this.getVendorsBySlug();
             }
             if(this.query.filter.products)
             {
-                this.setProductsAfterPageRefresh();
+                this.getProductsBySlug();
             }
             if(this.query.filter.variations)
             {
@@ -243,7 +243,7 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async searchFilterSelectedVendor(event) {
+        async searchVendors(event) {
             const query = event;
             const options = {
                 params: query,
@@ -252,12 +252,12 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/vendor',
-                this.searchFilterSelectedVendorAfter,
+                this.searchVendorsAfter,
                 options
             );
         },
         //---------------------------------------------------------------------
-        searchFilterSelectedVendorAfter(data,res){
+        searchVendorsAfter(data,res){
             if(data){
                 this.vendors_suggestion = data;
             }
@@ -314,7 +314,7 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async searchFilterSelectedProductVariation(event) {
+        async searchVariations(event) {
 
             const query = event;
             const options = {
@@ -324,12 +324,12 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/filter-selected/variation',
-                this.searchFilterSelectedProductVariationAfter,
+                this.searchVariationsAfter,
                 options
             );
         },
         //---------------------------------------------------------------------
-        searchFilterSelectedProductVariationAfter(data,res){
+        searchVariationsAfter(data,res){
             if(data){
                 this.product_variations_suggestion = data;
             }
@@ -367,7 +367,7 @@ export const useProductStockStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async searchFilterSelectedWarehouse(event) {
+        async searchWarehouses(event) {
 
             const query = event;
             const options = {
@@ -377,13 +377,13 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/filter-selected/warehouse',
-                this.searchFilterSelectedWarehouseAfter,
+                this.searchWarehousesAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
-        searchFilterSelectedWarehouseAfter(data,res){
+        searchWarehousesAfter(data,res){
             if(data){
                 this.warehouses_suggestion = data;
             }
@@ -923,21 +923,6 @@ export const useProductStockStore = defineStore({
         toView(item)
         {
             this.item = vaah().clone(item);
-
-            // const query = {
-            //     page: 1,
-            //     rows: 20,
-            //     filter: {
-            //             products: [product.slug]
-            //     }
-            //     };
-            //     const route = {
-            //         name: 'productstocks.view',
-            //         query: query
-            //     };
-            //     this.$router.push(route);
-            // },
-
             this.$router.push({name: 'productstocks.view', params:{id:item.id,}})
             this.route.query = this.query.filter;
         },
@@ -1371,7 +1356,7 @@ export const useProductStockStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async setVendorsAfterPageRefresh()
+        async getVendorsBySlug()
         {
             let query = {
                 filter: {
@@ -1385,7 +1370,7 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/vendors-using-url-slug',
-                this.setVendorsAfterPageRefreshAfter,
+                this.getVendorsBySlugAfter,
                 options
             );
 
@@ -1393,7 +1378,7 @@ export const useProductStockStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        setVendorsAfterPageRefreshAfter(data, res) {
+        getVendorsBySlugAfter(data, res) {
 
             if (data) {
                 this.selected_vendors = data;
@@ -1402,7 +1387,7 @@ export const useProductStockStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async setProductsAfterPageRefresh()
+        async getProductsBySlug()
         {
             let query = {
                 filter: {
@@ -1416,7 +1401,7 @@ export const useProductStockStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/search/products-using-url-slug',
-                this.setProductsAfterPageRefreshAfter,
+                this.getProductsBySlugAfter,
                 options
             );
 
@@ -1425,7 +1410,7 @@ export const useProductStockStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        setProductsAfterPageRefreshAfter(data, res) {
+        getProductsBySlugAfter(data, res) {
 
             if (data) {
                 this.selected_products = data;
