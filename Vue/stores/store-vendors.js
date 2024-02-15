@@ -89,7 +89,9 @@ export const useVendorStore = defineStore({
         search_products: null,
         first_element:null,
         selected_user_vendor:null,
-        search_vendor_role:null
+        search_vendor_role:null,
+        vendor_role:null,
+        select_all_vendor_role:false,
     }),
     getters: {
 
@@ -1483,6 +1485,55 @@ export const useVendorStore = defineStore({
                 this.search_vendor_role = data;
             }
         },
+
+        addVendorRole() {
+            if (!this.vendor_role) {
+                this.vendor_role = [];
+            }
+
+            if (this.selected_user_vendor) {
+                const exists = this.vendor_role.some(item =>
+                    item.vendor.name === this.selected_user_vendor.name &&
+                    item.roles.join(',') === this.selected_user_vendor.roles.map(role => role.name).join(',')
+                );
+
+                if (!exists) {
+                    const vendorRole = {
+                        vendor: {
+                            name: this.selected_user_vendor.name
+                        },
+                        roles: this.selected_user_vendor.roles.map(role => role.name)
+                    };
+                    this.vendor_role.push(vendorRole);
+                    this.selected_user_vendor = null;
+                } else {
+                    this.showUserErrorMessage(['This vendor role is already in the list'], 4000);
+                }
+            } else {
+
+                this.showUserErrorMessage(['Please select a user vendor'], 4000);
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        selectAllVendor() {
+            this.vendor_role.forEach((i) => {
+                i['is_selected'] = !this.select_all_vendor;
+            })
+        },
+
+        //--------------------------------------------------------------------------
+
+        async removeVendorRole(product) {
+            this.vendor_role = this.vendor_role.filter(function (item) {
+                return item['vendor'] !== item['vendor']
+            });
+            this.select_all_product = false;
+
+        },
+
+
 
 
     }

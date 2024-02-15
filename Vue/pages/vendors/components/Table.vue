@@ -97,8 +97,8 @@ const permissions=store.assets.permissions;
                                 data-testid="role-list_data_role"
                                 @click="store.toVendorRole(prop.data)"
                                 size="small" class="white-space-nowrap"
-                                :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
-                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
+                                :disabled="$route.path.includes('vendor') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('vendor') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Role'"
                         />
                     </div>

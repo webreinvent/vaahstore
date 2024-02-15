@@ -213,6 +213,9 @@ class Vendor extends VaahModel
             ->withPivot([]);
     }
 
+    //---------------------------------------------------
+
+
     //-------------------------------------------------
     public static function validatedProduct($data) {
         if (!isset($data) || empty($data)) {
@@ -1382,10 +1385,7 @@ class Vendor extends VaahModel
         if ($request->has('query') && $request->input('query')) {
             $query = $request->input('query');
             $filtered_users = $filtered_users->filter(function ($user) use ($query) {
-                return stripos($user->first_name, $query) !== false ||
-                    stripos($user->last_name, $query) !== false ||
-                stripos($user->display_name, $query) !== false;
-
+                return stripos($user->name, $query) !== false ;
             });
         }
 
