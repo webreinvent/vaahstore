@@ -27,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-             <Column field="product.vendor" header="Vendor"
+             <Column field="vendor.name" header="Vendor"
                      :sortable="true">
 
                  <template #body="prop">

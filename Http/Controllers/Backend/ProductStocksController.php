@@ -42,7 +42,6 @@ class ProductStocksController extends Controller
             //set default value
             $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['vendor'] = null;
             $data['empty_item']['product'] = null;
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['warehouse'] = null;
@@ -54,10 +53,12 @@ class ProductStocksController extends Controller
 
             // set default values of Vendor if it is not null
 
-            if($this->getDefaultVendor() !== null)
+            $vendor = Vendor::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+
+            if($vendor !== null)
             {
-                $data['empty_item']['vendor'] = $this->getDefaultVendor();
-                $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultVendor()->id;
+                $data['empty_item']['vendor'] = $vendor;
+                $data['empty_item']['vh_st_vendor_id'] = $vendor->id;
             }
 
             $product_stock = ProductStock::all();
@@ -65,22 +66,10 @@ class ProductStocksController extends Controller
             $data['max_quantity'] = 0;
             if($product_stock->isNotEmpty())
             {
-
                 $quantities = $product_stock->pluck('quantity')->toArray();
                 $data['min_quantity'] = min($quantities);
                 $data['max_quantity'] = max($quantities);
             }
-
-            $get_product_data = self::getProductData();
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
-
-            $get_product_variation_data = self::getProductVariationData();
-            $data['empty_item']['vh_st_product_variation_id'] =
-                $this->getDefaultRow($get_product_variation_data['product_variations']) ?? null;
-
-            $get_warehouse_data = self::getWarehouseData();
-
-            $data = array_merge($data, $get_vendor_data,$get_product_data,$get_product_variation_data,$get_warehouse_data);
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -109,12 +98,7 @@ class ProductStocksController extends Controller
             }
         }
     }
-    //---------------------Get Default value of Vendor-------------------------------------
 
-    public function getDefaultVendor(){
-
-        return Vendor::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{

@@ -179,13 +179,14 @@ class ProductStock extends VaahModel
             ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
-        $is_stock_exist = self::where($conditions)->withTrashed()->first();
+        $item = self::where($conditions)->withTrashed()->first();
 
-        if ($is_stock_exist) {
-            $response = [];
-            $response['errors'][] = 'Product Stock already exists for this variation.';
+        if ($item) {
+            $error_message = "Product Stock already exists for this variation".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
+
 
         $item = new self();
         $item->fill($inputs);
@@ -229,6 +230,7 @@ class ProductStock extends VaahModel
                 'vendor.required' => 'The Vendor field is required',
                 'product.required' => 'The Product field is required',
                 'product_variation' => 'The Product Variation field is required',
+                'quantity' => 'The Quantity field is required',
                 'vh_st_warehouse_id' => 'The Warehouse field is required',
                 'vh_st_warehouse_id.required' => 'The Warehouse field is required',
                 'status.required' => 'The Status field is required',
@@ -646,13 +648,13 @@ class ProductStock extends VaahModel
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
 
-        $is_stock_exist = self::where($conditions)
+        $item = self::where($conditions)
             ->whereNot('id',$item->id)
             ->withTrashed()->first();
 
-        if ($is_stock_exist) {
-            $response = [];
-            $response['errors'][] = 'Product Stock already exist for this variation.';
+        if ($item) {
+            $error_message = "Product Stock already exists for this variation".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -675,7 +677,7 @@ class ProductStock extends VaahModel
         $product->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
