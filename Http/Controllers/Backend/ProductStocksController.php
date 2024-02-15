@@ -8,7 +8,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use Illuminate\Support\Facades\Auth;
 
 class ProductStocksController extends Controller
 {
@@ -25,11 +25,12 @@ class ProductStocksController extends Controller
     public function getAssets(Request $request)
     {
 
+
+
         try{
 
             $data = [];
-
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = ProductStock::getFillableColumns();
@@ -39,9 +40,8 @@ class ProductStocksController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-stock-status');
 
             //set default value
-            $data['empty_item']['quantity'] = 1;
+            $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
-            $data['empty_item']['vendor'] = null;
             $data['empty_item']['product'] = null;
             $data['empty_item']['product_variation'] = null;
             $data['empty_item']['warehouse'] = null;
@@ -51,16 +51,25 @@ class ProductStocksController extends Controller
             $get_vendor_data = self::getVendorData();
             $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
 
-            $get_product_data = self::getProductData();
-            $data['empty_item']['vh_st_product_id'] = $this->getDefaultRow($get_product_data['products']) ?? null;
+            // set default values of Vendor if it is not null
 
-            $get_product_variation_data = self::getProductVariationData();
-            $data['empty_item']['vh_st_product_variation_id'] =
-                $this->getDefaultRow($get_product_variation_data['product_variations']) ?? null;
+            $vendor = Vendor::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
 
-            $get_warehouse_data = self::getWarehouseData();
+            if($vendor !== null)
+            {
+                $data['empty_item']['vendor'] = $vendor;
+                $data['empty_item']['vh_st_vendor_id'] = $vendor->id;
+            }
 
-            $data = array_merge($data, $get_vendor_data,$get_product_data,$get_product_variation_data,$get_warehouse_data);
+            $product_stock = ProductStock::all();
+            $data['min_quantity'] = 0;
+            $data['max_quantity'] = 0;
+            if($product_stock->isNotEmpty())
+            {
+                $quantities = $product_stock->pluck('quantity')->toArray();
+                $data['min_quantity'] = min($quantities);
+                $data['max_quantity'] = max($quantities);
+            }
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -72,13 +81,14 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return $response;
     }
     //---------------------Get Default Data-------------------------------------
+
     public function getDefaultRow($row){
         foreach($row as $k=>$v)
         {
@@ -88,6 +98,7 @@ class ProductStocksController extends Controller
             }
         }
     }
+
     //------------------------Get Vendor data for dropdown----------------------------------
     public function getVendorData(){
         try{
@@ -100,7 +111,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -117,7 +128,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -134,7 +145,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -151,7 +162,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -168,7 +179,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -185,7 +196,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -205,7 +216,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
@@ -223,7 +234,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -240,7 +251,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -257,7 +268,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -274,7 +285,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -291,7 +302,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -308,7 +319,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -325,7 +336,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -343,7 +354,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -360,7 +371,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -377,7 +388,7 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -395,7 +406,120 @@ class ProductStocksController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getVendorBySlug(Request $request)
+    {
+
+        try{
+            return ProductStock::getVendorBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function getProductBySlug(Request $request)
+    {
+
+        try{
+            return ProductStock::getProductBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getVariationBySlug(Request $request)
+    {
+
+        try{
+            return ProductStock::getVariationBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getWarehouseBySlug(Request $request)
+    {
+        try{
+            return ProductStock::getWarehouseBySlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchVariations(Request $request)
+    {
+        try{
+            return ProductStock::searchVariations($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+    public function searchWarehouses(Request $request)
+    {
+        try{
+            return ProductStock::searchWarehouses($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
