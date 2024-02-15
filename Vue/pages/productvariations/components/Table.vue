@@ -1,11 +1,13 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductVariationStore } from '../../../stores/store-productvariations'
+import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+
 
 const store = useProductVariationStore();
 const useVaah = vaah();
-
-const permissions=store.assets.permissions;
+const route = useRoute();
 
 </script>
 
@@ -51,8 +53,10 @@ const permissions=store.assets.permissions;
              <Column field="product.name" header="Product"
                      :sortable="true">
 
-                 <template #body="prop">
-                     {{store.shortCharacter(prop.data.product.name)}}
+                 <template #body="prop" >
+                     <span v-if="prop.data && prop.data.product">
+                         {{prop.data.product.name}}
+                     </span>
                  </template>
 
              </Column>
@@ -70,6 +74,18 @@ const permissions=store.assets.permissions;
                  </template>
 
              </Column>
+
+            <Column field="stock_status" header="Stock Status"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.quantity === 0"
+                           severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity > 0"
+                           severity="info">In Stock</Badge>
+                </template>
+
+            </Column>
 
              <Column field="status.name" header="Status">
 
@@ -101,7 +117,6 @@ const permissions=store.assets.permissions;
             <Column
                 field="is_active"
                 v-if="store.isViewLarge()"
-                :sortable="true"
                 style="width:100px;"
                 header="Is Active"
             >
@@ -133,24 +148,24 @@ const permissions=store.assets.permissions;
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item && store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button
-                                class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
@@ -170,22 +185,11 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-             <template #empty>
-                 <tr>
-                     <td>
+            <template #empty="prop">
 
+                <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
 
-                         <h1 style="font-family: Inter,ui-sans-serif,system-ui,
-                         -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-                         Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-                         Noto Color Emoji;
-                         font-size: .8rem;
-                         margin-left: 19rem;
-                         font-weight: 400;">No Record found.</h1>
-
-                     </td>
-                 </tr>
-             </template>
+            </template>
 
         </DataTable>
         <!--/table-->

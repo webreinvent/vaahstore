@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Libraries\VaahMail;
+use WebReinvent\VaahCms\Mail\SecurityOtpMail;
+use WebReinvent\VaahCms\Models\Notification;
+use WebReinvent\VaahCms\Models\UserBase;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -43,6 +47,9 @@ class ProductVariation extends VaahModel
         'status_notes',
         'description',
         'price',
+        'meta_description',
+        'meta_title',
+        'meta_keywords',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -55,6 +62,10 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     protected $appends = [
     ];
+    //-------------------------------------------------
+    protected $casts =[
+        'meta_keywords'=>'array',
+    ];
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -64,6 +75,11 @@ class ProductVariation extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function medias()
+    {
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')
+            ->withPivot('id','vh_st_product_id');
+    }
     public static function getUnFillableColumns()
     {
         return [
@@ -101,6 +117,19 @@ class ProductVariation extends VaahModel
         $empty_item['quantity'] = 0;
         return $empty_item;
     }
+
+    //----------------------------------------------
+
+    protected static function booted()
+    {
+        static::updated(function ($productVariation) {
+            if ($productVariation->isDirty('quantity')) {
+                self::sendMailForStock();
+            }
+        });
+    }
+
+
 
     //-------------------------------------------------
 
@@ -233,11 +262,9 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -252,29 +279,20 @@ class ProductVariation extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $response['messages'][] = $error_message;
             return $response;
         }
-
 
         // check if slug exist
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $response['messages'][] = $error_message;
             return $response;
-        }
-
-        if($inputs['in_stock'] == 1)
-        {
-            if($inputs['quantity'] < 1)
-            {
-                $response['success'] = false;
-                $response['messages'][] = "Please Enter Quantity.";
-                return $response;
-            }
         }
 
         // handle if current record is default
@@ -288,7 +306,7 @@ class ProductVariation extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -396,19 +414,14 @@ class ProductVariation extends VaahModel
     {
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
+        if(!isset($filter['product_variation_status']))
         {
             return $query;
         }
-
-        $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+        $search = $filter['product_variation_status'];
+        $query->whereHas('status' , function ($q) use ($search){
+            $q->whereIn('name' ,$search);
+            $q->whereIn('slug' ,$search);
         });
 
     }
@@ -426,11 +439,9 @@ class ProductVariation extends VaahModel
         $in_stock = $filter['in_stock'];
 
         if ($in_stock === 'false') {
-            $query->where(function ($query) {
-                $query->where('in_stock', false)->orWhere('quantity', 0);
-            });
+            $query->where('quantity', '=', 0);
         } elseif ($in_stock === 'true') {
-            $query->where('in_stock', true)->where('quantity', '>', 1);
+            $query->where('quantity', '>', 0);
         }
 
         return $query;
@@ -439,21 +450,45 @@ class ProductVariation extends VaahModel
 
     //-------------------------------------------------
 
+    public function scopeQuantityFilter($query, $filter)
+    {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
+            return $query;
+        }
+
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
+
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+    }
+
+
+    //-------------------------------------------------
+
 
     public function scopeProductFilter($query, $filter)
     {
-        if(!isset($filter['product'])
-            || is_null($filter['product'])
-            || $filter['product'] === 'null'
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
         )
         {
             return $query;
         }
 
-        $store = $filter['product'];
+        $product = $filter['products'];
 
-        $query->whereHas('product', function ($query) use ($store) {
-            $query->where('slug', $store);
+
+
+        $query->whereHas('product', function ($query) use ($product) {
+            $query->whereIn('slug', $product);
 
         });
 
@@ -498,6 +533,7 @@ class ProductVariation extends VaahModel
         $list->stockFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->dateRangeFilter($request->filter);
+        $list->quantityFilter($request->filter);
         $list->productFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -520,11 +556,9 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function updateList($request)
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -534,7 +568,7 @@ class ProductVariation extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -578,7 +612,7 @@ class ProductVariation extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -586,11 +620,10 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
-        if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
 
-            return $response;
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission('can-update-module')) {
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -601,8 +634,8 @@ class ProductVariation extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -615,24 +648,46 @@ class ProductVariation extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        ProductMedia::deleteProductVariations($items_id);
-        ProductPrice::deleteProductVariations($items_id);
-        ProductAttribute::deleteProductVariations($items_id);
+        foreach ($items_id as $item_id)
+        {
+            $item = self::where('id', $item_id)->withTrashed()->first();
+            self::deleteRelatedItem($item_id, ProductPrice::class);
+            self::deleteRelatedItem($item_id, ProductStock::class);
+            self::deleteProductAttribute($item_id);
+            $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
+            $item->medias()->detach();
+
+            if ($product_media_id) {
+                $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                if ($product_media) {
+                    if ($product_media->productVariationMedia()) {
+                        $is_count = $product_media->productVariationMedia()->count();
+                    }
+
+                    if (!isset($is_count) || !$is_count) {
+                        $product_media->forceDelete();
+                    }
+                }
+            }
+
+            self::updateQuantity($item->id);
+
+        }
         self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
+
     }
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -642,7 +697,6 @@ class ProductVariation extends VaahModel
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
-
             $items = self::whereIn('id', $items_id)
                 ->withTrashed();
         }
@@ -681,10 +735,35 @@ class ProductVariation extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+
+                    foreach ($items_id as $item_id)
+                    {
+                        $item = self::where('id', $item_id)->withTrashed()->first();
+                        self::deleteRelatedItem($item_id, ProductMedia::class);
+                        self::deleteRelatedItem($item_id, ProductPrice::class);
+                        self::deleteRelatedItem($item_id, ProductStock::class);
+                        self::deleteProductAttribute($item_id);
+                        $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
+                        $item->medias()->detach();
+
+                        if ($product_media_id) {
+                            $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                            if ($product_media) {
+                                if ($product_media->productVariationMedia()) {
+                                    $is_count = $product_media->productVariationMedia()->count();
+                                }
+
+                                if (!isset($is_count) || !$is_count) {
+                                    $product_media->forceDelete();
+                                }
+                            }
+                        }
+
+                        self::updateQuantity($item->id);
+
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
-                    ProductMedia::deleteProductVariations($items_id);
-                    ProductPrice::deleteProductVariations($items_id);
-                    ProductAttribute::deleteProductVariations($items_id);
                 }
                 break;
             case 'activate-all':
@@ -696,20 +775,45 @@ class ProductVariation extends VaahModel
             case 'trash-all':
                 $user_id = auth()->user()->id;
                 $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
 
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
-                self::withTrashed()->forceDelete();
-                ProductMedia::deleteProductVariations($items_id);
-                ProductPrice::deleteProductVariations($items_id);
-                ProductAttribute::deleteProductVariations($items_id);
 
+                $items_id = self::all()->pluck('id')->toArray();
+                foreach ($items_id as $item_id)
+                {
+                    $item = self::where('id', $item_id)->withTrashed()->first();
+                    self::deleteRelatedItem($item_id, ProductMedia::class);
+                    self::deleteRelatedItem($item_id, ProductPrice::class);
+                    self::deleteRelatedItem($item_id, ProductStock::class);
+                    self::deleteProductAttribute($item_id);
+                    $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
+                    $item->medias()->detach();
+
+                    if ($product_media_id) {
+                        $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+                        if ($product_media) {
+                            if ($product_media->productVariationMedia()) {
+                                $is_count = $product_media->productVariationMedia()->count();
+                            }
+
+                            if (!isset($is_count) || !$is_count) {
+                                $product_media->forceDelete();
+                            }
+                        }
+                    }
+
+                    self::updateQuantity($item->id);
+
+                }
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -735,7 +839,7 @@ class ProductVariation extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -751,7 +855,7 @@ class ProductVariation extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $response['success'] = true;
@@ -763,11 +867,9 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $inputs = $request->all();
@@ -783,8 +885,9 @@ class ProductVariation extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -794,8 +897,9 @@ class ProductVariation extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -804,60 +908,65 @@ class ProductVariation extends VaahModel
             self::where('is_default',1)->update(['is_default' => 0]);
         }
 
-        if($inputs['in_stock'] == 1)
-        {
-            if($inputs['quantity'] < 1)
-            {
-                $response['success'] = false;
-                $response['messages'][] = "Please Enter Quantity.";
-                return $response;
-            }
-        }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        ProductMedia::deleteProductVariation($item->id);
-        ProductPrice::deleteProductVariation($item->id);
-        ProductAttribute::deleteProductVariation($item->id);
+        self::deleteRelatedItem($item->id, ProductPrice::class);
+        self::deleteRelatedItem($item->id, ProductStock::class);
+        self::deleteProductAttribute($item->id);
+
+        $product_media_id = $item->medias()->pluck('vh_st_product_media_id')->first();
+        $item->medias()->detach();
+
+        if ($product_media_id) {
+            $product_media = ProductMedia::where('id', $product_media_id)->withTrashed()->first();
+
+            if ($product_media) {
+                if ($product_media->productVariationMedia()) {
+                    $is_count = $product_media->productVariationMedia()->count();
+                }
+
+                if (!isset($is_count) || !$is_count) {
+                    $product_media->forceDelete();
+                }
+            }
+        }
+
+        self::updateQuantity($item->id);
         $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission('can-update-module')) {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms::messages.permission_denied");
-
-            return $response;
+            return vh_get_permission_denied_response($permission_slug);
         }
         switch($type)
         {
@@ -877,6 +986,7 @@ class ProductVariation extends VaahModel
                 ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
+                $item->is_default = null;
                 $item->save();
                 break;
             case 'restore':
@@ -904,22 +1014,17 @@ class ProductVariation extends VaahModel
             'sku' => 'required|min:1|max:50',
             'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
+            'price' => 'nullable|numeric|max:9999999',
+            'meta_title' => 'nullable|max:100',
+            'meta_description' => 'nullable|max:100',
+            'meta_keywords' => 'nullable|array|max:15',
+            'meta_keywords.*' => 'max:100',
+
+
 
             'status_notes' => [
                 'max:100',
             ],
-
-
-
-            'quantity' => 'nullable|numeric|digits_between:1,9',
-            'price' => [
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($inputs['quantity'] > 0 && $value == 0)  {
-                        $fail('The Price field is required if quantity is greater than 0');
-                    }
-                },
-            ],
-            'in_stock'=> 'required|numeric',
         ],
             [
                 'product.required' => 'Please Choose a Product',
@@ -930,6 +1035,12 @@ class ProductVariation extends VaahModel
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'description.max' => 'The Description field may not be greater than :max characters.',
+                'price.max'=>'The Price field may not be greater than :max digits.',
+                'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
+                'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
+                'meta_keywords.max' => 'The Meta Keywords field must not have more than :max items.',
+                'meta_keywords.*' => 'The Meta Keyword field may not have greater than :max characters',
+
 
 
             ]
@@ -1030,14 +1141,11 @@ class ProductVariation extends VaahModel
         $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
         $inputs['vh_st_product_id'] = $product_id;
         $inputs['product'] = $product;
-        $inputs['quantity'] = rand(1,500);
 
         $inputs['price'] = rand(1,100000);
-        $inputs['total_price'] = $inputs['quantity']*$inputs['price'];
-
-        $inputs['in_stock'] = 1;
         $inputs['is_active'] = rand(0,1);
         $inputs['is_default'] = 0;
+        $inputs['quantity'] = 0;
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-variation-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
@@ -1046,6 +1154,12 @@ class ProductVariation extends VaahModel
         $inputs['taxonomy_id_variation_status'] = $status_id;
         $inputs['status']=$status;
         $faker = Factory::create();
+
+        $max_words = 10;
+
+        $inputs['meta_keywords'] = array_map(function () use ($faker) {
+            return $faker->word;
+        }, range(1, $faker->numberBetween(2, $max_words)));
 
         /*
          * You can override the filled variables below this line.
@@ -1061,6 +1175,218 @@ class ProductVariation extends VaahModel
         return $response;
     }
 
+
+
     //-------------------------------------------------
+
+    public static function sendMailForStock()
+    {
+        try {
+            $list_data = ProductVariation::with('product')->get();
+
+            $filtered_data = $list_data->filter(function ($item) {
+                return $item->quantity >= 0 && $item->quantity < 10;
+            });
+
+            foreach ($list_data as $item) {
+                if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
+                    $item->is_mail_sent = 0;
+                    $item->save();
+                }
+            }
+
+            $product_variation_count = $filtered_data->groupBy('vh_st_product_id')->map(function ($variations) {
+                $min_quantity = $variations->min('quantity');
+                $max_quantity = $variations->max('quantity');
+
+                // If min_quantity is same as max_quantity, set min_quantity to 0
+                if ($min_quantity === $max_quantity) {
+                    $min_quantity = 0;
+                }
+
+                return [
+                    'count' => $variations->count(),
+                    'min_quantity' => $min_quantity,
+                    'max_quantity' => $max_quantity
+                ];
+            });
+
+            $subject = 'Low Stock Alert';
+            $message = '<html><body>';
+            $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
+            $message .= '<table border="1">';
+            $message .= '<tr><th>Product Name</th><th>Low Quantity Variations Count</th><th>Quantity Range Between </th><th>Link</th></tr>';
+
+            $processed_products = []; // Track processed products
+
+            foreach ($filtered_data as $item) {
+                $product_name = isset($item->product) ? $item->product->name : '';
+                $product_slug = isset($item->product) ? $item->product->slug : '';
+                $product_id = $item->vh_st_product_id;
+
+                if (!in_array($product_name, $processed_products)) {
+                    $processed_products[] = $product_name;
+
+                    $message .= '<tr>';
+                    $message .= '<td>' . $product_name . '</td>';
+                    $message .= '<td>' . $product_variation_count[$product_id]['count'] . '</td>';
+                    $message .= '<td>' . $product_variation_count[$product_id]['min_quantity'] . ' to ' . $product_variation_count[$product_id]['max_quantity'] . '</td>';
+                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[products][]=' . $product_slug. '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
+                    $message .= '</tr>';
+                }
+            }
+
+            $message .= '</table>';
+
+            if ($filtered_data->isNotEmpty()) {
+                // Send mail
+                $send_mail = UserBase::notifySuperAdmins($subject, $message);
+
+                // Update is_mail_sent flag
+                foreach ($filtered_data as $item) {
+                    if ($item->is_mail_sent === null || $item->is_mail_sent === 0) {
+                        $item->is_mail_sent = 1;
+                        $item->save();
+                    }
+                }
+            }
+
+            $response['success'] = true;
+        } catch (\Exception $e) {
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+
+        return $response;
+    }
+
+
+
+
+
+    //--------------------------------------------------------------
+
+    public static function getMinMaxQuantity()
+    {
+        try {
+            $list_data = self::all();
+            if ($list_data->isEmpty()) {
+                $min_quantity = 0;
+                $max_quantity = 0;
+            } else {
+                $quantities = $list_data->pluck('quantity')->toArray();
+                $min_quantity = min($quantities);
+                $max_quantity = max($quantities);
+            }
+            return [
+                'min_quantity' => $min_quantity,
+                'max_quantity' => $max_quantity,
+            ];
+        } catch (\Exception $e) {
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+    }
+
+    //--------------------------------------------------------------
+    public static function updateQuantity($id)
+    {
+
+
+        $item=self::where('id', $id)->withTrashed()->first();
+
+        $product = Product::where('id',$item->vh_st_product_id)->withTrashed()->first();
+            if ($product) {
+                $product->quantity -= $item->quantity;
+                $product->save();
+            }
+
+    }
+
+    //--------------------------------------------------------------------------------------
+
+
+    public static function deleteRelatedItem($item_id, $related_model)
+    {
+        $response = [];
+
+        if ($item_id) {
+            $item_exist = $related_model::where('vh_st_product_variation_id', $item_id)->first();
+            if ($item_exist) {
+                $related_model::where('vh_st_product_variation_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+    }
+    //--------------------------------------------------------------------------------------
+
+    public static function deleteProductAttribute($item_id){
+
+        $response=[];
+
+        if ($item_id) {
+            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->first();
+
+            if ($item_exist) {
+
+                $attribute_ids = $item_exist->pluck('id')->toArray();
+
+                foreach ($attribute_ids as $attribute_id) {
+                    $attribute_values = ProductAttributeValue::where('vh_st_product_attribute_id', $attribute_id)->get();
+
+                    if ($attribute_values) {
+                        $attribute_values->each(function ($value) {
+                            $value->forceDelete();
+                        });
+                    }
+                }
+                ProductAttribute::where('vh_st_product_variation_id', $item_id)->forceDelete();
+                $response['success'] = true;
+            }
+        } else {
+            $response['success'] = false;
+        }
+
+        return $response;
+
+    }
+
+    //------------------------------------------------------------------------------
+
+    public static function setProductInFilter($request)
+    {
+
+        if(isset($request['filter']['product']) && !empty($request['filter']['product'])) {
+            $query = $request['filter']['product'];
+            $products = Product::whereIn('name', $query)
+                ->orWhereIn('slug', $query)
+                ->select('id', 'name', 'slug')
+                ->get();
+            $response['success'] = true;
+            $response['data'] = $products;
+        } else {
+            $response['success'] = false;
+            $response['message'] = 'No filter or products provided';
+            $response['data'] = [];
+        }
+        return $response;
+    }
+
 
 }

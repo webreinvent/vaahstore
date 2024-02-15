@@ -18,8 +18,6 @@ class VhStcustomergroups extends Migration
             Schema::create('vh_st_customer_groups', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
-                $table->integer('customer_count')->nullable()->index();
-                $table->integer('order_count')->nullable()->index();
                 $table->integer('taxonomy_id_customer_groups_status')->nullable()->index();
 
                 $table->string('name')->nullable()->index();
@@ -44,10 +42,10 @@ class VhStcustomergroups extends Migration
     }
 
     /**
-    * Reverse the migrations.
-    *
-    * @return void
-    */
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::dropIfExists('vh_st_customer_groups');

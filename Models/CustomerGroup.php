@@ -32,8 +32,6 @@ class CustomerGroup extends VaahModel
         'uuid',
         'name',
         'slug',
-        'customer_count',
-        'order_count',
         'taxonomy_id_customer_groups_status',
         'status_notes',
         'created_by',
@@ -139,6 +137,17 @@ class CustomerGroup extends VaahModel
     }
 
     //-------------------------------------------------
+    public function customers()
+    {
+        return $this->belongsToMany(User::class, 'vh_st_user_customer_groups','vh_st_customer_group_id','vh_st_user_id')
+            ->select('vh_users.id','vh_users.first_name','vh_users.last_name','vh_users.display_name');
+    }
+    //-------------------------------------------------
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'vh_st_customer_group_id');
+    }
+    //-------------------------------------------------
 
     public function scopeBetweenDates($query, $from, $to)
     {
@@ -175,8 +184,8 @@ class CustomerGroup extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -184,8 +193,8 @@ class CustomerGroup extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -193,9 +202,15 @@ class CustomerGroup extends VaahModel
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
+        if (isset($inputs['customers']) && is_array($inputs['customers'])) {
+            $customer_ids = collect($inputs['customers'])->pluck('id')->toArray();
+            $item->customers()->sync($customer_ids, function ($pivot) use ($item) {
+                $pivot->vh_st_customer_group_id = $item->id;
+            });
+        }
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -224,30 +239,6 @@ class CustomerGroup extends VaahModel
         return $query->orderBy($sort[0], $sort[1]);
     }
     //-------------------------------------------------
-    public function scopeIsActiveFilter($query, $filter)
-    {
-
-        if(!isset($filter['is_active'])
-            || is_null($filter['is_active'])
-            || $filter['is_active'] === 'null'
-        )
-        {
-            return $query;
-        }
-        $is_active = $filter['is_active'];
-
-        if($is_active === 'true' || $is_active === true)
-        {
-            return $query->where('is_active', 1);
-        } else{
-            return $query->where(function ($q){
-                $q->whereNull('is_active')
-                    ->orWhere('is_active', 0);
-            });
-        }
-
-    }
-    //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
 
@@ -273,11 +264,14 @@ class CustomerGroup extends VaahModel
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%');
-        });
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
 
     }
     //-------------------------------------------------
@@ -285,32 +279,62 @@ class CustomerGroup extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
+        if(!isset($filter['status']))
+        {
+            return $query;
+        }
+        $status = $filter['status'];
+        $query->whereHas('status' , function ($q) use ($status){
+            $q->whereIn('slug' ,$status);
+        });
+    }
+
+    //-------------------------------------------------
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
         )
         {
             return $query;
         }
 
-        $status = $filter['status'];
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
 
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orwhere('slug',$status);
-        });
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
+    //-------------------------------------------------
+    public function scopeCustomerFilter($query, $filter)
+    {
+        if (!isset($filter['customers']) || is_null($filter['customers']) || $filter['customers'] === 'null') {
+            return $query;
+        }
 
+        $display_names = $filter['customers'];
+
+        return $query->whereHas('customers', function ($q) use ($display_names) {
+            $q->whereIn('display_name', $display_names);
+        });
+    }
     //-------------------------------------------------
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status');
-        $list->isActiveFilter($request->filter);
+        $list = self::getSorted($request->filter)->with('status','customers','orderItems');
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
+        $list->customerFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -339,7 +363,7 @@ class CustomerGroup extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -389,7 +413,7 @@ class CustomerGroup extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -405,8 +429,8 @@ class CustomerGroup extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -419,11 +443,16 @@ class CustomerGroup extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach ($items_id as $item_id)
+        {
+            $item = self::where('id', $item_id)->withTrashed()->first();
+            $item->customers()->detach();
+        }
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -450,7 +479,6 @@ class CustomerGroup extends VaahModel
 
         if($request->has('filter')){
             $list->getSorted($request->filter);
-            $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
             $list->searchFilter($request->filter);
         }
@@ -500,10 +528,17 @@ class CustomerGroup extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+                foreach ($items_id as $item_id) {
+
+                    $item = self::where('id', $item_id)->withTrashed()->first();
+                    $item->customers()->detach();
+                }
+                $list = self::withTrashed();
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -530,8 +565,7 @@ class CustomerGroup extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
-
+        $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }
     //-------------------------------------------------
@@ -539,14 +573,14 @@ class CustomerGroup extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','customers','orderItems'])
             ->withTrashed()
             ->first();
 
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $response['success'] = true;
@@ -571,8 +605,8 @@ class CustomerGroup extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -582,18 +616,23 @@ class CustomerGroup extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
-
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
+        if (isset($inputs['customers']) && is_array($inputs['customers'])) {
+            $product_ids = collect($inputs['customers'])->pluck('id')->toArray();
+            $item->customers()->sync($product_ids, function ($pivot) use ($item) {
+                $pivot->vh_st_customer_group_id = $item->id;
+            });
+        }
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -603,14 +642,16 @@ class CustomerGroup extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+
+        $item->customers()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['errors'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
@@ -657,20 +698,24 @@ class CustomerGroup extends VaahModel
     {
 
         $rules = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
-            'customer_count'=> 'required',
-            'order_count'=> 'required',
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
+            'customers'=>'required',
             'taxonomy_id_customer_groups_status'=> 'required',
             'status_notes' => [
                 'required_if:status.slug,==,rejected',
-                'max:250'
+                'max:150'
             ],
         ],
             [
-                'taxonomy_id_customer_groups_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'status_notes.max' => 'The Status notes field must not exceed :max characters',
+                'name.required'=>'The Name field is required.',
+                'name.max'=>'The Name  field must not exceed :max characters.',
+                'slug.required'=>'The Slug field is required.',
+                'slug.max'=>'The Slug  field must not exceed :max characters.',
+                'customers.required'=>'The Customers field is required.',
+                'taxonomy_id_customer_groups_status.required' => 'The Status field is required.',
+                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status.',
+                'status_notes.max' => 'The Status notes field must not exceed :max characters.',
             ]
         );
 
@@ -743,6 +788,25 @@ class CustomerGroup extends VaahModel
 
         $inputs['taxonomy_id_customer_groups_status'] = $status_id;
         $inputs['status']=$status;
+        $customer_group_data = \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
+            $query->where('slug', 'customer');
+        })->where('is_active', 1)->get();
+
+        if ($customer_group_data->isEmpty()) {
+            $error_message = "No customer exists.";
+            $response['errors'][] = $error_message;
+            return $response;
+
+        }
+
+        $randomCustomerGroup = $customer_group_data->random();
+
+        $inputs['customers'] = [
+            'id' => $randomCustomerGroup->id,
+            'first_name' => $randomCustomerGroup->first_name,
+            'last_name' => $randomCustomerGroup->last_name,
+            'display_name' => $randomCustomerGroup->display_name,
+        ];
         $faker = Factory::create();
 
         /*
@@ -762,8 +826,75 @@ class CustomerGroup extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchCustomers($request){
+        $active_customers = User::select('id', 'first_name', 'last_name','display_name')
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            })
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $active_customers->where(function ($q) use ($query) {
+                $q->where('display_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $customers = $active_customers->limit(10)->get()->map(function ($customer) {
+            $customer['name'] = $customer['display_name'] ;
+            return $customer;
+        });
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+
+    }
+    //-------------------------------------------------
+    public static function getCustomers($request): array {
+        $customer = User::select('id', 'first_name', 'last_name','display_name')
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            });
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $customer->where(function ($q) use ($query) {
+                $q->where('display_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $customers = $customer->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+    }
     //-------------------------------------------------
     //-------------------------------------------------
+
+    public static function getCustomersBySlug($request)
+    {
+        $queries = $request->input('filter.customers');
+
+        $customers = User::where(function ($q) use ($queries) {
+            $q->where(function ($query) use ($q, $queries) {
+                foreach ($queries as $query) {
+                    $q->orWhere('display_name', 'LIKE', '%' . $query . '%');
+                }
+            });
+        })->select('id', 'first_name', 'last_name','display_name')->get();
+
+        $response['success'] = true;
+        $response['data'] = $customers;
+        return $response;
+    }
 
 
 }

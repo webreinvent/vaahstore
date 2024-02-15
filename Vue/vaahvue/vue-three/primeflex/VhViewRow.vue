@@ -1,5 +1,8 @@
 <script setup>
 import {vaah} from '../../pinia/vaah.js'
+import {useProductVariationStore} from "../../../stores/store-productvariations";
+
+const store = useProductVariationStore();
 
 const props = defineProps({
     label: {
@@ -193,6 +196,13 @@ const props = defineProps({
                 <Badge v-else value="No" severity="danger"></Badge>
             </td>
         </template>
+
+        <template v-else-if="type==='quantity'">
+            <td colspan="2">
+                <Badge value="Yes" v-if="store.item.quantity > 0" severity="success">In Stock</Badge>
+                <Badge v-else value="No" severity="danger">Out Of Stock</Badge>
+            </td>
+        </template>
         <template v-else-if="type==='description'">
             <td colspan="2">
 
@@ -219,6 +229,24 @@ const props = defineProps({
                     <!--                    <pre class="pre-tag"> {{value}}</pre>-->
                     <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
                 </template>
+            </td>
+        </template>
+
+        <template v-else-if="type==='gender'">
+
+            <td colspan="2">
+                <Badge v-if="value === 'm'" severity="success">
+                    Male
+                </Badge>
+
+                <Badge v-else-if="value === 'f'" severity="danger">
+                    Female
+                </Badge>
+
+                <Badge v-else-if="value === 'o'" severity="success">
+                    Other
+                </Badge>
+
             </td>
         </template>
 
