@@ -154,7 +154,9 @@ class Product extends VaahModel
 
     public function store()
     {
-        return $this->belongsTo(Store::class,'vh_st_store_id','id')->select('id','name','slug', 'is_default');
+        return $this->belongsTo(Store::class,'vh_st_store_id','id')
+            ->withTrashed()
+            ->select('id','name','slug', 'is_default','deleted_at');
     }
 
     //-------------------------------------------------
