@@ -84,14 +84,14 @@ const toggleSelectedMenuState = (event) => {
                 <!--                dropdown to select Product -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-                        <AutoComplete v-model="store.selected_user_vendor"
+                        <AutoComplete v-model="store.selected_user"
                                       value="id"
                                       data-testid="vendors-taxonomy_id_vendor_status"
                                       name="-products"
                                       class="w-full"
                                       placeholder="Search User"
-                                      :suggestions="store.search_vendor_role"
-                                      @complete="store.searchRoleForVendor($event)"
+                                      :suggestions="store.user_data"
+                                      @complete="store.searchUser($event)"
                                       :dropdown="true"
                                       optionLabel="name"
                                       :pt="{
@@ -123,13 +123,13 @@ const toggleSelectedMenuState = (event) => {
                                 label="Add"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                 style="height:35px;margin-top:5px;"
-                                @click="store.addVendorRole()" />
+                                @click="store.addUser()"/>
                     </div>
                 </div>
 
                 <!--                Bulk action -->
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.item.products  && store.item.products.length > 0">
+                     v-if="store.user_details  && store.user_details.length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -144,23 +144,23 @@ const toggleSelectedMenuState = (event) => {
                                    :value="store.action.items.length" />
                         </Button>
                         <Menu ref="selected_menu_state"
-                              :model="store.product_selected_menu"
+                              :model="store.user_selected_menu"
                               :popup="true" />
                         <!--/selected_menu-->
                     </div>
 
                 </div>
 
-                <!--                added vendor's list-->
+                <!--                added vendor's roles list-->
                 <div class="col-12"
-                     v-if="store.vendor_role && store.vendor_role.length > 0">
+                     v-if="store.user_details && store.user_details.length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
                             <th class="col-1">
-                                <Checkbox v-model="store.select_all_vendor_role"
+                                <Checkbox v-model="store.select_all_user"
                                           :disabled="!store.assets.permissions.includes('can-update-module')"
-                                          :binary="true" @click="store.selectAllVendor()" />
+                                          :binary="true" @click="store.selectAllUser()" />
                             </th>
                             <th scope="col">User Name</th>
                             <th scope="col">Roles</th>
@@ -168,15 +168,20 @@ const toggleSelectedMenuState = (event) => {
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                        <tr v-for="(item, index) in store.vendor_role">
+                        <tr v-for="(item, index) in store.user_details">
                             <th class="col-1">
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
                             <td>
-                                <InputText v-model="item['vendor']['name']" style="height:35px;" class="w-full" disabled="" />
+                                <InputText v-model="item['user']['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-                                <InputText v-model="item['roles']" style="height:35px;" class="w-full" disabled="" />
+                                <Dropdown v-model="item['roles']"
+                                          :options="store.vendor_roles"
+                                          optionLabel="name"
+                                          placeholder="Select a role"
+                                          class="w-full"
+                                          style="height:35px;"/>
                             </td>
                             <td>
                                 <Button label="Remove"
@@ -184,7 +189,7 @@ const toggleSelectedMenuState = (event) => {
                                         size="small"
                                         style="height:35px;"
                                         :disabled="!store.assets.permissions.includes('can-update-module')"
-                                        @click="store.removeVendorRole(item)" />
+                                        @click="store.removeUser(item)" />
                             </td>
                         </tr>
                         </tbody>
