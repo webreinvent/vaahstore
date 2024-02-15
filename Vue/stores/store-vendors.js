@@ -111,6 +111,11 @@ export const useVendorStore = defineStore({
             this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
             /**
              * Update query state with the query parameters of url
              */
