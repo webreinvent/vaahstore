@@ -1367,32 +1367,35 @@ class Vendor extends VaahModel
         return $response;
     }
 
-    public static function searchVendorRoleUser($request)
+    public static function VendorRole()
     {
         $allowed_slugs = ['vendor-staff', 'vendor-admin', 'vendor-manager'];
 
-        $users = User::with(['roles' => function ($query) use ($allowed_slugs) {
-            $query->whereIn('slug', $allowed_slugs)
-                ->wherePivot('is_active', 1);
-        }])->get();
+      $roles = Role::whereIn('slug', $allowed_slugs)->get();
+        if ($roles){
+            return [
+                'roles' =>$roles
+            ];
+        }else{
+            return [
+                'roles' => null
+            ];
+        }
+    }
 
 
-        $filtered_users = $users->filter(function ($user) {
-            return $user->roles->isNotEmpty();
-        });
-
-
-        if ($request->has('query') && $request->input('query')) {
+    public static function searchUser($request)
+    {
+        $search_user = User::select('id', 'first_name','last_name','email')->where('is_active', '1');
+        if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
-            $filtered_users = $filtered_users->filter(function ($user) use ($query) {
-                return stripos($user->name, $query) !== false ;
+            $search_user->where(function($q) use ($query) {
+                $q->where('first_name', 'LIKE', '%' . $query . '%');
             });
         }
-
-        $filtered_users = $filtered_users->take(10)->values();
-
+        $search_user = $search_user->limit(10)->get();
         $response['success'] = true;
-        $response['data'] = $filtered_users;
+        $response['data'] = $search_user;
         return $response;
     }
 
