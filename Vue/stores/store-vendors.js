@@ -1483,11 +1483,44 @@ export const useVendorStore = defineStore({
             this.$router.push(route);
         },
 
+
+        //-----------------------------------------------------------------------
+
+        async saveUser()
+        {
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+                params : this.item,
+            };
+            ajax_url += '/add/user';
+            await vaah().ajax(
+                ajax_url,
+                this.saveUserAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveUserAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.toList();
+
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
         toVendorRole(item)
         {
             this.item = item;
             this.$router.push({name: 'vendors.role', params:{id:item.id}})
         },
+
         //---------------------------------------------------------------------
         async searchUser(event) {
             const query = event;
