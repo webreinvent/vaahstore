@@ -13,8 +13,9 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
+use VaahCms\Modules\Store\Models\Product;
 
-class Whishlist extends VaahModel
+class Wishlist extends VaahModel
 {
 
     use SoftDeletes;
@@ -32,8 +33,10 @@ class Whishlist extends VaahModel
     protected $fillable = [
         'uuid',
         'vh_user_id',
+        'name',
+        'slug',
+        'type',
         'taxonomy_id_whishlists_status',
-        'taxonomy_id_whishlists_types',
         'is_default',
         'status_notes',
         'created_by',
@@ -57,15 +60,19 @@ class Whishlist extends VaahModel
     }
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_status')->select(['id','name','slug']);
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_whishlists_status', 'id')->select(['id','name','slug']);
     }
 
     //-------------------------------------------------
-    public function whishlistType(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_whishlists_types')->select(['id','name','slug']);
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','vh_st_wishlist_id','vh_st_product_id')
+            ->select('vh_st_products.id', 'vh_st_products.name');
     }
 
     //-------------------------------------------------
+
     public function user(){
         return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
     }
@@ -164,6 +171,11 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         $inputs = $request->all();
 
@@ -172,9 +184,29 @@ class Whishlist extends VaahModel
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+
+        if ($item) {
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+
+        if ($item) {
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
         // Check if current record is default
         if($inputs['is_default']){
-            self::where('is_default',1)->update(['is_default' => 0]);
+            self::where('is_default',1)
+                ->where('vh_user_id',$inputs['vh_user_id'])
+                ->update(['is_default' => 0]);
         }
 
 
@@ -183,7 +215,7 @@ class Whishlist extends VaahModel
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -253,19 +285,30 @@ class Whishlist extends VaahModel
         }
 
     }
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
-        $search = $filter['q'];
-        $query->whereHas('user' , function ($q) use ($search){
-            $q->where('first_name', 'LIKE', '%' . $search . '%');
-        });
 
+        $search_terms = explode(' ', $filter['q']);
+
+        foreach($search_terms as $search)
+        {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                })
+
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        return $query;
 
     }
     //-------------------------------------------------
@@ -296,14 +339,43 @@ class Whishlist extends VaahModel
 
     }
     //-------------------------------------------------
+
+
+    public function scopeDateRangeFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+    //------------------------------------------------------
+
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','status','whishlistType');
+        $list = self::getSorted($request->filter)->with('user','status','products');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->wishlistStatusFilter($request->filter);
         $list->wishlistTypeFilter($request->filter);
+        $list->dateRangeFilter($request->filter);
+        $list->userFilter($request->filter);
+        $list->productFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -319,20 +391,26 @@ class Whishlist extends VaahModel
 
         return $response;
 
-
     }
 
     //-------------------------------------------------
     public static function updateList($request)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
             'type' => 'required',
+            'items' => 'required',
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -355,25 +433,24 @@ class Whishlist extends VaahModel
         $items = self::whereIn('id', $items_id)
             ->withTrashed();
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
         $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
         $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
 
-
         switch ($inputs['type']) {
-            case 'approved':
+            case 'approve':
                 $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
                 break;
             case 'pending':
                 $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
                 break;
-            case 'rejected':
+            case 'reject':
                 $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
-                $items->update(['deleted_by' => auth()->user()->id]);
+                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
@@ -383,7 +460,7 @@ class Whishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -391,6 +468,11 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -399,8 +481,8 @@ class Whishlist extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -413,17 +495,27 @@ class Whishlist extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach($items_id as $item_id)
+        {
+            $item = self::where('id', $item_id)->withTrashed()->first();
+            $item->products()->detach();
+        }
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         if(isset($inputs['items']))
@@ -445,7 +537,7 @@ class Whishlist extends VaahModel
             $list->searchFilter($request->filter);
         }
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $approved_id = $taxonomy_status->where('slug','approved')->pluck('id')->first();
         $pending_id = $taxonomy_status->where('slug','pending')->pluck('id')->first();
         $rejected_id = $taxonomy_status->where('slug','rejected')->pluck('id')->first();
@@ -464,7 +556,7 @@ class Whishlist extends VaahModel
             case 'trash':
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
-                    $items->update(['deleted_by' => auth()->user()->id]);
+                    $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 }
                 break;
             case 'restore':
@@ -475,6 +567,11 @@ class Whishlist extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach($items_id as $item_id)
+                    {
+                        $item = self::where('id', $item_id)->withTrashed()->first();
+                        $item->products()->detach();
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -487,15 +584,36 @@ class Whishlist extends VaahModel
             case 'reject-all':
                 $list->update(['taxonomy_id_whishlists_status' => $rejected_id]);
                 break;
+            case 'approved':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $approved_id]);
+                }
+                break;
+            case 'pending':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $pending_id]);
+                }
+                break;
+            case 'reject':
+                if($items->count() > 0) {
+                    $items->update(['taxonomy_id_whishlists_status' => $rejected_id]);
+                }
+                break;
             case 'trash-all':
-                $list->update(['deleted_by' => auth()->user()->id]);
+                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
+                $item_ids=$list->pluck('id')->toArray();
+                foreach($item_ids as $item_id)
+                {
+                    $item = self::where('id', $item_id)->withTrashed()->first();
+                    $item->products()->detach();
+                }
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -522,7 +640,7 @@ class Whishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -531,18 +649,30 @@ class Whishlist extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','whishlistType'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','products'])
             ->withTrashed()
             ->first();
 
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
+
+        $products = $item->products->map(function ($product) {
+            return [
+                'is_selected' => false,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name
+                ]
+            ];
+        })->toArray();
+
+        $response['data'] = $item->toArray();
+        $response['data']['products'] = $products;
         $response['success'] = true;
-        $response['data'] = $item;
 
         return $response;
 
@@ -550,6 +680,12 @@ class Whishlist extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -557,40 +693,83 @@ class Whishlist extends VaahModel
             return $validation;
         }
 
+        // check if name exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('name', $inputs['name'])->first();
+
+        if ($item) {
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
+        // check if slug exist
+        $item = self::where('id', '!=', $id)
+            ->withTrashed()
+            ->where('slug', $inputs['slug'])->first();
+
+        if ($item) {
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
         // Check default
         if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::where('is_default',1)->update(['is_default' => 0]);
+            self::where('is_default',1)
+                ->where('vh_user_id',$inputs['vh_user_id'])
+                ->update(['is_default' => 0]);
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->save();
 
+        if(isset($inputs['products']) && is_array($inputs['products'])){
+            $product_ids = collect($inputs['products'])->pluck('product.id')->toArray();
+
+           $item->products()->sync($product_ids,function($pivot){
+               $pivot->uuid = Str::uuid();
+           });
+        }
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        $item->products()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         switch($type)
         {
             case 'activate':
@@ -610,6 +789,7 @@ class Whishlist extends VaahModel
                 $item = self::where('id', $id)->withTrashed()->first();
                 if($item->delete()){
                     $item->deleted_by = auth()->user()->id;
+                    $item->is_default = 0;
                     $item->save();
                 }
                 break;
@@ -632,19 +812,20 @@ class Whishlist extends VaahModel
 
         $rules = array(
             'vh_user_id'=> 'required',
-            'taxonomy_id_whishlists_types'=> 'required',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'type' => '',
             'taxonomy_id_whishlists_status'=> 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
+            'status_notes' => 'max:250',
         );
 
         $customMessages = array(
-            'vh_user_id.required' => 'The user field is required.',
-            'taxonomy_id_whishlists_types.required' => 'The type field is required.',
-            'taxonomy_id_whishlists_status.required' => 'The status field is required.',
-            'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
+            'vh_user_id.required' => 'The User field is required.',
+            'name.required' => 'The Name field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.max' => 'The Slug field may not be greater than :max characters.',
+            'taxonomy_id_whishlists_status.required' => 'The Status field is required.',
             'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
         );
 
@@ -700,29 +881,44 @@ class Whishlist extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
 
+        $faker = Factory::create();
+
+        // fill the user field here
+
         $users_ids = User::where('is_active',1)->pluck('id')->toArray();
         $users_id = $users_ids[array_rand($users_ids)];
         $users_id_data = User::where('is_active',1)->where('id',$users_id)->first();
         $inputs['vh_user_id'] =$users_id;
         $inputs['user'] = $users_id_data;
 
-        $taxonomy_type = Taxonomy::getTaxonomyByType('wishlists-types');
-        $taxonomy_type_ids = $taxonomy_type->pluck('id')->toArray();
-        $taxonomy_type_id = $taxonomy_type_ids[array_rand($taxonomy_type_ids)];
-        $taxonomy_type_name = $taxonomy_type->where('id',$taxonomy_type_id)->first();
-        $inputs['taxonomy_id_whishlists_types'] = $taxonomy_type_id;
-        $inputs['whishlist_type'] = $taxonomy_type_name;
+        // fill the taxonomy status field here
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('wishlists-status');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('whishlists-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
+        if($taxonomy_status->isEmpty())
+        {
+            $response['success'] = false;
+            $response['errors'][] = 'No Wishlist Status Found , Create Wishlist Status From Taxonomies ';
+            return $response;
+
+        }
         $status_id = $status_ids[array_rand($status_ids)];
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['taxonomy_id_whishlists_status'] = $status_id;
         $inputs['status']=$status;
 
+        // fill the name field here
+        $max_chars = rand(5,100);
+        $inputs['name']=$faker->text($max_chars);
 
+        // fill the slug field here
+        $inputs['slug']=Str::slug($inputs['name']);
+
+        // fill the is default field here
+
+        $inputs['type'] = rand(0,1);
         $inputs['is_default'] = 0;
-        $faker = Factory::create();
+
 
         /*
          * You can override the filled variables below this line.
@@ -784,9 +980,9 @@ class Whishlist extends VaahModel
     {
         $query = $request->input('query');
         if(empty($query)) {
-            $item = Taxonomy::getTaxonomyByType('wishlists-status');
+            $item = Taxonomy::getTaxonomyByType('whishlists-status');
         } else {
-            $tax_type = TaxonomyType::getFirstOrCreate('wishlists-status');
+            $tax_type = TaxonomyType::getFirstOrCreate('whishlists-status');
 
             $item =array();
 
@@ -803,7 +999,87 @@ class Whishlist extends VaahModel
         $response['data'] = $item;
         return $response;
     }
+
+    //-------------------------------------------------
+    public static function searchProduct($request){
+        $product = Product::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $product = $product->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $product;
+        return $response;
+
+    }
+
     //-------------------------------------------------
 
+    public function scopeUserFilter($query, $filter)
+    {
+        if(!isset($filter['users'])
+            || is_null($filter['users'])
+            || $filter['users'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $users = $filter['users'];
+
+        return $query->whereHas('user', function ($query) use ($users) {
+            $query->whereIn('first_name', $users);
+        });
+    }
+
+    //-------------------------------------------------
+
+    public function scopeProductFilter($query, $filter)
+    {
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $products = $filter['products'];
+
+        return $query->whereHas('products', function ($query) use ($products) {
+            $query->whereIn('slug', $products);
+        });
+    }
+
+    //-------------------------------------------------
+
+    public static function searchProductBySlug($request)
+    {
+
+        $query = $request['filter']['product'];
+        $products = Product::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchUserBySlug($request)
+    {
+
+        $query = $request['filter']['user'];
+
+        $users = User::whereIn('first_name',$query)
+            ->select('id','first_name')->get();
+
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+    }
 
 }

@@ -106,13 +106,11 @@ const permissions=store.assets.permissions;
             <div class="mt-2" v-if="store.item">
 
                 <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                    <tr>
-                        <td  colspan="2" >
-                            <div  style="width:300px;word-break: break-word;">
-                                <pre>{{store.item.status_notes}}</pre></div>
-                        </td>
-                    </tr>
+                    <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                        <pre v-html="store.item.status_notes"></pre>
+                    </div>
                 </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
@@ -146,7 +144,7 @@ const permissions=store.assets.permissions;
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'deleted_by' || column === 'description'
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'
                         || column === 'price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
-                        || column === 'is_active'
+                        || column === 'is_active' || column === 'meta_keywords' || column === 'meta_description' || column === 'meta_title'  || column === 'is_mail_sent'
 ">
                         </template>
 
@@ -161,7 +159,7 @@ const permissions=store.assets.permissions;
                             <tr>
                                 <td><b>Name</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -170,14 +168,14 @@ const permissions=store.assets.permissions;
                             <tr>
                                 <td><b>Slug</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>SKU</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.sku}}</div>
                                 </td>
                             </tr>
@@ -210,9 +208,23 @@ const permissions=store.assets.permissions;
                                     <badge>{{store.item.price}}</badge>
                                 </td>
                             </tr>
-                            <VhViewRow :label="column"
+
+                            <tr>
+                                <td><b>Low Stock Alert Notification</b></td>
+                                <td colspan="2">
+                                    <Badge v-if="store.item.is_mail_sent === 1" severity="success">
+                                        Yes
+                                    </Badge>
+                                    <Badge v-else severity="success">
+                                        No
+                                    </Badge>
+                                </td>
+                            </tr>
+
+
+                            <VhViewRow label="Stock Status"
                                        :value="value"
-                                       type="yes-no"
+                                       type="quantity"
                             />
                             <VhViewRow label="Status"
                                        :value="store.item.status"
@@ -230,6 +242,24 @@ const permissions=store.assets.permissions;
                                     <Badge v-else value="No" severity="danger"></Badge>
                                 </td>
                             </tr>
+
+                            <tr>
+                                <td><b>Meta</b></td>
+                                <td>
+                                    <Button icon="pi pi-eye"
+                                            label="view"
+                                            class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                            @click="store.openMetaModal()"
+                                            :disabled="!store.item.meta_title &&
+                                            !store.item.meta_description &&
+                                            !(store.item && store.item.meta_keywords && Array.isArray(store.item.meta_keywords) &&
+                                             store.item.meta_keywords.length > 0)"
+
+                                            data-testid="meta-open_modal"
+                                    />
+                                </td>
+                            </tr>
+
                         </template>
 
                         <template v-else-if="column === 'has_media'">
@@ -238,6 +268,8 @@ const permissions=store.assets.permissions;
                                        type="yes-no"
                             />
                         </template>
+
+
 
 
                         <template v-else-if="column === 'vh_st_product_id'">
@@ -271,6 +303,19 @@ const permissions=store.assets.permissions;
         </Panel>
 
     </div>
+
+    <Dialog header="Meta Fields"
+            v-model:visible="store.meta_dialog"
+            :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+            :style="{width: '50vw'}" :modal="true"
+    >
+        <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
+        <div class="mb-4 flex">
+            <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+            <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
+        </div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keywords}}</p></div>
+    </Dialog>
 
 </template>
 

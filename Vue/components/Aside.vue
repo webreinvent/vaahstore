@@ -43,7 +43,7 @@ const items = ref([
             {
                 label: 'Vendor Products',
                 icon: 'fa-regular fa-clone',
-                route: "/productvendors"
+                route: "/vendorproducts"
             },
             {
                 label: 'Products',
@@ -106,14 +106,19 @@ const items = ref([
                 route: "/addresses"
             },
             {
+                label: 'Wishlists',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/wishlists"
+            },
+            {
+                label: 'Customers',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/customers"
+            },
+            {
                 label: 'Customer Groups',
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
-            },
-            {
-                label: 'Wishlists',
-                icon: 'fa-regular fa-chart-bar',
-                route: "/whishlists"
             },
         ]
     },
@@ -132,7 +137,7 @@ const items = ref([
                         <span class="ml-2">{{ item.label }}</span>
                     </a>
                 </router-link>
-                <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
+                <a v-else v-ripple :href="item.url" :target="item.target" :class="props.class">
                     <span :class="item.icon" />
                     <span class="ml-2">{{ item.label }}</span>
                 </a>

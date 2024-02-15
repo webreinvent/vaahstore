@@ -1,26 +1,27 @@
 let routes= [];
 let routes_list= [];
 
-import List from '../pages/whishlists/List.vue'
-import Form from '../pages/whishlists/Form.vue'
-import Item from '../pages/whishlists/Item.vue'
+import List from '../pages/users/List.vue'
+import Form from '../pages/users/Form.vue'
+import Item from '../pages/users/Item.vue'
+
 
 routes_list = {
 
-    path: '/whishlists',
-    name: 'whishlists.index',
+    path: '/customers',
+    name: 'users.index',
     component: List,
     props: true,
-    children:[
+    children: [
         {
             path: 'form/:id?',
-            name: 'whishlists.form',
+            name: 'users.form',
             component: Form,
             props: true,
         },
         {
             path: 'view/:id?',
-            name: 'whishlists.view',
+            name: 'users.view',
             component: Item,
             props: true,
         }

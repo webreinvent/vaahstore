@@ -2,12 +2,13 @@ import {watch,toRaw } from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from 'moment';
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Whishlist';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Wishlist';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/store/whishlists";
+let ajax_url = base_url + "/store/wishlists";
 
 let empty_states = {
     query: {
@@ -19,7 +20,9 @@ let empty_states = {
             trashed: null,
             sort: null,
             wishlist_status: null,
-            wishlist_type:null,
+            date:null,
+            users : null,
+            products : null,
         },
     },
     action: {
@@ -28,8 +31,8 @@ let empty_states = {
     }
 };
 
-export const useWhishlistStore = defineStore({
-    id: 'whishlists',
+export const useWishlistStore = defineStore({
+    id: 'wishlists',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -51,7 +54,7 @@ export const useWhishlistStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'whishlists.',
+        route_prefix: 'wishlists.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -70,7 +73,16 @@ export const useWhishlistStore = defineStore({
         status_suggestion: null,
         type_suggestion: null,
         user_suggestion: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates:null,
+        date_null:null,
+        product_suggestion:null,
+        selected_product : null,
+        user_error_message: [],
+        select_all_product : false,
+        product_selected_menu : [],
+        selected_users : null,
+        filter_selected_products : null,
     }),
     getters: {
 
@@ -120,6 +132,7 @@ export const useWhishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
        async searchUsers(event) {
+
             const query = event;
             const options = {
                 params: query,
@@ -134,9 +147,20 @@ export const useWhishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
         searchUsersAfter(data,res) {
-            if(data)
-            {
+            if (data) {
+
                 this.user_suggestion = data;
+
+                // Filter out the selected users from the user_suggestion list
+                if(this.selected_users)
+                {
+                    const filtered_suggestions = data.filter((user) => {
+                        return !this.selected_users.some((selectedUser) => selectedUser.id === user.id);
+                    });
+
+                    this.user_suggestion = filtered_suggestions;
+                }
+
             }
         },
         //---------------------------------------------------------------------
@@ -156,13 +180,30 @@ export const useWhishlistStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
+            if(this.query.filter.products)
+            {
+                this.getProductsBySlug();
+            }
+
+            if(this.query.filter.users)
+            {
+                this.getUsersBySlug();
+            }
+
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
             switch(route_name)
             {
-                case 'whishlists.index':
+                case 'wishlists.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
@@ -212,14 +253,23 @@ export const useWhishlistStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
-        watchStates()
-        {
+        watchStates() {
             watch(this.query.filter, (newVal,oldVal) =>
                 {
                     this.delayedSearch();
                 },{deep: true}
             )
         },
+
+        //---------------------------------------------------------------------
+        watchShowFilter()
+        {
+            watch(()=>this.show_filters, (newVal,oldVal) =>
+                {
+                    document.body.style.overflow = this.show_filters ? 'hidden' : '';
+                });
+        },
+
         //---------------------------------------------------------------------
          watchItem(name)
           {
@@ -234,12 +284,9 @@ export const useWhishlistStore = defineStore({
             let user = toRaw(event.value);
             this.item.vh_user_id = user.id;
         },
+
         //---------------------------------------------------------------------
-        setWhishlistsType(event) {
-            let whishlist_type = toRaw(event.value);
-            this.item.taxonomy_id_whishlists_types = whishlist_type.id;
-        },
-        //---------------------------------------------------------------------
+
         setStatus(event) {
             let status = toRaw(event.value);
             this.item.taxonomy_id_whishlists_status = status.id;
@@ -263,11 +310,11 @@ export const useWhishlistStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
-                this.types = data.taxonomy.types;
                 this.active_users = data.active_users;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -293,6 +340,7 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -312,7 +360,7 @@ export const useWhishlistStore = defineStore({
             {
                 this.item = data;
             }else{
-                this.$router.push({name: 'whishlists.index'});
+                this.$router.push({name: 'wishlists.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -455,6 +503,7 @@ export const useWhishlistStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -491,33 +540,65 @@ export const useWhishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
             }
+            this.current_list=this.list.data;
+
+            this.compareList(this.prev_list,this.current_list);
         },
         //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+            const prev_set = new Set(prev_list.map(item => item.id));
+
+            const current_set = new Set(current_list.map(item => item.id));
+
+            const removed_items = prev_list.filter(item => !current_set.has(item.id));
+
+            this.action.items = this.action.items.filter(item => current_set.has(item.id));
+
+            if (removed_items.length > 0) {
+                // Do something with removed items
+
+                //may update this in future
+            }
+        },
+
+        //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'whishlists.index'});
+                    this.$router.push({name: 'wishlists.index'});
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'wishlists.form'});
                     await this.getFormMenu();
                     break;
+                case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'wishlists.form'});
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
                 case 'save':
                     this.item = data;
                     break;
@@ -575,8 +656,6 @@ export const useWhishlistStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
         onItemSelection(items)
         {
             this.action.items = items;
@@ -598,12 +677,106 @@ export const useWhishlistStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+        confirmTrash()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'trash';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+        confirmApproved()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'approved';
+            vaah().confirmDialogApproved(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+        confirmPending()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'pending';
+            vaah().confirmDialogPending(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+        confirmRejected()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'reject';
+            vaah().confirmDialogRejected(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRestore()
+        {
+            if(this.action.items.length < 1)
+            {
+                vaah().toastErrors(['Select a record']);
+                return false;
+            }
+            this.action.type = 'restore';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmApprovedAll()
+        {
+            this.action.type = 'approved-all';
+            vaah().confirmDialogApproveAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmRejectedAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -664,6 +837,11 @@ export const useWhishlistStore = defineStore({
             //reset query strings
             await this.resetQueryString();
 
+            this.selected_dates=[];
+            this.selected_users = null;
+            this.filter_selected_products = null;
+            this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+
             //reload page list
             await this.getList();
         },
@@ -673,38 +851,40 @@ export const useWhishlistStore = defineStore({
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
+
             }
+            vaah().toastSuccess(['Action Was Successful']);
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'whishlists.index'})
+            this.$router.push({name: 'wishlists.index'})
         },
         //---------------------------------------------------------------------
         toList()
-        {
+        {   this.select_all_product = false;
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'whishlists.index'})
+            this.$router.push({name: 'wishlists.index'})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'whishlists.form'})
+            this.$router.push({name: 'wishlists.form'})
         },
         //---------------------------------------------------------------------
         toView(item)
         {
             this.item = vaah().clone(item);
-            this.$router.push({name: 'whishlists.view', params:{id:item.id}})
+            this.$router.push({name: 'wishlists.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
             this.item = item;
-            this.$router.push({name: 'whishlists.form', params:{id:item.id}})
+            this.$router.push({name: 'wishlists.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -751,21 +931,21 @@ export const useWhishlistStore = defineStore({
         {
             this.list_selected_menu = [
                 {
-                    label: 'Approved',
+                    label: 'Mark as Approved',
                     command: async () => {
-                        await this.updateList('approved')
+                        await this.updateList('approve')
                     }
                 },
                 {
-                    label: 'Pending',
+                    label: 'Mark as Pending',
                     command: async () => {
                         await this.updateList('pending')
                     }
                 },
                 {
-                    label: 'Rejected',
+                    label: 'Mark as Rejected',
                     command: async () => {
-                        await this.updateList('rejected')
+                        await this.updateList('reject')
                     }
                 },
                 {
@@ -793,6 +973,23 @@ export const useWhishlistStore = defineStore({
                     }
                 },
             ]
+            this.product_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveProduct()
+                    }
+                },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllProduct()
+                    }
+                },
+
+            ]
 
         },
         //---------------------------------------------------------------------
@@ -802,19 +999,19 @@ export const useWhishlistStore = defineStore({
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approved-all')
+                        this.confirmApprovedAll();
                     }
                 },
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectedAll();
                     }
                 },
                 {
@@ -824,14 +1021,14 @@ export const useWhishlistStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -921,7 +1118,6 @@ export const useWhishlistStore = defineStore({
             this.list_create_menu = form_menu;
 
         },
-
         //---------------------------------------------------------------------
         confirmDeleteItem()
         {
@@ -957,7 +1153,15 @@ export const useWhishlistStore = defineStore({
                             this.itemAction('save-and-clone');
 
                         }
-                    }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
                 ];
                 if(this.item.deleted_at)
                 {
@@ -1038,7 +1242,260 @@ export const useWhishlistStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
+
         //---------------------------------------------------------------------
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        toProduct(item)
+        {
+            this.selected_product = null;
+            this.$router.push({name: 'wishlists.products', params:{id:item.id}})
+        },
+
+        //---------------------------------------------------------------------
+        async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.product_suggestion = data;
+                if(this.filter_selected_products)
+                {
+                    const filtered_suggestions = data.filter((product) => {
+                        return !this.filter_selected_products.some((selected_product) => selected_product.id === product.id);
+                    });
+
+                    this.product_suggestion = filtered_suggestions;
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+        addProduct() {
+
+            if (!this.item.products) {
+                this.item.products = []; // Initialize the products array if it's undefined
+            }
+            const exist = this.item.products.some(item => item.product.id === this.selected_product.id);
+
+           if(!exist)
+           {
+               const new_product = {
+                   product: this.selected_product,
+                   is_selected: false,
+               };
+               this.item.products.push(new_product);
+               this.selected_product = null;
+           }
+           else {
+               this.showUserErrorMessage(['This product is already present'], 4000);
+           }
+
+        },
+
+        //---------------------------------------------------------------------
+        showUserErrorMessage(message, time = 2500){
+            this.user_error_message = message;
+            setTimeout(()=>{
+                this.user_error_message = [];
+            },time);
+        },
+        //---------------------------------------------------------------------
+        async removeProduct(product) {
+            this.item.products = this.item.products.filter(function (item) {
+                return item['product']['id'] != product['product']['id']
+            })
+
+        },
+
+        //---------------------------------------------------------------------
+        selectAllProduct() {
+            if (this.select_all_product) {
+                this.item.products.forEach((item) => {
+                    item.is_selected = false;
+                });
+            } else {
+                this.item.products.forEach((item) => {
+                    item.is_selected = true;
+                });
+            }
+        },
+
+        //---------------------------------------------------------------------
+        async removeAllProduct()
+        {
+            this.item.products = [];
+            this.select_all_product = false;
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveProduct() {
+
+            let selected_products = this.item.products.filter(product => product.is_selected);
+            let temp = null;
+            this.select_all_product = false;
+            temp = this.item.products.filter((item) => {
+                return item['is_selected'] === false;
+            });
+
+            if (selected_products.length === 0) {
+                vaah().toastErrors(['Select a product']);
+                return false;
+            }
+
+            else if (temp.length === this.item.products.length) {
+                this.item.products = [];
+            }
+            else {
+
+                this.item.products = temp;
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setFilterSelectedUsers() {
+
+            const unique_users = [];
+            const check_names = new Set();
+
+            for (const users of this.selected_users) {
+                if (!check_names.has(users.first_name)) {
+                    unique_users.push(users);
+                    check_names.add(users.first_name);
+                }
+            }
+            const users_slug = unique_users.map(users => users.first_name);
+            this.selected_users = unique_users;
+            this.query.filter.users = users_slug;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setFilterSelectedProducts() {
+
+            const products_slug = this.filter_selected_products.map(product => product.slug);
+            this.query.filter.products = products_slug;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        watchProducts()
+        {
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.products.some(item => !item.is_selected);
+                    // Update select_all_product variable
+                    this.select_all_product = !anyDeselected;
+                },{deep: true}
+            )
+        },
+
+        //---------------------------------------------------------------------
+
+        async getProductsBySlug()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/products-by-slug',
+                this.getProductsBySlugAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        getProductsBySlugAfter(data,res)
+        {
+
+            if (data) {
+                this.filter_selected_products = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async getUsersBySlug()
+        {
+            let query = {
+                filter: {
+                    user: this.query.filter.users,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/users-by-slug',
+                this.getUsersBySlugAfter,
+                options
+            );
+
+        },
+
+        //---------------------------------------------------------------------
+
+        getUsersBySlugAfter(data,res)
+        {
+            if (data) {
+                this.selected_users = data;
+            }
+        },
+
+        //--------------------------------------------------------------------
+
+
+
     }
 });
 
@@ -1046,5 +1503,5 @@ export const useWhishlistStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useWhishlistStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useWishlistStore, import.meta.hot))
 }

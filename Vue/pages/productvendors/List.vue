@@ -17,7 +17,7 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'Product Vendors - Store';
+    document.title = 'Vendor Products - Store';
     /**
      * call onLoad action when List view loads
      */
@@ -87,6 +87,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="productvendors-list-create"
                             class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
@@ -94,7 +95,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="productvendors-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reload()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -104,7 +105,8 @@ const toggleCreateMenu = (event) => {
                                                 && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
-                        class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
+                            class="p-button-sm"
                         data-testid="productvendors-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>

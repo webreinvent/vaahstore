@@ -1,7 +1,8 @@
-import {watch,toRaw} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from 'moment';
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\CustomerGroup';
 
@@ -11,13 +12,14 @@ let ajax_url = base_url + "/store/customergroups";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
             trashed: null,
             sort: null,
+            date:null,
         },
     },
     action: {
@@ -68,6 +70,10 @@ export const useCustomerGroupStore = defineStore({
         form_menu_list: [],
         status_suggestion:null,
         status:null,
+        prev_list:[],
+        current_list:[],
+        selected_dates:null,
+        filter_selected_customers:null,
     }),
     getters: {
 
@@ -90,6 +96,11 @@ export const useCustomerGroupStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            if (this.query.filter.customers) this.getCustomersBySlug();
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         searchStatus(event) {
@@ -200,7 +211,7 @@ export const useCustomerGroupStore = defineStore({
                 this.status = data.taxonomy.status;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                      data.rows=this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -389,6 +400,7 @@ export const useCustomerGroupStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -426,8 +438,27 @@ export const useCustomerGroupStore = defineStore({
             {
                 this.item = data;
                 await this.getList();
+                this.prev_list =this.list.data;
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+            const prev_set = new Set(prev_list.map(item => item.id));
+
+            const current_set = new Set(current_list.map(item => item.id));
+
+            const removed_items = prev_list.filter(item => !current_set.has(item.id));
+
+            this.action.items = this.action.items.filter(item => current_set.has(item.id));
+
+            if (removed_items.length > 0) {
+                // Do something with removed items
+
+                //may update this in future
             }
         },
         //---------------------------------------------------------------------
@@ -436,8 +467,8 @@ export const useCustomerGroupStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
@@ -447,11 +478,22 @@ export const useCustomerGroupStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'customergroups.form'})
                     await this.getFormMenu();
                     break;
+                case 'save-and-new':
+                    this.item.id = null;
+                    await this.getFormMenu();
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'customergroups.form'});
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'trash':
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'restore':
+                    vaah().toastSuccess(['Action Was Successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -482,9 +524,10 @@ export const useCustomerGroupStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
-        async getFaker () {
+        async getFormInputs () {
 
             let params = {
                 model_namespace: this.model,
@@ -498,18 +541,22 @@ export const useCustomerGroupStore = defineStore({
             };
             await vaah().ajax(
                 url,
-                this.getFakerAfter,
+                this.getFormInputsAfter,
                 options
             );
 
         },
         //---------------------------------------------------------------------
-        getFakerAfter: function (data, res) {
+        getFormInputsAfter: function (data, res) {
             if(data)
             {
+
+                this.item.customers = [data.fill.customers];
                 let self = this;
                 Object.keys(data.fill).forEach(function(key) {
-                    self.item[key] = data.fill[key];
+                    if (key !== 'customers') {
+                        self.item[key] = data.fill[key];
+                    }
                 });
             }
         },
@@ -538,11 +585,49 @@ export const useCustomerGroupStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
+
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
+        //---------------------------------------------------------------------
+
+        confirmPendingAll()
+        {
+            this.action.type = 'pending-all';
+            vaah().confirmDialogPendingAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmApproveAll()
+        {
+            this.action.type = 'approve-all';
+            vaah().confirmDialogApproveAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmRejectedAll()
+        {
+            this.action.type = 'reject-all';
+            vaah().confirmDialogRejectAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
         async delayedSearch()
         {
@@ -601,11 +686,14 @@ export const useCustomerGroupStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_dates=[];
+            this.filter_selected_customers=null;
             //reset query strings
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action Was Successful']);
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -742,19 +830,19 @@ export const useCustomerGroupStore = defineStore({
                 {
                     label: 'Mark all as pending',
                     command: async () => {
-                        await this.listAction('pending-all')
+                        this.confirmPendingAll();
                     }
                 },
                 {
                     label: 'Mark all as rejected',
                     command: async () => {
-                        await this.listAction('reject-all')
+                        this.confirmRejectedAll();
                     }
                 },
                 {
                     label: 'Mark all as approved',
                     command: async () => {
-                        await this.listAction('approve-all')
+                        this.confirmApproveAll();
                     }
                 },
                 {
@@ -764,14 +852,14 @@ export const useCustomerGroupStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -880,6 +968,7 @@ export const useCustomerGroupStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -898,40 +987,29 @@ export const useCustomerGroupStore = defineStore({
 
                         }
                     },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
 
+                            this.itemAction('save-and-new');
+                        }
+                    },
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
@@ -965,7 +1043,7 @@ export const useCustomerGroupStore = defineStore({
                 label: 'Fill',
                 icon: 'pi pi-pencil',
                 command: () => {
-                    this.getFaker();
+                    this.getFormInputs();
                 }
             },)
 
@@ -974,6 +1052,155 @@ export const useCustomerGroupStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        async searchCustomers(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customers',
+                this.searchCustomersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchCustomersAfter(data,res) {
+            if(data)
+            {
+                // this.customer_suggestions = data;
+                this.customer_suggestions = data;
+                if (data && this.item.customers) {
+                    this.customer_suggestions = data.filter((item) => {
+                        return !this.item.customers.some((activeItem) => {
+                            return activeItem.id === item.id;
+                        });
+                    });
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+
+        updateCustomerList() {
+            const unique_selected_customers = new Set(this.item.customers);
+
+            this.item.customers = Array.from(unique_selected_customers);
+
+        },
+
+        //---------------------------------------------------------------------
+
+
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async getCustomers(event) {
+
+            const options = {
+                params: {
+                    query: event.query
+                },
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/get/customers',
+                this.getCustomersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        getCustomersAfter(data,res) {
+            if(data)
+            {
+                this.customer_suggestions_list = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        setFilterSelectedCustomers() {
+            const unique_customers = Array.from(new Set(this.filter_selected_customers.map(v => v.display_name)));
+            this.filter_selected_customers = unique_customers.map(name => this.filter_selected_customers.find(v => v.display_name === name));
+            this.query.filter.customers = this.filter_selected_customers.map(v => v.display_name);
+
+        },
+        //---------------------------------------------------------------------
+        async getCustomersBySlug()
+        {
+
+            let query = {
+                filter: {
+                    customers: this.query.filter.customers,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/customers-by-slug',
+                this.getCustomersAfterRefresh,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        getCustomersAfterRefresh(data, res) {
+
+            if (data) {
+                this.filter_selected_customers= data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        toViewCustomers(customer)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    customer_group: [customer.slug]
+                }
+            };
+            const route = {
+                name: 'users.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+        //---------------------------------------------------------------------
+
+
     }
 });
 
