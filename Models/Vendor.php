@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -114,6 +115,20 @@ class Vendor extends VaahModel
     }
 
     //-------------------------------------------------
+
+    public function users() {
+        return $this->belongsToMany( User::class,
+            'vh_user_roles', 'vh_role_id', 'vh_user_id'
+        )->withPivot('is_active');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class,
+            'vh_user_roles', 'vh_user_id', 'vh_role_id'
+        )->withPivot('is_active');
+    }
+
     public function updatedByUser()
     {
         return $this->belongsTo(User::class,
@@ -1346,6 +1361,20 @@ class Vendor extends VaahModel
             $response['success'] = false;
         }
 
+        return $response;
+    }
+
+    public static function searchVendorRoleUser($request)
+    {
+        $allowed_slugs = ['vendor-staff', 'vendor-admin', 'vendor-manager'];
+
+        $users = User::with(['roles' => function ($query) use ($allowed_slugs) {
+            $query->whereIn('slug', $allowed_slugs)
+                ->wherePivot('is_active', 1);
+        }])->get();
+
+        $response['success'] = true;
+        $response['data'] = $users;
         return $response;
     }
 

@@ -118,4 +118,7 @@ Route::group(
         Route::any('/search/status', 'VendorsController@searchStatus')
             ->name('vh.backend.store.vendors.search.status');
 
+        Route::any('/search/vendor/role', 'VendorsController@searchVendorRoleUser')
+            ->name('vh.backend.store.vendors.search.role.user');
+
     });
