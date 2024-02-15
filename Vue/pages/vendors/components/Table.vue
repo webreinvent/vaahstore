@@ -87,6 +87,25 @@ const permissions=store.assets.permissions;
 
             </Column>
 
+
+            <Column field="vendor" header="Vendor Role"
+                    :sortable="false">
+
+                <template #body="prop">
+                    <div class="p-inputgroup flex-1">
+                        <Button rounded
+                                data-testid="role-list_data_role"
+                                @click="store.toVendorRole(prop.data)"
+                                size="small" class="white-space-nowrap"
+                                :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
+                                v-tooltip.top="'Add Role'"
+                        />
+                    </div>
+                </template>
+
+            </Column>
+
             <Column field="status.name" header="Status"
                     v-if="store.isViewLarge()"
                     :sortable="true">

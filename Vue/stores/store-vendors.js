@@ -87,7 +87,9 @@ export const useVendorStore = defineStore({
         selected_dates : null,
         business_types_list : null,
         search_products: null,
-        first_element:null
+        first_element:null,
+        selected_user_vendor:null,
+        search_vendor_role:null
     }),
     getters: {
 
@@ -1451,6 +1453,35 @@ export const useVendorStore = defineStore({
                 query: query
             };
             this.$router.push(route);
+        },
+
+        toVendorRole(item)
+        {
+            this.item = item;
+            this.$router.push({name: 'vendors.role', params:{id:item.id}})
+        },
+        //---------------------------------------------------------------------
+        async searchRoleForVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor/role',
+                this.searchRoleForVendorAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchRoleForVendorAfter(data,res) {
+            if(data)
+            {
+                this.search_vendor_role = data;
+            }
         },
 
 
