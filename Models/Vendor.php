@@ -861,8 +861,8 @@ class Vendor extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
-                $list->update(['deleted_by'  => null]);
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
