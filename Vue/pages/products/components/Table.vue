@@ -93,10 +93,10 @@ const useVaah = vaah()
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Variations'"
-                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                                 :disabled="prop.data.id===store.item?.id"
                                  @click="store.toVariation(prop.data)" />
-
                      </div>
+
                  </template>
              </Column>
 
@@ -119,7 +119,7 @@ const useVaah = vaah()
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Vendors'"
-                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                                 :disabled="prop.data.id===store.item?.id"
                                  @click="store.toVendor(prop.data)" />
                      </div>
                  </template>
