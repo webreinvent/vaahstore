@@ -515,7 +515,6 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
         async bulkRemoveAttribute() {
-
             let selected_attribute = this.variation_item.product_attributes.filter(attribute => attribute.is_selected);
                 let temp = null;
                 this.select_all_attribute = false;
@@ -647,6 +646,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         addProductAttributeFromGroup(data){
             data.forEach((i)=>{
+                i.is_selected = false;
                 this.variation_item.product_attributes.push(i);
             })
             this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);

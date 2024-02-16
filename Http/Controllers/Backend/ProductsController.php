@@ -258,9 +258,11 @@ class ProductsController extends Controller
                     $record = AttributeGroup::where('id', $input['selected_attribute']['id'])->with(['attributesList'])->get();
                     if ($record) {
                         $item = $record->toArray()[0]['attributes_list'];
+
                     }
                 }else{
                     $item = AttributeGroup::get(['name', 'id']);
+
                 }
                 break;
         }

@@ -484,7 +484,7 @@ class Product extends VaahModel
         $item = new self();
 
         $item->fill($inputs);
-        dd($item);
+        $item->quantity = 0;
         if(isset($item->seo_meta_keyword))
         {
             $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
