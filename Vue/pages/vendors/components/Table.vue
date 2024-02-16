@@ -77,6 +77,7 @@ const permissions=store.assets.permissions;
                          </span>
                         <button @click="store.toProduct(prop.data)"
                                 style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                data-testid="vendors-table-product"
                                 :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
                                 :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Products'">
@@ -90,17 +91,20 @@ const permissions=store.assets.permissions;
 
             <Column field="vendor" header="Vendor User"
                     :sortable="false">
-
                 <template #body="prop">
                     <div class="p-inputgroup flex-1">
-                        <Button rounded
-                                data-testid="role-list_data_role"
-                                @click="store.toVendorRole(prop.data)"
-                                size="small" class="white-space-nowrap"
+                        <span class="p-inputgroup-addon cursor-pointer">
+                               <b>0</b>
+
+                         </span>
+                        <button @click="store.toVendorRole(prop.data)"
+                                data-testid="vendors-table-vendor-role"
+                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
                                 :disabled="$route.path.includes('vendor') && prop.data.id===store.item?.id"
                                 :class="{ 'blurred': $route.path.includes('vendor') && prop.data.id===store.item?.id }"
-                                v-tooltip.top="'Add Role'"
-                        />
+                                v-tooltip.top="'Add Role'">
+                            <i class="pi pi-plus" style="color: white"></i>
+                        </button>
                     </div>
                 </template>
 
