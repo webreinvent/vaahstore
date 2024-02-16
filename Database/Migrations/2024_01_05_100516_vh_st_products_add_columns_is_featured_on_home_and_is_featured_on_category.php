@@ -14,8 +14,10 @@ class VhStProductsAddColumnsIsFeaturedOnHomeAndIsFeaturedOnCategory extends Migr
     public function up()
     {
         Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->boolean('is_featured_on_home_page')->nullable()->index()->after('in_stock');
-            $table->boolean('is_featured_on_category_page')->nullable()->index()->after('is_featured_on_home_page');
+            $table->after('in_stock', function ($table) {
+                $table->boolean('is_featured_on_home_page')->nullable()->index();
+                $table->boolean('is_featured_on_category_page')->nullable()->index();
+            });
         });
     }
 

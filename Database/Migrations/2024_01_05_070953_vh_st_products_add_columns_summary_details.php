@@ -14,8 +14,10 @@ class VhStProductsAddColumnsSummaryDetails extends Migration
     public function up()
     {
         Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->string('summary')->nullable()->after('slug');
-            $table->text('details')->nullable()->after('summary');
+            $table->after('slug', function ($table) {
+                $table->string('summary')->nullable();
+                $table->text('details')->nullable();
+            });
         });
     }
 
