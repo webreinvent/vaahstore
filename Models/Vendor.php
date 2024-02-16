@@ -847,14 +847,10 @@ class Vendor extends VaahModel
                 }
                 break;
             case 'activate-all':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
-                $list->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
+                $list->update(['is_active' => 1]);
                 break;
             case 'deactivate-all':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
-                $list->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
+                $list->update(['is_active' => null]);
                 break;
             case 'trash-all':
                 $user_id = auth()->user()->id;
@@ -1062,38 +1058,30 @@ class Vendor extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
-
         $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
+        if (!\Auth::user()->hasPermission('can-update-module')) {
             return vh_get_permission_denied_response($permission_slug);
         }
-
         switch($type)
         {
             case 'activate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => 1,'taxonomy_id_vendor_status' => $approved_id['0']]);
+                    ->update(['is_active' => 1]);
                 break;
             case 'deactivate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 self::where('id', $id)
                     ->withTrashed()
-                    ->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
+                    ->update(['is_active' => null]);
                 break;
             case 'trash':
                 self::where('id', $id)
                     ->withTrashed()
                     ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
-                if($item->delete()) {
-                    $item->deleted_by = auth()->user()->id;
-                    $item->is_default = null;
-                    $item->save();
-                }
+                $item->deleted_by = auth()->user()->id;
+                $item->is_default = null;
+                $item->save();
                 break;
             case 'restore':
                 self::where('id', $id)
