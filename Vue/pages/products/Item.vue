@@ -190,7 +190,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                             </tr>
 
-                            <tr v-if="store.item.vh_st_brand_id">
+                            <tr v-if="store.item.brand">
                                 <td><b>Brand</b></td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:300px;word-break: break-word;">

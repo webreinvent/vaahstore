@@ -637,6 +637,7 @@ export const useProductStore = defineStore({
                     return false;
                 }
                 this.variation_item.product_attributes.push(new_attribute);
+                this.variation_item.selected_attribute = null;
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
             else if(this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 1){
@@ -2118,7 +2119,7 @@ export const useProductStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    product: [product.slug]
+                    products: [product.slug]
                 }
             };
             const route = {

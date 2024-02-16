@@ -179,7 +179,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Brand*">
+                <VhField label="Brand">
 
                     <AutoComplete
                         value="id"

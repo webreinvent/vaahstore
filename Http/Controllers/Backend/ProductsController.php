@@ -41,7 +41,7 @@ class ProductsController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-status');
             $data['taxonomy']['types'] = Taxonomy::getTaxonomyByType('product-types');
             $data['empty_item']['in_stock'] = 0;
-            $data['empty_item']['quantity'] = null;
+            $data['empty_item']['quantity'] = 0;
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['all_variation'] = [];
             $data['empty_item']['vendors'] = [];

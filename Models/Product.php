@@ -44,6 +44,7 @@ class Product extends VaahModel
         'slug',
         'summary',
         'details',
+        'quantity',
         'taxonomy_id_product_type',
         'vh_st_store_id',
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
@@ -140,7 +141,8 @@ class Product extends VaahModel
     public function brand()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')
-                    ->select('id','name','slug','is_default');
+                    ->withTrashed()
+                    ->select('id','name','slug','is_default','deleted_at');
     }
     //-------------------------------------------------
 
@@ -482,7 +484,7 @@ class Product extends VaahModel
         $item = new self();
 
         $item->fill($inputs);
-
+        dd($item);
         if(isset($item->seo_meta_keyword))
         {
             $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
@@ -1026,7 +1028,6 @@ class Product extends VaahModel
             'slug' => 'required|max:150',
             'summary' => 'max:100',
             'vh_st_store_id'=> 'required',
-            'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
             'details' => 'max:250',
             'seo_title' => 'max:100',
@@ -1035,6 +1036,7 @@ class Product extends VaahModel
             'seo_meta_keyword.*' => 'max:50',
             'taxonomy_id_product_status'=> 'required',
             'status_notes' => 'max:250',
+            'quantity' => '',
             'launch_at' => 'required_without_all:quantity,available_at,0',
             'available_at' => 'required_without_all:quantity,launch_at,0',
         ],
@@ -1050,7 +1052,6 @@ class Product extends VaahModel
                 'seo_meta_keyword.*' => 'The Seo Keyword field may not be greater than :max characters',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'vh_st_brand_id.required' => 'The Brand field is required',
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
