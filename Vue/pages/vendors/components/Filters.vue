@@ -2,8 +2,16 @@
 
 import { useVendorStore } from '../../../stores/store-vendors'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {onMounted} from "vue";
 
 const store = useVendorStore();
+
+onMounted(async () => {
+
+    await store.setProductInFilter();
+
+
+});
 
 </script>
 
@@ -12,6 +20,42 @@ const store = useVendorStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right" class="relative">
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete name="product-variations-product-filter"
+                              data-testid="product-variations-product-filter"
+                              v-model="store.sel_product"
+                              @change = "store.addSelectedProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.search_products"
+                              @complete="store.searchProduct($event)"
+                              placeholder = "select product"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
+
+            </VhFieldVertical>
+
+
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Store By:</b>

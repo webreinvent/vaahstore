@@ -93,8 +93,14 @@ const permissions=store.assets.permissions;
                     :sortable="false">
                 <template #body="prop">
                     <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon cursor-pointer">
-                               <b>0</b>
+                        <span class="p-inputgroup-addon cursor-pointer"
+                              v-if="prop.data.users && prop.data.users.length"
+                              >
+                               <b>{{prop.data.users.length}}</b>
+                        </span>
+                        <span class="p-inputgroup-addon"
+                              v-else>
+                             <b>{{ prop.data.users ? prop.data.users.length : 0 }}</b>
 
                          </span>
                         <button @click="store.toVendorRole(prop.data)"

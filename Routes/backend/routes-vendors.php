@@ -124,4 +124,7 @@ Route::group(
         Route::post('/add/user', 'VendorsController@createVendorUser')
             ->name('vh.backend.store.vendors.createVendorUser');
 
+        Route::post('/search/route-query-products', 'VendorsController@setProductInFilter')
+            ->name('vh.backend.store.vendors.search.products-using-url-slug');
+
     });

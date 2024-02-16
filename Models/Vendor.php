@@ -16,6 +16,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Store;
+use Illuminate\Support\Facades\DB;
 
 class Vendor extends VaahModel
 {
@@ -114,12 +115,12 @@ class Vendor extends VaahModel
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
 
-    //-------------------------------------------------
 
-    public function users() {
-        return $this->belongsToMany( User::class,
-            'vh_user_roles', 'vh_role_id', 'vh_user_id'
-        )->withPivot('is_active');
+    public function users()
+    {
+        return $this->belongsToMany(User::class,
+            'vh_st_vendor_users','vh_st_vendor_id', 'vh_user_id',
+        )->withPivot('vh_st_vendor_id','vh_user_id','vh_role_id');
     }
 
     public function roles()
@@ -641,7 +642,8 @@ class Vendor extends VaahModel
 
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with(['store', 'approvedByUser', 'ownedByUser', 'status','vendorProducts']);
+        $list = self::getSorted($request->filter)->with(['store', 'approvedByUser',
+            'ownedByUser', 'status','vendorProducts','users']);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -901,8 +903,8 @@ class Vendor extends VaahModel
 
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
-                'status','business_type'])
+            ->with(['createdByUser','updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
+                'status','business_type','users'])
             ->withTrashed()
             ->first();
         if(!$item)
@@ -922,12 +924,18 @@ class Vendor extends VaahModel
                 ]
             ];
         })->toArray();
+
+
+
+
+
+
         $response['data'] = $item->toArray();
         $response['data']['products'] = $vendor_product;
 
+
         $response['success'] = true;
         $response['data'] = $item;
-
         return $response;
 
     }
@@ -1350,6 +1358,8 @@ class Vendor extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------------------------------------
+
     public static function VendorRole()
     {
         $allowed_slugs = ['vendor-staff', 'vendor-admin', 'vendor-manager'];
@@ -1365,6 +1375,8 @@ class Vendor extends VaahModel
             ];
         }
     }
+
+    //----------------------------------------------------------------------------------------
 
 
     public static function searchUser($request)
@@ -1382,30 +1394,57 @@ class Vendor extends VaahModel
         return $response;
     }
 
+    //-----------------------------------------------------------------------------
+
     public static function createVendorUser($request)
     {
-        $inputs = $request->all();
+        $item = self::find($request->item['id']);
 
-        $item = $inputs['item'];
-
-        if($item)
-        {
-            $item_id = $item['id'];
-        }
-        $user_details = $inputs['user_details'];
-
-        if($user_details){
-            $user_id = $user_details['id'];
+        if (!$item) {
+            // Handle case where item is not found
+            return;
         }
 
-        $role_details = $inputs['role_details'];
-        if($role_details){
+        $data = [];
 
-            $role_id = $role_details['id'];
+        foreach ($request->user_details as $user_detail) {
+            $user_id = $user_detail['user']['id'];
+            $role_id = $user_detail['roles']['id'];
+
+
+            $data[] = [
+                'vh_user_id' => $user_id,
+                'vh_role_id' => $role_id,
+            ];
         }
 
-
+        // Insert all rows into the pivot table
+        $item->users()->sync($data);
     }
+
+
+
+    //------------------------------------------------------------------
+
+
+    public static function setProductInFilter($request)
+    {
+        if(isset($request['filter']['product']) && !empty($request['filter']['product'])) {
+            $query = $request['filter']['product'];
+            $products = Product::whereIn('name', $query)
+                ->orWhereIn('slug', $query)
+                ->select('id', 'name', 'slug')
+                ->get();
+            $response['success'] = true;
+            $response['data'] = $products;
+        } else {
+            $response['success'] = false;
+            $response['message'] = 'No filter or products provided';
+            $response['data'] = [];
+        }
+        return $response;
+    }
+
 
 
 
