@@ -1420,18 +1420,12 @@ class Vendor extends VaahModel
     {
         if(isset($request['filter']['product']) && !empty($request['filter']['product'])) {
             $query = $request['filter']['product'];
-
-            // Retrieve vendors associated with the specified product
-            $vendors = Vendor::whereHas('vendorProducts', function ($query) use ($request) {
-                $query->whereIn('vh_st_product_id', function ($subQuery) use ($request) {
-                    $subQuery->select('id')
-                        ->from('vh_st_products')
-                        ->whereIn('name', $request['filter']['product']);
-                });
-            })->select('id', 'name', 'slug')->get();
-
+            $products = Product::whereIn('name', $query)
+                ->orWhereIn('slug', $query)
+                ->select('id', 'name', 'slug')
+                ->get();
             $response['success'] = true;
-            $response['data'] = $vendors;
+            $response['data'] = $products;
         } else {
             $response['success'] = false;
             $response['message'] = 'No filter or products provided';
