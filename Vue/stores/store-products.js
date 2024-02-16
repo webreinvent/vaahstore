@@ -411,7 +411,11 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         setBrand(event) {
             let brand = toRaw(event.value);
-            this.item.vh_st_brand_id = brand.id;
+            this.item.vh_st_brand_id = null;
+            if(brand)
+            {
+                this.item.vh_st_brand_id = brand.id;
+            }
         },
         //---------------------------------------------------------------------
         setType(event) {

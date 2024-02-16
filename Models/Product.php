@@ -456,7 +456,6 @@ class Product extends VaahModel
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -484,6 +483,7 @@ class Product extends VaahModel
         $item = new self();
 
         $item->fill($inputs);
+
         $item->quantity = 0;
         if(isset($item->seo_meta_keyword))
         {
@@ -1177,14 +1177,13 @@ class Product extends VaahModel
         $inputs['store'] = $store;
         $inputs['vh_st_store_id'] = $store_id ;
 
+        $default_brand = Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+        if($default_brand !== null)
+        {
+            $inputs['brand'] = $default_brand;
+            $inputs['vh_st_brand_id'] = $default_brand->id;
+        }
 
-        // fill the Brand field here
-        $brands = Brand::where('is_active',1);
-        $brand_ids = $brands->pluck('id')->toArray();
-        $brand_id = $brand_ids[array_rand($brand_ids)];
-        $brand = $brands->where('id',$brand_id)->first();
-        $inputs['brand'] = $brand;
-        $inputs['vh_st_brand_id'] = $brand_id;
 
         // fill the taxonomy status field here
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
