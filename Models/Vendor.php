@@ -857,7 +857,9 @@ class Vendor extends VaahModel
                 $list->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
                 break;
             case 'trash-all':
-                $list->update(['deleted_by'  => auth()->user()->id]);
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
             case 'restore-all':
