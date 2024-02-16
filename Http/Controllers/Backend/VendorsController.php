@@ -518,6 +518,25 @@ class VendorsController extends Controller
         }
     }
 
+    //---------------------------------------------------------------
+
+    public function setProductInFilter(Request $request)
+    {
+        try{
+            return Vendor::setProductInFilter($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = 'Something went wrong.';
+                return $response;
+            }
+        }
+    }
+
 
 
 }
