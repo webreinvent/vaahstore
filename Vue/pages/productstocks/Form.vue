@@ -54,14 +54,16 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
-                    <Button label="Save"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
                             data-testid="productstocks-save"
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
-                    <Button label="Create & New"
+                    <Button :disabled="!store.assets.permissions.includes('can-update-module')"
+                            label="Create & New"
                             v-else
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
@@ -77,6 +79,7 @@ const toggleFormMenu = (event) => {
 
                     <!--form_menu-->
                     <Button
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         type="button"
                         @click="toggleFormMenu"
                         class="p-button-sm"
@@ -104,24 +107,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Name">
-                    <InputText class="w-full"
-                               name="productstocks-name"
-                               data-testid="productstocks-name"
-                               placeholder="Enter Name"
-                               @update:modelValue="store.watchItem"
-                               v-model="store.item.name"/>
-                </VhField>
-
-                <VhField label="Slug">
-                    <InputText class="w-full"
-                               name="productstocks-slug"
-                               data-testid="productstocks-slug"
-                               placeholder="Enter Slug"
-                               v-model="store.item.slug"/>
-                </VhField>
-
-                <VhField label="Vendor">
+                <VhField label="Vendor*">
                     <AutoComplete v-model="store.item.vendor"
                                   @change="store.setVendor($event)"
                                   value="id"
@@ -132,7 +118,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Vendor"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -141,7 +140,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product">
+                <VhField label="Product*">
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
@@ -152,7 +151,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Product"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -161,7 +173,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Product Variation">
+                <VhField label="Product Variation*">
                     <AutoComplete v-model="store.item.product_variation"
                                   @change="store.setProductVariation($event)"
                                   value="id"
@@ -172,7 +184,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Product Variation"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -181,7 +206,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Warehouse">
+                <VhField label="Warehouse*">
                     <AutoComplete v-model="store.item.warehouse"
                                   @change="store.setWarehouse($event)"
                                   value="id"
@@ -192,7 +217,20 @@ const toggleFormMenu = (event) => {
                                   :dropdown="true"
                                   optionLabel="name"
                                   placeholder="Select Warehouse"
-                                  forceSelection >
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
                         <template #option="slotProps">
                             <div class="flex align-options-center">
                                 <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
@@ -201,7 +239,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Quantity">
+                <VhField label="Quantity*">
                     <InputNumber
                         name="productstocks-quantity"
                         v-model="store.item.quantity"
@@ -209,10 +247,10 @@ const toggleFormMenu = (event) => {
                         placeholder="Enter Quantity"
                         class="w-full"
                         data-testid="productstocks-quantity"
-                        :min="1"/>
+                        :min="0"/>
                 </VhField>
 
-                <VhField label="Status">
+                <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"

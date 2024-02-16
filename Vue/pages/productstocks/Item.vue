@@ -32,17 +32,7 @@ onMounted(async () => {
      * Watch if url record id is changed, if changed
      * then fetch the new records from database
      */
-    /*watch(route, async (newVal,oldVal) =>
-        {
-            if(newVal.params && !newVal.params.id
-                && newVal.name === 'articles.view')
-            {
-                store.toList();
 
-            }
-            await store.getItem(route.params.id);
-        }, { deep: true }
-    )*/
 
 });
 
@@ -59,7 +49,10 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
 
+            </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -77,6 +70,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button label="Edit"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
                             data-testid="productstocks-item-to-edit"
@@ -85,6 +79,7 @@ const toggleItemMenu = (event) => {
                     <!--item_menu-->
                     <Button
                         type="button"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         class="p-button-sm"
                         @click="toggleItemMenu"
                         data-testid="productstocks-item-menu"
@@ -92,6 +87,7 @@ const toggleItemMenu = (event) => {
                         aria-haspopup="true"/>
 
                     <Menu ref="item_menu_state"
+                          :disabled="!store.assets.permissions.includes('can-update-module')"
                           :model="store.item_menu_list"
                           :popup="true" />
                     <!--/item_menu-->
@@ -141,37 +137,23 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by' || column === 'updated_by' || column === 'status' ||
                         column === 'vendor' || column === 'product' || column === 'product_variation'
-                        || column === 'warehouse' || column === 'deleted_by'">
+                        || column === 'warehouse' || column === 'deleted_by' || column === 'meta' || column === 'name'
+                         || column === 'slug' || column === 'status_notes'">
                         </template>
 
-                        <template v-else-if="column === 'id' || column === 'uuid'">
+                        <template v-else-if="column === 'id'">
                             <VhViewRow :label="column"
                                        :value="value"
                                        :can_copy="true"
                             />
                         </template>
-                        <template v-else-if="column === 'name'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Name</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.name}}</div>
-                                </td>
-                            </tr>
-                        </template>
 
-                        <template v-else-if="column === 'slug'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Slug</b>
-                                </td>
-                                <td colspan="2" >
-                                    <div style=" width:350px; overflow-wrap: break-word; word-wrap:break-word;">
-                                        {{store.item.slug}}</div>
-                                </td>
-                            </tr>
+                        <template v-else-if="column === 'uuid'">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       :can_copy="true"
+                            />
+
                         </template>
 
                         <template v-else-if="column === 'status_notes'">
@@ -195,7 +177,7 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
+                            <VhViewRow label="Is Active"
                                        :value="value"
                                        type="yes-no"
                             />

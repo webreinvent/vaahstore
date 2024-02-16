@@ -854,7 +854,7 @@ class ProductVariation extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $response['success'] = true;

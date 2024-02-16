@@ -19,11 +19,11 @@ const store = useProductStockStore();
                 </template>
                 <VhField label="Status">
                     <MultiSelect
-                        v-model="store.query.filter.product_stock_status"
+                        v-model="store.query.filter.status"
                         :options="store.assets.taxonomy.status"
                         filter
-                        optionValue="name"
-                        optionLabel="name"
+                        optionValue="slug"
+                        optionLabel="slug"
                         placeholder="Select Status"
                         display="chip"
                         class="w-full" />
@@ -31,6 +31,174 @@ const store = useProductStockStore();
 
 
             </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Vendor:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-vendor-filter"
+                              data-testid="product-stocks-vendor-filter"
+                              v-model="store.selected_vendors"
+                              @change = "store.addSelectedVendor()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.vendors_suggestion"
+                              @complete="store.searchVendors($event)"
+                              placeholder = "select vendor"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-product-filter"
+                              data-testid="product-stocks-product-filter"
+                              v-model="store.selected_products"
+                              @change = "store.addSelectedProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.products_suggestion"
+                              @complete="store.searchProduct($event)"
+                              placeholder = "select product"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Variation:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-variation-filter"
+                              data-testid="product-stocks-variation-filter"
+                              v-model="store.selected_variations"
+                              @change = "store.addSelectedVariation()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.product_variations_suggestion"
+                              @complete="store.searchVariations($event)"
+                              placeholder = "select product variation"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"
+                />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Warehouse:</b>
+                </template>
+
+                <AutoComplete name="product-stocks-warehouse-filter"
+                              data-testid="product-stocks-warehouse-filter"
+                              v-model="store.selected_warehouses"
+                              @change = "store.addSelectedWarehouse()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.warehouses_suggestion"
+                              @complete="store.searchWarehouses($event)"
+                              placeholder="select warehouse"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          class="w-full"
+                          placeholder="Choose Date Range"/>
+
+            </VhFieldVertical >
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Quantity Count Range:</b>
+                </template>
+
+                <div class="card flex justify-content-center">
+                    <div class="w-14rem">
+                        <div class="flex justify-content-between">
+                            <div><b>{{ store.min_quantity | bold }}</b></div>
+                            <div><b>{{ store.max_quantity | bold }}</b></div>
+                        </div>
+                        <Slider v-model="store.quantity"
+                                range
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
+                    </div>
+                </div>
+
+            </VhFieldVertical>
+
 
             <VhFieldVertical >
                 <template #label>
