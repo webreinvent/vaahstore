@@ -870,27 +870,27 @@ export const useVendorStore = defineStore({
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrash(this.listAction);
+            vaah().confirmDialogTrashAll(this.listAction);
         },
 
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestore(this.listAction);
+            vaah().confirmDialogRestoreAll(this.listAction);
         },
         //---------------------------------------------------------------------
 
         confirmActivateAll()
         {
             this.action.type = 'activate-all';
-            vaah().confirmDialogActivate(this.listAction);
+            vaah().confirmDialogActivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
 
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivate(this.listAction);
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
 
         //---------------------------------------------------------------------
