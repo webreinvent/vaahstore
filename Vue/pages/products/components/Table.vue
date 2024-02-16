@@ -93,7 +93,7 @@ const useVaah = vaah()
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Variations'"
-                                 :disabled="prop.data.id===store.item?.id"
+                                 :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
                      </div>
 
@@ -119,8 +119,9 @@ const useVaah = vaah()
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Vendors'"
-                                 :disabled="prop.data.id===store.item?.id"
+                                 :disabled="prop.data.id===store.item?.id  && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
+
                      </div>
                  </template>
 
