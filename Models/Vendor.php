@@ -709,18 +709,15 @@ class Vendor extends VaahModel
 
         switch ($inputs['type']) {
             case 'deactivate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
-                $items->update(['is_active' => null, 'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
+                $items->update(['is_active' => null]);
                 break;
             case 'activate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
-                $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
+                $items->update(['is_active' => 1]);
                 break;
             case 'trash':
                 self::whereIn('id', $items_id)->delete();
-                $items->update(['deleted_by' => auth()->user()->id]);
+                $user_id = auth()->user()->id;
+                $items->update(['deleted_by' => $user_id]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
@@ -811,17 +808,13 @@ class Vendor extends VaahModel
 
         switch ($type) {
             case 'deactivate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $rejected_id = $taxonomy_status->where('name', 'Rejected')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => null,'is_default' => 0, 'taxonomy_id_vendor_status' => $rejected_id['0']]);
+                    $items->update(['is_active' => null]);
                 }
                 break;
             case 'activate':
-                $taxonomy_status = Taxonomy::getTaxonomyByType('vendor-status');
-                $approved_id = $taxonomy_status->where('name', 'Approved')->pluck('id');
                 if($items->count() > 0) {
-                    $items->update(['is_active' => 1, 'taxonomy_id_vendor_status' => $approved_id['0']]);
+                    $items->update(['is_active' => 1]);
                 }
                 break;
             case 'trash':
