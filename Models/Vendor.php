@@ -475,7 +475,8 @@ class Vendor extends VaahModel
             'phone_number.min' => 'The Phone Number field should  be  :min characters',
             'country_code.regex' => 'The Country Code is required if the Phone Number is provided should contain only numbers',
             'country_code.max' => 'The Country Code field should not be more than :max characters',
-            'business_document_detail.max'=>'The Business Document  field should not be more than :max characters',
+            'business_document_detail.max'=>'The Business Document Details  field should not be more than :max characters',
+            'business_document_type.max' =>'The Business Document Type field should not be more than :max characters',
         ]);
 
         if($validated_data->fails()){
