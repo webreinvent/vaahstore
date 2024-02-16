@@ -81,13 +81,16 @@ const toggleSelectedMenuState = (event) => {
                     <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
+<!--                {{store.item.vendor_users}}-->
+
                 <!--                dropdown to select Product -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
-                    <div class="col-10">
+                    <div class="col-6">
+                        <VhField label="Select User">
                         <AutoComplete v-model="store.selected_user"
                                       value="id"
-                                      data-testid="vendors-taxonomy_id_vendor_status"
-                                      name="-products"
+                                      data-testid="vendors-users"
+                                      name="user"
                                       class="w-full"
                                       placeholder="Search User"
                                       :suggestions="store.user_data"
@@ -114,11 +117,27 @@ const toggleSelectedMenuState = (event) => {
                             </template>
                         </AutoComplete>
 
+                        </VhField>
+
 
 
                     </div>
 
-                    <div class="p-1">
+                    <div class="col-5">
+
+                        <VhField label="Select Role">
+
+                            <Dropdown v-model="store.selected_vendor_role"
+                                      :options="store.vendor_roles"
+                                      data-testid="vendors-role"
+                                      optionLabel="name"
+                                      placeholder="Select Role"
+                                      class="w-full" />
+                        </VhField>
+
+                    </div>
+
+                    <div class="col-3">
                         <Button type="button"
                                 label="Add"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
@@ -128,8 +147,10 @@ const toggleSelectedMenuState = (event) => {
                 </div>
 
                 <!--                Bulk action -->
+
+
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.user_details  && store.user_details.length > 0">
+                     v-if="store.item.users  && store.item.users.length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -153,7 +174,7 @@ const toggleSelectedMenuState = (event) => {
 
                 <!--                added vendor's roles list-->
                 <div class="col-12"
-                     v-if="store.user_details && store.user_details.length > 0">
+                     v-if="store.item.users && store.item.users.length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
@@ -167,13 +188,15 @@ const toggleSelectedMenuState = (event) => {
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
+
+
                         <tbody id="scroll-horizontal" class="pt-1">
-                        <tr v-for="(item, index) in store.user_details">
+                        <tr v-for="(item, index) in store.item.users" :key="item.id">
                             <th class="col-1">
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
                             <td>
-                                <InputText v-model="item['user']['name']" style="height:35px;" class="w-full" disabled="" />
+                                <InputText v-model="item['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
                                 <Dropdown v-model="item['roles']"
