@@ -1350,6 +1350,8 @@ class Vendor extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------------------------------------
+
     public static function VendorRole()
     {
         $allowed_slugs = ['vendor-staff', 'vendor-admin', 'vendor-manager'];
@@ -1366,6 +1368,8 @@ class Vendor extends VaahModel
         }
     }
 
+    //----------------------------------------------------------------------------------------
+
 
     public static function searchUser($request)
     {
@@ -1381,6 +1385,8 @@ class Vendor extends VaahModel
         $response['data'] = $search_user;
         return $response;
     }
+
+    //-----------------------------------------------------------------------------
 
     public static function createVendorUser($request)
     {
@@ -1406,6 +1412,34 @@ class Vendor extends VaahModel
 
 
     }
+
+    //------------------------------------------------------------------
+
+
+    public static function setProductInFilter($request)
+    {
+        if(isset($request['filter']['product']) && !empty($request['filter']['product'])) {
+            $query = $request['filter']['product'];
+
+            // Retrieve vendors associated with the specified product
+            $vendors = Vendor::whereHas('vendorProducts', function ($query) use ($request) {
+                $query->whereIn('vh_st_product_id', function ($subQuery) use ($request) {
+                    $subQuery->select('id')
+                        ->from('vh_st_products')
+                        ->whereIn('name', $request['filter']['product']);
+                });
+            })->select('id', 'name', 'slug')->get();
+
+            $response['success'] = true;
+            $response['data'] = $vendors;
+        } else {
+            $response['success'] = false;
+            $response['message'] = 'No filter or products provided';
+            $response['data'] = [];
+        }
+        return $response;
+    }
+
 
 
 

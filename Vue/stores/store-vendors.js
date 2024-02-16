@@ -21,6 +21,7 @@ let empty_states = {
             sort: null,
             store:null,
             vendor_status:null,
+            product:null,
         },
     },
     action: {
@@ -94,6 +95,7 @@ export const useVendorStore = defineStore({
         select_all_user:false,
         vendor_roles:null,
         selected_user:null,
+        sel_product:null
     }),
     getters: {
 
@@ -956,6 +958,7 @@ export const useVendorStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
+            this.sel_product = null;
             this.selected_dates=[];
 
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
@@ -1607,6 +1610,52 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         async bulkRemoveUser() {
 
+        },
+
+        addSelectedProduct () {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.sel_product) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const products_slug = unique_products.map(product => product.slug);
+            this.sel_product = unique_products;
+            this.query.filter.products = products_slug;
+        },
+
+        async setProductInFilter()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/route-query-products',
+                this.setProductInFilterAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setProductInFilterAfter(data, res) {
+
+            if (data) {
+                this.sel_product = data;
+            }
         },
 
 
