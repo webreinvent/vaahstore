@@ -95,7 +95,8 @@ export const useVendorStore = defineStore({
         select_all_user:false,
         vendor_roles:null,
         selected_user:null,
-        sel_product:null
+        sel_product:null,
+        selected_vendor_role:null
     }),
     getters: {
 
@@ -1493,15 +1494,17 @@ export const useVendorStore = defineStore({
 
         async saveUser()
         {
+
+            if (!this.user_details || this.user_details.length === 0) {
+                this.showUserErrorMessage(['Please select at least one user and role.'], 4000);
+                return;
+            }
             let ajax_url = this.ajax_url;
-            const user = this.user_details[0]['user'];
-            const roles = this.user_details[0]['roles'];
             let options = {
                 method: 'post',
                 params: {
                     item: this.item,
-                    user_details: user,
-                    role_details: roles
+                    user_details: this.user_details,
                 }
             };
             ajax_url += '/add/user';
@@ -1520,6 +1523,7 @@ export const useVendorStore = defineStore({
             {
                 await this.getList();
                 this.toList();
+                this.reloadPage();
 
             }
         },
@@ -1559,29 +1563,45 @@ export const useVendorStore = defineStore({
         //--------------------------------------------------------------------------
 
         addUser() {
-            if (!this.user_details) {
-                this.user_details = [];
+            if (!this.item.users) {
+                this.item.users = [];
             }
 
-            if (this.selected_user) {
-                const exists = this.user_details.some(item => item.user.id === this.selected_user.id);
+            if (this.selected_user && this.selected_vendor_role) {
+                const exists = this.user_details.some(item =>
+                    item.user.id === this.selected_user.id &&
+                    item.roles.id === this.selected_vendor_role.id
+                );
 
                 if (!exists) {
-                    this.user_details.push({
-                        user: {
-                            id: this.selected_user.id,
-                            name: this.selected_user.name
-                        },
-                        // Add other properties as needed
-                    });
+                    // Find the selected user in this.item.users
+                    const selectedUser = this.item.users.find(user => user.id === this.selected_user.id);
+
+                    // If the user is found, extract id and name
+                    if (selectedUser) {
+                        const { id, name } = selectedUser;
+                        this.user_details.push({
+                            user: {
+                                id: id,
+                                name: name
+                            },
+                            roles: this.selected_vendor_role,
+                        });
+                    } else {
+                        this.showUserErrorMessage(['Selected user not found.'], 4000);
+                    }
+
                     this.selected_user = null;
+                    this.selected_vendor_role = null;
                 } else {
-                    this.showUserErrorMessage(['This User is already present'], 4000);
+                    this.showUserErrorMessage(['This Record already present in the list.'], 4000);
                 }
             } else {
-                this.showUserErrorMessage(['No user selected.'], 4000);
+                this.showUserErrorMessage(['No user or role selected.'], 4000);
             }
         },
+
+
 
 
         //---------------------------------------------------------------------
