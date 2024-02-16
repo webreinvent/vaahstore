@@ -46,9 +46,7 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
-
     await store.getListCreateMenu();
-
 });
 
 //--------form_menu

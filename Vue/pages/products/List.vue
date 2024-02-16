@@ -48,6 +48,9 @@ onMounted(async () => {
     await store.getList();
 
     await store.getListCreateMenu();
+    await store.watchQuantity();
+
+
 
 });
 
@@ -87,6 +90,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="products-list-create"
                             class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
@@ -94,7 +98,7 @@ const toggleCreateMenu = (event) => {
 
                     <Button data-testid="products-list-reload"
                             class="p-button-sm"
-                            @click="store.getList()">
+                            @click="store.reloadPage()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
@@ -105,6 +109,7 @@ const toggleCreateMenu = (event) => {
                         type="button"
                         @click="toggleCreateMenu"
                         class="p-button-sm"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="products-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>

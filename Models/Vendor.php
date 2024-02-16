@@ -15,6 +15,7 @@ use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Product;
 
 class Vendor extends VaahModel
 {
@@ -168,7 +169,7 @@ class Vendor extends VaahModel
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_status', 'id');
     }
 
     //-------------------------------------------------
@@ -176,9 +177,9 @@ class Vendor extends VaahModel
     {
         return $this->hasMany(ProductVendor::class,'vh_st_vendor_id','id')
             ->where('vh_st_product_vendors.is_active', 1)
-            ->select();
+            ->select()
+            ->with('product');
     }
-
     //-------------------------------------------------
     public static function validatedProduct($data){
         if (isset($data) && !empty($data)){
@@ -493,7 +494,7 @@ class Vendor extends VaahModel
         $list->searchFilter($request->filter);
         $list->searchStore($request->filter);
         $list->vendorStatus($request->filter);
-
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -1031,6 +1032,63 @@ class Vendor extends VaahModel
         return $response;
     }
     //-------------------------------------------------
+
+    public static function searchProduct($request)
+    {
+        $query=$request->input('query');
+        if($query === null)
+        {
+            $products = Product::where('is_active',1)->select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+        else{
+
+            $products = Product::where('is_active',1)
+                ->where('name', 'like', "%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+        $response['success'] = true;
+        $response['data'] = $products;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class,'vh_st_product_id','id')
+            ->select('id','name','slug');
+    }
+
+    //-------------------------------------------------
+
+    public function scopeProductFilter($query, $filter)
+    {
+
+        if(!isset($filter['products'])
+            || is_null($filter['products'])
+            || $filter['products'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $products = $filter['products'];
+
+        $query->whereHas('vendorProducts.product', function ($query) use ($products) {
+            $query->whereIn('slug', $products);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
+
 
 
 }

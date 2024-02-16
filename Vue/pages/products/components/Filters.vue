@@ -15,69 +15,202 @@ const store = useProductStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status:</b>
+                </template>
+                <VhField label="Product Status">
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.assets.taxonomy.product_status"
+                        filter
+                        optionValue="slug"
+                        optionLabel="name"
+                        placeholder="Select Status"
+                        display="chip"
+                        class="w-full" />
+                </VhField>
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Variation:</b>
+                </template>
+
+                <AutoComplete name="products-variation-filter"
+                              data-testid="products-variation-filter"
+                              v-model="store.selected_product_variations"
+                              @change = "store.addProductVariation()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_product_variations"
+                              @complete="store.searchProductVariation"
+                              placeholder="Select Product Variation"
+                              class="w-full "
+                              :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Vendor:</b>
+                </template>
+
+                <AutoComplete name="products-vendor-filter"
+                              data-testid="products-vendor-filter"
+                              v-model="store.selected_vendors"
+                              @change = "store.addProductVendor()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_vendors"
+                              @complete="store.searchVendor($event)"
+                              placeholder="Select Vendor"
+                              class="w-full "
+                              :pt="{ token:
+                               {class: 'max-w-full'},
+                               removeTokenIcon: {class: 'min-w-max'},
+                               item: { style: {
+                                      textWrap: 'wrap'
+                                      }  },
+                               panel: { class: 'w-16rem ' }
+                                                }"/>
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Brand:</b>
+                </template>
+
+                <AutoComplete name="products-brand-filter"
+                              data-testid="products-brand-filter"
+                              v-model="store.filter_selected_brands"
+                              @change = "store.addFilterBrand()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_brands"
+                              @complete="store.searchBrand"
+                              placeholder="Select Brand"
+                              class="w-full "
+                              :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"/>
+
+            </VhFieldVertical>
+
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product Type:</b>
+                </template>
+
+                <AutoComplete name="products-type-filter"
+                              data-testid="products-type-filter"
+                              v-model="store.filter_selected_product_type"
+                              @change = "store.addFilterProductType()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.type_suggestion"
+                              @complete="store.searchTaxonomyProduct($event)"
+                              placeholder="Select Product Type"
+                              class="w-full " />
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Store:</b>
                 </template>
 
-                <AutoComplete name="products-store-filter"
-                              data-testid="products-store-filter"
-                              v-model="store.query.filter.store"
-                              @change="store.setFilterStore($event)"
-                              option-label = "name"
-                              :complete-on-focus = "true"
-                              :suggestions="store.filtered_stores"
-                              @complete="store.searchStore"
-                              :dropdown="true"
-                              optionLabel="name"
-                              />
+                <VhField label="Store*">
 
-            </VhFieldVertical>
+                    <AutoComplete
+                        name="products-filter-store"
+                        data-testid="products-filter-store"
+                        v-model="store.filter_selected_store"
+                        @change="store.setFilterStore($event)"
+                        option-label = "name"
+                        multiple
+                        :complete-on-focus = "true"
+                        class="w-full"
+                        :suggestions="store.filtered_stores"
+                        @complete="store.searchStore"
+                        placeholder="Select Store"
+                        :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }"
+                    />
 
-            <VhFieldVertical >
-                <template #label>
-                    <b>Status:</b>
-                </template>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="stores-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-approved"
-                                 data-testid="stores-filters-status-approved"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-rejected"
-                                 data-testid="stores-filters-status-rejected"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
-
-            </VhFieldVertical>
-            <VhFieldVertical >
-                <template #label>
-                    <b>Quantity:</b>
-                </template>
-
-                <VhField label="Quantity">
-                    <InputNumber
-                        placeholder="Enter a Quantity"
-                        inputId="minmax-buttons"
-                        name="products-quantity"
-                        v-model="store.query.filter.quantity"
-                        @input = "store.updateQuantityFilter($event)"
-                        showButtons
-                        :min="0"
-                        data-testid="products-quantity"/>
                 </VhField>
 
             </VhFieldVertical>
+            <br/>
+            <VhFieldVertical >
+                <template #label>
+                    <b>Quantity Count Range:</b>
+                </template>
+
+                <div class="card flex justify-content-center">
+                    <div class="w-14rem">
+                        <div class="flex justify-content-between">
+                            <badge>{{ store.min_quantity | bold }}</badge>
+                            <badge>{{ store.max_quantity | bold }}</badge>
+
+                        </div>
+
+                        <Slider v-model="store.quantity"
+                                range
+                                :min="store.assets.min_quantity"
+                                :max="store.assets.max_quantity"
+                                data-testid="product-variation-sliders"
+                                @change="store.quantityFilter()"
+                                class="w-14rem mt-2"
+                        />
+                    </div>
+                </div>
+
+            </VhFieldVertical>
+
+
+            <br/>
+
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>
@@ -111,6 +244,22 @@ const store = useProductStore();
             </VhFieldVertical>
 
             <Divider/>
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          :manualInput="false"
+                          placeholder="Choose Date Range"
+                          class="w-full "
+
+                />
+
+            </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

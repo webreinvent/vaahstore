@@ -113,4 +113,11 @@ Route::group(
         Route::any('/search/status', 'VendorsController@searchStatus')
             ->name('vh.backend.store.vendors.search.status');
 
+        /**
+         * Search vendor
+         */
+        Route::any('/search/product', 'VendorsController@searchProduct')
+            ->name('vh.backend.store.vendors.search.product');
+
+
     });

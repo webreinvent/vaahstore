@@ -1,19 +1,19 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
-
 const store = useProductStore();
-const useVaah = vaah();
+const useVaah = vaah()
 
 </script>
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-100' : ''"
+                    :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-yellow-100' : ''"
+
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -45,27 +45,27 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="in_stock" header="In Stock"
-                     style="width:60px;"
-                     v-if="store.isViewLarge()">
+             <Column field="store.name" header="Store"
+                     :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.in_stock == 0"
-                            value="No"
+                     <Badge v-if="prop.data.store.deleted_at"
+                            value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.in_stock == 1"
-                            value="yes"
-                            severity="success"></Badge>
+                     <span>
+                        <div style="word-break: break-word;">{{ prop.data.store.name }}</div>
+                         </span>
                  </template>
 
              </Column>
+
 
              <Column field="quantity" header="Quantity"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0"
+                     <Badge v-if="prop.data.quantity == 0 || prop.data.quantity === null"
                             value="0"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.quantity > 0"
@@ -79,46 +79,49 @@ const useVaah = vaah();
 
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
-                             <b v-if="prop.data.variation_count && prop.data.variation_count.length">
-                                 {{prop.data.variation_count.length}}
-                            </b>
-                              <b v-else>0</b>
+                         <span  v-if="prop.data.product_variations && prop.data.product_variations.length"
+                                class="p-inputgroup-addon cursor-pointer"
+                                v-tooltip.top="'View Variations'"
+                                @click="store.toViewVariation(prop.data)">
+
+                             <b>{{prop.data.product_variations.length}}</b>
+
+                         </span>
+                         <span class="p-inputgroup-addon" v-else>
+                             <b>{{prop.data.product_variations.length}}</b>
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Variations'"
+                                 :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
                      </div>
+
                  </template>
              </Column>
 
              <Column field="vendors" header="Vendors"
                      :sortable="false">
-
-<!--                 <template #body="prop">-->
-<!--                     <div class="p-inputgroup flex-1">-->
-<!--                        <span class="p-inputgroup-addon">-->
-<!--                            <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">-->
-<!--                                {{prop.data.product_vendors.length}}</b>-->
-<!--                            <b v-else>0</b>-->
-<!--                        </span>-->
-<!--                         <button @click="store.toVendor(prop.data)"><b>+</b></button>-->
-<!--                     </div>-->
-<!--                 </template>-->
-
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
-                             <b v-if="prop.data.product_vendors && prop.data.product_vendors.length">
-                                 {{prop.data.product_vendors.length}}
-                            </b>
-                              <b v-else>0</b>
+                         <span class="p-inputgroup-addon cursor-pointer"
+                               v-tooltip.top="'View Vendors'"
+                               v-if="prop.data.product_vendors && prop.data.product_vendors.length"
+                               @click="store.toViewVendors(prop.data)">
+                             <b >{{prop.data.product_vendors.length}}</b>
+
+                         </span>
+                         <span class="p-inputgroup-addon"
+                               v-else>
+                             <b >{{prop.data.product_vendors.length}}</b>
+
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  size="small"
                                  v-tooltip.top="'Add Vendors'"
+                                 :disabled="prop.data.id===store.item?.id  && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
+
                      </div>
                  </template>
 
@@ -140,22 +143,13 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        :sortable="true">
-
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
-
             <Column field="is_active" v-if="store.isViewLarge()"
                     style="width:80px;"
                     header="Is Active">
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="products-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -174,21 +168,23 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-view"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-edit"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="products-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at &&
+                                store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -196,7 +192,8 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="products-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at &&
+                                 store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -208,6 +205,12 @@ const useVaah = vaah();
 
             </Column>
 
+             <template #empty="prop">
+
+                 <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+             </template>
+
 
         </DataTable>
         <!--/table-->
@@ -215,7 +218,6 @@ const useVaah = vaah();
         <!--paginator-->
         <Paginator v-model:rows="store.query.rows"
                    :totalRecords="store.list.total"
-                   :first="(store.query.page-1)*store.query.rows"
                    @page="store.paginate($event)"
                    :rowsPerPageOptions="store.rows_per_page"
                    class="bg-white-alpha-0 pt-2">
