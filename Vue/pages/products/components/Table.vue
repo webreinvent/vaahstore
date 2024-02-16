@@ -63,14 +63,8 @@ const useVaah = vaah()
              <Column field="quantity" header="Quantity"
                      v-if="store.isViewLarge()"
                      :sortable="true">
-
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0 || prop.data.quantity === null"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.quantity > 0"
-                            :value="prop.data.quantity"
-                            severity="info"></Badge>
+                     {{prop.data.quantity}}
                  </template>
              </Column>
 
