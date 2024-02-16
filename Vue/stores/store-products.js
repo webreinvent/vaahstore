@@ -468,6 +468,7 @@ export const useProductStore = defineStore({
 
                     };
                     this.item.vendors.push(new_vendor);
+                    this.selected_vendor = null;
                 } else {
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
                 }
@@ -1177,6 +1178,8 @@ export const useProductStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'products.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':

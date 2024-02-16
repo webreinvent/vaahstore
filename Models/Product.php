@@ -261,6 +261,12 @@ class Product extends VaahModel
 
     public static function createVariation($request)
     {
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $input = $request->all();
         $product_id = $input['id'];
         $validation = self::validatedVariation($input['all_variation']);
@@ -386,6 +392,11 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function createVendor($request){
 
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $input = $request->all();
 
         $product_id = $input['id'];
