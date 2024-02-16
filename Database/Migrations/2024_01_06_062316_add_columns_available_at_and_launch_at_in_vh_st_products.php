@@ -14,9 +14,12 @@ class AddColumnsAvailableAtAndLaunchAtInVhStProducts extends Migration
     public function up()
     {
         Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->dateTime('available_at')->nullable()->after('in_stock');
-            $table->dateTime('launch_at')->nullable()->after('available_at');
+            $table->after('in_stock', function ($table) {
+                $table->dateTime('available_at')->nullable();
+                $table->dateTime('launch_at')->nullable();
+            });
         });
+
     }
 
     /**

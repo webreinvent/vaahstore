@@ -14,12 +14,13 @@ class AddSeoColumnsInVhStProducts extends Migration
     public function up()
     {
         Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->string('seo_title')->nullable()->index()->after('meta');
-            $table->text('seo_meta_description')->nullable()->after('seo_title');
-            $table->string('seo_meta_keyword')->nullable()->index()->after('seo_meta_description');
+            $table->after('meta', function ($table) {
+                $table->string('seo_title')->nullable()->index();
+                $table->text('seo_meta_description')->nullable();
+                $table->text('seo_meta_keyword')->nullable()->index();
+            });
         });
     }
-
     /**
     * Reverse the migrations.
     *
@@ -27,9 +28,8 @@ class AddSeoColumnsInVhStProducts extends Migration
     */
     public function down()
     {
-        Schema::table('vh_st_products', function (Blueprint $table) {
-            $table->dropColumn('available_at');
-            $table->dropColumn('launch_at');
+        Schema::table('vh_st_products', function($table) {
+            $table->dropColumn(['seo_title','seo_meta_description','seo_meta_keyword']);
         });
     }
 }
