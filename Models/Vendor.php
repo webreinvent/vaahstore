@@ -1404,7 +1404,8 @@ class Vendor extends VaahModel
         $item = self::find($request->item['id']);
 
         if (!$item) {
-            return ['success' => false, 'error' => 'Item not found'];
+
+            return;
         }
 
         $data = [];
@@ -1413,19 +1414,17 @@ class Vendor extends VaahModel
             $user_id = $user_detail['pivot']['vh_user_id'];
             $role_id = $user_detail['pivot']['vh_role_id'];
 
-            $data[$user_id] = ['vh_role_id' => $role_id];
-        }
 
-        try {
-            // Sync the users and roles data with the vendor without detaching existing records
-            $item->users()->syncWithoutDetaching($data);
-
-            return ['success' => true, 'data' => $item];
-        } catch (\Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            $data[] = [
+                'vh_user_id' => $user_id,
+                'vh_role_id' => $role_id,
+            ];
         }
+        $item->users()->attach($data);
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
     }
-
 
     //--------------------------------------------------------------------------------
 
