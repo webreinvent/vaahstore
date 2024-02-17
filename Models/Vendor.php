@@ -120,7 +120,7 @@ class Vendor extends VaahModel
     {
         return $this->belongsToMany(User::class,
             'vh_st_vendor_users','vh_st_vendor_id', 'vh_user_id',
-        )->withPivot('vh_st_vendor_id','vh_user_id','vh_role_id');
+        )->withPivot('vh_st_vendor_id','vh_user_id','vh_role_id','id');
     }
 
     public function roles()
@@ -904,7 +904,10 @@ class Vendor extends VaahModel
 
         $item = self::where('id', $id)
             ->with(['createdByUser','updatedByUser', 'deletedByUser', 'store', 'approvedByUser','ownedByUser',
-                'status','business_type','users'])
+                'status','business_type','users' => function ($query) {
+                    $query->select('vh_users.id','vh_users.first_name')
+                        ->withPivot('is_active');
+                }])
             ->withTrashed()
             ->first();
         if(!$item)
@@ -1401,26 +1404,62 @@ class Vendor extends VaahModel
         $item = self::find($request->item['id']);
 
         if (!$item) {
-            // Handle case where item is not found
-            return;
+            return ['success' => false, 'error' => 'Item not found'];
         }
 
         $data = [];
 
         foreach ($request->user_details as $user_detail) {
-            $user_id = $user_detail['user']['id'];
-            $role_id = $user_detail['roles']['id'];
+            $user_id = $user_detail['pivot']['vh_user_id'];
+            $role_id = $user_detail['pivot']['vh_role_id'];
 
-
-            $data[] = [
-                'vh_user_id' => $user_id,
-                'vh_role_id' => $role_id,
-            ];
+            $data[$user_id] = ['vh_role_id' => $role_id];
         }
 
-        // Insert all rows into the pivot table
-        $item->users()->sync($data);
+        try {
+            // Sync the users and roles data with the vendor without detaching existing records
+            $item->users()->syncWithoutDetaching($data);
+
+            return ['success' => true, 'data' => $item];
+        } catch (\Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
+
+
+    //--------------------------------------------------------------------------------
+
+    public static function removeVendorUser($request)
+    {
+        $item = self::find($request->item['id']);
+
+        if (!$item) {
+            return false;
+        }
+
+        $user_details = $request->user_details;
+        $pivotId = $user_details['pivot']['id'];
+
+
+        $userRecord = $item->users()->wherePivot('id', $pivotId)->first();
+
+        if (!$userRecord) {
+            return false;
+        }
+
+        // Delete the user record
+        $userRecord->pivot->delete();
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
+
+
+
+
+
+
 
 
 
