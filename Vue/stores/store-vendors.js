@@ -1495,16 +1495,12 @@ export const useVendorStore = defineStore({
         async saveUser()
         {
 
-            if (!this.user_details || this.user_details.length === 0) {
-                this.showUserErrorMessage(['Please select at least one user and role.'], 4000);
-                return;
-            }
             let ajax_url = this.ajax_url;
             let options = {
                 method: 'post',
                 params: {
                     item: this.item,
-                    user_details: this.user_details,
+                    user_details: this.item.users,
                 }
             };
             ajax_url += '/add/user';
@@ -1522,17 +1518,58 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 await this.getList();
-                this.toList();
-                this.reloadPage();
 
             }
         },
 
         //-----------------------------------------------------------------------
 
+        //-----------------------------------------------------------------------
+
+        async removeUser(remove_item)
+        {
+
+
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+                params: {
+                    item: this.item,
+                    user_details: remove_item,
+                }
+            };
+            ajax_url += '/remove/user';
+            await vaah().ajax(
+                ajax_url,
+                this.removeUserAfter,
+                options
+            );
+
+            this.item.users = this.item.users.filter(function (item) {
+                return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
+            });
+            this.select_all_user = false;
+        },
+
+        //---------------------------------------------------------------------
+
+        async removeUserAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                /*this.toList();*/
+
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+
         toVendorRole(item)
         {
             this.item = item;
+            this.select_all_user = false;
             this.$router.push({name: 'vendors.role', params:{id:item.id}})
         },
 
@@ -1568,34 +1605,29 @@ export const useVendorStore = defineStore({
             }
 
             if (this.selected_user && this.selected_vendor_role) {
-                const exists = this.user_details.some(item =>
-                    item.user.id === this.selected_user.id &&
-                    item.roles.id === this.selected_vendor_role.id
+                const exists = this.item.users.some(item =>
+                    item.id === this.selected_user.id &&
+                    item.pivot.vh_role_id === this.selected_vendor_role.id
                 );
 
                 if (!exists) {
-                    // Find the selected user in this.item.users
-                    const selectedUser = this.item.users.find(user => user.id === this.selected_user.id);
+                    this.item.users.push({
+                        id: this.selected_user.id,
+                        name: this.selected_user.first_name,
+                        pivot: {
+                            vh_user_id: this.selected_user.id,
+                            vh_role_id: this.selected_vendor_role.id
+                        }
+                    });
 
-                    // If the user is found, extract id and name
-                    if (selectedUser) {
-                        const { id, name } = selectedUser;
-                        this.user_details.push({
-                            user: {
-                                id: id,
-                                name: name
-                            },
-                            roles: this.selected_vendor_role,
-                        });
-                    } else {
-                        this.showUserErrorMessage(['Selected user not found.'], 4000);
-                    }
+                    /*await this.saveUser();*/
 
-                    this.selected_user = null;
-                    this.selected_vendor_role = null;
                 } else {
                     this.showUserErrorMessage(['This Record already present in the list.'], 4000);
                 }
+
+                this.selected_user = null;
+                this.selected_vendor_role = null;
             } else {
                 this.showUserErrorMessage(['No user or role selected.'], 4000);
             }
@@ -1604,26 +1636,28 @@ export const useVendorStore = defineStore({
 
 
 
+
         //---------------------------------------------------------------------
 
         selectAllUser() {
-            this.user_details.forEach((i) => {
+            this.item.users.forEach((i) => {
                 i['is_selected'] = !this.select_all_user;
             })
         },
 
         //--------------------------------------------------------------------------
 
-        async removeUser(remove_item) {
-            this.user_details = this.user_details.filter(function (item) {
-                return item.user.id !== remove_item.user.id;
+        /*async removeUser(remove_item) {
+            this.item.users = this.item.users.filter(function (item) {
+                return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
             });
             this.select_all_user = false;
-        },
+        },*/
 
+        //----------------------------------------------------------------------------
         async removeAllUser()
         {
-            this.user_details = [];
+            this.item.users = [];
             this.select_all_user = false;
         },
 

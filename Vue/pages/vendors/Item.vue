@@ -158,7 +158,7 @@ const permissions=store.assets.permissions;
                                        || column === 'owned_by' || column === 'taxonomy_id_vendor_services'
                                        || column === 'approved_by' || column === 'email' || column === 'registered_at' || column === 'approved_at'
                                        || column === 'address' || column ==='business_document_detail' || column === 'business_document_file'
-                                       || column === 'country_code' || column === 'taxonomy_id_vendor_status'">
+                                       || column === 'country_code' || column === 'taxonomy_id_vendor_status' || column === 'users'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
