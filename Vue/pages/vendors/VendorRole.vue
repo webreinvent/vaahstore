@@ -25,6 +25,12 @@ const toggleSelectedMenuState = (event) => {
 //--------/selected_menu_state
 
 
+const getRoleName = (roleId) => {
+    const role = store.vendor_roles.find(role => role.id === roleId);
+    return role ? role.name : '';
+};
+
+
 </script>
 <template>
 
@@ -96,7 +102,7 @@ const toggleSelectedMenuState = (event) => {
                                       :suggestions="store.user_data"
                                       @complete="store.searchUser($event)"
                                       :dropdown="true"
-                                      optionLabel="name"
+                                      optionLabel="first_name"
                                       :pt="{
                                       token: {
                                         class: 'max-w-full'
@@ -113,7 +119,7 @@ const toggleSelectedMenuState = (event) => {
                                       style="height:35px;">
 
                             <template #option="slotProps">
-                                <div>{{ slotProps.option.name }}</div>
+                                <div>{{ slotProps.option.first_name }}</div>
                             </template>
                         </AutoComplete>
 
@@ -191,7 +197,7 @@ const toggleSelectedMenuState = (event) => {
 
 
                         <tbody id="scroll-horizontal" class="pt-1">
-                        <tr v-for="(item, index) in store.item.users" :key="item.id">
+                        <tr v-for="(item, index) in store.item.users">
                             <th class="col-1">
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
@@ -199,12 +205,14 @@ const toggleSelectedMenuState = (event) => {
                                 <InputText v-model="item['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-                                <Dropdown v-model="item['roles']"
+                                <Dropdown v-model="item.pivot['vh_role_id']"
                                           :options="store.vendor_roles"
+                                          disabled
                                           optionLabel="name"
+                                          optionValue="id"
                                           placeholder="Select a role"
                                           class="w-full"
-                                          style="height:35px;"/>
+                                          style="height:35px;" />
                             </td>
                             <td>
                                 <Button label="Remove"
