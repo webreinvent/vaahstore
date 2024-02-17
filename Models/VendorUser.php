@@ -7,7 +7,7 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 
-class vendorUser extends VaahModel
+class VendorUser extends VaahModel
 {
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
@@ -21,6 +21,7 @@ class vendorUser extends VaahModel
     ];
 
     protected $fillable = [
+        'is_active',
         'vh_st_vendor_id',
         'vh_user_id',
         'vh_role_id',
