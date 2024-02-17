@@ -25,11 +25,19 @@ const toggleSelectedMenuState = (event) => {
 //--------/selected_menu_state
 
 
+
+
+const vendorRoles = ref(store.vendor_roles);
+
 const getRoleName = (roleId) => {
-    const role = store.vendor_roles.find(role => role.id === roleId);
+    const role = vendorRoles.value.find(role => role.id === roleId);
     return role ? role.name : '';
 };
 
+const getDisplayName = (item) => {
+    const role_name = item.pivot['vh_role_id'] ? getRoleName(item.pivot['vh_role_id']) : '';
+    return `${role_name}`;
+};
 
 </script>
 <template>
@@ -205,14 +213,17 @@ const getRoleName = (roleId) => {
                                 <InputText v-model="item['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-                                <Dropdown v-model="item.pivot['vh_role_id']"
+<!--                                <Dropdown v-model="item.pivot['vh_role_id']"
                                           :options="store.vendor_roles"
                                           disabled
                                           optionLabel="name"
                                           optionValue="id"
                                           placeholder="Select a role"
                                           class="w-full"
-                                          style="height:35px;" />
+                                          style="height:35px;" />-->
+
+
+                                <InputText :value="getDisplayName(item)" style="height:35px;" class="w-full" disabled />
                             </td>
                             <td>
                                 <Button label="Remove"
