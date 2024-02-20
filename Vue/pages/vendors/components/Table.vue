@@ -51,8 +51,12 @@ const permissions=store.assets.permissions;
             <Column field="store.name" header="Store"
                     :sortable="true">
 
-                <template #body="prop">
-                    <div style="word-break: break-word;" v-if="prop.data.store &&prop.data.store.name">
+
+                <template #body="prop" >
+                    <Badge v-if="prop.data.store && prop.data.store.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <div style="word-break: break-word;" v-if="prop.data.store && prop.data.store.name">
                         {{ prop.data.store.name }}
                     </div>
                 </template>

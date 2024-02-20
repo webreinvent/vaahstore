@@ -181,7 +181,8 @@ class Vendor extends VaahModel
     public function store(){
 
         return $this->belongsTo(Store::class, 'vh_st_store_id','id')
-            ->select(['id','name', 'is_default','slug','is_multi_vendor']);
+            ->withTrashed()
+            ->select(['id','name', 'is_default','slug','is_multi_vendor','deleted_at']);
     }
 
     //-------------------------------------------------
@@ -419,7 +420,6 @@ class Vendor extends VaahModel
             'vh_st_store_id' => 'required',
             'years_in_business' => 'nullable|integer|min:1|max:100',
             'services_offered' => 'max:250',
-            'taxonomy_id_vendor_business_type' => 'required',
             'approved_by' => 'required',
             'owned_by' => 'required',
             'taxonomy_id_vendor_status' => 'required',
@@ -461,10 +461,9 @@ class Vendor extends VaahModel
             'email.max' => 'The Email field cannot be more than :max characters',
             'address.required' => 'The Address field cannot be more than :max characters',
             'years_in_business.min' => 'The Years in business must be greater than 0',
-            'years_in_business.max' => 'The Years in Business not greater than 100 ',
+            'years_in_business.max' => 'The Years in Business field Should not be greater than 100 ',
             'services_offered.required' => 'The Services offered field is required',
             'services_offered.max' => 'The Services offered field cannot be more than :max characters',
-            'taxonomy_id_vendor_business_type.required' => 'The Business Type field is required',
             'approved_by.required' => 'The Approved by field is required',
             'owned_by.required' => 'The Owned by field is required',
             'vh_st_store_id.required' => 'The Store field is required',
@@ -790,6 +789,7 @@ class Vendor extends VaahModel
         {
             self::deleteRelatedItem($item_id, ProductVendor::class);
             self::deleteRelatedItem($item_id, Warehouse::class);
+            self::deleteRelatedItem($item_id, ProductStock::class);
 
         }
         self::whereIn('id', $items_id)->forceDelete();
@@ -859,6 +859,8 @@ class Vendor extends VaahModel
                     {
                         self::deleteRelatedItem($item_id, ProductVendor::class);
                         self::deleteRelatedItem($item_id, Warehouse::class);
+                        self::deleteRelatedItem($item_id, ProductStock::class);
+
 
                     }
                     self::whereIn('id', $items_id)->forceDelete();
@@ -881,12 +883,13 @@ class Vendor extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
+                $items_id = self::withTrashed()->get()->pluck('id')->toArray();
 
                 foreach ($items_id as $item_id)
                 {
                     self::deleteRelatedItem($item_id, ProductVendor::class);
                     self::deleteRelatedItem($item_id, Warehouse::class);
+                    self::deleteRelatedItem($item_id, ProductStock::class);
 
                 }
                 self::withTrashed()->forceDelete();
@@ -1074,6 +1077,7 @@ class Vendor extends VaahModel
         }
             self::deleteRelatedItem($item->id, ProductVendor::class);
             self::deleteRelatedItem($item->id, Warehouse::class);
+            self::deleteRelatedItem($item->id, ProductStock::class);
         $item->forceDelete();
 
         $response['success'] = true;
@@ -1224,20 +1228,6 @@ class Vendor extends VaahModel
         $inputs['is_active'] = 1;
         $inputs['business_document_file'] = null;
 
-        // set business type field
-        $taxonomy_business_type = Taxonomy::getTaxonomyByType('business-type');
-        $count = count($taxonomy_business_type);
-        if ($count <= 0) {
-            $response['success'] = false;
-            $response['errors'][] = 'No business types found. Please create or activate existing ones.';
-            return $response;
-        }
-
-        $business_type_id = $taxonomy_business_type->pluck('id')->random();
-        $business_type = $taxonomy_business_type->where('id', $business_type_id)->first();
-        $inputs['taxonomy_id_vendor_business_type'] = $business_type_id;
-        $inputs['business_type'] = $business_type;
-
         // set contact info field
 
         $inputs['services_offered'] =  $faker->text($number_of_characters);
@@ -1370,7 +1360,7 @@ class Vendor extends VaahModel
         $response = [];
 
         if ($item_id) {
-            $item_exist = $related_model::where('vh_st_vendor_id', $item_id)->first();
+            $item_exist = $related_model::where('vh_st_vendor_id', $item_id)->withTrashed()->first();
             if ($item_exist) {
                 $related_model::where('vh_st_vendor_id', $item_id)->forceDelete();
                 $response['success'] = true;
