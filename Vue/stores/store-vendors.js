@@ -1529,28 +1529,10 @@ export const useVendorStore = defineStore({
 
         async removeUser(remove_item)
         {
-
-
-            let ajax_url = this.ajax_url;
-            let options = {
-                method: 'post',
-                params: {
-                    item: this.item,
-                    user_details: remove_item,
-                }
-            };
-            ajax_url += '/remove/user';
-            await vaah().ajax(
-                ajax_url,
-                this.removeUserAfter,
-                options
-            );
-
             this.item.users = this.item.users.filter(function (item) {
                 return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
             });
             this.select_all_user = false;
-            this.getItem(this.item.id);
         },
 
         //---------------------------------------------------------------------
@@ -1560,8 +1542,6 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 await this.getList();
-                /*this.toList();*/
-
             }
         },
 
@@ -1622,8 +1602,6 @@ export const useVendorStore = defineStore({
                         }
                     });
 
-                    /*await this.saveUser();*/
-
                 } else {
                     this.showUserErrorMessage(['This Record already present in the list.'], 4000);
                 }
@@ -1642,19 +1620,16 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         selectAllUser() {
+            // Toggle select_all_user
+            this.select_all_user = !this.select_all_user;
+
+            // Update is_selected property for each item
             this.item.users.forEach((i) => {
-                i['is_selected'] = !this.select_all_user;
-            })
+                i['is_selected'] = this.select_all_user;
+            });
+
         },
 
-        //--------------------------------------------------------------------------
-
-        /*async removeUser(remove_item) {
-            this.item.users = this.item.users.filter(function (item) {
-                return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
-            });
-            this.select_all_user = false;
-        },*/
 
         //----------------------------------------------------------------------------
         async removeAllUser()
@@ -1666,7 +1641,11 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         async bulkRemoveUser() {
 
+            const selectedItems = this.item.users.filter(item => item.is_selected);
+
+            this.item.users = this.item.users.filter(item => !item.is_selected);
         },
+
 
         addSelectedProduct () {
 
