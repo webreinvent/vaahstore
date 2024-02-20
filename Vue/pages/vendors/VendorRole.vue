@@ -27,7 +27,7 @@ const toggleSelectedMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-6" >
 
         <Panel >
 
@@ -81,9 +81,9 @@ const toggleSelectedMenuState = (event) => {
                 </div>
 
                 <!--                dropdown to select Users -->
-                <div class="flex flex-wrap gap-3 pb-2 p-1">
-                    <div class="col-6">
-                        <VhField label="Select User">
+                <div class="flex flex-wrap align-items-center">
+                    <div class="col-12">
+                        <VhField label="Select User" class="mb-0">
                         <AutoComplete v-model="store.selected_user"
                                       value="id"
                                       data-testid="vendors-users"
@@ -120,9 +120,9 @@ const toggleSelectedMenuState = (event) => {
 
                     </div>
 
-                    <div class="col-5">
+                    <div class="col-12">
 
-                        <VhField label="Select Role">
+                        <VhField label="Select Role" class="mb-0">
 
                             <Dropdown v-model="store.selected_vendor_role"
                                       :options="store.vendor_roles"
@@ -134,8 +134,9 @@ const toggleSelectedMenuState = (event) => {
 
                     </div>
 
-                    <div class="col-3">
+                    <div class="col-12 text-center">
                         <Button type="button"
+                                class="w-full"
                                 label="Add"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                 style="height:35px;margin-top:5px;"
