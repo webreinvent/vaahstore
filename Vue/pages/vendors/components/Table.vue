@@ -106,8 +106,8 @@ const permissions=store.assets.permissions;
                         <button @click="store.toVendorRole(prop.data)"
                                 data-testid="vendors-table-vendor-role"
                                 style="border-width : 0; background: #4f46e5;cursor: pointer;"
-                                :disabled="$route.path.includes('vendor') && prop.data.id===store.item?.id"
-                                :class="{ 'blurred': $route.path.includes('vendor') && prop.data.id===store.item?.id }"
+                                :disabled="$route.path.includes('role') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('role') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Role'">
                             <i class="pi pi-plus" style="color: white"></i>
                         </button>
