@@ -1531,9 +1531,13 @@ export const useVendorStore = defineStore({
 
         async removeUser(remove_item)
         {
+
+
             this.item.users = this.item.users.filter(function (item) {
                 return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
             });
+
+
             this.select_all_user = false;
         },
 
@@ -1622,10 +1626,9 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         selectAllUser() {
-            // Toggle select_all_user
+
             this.select_all_user = !this.select_all_user;
 
-            // Update is_selected property for each item
             this.item.users.forEach((i) => {
                 i['is_selected'] = this.select_all_user;
             });
@@ -1644,6 +1647,12 @@ export const useVendorStore = defineStore({
         async bulkRemoveUser() {
 
             const selectedItems = this.item.users.filter(item => item.is_selected);
+
+            if(selectedItems < 1)
+            {
+                vaah().toastErrors(['Select records']);
+                return false;
+            }
 
             this.item.users = this.item.users.filter(item => !item.is_selected);
         },
