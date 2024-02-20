@@ -24,21 +24,6 @@ const toggleSelectedMenuState = (event) => {
 };
 //--------/selected_menu_state
 
-
-
-
-const vendorRoles = ref(store.vendor_roles);
-
-const getRoleName = (roleId) => {
-    const role = vendorRoles.value.find(role => role.id === roleId);
-    return role ? role.name : '';
-};
-
-const getDisplayName = (item) => {
-    const role_name = item.pivot['vh_role_id'] ? getRoleName(item.pivot['vh_role_id']) : '';
-    return `${role_name}`;
-};
-
 </script>
 <template>
 
@@ -64,13 +49,13 @@ const getDisplayName = (item) => {
                 <div class="p-inputgroup">
                     <Button label="Save"
                             v-if="store.item && store.item.id"
-                            data-testid="products-save"
+                            data-testid="vendor_role-save"
                             class="p-button-sm"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
                             @click="store.saveUser()"
                             icon="pi pi-save"/>
 
-                    <Button data-testid="products-document" icon="pi pi-info-circle"
+                    <Button data-testid="vendor_role-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
                             class="p-button-sm"
                             v-tooltip.top="'Documentation'"
@@ -78,7 +63,7 @@ const getDisplayName = (item) => {
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
-                            data-testid="products-to-list"
+                            data-testid="vendor_role-to-list"
                             @click="store.toList()">
                     </Button>
                 </div>
@@ -95,9 +80,7 @@ const getDisplayName = (item) => {
                     <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
 
-<!--                {{store.item.vendor_users}}-->
-
-                <!--                dropdown to select Product -->
+                <!--                dropdown to select Users -->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-6">
                         <VhField label="Select User">
@@ -162,7 +145,6 @@ const getDisplayName = (item) => {
 
                 <!--                Bulk action -->
 
-
                 <div class="p-1 pl-2 flex flex-wrap col-12"
                      v-if="store.item.users  && store.item.users.length > 0">
                     <div class="col-10">
@@ -170,7 +152,7 @@ const getDisplayName = (item) => {
                         <Button
                             type="button"
                             @click="toggleSelectedMenuState"
-                            data-testid="products-actions-menu"
+                            data-testid="vendor-roles-actions-menu"
                             aria-haspopup="true"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
                             aria-controls="overlay_menu">
@@ -186,7 +168,6 @@ const getDisplayName = (item) => {
 
                 </div>
 
-                <!--                added vendor's roles list-->
                 <div class="col-12"
                      v-if="store.item.users && store.item.users.length > 0">
                     <table class="table col-12 table-scroll table-striped">
@@ -213,17 +194,14 @@ const getDisplayName = (item) => {
                                 <InputText v-model="item['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
-<!--                                <Dropdown v-model="item.pivot['vh_role_id']"
+                                <Dropdown v-model="item.pivot['vh_role_id']"
                                           :options="store.vendor_roles"
-                                          disabled
+
                                           optionLabel="name"
                                           optionValue="id"
                                           placeholder="Select a role"
                                           class="w-full"
-                                          style="height:35px;" />-->
-
-
-                                <InputText :value="getDisplayName(item)" style="height:35px;" class="w-full" disabled />
+                                          style="height:35px;" />
                             </td>
                             <td>
                                 <Button label="Remove"
