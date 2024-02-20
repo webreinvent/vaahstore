@@ -7,12 +7,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\ProductVendor;
+use VaahCms\Modules\Store\Models\ProductAttribute;
+use VaahCms\Modules\Store\Models\ProductMedia;
+use VaahCms\Modules\Store\Models\ProductPrice;
+use VaahCms\Modules\Store\Models\ProductStock;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-
+use WebReinvent\VaahCms\Models\TaxonomyType;
 
 class Product extends VaahModel
 {
@@ -35,14 +42,23 @@ class Product extends VaahModel
         'id',
         'name',
         'slug',
+        'summary',
+        'details',
+        'quantity',
         'taxonomy_id_product_type',
         'vh_st_store_id',
         'vh_st_brand_id', 'vh_cms_content_form_field_id',
-        'quantity', 'in_stock', 'is_active',
+        'is_active',
         'taxonomy_id_product_status', 'status_notes', 'meta',
+        'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
         'updated_by',
         'deleted_by',
+        'is_featured_on_home_page',
+        'is_featured_on_category_page',
+        'available_at',
+        'launch_at',
+
     ];
 
     //-------------------------------------------------
@@ -125,13 +141,24 @@ class Product extends VaahModel
     public function brand()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')
-                    ->select('id','name','slug','is_default');
+                    ->withTrashed()
+                    ->select('id','name','slug','is_default','deleted_at');
     }
+    //-------------------------------------------------
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')
+            ->select('id','name','slug');
+    }
+
     //-------------------------------------------------
 
     public function store()
     {
-        return $this->belongsTo(Store::class,'vh_st_store_id','id')->select('id','name','slug', 'is_default');
+        return $this->belongsTo(Store::class,'vh_st_store_id','id')
+            ->withTrashed()
+            ->select('id','name','slug', 'is_default','deleted_at');
     }
 
     //-------------------------------------------------
@@ -155,7 +182,7 @@ class Product extends VaahModel
             'vh_st_product_variation_id');
     }
     //-------------------------------------------------
-    public function variationCount()
+    public function productVariations()
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
             ->where('vh_st_product_variations.is_active', 1)
@@ -167,7 +194,8 @@ class Product extends VaahModel
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
             ->where('vh_st_product_vendors.is_active', 1)
-            ->select();
+            ->select()
+            ->with('vendor');
     }
 
     //-------------------------------------------------
@@ -186,8 +214,7 @@ class Product extends VaahModel
         $status = $filter['status'];
 
         $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+            $query->whereIn('slug', $status);
         });
 
     }
@@ -204,23 +231,24 @@ class Product extends VaahModel
 
     public function scopeQuantityFilter($query, $filter)
     {
-        if(!isset($filter['quantity'])
-            || is_null($filter['quantity'])
-            || $filter['quantity'] === 'null'
-        )
-        {
+        if (
+            !isset($filter['quantity']) ||
+            is_null($filter['quantity']) ||
+            $filter['quantity'] === 'null' ||
+            count($filter['quantity']) < 2 ||
+            is_null($filter['quantity'][0]) ||
+            is_null($filter['quantity'][1])
+        ) {
             return $query;
         }
-        else{
-            $quantity = $filter['quantity'];
-            return $query->where(function ($q) use($quantity) {
-                    $q->Where('quantity', '>', $quantity);
 
-            });
-        }
+        $min_quantity = $filter['quantity'][0];
+        $max_quantity = $filter['quantity'][1];
+        return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
 
 
     }
+
     //-------------------------------------------------
 
     public function scopeExclude($query, $columns)
@@ -232,6 +260,12 @@ class Product extends VaahModel
 
     public static function createVariation($request)
     {
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $input = $request->all();
         $product_id = $input['id'];
         $validation = self::validatedVariation($input['all_variation']);
@@ -246,8 +280,8 @@ class Product extends VaahModel
             // check if product  variation exist for product
             $item = ProductVariation::where('name', $value['variation_name'])->where('vh_st_product_id',$product_id) ->withTrashed()->first();
             if ($item) {
-                $response['success'] = false;
-                $response['messages'][] = "This Variation name '{$value['variation_name']}' is already exist.";
+
+                $response['errors'][] = "This Variation name '{$value['variation_name']}' already exists.";
                 return $response;
             }
 
@@ -276,7 +310,7 @@ class Product extends VaahModel
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Variation Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
 
@@ -327,11 +361,6 @@ class Product extends VaahModel
             $error_message = [];
 
             foreach ($data as $key=>$value){
-                if (!isset($value['status']) || empty($value['status'])){
-                    array_push($error_message, 'Status required');
-                }else if($value['status']['slug']=='rejected' && empty($value['status_notes'])){
-                    array_push($error_message, 'The Status notes field is required for "Rejected" Status');
-                }
                 if (!isset($value['vendor']) || empty($value['vendor'])){
                     array_push($error_message, 'Vendor required');
                 }
@@ -362,8 +391,15 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function createVendor($request){
 
+        $permission_slug = 'can-update-module';
+
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
         $input = $request->all();
+
         $product_id = $input['id'];
+        $store_id = $input['vh_st_store_id'];
         $validation = self::validatedVendor($input['vendors']);
         if (!$validation['success']) {
             return $validation;
@@ -376,36 +412,32 @@ class Product extends VaahModel
 
             $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
 
-            if (isset($value['id']) && !empty($value['id'])){
-
-                $item = ProductVendor::where('id',$value['id'])->first();
-                $item->vh_st_product_id = $product_id;
-                $item->vh_st_vendor_id = $value['vendor']['id'];
-                $item->added_by = $active_user->id;
-                $item->can_update = $value['can_update'];
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
-                $item->is_active = 1;
-                $item->save();
-            }else if($product_vendor){
-                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' is already exist.";
+            if($product_vendor){
+                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' already exists.";
                 return $response;
-            }else {
-
-                $item = new ProductVendor();
-                $item->vh_st_product_id = $product_id;
-                $item->vh_st_vendor_id = $value['vendor']['id'];
-                $item->added_by = $active_user->id;
-                $item->can_update = $value['can_update'];
-                $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-                $item->status_notes = $value['status_notes'];
-                $item->is_active = 1;
-                $item->save();
             }
+
+            $item = new ProductVendor();
+            $item->vh_st_product_id = $product_id;
+            $item->vh_st_vendor_id = $value['vendor']['id'];
+
+            $item->added_by = $active_user->id;
+
+            $item->can_update = $value['can_update'];
+
+            $item->taxonomy_id_product_vendor_status = $value['status']['id'];
+            if($value['status_notes'])
+            {
+                $item->status_notes = $value['status_notes'];
+            }
+
+            $item->is_active = 1;
+            $item->save();
+            $item->storeVendorProduct()->attach([$store_id]);
         }
 
         $response = self::getItem($product_id);
-        $response['messages'][] = 'Vendor Added successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -434,7 +466,6 @@ class Product extends VaahModel
     {
 
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -446,51 +477,44 @@ class Product extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
         // check if slug exist
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
+
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
         $item = new self();
+
         $item->fill($inputs);
+
+        $item->quantity = 0;
+        if(isset($item->seo_meta_keyword))
+        {
+            $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
+        }
+
         $item->slug = Str::slug($inputs['slug']);
+
+        $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
+        $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
+
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
 
-    //-------------------------------------------------
-
-    public static function removeVendor($request ,$id){
-
-        ProductVendor::where('id', $id)->update(['is_active'=>0]);
-        $product = ProductVendor::select('vh_st_product_id')->where('id', $id)->first();
-        $response = self::getItem($product->vh_st_product_id);
-        $response['messages'][] = 'Action Successful.';
-        return $response;
-
-    }
-
-    //------------------------------------------------
-
-    public static function bulkRemoveVendor($request ,$id){
-
-        ProductVendor::where('vh_st_product_id', $id)->update(['is_active'=>0]);
-        $response['messages'][] = 'Action Successful';
-        return $response;
-    }
 
     //------------------------------------------------
 
@@ -555,54 +579,44 @@ class Product extends VaahModel
     }
     //-------------------------------------------------
 
-    public function scopeStoreFilter($query, $filter)
-    {
-
-
-        if(!isset($filter['store'])
-            || is_null($filter['store'])
-            || $filter['store'] === 'null'
-        )
-        {
-            return $query;
-        }
-
-        $store = $filter['store'];
-
-        $query->whereHas('store', function ($query) use ($store) {
-            $query->where('slug', $store);
-
-        });
-
-    }
-
-    //-------------------------------------------------
-
     public function scopeSearchFilter($query, $filter)
     {
+
         if(!isset($filter['q']))
         {
             return $query;
         }
-        $search = $filter['q'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('slug', 'LIKE', '%' . $search . '%')
-                ->orWhere('id', 'LIKE', '%' . $search . '%');
-        });
+        $keywords = explode(' ',$filter['q']);
+        foreach($keywords as $search)
+        {
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                })
+
+                    ->orWhere('id', 'LIKE', '%' . $search . '%');
+
+            });
+        }
+
     }
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'variationCount', 'productVendors');
-
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->statusFilter($request->filter);
         $list->quantityFilter($request->filter);
+        $list->productVariationFilter($request->filter);
+        $list->vendorFilter($request->filter);
         $list->storeFilter($request->filter);
-
+        $list->brandFilter($request->filter);
+        $list->dateFilter($request->filter);
+        $list->brandFilter($request->filter);
+        $list->productTypeFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -631,7 +645,7 @@ class Product extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
         );
 
 
@@ -675,7 +689,7 @@ class Product extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -691,8 +705,8 @@ class Product extends VaahModel
         );
 
         $messages = array(
-            'type.required' => 'Action type is required',
-            'items.required' => 'Select items',
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+            'items.required' => trans("vaahcms-general.select_items"),
         );
 
         $validator = \Validator::make($inputs, $rules, $messages);
@@ -705,16 +719,15 @@ class Product extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::whereIn('id', $items_id)->forceDelete();
-        ProductVendor::deleteProducts($items_id);
-        ProductVariation::deleteProducts($items_id);
-        ProductMedia::deleteProducts($items_id);
-        ProductPrice::deleteProducts($items_id);
-        ProductStock::deleteProducts($items_id);
+        foreach ($items_id as $item_id)
+        {
+            self::deleteRelatedRecords($item_id);
+        }
 
+        self::whereIn('id', $items_id)->forceDelete();
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -767,12 +780,11 @@ class Product extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach ($items_id as $item_id) {
+
+                        self::deleteRelatedRecords($item_id);
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
-                    ProductVendor::deleteProducts($items_id);
-                    ProductVariation::deleteProducts($items_id);
-                    ProductMedia::deleteProducts($items_id);
-                    ProductPrice::deleteProducts($items_id);
-                    ProductStock::deleteProducts($items_id);
                 }
                 break;
             case 'activate-all':
@@ -787,17 +799,16 @@ class Product extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
                 $items_id = self::all()->pluck('id')->toArray();
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedRecords($item_id);
+                }
                 self::withTrashed()->forceDelete();
-                ProductVendor::deleteProducts($items_id);
-                ProductVariation::deleteProducts($items_id);
-                ProductMedia::deleteProducts($items_id);
-                ProductPrice::deleteProducts($items_id);
-                ProductStock::deleteProducts($items_id);
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -823,7 +834,7 @@ class Product extends VaahModel
 
         $response['success'] = true;
         $response['data'] = true;
-        $response['messages'][] = 'Action was successful.';
+        $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
     }
@@ -841,7 +852,7 @@ class Product extends VaahModel
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
         $array_item = $item->toArray();
@@ -862,6 +873,9 @@ class Product extends VaahModel
             $item['vendors'] = [];
         }
 
+        $item['launch_at'] = date('Y-m-d', strtotime($item['launch_at']));
+        $item['available_at'] = date('Y-m-d', strtotime($item['available_at']));
+        $item['seo_meta_keyword'] = json_decode($item['seo_meta_keyword']);
         $item['product_variation'] = null;
         $item['all_variation'] = [];
         $response['success'] = true;
@@ -886,8 +900,8 @@ class Product extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -897,19 +911,20 @@ class Product extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
-        $item->in_stock = $inputs['quantity'] > 0 ? 1 : 0 ;
+        $item->launch_at = Carbon::parse($item->launch_at)->addDay()->toDateString();
+        $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
 
         $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
 
     }
@@ -919,18 +934,14 @@ class Product extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record does not exist.';
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        self::deleteRelatedRecords($item->id);
         $item->forceDelete();
-        ProductVendor::deleteProduct($item->id);
-        ProductVariation::deleteProduct($item->id);
-        ProductMedia::deleteProduct($item->id);
-        ProductPrice::deleteProduct($item->id);
-        ProductStock::deleteProduct($item->id);
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been deleted';
+        $response['messages'][] = trans("vaahcms-general.record_has_been_deleted");
 
         return $response;
     }
@@ -1025,26 +1036,34 @@ class Product extends VaahModel
     public static function  validation($inputs)
     {
         $rules = validator($inputs, [
-            'name' => 'required|max:250',
-            'slug' => 'required|max:250',
+            'name' => 'required|max:150',
+            'slug' => 'required|max:150',
+            'summary' => 'max:100',
             'vh_st_store_id'=> 'required',
-            'vh_st_brand_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
-            'quantity'  => 'required|numeric|min:0|digits_between:1,9',
+            'details' => 'max:250',
+            'seo_title' => 'max:100',
+            'seo_meta_description' => 'max:250',
+            'seo_meta_keyword' => 'max:20',
+            'seo_meta_keyword.*' => 'max:50',
             'taxonomy_id_product_status'=> 'required',
-            'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
-            ],
-            'in_stock'=> 'required|numeric',
-
+            'status_notes' => 'max:250',
+            'quantity' => '',
+            'launch_at' => 'required_without_all:quantity,available_at,0',
+            'available_at' => 'required_without_all:quantity,launch_at,0',
         ],
             [    'name.required' => 'The Name field is required',
+                 'name.max' => 'The Name field may not be greater than :max characters',
                 'slug.required' => 'The Slug field is required',
+                'slug.max' => 'The Slug field may not be greater than :max characters',
+                'summary.max' => 'The Summary field may not be greater than :max characters',
+                'details.max' => 'The Details field may not be greater than :max characters',
+                'seo_title.max' => 'The Seo title field may not be greater than :max characters',
+                'seo_meta_description.max' => 'The Seo Description field may not be greater than :max characters',
+                'seo_meta_keyword.max' => 'The Seo Keywords field may not have greater than :max keywords',
+                'seo_meta_keyword.*' => 'The Seo Keyword field may not be greater than :max characters',
                 'taxonomy_id_product_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes is required for "Rejected" Status',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
-                'vh_st_brand_id.required' => 'The Brand field is required',
                 'vh_st_store_id.required' => 'The Store field is required',
                 'taxonomy_id_product_type.required' => 'The Type field is required',
                 'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
@@ -1091,6 +1110,14 @@ class Product extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
+            if(isset($item->seo_meta_keyword))
+            {
+                $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
+            }
+            $item->slug = Str::slug($inputs['slug']);
+
+            $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
+            $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
             $item->save();
 
             $i++;
@@ -1116,8 +1143,43 @@ class Product extends VaahModel
         $faker = Factory::create();
 
        // fill the name field here
-        $max_chars = rand(5,250);
+        $max_chars = rand(5,100);
         $inputs['name']=$faker->text($max_chars);
+
+        // fill the product summary field here
+        $max_summary_chars = rand(5,100);
+        $inputs['summary']=$faker->text($max_summary_chars);
+
+        // fill the product details field here
+        $max_details_chars = rand(5,250);
+        $inputs['details']=$faker->text($max_details_chars);
+
+        // fill the Seo title field here
+        $max_title_chars = rand(5,50);
+        $inputs['seo_title']=$faker->text($max_title_chars);
+
+        // fill the Seo Description field here
+        $max_seo_description_chars = rand(5,250);
+        $inputs['seo_meta_description']=$faker->text($max_seo_description_chars);
+
+        //fill the available at and launch at fields here
+
+        $inputs['available_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
+
+        $inputs['launch_at'] = $faker->dateTimeBetween('now', '+1 year')->format('Y-m-d');
+
+
+        // fill the Seo Keywords field here
+        $max_seo_keywords = rand(2,10);
+        $seo_key_array = [];
+        foreach (range(1, $max_seo_keywords) as $index) {
+            $seo_key_array[] = $faker->word;
+        }
+        $inputs['seo_meta_keyword']=$seo_key_array;
+
+        // fill the Seo title field here
+        $max_title_chars = rand(5,50);
+        $inputs['seo_title']=$faker->text($max_title_chars);
 
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
@@ -1127,13 +1189,13 @@ class Product extends VaahModel
         $inputs['store'] = $store;
         $inputs['vh_st_store_id'] = $store_id ;
 
-        // fill the Brand field here
-        $brands = Brand::where('is_active',1);
-        $brand_ids = $brands->pluck('id')->toArray();
-        $brand_id = $brand_ids[array_rand($brand_ids)];
-        $brand = $brands->where('id',$brand_id)->first();
-        $inputs['brand'] = $brand;
-        $inputs['vh_st_brand_id'] = $brand_id;
+        $default_brand = Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
+        if($default_brand !== null)
+        {
+            $inputs['brand'] = $default_brand;
+            $inputs['vh_st_brand_id'] = $default_brand->id;
+        }
+
 
         // fill the taxonomy status field here
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
@@ -1144,8 +1206,10 @@ class Product extends VaahModel
         $inputs['status']=$status;
 
         $inputs['is_active'] = 1;
-        $inputs['quantity'] = rand(1,10000000);
+        $inputs['is_featured_on_home_page'] = rand(0,1);
+        $inputs['is_featured_on_category_page'] = rand(0,1);
         $inputs['in_stock'] = 1;
+
         // fill the product type field here
         $types = Taxonomy::getTaxonomyByType('product-types');
         $type_ids = $types->pluck('id')->toArray();
@@ -1184,9 +1248,385 @@ class Product extends VaahModel
         }
 
     }
+    //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
 
     //-------------------------------------------------
 
+    public static function searchProductVariation($request)
+    {
+        $query = $request['filter']['q']['query'];
 
+        if($query === null)
+        {
+            $product_variations = ProductVariation::select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+
+        else{
+
+            $product_variations = ProductVariation::where('name', 'like', "%$query%")
+                ->orWhere('slug','like',"%$query%")
+                ->select('id','name','slug')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchProductVendor($request)
+    {
+
+
+        $vendors = Vendor::with('status')
+            ->where('is_active', 1)
+            ->select('id', 'name','slug','taxonomy_id_vendor_status');
+
+        if ($request->has('query') && $request->input('query')) {
+
+            $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $vendors = $vendors->limit(10)->get();
+
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeVendorFilter($query, $filter)
+    {
+
+        if(!isset($filter['vendors'])
+            || is_null($filter['vendors'])
+            || $filter['vendors'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $vendors = $filter['vendors'];
+
+        $query->whereHas('productVendors.vendor', function ($query) use ($vendors) {
+            $query->whereIn('slug', $vendors);
+
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeProductVariationFilter($query, $filter)
+    {
+
+        if(!isset($filter['product_variations'])
+            || is_null($filter['product_variations'])
+            || $filter['product_variations'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $product_variations = $filter['product_variations'];
+
+        $query->whereHas('productVariations', function ($query) use ($product_variations) {
+            $query->whereIn('slug', $product_variations);
+
+        });
+
+    }
+
+    //----------------------------------------------------
+
+    public function scopeStoreFilter($query, $filter)
+    {
+        if(!isset($filter['stores'])
+            || is_null($filter['stores'])
+            || $filter['stores'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $store = $filter['stores'];
+        $query->whereHas('store', function ($query) use ($store) {
+            $query->whereIn('slug', $store);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeBrandFilter($query, $filter)
+    {
+        if(!isset($filter['brands'])
+            || is_null($filter['brands'])
+            || $filter['brands'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $brand = $filter['brands'];
+        $query->whereHas('brand', function ($query) use ($brand) {
+            $query->whereIn('slug', $brand);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public function scopeProductTypeFilter($query, $filter)
+    {
+        if(!isset($filter['product_types'])
+            || is_null($filter['product_types'])
+            || $filter['product_types'] === 'null'
+        )
+        {
+            return $query;
+        }
+        $product_type = $filter['product_types'];
+        $query->whereHas('type', function ($query) use ($product_type) {
+            $query->whereIn('slug', $product_type);
+        });
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVendorUsingUrlSlug($request)
+    {
+        $query = $request['filter']['vendor'];
+
+            $vendors = Vendor::whereIn('name',$query)
+                ->orWhereIn('slug',$query)
+                ->select('id','name','slug')->get();
+
+            $response['success'] = true;
+            $response['data'] = $vendors;
+            return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchBrandUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['brand'];
+        $brands = Brand::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $brands;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVariationUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['variation'];
+
+        $variations = ProductVariation::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $variations;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchStoreUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['store'];
+        $stores = Store::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
+
+        $response['success'] = true;
+        $response['data'] = $stores;
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function searchProductTypeUsingUrlSlug($request)
+    {
+
+        $query = $request['filter']['product_type'];
+        $product_types = TaxonomyType::getFirstOrCreate('product-types');
+        $item = Taxonomy::whereNotNull('is_active')
+            ->where('vh_taxonomy_type_id',$product_types->id)
+            ->whereIn('slug',$query)
+            ->select('id','name','slug')
+            ->get();
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function searchVendor($request)
+    {
+
+        $vendors = Vendor::select('id', 'name','slug')->where('is_active',1);
+        if ($request->has('query') && $request->input('query')) {
+
+            $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');
+        }
+        $vendors = $vendors->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteRelatedRecords($id)
+    {
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+            return $response;
+        }
+        self::deleteProductVendor($item->id);
+        self::deleteProductVariation($item->id);
+        self::deleteProductMedia($item->id);
+        self::deleteProductPrice($item->id);
+        self::deleteProductStock($item->id);
+
+    }
+
+    //-------------------------------------------------
+    public static function deleteProductVendor($id)
+    {
+        $response=[];
+        $is_exist = ProductVendor::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            ProductVendor::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductVariation($id){
+
+        $response=[];
+        $is_exist = ProductVariation::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            $item_ids = ProductVariation::where('vh_st_product_id',$id)->withTrashed()->pluck('id');
+            foreach ($item_ids as $item_id)
+            {
+                ProductAttribute::deleteProductVariation($item_id);
+            }
+            ProductVariation::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+    public static function deleteProductMedia($id){
+
+        $response=[];
+        $is_exist = ProductMedia::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductMedia::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductPrice($id){
+
+        $response=[];
+        $is_exist = ProductPrice::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductPrice::where('vh_st_product_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //-------------------------------------------------
+
+    public static function deleteProductStock($id){
+
+        $response=[];
+        $is_exist = ProductStock::where('vh_st_product_id',$id)
+            ->withTrashed()
+            ->get();
+        if($is_exist){
+            ProductStock::where('vh_st_product_id',$id)->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
 
 }

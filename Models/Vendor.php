@@ -196,7 +196,7 @@ class Vendor extends VaahModel
 
     //-------------------------------------------------
     public function status(){
-        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_vendor_status')->select(['id','name','slug']);
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_status', 'id');
     }
 
     //-------------------------------------------------
@@ -1341,6 +1341,17 @@ class Vendor extends VaahModel
     }
     //-------------------------------------------------
 
+    public static function searchProduct($request)
+    {
+        $query=$request->input('query');
+        if($query === null)
+        {
+            $products = Product::where('is_active',1)->select('id','name','slug')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
+        else{
 
     public static function searchProduct($request)
     {

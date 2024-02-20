@@ -122,6 +122,67 @@ function () {
     Route::get('/{id}/bulk-remove/vendor', 'ProductsController@bulkRemoveVendor')
         ->name('vh.backend.store.products.remove.bulk.vendor');
 
+    /**
+     * Search Product variation
+     */
+    Route::post('/search/product-variation', 'ProductsController@searchProductVariation')
+        ->name('vh.backend.store.products.search.productvariation');
+
+    /**
+     * Search Product vendor
+     */
+    Route::post('/search/product-vendor', 'ProductsController@searchProductVendor')
+        ->name('vh.backend.store.products.search.productvendor');
+
+    /**
+     * Search Vendors using Slug
+     */
+    Route::post('/search/vendors-using-slug', 'ProductsController@searchVendorUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-vendors');
+
     //---------------------------------------------------------
+
+    /**
+     * Search Brands using Slug
+     */
+    Route::post('/search/brands-using-slug', 'ProductsController@searchBrandUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-brands');
+
+    //---------------------------------------------------------
+    /**
+     * Search Variations using Slug
+     */
+    Route::post('/search/variations-using-slug', 'ProductsController@searchVariationUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-variations');
+
+    //---------------------------------------------------------
+    /**
+     * Search Stores using Slug
+     */
+    Route::post('/search/stores-using-slug', 'ProductsController@searchStoreUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-stores');
+
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Type using Slug
+     */
+    Route::post('/search/product-types-using-slug', 'ProductsController@searchProductTypeUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-product-types');
+
+    //---------------------------------------------------------
+
+    /**
+     * Search Product Type using Slug
+     */
+    Route::post('/search/product-types-using-slug', 'ProductsController@searchProductTypeUsingUrlSlug')
+        ->name('vh.backend.store.products.search.filtered-product-types');
+
+    /**
+     * Search vendor
+     */
+    Route::post('/search/vendor', 'ProductsController@searchVendor')
+        ->name('vh.backend.store.products.search.vendor');
 
 });

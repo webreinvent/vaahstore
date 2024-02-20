@@ -125,6 +125,7 @@ export const useVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -974,6 +975,7 @@ export const useVendorStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.filter_selected_products = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
