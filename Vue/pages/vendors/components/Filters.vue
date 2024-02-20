@@ -60,7 +60,7 @@ onMounted(async () => {
                 <template #label>
                     <b>Store By:</b>
                 </template>
-                <VhField label="Payment Status">
+                <VhField label="Store Status">
                     <MultiSelect
                         v-model="store.query.filter.store"
                         :options="store.assets.active_stores"
@@ -74,25 +74,6 @@ onMounted(async () => {
                     />
                 </VhField>
 
-
-            </VhFieldVertical>
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product:</b>
-                </template>
-
-                <AutoComplete name="vendors-product-filter"
-                              data-testid="vendors-product-filter"
-                              v-model="store.filter_selected_products"
-                              @change = "store.addFilteredProduct()"
-                              option-label = "name"
-                              multiple
-                              :complete-on-focus = "true"
-                              :suggestions="store.filtered_products"
-                              @complete="store.searchProduct"
-                              class="w-full " />
 
             </VhFieldVertical>
 

@@ -740,6 +740,7 @@ class Vendor extends VaahModel
                 self::whereIn('id', $items_id)->delete();
                 $user_id = auth()->user()->id;
                 $items->update(['deleted_by' => $user_id]);
+                $items->update(['is_default' => 0]);
                 break;
             case 'restore':
                 self::whereIn('id', $items_id)->restore();
@@ -843,6 +844,7 @@ class Vendor extends VaahModel
                 if(isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
                     $items->update(['deleted_by' => auth()->user()->id]);
+                    $items->update(['is_default' => 0]);
                 }
                 break;
             case 'restore':
@@ -1105,7 +1107,7 @@ class Vendor extends VaahModel
                     ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
-                $item->is_default = null;
+                $item->is_default = 0;
                 $item->save();
                 break;
             case 'restore':
@@ -1340,18 +1342,6 @@ class Vendor extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-
-    public static function searchProduct($request)
-    {
-        $query=$request->input('query');
-        if($query === null)
-        {
-            $products = Product::where('is_active',1)->select('id','name','slug')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-        }
-        else{
 
     public static function searchProduct($request)
     {
