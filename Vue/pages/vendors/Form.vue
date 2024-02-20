@@ -215,7 +215,7 @@ const permissions=store.assets.permissions;
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Business Type*">
+                <VhField label="Business Type">
 
                     <Dropdown v-model="store.item.business_type"
                               @change="store.setBusinessType($event)"
