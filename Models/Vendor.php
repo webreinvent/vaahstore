@@ -210,7 +210,7 @@ class Vendor extends VaahModel
     public function vendorProducts()
     {
         return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')
-            ->select('vh_st_products.id','vh_st_products.name','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
+            ->select('vh_st_products.id','vh_st_products.name','vh_st_products.slug','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
             ->withPivot([]);
     }
     //---------------------------------------------------
@@ -561,6 +561,25 @@ class Vendor extends VaahModel
         }
 
     }
+    //---------------------------------------------------
+
+    public function scopeProductFilter($query, $filter)
+    {
+
+        if(!isset($filter['products']))
+        {
+            return $query;
+        }
+        $products = $filter['products'];
+
+        $query->whereHas('vendorProducts' , function ($q) use ($products){
+            $q->whereIn('slug' ,$products);
+        });
+
+
+    }
+
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
@@ -650,6 +669,7 @@ class Vendor extends VaahModel
         $list->searchStore($request->filter);
         $list->vendorStatus($request->filter);
         $list->dateFilter($request->filter);
+        $list->productFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
