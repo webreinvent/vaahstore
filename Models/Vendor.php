@@ -1401,67 +1401,48 @@ class Vendor extends VaahModel
 
     public static function createVendorUser($request)
     {
-        $item = self::find($request->item['id']);
+        $item_id = $request->item['id'];
+        $item = self::find($item_id);
 
         if (!$item) {
-
-            return;
+            return false;
         }
-
-        $data = [];
-
+        $user_roles = [];
         foreach ($request->user_details as $user_detail) {
             $user_id = $user_detail['pivot']['vh_user_id'];
             $role_id = $user_detail['pivot']['vh_role_id'];
 
+            $key = $user_id . '-' . $role_id;
+            if (isset($user_roles[$key])) {
+                $error_message = "This Record already present in the list.";
+                $response['success'] = false;
+                $response['messages'][] = $error_message;
+                return $response;
+            } else {
+                $user_roles[$key] = true;
+            }
+        }
+
+        VendorUser::where('vh_st_vendor_id', $item_id)->forceDelete();
+
+        $data = [];
+        foreach ($request->user_details as $user_detail) {
+            $user_id = $user_detail['pivot']['vh_user_id'];
+            $role_id = $user_detail['pivot']['vh_role_id'];
 
             $data[] = [
                 'vh_user_id' => $user_id,
                 'vh_role_id' => $role_id,
             ];
         }
-        $item->users()->attch($data);
+
+        $item->users()->attach($data);
         $response = self::getItem($item->id);
         $response['success'] = true;
         $response['data'] = $item;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
-
-    //--------------------------------------------------------------------------------
-
-    public static function removeVendorUser($request)
-    {
-        $item = self::find($request->item['id']);
-
-        if (!$item) {
-            return false;
-        }
-
-        $user_details = $request->user_details;
-        $pivotId = $user_details['pivot']['id'];
-
-
-        $userRecord = $item->users()->wherePivot('id', $pivotId)->first();
-
-        if (!$userRecord) {
-            return false;
-        }
-
-        // Delete the user record
-        $userRecord->pivot->delete();
-        $response = self::getItem($item->id);
-        $response['success'] = true;
-        $response['data'] = $item;
-        return $response;
-    }
-
-
-
-
-
-
-
-
 
     //------------------------------------------------------------------
 
