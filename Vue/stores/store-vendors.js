@@ -1509,6 +1509,7 @@ export const useVendorStore = defineStore({
                 this.saveUserAfter,
                 options
             );
+            this.getItem(this.item.id);
         },
 
         //---------------------------------------------------------------------
@@ -1549,6 +1550,7 @@ export const useVendorStore = defineStore({
                 return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
             });
             this.select_all_user = false;
+            this.getItem(this.item.id);
         },
 
         //---------------------------------------------------------------------

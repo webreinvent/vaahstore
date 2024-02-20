@@ -1420,7 +1420,8 @@ class Vendor extends VaahModel
                 'vh_role_id' => $role_id,
             ];
         }
-        $item->users()->attach($data);
+        $item->users()->attch($data);
+        $response = self::getItem($item->id);
         $response['success'] = true;
         $response['data'] = $item;
         return $response;
@@ -1448,7 +1449,7 @@ class Vendor extends VaahModel
 
         // Delete the user record
         $userRecord->pivot->delete();
-
+        $response = self::getItem($item->id);
         $response['success'] = true;
         $response['data'] = $item;
         return $response;
