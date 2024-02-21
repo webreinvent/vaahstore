@@ -14,9 +14,15 @@ class VhStVendorsAddColumnsYearsServices extends Migration
     public function up()
     {
 
-        Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->integer('years_in_business')->nullable()->after('slug');
-            $table->text('services_offered')->nullable()->after('years_in_business');
+
+        Schema::table('vh_st_vendors', function($table) {
+
+            $table->after('slug', function ($table) {
+                $table->integer('years_in_business')->nullable()->index();
+                $table->text('services_offered')->nullable();
+
+            });
+
         });
     }
 
