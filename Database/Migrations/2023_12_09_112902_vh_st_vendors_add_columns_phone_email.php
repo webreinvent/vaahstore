@@ -14,11 +14,19 @@ class VhStVendorsAddColumnsPhoneEmail extends Migration
     public function up()
     {
 
-        Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->bigInteger('phone_number')->nullable()->after('slug');
-            $table->string('email')->nullable()->after('phone_number');
-            $table->text('address')->nullable()->after('email');
-        });
+        Schema::table('vh_st_vendors', function($table) {
+
+                     $table->after('slug', function ($table) {
+                    $table->bigInteger('phone_number')->nullable();
+                    $table->string('email')->nullable()->index();
+                    $table->text('address')->nullable();
+
+                });
+
+            });
+
+
+
     }
 
     /**
