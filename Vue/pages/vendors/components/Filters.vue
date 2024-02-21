@@ -35,7 +35,7 @@ onMounted(async () => {
                               :complete-on-focus = "true"
                               :suggestions="store.search_products"
                               @complete="store.searchProduct($event)"
-                              placeholder = "select product"
+                              placeholder = "Select Product"
                               class="w-full "
                               :pt="{
                           token: {
