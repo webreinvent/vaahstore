@@ -36,6 +36,7 @@ onMounted(async () => {
                               :suggestions="store.search_products"
                               @complete="store.searchProduct($event)"
                               placeholder = "Select Product"
+                              appendTo="self"
                               class="w-full "
                               :pt="{
                           token: {
