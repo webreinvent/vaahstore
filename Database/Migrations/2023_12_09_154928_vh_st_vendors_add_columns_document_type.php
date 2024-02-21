@@ -13,11 +13,15 @@ class VhStVendorsAddColumnsDocumentType extends Migration
      */
     public function up()
     {
+        Schema::table('vh_st_vendors', function($table) {
 
-        Schema::table('vh_st_vendors', function (Blueprint $table) {
-            $table->string('business_document_type')->nullable()->after('taxonomy_id_vendor_business_type');
-            $table->string('business_document_detail')->nullable()->after('business_document_type');
-            $table->string('business_document_file')->nullable()->after('business_document_detail');
+            $table->after('taxonomy_id_vendor_business_type', function ($table) {
+                $table->string('business_document_type')->nullable();
+                $table->string('business_document_detail')->nullable();
+                $table->string('business_document_file')->nullable();
+
+            });
+
         });
     }
 
