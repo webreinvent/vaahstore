@@ -26,8 +26,8 @@ onMounted(async () => {
                     <b>Product:</b>
                 </template>
 
-                <AutoComplete name="product-variations-product-filter"
-                              data-testid="product-variations-product-filter"
+                <AutoComplete name="vendor-product-filter"
+                              data-testid="vendor-product-filter"
                               v-model="store.sel_product"
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
