@@ -427,15 +427,15 @@ class Vendor extends VaahModel
                 'required_if:status.slug,==,rejected',
                 'max:250'
             ],
-            'store' => '',
+            'store' => 'nullable',
             'email' => 'nullable|email|max:100',
             'address' => 'max:250',
-            'business_document_type' => 'max:50',
-            'business_document_detail'=>'max:50',
-            'business_document_file' => '',
-            'is_default' => '',
-            'auto_approve_products' => '',
-            'vendor_products' =>''
+            'business_document_type' => 'nullable|max:50',
+            'business_document_detail'=>'nullable|max:50',
+            'business_document_file' => 'nullable',
+            'is_default' => 'nullable',
+            'auto_approve_products' => 'nullable',
+            'vendor_products' =>'nullable'
         ];
 
         if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
