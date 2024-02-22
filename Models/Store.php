@@ -129,8 +129,15 @@ class Store extends VaahModel
 
     //-------------------------------------------------
 
+    public function vendors()
+    {
+        return $this->hasMany(Vendor::class, 'vh_st_store_id', 'id')
+            ->withTrashed()
+            ->select(['id', 'name', 'is_default', 'slug']);
+    }
 
 
+    //-------------------------------------------------
 
     public function createdByUser()
     {

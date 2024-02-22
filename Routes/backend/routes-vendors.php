@@ -34,7 +34,7 @@ Route::group(
         /**
          * Create Product
          */
-        Route::post('/product', 'VendorsController@createProduct')
+        Route::post('/add/product', 'VendorsController@createProduct')
             ->name('vh.backend.store.vendors.createProduct');
 
         /**
@@ -96,6 +96,11 @@ Route::group(
             ->name('vh.backend.store.vendors.search.store');
 
         /**
+         * Search product
+         */
+        Route::any('/search/product', 'VendorsController@searchProduct')
+            ->name('vh.backend.store.vendors.search.product');
+        /**
          * Search approved by
          */
         Route::any('/search/approved/by', 'VendorsController@searchApprovedBy')
@@ -113,11 +118,17 @@ Route::group(
         Route::any('/search/status', 'VendorsController@searchStatus')
             ->name('vh.backend.store.vendors.search.status');
 
-        /**
-         * Search vendor
-         */
-        Route::any('/search/product', 'VendorsController@searchProduct')
-            ->name('vh.backend.store.vendors.search.product');
+        Route::any('/search/vendor/user', 'VendorsController@searchUser')
+            ->name('vh.backend.store.vendors.search.role.user');
 
+        Route::post('/add/user', 'VendorsController@createVendorUser')
+            ->name('vh.backend.store.vendors.createVendorUser');
+
+        Route::post('/remove/user', 'VendorsController@removeVendorUser')
+            ->name('vh.backend.store.vendors.remove.vendor.user');
+
+
+        Route::post('/search/route-query-products', 'VendorsController@setProductInFilter')
+            ->name('vh.backend.store.vendors.search.products-using-url-slug');
 
     });

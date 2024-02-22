@@ -164,8 +164,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public function status()
     {
-        return $this->belongsTo(Taxonomy::class,'taxonomy_id_product_status','id')
-            ->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_product_status');
     }
 
     //-------------------------------------------------
@@ -471,6 +470,8 @@ class Product extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+
+
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();

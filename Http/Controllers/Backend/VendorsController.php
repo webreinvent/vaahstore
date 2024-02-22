@@ -7,6 +7,7 @@ use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
+use WebReinvent\VaahCms\Models\Permission;
 
 
 class VendorsController extends Controller
@@ -28,7 +29,10 @@ class VendorsController extends Controller
 
             $data = [];
 
-            $data['permission'] = [];
+            $data['permissions'] = \Auth::user()->permissions(true);
+
+            Permission::syncPermissionsWithRoles();
+
             $data['rows'] = config('vaahcms.per_page');
 
             $data['fillable']['columns'] = Vendor::getFillableColumns();
@@ -36,9 +40,8 @@ class VendorsController extends Controller
             $data['empty_item'] = Vendor::getEmptyItem();
 
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
             $data['empty_item']['is_default'] = 0;
-            $data['empty_item']['is_active'] = 0;
+            $data['empty_item']['is_active'] = 1;
             $data['empty_item']['auto_approve_products'] = 0;
             $data['empty_item']['products'] = [];
             $data['empty_item']['owned_by_user'] = null;
@@ -64,7 +67,10 @@ class VendorsController extends Controller
             // get taxonomy data's
             $data['taxonomy']['product_vendor_status'] = Taxonomy::getTaxonomyByType('product-vendor-status');
             $data['taxonomy']['vendor_status'] = Taxonomy::getTaxonomyByType('vendor-status');
-
+            $data['taxonomy']['business_type'] = Taxonomy::getTaxonomyByType('business-type');
+            $data['taxonomy']['product_status'] = Taxonomy::getTaxonomyByType('product-status');
+            $data['urls']['upload'] = route('vh.backend.media.upload');
+            $data['vendor_roles'] = Vendor::VendorRole();
             $response['success'] = true;
             $response['data'] = $data;
 
@@ -75,7 +81,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
@@ -112,7 +118,7 @@ class VendorsController extends Controller
 
     //----------------------------------------------------------
     public function getActiveProducts(){
-        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default']);
+        $active_products = Product::where('is_active', 1)->get(['id','name','slug','is_default','taxonomy_id_product_status']);
         if ($active_products){
             return [
                 'active_products' =>$active_products
@@ -157,7 +163,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -174,7 +180,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -192,7 +198,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -209,7 +215,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -226,7 +232,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -246,7 +252,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
@@ -264,7 +270,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -281,7 +287,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -298,7 +304,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -315,7 +321,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -332,7 +338,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -349,7 +355,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -366,7 +372,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -383,7 +389,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -400,7 +406,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -417,7 +423,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -435,7 +441,7 @@ class VendorsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
@@ -448,16 +454,106 @@ class VendorsController extends Controller
             return Vendor::searchProduct($request);
         }catch (\Exception $e){
             $response = [];
-            $response['success'] = false;
+            $response['status'] = 'failed';
             if(env('APP_DEBUG')){
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
             }
-            return $response;
         }
     }
+
+    //------------------------------------------------------------
+
+    public function searchVendorRole(Request $request)
+    {
+        try{
+            return Vendor::searchVendorRole($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    public function searchUser(Request $request)
+    {
+        try{
+            return Vendor::searchUser($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    public function createVendorUser(Request $request)
+    {
+        try{
+            return Vendor::createVendorUser($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    public function removeVendorUser(Request $request)
+    {
+        try{
+            return Vendor::removeVendorUser($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+    //---------------------------------------------------------------
+
+    public function setProductInFilter(Request $request)
+    {
+        try{
+            return Vendor::setProductInFilter($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
 
 
 }

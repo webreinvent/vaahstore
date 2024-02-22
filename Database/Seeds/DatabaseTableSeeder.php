@@ -36,6 +36,7 @@ class DatabaseTableSeeder extends Seeder
         $this->seedDefaultVendor();
         $this->seedDefaultBrand();
         $this->seedDefaultPrdouct();
+        $this->seedRoles();
     }
 
     //---------------------------------------------------------------
@@ -138,6 +139,13 @@ class DatabaseTableSeeder extends Seeder
             $item->slug = Str::slug('Default');
             $item->save();
         }
+    }
+
+    //---------------------------------------------------------------
+    public function seedRoles()
+    {
+        $json_file_path = __DIR__."/json/vendor_roles.json";
+        VaahSeeder::roles($json_file_path);
     }
 
 }

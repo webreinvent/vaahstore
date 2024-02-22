@@ -1,10 +1,10 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useVendorStore } from '../../stores/store-vendors'
-
+import Editor from 'primevue/editor';
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
-
+import FileUploader from './components/FileUploader.vue'
 
 const store = useVendorStore();
 const route = useRoute();
@@ -23,7 +23,47 @@ const form_menu = ref();
 const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
+
+const handleFileUploaded = (responseData) => {
+
+    const file_name =responseData.data.name;
+
+    const path = responseData.data.path;
+
+    if (responseData.data && responseData.data.url) {
+
+        store.item.business_document_file = responseData.data.url
+
+    }
+    else {
+
+        console.error('image not found');
+    }
+
+};
+
+
+const removeImage = () => {
+
+    store.item.file_link = '';
+};
+
+const getFileExtension = (filePath) => {
+    const parts = filePath.split('.');
+    return parts[parts.length - 1];
+};
+
+watch(() => store && store.item && store.item.name, (item_name) => {
+    try {
+        if (item_name.length === 0) {
+            store.item.slug = '';
+        }
+    } catch (error) {
+    }
+});
 //--------/form_menu
+
+const permissions=store.assets.permissions;
 
 </script>
 <template>
@@ -66,6 +106,7 @@ const toggleFormMenu = (event) => {
                             v-if="store.item && store.item.id"
                             data-testid="vendors-save"
                             @click="store.itemAction('save')"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
 
                     <Button label="Create & New"
@@ -73,6 +114,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('create-and-new')"
                             class="p-button-sm"
                             data-testid="vendors-create-and-new"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             icon="pi pi-save"/>
                     <Button data-testid="vendors-document" icon="pi pi-info-circle"
                             href="https://vaah.dev/store"
@@ -87,6 +129,7 @@ const toggleFormMenu = (event) => {
                         class="p-button-sm"
                         data-testid="vendors-form-menu"
                         icon="pi pi-angle-down"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         aria-haspopup="true"/>
 
                     <Menu ref="form_menu"
@@ -134,7 +177,7 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name">
+                <VhField label="Name*">
                     <InputText class="w-full"
                                name="vendors-name"
                                placeholder="Enter Name"
@@ -143,7 +186,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.name"/>
                 </VhField>
 
-                <VhField label="Slug">
+                <VhField label="Slug*">
                     <InputText class="w-full"
                                placeholder="Enter Slug"
                                name="vendors-slug"
@@ -151,7 +194,8 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
-                <VhField label="Store">
+
+                <VhField label="Store*">
                     <AutoComplete v-model="store.item.store"
                                   @change="store.setStore($event)"
                                   value="id"
@@ -171,12 +215,24 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Approve By">
+                <VhField label="Business Type">
+
+                    <Dropdown v-model="store.item.business_type"
+                              @change="store.setBusinessType($event)"
+                              :options="store.business_types_list"
+                              data-testid="vendors-business-types"
+                              optionLabel="name"
+                              placeholder="Select a Business type"
+                              class="w-full" />
+                </VhField>
+
+
+                <VhField label="Approved By*">
                     <AutoComplete v-model="store.item.approved_by_user"
                                   @change="store.setApprovedBy($event)"
                                   value="id"
                                   class="w-full"
-                                  placeholder="Select Approve By"
+                                  placeholder="Select Approved By"
                                   data-testid="vendors-approved_by"
                                   name="vendors-approved_by"
                                   :suggestions="store.approved_by_suggestions"
@@ -193,7 +249,7 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Owned By">
+                <VhField label="Owned By*">
                     <AutoComplete v-model="store.item.owned_by_user"
                                   @change="store.setOwnedBy($event)"
                                   value="id"
@@ -215,7 +271,145 @@ const toggleFormMenu = (event) => {
 
                 </VhField>
 
-                <VhField label="Status">
+
+
+                <VhField label="Years in Business">
+
+                    <InputNumber class="w-full"
+                               name="vendors-business-years"
+                               placeholder="Enter years in business"
+                               data-testid="vendors-name"
+                               v-model="store.item.years_in_business"
+                                />
+                </VhField>
+
+                <VhField label="Services Offered">
+                    <Editor
+                        class="w-full"
+                        name="vendors-services-offered"
+                        placeholder="Services description"
+                        data-testid="vendors-services-offered"
+                        v-model="store.item.services_offered"
+                        editorStyle="min-height: 80px"
+                        >
+                        <template v-slot:toolbar>
+                            <span class="ql-formats">
+                                <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                                <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                                <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+                            </span>
+                        </template>
+                    </Editor>
+
+                </VhField>
+
+                <Accordion class="mt-3 mb-3">
+
+                    <AccordionTab header="Contact Info" style="margin-top:0;margin-bottom:0">
+
+                        <VhField label="Country Code">
+                            <InputText class="w-full"
+                                       name="vendors-country-code"
+                                       placeholder="Enter Country Code"
+                                       data-testid="vendors-country-code"
+                                       v-model="store.item.country_code"/>
+                        </VhField>
+
+                        <VhField label="Phone Number">
+
+                            <InputNumber v-model="store.item.phone_number"
+                                         class="w-full"
+                                         name="vendors-phone-number"
+                                         placeholder="Enter your phone number"
+                                         data-testid="vendors-phone-number"
+                                         :useGrouping="false" />
+                        </VhField>
+
+                        <VhField label="Email">
+                            <InputText class="w-full"
+                                       name="vendors-email"
+                                       placeholder="Enter Email"
+                                       data-testid="vendors-email"
+                                       v-model="store.item.email"/>
+                        </VhField>
+
+                        <VhField label="Address">
+                                <Textarea
+                                    class="w-full"
+                                    name="vendors-address"
+                                    placeholder="Enter Address"
+                                    data-testid="vendors-addresses"
+                                    v-model="store.item.address"
+                                    rows="3"
+                                    cols="30" />
+                        </VhField>
+
+                    </AccordionTab>
+
+                </Accordion>
+                <Accordion class="mt-3 mb-3">
+
+                    <AccordionTab header="Business Details" style="margin-top:0;margin-bottom:0">
+                        <VhField label="Document Type">
+                            <InputText class="w-full"
+                                         name="vendors-document-type"
+                                         placeholder="Enter Document Type"
+                                         data-testid="vendors-document-type"
+                                         v-model="store.item.business_document_type"/>
+                        </VhField>
+
+                        <VhField label="Document Details">
+                            <InputText class="w-full"
+                                       name="vendors-document-detail"
+                                       placeholder="e.g registration number"
+                                       data-testid="vendors-document-detail"
+                                       v-model="store.item.business_document_detail"/>
+                        </VhField>
+
+                            <VhField label="Upload File">
+
+                                <FileUploader
+                                    placeholder="Upload document"
+                                              v-model="store.item.business_document_file"
+                                              :is_basic="true"
+                                              data-testid="vendors-document-image"
+                                              :auto_upload="true"
+                                              :uploadUrl="store.assets.urls.upload"
+                                              @fileUploaded="handleFileUploaded">
+
+                                </FileUploader>
+
+
+
+                                <template v-if="store.item.business_document_file">
+                                    <template v-if="['png', 'jpg', 'jpeg'].includes(getFileExtension(store.item.business_document_file))">
+                                        <img :src="store.item.business_document_file"
+                                             style="width: auto !important;
+                                             height: auto !important;
+                                              max-width: 100%;"
+                                             alt="Uploaded Image"/>
+                                    </template>
+                                    <template v-else>
+                                        <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>
+                                    </template>
+                                </template>
+                                <Button v-if="store.item.business_document_file"
+                                        icon="pi pi-times"
+                                        severity="danger"
+                                        @click="store.removeImage()"
+                                        text rounded aria-label="Cancel"
+                                        class="close-button"
+                                />
+
+                            </VhField>
+
+
+
+                    </AccordionTab>
+
+                </Accordion>
+
+                <VhField label="Status*">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
@@ -256,7 +450,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
-                                 @change="store.setVendorStatus()"
                                  name="vendors-is_active"
                                  data-testid="vendors-is_active"
                                  v-model="store.item.is_active"/>

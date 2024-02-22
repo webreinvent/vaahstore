@@ -5,6 +5,7 @@
         <link href="{{vh_module_assets_url("Store", "build/index.css")}}"
               rel="stylesheet" media="screen"></link>
     @endif
+
 @endsection
 
 

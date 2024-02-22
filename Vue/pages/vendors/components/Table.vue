@@ -5,16 +5,19 @@ import { useVendorStore } from '../../../stores/store-vendors'
 const store = useVendorStore();
 const useVaah = vaah();
 
+
+const permissions=store.assets.permissions;
+
 </script>
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
         <DataTable :value="store.list.data"
                    dataKey="id"
                    class="p-datatable-sm p-datatable-hoverable-rows"
-                   :rowClass="(rowData) =>rowData.id === store.item?.id ? 'bg-yellow-100':''"
+                   :rowClass="(rowData) =>rowData.id === store && store.item && store.item.id ? 'bg-yellow-100':''"
                    v-model:selection="store.action.items"
                    stripedRows
                    responsiveLayout="scroll">
@@ -46,14 +49,16 @@ const useVaah = vaah();
             </Column>
 
             <Column field="store.name" header="Store"
-                    v-if="store.isViewLarge()"
                     :sortable="true">
 
-                <template #body="prop">
-                    <span v-if="prop.data.store && prop.data.store.name">{{prop.data.store.name}}</span>
-                    <span v-if="prop.data.store && prop.data.store.is_default === 1">
-                         <badge>&nbsp;(Default)</badge>
-                     </span>
+
+                <template #body="prop" >
+                    <Badge v-if="prop.data.store && prop.data.store.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <div style="word-break: break-word;" v-if="prop.data.store && prop.data.store.name">
+                        {{ prop.data.store.name }}
+                    </div>
                 </template>
 
             </Column>
@@ -63,15 +68,52 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon">
-                            <b v-if="prop.data.vendor_products && prop.data.vendor_products.length">
-                                {{prop.data.vendor_products.length}}
-                            </b>
-                            <b v-else>0</b>
+                        <span class="p-inputgroup-addon cursor-pointer"
+                              v-tooltip.top="'View Products'"
+                              v-if="prop.data.vendor_products && prop.data.vendor_products.length"
+                            @click="store.toViewProducts(prop.data)">
+                               <b>{{prop.data.vendor_products.length}}</b>
                         </span>
+                        <span class="p-inputgroup-addon"
+                              v-else>
+                             <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
+
+                         </span>
                         <button @click="store.toProduct(prop.data)"
-                                style="cursor: pointer;  border-width : 0; background: #4f46e5;"  >
+                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                data-testid="vendors-table-product"
+                                :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
+                                v-tooltip.top="'Add Products'">
                            <i class="pi pi-plus" style="color: white"></i>
+                        </button>
+                    </div>
+                </template>
+
+            </Column>
+
+
+            <Column field="vendor" header="Vendor User"
+                    :sortable="false">
+                <template #body="prop">
+                    <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon"
+                              v-if="prop.data.users && prop.data.users.length"
+                              >
+                               <b>{{prop.data.users.length}}</b>
+                        </span>
+                        <span class="p-inputgroup-addon"
+                              v-else>
+                             <b>{{ prop.data.users ? prop.data.users.length : 0 }}</b>
+
+                         </span>
+                        <button @click="store.toVendorRole(prop.data)"
+                                data-testid="vendors-table-vendor-role"
+                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                :disabled="$route.path.includes('role') && prop.data.id===store.item?.id"
+                                :class="{ 'blurred': $route.path.includes('role') && prop.data.id===store.item?.id }"
+                                v-tooltip.top="'Add Role'">
+                            <i class="pi pi-plus" style="color: white"></i>
                         </button>
                     </div>
                 </template>
@@ -81,17 +123,13 @@ const useVaah = vaah();
             <Column field="status.name" header="Status"
                     v-if="store.isViewLarge()"
                     :sortable="true">
-
                 <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
-                           value="Trashed"
-                           severity="danger"></Badge>
                     <Badge v-if="prop.data.status && prop.data.status.name == 'Approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>
                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
                     <Badge v-else
-                           severity="primary"> {{prop.data.status.name}} </Badge>
+                           severity="warning"> {{prop.data.status.name}} </Badge>
                 </template>
 
             </Column>
@@ -117,13 +155,12 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                    {{useVaah.ago(prop.data.updated_at)}}
                 </template>
 
             </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
@@ -132,6 +169,7 @@ const useVaah = vaah();
                                  data-testid="vendors-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
                 </template>
@@ -152,7 +190,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                            class="p-button-tiny p-button-text"
                                 data-testid="vendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
@@ -163,6 +202,7 @@ const useVaah = vaah();
                                 data-testid="vendors-table-action-trash"
                                 v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
@@ -182,6 +222,11 @@ const useVaah = vaah();
 
             </Column>
 
+            <template #empty="prop">
+
+                <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+            </template>
 
         </DataTable>
         <!--/table-->
@@ -199,3 +244,9 @@ const useVaah = vaah();
     </div>
 
 </template>
+
+<style scoped>
+.blurred {
+    filter: blur(1px); /* Adjust the blur amount as needed */
+}
+</style>

@@ -298,7 +298,7 @@ export const useStoreStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        addCurrencies() {
+        async addCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();
 
@@ -307,13 +307,24 @@ export const useStoreStore = defineStore({
                     unique_currencies.push(currency);
                     check_names.add(currency.name);
                 }
+                else {
+                    this.item.currencies = unique_currencies;
+                    vaah().toastErrors(['This Currency is already added']);
+                    return false;
+                }
+            }
+            if(unique_currencies.length == 0)
+            {
+                vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
+                await this.getItem(this.route.params.id);
+                return false;
             }
             this.item.currencies = unique_currencies;
-
+            await this.itemAction('save');
         },
 
         //---------------------------------------------------------------------
-
+        
         async saveCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();

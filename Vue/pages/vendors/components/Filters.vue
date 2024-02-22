@@ -2,8 +2,16 @@
 
 import { useVendorStore } from '../../../stores/store-vendors'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {onMounted} from "vue";
 
 const store = useVendorStore();
+
+onMounted(async () => {
+
+    await store.setProductInFilter();
+
+
+});
 
 </script>
 
@@ -11,12 +19,49 @@ const store = useVendorStore();
     <div>
 
         <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+                 position="right" class="relative">
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Product:</b>
+                </template>
+
+                <AutoComplete name="vendor-product-filter"
+                              data-testid="vendor-product-filter"
+                              v-model="store.sel_product"
+                              @change = "store.addSelectedProduct()"
+                              option-label = "name"
+                              multiple
+                              :complete-on-focus = "true"
+                              :suggestions="store.search_products"
+                              @complete="store.searchProduct($event)"
+                              placeholder = "Select Product"
+                              appendTo="self"
+                              class="w-full "
+                              :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }"/>
+
+            </VhFieldVertical>
+
+
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Store By:</b>
                 </template>
-                <VhField label="Payment Status">
+                <VhField label="Store Status">
                     <MultiSelect
                         v-model="store.query.filter.store"
                         :options="store.assets.active_stores"
@@ -25,27 +70,11 @@ const store = useVendorStore();
                         optionLabel="name"
                         placeholder="Select Store"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative"
+                        appendTo="self"
+                    />
                 </VhField>
 
-
-            </VhFieldVertical>
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product:</b>
-                </template>
-
-                <AutoComplete name="vendors-product-filter"
-                              data-testid="vendors-product-filter"
-                              v-model="store.filter_selected_products"
-                              @change = "store.addFilteredProduct()"
-                              option-label = "name"
-                              multiple
-                              :complete-on-focus = "true"
-                              :suggestions="store.filtered_products"
-                              @complete="store.searchProduct"
-                              class="w-full " />
 
             </VhFieldVertical>
 
@@ -63,13 +92,27 @@ const store = useVendorStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative"
+                        appendTo="self"
+                    />
                 </VhField>
 
 
             </VhFieldVertical>
-            <Divider/>
 
+            <VhFieldVertical >
+                <template #label>
+                    <b>Select Created Date:</b>
+                </template>
+
+                <Calendar v-model="store.selected_dates"
+                          selectionMode="range"
+                          @date-select="store.setDateRange"
+                          placeholder="Choose date range"
+                          :manualInput="false"
+                            class="w-full"/>
+
+            </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

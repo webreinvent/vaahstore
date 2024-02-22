@@ -28,7 +28,7 @@ const items = ref([
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                route: "/stores"
+                route: "/stores",
             },
             {
                 label: 'Store Payment Methods',
@@ -38,7 +38,7 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                route: "/vendors"
+                route: "/vendors",
             },
             {
                 label: 'Vendor Products',
@@ -88,7 +88,7 @@ const items = ref([
             {
                 label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
-                route: "/attributesgroup"
+                route: "/attributegroups"
             },
             {
                 label: 'Orders',
@@ -127,12 +127,11 @@ const items = ref([
 </script>
 <template>
 
+
     <div v-if="height">
-        <Menu :model="items"  class="w-full" :pt="selected_page">
+        <Menu :model="items"  class="w-full" >
             <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom
-                 :class="{ 'router-link-active' : isActive(item.route) }"
-                >
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
                         <span :class="item.icon" />
                         <span class="ml-2">{{ item.label }}</span>
