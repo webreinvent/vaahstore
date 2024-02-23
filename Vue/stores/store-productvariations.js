@@ -114,6 +114,8 @@ export const useProductVariationStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
 
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;

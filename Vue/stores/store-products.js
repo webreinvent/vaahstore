@@ -251,6 +251,8 @@ export const useProductStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
             if(this.query.filter.vendors)
             {
                 this.setVendorsAfterPageRefresh();
