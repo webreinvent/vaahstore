@@ -35,7 +35,7 @@ class StoresController extends Controller
             $data['currencies'] = $this->getCurrencies();
             $data['languages'] = $this->getLanguages();
             $data['empty_item'] = Store::getEmptyItem();
-
+            $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
 
             $response['success'] = true;
