@@ -29,35 +29,29 @@ const useVaah = vaah();
              <Column field="vendor.name" header="Vendor"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.vendor && prop.data.vendor.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.vendor == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.vendor.name}}
-                         </span>
-
-
+                     <div style="word-break: break-word;" v-if="prop.data.vendor && prop.data.vendor.name">
+                         {{ prop.data.vendor.name }}
+                     </div>
                  </template>
 
              </Column>
 
-            <Column field="product.name" header="Product"
-                    :sortable="true">
+             <Column field="product.name" header="Product"
+                     :sortable="true">
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                         {{ prop.data.product.name }}
+                     </div>
+                 </template>
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.product == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product.name}}
-                         </span>
-                </template>
-
-            </Column>
+             </Column>
 
              <Column field="add_price" header="Add Price"
                      :sortable="false"  >

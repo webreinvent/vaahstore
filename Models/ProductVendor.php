@@ -75,7 +75,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function storeVendorProduct()
     {
-        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id');
+        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id')->withTrashed();
     }
     //-------------------------------------------------
     public static function getFillableColumns()
@@ -134,7 +134,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
+        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->withTrashed()->select('id', 'name', 'slug','deleted_at');
     }
     //-------------------------------------------------
     public function stores()
@@ -145,7 +145,7 @@ class ProductVendor extends VaahModel
     //----------------------------------------------------------------------------------
     public function vendor()
     {
-        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug','is_default');
+        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->withTrashed()->select('id','name', 'slug','is_default','deleted_at');
     }
     //-------------------------------------------------
     public function getTableColumns()
