@@ -50,16 +50,20 @@ const route = useRoute();
 
             </Column>
 
-             <Column field="product.name" header="Product"
-                     :sortable="true">
+            <Column field="product.name" header="Product"
+                    :sortable="true">
 
-                 <template #body="prop" >
-                     <span v-if="prop.data && prop.data.product">
-                         {{prop.data.product.name}}
-                     </span>
-                 </template>
 
-             </Column>
+                <template #body="prop" >
+                    <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                        {{ prop.data.product.name }}
+                    </div>
+                </template>
+
+            </Column>
 
              <Column field="quantity" header="Quantity"
                      :sortable="true">

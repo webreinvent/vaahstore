@@ -148,7 +148,7 @@ class Product extends VaahModel
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')
+        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')->withTrashed()
             ->select('id','name','slug');
     }
 
@@ -185,7 +185,7 @@ class Product extends VaahModel
     public function productVariations()
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
-            ->where('vh_st_product_variations.is_active', 1)
+            ->where('vh_st_product_variations.is_active', 1)->withTrashed()
             ->select();
     }
 
