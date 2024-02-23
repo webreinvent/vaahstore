@@ -96,7 +96,10 @@ const toggleFormMenu = (event) => {
                         </thead>
                         <tbody class="p-datatable-tbody">
                         <tr v-for="(variation, index) in store.product_variation_list" :key="index">
-                            <td>{{ variation.name }}</td>
+                            <td>{{ variation.name }}
+                                <Badge v-if="variation.deleted_at"
+                                       value="Trashed"
+                                       severity="danger"></Badge></td>
                             <td>
                                 <InputNumber
                                     :placeholder="'Enter price '"

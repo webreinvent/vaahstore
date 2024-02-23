@@ -550,6 +550,7 @@ export const useProductVendorStore = defineStore({
                         name: variation.name,
                         id: variation.id,
                         amount: variation.amount,
+                        deleted_at: variation.deleted_at,
                     });
                 }
 

@@ -195,14 +195,15 @@ class ProductVendor extends VaahModel
 
         $response = [];
         $saved_variations = 0;
-
         foreach ($inputs['product_variation'] as $key => $variation) {
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
                 'vh_st_product_variation_id' => $variation['id']
             ])->first();
-
+            if (isset($variation['deleted_at'])) {
+                continue;
+            }
             if ($variation_price) {
                 if ($variation['amount'] === null) {
                     $variation_price->forceDelete();
@@ -218,7 +219,6 @@ class ProductVendor extends VaahModel
                 }
                 $saved_variations++;
             }
-
             if (!$variation_price && isset($variation['amount'])) {
                 $new_variation_price = new ProductPrice;
                 $new_variation_price->fill([
@@ -231,6 +231,8 @@ class ProductVendor extends VaahModel
                 $saved_variations++;
 
             }
+
+
         }
         if ($saved_variations > 0) {
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
@@ -720,7 +722,7 @@ class ProductVendor extends VaahModel
 
             if ($item) {
                 $response['success'] = false;
-                $response['errors'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist.";
+                $response['errors'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist".($item->deleted_at?' in trash.':'.');
                 return $response;
             }
 
@@ -1184,7 +1186,7 @@ class ProductVendor extends VaahModel
     {
         $input = $request->all();
         $id = $input['id'];
-        $product_variations = ProductVariation::where('vh_st_product_id', $id)
+        $product_variations = ProductVariation::where('vh_st_product_id', $id)->withTrashed()
             ->get();
 
         $response['success'] = true;

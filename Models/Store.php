@@ -243,8 +243,8 @@ class Store extends VaahModel
         }
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -252,8 +252,8 @@ class Store extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -999,8 +999,8 @@ class Store extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -1010,8 +1010,8 @@ class Store extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
