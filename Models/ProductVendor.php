@@ -661,14 +661,17 @@ class ProductVendor extends VaahModel
             return $response;
         }
 
-        $itemProduct = Product::where('id', $item->vh_st_product_id)->first();
+        $itemProduct = Product::withTrashed()->find($item->vh_st_product_id);
+
         $item['productList'] = Product::where('vh_st_store_id', $itemProduct->vh_st_store_id)->select('id', 'name', 'slug');
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
         $variations = [];
-        $variations_data = ProductVariation::where('vh_st_product_id',$array_item['vh_st_product_id'])->
-        select('id', 'name', 'slug', 'is_default','price')->get();
+        $variations_data = ProductVariation::where('vh_st_product_id', $array_item['vh_st_product_id'])
+            ->select('id', 'name', 'slug', 'is_default', 'price','deleted_at')
+            ->withTrashed()
+            ->get();
         foreach($variations_data as $variation_data)
         {
             $price = ProductPrice::where('vh_st_vendor_id', $array_item['vh_st_vendor_id'])
@@ -679,6 +682,7 @@ class ProductVendor extends VaahModel
                 'name' => $variation_data['name'],
                 'id' => $variation_data['id'],
                 'amount' => $price === null ? $variation_data['price']:$price,
+                'deleted_at'=>$variation_data['deleted_at'],
             ];
 
 
