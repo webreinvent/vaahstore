@@ -320,11 +320,13 @@ export const useStoreStore = defineStore({
                 return false;
             }
             this.item.currencies = unique_currencies;
-            await this.itemAction('save');
+            if ( this.route.name === 'view' && this.item.id ) {
+                await this.itemAction('save');
+            }
         },
 
         //---------------------------------------------------------------------
-        
+
         async saveCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();
