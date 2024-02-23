@@ -352,6 +352,8 @@ export const useProductStore = defineStore({
                         if (newVal && newVal !== "") {
                             this.item.name = newVal;
                             this.item.slug = vaah().strToSlug(newVal);
+                        }else{
+                            this.item.slug="";
                         }
                     }, {deep: true}
                 )

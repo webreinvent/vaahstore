@@ -724,19 +724,18 @@ export const useStoreStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'stores.form'})
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'stores.index'});
                     break;
-                case 'save-and-new':
-                    this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'stores.form'});
-                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'stores.form'})
                     await this.getFormMenu();
                     break;
                 case 'trash':
