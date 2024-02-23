@@ -2108,7 +2108,7 @@ export const useProductStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    products: [product.slug]
+                    products: [product.slug],trashed: 'include'
                 }
             };
             const route = {
@@ -2126,7 +2126,7 @@ export const useProductStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    products: [product.slug]
+                    products: [product.slug],trashed: 'include'
                 }
             };
             const route = {

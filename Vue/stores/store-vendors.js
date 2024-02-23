@@ -1477,11 +1477,12 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         toViewProducts(vendor)
         {
+            console.log(vendor);
             const query = {
                 page: 1,
                 rows: 20,
                 filter: {
-                    vendors: [vendor.slug]
+                    vendors: [vendor.slug],trashed: 'include'
                 }
             };
             const route = {
