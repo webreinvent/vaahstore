@@ -639,37 +639,39 @@ class ProductStock extends VaahModel
         }
 
         $inputs = $request->all();
-
         $item = self::where('id', $id)->withTrashed()->first();
-
         //check stock we are adding for the variation is unique
         $conditions = [
             ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
 
-        $item = self::where($conditions)
+        $is_exist = self::where($conditions)
             ->whereNot('id',$item->id)
             ->withTrashed()->first();
 
-        if ($item) {
+        if ($is_exist) {
             $error_message = "Product Stock already exists for this variation".($item->deleted_at?' in trash.':'.');
             $response['errors'][] = $error_message;
             return $response;
         }
 
+        $difference_in_quantity = $inputs['quantity'] - $item->quantity;
         // calculate difference between new and old quantity
-        $difference_in_quantity =$inputs['quantity'] - $item->quantity;
         $item->fill($inputs);
+
+
+
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         //update the quantity in variation table
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
+
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
-
+        
         //update the quantity in product table
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
         $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
