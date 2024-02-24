@@ -1223,41 +1223,49 @@ class Store extends VaahModel
         $inputs['is_multi_lingual'] =  rand(0,1);
 
         $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
-        $random_currencies = array_rand($currency_list, 3);
         $selected_currencies = [];
         $inputs['default_currency'] = null;
 
-        foreach ($random_currencies as $index) {
-            $selected_currencies[] = $currency_list[$index];
-        }
+        if (!empty($currency_list)) {
+            $random_currencies = array_rand($currency_list, min(3, count($currency_list)));
 
-        if($inputs['is_multi_currency'] == 1)
-        {
-            $inputs['default_currency'] = $selected_currencies[0];
-            foreach ($selected_currencies as $currency)
-            {
-
-                $inputs['currencies'][] = $currency;
+            foreach ((array)$random_currencies as $index) {
+                if (isset($currency_list[$index])) {
+                    $selected_currencies[] = $currency_list[$index];
+                }
             }
         }
+
+        if ($inputs['is_multi_currency'] == 1 && !empty($selected_currencies)) {
+            $inputs['default_currency'] = $selected_currencies[0];
+            $inputs['currencies'] = $selected_currencies;
+        } else {
+            $inputs['currencies'] = [];
+        }
+
 
         $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
-        $random_languages = array_rand($language_list, 3);
         $selected_languages = [];
         $inputs['default_language'] = null;
-        foreach ($random_languages as $index) {
-            $selected_languages[] = $language_list[$index];
-        }
-        if($inputs['is_multi_lingual'] == 1)
-        {
-            $inputs['default_language'] = $selected_languages[0];
-            foreach ($selected_languages as $language)
-            {
 
-                $inputs['languages'][] = $language;
+        if (!empty($language_list)) {
+            $random_languages = array_rand($language_list, min(3, count($language_list)));
+
+            foreach ((array)$random_languages as $index) {
+                if (isset($language_list[$index])) {
+                    $selected_languages[] = $language_list[$index];
+                }
             }
-
         }
+
+        if ($inputs['is_multi_lingual'] == 1 && !empty($selected_languages)) {
+            $inputs['default_language'] = $selected_languages[0];
+            $inputs['languages'] = $selected_languages;
+        } else {
+            $inputs['languages'] = [];
+        }
+
+
 
         $inputs['allowed_ips'][] = $faker->ipv4;
         $inputs['is_multi_vendor'] = 1;

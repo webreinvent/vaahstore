@@ -1183,11 +1183,13 @@ class Product extends VaahModel
 
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
-        $store_ids = $stores->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id',$store_id)->first();
-        $inputs['store'] = $store;
-        $inputs['vh_st_store_id'] = $store_id ;
+        if ($stores->count() > 0) {
+            $store_ids = $stores->pluck('id')->toArray();
+            $store_id = $store_ids[array_rand($store_ids)];
+            $store = $stores->where('id', $store_id)->first();
+            $inputs['store'] = $store;
+            $inputs['vh_st_store_id'] = $store_id;
+        }
 
         $default_brand = Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
         if($default_brand !== null)

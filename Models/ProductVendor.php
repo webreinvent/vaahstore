@@ -1069,10 +1069,23 @@ class ProductVendor extends VaahModel
         // fill the store field here
         $stores = Store::where('is_active', 1)->get();
         $store_ids = $stores->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id', $store_id)->first();
-        $inputs['store_vendor_product'] = $store;
+        $store_id = null;
+
+        if (!empty($store_ids)) {
+            $store_id = $store_ids[array_rand($store_ids)];
+            $store = $stores->where('id', $store_id)->first();
+
+            $inputs['store_vendor_product'] = $store;
+        }
+
+        if (!isset($inputs['store_vendor_product'])) {
+            $response['success'] = false;
+            $response['errors'][] = 'No store Found.';
+            return $response;
+        }
+
         $inputs['vh_st_store_id'] = $store_id;
+
 
         $products = Product::where('is_active', 1)
             ->where('vh_st_store_id', $store_id)
@@ -1097,12 +1110,22 @@ class ProductVendor extends VaahModel
         $inputs['added_by_user'] = $user;
         $inputs['added_by'] = $user_id ;
 
-        $vendors = Vendor::where('is_active',1)->get();
+
+        $vendors = Vendor::where('is_active', 1)->get();
         $vendors_ids = $vendors->pluck('id')->toArray();
-        $vendors_ids = $vendors_ids[array_rand($vendors_ids)];
-        $vendors = $vendors->where('id',$vendors_ids)->first();
-        $inputs['vendor'] = $vendors;
-        $inputs['vh_st_vendor_id'] = $vendors_ids ;
+        if (!empty($vendors_ids)) {
+            $vendors_id = $vendors_ids[array_rand($vendors_ids)];
+            $vendor = $vendors->where('id', $vendors_id)->first();
+            $inputs['vendor'] = $vendor;
+        }
+
+        if (!isset($inputs['vendor'])) {
+            $response['success'] = false;
+            $response['errors'][] = 'No vendor Found.';
+            return $response;
+        }
+
+        $inputs['vh_st_vendor_id'] = $vendors_id;
 
 
         $inputs['can_update'] =  rand(0,1);
