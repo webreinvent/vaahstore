@@ -158,7 +158,7 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Name</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;white-space: pre-wrap;">
+                                    <div class="word-overflow" style="word-break: break-word;white-space: pre-wrap;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -168,7 +168,7 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Slug</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;white-space: pre-wrap;">
+                                    <div class="word-overflow" style="word-break: break-word;white-space: pre-wrap;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
@@ -193,7 +193,7 @@ const toggleItemMenu = (event) => {
                             <tr v-if="store.item.brand">
                                 <td><b>Brand</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
+                                    <div class="word-overflow" style="word-break: break-word;">
                                         {{store.item.brand.name}}</div>
                                 </td>
                             </tr>
@@ -222,13 +222,13 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Product Summary</b></td>
                                 <td  colspan="2" >
-                                    <pre v-html="store.item.summary" style="width:300px;word-break:break-word;white-space: pre-wrap;"/>
+                                    <pre v-html="store.item.summary" style="word-break:break-word;white-space: pre-wrap;"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Product Details</b></td>
                                 <td colspan="2">
-                                    <pre v-html="store.item.details" style="width:300px;word-break:break-word;white-space: pre-wrap;overflow-wrap:break-word;word-wrap:break-word;"/>
+                                    <pre v-html="store.item.details" style="word-break:break-word;white-space: pre-wrap;overflow-wrap:break-word;word-wrap:break-word;"/>
                                 </td>
                             </tr>
                             <tr v-if="store.item.quantity > 0">
