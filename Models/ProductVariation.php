@@ -1137,10 +1137,12 @@ class ProductVariation extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
         $product_ids = Product::where(['is_active'=>1,'deleted_at'=>null])->pluck('id')->toArray();
-        $product_id = $product_ids[array_rand($product_ids)];
-        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
-        $inputs['vh_st_product_id'] = $product_id;
-        $inputs['product'] = $product;
+        if ($product_ids) {
+            $product_id = $product_ids[array_rand($product_ids)];
+            $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+            $inputs['vh_st_product_id'] = $product_id;
+            $inputs['product'] = $product;
+        }
 
         $inputs['price'] = rand(1,100000);
         $inputs['is_active'] = rand(0,1);
