@@ -213,6 +213,12 @@ export const useVendorStore = defineStore({
 
         addProduct(){
 
+            if(!this.selected_product)
+            {
+                vaah().toastErrors(['Please choose a product']);
+                return false;
+            }
+
             if (!this.item.products) {
                 this.item.products = [];
             }

@@ -671,7 +671,7 @@ class ProductStock extends VaahModel
 
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
-        
+
         //update the quantity in product table
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
         $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
