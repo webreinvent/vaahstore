@@ -1147,8 +1147,8 @@ class Store extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
-            $item->save();
-            $item->allowed_ips =json_encode($inputs['allowed_ips']);
+//            $item->save();
+            $item->allowed_ips = json_encode($inputs['allowed_ips']);
             $item->slug = Str::slug($inputs['slug']);
             $item->save();
 

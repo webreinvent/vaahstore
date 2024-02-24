@@ -164,7 +164,7 @@ const toggleItemMenu = (event) => {
                                     <b>Name</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -175,7 +175,7 @@ const toggleItemMenu = (event) => {
                                     <b>Slug</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
@@ -249,7 +249,7 @@ const toggleItemMenu = (event) => {
                                     <b>Default Currency</b>
                                 </td>
                                 <td  colspan="2" v-if="store.item.default_currency && store.item.default_currency.name">
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
                                         </Tag>
                                     </div>
@@ -290,7 +290,7 @@ const toggleItemMenu = (event) => {
                                     <b>Default Language</b>
                                 </td>
                                 <td  colspan="2" v-if="store.item.default_language && store.item.default_language.name">
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
                                     </div>
                                 </td>
