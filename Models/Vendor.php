@@ -1190,8 +1190,10 @@ class Vendor extends VaahModel
         $faker = Factory::create();
 
         $store = Store::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['vh_st_store_id'] = $store->id;
-        $inputs['store'] = $store;
+        if ($store) {
+            $inputs['vh_st_store_id'] = $store->id;
+            $inputs['store'] = $store;
+        }
 
         $inputs['years_in_business'] = rand(1,100);
 
