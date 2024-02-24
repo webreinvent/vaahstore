@@ -58,14 +58,18 @@ const useVaah = vaah();
 
 
                  <template #body="prop">
+                     <div class="p-inputgroup">
+                         <span class="p-inputgroup-addon">
                      <Button class="p-button-tiny"
                              v-tooltip.top="'Add Price Item'"
-                             icon="pi pi-plus" severity="success"
+                             icon="pi pi-plus" severity="info"
                              @click="store.toProductPrice(prop.data)"
                              :disabled="$route.path.includes('price') && prop.data.id===store.item?.id"
                          >
-
                      </Button>
+                             </span>
+
+                     </div>
 
                  </template>
 
