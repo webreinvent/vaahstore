@@ -276,7 +276,7 @@ class Vendor extends VaahModel
 
             $vendor_product = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
            if($vendor_product){
-                $response['errors'][] = "This Product '{$value['product']['name']}'  already exists for this vendor.";
+                $response['errors'][] = "'{$value['product']['name']}' already exists for this vendor.";
                 return $response;
             }
 

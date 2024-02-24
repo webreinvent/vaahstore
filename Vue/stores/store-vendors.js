@@ -1712,6 +1712,18 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        watchProducts()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const deselected = newVal.products.some(item => !item.is_selected);
+                    this.select_all_product = !deselected;
+                },{deep: true}
+            )
+
+        },
 
 
 

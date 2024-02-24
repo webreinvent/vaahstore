@@ -193,7 +193,6 @@ class Product extends VaahModel
     public function productVendors()
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
-            ->where('vh_st_product_vendors.is_active', 1)
             ->select()
             ->with('vendor');
     }
