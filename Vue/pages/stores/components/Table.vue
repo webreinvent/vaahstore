@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id === store.item.id ? 'bg-yellow-200' : ''"
+                    :rowClass="(rowData) =>rowData.id === store && store.item && store.item.id ? 'bg-yellow-100':''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -64,7 +64,6 @@ const useVaah = vaah();
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
@@ -88,14 +87,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="stores-table-to-view"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="stores-table-to-edit"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />

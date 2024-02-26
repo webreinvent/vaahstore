@@ -85,6 +85,7 @@ export const useStoreStore = defineStore({
         selected_dates: null,
         prev_list:[],
         current_list:[],
+        first_element: null,
     }),
     getters: {},
     actions: {
@@ -99,6 +100,8 @@ export const useStoreStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+
+            this.first_element = ((this.query.page - 1) * this.query.rows);
 
             /**
              * Update query state with the query parameters of url
@@ -259,7 +262,8 @@ export const useStoreStore = defineStore({
                 this.currencies_list = data.currencies;
                 this.languages_list = data.languages;
                 if (data.rows) {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows
                 }
 
                 if (this.route.params && !this.route.params.id) {
@@ -474,6 +478,8 @@ export const useStoreStore = defineStore({
         afterGetList: function (data, res) {
             if (data) {
                 this.list = data;
+                this.first_element = this.query.rows * (this.query.page - 1);
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -762,7 +768,9 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
         async paginate(event) {
-            this.query.page = event.page + 1;
+            this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },

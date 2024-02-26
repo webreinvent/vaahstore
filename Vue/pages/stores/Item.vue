@@ -70,7 +70,11 @@ const toggleItemMenu = (event) => {
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title" style="display: flex; align-items: center;">
+                    <div v-if="store.item && store.item.id"
+                         class="p-panel-title"
+                         style="display: flex; align-items: center;"
+
+                    >
                         <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
                         <div style="word-break: break-word;margin-left: 5px;">{{ store.item.name.replace('.', '') }}</div>
                     </div>
@@ -183,11 +187,11 @@ const toggleItemMenu = (event) => {
                                 <td :style="{width: label_width}">
                                     <b>Status</b>
                                 </td>
-                                <td  colspan="2" >
-                                    <Tag v-if="store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else-if="store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else-if="store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else severity="primary" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                <td  colspan="2"  >
+                                    <Tag v-if="store.item && store.item.status && store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else severity="primary" :value="store.item && store.item.status && store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                 </td>
                             </tr>
                         </template>
