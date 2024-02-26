@@ -270,11 +270,23 @@ class Store extends VaahModel
         $item = new self();
         $item->fill($inputs);
 
-        if(isset($item->allowed_ips))
-        {
-            $item->allowed_ips = json_encode($inputs['allowed_ips']);
+        if (isset($item->allowed_ips)) {
+            $unique_ips = array_unique($inputs['allowed_ips']);
 
+            $existing_ips = is_array($item->allowed_ips) ? $item->allowed_ips : json_decode($item->allowed_ips, true);
+            $new_ips = array_diff($unique_ips, $existing_ips);
+
+            if (empty($new_ips)) {
+
+                $error_message = "Duplicate IP";
+                $response['errors'][] = $error_message;
+                return $response;
+            } else {
+                $item->allowed_ips = array_merge($existing_ips, $new_ips);
+            }
         }
+
+
 
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
