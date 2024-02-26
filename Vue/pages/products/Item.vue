@@ -410,7 +410,7 @@ const toggleItemMenu = (event) => {
         <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.seo_title}}</p></div>
         <div class="mb-4 flex">
             <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
-            <pre style="font-family: Inter,ui-sans-serif">{{store.item.seo_meta_description}}</pre>
+            <pre style="font-family: Inter,ui-sans-serif ;white-space: break-spaces;">{{store.item.seo_meta_description}}</pre>
         </div>
         <div class="flex"><span class="font-bold mr-2">Meta Keywords: </span> <p>{{store.item.seo_meta_keyword}}</p></div>
     </Dialog>
