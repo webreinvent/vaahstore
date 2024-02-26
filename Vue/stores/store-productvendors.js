@@ -93,6 +93,7 @@ export const useProductVendorStore = defineStore({
         selected_dates:[],
         date_null:null,
         product_variation_list:[],
+        active_stores:null,
 
     }),
     getters: {

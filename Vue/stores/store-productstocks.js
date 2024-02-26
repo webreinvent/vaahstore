@@ -399,10 +399,11 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-            this.item.product_variation = null;
-            this.item.vh_st_product_variation_id = null;
-
+            if (product && product.id) {
+                this.item.vh_st_product_id = product.id;
+                this.item.product_variation = null;
+                this.item.vh_st_product_variation_id = null;
+            }
         },
         //---------------------------------------------------------------------
         setProductVariation(event){
@@ -924,7 +925,7 @@ export const useProductStockStore = defineStore({
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'productstocks.view', params:{id:item.id,}})
-            this.route.query = this.query.filter;
+            // this.route.query = this.query.filter;
         },
         //---------------------------------------------------------------------
         toEdit(item)

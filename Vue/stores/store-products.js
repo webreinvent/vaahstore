@@ -374,7 +374,7 @@ export const useProductStore = defineStore({
 
         watchQuantity()
         {
-            watch(() => [this.quantity.from, this.quantity.to], ([min, max]) => {
+            watch(() => [this.quantity?.from, this.quantity?.to], ([min, max]) => {
                 // Check if both from and too quantity are entered
 
                 if (min !== null && min !== '' && max !== null && max !== '') {
