@@ -132,7 +132,7 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        <Tag :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
+                        <Tag class="h-max max-w-full mb-1" :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
             </td>
