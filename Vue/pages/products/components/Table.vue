@@ -49,11 +49,12 @@ const useVaah = vaah()
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.store.deleted_at"
+                     <Badge v-if="prop.data && prop.data.store && prop.data.store.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span>
-                        <div style="word-break: break-word;">{{ prop.data.store.name }}</div>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.store">
+                            {{ prop.data.store.name }}</div>
                          </span>
                  </template>
 
