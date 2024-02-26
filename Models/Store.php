@@ -226,6 +226,11 @@ class Store extends VaahModel
     public static function createItem($request)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -708,6 +713,11 @@ class Store extends VaahModel
     public static function updateList($request)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -767,6 +777,11 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -809,6 +824,12 @@ class Store extends VaahModel
 
     public static function listAction($request, $type): array
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
         if(isset($inputs['items']))
         {
@@ -983,6 +1004,12 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -1069,6 +1096,11 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
@@ -1088,6 +1120,11 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         switch($type)
         {
