@@ -88,7 +88,7 @@ const items = ref([
             {
                 label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
-                route: "/attributegroups"
+                route: "/attributesgroup"
             },
             {
                 label: 'Orders',
