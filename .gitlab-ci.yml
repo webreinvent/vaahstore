@@ -89,7 +89,7 @@ deploy_develop:
     - pwd
     - cd $PROJECT_PATH
     - pwd
-    - rm -rf store-dev
+    - rm -rf vaahstore-develop
     - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
     - rm -rf /vaahstore-develop/.git
     #- rm -rf /store-dev/././.git
