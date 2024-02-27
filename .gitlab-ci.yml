@@ -115,7 +115,7 @@ deploy_develop:
     - echo "Visit following url:"
     - echo $PROJECT_URL
 
-  rules:
+  only:
     - develop
 
   tags:
