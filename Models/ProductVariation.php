@@ -77,7 +77,7 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public  function medias()
     {
-        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')->withTrashed()
             ->withPivot('id','vh_st_product_id');
     }
     public static function getUnFillableColumns()
