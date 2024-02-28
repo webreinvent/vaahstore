@@ -11,7 +11,10 @@ const useVaah = vaah();
 
     <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
-         <DataTable :value="store.list.data"
+        <Message v-if="!store.list.data || !store.list.data.some(store => store.is_default === 1)" severity="warn" class="mt-1" :closable="false">
+            There is no default store. Mark a store as <strong>default</strong>.
+        </Message>
+        <DataTable :value="store.list.data"
                        dataKey="id"
                     :rowClass="(rowData) =>rowData.id === store && store.item && store.item.id ? 'bg-yellow-100':''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
