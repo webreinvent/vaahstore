@@ -554,6 +554,25 @@ class VendorsController extends Controller
         }
     }
 
+    //-------------------------------------------------------------------------
+
+    public function defaultStore(Request $request)
+    {
+        try{
+            return Vendor::defaultStore($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
 
 
 }
