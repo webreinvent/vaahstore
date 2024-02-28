@@ -108,7 +108,7 @@ class Warehouse extends VaahModel
 
     public function vendor()
     {
-        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id', 'name']);
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->withTrashed()->select(['id', 'name','deleted_at']);
     }
 
     //-------------------------------------------------
@@ -209,8 +209,8 @@ class Warehouse extends VaahModel
             ->withTrashed()
             ->first();
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -621,8 +621,8 @@ class Warehouse extends VaahModel
             ->first();
 
         if ($existing_item) {
-            $response['success'] = false;
-            $response['errors'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($existing_item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
