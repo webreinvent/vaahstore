@@ -56,21 +56,21 @@ const useVaah = vaah();
              <Column field="add_price" header="Add Price"
                      :sortable="false"  >
 
-
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
-                     <Button class="p-button-tiny"
-                             v-tooltip.top="'Add Price Item'"
-                             icon="pi pi-plus" severity="info"
-                             @click="store.toProductPrice(prop.data)"
-                             :disabled="$route.path.includes('price') && prop.data.id===store.item?.id"
-                         >
-                     </Button>
-                             </span>
-
+                     <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon"
+                              v-tooltip.top="'Total Variations'">
+                              <b>{{ prop.data.product.product_variations ? prop.data.product.product_variations.length : 0 }}</b>
+                        </span>
+                         <button lass="p-button-tiny"
+                                 v-tooltip.top="'Add Price Item'"
+                                 icon="pi pi-plus" severity="info"
+                                 style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                 @click="store.toProductPrice(prop.data)"
+                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id">
+                             <i class="pi pi-plus" style="color: white"></i>
+                         </button>
                      </div>
-
                  </template>
 
              </Column>

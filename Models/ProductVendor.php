@@ -77,6 +77,13 @@ class ProductVendor extends VaahModel
     {
         return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id')->withTrashed();
     }
+
+    //-------------------------------------------------
+    public function productVariations()
+    {
+        return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
+            ->withTrashed();
+    }
     //-------------------------------------------------
     public static function getFillableColumns()
     {
@@ -419,7 +426,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product','vendor','addedByUser','status','stores');
+        $list = self::getSorted($request->filter)->with('product.productVariations','vendor','addedByUser','status','stores');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -1253,4 +1260,26 @@ class ProductVendor extends VaahModel
     }
 
     //-------------------------------------------------
+
+
+    public static function getVariationOfProduct($id)
+    {
+
+
+
+        $product_variations = ProductVariation::where('vh_st_product_id', $id)->withTrashed()->get();
+
+        dd($product_variations);
+
+
+        $response['success'] = true;
+        $response['data'] = $product_variations;
+
+        return $response;
+
+
+    }
+
+
+
 }
