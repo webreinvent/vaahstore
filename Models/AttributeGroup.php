@@ -151,8 +151,8 @@ class AttributeGroup extends VaahModel
     public function attributesList()
     {
         return $this->belongsToMany(Attribute::class, 'vh_st_attr_group_items', 'vh_st_attribute_group_id', 'vh_st_attribute_id')
-            ->where('vh_st_attr_group_items.deleted_at', null)
-            ->select('vh_st_attributes.id', 'vh_st_attributes.name', 'vh_st_attributes.type');
+            ->where('vh_st_attr_group_items.deleted_at', null)->withTrashed()
+            ->select('vh_st_attributes.id', 'vh_st_attributes.name', 'vh_st_attributes.type', 'vh_st_attributes.deleted_at');
     }
 
     //-------------------------------------------------
@@ -170,8 +170,8 @@ class AttributeGroup extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -179,8 +179,8 @@ class AttributeGroup extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -615,8 +615,8 @@ class AttributeGroup extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -624,10 +624,9 @@ class AttributeGroup extends VaahModel
         $item = self::where('id', '!=', $id)
             ->withTrashed()
             ->where('slug', $inputs['slug'])->first();
-
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 

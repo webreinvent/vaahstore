@@ -176,8 +176,8 @@ class Attribute extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -582,7 +582,16 @@ class Attribute extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $existing_item = self::where('id', '!=', $id)
+            ->where('name', $inputs['name'])
+            ->withTrashed()
+            ->first();
 
+        if ($existing_item) {
+            $error_message = "This name is already exist ".($existing_item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
         $new_array = null;
         foreach ($inputs['value'] as $value) {
             if ($value['is_active']) {
