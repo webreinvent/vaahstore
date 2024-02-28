@@ -1029,10 +1029,7 @@ export const useVendorStore = defineStore({
         //-----------------------------------------------------------------------
 
         getDefaultStoreAfter(data,res) {
-            if(data)
-            {
-                this.item.store = data;
-            }
+            this.item.store = data ? data : [];
         },
 
         //--------------------------------------------------------------------------
