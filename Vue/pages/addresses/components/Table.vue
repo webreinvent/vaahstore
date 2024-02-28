@@ -29,11 +29,13 @@ const useVaah = vaah();
              <Column field="user.first_name" header="User"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.user && prop.data.user.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                         {{prop.data.user.first_name}}
+                     <div style="word-break: break-word;" v-if="prop.data.user && prop.data.user.first_name">
+                         {{ prop.data.user.first_name }}
+                     </div>
                  </template>
 
              </Column>

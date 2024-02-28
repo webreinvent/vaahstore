@@ -679,7 +679,6 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-//dd($request->filter);
         $list = self::getSorted($request->filter)->with('status');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);

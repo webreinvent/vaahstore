@@ -141,8 +141,8 @@ class Address extends VaahModel
     //-------------------------------------------------
     public function user()
     {
-        return $this->belongsTo(User::class,'vh_user_id','id')
-            ->select('id','first_name', 'email');
+        return $this->belongsTo(User::class,'vh_user_id','id')->withTrashed()
+            ->select('id','first_name', 'email','deleted_at');
     }
     //-------------------------------------------------
     public function status()
@@ -199,11 +199,12 @@ class Address extends VaahModel
             ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
             ->where('address_line_1', $inputs['address_line_1'])
             ->where('address_line_2', $inputs['address_line_2'])
+            ->withTrashed()
             ->first();
 
         if ($address) {
-            $response = [];
-            $response['errors'][] = 'This Address already exist for the user.';
+            $error_message = "This Address already exist for the user".($address->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
         $item = new self();
@@ -596,7 +597,7 @@ class Address extends VaahModel
                 $list->onlyTrashed()->update(['deleted_by' => null,'is_default' => 0]);
                 $list->restore();
                 break;
-                
+
             case 'delete-all':
                 $list->forceDelete();
                 break;
@@ -667,10 +668,11 @@ class Address extends VaahModel
             ->where('address_line_1', $inputs['address_line_1'])
             ->where('address_line_2', $inputs['address_line_2'])
             ->whereNot('id',$inputs['id'])
+            ->withTrashed()
             ->first();
         if ($address) {
-            $response = [];
-            $response['errors'][] = 'This Address already exist for the user.';
+            $error_message = "This Address already exist for the user".($address->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 

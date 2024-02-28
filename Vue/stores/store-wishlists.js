@@ -278,6 +278,10 @@ export const useWishlistStore = defineStore({
                   this.item.name = vaah().capitalising(name);
                   this.item.slug = vaah().strToSlug(name);
               }
+              if(name === "")
+              {
+                  this.item.slug = "";
+              }
           },
         //---------------------------------------------------------------------
         setUser(event) {
