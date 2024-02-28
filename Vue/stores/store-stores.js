@@ -323,7 +323,6 @@ export const useStoreStore = defineStore({
             }
             if(unique_currencies.length == 0)
             {
-                vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
                 await this.getItem(this.route.params.id);
                 return false;
             }
