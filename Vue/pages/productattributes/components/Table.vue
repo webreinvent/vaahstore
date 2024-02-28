@@ -30,13 +30,13 @@ const useVaah = vaah();
              <Column field="product_variation.name" header="Product Variation"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.is_default">Default</Badge>
                      <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
-                         {{prop.data.product_variation.name}}</div>
+                         {{ prop.data.product_variation.name }}
+                     </div>
                  </template>
 
              </Column>
@@ -44,9 +44,13 @@ const useVaah = vaah();
              <Column field="attribute.name" header="Attribute"
                      :sortable="true">
 
-                 <template #body="prop">
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.attribute && prop.data.attribute.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
                      <div style="word-break: break-word;" v-if="prop.data.attribute && prop.data.attribute.name">
-                         {{prop.data.attribute.name}}</div>
+                         {{ prop.data.attribute.name }}
+                     </div>
                  </template>
 
              </Column>

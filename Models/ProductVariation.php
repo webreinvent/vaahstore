@@ -1343,7 +1343,7 @@ class ProductVariation extends VaahModel
         $response=[];
 
         if ($item_id) {
-            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->first();
+            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->withTrashed()->first();
 
             if ($item_exist) {
 

@@ -127,15 +127,15 @@ class ProductAttribute extends VaahModel
 
     public function productVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')
-            ->select('name', 'id', 'is_default');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->withTrashed()
+            ->select('name', 'id', 'is_default','deleted_at');
     }
 
     //-------------------------------------------------
     public function attribute()
     {
-        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
-            ->select('name', 'id', 'type');
+        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')->withTrashed()
+            ->select('name', 'id', 'type','deleted_at');
     }
 
     //-------------------------------------------------
