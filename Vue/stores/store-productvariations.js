@@ -98,7 +98,9 @@ export const useProductVariationStore = defineStore({
     },
     actions: {
         async fetchDataBasedOnProductId(selectedProductId) {
+this.fetchedProductId=selectedProductId;
             if (selectedProductId && selectedProductId.id) {
+                this.item.product=this.fetchedProductId;
                 this.item.vh_st_product_id = selectedProductId.id;
 
             }
@@ -784,8 +786,8 @@ export const useProductVariationStore = defineStore({
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.item.product=null;
-            console.log(this.item.product);
+            this.fetchedProductId=null
+            console.log(this.fetchedProductId);
             this.$router.push({name: 'productvariations.index'})
         },
         //---------------------------------------------------------------------

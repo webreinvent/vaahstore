@@ -1394,7 +1394,6 @@ export const useProductVendorStore = defineStore({
             if (!variations || variations.length === 0) {
                 return '';
             }
-            console.log(variations)
 
             let minPrice = variations[0].price;
             let maxPrice = variations[0].price;
@@ -1410,10 +1409,42 @@ export const useProductVendorStore = defineStore({
             }
 
             return `${minPrice} - ${maxPrice}`;
-        }
+        },
 
         //---------------------------------------------------------------------
+        setSelectedProductId(productId) {
+            if (productId && productId.deleted_at === null) {
+                this.selectedProductInfo = {
+                    id: productId.id,
+                    name: productId.name,
+                    slug: productId.slug
+                };
+                this.selectedProductId=this.selectedProductInfo
+            }
+        },
 
+
+        // toProductVariationCreate(product)
+        // {
+        //     const query = {
+        //         page: 1,
+        //         rows: 20,
+        //         productId: product,
+        //     };
+        //     const route = {
+        //         name: 'productvariations.form',
+        //         query: query
+        //     };
+        //     this.$router.push(route);
+        // },
+
+        toProductVariationCreate(productId) {
+            this.setSelectedProductId(productId);
+            // this.$router.push({ name: 'productvariations.form' });
+            this.$router.push({
+                name: 'productvariations.form',
+            });
+        },
     }
 });
 
