@@ -4,10 +4,16 @@ import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {useProductVendorStore} from "../../stores/store-productvendors";
 
-
+const store1 = useProductVendorStore();
 const store = useProductVariationStore();
 const route = useRoute();
+const selectedProductId = ref(store1.selectedProductId);
+if ( selectedProductId && selectedProductId.value!=null){
+    store.item.product=selectedProductId.value;
+}
+store.fetchDataBasedOnProductId(selectedProductId.value);
 
 onMounted(async () => {
     if(route.params && route.params.id)
@@ -16,7 +22,10 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
+
+
 });
+
 
 //--------form_menu
 const form_menu = ref();
@@ -109,6 +118,7 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Product*">
 
+                    {{store.item.product}}
                     <AutoComplete
                         value="id"
                         v-model="store.item.product"
