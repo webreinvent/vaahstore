@@ -1388,42 +1388,29 @@ export const useProductVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        // setSelectedProductId(productId) {
-        //     this.selectedProductId = this.item.product;
-        //
-        //     // console.log(this.selectedProductId);
-        // },
 
-        setSelectedProductId(productId) {
-            if (productId && productId.deleted_at === null) {
-                this.selectedProductInfo = {
-                    id: productId.id,
-                    name: productId.name,
-                    slug: productId.slug
-                };
-                this.selectedProductId=this.selectedProductInfo
+
+         calculatePriceRange (variations) {
+            if (!variations || variations.length === 0) {
+                return '';
             }
-        },
+            console.log(variations)
 
+            let minPrice = variations[0].price;
+            let maxPrice = variations[0].price;
 
-        // toProductVariationCreate(product)
-        // {
-        //     const query = {
-        //         page: 1,
-        //         rows: 20,
-        //         productId: product,
-        //     };
-        //     const route = {
-        //         name: 'productvariations.form',
-        //         query: query
-        //     };
-        //     this.$router.push(route);
-        // },
+            for (let i = 1; i < variations.length; i++) {
+                const price = variations[i].price;
+                if (price < minPrice) {
+                    minPrice = price;
+                }
+                if (price > maxPrice) {
+                    maxPrice = price;
+                }
+            }
 
-        toProductVariationCreate(productId) {
-            this.setSelectedProductId(productId);
-            this.$router.push({ name: 'productvariations.form' });
-        },
+            return `${minPrice} - ${maxPrice}`;
+        }
 
         //---------------------------------------------------------------------
 

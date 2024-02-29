@@ -75,6 +75,22 @@ const useVaah = vaah();
 
              </Column>
 
+
+             <Column field="variation_price_range" header="Price Range"
+                     :sortable="false"  >
+
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon"
+                              v-tooltip.top="' Variations Price Range'">
+                             {{ store.calculatePriceRange(prop.data.product.product_variations) }}
+                            <b></b>
+                        </span>
+                     </div>
+                 </template>
+
+             </Column>
+
              <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"
                      :sortable="true">
