@@ -154,6 +154,19 @@ class ProductVendor extends VaahModel
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->withTrashed()->select('id','name', 'slug','is_default','deleted_at');
     }
+    /*public function productPrices()
+    {
+        return $this->belongsToMany(ProductPrice::class, 'vh_st_product_prices', 'vh_st_vendor_product_id')
+            ->withPivot(['id']); // Adjust if you need to include additional pivot columns
+    }*/
+
+
+    public function productVariationPivot()
+    {
+        return $this->belongsToMany(ProductVariation::class,
+            'vh_st_product_prices','vh_st_vendor_product_id', 'vh_st_product_variation_id',
+        )->withPivot(['id','amount']);
+    }
     //-------------------------------------------------
     public function getTableColumns()
     {
@@ -192,9 +205,67 @@ class ProductVendor extends VaahModel
     }
 
     //--------------------Add and update product price-----------------------------
+//    public static function createProductPrice($request)
+//    {
+//        $inputs = $request->all();
+////        $vhStVendorProductId = $inputs['id'];
+////        dd($inputs);
+//        $validation = self::validationProductPrice($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
+//
+//        $response = [];
+//        $saved_variations = 0;
+//        foreach ($inputs['product_variation'] as $key => $variation) {
+//            $variation_price = ProductPrice::where([
+//                'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+//                'vh_st_product_id' => $inputs['vh_st_product_id'],
+//                'vh_st_product_variation_id' => $variation['id']
+//            ])->first();
+//            if (isset($variation['deleted_at'])) {
+//                continue;
+//            }
+//            if ($variation_price) {
+//                if ($variation['amount'] === null) {
+//                    $variation_price->forceDelete();
+//                } else {
+//                    // 'amount' is provided, update the record
+//                    $variation_price->fill([
+//                        'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+//                        'vh_st_product_id' => $inputs['vh_st_product_id'],
+//                        'vh_st_product_variation_id' => $variation['id'],
+//                        'amount' => $variation['amount'],
+//                    ]);
+//                    $variation_price->save();
+//                }
+//                $saved_variations++;
+//            }
+//            if (!$variation_price && isset($variation['amount'])) {
+//                $new_variation_price = new ProductPrice;
+//                $new_variation_price->fill([
+//                    'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
+//                    'vh_st_product_id' => $inputs['vh_st_product_id'],
+//                    'vh_st_product_variation_id' => $variation['id'],
+//                    'amount' => $variation['amount'],
+//                ]);
+//                $new_variation_price->save();
+//                $saved_variations++;
+//
+//            }
+//
+//
+//        }
+//        if ($saved_variations > 0) {
+//            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+//        }
+//        return $response;
+//    }
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
+        $vhStVendorProductId = $inputs['id'];
+//        dd($vhStVendorProductId); // Uncomment this line to debug
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -206,11 +277,15 @@ class ProductVendor extends VaahModel
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
-                'vh_st_product_variation_id' => $variation['id']
+                'vh_st_product_variation_id' => $variation['id'],
             ])->first();
+
+//            dd($variation_price); // Add this line to debug
+
             if (isset($variation['deleted_at'])) {
                 continue;
             }
+
             if ($variation_price) {
                 if ($variation['amount'] === null) {
                     $variation_price->forceDelete();
@@ -220,30 +295,32 @@ class ProductVendor extends VaahModel
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
+                        'vh_st_vendor_product_id' => $vhStVendorProductId,
                         'amount' => $variation['amount'],
                     ]);
                     $variation_price->save();
                 }
                 $saved_variations++;
             }
+
             if (!$variation_price && isset($variation['amount'])) {
                 $new_variation_price = new ProductPrice;
                 $new_variation_price->fill([
                     'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                     'vh_st_product_id' => $inputs['vh_st_product_id'],
                     'vh_st_product_variation_id' => $variation['id'],
+                    'vh_st_vendor_product_id' => $vhStVendorProductId,
                     'amount' => $variation['amount'],
                 ]);
                 $new_variation_price->save();
                 $saved_variations++;
-
             }
-
-
         }
+
         if ($saved_variations > 0) {
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
         }
+
         return $response;
     }
 
@@ -426,7 +503,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product.productVariations','vendor','addedByUser','status','stores');
+        $list = self::getSorted($request->filter)->with('product.productVariations','vendor','addedByUser','status','stores','productVariationPivot');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

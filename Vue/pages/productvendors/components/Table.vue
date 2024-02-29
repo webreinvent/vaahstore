@@ -76,16 +76,32 @@ const useVaah = vaah();
              </Column>
 
 
-             <Column field="variation_price_range" header="Price Range"
+             <Column header="Price Range"
                      :sortable="false"  >
 
+<!--                 <template #body="prop">-->
+<!--                     <div class="p-inputgroup flex-1">-->
+<!--                        <span class="p-inputgroup-addon"-->
+<!--                              v-tooltip.top="' Variations Price Range'">-->
+
+
+<!--                            <div v-for="item in prop.data.product_variation_pivot" :key="item.id">-->
+<!--&lt;!&ndash;                    {{ store.calculatePriceRange(item.pivot) }}&ndash;&gt;-->
+<!--                                {{item.pivot}}-->
+
+<!--                </div>-->
+<!--                            <b></b>-->
+<!--                        </span>-->
+<!--                     </div>-->
+<!--                 </template>-->
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon"
-                              v-tooltip.top="' Variations Price Range'">
-                             {{ store.calculatePriceRange(prop.data.product.product_variations) }}
-                            <b></b>
-                        </span>
+        <span class="p-inputgroup-addon" v-tooltip.top="'Variations Price Range'">
+            <div v-if="prop.data.product_variation_pivot.length > 0">
+                {{ store.calculatePriceRange(prop.data.product_variation_pivot) }}
+            </div>
+            <b></b>
+        </span>
                      </div>
                  </template>
 

@@ -1390,26 +1390,38 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
 
 
-         calculatePriceRange (variations) {
-            if (!variations || variations.length === 0) {
-                return '';
-            }
-
-            let minPrice = variations[0].price;
-            let maxPrice = variations[0].price;
-
-            for (let i = 1; i < variations.length; i++) {
-                const price = variations[i].price;
-                if (price < minPrice) {
-                    minPrice = price;
+        // calculatePriceRange(variations) {
+        //     if (!variations || variations.length === 0) {
+        //         return '';
+        //     }
+        //
+        //     let minPrice = variations[0].pivot.amount;
+        //     let maxPrice = variations[0].pivot.amount;
+        //
+        //     for (let i = 1; i < variations.length; i++) {
+        //         const price = variations[i].pivot.amount;
+        //         if (price < minPrice) {
+        //             minPrice = price;
+        //         }
+        //         if (price > maxPrice) {
+        //             maxPrice = price;
+        //         }
+        //     }
+        //
+        //     return `${minPrice} - ${maxPrice}`;
+        // },
+            calculatePriceRange(productVariations) {
+                if (productVariations.length === 0) {
+                    return 'No variations available';
                 }
-                if (price > maxPrice) {
-                    maxPrice = price;
-                }
-            }
 
-            return `${minPrice} - ${maxPrice}`;
-        },
+                const prices = productVariations.map(item => item.pivot);
+
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
+
+                return `Price Range: ${minPrice} - ${maxPrice}`;
+            },
 
         //---------------------------------------------------------------------
         setSelectedProductId(productId) {
