@@ -149,7 +149,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" 
+            <Column field="actions"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 

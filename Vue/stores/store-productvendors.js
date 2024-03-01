@@ -900,7 +900,34 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultValues();
             this.$router.push({name: 'productvendors.form'})
+        },
+        //---------------------------------------------------------------------
+        async getDefaultValues()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/values',
+                this.getDefaultValuesAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultValuesAfter(data,res) {
+            console.log(data.user_info)
+            if (data && data.default_store) {
+                this.item.store = data.default_store;
+            }
+
+            if (data && data.default_vendor) {
+                this.item.vendor = data.default_vendor;
+            }
         },
         //---------------------------------------------------------------------
         toView(item)

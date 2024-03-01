@@ -129,4 +129,7 @@ function () {
 
     Route::post('/search/product-variation', 'ProductVendorsController@searchVariationOfProduct')
         ->name('vh.backend.store.productvendors.search.product-variation');
+
+    Route::any('/get/default/values', 'ProductVendorsController@getDefaultValues')
+        ->name('vh.backend.store.productvendors.search.default.values');
 });

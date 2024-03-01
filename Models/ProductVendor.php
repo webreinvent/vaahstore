@@ -1335,24 +1335,29 @@ class ProductVendor extends VaahModel
 
     //-------------------------------------------------
 
+    
 
-    public static function getVariationOfProduct($id)
+    public static function getdefaultValues($request)
     {
+        $defaultStore = Store::where(['is_active' => 1, 'is_default' => 1])->first(['id', 'name', 'slug', 'is_default']);
+        $defaultVendor = Vendor::where(['is_active' => 1, 'is_default' => 1])->first(['id', 'name', 'slug', 'is_default']);
 
-
-
-        $product_variations = ProductVariation::where('vh_st_product_id', $id)->withTrashed()->get();
-
-        dd($product_variations);
-
+        $activeUser = auth()->user();
 
         $response['success'] = true;
-        $response['data'] = $product_variations;
+        $response['data'] = [
+            'default_store' => $defaultStore ?: null,
+            'default_vendor' => $defaultVendor ?: null,
+            ];
+
+        if ($defaultStore === null && $defaultVendor === null) {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
 
         return $response;
-
-
     }
+
 
 
 
