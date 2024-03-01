@@ -413,7 +413,7 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
 
                 if (data.product_variations) {
-                    await this.searchVariationOfProduct();
+                    // await this.searchVariationOfProduct();
                     this.product_variations = data.product_variations;
                     this.product_variation_list = this.product_variation_list.map(listVariation => {
                         const matchingVariation = this.product_variations.find(
@@ -1492,6 +1492,8 @@ export const useProductVendorStore = defineStore({
         },
 
 
+
+
         // toProductVariationCreate(product)
         // {
         //     const query = {
@@ -1506,6 +1508,8 @@ export const useProductVendorStore = defineStore({
         //     this.$router.push(route);
         // },
 
+        //---------------------------------------------------------
+
         toProductVariationCreate(productId) {
             this.setSelectedProductId(productId);
             // this.$router.push({ name: 'productvariations.form' });
@@ -1514,6 +1518,7 @@ export const useProductVendorStore = defineStore({
             });
         },
 
+        //--------------------------------------------------------
 
         toViewProductVariations(product)
         {
