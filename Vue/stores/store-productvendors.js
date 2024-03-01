@@ -94,6 +94,8 @@ export const useProductVendorStore = defineStore({
         date_null:null,
         product_variation_list:[],
         active_stores:null,
+        min_price:null,
+        max_price:null,
 
     }),
     getters: {
@@ -1387,41 +1389,70 @@ export const useProductVendorStore = defineStore({
                 }
             }
         },
-        //---------------------------------------------------------------------
 
 
-        // calculatePriceRange(variations) {
-        //     if (!variations || variations.length === 0) {
-        //         return '';
-        //     }
-        //
-        //     let minPrice = variations[0].pivot.amount;
-        //     let maxPrice = variations[0].pivot.amount;
-        //
-        //     for (let i = 1; i < variations.length; i++) {
-        //         const price = variations[i].pivot.amount;
-        //         if (price < minPrice) {
-        //             minPrice = price;
-        //         }
-        //         if (price > maxPrice) {
-        //             maxPrice = price;
-        //         }
-        //     }
-        //
-        //     return `${minPrice} - ${maxPrice}`;
-        // },
-            calculatePriceRange(productVariations) {
-                if (productVariations.length === 0) {
-                    return 'No variations available';
+        calculatePriceRange(product, productVariationPrices) {
+            // Check if product_variations and product_variation_prices are equal in length
+            if (
+                product.product_variations &&
+                product.product_variations.length === productVariationPrices.length
+            ) {
+                // If equal, use product_variation_prices directly
+                const prices = productVariationPrices.map(variationPrice => variationPrice.pivot.amount);
+
+                // Filter out undefined or null values
+                const validPrices = prices.filter(price => price !== undefined && price !== null);
+
+                if (validPrices.length === 0) {
+                    return 'No prices available';
                 }
 
-                const prices = productVariations.map(item => item.pivot);
+                const minPrice = Math.min(...validPrices);
+                const maxPrice = Math.max(...validPrices);
 
-                const minPrice = Math.min(...prices);
-                const maxPrice = Math.max(...prices);
+                if (minPrice === maxPrice) {
+                    return `Price: ${minPrice}`;
+                } else {
+                    return `Price Range: ${minPrice} - ${maxPrice}`;
+                }
+            }
 
-                return `Price Range: ${minPrice} - ${maxPrice}`;
-            },
+
+            let allPrices = [];
+
+            if (product.product_variations && product.product_variations.length > 0) {
+                // Combine prices from product_variations
+                allPrices = product.product_variations.reduce((prices, variation) => {
+                    if (variation.price !== undefined && variation.price !== null) {
+                        prices.push(variation.price);
+                    }
+                    return prices;
+                }, []);
+            }
+
+            allPrices = allPrices.concat(
+                productVariationPrices.reduce((amounts, variationPrice) => {
+                    if (variationPrice.amount !== undefined && variationPrice.amount !== null) {
+                        amounts.push(variationPrice.amount);
+                    }
+                    return amounts;
+                }, [])
+            );
+
+            if (allPrices.length === 0) {
+                return 'No prices available';
+            }
+
+            const minPrice = Math.min(...allPrices);
+            const maxPrice = Math.max(...allPrices);
+
+            if (minPrice === maxPrice) {
+                return `Price: ${minPrice}`;
+            } else {
+                return `Price:  ${minPrice} - ${maxPrice}`;
+            }
+        },
+
 
         //---------------------------------------------------------------------
         setSelectedProductId(productId) {

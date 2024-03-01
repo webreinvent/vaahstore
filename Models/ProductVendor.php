@@ -79,11 +79,11 @@ class ProductVendor extends VaahModel
     }
 
     //-------------------------------------------------
-    public function productVariations()
-    {
-        return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
-            ->withTrashed();
-    }
+//    public function productVariations()
+//    {
+//        return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
+//            ->withTrashed();
+//    }
     //-------------------------------------------------
     public static function getFillableColumns()
     {
@@ -161,7 +161,7 @@ class ProductVendor extends VaahModel
     }*/
 
 
-    public function productVariationPivot()
+    public function productVariationPrices()
     {
         return $this->belongsToMany(ProductVariation::class,
             'vh_st_product_prices','vh_st_vendor_product_id', 'vh_st_product_variation_id',
@@ -265,7 +265,6 @@ class ProductVendor extends VaahModel
     {
         $inputs = $request->all();
         $vhStVendorProductId = $inputs['id'];
-//        dd($vhStVendorProductId); // Uncomment this line to debug
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -279,8 +278,6 @@ class ProductVendor extends VaahModel
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
                 'vh_st_product_variation_id' => $variation['id'],
             ])->first();
-
-//            dd($variation_price); // Add this line to debug
 
             if (isset($variation['deleted_at'])) {
                 continue;
@@ -503,7 +500,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product.productVariations','vendor','addedByUser','status','stores','productVariationPivot');
+        $list = self::getSorted($request->filter)->with('product.productVariationsForVendorProduct','vendor','addedByUser','status','stores','productVariationPrices');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

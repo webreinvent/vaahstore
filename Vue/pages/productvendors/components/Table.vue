@@ -60,7 +60,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon"
                               v-tooltip.top="'Total Variations'">
-                              <b>{{ prop.data.product.product_variations ? prop.data.product.product_variations.length : 0 }}</b>
+                              <b>{{ prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}</b>
                         </span>
                          <button lass="p-button-tiny"
                                  v-tooltip.top="'Add Price Item'"
@@ -76,35 +76,19 @@ const useVaah = vaah();
              </Column>
 
 
-             <Column header="Price Range"
-                     :sortable="false"  >
-
-<!--                 <template #body="prop">-->
-<!--                     <div class="p-inputgroup flex-1">-->
-<!--                        <span class="p-inputgroup-addon"-->
-<!--                              v-tooltip.top="' Variations Price Range'">-->
-
-
-<!--                            <div v-for="item in prop.data.product_variation_pivot" :key="item.id">-->
-<!--&lt;!&ndash;                    {{ store.calculatePriceRange(item.pivot) }}&ndash;&gt;-->
-<!--                                {{item.pivot}}-->
-
-<!--                </div>-->
-<!--                            <b></b>-->
-<!--                        </span>-->
-<!--                     </div>-->
-<!--                 </template>-->
+             <Column header="Product Price Range(min-max)" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-        <span class="p-inputgroup-addon" v-tooltip.top="'Variations Price Range'">
-            <div v-if="prop.data.product_variation_pivot.length > 0">
-                {{ store.calculatePriceRange(prop.data.product_variation_pivot) }}
+            <div  v-tooltip.top="'Variations Price Range'">
+                <div v-if="prop.data.product_variation_prices ">
+                    {{ store.calculatePriceRange(prop.data.product, prop.data.product_variation_prices) }}
+                </div>
+                <div v-else>
+                    No Price Available
+                </div>
             </div>
-            <b></b>
-        </span>
                      </div>
                  </template>
-
              </Column>
 
              <Column field="added_by" header="Added By"
