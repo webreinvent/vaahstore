@@ -318,6 +318,11 @@ class ProductVendor extends VaahModel
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
         }
 
+
+        $response = self::getItem($vhStVendorProductId);
+
+
+
         return $response;
     }
 
