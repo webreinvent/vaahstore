@@ -1335,14 +1335,12 @@ class ProductVendor extends VaahModel
 
     //-------------------------------------------------
 
-    
+
 
     public static function getdefaultValues($request)
     {
-        $defaultStore = Store::where(['is_active' => 1, 'is_default' => 1])->first(['id', 'name', 'slug', 'is_default']);
-        $defaultVendor = Vendor::where(['is_active' => 1, 'is_default' => 1])->first(['id', 'name', 'slug', 'is_default']);
-
-        $activeUser = auth()->user();
+        $defaultStore = Store::where(['is_active' => 1,'deleted_at'=>null, 'is_default' => 1])->first(['id', 'name', 'slug']);
+        $defaultVendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first(['id', 'name', 'slug']);
 
         $response['success'] = true;
         $response['data'] = [

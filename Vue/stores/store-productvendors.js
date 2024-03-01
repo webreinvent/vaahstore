@@ -920,11 +920,9 @@ export const useProductVendorStore = defineStore({
         //-----------------------------------------------------------------------
 
         getDefaultValuesAfter(data,res) {
-            console.log(data.user_info)
             if (data && data.default_store) {
-                this.item.store = data.default_store;
+                this.item.store_vendor_product = [data.default_store];
             }
-
             if (data && data.default_vendor) {
                 this.item.vendor = data.default_vendor;
             }
