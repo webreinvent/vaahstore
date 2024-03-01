@@ -191,7 +191,7 @@ class Product extends VaahModel
     public function productVariationsForVendorProduct()
     {
         return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
-            ->withTrashed()->select();
+            ->withTrashed();
     }
 
     //-------------------------------------------------

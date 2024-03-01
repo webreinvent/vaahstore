@@ -59,10 +59,11 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon"
-                              v-tooltip.top="'Total Variations'">
+                              :class="{ 'cursor-pointer': prop.data.product.product_variations_for_vendor_product.length > 0 }"
+                              v-tooltip.top="'Total Variations'" @click="store.toViewProductVariations(prop.data.product)">
                               <b>{{ prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}</b>
                         </span>
-                         <button lass="p-button-tiny"
+                         <button class="p-button-tiny"
                                  v-tooltip.top="'Add Price Item'"
                                  icon="pi pi-plus" severity="info"
                                  style="border-width : 0; background: #4f46e5;cursor: pointer;"
@@ -123,7 +124,7 @@ const useVaah = vaah();
 
              <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+
                         :sortable="true">
 
                     <template #body="prop">
@@ -134,7 +135,6 @@ const useVaah = vaah();
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="false"
-                    style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
@@ -149,7 +149,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions" 
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 

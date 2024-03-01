@@ -4,13 +4,13 @@ import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
-import {useProductVendorStore} from "../../stores/store-productvendors";
+// import {useProductVendorStore} from "../../stores/store-productvendors";
 
-const store1 = useProductVendorStore();
+// const store1 = useProductVendorStore();
 const store = useProductVariationStore();
 const route = useRoute();
 // const selectedProductId = ref(store1.selectedProductId);
-const selectedProductId = ref(null);
+// const selectedProductId = ref(null);
 
 // console.log(selectedProductId.value)
 // if ( selectedProductId.value && selectedProductId.value!=null){
@@ -28,14 +28,14 @@ onMounted(async () => {
 
     await store.getFormMenu();
 
-    if (store1.selectedProductId !== undefined) {
-        selectedProductId.value = store1.selectedProductId;
-    } else {
-        selectedProductId.value = null;
-    }
+    // if (store1.selectedProductId !== undefined) {
+    //     selectedProductId.value = store1.selectedProductId;
+    // } else {
+    //     selectedProductId.value = null;
+    // }
 
     // Fetch data based on the new selectedProductId
-    store.fetchDataBasedOnProductId(selectedProductId.value);
+    // store.fetchDataBasedOnProductId(selectedProductId.value);
 });
 // selectedProductId.value = null;
 
@@ -130,7 +130,7 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Product*">
 
-                    {{store.item.product}}
+
                     <AutoComplete
                         value="id"
                         v-model="store.item.product"

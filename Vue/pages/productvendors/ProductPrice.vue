@@ -110,7 +110,6 @@ const toggleFormMenu = (event) => {
                                     :max="150000000000000"
                                     mode="decimal"
                                     class="p-inputtext-sm h-2rem m-1"
-                                    showButtons
                                     :data-testid="'productprices-amount-' + index"
                                 />
                             </td>
@@ -118,17 +117,13 @@ const toggleFormMenu = (event) => {
                         </tbody>
                     </table>
 <!--                    <div v-else  style="text-align: center;font-size: 12px; color: #888;">No variation found.</div>-->
-                    <div v-else  style="text-align: center;font-size: 12px; color: #888;">Click to Create New Variation.{{store.item.vh_st_product_id}}
-                        <span>
-                        <button class="p-button-tiny"
-                                v-tooltip.top="'Create Variation'"
-                                icon="pi pi-plus" severity="info"
-                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
-                                @click="store.toProductVariationCreate(store.item.product)"
-                                >
-                            <i class="pi pi-plus" style="color: white"></i>
-                        </button>
-                            </span>
+                    <div v-else  style="text-align: center;font-size: 15px; color: #888;">
+                        Click to Create New Product Variation.
+                            <Button label="Create Variation" severity="info" raised
+                                    v-tooltip.top="'Create Variation'"
+                                    style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                    @click="store.toProductVariationCreate(store.item.product)"
+                            />
                     </div>
                 </div>
 

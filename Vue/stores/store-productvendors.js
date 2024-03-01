@@ -1394,8 +1394,8 @@ export const useProductVendorStore = defineStore({
         calculatePriceRange(product, productVariationPrices) {
             // Check if product_variations and product_variation_prices are equal in length
             if (
-                product.product_variations &&
-                product.product_variations.length === productVariationPrices.length
+                product.product_variations_for_vendor_product &&
+                product.product_variations_for_vendor_product.length === productVariationPrices.length
             ) {
                 // If equal, use product_variation_prices directly
                 const prices = productVariationPrices.map(variationPrice => variationPrice.pivot.amount);
@@ -1420,9 +1420,9 @@ export const useProductVendorStore = defineStore({
 
             let allPrices = [];
 
-            if (product.product_variations && product.product_variations.length > 0) {
+            if (product.product_variations_for_vendor_product && product.product_variations_for_vendor_product.length > 0) {
                 // Combine prices from product_variations
-                allPrices = product.product_variations.reduce((prices, variation) => {
+                allPrices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
                     if (variation.price !== undefined && variation.price !== null) {
                         prices.push(variation.price);
                     }
@@ -1487,6 +1487,23 @@ export const useProductVendorStore = defineStore({
             this.$router.push({
                 name: 'productvariations.form',
             });
+        },
+
+
+        toViewProductVariations(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    products: [product.slug],trashed: 'include'
+                }
+            };
+            const route = {
+                name: 'productvariations.index',
+                query: query
+            };
+            this.$router.push(route);
         },
     }
 });
