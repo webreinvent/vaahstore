@@ -39,12 +39,6 @@ class ProductVariationsController extends Controller
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['taxonomy']['product_variation_status'] = Taxonomy::getTaxonomyByType('product-variation-status');
             $data['active_products'] = $this->getActiveProducts();
-            $default_product=Product::where(['is_default'=>1,'deleted_at'=>null])->first();
-            if($default_product)
-            {
-                $data['empty_item']['product'] = $default_product ?? null;
-                $data['empty_item']['vh_st_product_id'] = $default_product->id ?? null;
-            }
             $data['min_max_quantity'] = ProductVariation::getMinMaxQuantity();
             $data['actions'] = [];
             $response['success'] = true;
@@ -82,23 +76,6 @@ class ProductVariationsController extends Controller
         }
     }
 
-    //----------------------------------------------------------
-
-    public function getDefaultProduct(){
-        try{
-            return Product::where(['is_default'=>1,'deleted_at'=>null])->get();
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-                return $response;
-            }
-        }
-    }
 
     //------------------------Get Product data for dropdown----------------------------------
 
