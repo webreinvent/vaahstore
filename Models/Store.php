@@ -50,6 +50,12 @@ class Store extends VaahModel
     protected $appends = [
     ];
 
+    //--------------------------------------------------
+
+    protected $casts =[
+        'allowed_ips'=>'array',
+    ];
+
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
     {
@@ -269,12 +275,6 @@ class Store extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
-
-        if(isset($item->allowed_ips))
-        {
-            $item->allowed_ips = json_encode($inputs['allowed_ips']);
-
-        }
 
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
@@ -991,8 +991,6 @@ class Store extends VaahModel
             $item->languages = $languages;
         }
 
-        $item->allowed_ips = json_decode($item->allowed_ips);
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -1043,8 +1041,6 @@ class Store extends VaahModel
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-
-        $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -1184,7 +1180,6 @@ class Store extends VaahModel
             $item =  new self();
             $item->fill($inputs);
 //            $item->save();
-            $item->allowed_ips = json_encode($inputs['allowed_ips']);
             $item->slug = Str::slug($inputs['slug']);
             $item->save();
 
@@ -1303,7 +1298,11 @@ class Store extends VaahModel
 
 
 
-        $inputs['allowed_ips'][] = $faker->ipv4;
+
+        $inputs['allowed_ips'] = array_map(function () use ($faker) {
+            return $faker->ipv4;
+        }, range(1, 10));
+
         $inputs['is_multi_vendor'] = 1;
         $inputs['is_active'] = 1;
         /*
