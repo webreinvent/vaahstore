@@ -1512,9 +1512,9 @@ export const useProductVendorStore = defineStore({
 
         toProductVariationCreate(productId) {
             this.setSelectedProductId(productId);
-            // this.$router.push({ name: 'productvariations.form' });
             this.$router.push({
                 name: 'productvariations.form',
+                query:{ product_vendor : this.item.id}
             });
         },
 

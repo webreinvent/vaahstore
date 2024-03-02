@@ -4,20 +4,29 @@ import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
-// import {useProductVendorStore} from "../../stores/store-productvendors";
+import {useProductVendorStore} from "../../stores/store-productvendors";
 
-// const store1 = useProductVendorStore();
+const store1 = useProductVendorStore();
 const store = useProductVariationStore();
 const route = useRoute();
-// const selectedProductId = ref(store1.selectedProductId);
-// const selectedProductId = ref(null);
+const selectedProductId = ref(store1.selectedProductId);
 
-// console.log(selectedProductId.value)
-// if ( selectedProductId.value && selectedProductId.value!=null){
-//     store.item.product=selectedProductId.value;
-// }
-//
-// store.fetchDataBasedOnProductId(selectedProductId.value);
+
+if(route.query && route.query.product_vendor)
+{
+    if ( selectedProductId.value && selectedProductId.value!=null){
+        store.item.product=selectedProductId.value;
+    }
+    else {
+        store.item.product = null
+    }
+}
+
+
+if(route.query && route.query.product_vendor)
+{
+    store.fetchDataBasedOnProductId(selectedProductId.value);
+}
 
 
 onMounted(async () => {
@@ -28,16 +37,13 @@ onMounted(async () => {
 
     await store.getFormMenu();
 
-    // if (store1.selectedProductId !== undefined) {
-    //     selectedProductId.value = store1.selectedProductId;
-    // } else {
-    //     selectedProductId.value = null;
-    // }
+    if (store1.selectedProductId !== undefined) {
+        selectedProductId.value = store1.selectedProductId;
+    } else {
+        selectedProductId.value = null;
+    }
 
-    // Fetch data based on the new selectedProductId
-    // store.fetchDataBasedOnProductId(selectedProductId.value);
 });
-// selectedProductId.value = null;
 
 //--------form_menu
 const form_menu = ref();
