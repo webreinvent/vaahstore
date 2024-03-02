@@ -97,15 +97,6 @@ export const useProductVariationStore = defineStore({
 
     },
     actions: {
-//         async fetchDataBasedOnProductId(selectedProductId) {
-// this.fetchedProductId=selectedProductId;
-//             if (selectedProductId && selectedProductId.id) {
-//                 this.item.product=this.fetchedProductId;
-//                 this.item.vh_st_product_id = selectedProductId.id;
-//
-//             }
-//
-//         },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -1291,6 +1282,22 @@ export const useProductVariationStore = defineStore({
                 this.selected_products = data;
             }
         },
+
+    },
+
+    //-----------------------------------------------------------------------------
+
+    async fetchDataBasedOnProductId(selectedProductId) {
+
+        this.fetchedProductId=selectedProductId;
+
+        if (selectedProductId && selectedProductId.id) {
+
+            this.item.product=this.fetchedProductId;
+
+            this.item.vh_st_product_id = selectedProductId.id;
+
+        }
 
     },
 
