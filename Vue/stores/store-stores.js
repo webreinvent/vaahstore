@@ -86,6 +86,7 @@ export const useStoreStore = defineStore({
         prev_list:[],
         current_list:[],
         first_element: null,
+        message:null,
     }),
     getters: {},
     actions: {
@@ -475,10 +476,14 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
         afterGetList: function (data, res) {
+            this.message = (res && res.data && res.data.message)
+                ? 'There is no default store. Mark a store as default.'
+                : null;
+
             if (data) {
                 this.list = data;
                 this.first_element = this.query.rows * (this.query.page - 1);
-                this.query.rows=data.per_page;
+                this.query.rows = data.per_page;
             }
         },
         //---------------------------------------------------------------------

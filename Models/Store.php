@@ -679,35 +679,44 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
+        // Fetch the default store record
+        $default_store = self::where('is_default', 1)->first();
+
+        // Fetch all records based on the filters
         $list = self::getSorted($request->filter)->with('status');
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->statusFilter($request->filter);
-        $list->defaultFilter($request->filter);
-        $list->multiCurrencyFilter($request->filter);
-        $list->multiLanguageFilter($request->filter);
-        $list->multiVendorFilter($request->filter);
-        $list->dateFilter($request->filter);
-        $list->storeIdFilter($request->filter);
-
-        $rows = config('vaahcms.per_page');
-
-        if($request->has('rows'))
-        {
-            $rows = $request->rows;
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->statusFilter($request->filter);
+            $list->defaultFilter($request->filter);
+            $list->multiCurrencyFilter($request->filter);
+            $list->multiLanguageFilter($request->filter);
+            $list->multiVendorFilter($request->filter);
+            $list->dateFilter($request->filter);
+            $list->storeIdFilter($request->filter);
         }
 
+        // Check if the default store exists
+        $default_store_exists = $default_store;
+
+        $rows = config('vaahcms.per_page');
+        if ($request->has('rows')) {
+            $rows = $request->rows;
+        }
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_store_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
-
-
     }
-
     //-------------------------------------------------
     public static function updateList($request)
     {
