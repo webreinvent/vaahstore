@@ -816,12 +816,22 @@ class ProductStock extends VaahModel
 
         //fill the Vendor field here
         $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
+        if ($vendor_id === null) {
+                $response['success'] = false;
+                $response['errors'][] = 'No Vendor exist.';
+                return $response;
+        }
         $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
         $inputs['vh_st_vendor_id'] =$vendor_id;
         $inputs['vendor'] = $vendor_id_data;
 
         //fill the product field here
         $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
+        if ($product_id === null) {
+            $response['success'] = false;
+            $response['errors'][] = 'No Product exist.';
+            return $response;
+        }
         $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
         $inputs['vh_st_product_id'] =$product_id;
         $inputs['product'] = $product_id_data;

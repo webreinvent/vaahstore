@@ -1114,6 +1114,11 @@ class ProductMedia extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $product = Product::where('is_active',1)->inRandomOrder()->first();
+        if (!$product) {
+            $response['success'] = false;
+            $response['errors'][] = 'No product exist.';
+            return $response;
+        }
 
         if ($product) {
             $inputs['vh_st_product_id'] = $product->id;

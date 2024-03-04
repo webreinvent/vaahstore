@@ -1156,6 +1156,24 @@ class ProductVendor extends VaahModel
         $inputs['status']=$status;
 
         // fill the store field here
+
+        $vendors = Vendor::where('is_active', 1)->get();
+        $vendors_ids = $vendors->pluck('id')->toArray();
+        if (!empty($vendors_ids)) {
+            $vendors_id = $vendors_ids[array_rand($vendors_ids)];
+            $vendor = $vendors->where('id', $vendors_id)->first();
+            $inputs['vendor'] = $vendor;
+        }
+
+        if (!isset($inputs['vendor'])) {
+            $response['success'] = false;
+            $response['errors'][] = 'No vendor exist.';
+            return $response;
+        }
+
+        $inputs['vh_st_vendor_id'] = $vendors_id;
+
+
         $stores = Store::where('is_active', 1)->get();
         $store_ids = $stores->pluck('id')->toArray();
         $store_id = null;
@@ -1169,7 +1187,7 @@ class ProductVendor extends VaahModel
 
         if (!isset($inputs['store_vendor_product'])) {
             $response['success'] = false;
-            $response['errors'][] = 'No store Found.';
+            $response['errors'][] = 'No store exist.';
             return $response;
         }
 
@@ -1182,7 +1200,7 @@ class ProductVendor extends VaahModel
 
         if ($products->isEmpty()) {
             $response['success'] = false;
-            $response['errors'][] = 'No products found for the selected store.';
+            $response['errors'][] = 'No products exist for the selected store.';
             return $response;
         }
 
@@ -1200,21 +1218,7 @@ class ProductVendor extends VaahModel
         $inputs['added_by'] = $user_id ;
 
 
-        $vendors = Vendor::where('is_active', 1)->get();
-        $vendors_ids = $vendors->pluck('id')->toArray();
-        if (!empty($vendors_ids)) {
-            $vendors_id = $vendors_ids[array_rand($vendors_ids)];
-            $vendor = $vendors->where('id', $vendors_id)->first();
-            $inputs['vendor'] = $vendor;
-        }
 
-        if (!isset($inputs['vendor'])) {
-            $response['success'] = false;
-            $response['errors'][] = 'No vendor Found.';
-            return $response;
-        }
-
-        $inputs['vh_st_vendor_id'] = $vendors_id;
 
 
         $inputs['can_update'] =  rand(0,1);

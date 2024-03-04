@@ -1143,6 +1143,11 @@ class ProductVariation extends VaahModel
             $inputs['vh_st_product_id'] = $product_id;
             $inputs['product'] = $product;
         }
+        else{
+            $response['success'] = false;
+            $response['errors'][] = 'No products exist.';
+            return $response;
+        }
 
         $inputs['price'] = rand(1,100000);
         $inputs['is_active'] = rand(0,1);

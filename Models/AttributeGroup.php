@@ -793,6 +793,11 @@ class AttributeGroup extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
         $attributeIds = Attribute::where('is_active',1)->pluck('id')->toArray();
+        if (empty($attributeIds)) {
+            $response['success'] = false;
+            $response['errors'][] = 'No attributes exist.';
+            return $response;
+        }
         $attributeId = $attributeIds[array_rand($attributeIds)];
         $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
         $inputs['active_attributes'][] = $attributeId_data;
