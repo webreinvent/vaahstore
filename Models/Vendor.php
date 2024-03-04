@@ -210,7 +210,7 @@ class Vendor extends VaahModel
 
     public function vendorProducts()
     {
-        return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')
+        return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')->withTrashed()
             ->select('vh_st_products.id','vh_st_products.name','vh_st_products.slug','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
             ->withPivot([]);
     }
