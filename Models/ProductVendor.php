@@ -945,11 +945,12 @@ class ProductVendor extends VaahModel
 
         $rules = validator($inputs, [
             'vh_st_product_id'=> 'required',
-            'product_variation.*.amount' => 'numeric|min:1|max:9999999',
+            'product_variation.*.amount' => 'nullable|min:1|max:9999999',
         ], [
             'vh_st_product_id.required' => 'The Product field is required',
+//            'product_variation.*.amount.numeric' => 'The Price field must be a number',
             'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',
-            'product_variation.*.amount.min' => 'The Price field cannot be less than :min.',
+//            'product_variation.*.amount.min' => 'The Price field cannot be less than :min.',
             ]);
         if($rules->fails()){
             return [
