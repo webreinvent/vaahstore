@@ -136,7 +136,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function addedByUser()
     {
-        return $this->hasOne(User::class,'id','added_by');
+        return $this->hasOne(User::class,'id','added_by')->select('id','first_name');
     }
     //-------------------------------------------------
     public function product()
@@ -154,11 +154,6 @@ class ProductVendor extends VaahModel
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->withTrashed()->select('id','name', 'slug','is_default','deleted_at');
     }
-    /*public function productPrices()
-    {
-        return $this->belongsToMany(ProductPrice::class, 'vh_st_product_prices', 'vh_st_vendor_product_id')
-            ->withPivot(['id']); // Adjust if you need to include additional pivot columns
-    }*/
 
 
     public function productVariationPrices()
