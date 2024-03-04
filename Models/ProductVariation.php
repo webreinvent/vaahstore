@@ -525,16 +525,21 @@ class ProductVariation extends VaahModel
 
     public static function getList($request)
     {
+        $default_variation = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('status','product');
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->statusFilter($request->filter);
-        $list->stockFilter($request->filter);
-        $list->defaultFilter($request->filter);
-        $list->dateRangeFilter($request->filter);
-        $list->quantityFilter($request->filter);
-        $list->productFilter($request->filter);
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->statusFilter($request->filter);
+            $list->stockFilter($request->filter);
+            $list->defaultFilter($request->filter);
+            $list->dateRangeFilter($request->filter);
+            $list->quantityFilter($request->filter);
+            $list->productFilter($request->filter);
+        }
+
+        $default_variation_exists = $default_variation;
 
         $rows = config('vaahcms.per_page');
 
@@ -545,8 +550,14 @@ class ProductVariation extends VaahModel
 
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_variation_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
 

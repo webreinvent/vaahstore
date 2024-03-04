@@ -14,7 +14,7 @@ const route = useRoute();
 <template>
 
     <div v-if="store.list">
-        <Message v-if="!store.list.data || !store.list.data.some(variation => variation.is_default === 1)" severity="warn" class="mt-1" :closable="false">
+        <Message v-if="!store.list.data || store.default_variation_message" severity="warn" class="mt-1" :closable="false">
             There is no default variation. Mark a variation as <strong>default</strong>.
         </Message>
         <!--table-->

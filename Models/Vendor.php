@@ -658,15 +658,19 @@ class Vendor extends VaahModel
 
     public static function getList($request)
     {
+        $default_vendor = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with(['store', 'approvedByUser',
             'ownedByUser', 'status','vendorProducts','users']);
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->searchStore($request->filter);
-        $list->vendorStatus($request->filter);
-        $list->dateFilter($request->filter);
-        $list->productFilter($request->filter);
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->searchStore($request->filter);
+            $list->vendorStatus($request->filter);
+            $list->dateFilter($request->filter);
+            $list->productFilter($request->filter);
+        }
+        $default_vendor_exists = $default_vendor;
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -676,8 +680,14 @@ class Vendor extends VaahModel
 
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_vendor_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
 

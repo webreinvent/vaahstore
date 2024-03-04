@@ -92,6 +92,7 @@ export const useProductVariationStore = defineStore({
         products_suggestion:null,
         products:null,
         fetchedProductId: null,
+        default_variation_message:null,
     }),
     getters: {
 
@@ -328,6 +329,9 @@ this.fetchedProductId=selectedProductId;
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_variation_message = (res && res.data && res.data.message)
+                ? 'There is no default product variation. Mark a product variation as default.'
+                : null;
             if(data)
             {
                 this.list = data;

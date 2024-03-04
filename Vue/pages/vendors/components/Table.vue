@@ -13,7 +13,7 @@ const permissions=store.assets.permissions;
 <template>
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
-        <Message v-if="!store.list.data || !store.list.data.some(vendor => vendor.is_default === 1)" severity="warn" class="mt-1" :closable="false">
+        <Message v-if="!store.list.data || store.default_vendor_message" severity="warn" class="mt-1" :closable="false">
             There is no default vendor. Mark a vendor as <strong>default</strong>.
         </Message>
         <!--table-->

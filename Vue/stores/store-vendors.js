@@ -96,7 +96,8 @@ export const useVendorStore = defineStore({
         vendor_roles:null,
         selected_user:null,
         sel_product:null,
-        selected_vendor_role:null
+        selected_vendor_role:null,
+        default_vendor_message:null,
     }),
     getters: {
 
@@ -525,6 +526,9 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_vendor_message = (res && res.data && res.data.message)
+                ? 'There is no default vendor. Mark a vendor as default.'
+                : null;
             if(data)
             {
                 this.list = data;
