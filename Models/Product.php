@@ -807,7 +807,8 @@ class Product extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
+                $items_id = self::withTrashed()->select('id')->get()->pluck('id')->toArray();
+
                 foreach ($items_id as $item_id)
                 {
                     self::deleteRelatedRecords($item_id);
