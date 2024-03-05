@@ -815,48 +815,69 @@ class ProductStock extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         //fill the Vendor field here
-        $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
-        if ($vendor_id === null) {
-                $response['success'] = false;
-                $response['errors'][] = 'No Vendor exist.';
-                return $response;
+        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
+
+        if (!$vendor) {
+            $response['success'] = false;
+            $response['errors'][] = 'No Vendor exist.';
+            return $response;
         }
-        $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] =$vendor_id;
-        $inputs['vendor'] = $vendor_id_data;
+
+        $inputs['vh_st_vendor_id'] = $vendor->id;
+        $inputs['vendor'] = $vendor;
+
 
         //fill the product field here
-        $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-        if ($product_id === null) {
+
+        $product = Product::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug')->first();
+
+        if (!$product) {
             $response['success'] = false;
             $response['errors'][] = 'No Product exist.';
             return $response;
         }
-        $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
-        $inputs['vh_st_product_id'] =$product_id;
-        $inputs['product'] = $product_id_data;
+
+        $inputs['vh_st_product_id'] = $product->id;
+        $inputs['product'] = $product;
+
 
         //fill the product variation field on the basis of product selected
 
-        $product_variation_id = ProductVariation::where('is_active', 1)
-            ->where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->inRandomOrder()->value('id');
+        $productVariation = ProductVariation::where('is_active', 1)
+            ->where('vh_st_product_id', $inputs['vh_st_product_id'])
+            ->inRandomOrder()
+            ->select('id', 'name', 'price')
+            ->first();
 
-        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+        if (!$productVariation) {
+            $response['success'] = true;
 
-        $inputs['product_variation'] = ProductVariation::where('is_active',1)
-            ->where('id',$inputs['vh_st_product_variation_id'])->first();
+        }
+        else {
+            $inputs['vh_st_product_variation_id'] = $productVariation->id;
+            $inputs['product_variation'] = $productVariation;
+        }
+
+
 
 
         //fill the warehouse field on the basis of vendor selected
 
-        $warehouse_id = Warehouse::where('is_active', 1)
-            ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
-            ->inRandomOrder()->value('id');
+        $warehouse = Warehouse::where('is_active', 1)
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug')
+            ->first();
 
-        $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
-        $inputs['vh_st_warehouse_id'] =$warehouse_id;
-        $inputs['warehouse'] = $warehouse_id_data;
+        if (!$warehouse) {
+            $response['success'] = false;
+            $response['errors'][] = 'No Warehouse exist.';
+            return $response;
+        }
+
+        $inputs['vh_st_warehouse_id'] = $warehouse->id;
+        $inputs['warehouse'] = $warehouse;
+
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
         $status_id = $taxonomy_status->pluck('id')->random();
