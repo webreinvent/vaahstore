@@ -41,6 +41,7 @@ const store = useProductAttributeStore();
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttribute"
                               class="w-full"
+                              append-to="self"
                               placeholder="Select Attributes">
                 </AutoComplete>
 
@@ -82,7 +83,7 @@ const store = useProductAttributeStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Date:</b>
+                    <b>Select Created Date:</b>
                 </template>
 
                 <div class="field-radiobutton">
@@ -93,6 +94,9 @@ const store = useProductAttributeStore();
                               data-testid="productattributes-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
+                              append-to="self"
+                              class="w-full"
+                              placeholder="Choose date range"
                               :manualInput="false" />
 
                     <label for="range-date" class="cursor-pointer"></label>

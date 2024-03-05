@@ -25,7 +25,7 @@ const store = useWishlistStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative" />
                 </VhField>
 
 
@@ -49,6 +49,7 @@ const store = useWishlistStore();
                     @complete="store.searchUsers($event)"
                     placeholder="Select User"
                     class="w-full"
+                    append-to="self"
                     :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -84,6 +85,7 @@ const store = useWishlistStore();
                     @complete="store.searchProduct($event)"
                     placeholder="Select Product"
                     class="w-full"
+                    append-to="self"
                     :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -118,6 +120,7 @@ const store = useWishlistStore();
                               @date-select="store.setDateRange"
                               placeholder="Choose Date Range"
                               class="w-full"
+                              append-to="self"
                               :manualInput="false"/>
 
                     <label for="range-date" class="cursor-pointer"></label>

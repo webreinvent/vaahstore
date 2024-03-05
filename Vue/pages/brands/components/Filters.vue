@@ -42,6 +42,8 @@ const store = useBrandStore();
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           placeholder="Choose Date Range"
+                          append-to="self"
+                          class="w-full"
                           :manualInput="false"/>
 
             </VhFieldVertical >

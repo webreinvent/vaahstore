@@ -23,6 +23,7 @@ const store = useWarehouseStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
@@ -41,6 +42,7 @@ const store = useWarehouseStore();
                               :suggestions="store.country_suggestions"
                               @complete="store.searchCountry($event)"
                               :dropdown="true"
+                              append-to="self"
                               placeholder="Select Country"
                               forceSelection />
 

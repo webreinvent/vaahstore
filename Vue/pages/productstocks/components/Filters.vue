@@ -26,7 +26,8 @@ const store = useProductStockStore();
                         optionLabel="slug"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        append-to="self"
+                        class="w-full relative"/>
                 </VhField>
 
 
@@ -48,6 +49,7 @@ const store = useProductStockStore();
                               @complete="store.searchVendors($event)"
                               placeholder = "select vendor"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -80,6 +82,7 @@ const store = useProductStockStore();
                               @complete="store.searchProduct($event)"
                               placeholder = "select product"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -112,6 +115,7 @@ const store = useProductStockStore();
                               @complete="store.searchVariations($event)"
                               placeholder = "select product variation"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -145,6 +149,7 @@ const store = useProductStockStore();
                               @complete="store.searchWarehouses($event)"
                               placeholder="select warehouse"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -171,6 +176,7 @@ const store = useProductStockStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
