@@ -567,7 +567,7 @@ class ProductStock extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $item_ids = $list->pluck('id')->toArray();
+                $item_ids = self::withTrashed()->pluck('id')->toArray();
                 foreach($item_ids as $item_id)
                 {
                     self::updateStock($item_id);
