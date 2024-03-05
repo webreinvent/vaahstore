@@ -500,17 +500,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)
-            ->with([
-                'product.productVariationsForVendorProduct' => function ($query) {
-                    $query->get('id', 'name', 'price');
-                },
-                'vendor',
-                'addedByUser',
-                'status',
-                'stores',
-                'productVariationPrices',
-            ]);
+        $list = self::getSorted($request->filter)->with('product.productVariationsForVendorProduct','vendor','addedByUser','status','stores','productVariationPrices');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

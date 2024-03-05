@@ -23,6 +23,7 @@ const store = useAttributeStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose date range"
 
                 />

@@ -29,6 +29,7 @@ const store = useProductVendorStore();
                                   @complete="store.getProduct($event)"
                                   placeholder="Select Product"
                                   class="w-full "
+                                  append-to="self"
                                   :pt="{
                                       token: {
                                         class: 'max-w-full'
@@ -58,6 +59,7 @@ const store = useProductVendorStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           data-testid="productvendors-filters-create_date_range"
                           placeholder="Select Data Range"
                 />
@@ -80,7 +82,8 @@ const store = useProductVendorStore();
                         data-testid="productvendors-filter"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        append-to="self"
+                        class="w-full relative" />
                 </VhField>
 
 

@@ -26,7 +26,8 @@ const store = useProductStore();
                         optionLabel="name"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        append-to="self"
+                        class="w-full relative" />
                 </VhField>
 
 
@@ -48,6 +49,7 @@ const store = useProductStore();
                               @complete="store.searchProductVariation"
                               placeholder="Select Product Variation"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                                               token: {
                         class: 'max-w-full'
@@ -80,6 +82,7 @@ const store = useProductStore();
                               @complete="store.searchVendor($event)"
                               placeholder="Select Vendor"
                               class="w-full "
+                              append-to="self"
                               :pt="{ token:
                                {class: 'max-w-full'},
                                removeTokenIcon: {class: 'min-w-max'},
@@ -107,6 +110,7 @@ const store = useProductStore();
                               @complete="store.searchBrand"
                               placeholder="Select Brand"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                                               token: {
                         class: 'max-w-full'
@@ -138,6 +142,7 @@ const store = useProductStore();
                               :suggestions="store.type_suggestion"
                               @complete="store.searchTaxonomyProduct($event)"
                               placeholder="Select Product Type"
+                              append-to="self"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -161,6 +166,7 @@ const store = useProductStore();
                         :suggestions="store.filtered_stores"
                         @complete="store.searchStore"
                         placeholder="Select Store"
+                        append-to="self"
                         :pt="{
                                               token: {
                         class: 'max-w-full'

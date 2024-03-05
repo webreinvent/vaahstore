@@ -35,7 +35,6 @@ const useVaah = vaah()
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        <Badge severity="info">Default</Badge>
                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>

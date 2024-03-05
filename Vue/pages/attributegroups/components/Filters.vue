@@ -33,6 +33,7 @@ const store = useAttributeGroupStore();
                                                 panel: { class: 'w-16rem ' },
                                                 }"
                               placeholder="Select Attributes"
+                              append-to="self"
                               class="w-full " />
 
             </VhFieldVertical>
@@ -47,6 +48,7 @@ const store = useAttributeGroupStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose date range"
 
                 />

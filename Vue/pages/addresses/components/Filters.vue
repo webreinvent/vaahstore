@@ -29,6 +29,7 @@ const store = useAddressStore();
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-type"
                         forceSelection
+                        append-to="self"
                         class="w-full">
                     </AutoComplete>
                 </div>
@@ -54,6 +55,7 @@ const store = useAddressStore();
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUser($event)"
                     placeholder="Select User"
+                    append-to="self"
                     class="w-full">
                 </AutoComplete>
 
@@ -70,6 +72,7 @@ const store = useAddressStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >

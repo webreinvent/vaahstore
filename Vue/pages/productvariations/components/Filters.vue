@@ -39,6 +39,7 @@ onMounted(async () => {
                               @complete="store.searchProduct($event)"
                               placeholder = "select product"
                               class="w-full "
+                              append-to="self"
                               :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -236,6 +237,7 @@ onMounted(async () => {
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               class="w-full"
+                              append-to="self"
                               :manualInput="false"/>
 
                     <label for="range-date" class="cursor-pointer"></label>

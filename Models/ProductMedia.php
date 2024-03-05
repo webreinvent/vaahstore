@@ -648,8 +648,9 @@ class ProductMedia extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $items=self::all();
-                $items_id = self::all()->pluck('id')->toArray();
+                $items = self::withTrashed()->get();
+                $items_id = $items->pluck('id')->toArray();
+
                 foreach ($items as $item) {
                     $item->productVariationMedia()->detach();
                 }

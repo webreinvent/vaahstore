@@ -796,7 +796,7 @@ class ProductVariation extends VaahModel
                 break;
             case 'delete-all':
 
-                $items_id = self::all()->pluck('id')->toArray();
+                $items_id = self::withTrashed()->pluck('id')->toArray();
                 foreach ($items_id as $item_id)
                 {
                     $item = self::where('id', $item_id)->withTrashed()->first();
