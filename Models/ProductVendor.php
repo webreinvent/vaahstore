@@ -77,13 +77,6 @@ class ProductVendor extends VaahModel
     {
         return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id')->withTrashed();
     }
-
-    //-------------------------------------------------
-//    public function productVariations()
-//    {
-//        return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
-//            ->withTrashed();
-//    }
     //-------------------------------------------------
     public static function getFillableColumns()
     {
@@ -200,62 +193,6 @@ class ProductVendor extends VaahModel
     }
 
     //--------------------Add and update product price-----------------------------
-//    public static function createProductPrice($request)
-//    {
-//        $inputs = $request->all();
-////        $vhStVendorProductId = $inputs['id'];
-////        dd($inputs);
-//        $validation = self::validationProductPrice($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//
-//        $response = [];
-//        $saved_variations = 0;
-//        foreach ($inputs['product_variation'] as $key => $variation) {
-//            $variation_price = ProductPrice::where([
-//                'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
-//                'vh_st_product_id' => $inputs['vh_st_product_id'],
-//                'vh_st_product_variation_id' => $variation['id']
-//            ])->first();
-//            if (isset($variation['deleted_at'])) {
-//                continue;
-//            }
-//            if ($variation_price) {
-//                if ($variation['amount'] === null) {
-//                    $variation_price->forceDelete();
-//                } else {
-//                    // 'amount' is provided, update the record
-//                    $variation_price->fill([
-//                        'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
-//                        'vh_st_product_id' => $inputs['vh_st_product_id'],
-//                        'vh_st_product_variation_id' => $variation['id'],
-//                        'amount' => $variation['amount'],
-//                    ]);
-//                    $variation_price->save();
-//                }
-//                $saved_variations++;
-//            }
-//            if (!$variation_price && isset($variation['amount'])) {
-//                $new_variation_price = new ProductPrice;
-//                $new_variation_price->fill([
-//                    'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
-//                    'vh_st_product_id' => $inputs['vh_st_product_id'],
-//                    'vh_st_product_variation_id' => $variation['id'],
-//                    'amount' => $variation['amount'],
-//                ]);
-//                $new_variation_price->save();
-//                $saved_variations++;
-//
-//            }
-//
-//
-//        }
-//        if ($saved_variations > 0) {
-//            $response['messages'][] = trans("vaahcms-general.saved_successfully");
-//        }
-//        return $response;
-//    }
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
@@ -943,9 +880,7 @@ class ProductVendor extends VaahModel
             'product_variation.*.amount' => 'nullable|min:1|max:9999999',
         ], [
             'vh_st_product_id.required' => 'The Product field is required',
-//            'product_variation.*.amount.numeric' => 'The Price field must be a number',
             'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',
-//            'product_variation.*.amount.min' => 'The Price field cannot be less than :min.',
             ]);
         if($rules->fails()){
             return [
@@ -1347,16 +1282,16 @@ class ProductVendor extends VaahModel
 
     public static function getdefaultValues($request)
     {
-        $defaultStore = Store::where(['is_active' => 1,'deleted_at'=>null, 'is_default' => 1])->first(['id', 'name', 'slug']);
-        $defaultVendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first(['id', 'name', 'slug']);
+        $default_store = Store::where(['is_active' => 1,'deleted_at'=>null, 'is_default' => 1])->first(['id', 'name', 'slug']);
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first(['id', 'name', 'slug']);
 
         $response['success'] = true;
         $response['data'] = [
-            'default_store' => $defaultStore ?: null,
-            'default_vendor' => $defaultVendor ?: null,
+            'default_store' => $default_store ?: null,
+            'default_vendor' => $default_vendor ?: null,
             ];
 
-        if ($defaultStore === null && $defaultVendor === null) {
+        if ($default_store === null && $default_vendor === null) {
             $response['success'] = false;
             $response['data'] = null;
         }

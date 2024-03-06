@@ -792,14 +792,14 @@ class AttributeGroup extends VaahModel
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-        $attributeIds = Attribute::where('is_active',1)->pluck('id')->toArray();
-        if (empty($attributeIds)) {
+        $attribute_ids = Attribute::where('is_active',1)->pluck('id')->toArray();
+        if (empty($attribute_ids)) {
             $response['success'] = false;
             $response['errors'][] = 'No attributes exist.';
             return $response;
         }
-        $attributeId = $attributeIds[array_rand($attributeIds)];
-        $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attributeId)->first();
+        $attribute_id = $attribute_ids[array_rand($attribute_ids)];
+        $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attribute_id)->first();
         $inputs['active_attributes'][] = $attributeId_data;
 
         $faker = Factory::create();

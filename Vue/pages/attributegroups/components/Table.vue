@@ -45,7 +45,6 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="flex flex-wrap gap-2" v-if="prop.data.attributes_list && prop.data.attributes_list.length > 0">
                          <template v-if="prop.data.attributes_list.some(attribute => attribute.deleted_at === null)">
-                             <!-- Display variation names -->
                              <template v-for="(attribute, index) in prop.data.attributes_list" :key="index">
                                  <Badge class="h-max max-w-full" v-if="attribute.deleted_at === null">
                                      {{ attribute.name }}
@@ -60,7 +59,7 @@ const useVaah = vaah();
                  </template>
              </Column>
 
-             
+
 
             <Column field="is_active" v-if="store.isViewLarge()"
 

@@ -1492,22 +1492,6 @@ export const useProductVendorStore = defineStore({
         },
 
 
-
-
-        // toProductVariationCreate(product)
-        // {
-        //     const query = {
-        //         page: 1,
-        //         rows: 20,
-        //         productId: product,
-        //     };
-        //     const route = {
-        //         name: 'productvariations.form',
-        //         query: query
-        //     };
-        //     this.$router.push(route);
-        // },
-
         //---------------------------------------------------------
 
         toProductVariationCreate(productId) {
@@ -1535,6 +1519,8 @@ export const useProductVendorStore = defineStore({
             };
             this.$router.push(route);
         },
+        //---------------------------------------------------------------------
+
     }
 });
 

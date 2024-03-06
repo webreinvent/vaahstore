@@ -70,6 +70,7 @@ const store = useAddressStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          data-testid="addresses-filters-date_range"
                           :manualInput="false"
                           class="w-full"
                           append-to="self"
@@ -84,14 +85,14 @@ const store = useAddressStore();
                 <div class="field-radiobutton">
                     <RadioButton name="default-address-yes"
                                  value="true"
-                                 data-testid="stores-filters-default-address-yes"
+                                 data-testid="addresses-filters-default-address-yes"
                                  v-model="store.query.filter.is_default" />
                     <label for="default-address-yes">Yes</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="default-address-no"
                                  value="false"
-                                 data-testid="stores-filters-default-address-no"
+                                 data-testid="addresses-filters-default-address-no"
                                  v-model="store.query.filter.is_default" />
                     <label for="default-address-no">No</label>
                 </div>

@@ -116,7 +116,6 @@ const toggleFormMenu = (event) => {
                         </tr>
                         </tbody>
                     </table>
-<!--                    <div v-else  style="text-align: center;font-size: 12px; color: #888;">No variation found.</div>-->
                     <div v-else  style="text-align: center;font-size: 15px; color: #888;">
                         Click to Create New Product Variation.
                             <Button label="Create Variation" severity="info" raised

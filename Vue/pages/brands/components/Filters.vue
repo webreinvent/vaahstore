@@ -41,6 +41,7 @@ const store = useBrandStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          data-testid="brands-filters-created_date"
                           placeholder="Choose Date Range"
                           append-to="self"
                           class="w-full"

@@ -843,19 +843,19 @@ class ProductStock extends VaahModel
 
         //fill the product variation field on the basis of product selected
 
-        $productVariation = ProductVariation::where('is_active', 1)
+        $product_variation = ProductVariation::where('is_active', 1)
             ->where('vh_st_product_id', $inputs['vh_st_product_id'])
             ->inRandomOrder()
             ->select('id', 'name', 'price')
             ->first();
 
-        if (!$productVariation) {
+        if (!$product_variation) {
             $response['success'] = true;
 
         }
         else {
-            $inputs['vh_st_product_variation_id'] = $productVariation->id;
-            $inputs['product_variation'] = $productVariation;
+            $inputs['vh_st_product_variation_id'] = $product_variation->id;
+            $inputs['product_variation'] = $product_variation;
         }
 
 
