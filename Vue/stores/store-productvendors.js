@@ -413,7 +413,6 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
 
                 if (data.product_variations) {
-                    // await this.searchVariationOfProduct();
                     this.product_variations = data.product_variations;
                     this.product_variation_list = this.product_variation_list.map(listVariation => {
                         const matchingVariation = this.product_variations.find(
@@ -1416,38 +1415,38 @@ export const useProductVendorStore = defineStore({
         },
 
 
-        calculatePriceRange(product, productVariationPrices) {
+        calculatePriceRange(product, product_variation_prices) {
             // Check if product_variations and product_variation_prices are equal in length
             if (
                 product.product_variations_for_vendor_product &&
-                product.product_variations_for_vendor_product.length === productVariationPrices.length
+                product.product_variations_for_vendor_product.length === product_variation_prices.length
             ) {
                 // If equal, use product_variation_prices directly
-                const prices = productVariationPrices.map(variationPrice => variationPrice.pivot.amount);
+                const prices = product_variation_prices.map(variation_price => variation_price.pivot.amount);
 
                 // Filter out undefined or null values
-                const validPrices = prices.filter(price => price !== undefined && price !== null);
+                const valid_prices = prices.filter(price => price !== undefined && price !== null);
 
-                if (validPrices.length === 0) {
+                if (valid_prices.length === 0) {
                     return 'No prices available';
                 }
 
-                const minPrice = Math.min(...validPrices);
-                const maxPrice = Math.max(...validPrices);
+                const min_price = Math.min(...valid_prices);
+                const max_price = Math.max(...valid_prices);
 
-                if (minPrice === maxPrice) {
-                    return `Price: ${minPrice}`;
+                if (min_price === max_price) {
+                    return `Price: ${min_price}`;
                 } else {
-                    return `Price Range: ${minPrice} - ${maxPrice}`;
+                    return `Price Range: ${min_price} - ${max_price}`;
                 }
             }
 
 
-            let allPrices = [];
+            let all_prices = [];
 
             if (product.product_variations_for_vendor_product && product.product_variations_for_vendor_product.length > 0) {
                 // Combine prices from product_variations
-                allPrices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
+                all_prices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
                     if (variation.price !== undefined && variation.price !== null) {
                         prices.push(variation.price);
                     }
@@ -1455,26 +1454,26 @@ export const useProductVendorStore = defineStore({
                 }, []);
             }
 
-            allPrices = allPrices.concat(
-                productVariationPrices.reduce((amounts, variationPrice) => {
-                    if (variationPrice.amount !== undefined && variationPrice.amount !== null) {
-                        amounts.push(variationPrice.amount);
+            all_prices = all_prices.concat(
+                product_variation_prices.reduce((amounts, variation_price) => {
+                    if (variation_price.amount !== undefined && variation_price.amount !== null) {
+                        amounts.push(variation_price.amount);
                     }
                     return amounts;
                 }, [])
             );
 
-            if (allPrices.length === 0) {
+            if (all_prices.length === 0) {
                 return 'No prices available';
             }
 
-            const minPrice = Math.min(...allPrices);
-            const maxPrice = Math.max(...allPrices);
+            const min_price = Math.min(...all_prices);
+            const max_price = Math.max(...all_prices);
 
-            if (minPrice === maxPrice) {
-                return `Price: ${minPrice}`;
+            if (min_price === max_price) {
+                return `Price: ${min_price}`;
             } else {
-                return `Price:  ${minPrice} - ${maxPrice}`;
+                return `Price:  ${min_price} - ${max_price}`;
             }
         },
 
@@ -1482,12 +1481,12 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
         setSelectedProductId(productId) {
             if (productId && productId.deleted_at === null) {
-                this.selectedProductInfo = {
+                this.selected_product_info = {
                     id: productId.id,
                     name: productId.name,
                     slug: productId.slug
                 };
-                this.selectedProductId=this.selectedProductInfo
+                this.selected_product_id=this.selected_product_info
             }
         },
 

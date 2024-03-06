@@ -9,13 +9,13 @@ import {useProductVendorStore} from "../../stores/store-productvendors";
 const store1 = useProductVendorStore();
 const store = useProductVariationStore();
 const route = useRoute();
-const selectedProductId = ref(store1.selectedProductId);
+const selected_product_id = ref(store1.selected_product_id);
 
 
 if(route.query && route.query.product_vendor)
 {
-    if ( selectedProductId.value && selectedProductId.value!=null){
-        store.item.product=selectedProductId.value;
+    if ( selected_product_id.value && selected_product_id.value!=null){
+        store.item.product=selected_product_id.value;
     }
     else {
         store.item.product = null
@@ -25,7 +25,7 @@ if(route.query && route.query.product_vendor)
 
 if(route.query && route.query.product_vendor)
 {
-    store.fetchDataBasedOnProductId(selectedProductId.value);
+    store.fetchDataBasedOnProductId(selected_product_id.value);
 }
 
 

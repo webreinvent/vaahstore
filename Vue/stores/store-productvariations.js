@@ -91,18 +91,18 @@ export const useProductVariationStore = defineStore({
         first_element: null,
         products_suggestion:null,
         products:null,
-        fetchedProductId: null,
+        fetched_product_id: null,
         default_variation_message:null,
     }),
     getters: {
 
     },
     actions: {
-        async fetchDataBasedOnProductId(selectedProductId) {
-this.fetchedProductId=selectedProductId;
-            if (selectedProductId && selectedProductId.id) {
-                this.item.product=this.fetchedProductId;
-                this.item.vh_st_product_id = selectedProductId.id;
+        async fetchDataBasedOnProductId(selected_product_id) {
+this.fetched_product_id=selected_product_id;
+            if (selected_product_id && selected_product_id.id) {
+                this.item.product=this.fetched_product_id;
+                this.item.vh_st_product_id = selected_product_id.id;
 
             }
 
@@ -790,8 +790,8 @@ this.fetchedProductId=selectedProductId;
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.fetchedProductId=null
-            console.log(this.fetchedProductId);
+            this.fetched_product_id=null
+            console.log(this.fetched_product_id);
             this.$router.push({name: 'productvariations.index'})
         },
         //---------------------------------------------------------------------
