@@ -111,6 +111,12 @@ const toggleSelectedAttributeMenuState = (event) => {
                                   filter
                                   placeholder="Select a Attribute or Attribute group"
                                   class="w-full"
+                                  :pt="{
+                                              item: { style: {
+                                              textWrap: 'wrap'
+                                              }  },
+                                              panel: { class: 'w-16rem ' }
+                                  }"
                                     style="height:35px;">
                         </Dropdown>
                     </div>
