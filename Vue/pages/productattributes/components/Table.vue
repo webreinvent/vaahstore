@@ -109,21 +109,8 @@ const useVaah = vaah();
 
 
             </Column>
-             <template #empty>
-                 <tr>
-                     <td>
-
-
-                         <h1 style="font-family: Inter,ui-sans-serif,system-ui,
-                         -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-                         Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-                         Noto Color Emoji;
-                         font-size: .8rem;
-                         margin-left: 19rem;
-                         font-weight: 400;">No Record found.</h1>
-
-                     </td>
-                 </tr>
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
              </template>
 
         </DataTable>

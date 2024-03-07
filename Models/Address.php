@@ -398,6 +398,7 @@ class Address extends VaahModel
 
     public static function getList($request)
     {
+        $default_address = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('user','status','addressType');
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -406,7 +407,7 @@ class Address extends VaahModel
         $list->addressTypeFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->userFilter($request->filter);
-
+        $default_address_exists = $default_address;
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -418,7 +419,9 @@ class Address extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $list;
-
+        if (!$default_address_exists) {
+            $response['message'] = true;
+        }
         return $response;
 
 
