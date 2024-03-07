@@ -291,7 +291,7 @@ export const useAddressStore = defineStore({
         afterGetList: function (data, res)
         {
             this.default_message = (res && res.data && res.data.message)
-                ? 'There is no default store. Mark a store as default.'
+                ? 'There is no default address. Mark an address as default.'
                 : null;
             if(data)
             {
