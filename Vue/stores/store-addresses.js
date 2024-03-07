@@ -81,6 +81,7 @@ export const useAddressStore = defineStore({
         current_list:[],
         filter_selected_users : null,
         filter_selected_address_type : null,
+        default_message:null,
     }),
     getters: {
 
@@ -289,6 +290,9 @@ export const useAddressStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_message = (res && res.data && res.data.message)
+                ? 'There is no default store. Mark a store as default.'
+                : null;
             if(data)
             {
                 this.list = data;

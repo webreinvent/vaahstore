@@ -9,6 +9,9 @@ const useVaah = vaah();
 <template>
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+        <Message v-if="!store.list.data || store.default_message" severity="warn" class="mt-1" :closable="false">
+            There is no default Address. Mark an address as <strong>default</strong>.
+        </Message>
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
