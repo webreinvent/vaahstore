@@ -456,6 +456,10 @@ class AttributeGroup extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        AttributeGroupItem::whereIn('vh_st_attribute_group_id', $items_id)
+            ->withTrashed()
+            ->forceDelete();
+
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -514,6 +518,9 @@ class AttributeGroup extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    AttributeGroupItem::whereIn('vh_st_attribute_group_id', $items_id)
+                        ->withTrashed()
+                        ->forceDelete();
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -536,7 +543,14 @@ class AttributeGroup extends VaahModel
                 break;
 
             case 'delete-all':
-                $list->forceDelete();
+
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+                AttributeGroupItem::whereIn('vh_st_attribute_group_id', $items_id)
+                    ->withTrashed()
+                    ->forceDelete();
+
+
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -665,6 +679,9 @@ class AttributeGroup extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+        AttributeGroupItem::where('vh_st_attribute_group_id', $item->id)
+            ->withTrashed()
+            ->forceDelete();
         $item->forceDelete();
 
         $response['success'] = true;
