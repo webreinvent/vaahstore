@@ -200,8 +200,8 @@ class ProductStock extends VaahModel
 
         //update quantity in product
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->withTrashed()->sum('quantity');
+
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
 
         $response = self::getItem($item->id);
@@ -672,10 +672,10 @@ class ProductStock extends VaahModel
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
 
-        //update the quantity in product table
+        //update the quantity of products
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->withTrashed()->sum('quantity');
+
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
 
         $response = self::getItem($item->id);
@@ -1187,8 +1187,7 @@ class ProductStock extends VaahModel
 
         $product_variation->save();
         $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)
-            ->withTrashed()->sum('quantity');
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
     }
 
