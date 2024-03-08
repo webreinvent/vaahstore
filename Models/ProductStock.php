@@ -851,7 +851,6 @@ class ProductStock extends VaahModel
 
         if (!$product_variation) {
             $response['success'] = true;
-
         }
         else {
             $inputs['vh_st_product_variation_id'] = $product_variation->id;
@@ -871,7 +870,7 @@ class ProductStock extends VaahModel
 
         if (!$warehouse) {
             $response['success'] = false;
-            $response['errors'][] = 'No Warehouse exist.';
+            $response['errors'][] = 'No Warehouse exist with this vendor.';
             return $response;
         }
 
