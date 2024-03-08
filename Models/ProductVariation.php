@@ -1205,7 +1205,12 @@ class ProductVariation extends VaahModel
             $filtered_data = $list_data->filter(function ($item) {
                 return $item->quantity >= 0 && $item->quantity < 10;
             });
-
+            $mailers = config('mail.mailers.smtp', []);
+            if (empty($mailers['host']) || empty($mailers['port'])|| empty($mailers['username'])|| empty($mailers['password'])) {
+                $response['success'] = false;
+                $response['errors'][] = 'mail configuration not set.';
+                return $response;
+            }
             foreach ($list_data as $item) {
                 if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
                     $item->is_mail_sent = 0;
@@ -1255,7 +1260,6 @@ class ProductVariation extends VaahModel
             }
 
             $message .= '</table>';
-
             if ($filtered_data->isNotEmpty()) {
                 // Send mail
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
