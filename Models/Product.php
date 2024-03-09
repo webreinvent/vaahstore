@@ -980,17 +980,17 @@ class Product extends VaahModel
     public static function searchBrand($request)
     {
 
-        $query = $request['filter']['q']['query'];
+        $query = $request['filter']['q']['query'] ?? null;
 
         if($query === null)
         {
-            $brands = Brand::take(10)
+            $brands = Brand::where('is_active', 1)->take(10)
                 ->get();
         }
 
         else{
 
-            $brands = Brand::where('name', 'like', "%$query%")
+            $brands = Brand::where('name', 'like', "%$query%")->where('is_active', 1)
                 ->get();
         }
 
