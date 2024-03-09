@@ -1407,7 +1407,31 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultStore();
+
             this.$router.push({name: 'products.form'})
+        },
+        //---------------------------------------------------------------------
+        async getDefaultStore()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/store',
+                this.getDefaultStoreAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultStoreAfter(data,res) {
+            if(data)
+            {
+                this.item.store = data;
+            }
         },
         //---------------------------------------------------------------------
         toView(item)
