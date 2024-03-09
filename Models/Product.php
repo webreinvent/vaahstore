@@ -1635,6 +1635,9 @@ class Product extends VaahModel
         return $response;
 
     }
+
+    //----------------------------------------------------------
+
     public static function defaultStore($request)
     {
         $default_store = Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();

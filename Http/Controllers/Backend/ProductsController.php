@@ -54,11 +54,7 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values of Store if it is not null
-            if($this->getDefaultStore() !== null)
-            {
-                $data['empty_item']['store'] = $this->getDefaultStore();
-                $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore()->id;
-            }
+
 
 
             // get min and max quantity from the product filter
@@ -131,12 +127,7 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefaultStore(){
 
-        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
-
-    //----------------------------------------------------------
 
     //----------------------------------------------------------
     public function getStores(){
@@ -781,6 +772,7 @@ class ProductsController extends Controller
         }
 
     }
+    //----------------------------------------------------------
 
     public function defaultStore(Request $request)
     {
