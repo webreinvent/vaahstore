@@ -1247,9 +1247,14 @@ export const useStoreStore = defineStore({
 
         },
         storeids(ids) {
+            let query = {
+                filter: {
+                    store_ids: ids,
+                    trashed: 'include'
+                }
+            };
+            this.$router.push({ name: 'stores.index', query: query });
 
-            this.$router.push({name: 'stores.index'})
-            this.query.filter.store_ids = ids;
         }
         //---------------------------------------------------------------------
     }
