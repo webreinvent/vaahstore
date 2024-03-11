@@ -704,7 +704,7 @@ class Warehouse extends VaahModel
             'country' => 'required',
             'state' => 'required|max:100',
             'city' => 'required|max:100',
-            'address_1' => 'nullable|max:150',
+            'address_1' => 'required|max:150',
             'address_2' => 'nullable|max:150',
             'postal_code' => 'nullable|max:10',
             'status' => 'required',
@@ -723,6 +723,7 @@ class Warehouse extends VaahModel
             'state.required' => 'The State field is required.',
             'state.max' => 'The State field may not be greater than :max characters.',
             'city.required' => 'The City field is required.',
+            'address_1.required' => 'The Address 1 field is required.',
             'address_1.max' => 'The Address 1 field may not be greater than :max characters.',
             'city.max' => 'The City field may not be greater than :max characters.',
             'postal_code.max' => 'The Postal Code field may not be greater than :max digits.',
@@ -803,12 +804,16 @@ class Warehouse extends VaahModel
         $inputs['taxonomy_id_warehouse_status'] = $status_id;
         $inputs['status']=$status;
 
-        $vendor_data = Vendor::where('is_active',1)->get();
         $vendor_ids = Vendor::where('is_active',1)->pluck('id')->toArray();
-        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
-        $vendor_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] =$vendor_id;
-        $inputs['vendor'] = $vendor_data;
+        $inputs['vh_st_vendor_id'] = null;
+        $inputs['vendor'] = null;
+
+        if (!empty($vendor_ids)) {
+            $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+            $vendor_data = Vendor::where('is_active', 1)->where('id', $vendor_id)->first();
+            $inputs['vh_st_vendor_id'] = $vendor_id;
+            $inputs['vendor'] = $vendor_data;
+        }
         $faker = Factory::create();
 
         /*
