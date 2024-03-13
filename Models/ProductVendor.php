@@ -1090,19 +1090,15 @@ class ProductVendor extends VaahModel
 
         $vendors = Vendor::where('is_active', 1)->get();
         $vendors_ids = $vendors->pluck('id')->toArray();
+        $inputs['vendor'] = null;
+        $inputs['vh_st_vendor_id'] = null;
         if (!empty($vendors_ids)) {
             $vendors_id = $vendors_ids[array_rand($vendors_ids)];
             $vendor = $vendors->where('id', $vendors_id)->first();
             $inputs['vendor'] = $vendor;
+            $inputs['vh_st_vendor_id'] = $vendors_id;
         }
 
-        if (!isset($inputs['vendor'])) {
-            $response['success'] = false;
-            $response['errors'][] = 'No vendor exist.';
-            return $response;
-        }
-
-        $inputs['vh_st_vendor_id'] = $vendors_id;
 
 
         $stores = Store::where('is_active', 1)->get();
@@ -1114,32 +1110,25 @@ class ProductVendor extends VaahModel
             $store = $stores->where('id', $store_id)->first();
 
             $inputs['store_vendor_product'] = $store;
+            $inputs['vh_st_store_id'] = $store_id;
         }
 
-        if (!isset($inputs['store_vendor_product'])) {
-            $response['success'] = false;
-            $response['errors'][] = 'No store exist.';
-            return $response;
-        }
-
-        $inputs['vh_st_store_id'] = $store_id;
 
 
         $products = Product::where('is_active', 1)
             ->where('vh_st_store_id', $store_id)
             ->get();
 
-        if ($products->isEmpty()) {
-            $response['success'] = false;
-            $response['errors'][] = 'No products exist for the selected store.';
-            return $response;
+        $product_ids = $products->pluck('id')->toArray();
+        $inputs['product'] = null;
+        $inputs['vh_st_product_id'] = null;
+        if (!empty($product_ids)) {
+            $product_ids = $product_ids[array_rand($product_ids)];
+            $products = $products->where('id', $product_ids)->first();
+            $inputs['product'] = $products;
+            $inputs['vh_st_product_id'] = $product_ids;
         }
 
-        $product_ids = $products->pluck('id')->toArray();
-        $product_ids = $product_ids[array_rand($product_ids)];
-        $products = $products->where('id', $product_ids)->first();
-        $inputs['product'] = $products;
-        $inputs['vh_st_product_id'] = $product_ids;
 
         $users = User::where('is_active',1)->get();
         $user_ids = $users->pluck('id')->toArray();
