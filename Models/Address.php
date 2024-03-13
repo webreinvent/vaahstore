@@ -772,7 +772,7 @@ class Address extends VaahModel
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
                 'address_line_1'=>'required|max:150',
-                'address_line_2'=>'required|max:150',
+                'address_line_2'=>'nullable|max:150',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
@@ -782,7 +782,6 @@ class Address extends VaahModel
             [
                 'vh_user_id.required' => 'The User field is required',
                 'address_line_1.required' => 'The Address Line 1 field is required',
-                'address_line_2.required' => 'The Address Line 2 field is required',
                 'address_line_1.max' => 'The Address Line 1 field cannot be more than :max characters.',
                 'address_line_2.max' => 'The Address Line 2 field cannot be more than :max characters.',
                 'taxonomy_id_address_types.required' => 'The Type field is required',

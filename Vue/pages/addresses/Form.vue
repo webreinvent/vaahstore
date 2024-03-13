@@ -146,7 +146,7 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_1"/>
                 </VhField>
 
-                <VhField label="Address line 2*">
+                <VhField label="Address line 2">
                     <Textarea rows="3" class="w-full"
                               placeholder="Enter a Address Line 2"
                               name="addresses-address_line_2"
