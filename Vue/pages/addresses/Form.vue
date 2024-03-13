@@ -54,6 +54,11 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="addresses-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
                     <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                             label="Save"
                             class="p-button-sm"

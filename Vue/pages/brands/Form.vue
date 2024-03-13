@@ -63,6 +63,11 @@ watch(() => store && store.item && store.item.name, (item_name) => {
 
 
                 <div class="p-inputgroup">
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="brands-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
