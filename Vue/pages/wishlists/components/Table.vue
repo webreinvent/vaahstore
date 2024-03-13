@@ -59,9 +59,8 @@ const useVaah = vaah();
                          <span class="p-inputgroup-addon" v-else>
                              <b>{{prop.data.products.length}}</b>
                          </span>
-                         <Button :disabled="!store.assets.permissions.includes('can-update-module')"
-                                icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
+                         <Button :disabled="$route.path.includes('product') && prop.data.id === (store.item && store.item.id)"
+                                 icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Products'"
                                  @click="store.toProduct(prop.data)" />
                      </div>
@@ -138,7 +137,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="wishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                :disabled="!prop.data.type"
+                                :disabled="!prop.data.type || (prop.data.products && prop.data.products.length === 0)"
                                 v-if="store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/wishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />

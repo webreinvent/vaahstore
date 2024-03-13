@@ -778,18 +778,6 @@ class ProductStock extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-
-            //update quantity in product variation
-            $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
-                ->withTrashed()->first();
-            $product_variation->quantity += $inputs['quantity'];
-            $product_variation->save();
-
-            //update quantity in product
-            $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-            $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-                ->withTrashed()->sum('quantity');
-            $product->save();
             $i++;
 
         }
@@ -816,29 +804,27 @@ class ProductStock extends VaahModel
 
         //fill the Vendor field here
         $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
-
-        if (!$vendor) {
-            $response['success'] = false;
-            $response['errors'][] = 'No Vendor exist.';
-            return $response;
+        $inputs['vh_st_vendor_id'] = null;
+        $inputs['vendor'] = null;
+        if (!empty($vendor)) {
+            $inputs['vh_st_vendor_id'] = $vendor->id;
+            $inputs['vendor'] = $vendor;
         }
 
-        $inputs['vh_st_vendor_id'] = $vendor->id;
-        $inputs['vendor'] = $vendor;
+
 
 
         //fill the product field here
 
         $product = Product::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug')->first();
-
-        if (!$product) {
-            $response['success'] = false;
-            $response['errors'][] = 'No Product exist.';
-            return $response;
+        $inputs['vh_st_product_id'] = null;
+        $inputs['product'] = null;
+        if (!empty($product)) {
+            $inputs['vh_st_product_id'] = $product->id;
+            $inputs['product'] = $product;
         }
 
-        $inputs['vh_st_product_id'] = $product->id;
-        $inputs['product'] = $product;
+
 
 
         //fill the product variation field on the basis of product selected
@@ -849,10 +835,9 @@ class ProductStock extends VaahModel
             ->select('id', 'name', 'price')
             ->first();
 
-        if (!$product_variation) {
-            $response['success'] = true;
-        }
-        else {
+        $inputs['vh_st_product_variation_id'] = null;
+        $inputs['product_variation'] = null;
+        if (!empty($product_variation)) {
             $inputs['vh_st_product_variation_id'] = $product_variation->id;
             $inputs['product_variation'] = $product_variation;
         }
@@ -867,15 +852,13 @@ class ProductStock extends VaahModel
             ->inRandomOrder()
             ->select('id', 'name', 'slug')
             ->first();
-
-        if (!$warehouse) {
-            $response['success'] = false;
-            $response['errors'][] = 'No Warehouse exist with this vendor.';
-            return $response;
+        $inputs['vh_st_warehouse_id'] = null;
+        $inputs['warehouse'] = null;
+        if (!empty($warehouse)) {
+            $inputs['vh_st_warehouse_id'] = $warehouse->id;
+            $inputs['warehouse'] = $warehouse;
         }
 
-        $inputs['vh_st_warehouse_id'] = $warehouse->id;
-        $inputs['warehouse'] = $warehouse;
 
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');

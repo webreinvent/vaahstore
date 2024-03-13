@@ -53,6 +53,11 @@ const toggleFormMenu = (event) => {
 
             <template #icons>
                 <div class="p-inputgroup">
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="users-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
                     <Button v-if="store.item && store.item.id"
                             label="Save"
                             class="p-button-sm"

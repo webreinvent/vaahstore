@@ -37,10 +37,10 @@ onMounted(async () => {
 
     await store.getFormMenu();
 
-    if (store1.selectedProductId !== undefined) {
-        selectedProductId.value = store1.selectedProductId;
+    if (store1.selected_product_id !== undefined) {
+        selected_product_id.value = store1.selected_product_id;
     } else {
-        selectedProductId.value = null;
+        selected_product_id.value = null;
     }
 
 });

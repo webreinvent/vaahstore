@@ -54,6 +54,11 @@ const toggleFormMenu = (event) => {
 
 
                 <div class="p-inputgroup">
+                    <Button class="p-button-sm"
+                            v-if="store.item && store.item.id"
+                            data-testid="warehouses-view_item"
+                            @click="store.toView(store.item)"
+                            icon="pi pi-eye"/>
                     <Button label="Save"
                             class="p-button-sm"
                             v-if="store.item && store.item.id"
@@ -172,7 +177,7 @@ const toggleFormMenu = (event) => {
                                   forceSelection />
                 </VhField>
 
-                <VhField label="State*">
+                <VhField label="State">
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
@@ -180,7 +185,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.state"/>
                 </VhField>
 
-                <VhField label="City*">
+                <VhField label="City">
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
@@ -188,7 +193,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.city"/>
                 </VhField>
 
-                <VhField label="Address 1">
+                <VhField label="Address 1*">
                     <InputText class="w-full"
                                name="warehouses-address_1"
                                data-testid="warehouses-address_1"

@@ -1236,6 +1236,7 @@ class Vendor extends VaahModel
         $inputs['status'] = $status;
 
         $inputs['is_active'] = 1;
+        $inputs['is_default'] = 0;
         $inputs['business_document_file'] = null;
 
         // set contact info field
