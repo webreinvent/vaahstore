@@ -783,11 +783,14 @@ class AttributeGroup extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            foreach ($inputs['active_attributes'] as $key=>$value){
-                $item1 = new AttributeGroupItem();
-                $item1->vh_st_attribute_id = $value['id'];
-                $item1->vh_st_attribute_group_id = $item->id;
-                $item1->save();
+            if (isset($inputs['active_attributes']) && is_array($inputs['active_attributes'])) {
+
+                foreach ($inputs['active_attributes'] as $key => $value) {
+                    $item1 = new AttributeGroupItem();
+                    $item1->vh_st_attribute_id = $value['id'];
+                    $item1->vh_st_attribute_group_id = $item->id;
+                    $item1->save();
+                }
             }
             $i++;
 
@@ -810,14 +813,12 @@ class AttributeGroup extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
         $attribute_ids = Attribute::where('is_active',1)->pluck('id')->toArray();
-        if (empty($attribute_ids)) {
-            $response['success'] = false;
-            $response['errors'][] = 'No attributes exist.';
-            return $response;
+        if (!empty($attribute_ids)) {
+            $attribute_id = $attribute_ids[array_rand($attribute_ids)];
+            $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attribute_id)->first();
+            $inputs['active_attributes'][] = $attributeId_data;
         }
-        $attribute_id = $attribute_ids[array_rand($attribute_ids)];
-        $attributeId_data = Attribute::select('id','name','type')->where('is_active',1)->where('id',$attribute_id)->first();
-        $inputs['active_attributes'][] = $attributeId_data;
+
 
         $faker = Factory::create();
 
