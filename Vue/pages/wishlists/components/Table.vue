@@ -138,7 +138,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="wishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                :disabled="!prop.data.type"
+                                :disabled="!prop.data.type || (prop.data.products && prop.data.products.length === 0)"
                                 v-if="store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/wishlists/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
