@@ -603,7 +603,9 @@ class Wishlist extends VaahModel
                 }
                 break;
             case 'trash-all':
-                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
             case 'restore-all':
