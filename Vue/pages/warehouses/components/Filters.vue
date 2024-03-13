@@ -63,38 +63,31 @@ const store = useWarehouseStore();
 
             </VhFieldVertical >
 
-            <Divider/>
-
             <VhFieldVertical >
                 <template #label>
-                    <b>Status:</b>
+                    <b>Status By:</b>
                 </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.status"
+                        filter
+                        optionValue="name"
+                        optionLabel="name"
+                        data-testid="warehouses-filter-status"
+                        placeholder="Select Status"
+                        display="chip"
+                        append-to="self"
+                        class="w-full relative" />
+                </VhField>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="testcases-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pass"
-                                 data-testid="testcases-filters-status-pass"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-fail"
-                                 data-testid="testcases-filters-status-fail"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
 
             </VhFieldVertical>
 
             <Divider/>
+
+
+
 
 
 

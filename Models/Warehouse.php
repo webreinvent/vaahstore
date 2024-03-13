@@ -342,20 +342,12 @@ class Warehouse extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        $status = null;
-
-        if (!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        ) {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('slug', $status);
-
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('name', $status);
         });
 
     }
@@ -702,8 +694,8 @@ class Warehouse extends VaahModel
             'slug' => 'required|max:100',
             'vendor' => 'required',
             'country' => 'required',
-            'state' => 'required|max:100',
-            'city' => 'required|max:100',
+            'state' => 'nullable|max:100',
+            'city' => 'nullable|max:100',
             'address_1' => 'required|max:150',
             'address_2' => 'nullable|max:150',
             'postal_code' => 'nullable|max:10',
@@ -720,9 +712,7 @@ class Warehouse extends VaahModel
             'slug.max' => 'The slug field may not be greater than :max characters.',
             'vendor.required' => 'The Vendor field is required.',
             'country.required' => 'The Country field is required.',
-            'state.required' => 'The State field is required.',
             'state.max' => 'The State field may not be greater than :max characters.',
-            'city.required' => 'The City field is required.',
             'address_1.required' => 'The Address 1 field is required.',
             'address_1.max' => 'The Address 1 field may not be greater than :max characters.',
             'city.max' => 'The City field may not be greater than :max characters.',
