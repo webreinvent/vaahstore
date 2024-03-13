@@ -59,9 +59,10 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon"
-                              :class="{ 'cursor-pointer': prop.data.product.product_variations_for_vendor_product.length > 0 }"
                               v-tooltip.top="'Total Variations'" @click="store.toViewProductVariations(prop.data.product)">
-                              <b>{{ prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}</b>
+                              <b>{{ prop.data.product && prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}
+
+</b>
                         </span>
                          <Button class="p-button-tiny"
                                  v-tooltip.top="'Add Price Item'"
@@ -75,22 +76,24 @@ const useVaah = vaah();
                  </template>
 
              </Column>
-
-
              <Column header="Product Price Range(min-max)" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-            <div  v-tooltip.top="'Variations Price Range'">
-                <div v-if="prop.data.product_variation_prices ">
-                    {{ store.calculatePriceRange(prop.data.product, prop.data.product_variation_prices) }}
-                </div>
-                <div v-else>
-                    No Price Available
-                </div>
-            </div>
+                         <div  v-tooltip.top="'Variations Price Range'">
+                             <div v-if="prop.data && prop.data.product_variation_prices ">
+                                 {{ prop.data.product ? store.calculatePriceRange(prop.data.product, prop.data.product_variation_prices) : ' ' }}
+
+                             </div>
+                             <div v-else>
+                                 No Price Available
+                             </div>
+                         </div>
                      </div>
                  </template>
              </Column>
+
+
+
 
              <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"

@@ -1056,9 +1056,6 @@ class ProductVendor extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            $item->storeVendorProduct()->attach(
-                $inputs['vh_st_store_id']
-            );
 
             $i++;
 
