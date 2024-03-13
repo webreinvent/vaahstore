@@ -72,7 +72,7 @@ const store = useWarehouseStore();
                         v-model="store.query.filter.status"
                         :options="store.status"
                         filter
-                        optionValue="name"
+                        optionValue="slug"
                         optionLabel="name"
                         data-testid="warehouses-filter-status"
                         placeholder="Select Status"

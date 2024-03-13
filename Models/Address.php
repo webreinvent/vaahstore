@@ -376,20 +376,12 @@ class Address extends VaahModel
 
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
-        {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('slug', $status);
-
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('slug', $status);
         });
 
     }

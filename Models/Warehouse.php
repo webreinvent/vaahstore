@@ -347,7 +347,7 @@ class Warehouse extends VaahModel
         }
         $status = $filter['status'];
         $query->whereHas('status', function ($q) use ($status) {
-            $q->whereIn('name', $status);
+            $q->whereIn('slug', $status);
         });
 
     }

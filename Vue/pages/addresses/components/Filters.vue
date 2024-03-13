@@ -80,6 +80,25 @@ const store = useAddressStore();
 
             <VhFieldVertical >
                 <template #label>
+                    <b>Status By:</b>
+                </template>
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.status"
+                        filter
+                        optionValue="slug"
+                        optionLabel="name"
+                        data-testid="addresses-filter-status"
+                        placeholder="Select Status"
+                        display="chip"
+                        append-to="self"
+                        class="w-full relative" />
+
+
+            </VhFieldVertical>
+
+            <VhFieldVertical >
+                <template #label>
                     <b>Default Address:</b>
                 </template>
                 <div class="field-radiobutton">
@@ -100,34 +119,7 @@ const store = useAddressStore();
             </VhFieldVertical>
 
 
-            <VhFieldVertical >
-                <template #label>
-                    <b>Status:</b>
-                </template>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="addresses-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-rejected"
-                                 data-testid="addresses-filters-status-rejected"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-approved"
-                                 data-testid="addresses-filters-status-approved"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-
-            </VhFieldVertical>
+           
 
             <VhFieldVertical >
                 <template #label>
