@@ -63,14 +63,14 @@ const useVaah = vaah();
                               v-tooltip.top="'Total Variations'" @click="store.toViewProductVariations(prop.data.product)">
                               <b>{{ prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}</b>
                         </span>
-                         <button class="p-button-tiny"
+                         <Button class="p-button-tiny"
                                  v-tooltip.top="'Add Price Item'"
                                  icon="pi pi-plus" severity="info"
-                                 style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                 style="cursor: pointer;"
                                  @click="store.toProductPrice(prop.data)"
                                  :disabled="$route.path.includes('price') && prop.data.id===store.item?.id">
                              <i class="pi pi-plus" style="color: white"></i>
-                         </button>
+                         </Button>
                      </div>
                  </template>
 

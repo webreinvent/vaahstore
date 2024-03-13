@@ -59,9 +59,8 @@ const useVaah = vaah();
                          <span class="p-inputgroup-addon" v-else>
                              <b>{{prop.data.products.length}}</b>
                          </span>
-                         <Button :disabled="!store.assets.permissions.includes('can-update-module')"
-                                icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
+                         <Button :disabled="$route.path.includes('product') && prop.data.id === (store.item && store.item.id)"
+                                 icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Products'"
                                  @click="store.toProduct(prop.data)" />
                      </div>
