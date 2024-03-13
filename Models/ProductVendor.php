@@ -681,9 +681,12 @@ class ProductVendor extends VaahModel
             return $response;
         }
 
-        $itemProduct = Product::withTrashed()->find($item->vh_st_product_id);
-
-        $item['productList'] = Product::where('vh_st_store_id', $itemProduct->vh_st_store_id)->select('id', 'name', 'slug');
+        $item_product = Product::withTrashed()->find($item->vh_st_product_id);
+        if ($item_product !== null) {
+            $item['productList'] = Product::where('vh_st_store_id', $item_product->vh_st_store_id)
+                ->select('id', 'name', 'slug')
+                ->get();
+        }
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
