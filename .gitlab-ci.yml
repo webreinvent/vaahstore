@@ -1,5 +1,7 @@
 stages:
   - features
+  - develop
+  - production
 
 deploy_features:
   stage: features
@@ -56,6 +58,65 @@ deploy_features:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
+
+  tags:
+    - test.dev.getdemo.dev
+
+
+
+deploy_develop:
+  stage: develop
+  variables:
+    SSH_USERNAME: $TEST_DEV_GETDEMO_USERNAME
+    PROJECT_NAME: vaahstore-develop
+    FTP_IP: $DEMO_FTP_IP
+    DOMAIN: $DEMO_DOMAIN
+
+    PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME
+    MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/VaahCms/Modules/Store
+    PROJECT_STORAGE_PATH: $PROJECT_PATH/storage
+    VAAHCMS_PUBLIC_PATH: $PROJECT_PATH/public
+    VAAHCMS_CONFIG_PATH: $PROJECT_PATH/bootstrap/cache/config.php
+    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/VaahCms/Modules/Store
+    PROJECT_URL: https://$DOMAIN/$PROJECT_NAME/public
+
+
+  script:
+    - echo "Project Path = $PROJECT_PATH"
+    - echo "FTP Path = $FTP_UPLOAD_PATH"
+    - git ftp push --auto-init --user $TEST_DEV_GETDEMO_USERNAME --passwd $TEST_DEV_GETDEMO_PASSWORD $FTP_UPLOAD_PATH
+    - whoami
+    - pwd
+    - cd $PROJECT_PATH
+    - pwd
+    - rm -rf store-dev
+    - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
+    - rm -rf /store-dev/.git
+    #- rm -rf /store-dev/././.git
+    - find ./ -type d -name .git -prune -exec rm -rf {} +
+    - cp -r ./store-dev/.  ./
+    - pwd
+    - cp .env.example.default .env
+    - composer update
+    - php artisan down
+    #- mv .env.develop-backup .env
+    - php artisan cache:clear
+    - php artisan config:cache
+    - php artisan view:clear
+    - php artisan storage:link
+    - chmod -R 777 $PROJECT_STORAGE_PATH
+    - chmod -R 777 $VAAHCMS_PUBLIC_PATH
+    - echo $VAAHCMS_PUBLIC_PATH
+    - rm $VAAHCMS_CONFIG_PATH
+    #===== PROTECT ENV FILES
+    - chmod 640 $PROJECT_PATH/.env
+    - find $PROJECT_PATH/. -name ".env.*" | xargs chmod 640
+    - php artisan up
+    - echo "Visit following url:"
+    - echo $PROJECT_URL
+
+  only:
+    - develop
 
   tags:
     - test.dev.getdemo.dev
