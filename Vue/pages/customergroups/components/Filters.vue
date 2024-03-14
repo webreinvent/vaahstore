@@ -55,7 +55,6 @@ const store = useCustomerGroupStore();
 
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
-                          data-testid="customergroups-created_range-filter"
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
