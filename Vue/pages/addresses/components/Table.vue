@@ -49,7 +49,7 @@ const useVaah = vaah();
                  <template #body="prop">
 
                      <template v-if="prop.data.is_default == 1">
-                            <Badge severity="primary">Default</Badge>
+                            <Badge severity="info">Default</Badge>
                             <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                      <template v-else>

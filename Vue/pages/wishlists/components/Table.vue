@@ -34,7 +34,7 @@ const useVaah = vaah();
                  <template #body="prop">
                      <template v-if="prop.data.is_default == 1">
                          <Badge v-if="prop.data.deleted_at" value="Trashed" severity="danger"></Badge>
-                         <Badge severity="primary" >Default</Badge>
+                         <Badge severity="info" >Default</Badge>
                          <div style="word-break: break-word;">{{ prop.data.name }}</div>
                      </template>
                      <template v-else>

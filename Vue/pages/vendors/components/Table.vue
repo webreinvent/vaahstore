@@ -43,7 +43,7 @@ const permissions=store.assets.permissions;
                     <div style=" width:150px; overflow-wrap: break-word; word-wrap:break-word;">
                         {{prop.data.name}}
                         <span v-if="prop.data.is_default == 1">
-                         <badge>&nbsp;(Default)</badge>
+                         <Badge severity="info">&nbsp;(Default)</Badge>
                      </span>
                     </div>
                 </template>
