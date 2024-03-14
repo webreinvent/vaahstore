@@ -48,7 +48,7 @@ class Vendor extends VaahModel
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
         'taxonomy_id_vendor_status', 'status_notes', 'meta',
-        'is_active',
+
         'created_by',
         'updated_by',
         'deleted_by',
@@ -389,7 +389,6 @@ class Vendor extends VaahModel
         if($inputs['is_default']){
             self::where('is_default',1)->update(['is_default' => 0]);
         }
-
         $inputs = $validation_result['data'];
         $item = new self();
         $item->fill($inputs);
@@ -433,7 +432,8 @@ class Vendor extends VaahModel
             'business_document_file' => 'nullable',
             'is_default' => 'nullable',
             'auto_approve_products' => 'nullable',
-            'vendor_products' =>'nullable'
+            'vendor_products' =>'nullable',
+            'is_active'=>'nullable',
         ];
 
         if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
