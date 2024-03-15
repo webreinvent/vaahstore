@@ -1492,7 +1492,8 @@ class Vendor extends VaahModel
 
     public static function defaultStore($request)
     {
-        $default_store = Store::where(['is_active' => 1, 'is_default' => 1])->first(['id','name', 'slug', 'is_default']);
+        $default_store = Store::where(['is_active' => 1, 'is_default' => 1])->select('id', 'name', 'slug', 'is_default', 'is_multi_vendor')->first();
+
 
         if($default_store)
         {

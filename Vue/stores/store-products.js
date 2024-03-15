@@ -1431,6 +1431,7 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item.store = data;
+                this.item.vh_st_store_id=data.id;
             }
         },
         //---------------------------------------------------------------------

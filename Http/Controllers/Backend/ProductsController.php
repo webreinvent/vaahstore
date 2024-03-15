@@ -777,7 +777,7 @@ class ProductsController extends Controller
     public function defaultStore(Request $request)
     {
         try{
-            return Vendor::defaultStore($request);
+            return Product::defaultStore($request);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
