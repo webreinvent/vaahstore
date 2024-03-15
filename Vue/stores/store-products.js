@@ -764,7 +764,6 @@ export const useProductStore = defineStore({
                         }
                         this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
                             if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
-                                // console.log(k);;
                                 if (variation_match_key == k){
                                     error_message.push('variation already exist');
                                 }else{
@@ -1165,7 +1164,6 @@ export const useProductStore = defineStore({
 
         async formActionAfter (data)
         {
-            console.log()
             switch (this.form.action)
             {
                 case 'create-and-new':
