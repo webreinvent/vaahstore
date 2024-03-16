@@ -139,5 +139,8 @@ function () {
     Route::post('/search/warehouses-using-url-slug', 'ProductStocksController@getWarehouseBySlug')
         ->name('vh.backend.store.productstocks.search.warehouses-using-url-slug');
 
+    Route::any('/get/default/vendor', 'ProductStocksController@defaultVendor')
+        ->name('vh.backend.store.productstocks.search.default.vendor');
+
 
 });

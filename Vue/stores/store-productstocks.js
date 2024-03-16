@@ -918,6 +918,7 @@ export const useProductStockStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultVendor()
             this.$router.push({name: 'productstocks.form'})
         },
         //---------------------------------------------------------------------
@@ -1541,6 +1542,27 @@ export const useProductStockStore = defineStore({
                 }
             }
 
+        },
+        //-----------------------------------------------------------------------
+
+
+        async getDefaultVendor()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/vendor',
+                this.getDefaultVendorAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultVendorAfter(data,res) {
+            this.item.vendor = data ? data : [];
         },
 
     }

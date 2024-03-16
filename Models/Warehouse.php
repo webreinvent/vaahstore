@@ -834,6 +834,22 @@ class Warehouse extends VaahModel
 
     }
     //-------------------------------------------------
+    public static function defaultVendor($request)
+    {
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+
+
+        if($default_vendor)
+        {
+            $response['success'] = true;
+            $response['data'] = $default_vendor;
+        }
+        else {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+        return $response;
+    }
     //-------------------------------------------------
 
 
