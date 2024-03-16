@@ -198,12 +198,13 @@ class ProductMedia extends VaahModel
     public static function createItem($request)
     {
         $inputs = $request->all();
-        $product_id = $inputs['vh_st_product_id'];
-        $variation_lists = $inputs['product_variation'];
-        $validation = self::validation($inputs);
+
+        $validation = self::validation($request->all());
         if (!$validation['success']) {
             return $validation;
         }
+        $product_id = $inputs['vh_st_product_id'];
+        $variation_lists = $inputs['product_variation'];
         if (empty($variation_lists)) {
             $product_media_ids = self::where('vh_st_product_id', $product_id)->withTrashed()->pluck('id')->toArray();
 
