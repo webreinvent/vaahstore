@@ -764,6 +764,7 @@ class ProductStock extends VaahModel
     public static function seedSampleItems($records=100)
     {
 
+
         $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
@@ -778,6 +779,21 @@ class ProductStock extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
+
+            $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
+                ->withTrashed()->first();
+
+            $product_variation->quantity += $inputs['quantity'];
+            $product_variation->save();
+
+            $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
+
+            $product->quantity = $product->productVariations->sum('quantity');
+            $product->save();
+
+
+
+
             $i++;
 
         }
