@@ -34,7 +34,7 @@ class WishlistsController extends Controller
             $data['empty_item'] = Wishlist::getEmptyItem();
             $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('Whishlists-status');
             $data['actions'] = [];
-
+            $data['urls']['public']= url('/')."/backend/store#/wishlists";
             $get_user_data = self::getUserData();
             $data = array_merge($data, $get_user_data);
             $response['success'] = true;
