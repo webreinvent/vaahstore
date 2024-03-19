@@ -832,34 +832,25 @@ class ProductStock extends VaahModel
 
         //fill the product field here
 
-        $product = Product::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug')->first();
-        $inputs['vh_st_product_id'] = null;
-        $inputs['product'] = null;
-        if (!empty($product)) {
-            $inputs['vh_st_product_id'] = $product->id;
-            $inputs['product'] = $product;
-        }
-
-
+        $product_ids = Product::where('is_active', 1)->whereHas('productVariations')->select('id', 'name', 'slug')->pluck('id')->toArray();
+        $product_id = $product_ids[array_rand($product_ids)];
+        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+        $inputs['vh_st_product_id'] = $product_id;
+        $inputs['product'] = $product;
 
 
         //fill the product variation field on the basis of product selected
 
-        $product_variation = ProductVariation::where('is_active', 1)
-            ->where('vh_st_product_id', $inputs['vh_st_product_id'])
-            ->inRandomOrder()
+        $product_variation_ids = ProductVariation::where('vh_st_product_id', $inputs['vh_st_product_id'])
             ->select('id', 'name', 'price')
-            ->first();
+            ->pluck('id')
+            ->toArray();
 
-        $inputs['vh_st_product_variation_id'] = null;
-        $inputs['product_variation'] = null;
-        if (!empty($product_variation)) {
-            $inputs['vh_st_product_variation_id'] = $product_variation->id;
-            $inputs['product_variation'] = $product_variation;
-        }
+        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+        $product_variation = ProductVariation::where('id',$product_variation_id)->select('id','name','price')->first();
 
-
-
+        $inputs['vh_st_product_variation_id'] = $product_variation_id;
+        $inputs['product_variation'] = $product_variation;
 
         //fill the warehouse field on the basis of vendor selected
 
@@ -874,8 +865,6 @@ class ProductStock extends VaahModel
             $inputs['vh_st_warehouse_id'] = $warehouse->id;
             $inputs['warehouse'] = $warehouse;
         }
-
-
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
         $status_id = $taxonomy_status->pluck('id')->random();
