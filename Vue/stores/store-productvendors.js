@@ -93,6 +93,9 @@ export const useProductVendorStore = defineStore({
         selected_dates:[],
         date_null:null,
         product_variation_list:[],
+        active_stores:null,
+        min_price:null,
+        max_price:null,
 
     }),
     getters: {
@@ -201,6 +204,8 @@ export const useProductVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
             if (this.query.filter.product) this.getProductsBySlug();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
@@ -408,7 +413,6 @@ export const useProductVendorStore = defineStore({
                 this.item.vh_st_product_variation_id = data.product_variation;
 
                 if (data.product_variations) {
-                    await this.searchVariationOfProduct();
                     this.product_variations = data.product_variations;
                     this.product_variation_list = this.product_variation_list.map(listVariation => {
                         const matchingVariation = this.product_variations.find(
@@ -548,6 +552,7 @@ export const useProductVendorStore = defineStore({
                         name: variation.name,
                         id: variation.id,
                         amount: variation.amount,
+                        deleted_at: variation.deleted_at,
                     });
                 }
 
@@ -894,8 +899,32 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.item.is_active=1;
+            this.getDefaultValues();
             this.$router.push({name: 'productvendors.form'})
+        },
+        //---------------------------------------------------------------------
+        async getDefaultValues()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/values',
+                this.getDefaultValuesAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultValuesAfter(data,res) {
+            if (data && data.default_store) {
+                this.item.store_vendor_product = [data.default_store];
+            }
+            if (data && data.default_vendor) {
+                this.item.vendor = data.default_vendor;
+            }
         },
         //---------------------------------------------------------------------
         toView(item)
@@ -1384,7 +1413,111 @@ export const useProductVendorStore = defineStore({
                 }
             }
         },
+
+
+        calculatePriceRange(product, product_variation_prices) {
+            // Check if product_variations and product_variation_prices are equal in length
+            if (
+                product.product_variations_for_vendor_product &&
+                product.product_variations_for_vendor_product.length === product_variation_prices.length
+            ) {
+                // If equal, use product_variation_prices directly
+                const prices = product_variation_prices.map(variation_price => variation_price.pivot.amount);
+
+                // Filter out undefined or null values
+                const valid_prices = prices.filter(price => price !== undefined && price !== null);
+
+                if (valid_prices.length === 0) {
+                    return 'No prices available';
+                }
+
+                const min_price = Math.min(...valid_prices);
+                const max_price = Math.max(...valid_prices);
+
+                if (min_price === max_price) {
+                    return `Price: ${min_price}`;
+                } else {
+                    return `Price Range: ${min_price} - ${max_price}`;
+                }
+            }
+
+
+            let all_prices = [];
+
+            if (product.product_variations_for_vendor_product && product.product_variations_for_vendor_product.length > 0) {
+                // Combine prices from product_variations
+                all_prices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
+                    if (variation.price !== undefined && variation.price !== null) {
+                        prices.push(variation.price);
+                    }
+                    return prices;
+                }, []);
+            }
+
+            all_prices = all_prices.concat(
+                product_variation_prices.reduce((amounts, variation_price) => {
+                    if (variation_price.amount !== undefined && variation_price.amount !== null) {
+                        amounts.push(variation_price.amount);
+                    }
+                    return amounts;
+                }, [])
+            );
+
+            if (all_prices.length === 0) {
+                return 'No prices available';
+            }
+
+            const min_price = Math.min(...all_prices);
+            const max_price = Math.max(...all_prices);
+
+            if (min_price === max_price) {
+                return `Price: ${min_price}`;
+            } else {
+                return `Price:  ${min_price} - ${max_price}`;
+            }
+        },
+
+
         //---------------------------------------------------------------------
+        setSelectedProductId(productId) {
+            if (productId && productId.deleted_at === null) {
+                this.selected_product_info = {
+                    id: productId.id,
+                    name: productId.name,
+                    slug: productId.slug
+                };
+                this.selected_product_id=this.selected_product_info
+            }
+        },
+
+
+        //---------------------------------------------------------
+
+        toProductVariationCreate(productId) {
+            this.setSelectedProductId(productId);
+            this.$router.push({
+                name: 'productvariations.form',
+                query:{ product_vendor : this.item.id}
+            });
+        },
+
+        //--------------------------------------------------------
+
+        toViewProductVariations(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    products: [product.slug],trashed: 'include'
+                }
+            };
+            const route = {
+                name: 'productvariations.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
         //---------------------------------------------------------------------
 
     }

@@ -90,12 +90,23 @@ export const useProductVariationStore = defineStore({
         product_variation_status:null,
         first_element: null,
         products_suggestion:null,
-        products:null
+        products:null,
+        fetched_product_id: null,
+        default_variation_message:null,
     }),
     getters: {
 
     },
     actions: {
+        async fetchDataBasedOnProductId(selected_product_id) {
+this.fetched_product_id=selected_product_id;
+            if (selected_product_id && selected_product_id.id) {
+                this.item.product=this.fetched_product_id;
+                this.item.vh_st_product_id = selected_product_id.id;
+
+            }
+
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -114,6 +125,8 @@ export const useProductVariationStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
 
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
@@ -316,6 +329,9 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_variation_message = (res && res.data && res.data.message)
+                ? 'There is no default product variation. Mark a product variation as default.'
+                : null;
             if(data)
             {
                 this.list = data;
@@ -774,6 +790,8 @@ export const useProductVariationStore = defineStore({
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.fetched_product_id=null
+            console.log(this.fetched_product_id);
             this.$router.push({name: 'productvariations.index'})
         },
         //---------------------------------------------------------------------

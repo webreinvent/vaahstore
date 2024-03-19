@@ -9,6 +9,9 @@ const useVaah = vaah();
 <template>
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+        <Message v-if="!store.list.data || store.default_message" severity="warn" class="mt-1" :closable="false">
+            There is no default Address. Mark an address as <strong>default</strong>.
+        </Message>
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
@@ -29,11 +32,13 @@ const useVaah = vaah();
              <Column field="user.first_name" header="User"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.user && prop.data.user.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                         {{prop.data.user.first_name}}
+                     <div style="word-break: break-word;" v-if="prop.data.user && prop.data.user.first_name">
+                         {{ prop.data.user.first_name }}
+                     </div>
                  </template>
 
              </Column>
@@ -44,7 +49,7 @@ const useVaah = vaah();
                  <template #body="prop">
 
                      <template v-if="prop.data.is_default == 1">
-                            <Badge severity="primary">Default</Badge>
+                            <Badge severity="info">Default</Badge>
                             <div style="word-break: break-word;">{{ prop.data.address }}</div>
                      </template>
                      <template v-else>

@@ -138,7 +138,6 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-
                 <VhField label="Vendor*" >
                     <div class="p-inputgroup">
                     <AutoComplete

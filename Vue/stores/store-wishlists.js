@@ -83,6 +83,7 @@ export const useWishlistStore = defineStore({
         product_selected_menu : [],
         selected_users : null,
         filter_selected_products : null,
+        default_message:null,
     }),
     getters: {
 
@@ -278,6 +279,10 @@ export const useWishlistStore = defineStore({
                   this.item.name = vaah().capitalising(name);
                   this.item.slug = vaah().strToSlug(name);
               }
+              if(name === "")
+              {
+                  this.item.slug = "";
+              }
           },
         //---------------------------------------------------------------------
         setUser(event) {
@@ -337,6 +342,9 @@ export const useWishlistStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_message = (res && res.data && res.data.message)
+                ? 'There is no default wishlist. Mark a wishlist as default.'
+                : null;
             if(data)
             {
                 this.list = data;

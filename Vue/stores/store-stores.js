@@ -83,6 +83,10 @@ export const useStoreStore = defineStore({
         form_menu_list: [],
         currency_list: null,
         selected_dates: null,
+        prev_list:[],
+        current_list:[],
+        first_element: null,
+        message:null,
     }),
     getters: {},
     actions: {
@@ -98,10 +102,14 @@ export const useStoreStore = defineStore({
              */
             this.setViewAndWidth(route.name);
 
+            this.first_element = ((this.query.page - 1) * this.query.rows);
+
             /**
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
@@ -255,7 +263,8 @@ export const useStoreStore = defineStore({
                 this.currencies_list = data.currencies;
                 this.languages_list = data.languages;
                 if (data.rows) {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows
                 }
 
                 if (this.route.params && !this.route.params.id) {
@@ -315,16 +324,17 @@ export const useStoreStore = defineStore({
             }
             if(unique_currencies.length == 0)
             {
-                vaah().toastErrors(['Currency is required when Is Multi Currency is true']);
                 await this.getItem(this.route.params.id);
                 return false;
             }
             this.item.currencies = unique_currencies;
-            await this.itemAction('save');
+            if ( this.route.name === 'view' && this.item.id ) {
+                await this.itemAction('save');
+            }
         },
 
         //---------------------------------------------------------------------
-        
+
         async saveCurrencies() {
             const unique_currencies = [];
             const check_names = new Set();
@@ -466,8 +476,14 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
         afterGetList: function (data, res) {
+            this.message = (res && res.data && res.data.message)
+                ? 'There is no default store. Mark a store as default.'
+                : null;
+
             if (data) {
                 this.list = data;
+                this.first_element = this.query.rows * (this.query.page - 1);
+                this.query.rows = data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -689,8 +705,27 @@ export const useStoreStore = defineStore({
             if (data) {
                 this.item = data;
                 await this.getList();
+                this.prev_list =this.list.data;
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data;
+            this.compareList(this.prev_list,this.current_list);
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+            const prev_set = new Set(prev_list.map(item => item.id));
+
+            const current_set = new Set(current_list.map(item => item.id));
+
+            const removed_items = prev_list.filter(item => !current_set.has(item.id));
+
+            this.action.items = this.action.items.filter(item => current_set.has(item.id));
+
+            if (removed_items.length > 0) {
+                // Do something with removed items
+
+                //may update this in future
             }
         },
         //---------------------------------------------------------------------
@@ -699,19 +734,18 @@ export const useStoreStore = defineStore({
                 case 'create-and-new':
                 case 'save-and-new':
                     this.setActiveItemAsEmpty();
+                    await this.getFormMenu();
+                    this.$router.push({name: 'stores.form'})
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'stores.index'});
                     break;
-                case 'save-and-new':
-                    this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'stores.form'});
-                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'stores.form'})
                     await this.getFormMenu();
                     break;
                 case 'trash':
@@ -738,7 +772,9 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
         async paginate(event) {
-            this.query.page = event.page + 1;
+            this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },
@@ -1071,15 +1107,6 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        handleNewIP(event) {
-
-            const ipaddress = '1.2.1.1';
-            if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
-                return (true)
-            }
-
-        },
-
         //---------------------------------------------------------------------
         async getListCreateMenu() {
             let form_menu = [];
@@ -1220,9 +1247,14 @@ export const useStoreStore = defineStore({
 
         },
         storeids(ids) {
+            let query = {
+                filter: {
+                    store_ids: ids,
+                    trashed: 'include'
+                }
+            };
+            this.$router.push({ name: 'stores.index', query: query });
 
-            this.$router.push({name: 'stores.index'})
-            this.query.filter.store_ids = ids;
         }
         //---------------------------------------------------------------------
     }

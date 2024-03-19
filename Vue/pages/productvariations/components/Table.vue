@@ -14,6 +14,9 @@ const route = useRoute();
 <template>
 
     <div v-if="store.list">
+        <Message v-if="!store.list.data || store.default_variation_message" severity="warn" class="mt-1" :closable="false">
+            There is no default variation. Mark a variation as <strong>default</strong>.
+        </Message>
         <!--table-->
         <DataTable
             :value="store.list.data"
@@ -50,16 +53,20 @@ const route = useRoute();
 
             </Column>
 
-             <Column field="product.name" header="Product"
-                     :sortable="true">
+            <Column field="product.name" header="Product"
+                    :sortable="true">
 
-                 <template #body="prop" >
-                     <span v-if="prop.data && prop.data.product">
-                         {{prop.data.product.name}}
-                     </span>
-                 </template>
 
-             </Column>
+                <template #body="prop" >
+                    <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                        {{ prop.data.product.name }}
+                    </div>
+                </template>
+
+            </Column>
 
              <Column field="quantity" header="Quantity"
                      :sortable="true">

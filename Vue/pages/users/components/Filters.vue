@@ -31,6 +31,7 @@ const store = useUserStore();
                                   option-value = "name"
                                   multiple
                                   :complete-on-focus = "true"
+                                  append-to="self"
                                   :pt="{
                                               token: {class: 'max-w-full'},
                                               removeTokenIcon: {class: 'min-w-max'},
@@ -58,6 +59,7 @@ const store = useUserStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           data-testid="users-filter-created_at"
                           placeholder="Choose date range"
 

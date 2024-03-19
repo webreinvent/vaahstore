@@ -42,6 +42,7 @@ const store = useCustomerGroupStore();
                     :suggestions="store.customer_suggestions_list"
                     @complete="store.getCustomers($event)"
                     placeholder="Select Customers"
+                    append-to="self"
                     class="w-full">
                 </AutoComplete>
 
@@ -57,6 +58,7 @@ const store = useCustomerGroupStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           data-testid="customergroups-filters-created_date"
                           placeholder="Choose Date Range"
 
@@ -79,7 +81,8 @@ const store = useCustomerGroupStore();
                         data-testid="customergroups-filters-status"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        append-to="self"
+                        class="w-full relative" />
                 </VhField>
 
 

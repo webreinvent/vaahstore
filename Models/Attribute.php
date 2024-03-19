@@ -176,8 +176,8 @@ class Attribute extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -441,6 +441,26 @@ class Attribute extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        AttributeValue::whereIn('vh_st_attribute_id', $items_id)
+            ->withTrashed()
+            ->forceDelete();
+        foreach ($items_id as $item_id) {
+            $group_ids = AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                ->withTrashed()
+                ->pluck('vh_st_attribute_group_id')
+                ->toArray();
+            foreach ($group_ids as $group_id) {
+                $count = AttributeGroupItem::where('vh_st_attribute_group_id', $group_id)
+                    ->where('vh_st_attribute_id', '!=', $item_id)
+                    ->count();
+                if ($count === 0) {
+                    AttributeGroup::find($group_id)->forceDelete();
+                }
+                AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                    ->where('vh_st_attribute_group_id', $group_id)
+                    ->forceDelete();
+            }
+        }
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -498,6 +518,26 @@ class Attribute extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    AttributeValue::whereIn('vh_st_attribute_id', $items_id)
+                        ->withTrashed()
+                        ->forceDelete();
+                    foreach ($items_id as $item_id) {
+                        $group_ids = AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                            ->withTrashed()
+                            ->pluck('vh_st_attribute_group_id')
+                            ->toArray();
+                        foreach ($group_ids as $group_id) {
+                            $count = AttributeGroupItem::where('vh_st_attribute_group_id', $group_id)
+                                ->where('vh_st_attribute_id', '!=', $item_id)
+                                ->count();
+                            if ($count === 0) {
+                                AttributeGroup::find($group_id)->forceDelete();
+                            }
+                            AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                                ->where('vh_st_attribute_group_id', $group_id)
+                                ->forceDelete();
+                        }
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
                 break;
@@ -517,7 +557,28 @@ class Attribute extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $list->forceDelete();
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+                AttributeValue::whereIn('vh_st_attribute_id', $items_id)
+                    ->withTrashed()
+                    ->forceDelete();
+                foreach ($items_id as $item_id) {
+                    $group_ids = AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                        ->withTrashed()
+                        ->pluck('vh_st_attribute_group_id')
+                        ->toArray();
+                    foreach ($group_ids as $group_id) {
+                        $count = AttributeGroupItem::where('vh_st_attribute_group_id', $group_id)
+                            ->where('vh_st_attribute_id', '!=', $item_id)
+                            ->count();
+                        if ($count === 0) {
+                            AttributeGroup::find($group_id)->forceDelete();
+                        }
+                        AttributeGroupItem::where('vh_st_attribute_id', $item_id)
+                            ->where('vh_st_attribute_group_id', $group_id)
+                            ->forceDelete();
+                    }
+                }
+                self::withTrashed()->forceDelete();
                 break;
             case 'create-100-records':
             case 'create-1000-records':
@@ -582,7 +643,16 @@ class Attribute extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $existing_item = self::where('id', '!=', $id)
+            ->where('name', $inputs['name'])
+            ->withTrashed()
+            ->first();
 
+        if ($existing_item) {
+            $error_message = "This name is already exist ".($existing_item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
+            return $response;
+        }
         $new_array = null;
         foreach ($inputs['value'] as $value) {
             if ($value['is_active']) {
@@ -637,6 +707,28 @@ class Attribute extends VaahModel
             $response['errors'][] = 'Record does not exist.';
             return $response;
         }
+        AttributeValue::where('vh_st_attribute_id', $item->id)
+            ->withTrashed()
+            ->forceDelete();
+            $group_ids = AttributeGroupItem::where('vh_st_attribute_id', $id)
+                ->withTrashed()
+                ->pluck('vh_st_attribute_group_id')
+                ->toArray();
+
+            foreach ($group_ids as $group_id) {
+                $count = AttributeGroupItem::where('vh_st_attribute_group_id', $group_id)
+                    ->where('vh_st_attribute_id', '!=', $id)
+                    ->count();
+                if ($count === 0) {
+                    $group = AttributeGroup::find($group_id);
+                    $group?->forceDelete();
+                }
+                AttributeGroupItem::where('vh_st_attribute_id', $id)
+                    ->where('vh_st_attribute_group_id', $group_id)
+                    ->forceDelete();
+            }
+
+
         $item->forceDelete();
 
         $response['success'] = true;

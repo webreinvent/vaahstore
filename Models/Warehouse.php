@@ -108,7 +108,7 @@ class Warehouse extends VaahModel
 
     public function vendor()
     {
-        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id', 'name']);
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->withTrashed()->select(['id', 'name','deleted_at']);
     }
 
     //-------------------------------------------------
@@ -209,8 +209,8 @@ class Warehouse extends VaahModel
             ->withTrashed()
             ->first();
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -342,20 +342,12 @@ class Warehouse extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        $status = null;
-
-        if (!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        ) {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('slug', $status);
-
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('slug', $status);
         });
 
     }
@@ -621,8 +613,8 @@ class Warehouse extends VaahModel
             ->first();
 
         if ($existing_item) {
-            $response['success'] = false;
-            $response['errors'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($existing_item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -702,9 +694,9 @@ class Warehouse extends VaahModel
             'slug' => 'required|max:100',
             'vendor' => 'required',
             'country' => 'required',
-            'state' => 'required|max:100',
-            'city' => 'required|max:100',
-            'address_1' => 'nullable|max:150',
+            'state' => 'nullable|max:100',
+            'city' => 'nullable|max:100',
+            'address_1' => 'required|max:150',
             'address_2' => 'nullable|max:150',
             'postal_code' => 'nullable|max:10',
             'status' => 'required',
@@ -720,9 +712,8 @@ class Warehouse extends VaahModel
             'slug.max' => 'The slug field may not be greater than :max characters.',
             'vendor.required' => 'The Vendor field is required.',
             'country.required' => 'The Country field is required.',
-            'state.required' => 'The State field is required.',
             'state.max' => 'The State field may not be greater than :max characters.',
-            'city.required' => 'The City field is required.',
+            'address_1.required' => 'The Address 1 field is required.',
             'address_1.max' => 'The Address 1 field may not be greater than :max characters.',
             'city.max' => 'The City field may not be greater than :max characters.',
             'postal_code.max' => 'The Postal Code field may not be greater than :max digits.',
@@ -803,12 +794,16 @@ class Warehouse extends VaahModel
         $inputs['taxonomy_id_warehouse_status'] = $status_id;
         $inputs['status']=$status;
 
-        $vendor_data = Vendor::where('is_active',1)->get();
         $vendor_ids = Vendor::where('is_active',1)->pluck('id')->toArray();
-        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
-        $vendor_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] =$vendor_id;
-        $inputs['vendor'] = $vendor_data;
+        $inputs['vh_st_vendor_id'] = null;
+        $inputs['vendor'] = null;
+
+        if (!empty($vendor_ids)) {
+            $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+            $vendor_data = Vendor::where('is_active', 1)->where('id', $vendor_id)->first();
+            $inputs['vh_st_vendor_id'] = $vendor_id;
+            $inputs['vendor'] = $vendor_data;
+        }
         $faker = Factory::create();
 
         /*
@@ -839,6 +834,22 @@ class Warehouse extends VaahModel
 
     }
     //-------------------------------------------------
+    public static function defaultVendor($request)
+    {
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+
+
+        if($default_vendor)
+        {
+            $response['success'] = true;
+            $response['data'] = $default_vendor;
+        }
+        else {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+        return $response;
+    }
     //-------------------------------------------------
 
 

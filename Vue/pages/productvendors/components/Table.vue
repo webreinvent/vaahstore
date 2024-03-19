@@ -29,53 +29,71 @@ const useVaah = vaah();
              <Column field="vendor.name" header="Vendor"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.vendor && prop.data.vendor.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.vendor == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.vendor.name}}
-                         </span>
-
-
+                     <div style="word-break: break-word;" v-if="prop.data.vendor && prop.data.vendor.name">
+                         {{ prop.data.vendor.name }}
+                     </div>
                  </template>
 
              </Column>
 
-            <Column field="product.name" header="Product"
-                    :sortable="true">
+             <Column field="product.name" header="Product"
+                     :sortable="true">
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                         {{ prop.data.product.name }}
+                     </div>
+                 </template>
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.product == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product.name}}
-                         </span>
-                </template>
-
-            </Column>
+             </Column>
 
              <Column field="add_price" header="Add Price"
                      :sortable="false"  >
 
-
                  <template #body="prop">
-                     <Button class="p-button-tiny"
-                             v-tooltip.top="'Add Price Item'"
-                             icon="pi pi-plus" severity="success"
-                             @click="store.toProductPrice(prop.data)"
-                             :disabled="$route.path.includes('price') && prop.data.id===store.item?.id"
-                         >
+                     <div class="p-inputgroup flex-1">
+                        <span class="p-inputgroup-addon"
+                              v-tooltip.top="'Total Variations'" @click="store.toViewProductVariations(prop.data.product)">
+                              <b>{{ prop.data.product && prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}
 
-                     </Button>
-
+</b>
+                        </span>
+                         <Button class="p-button-tiny"
+                                 v-tooltip.top="'Add Price Item'"
+                                 icon="pi pi-plus" severity="info"
+                                 style="cursor: pointer;"
+                                 @click="store.toProductPrice(prop.data)"
+                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id">
+                             <i class="pi pi-plus" style="color: white"></i>
+                         </Button>
+                     </div>
                  </template>
 
              </Column>
+             <Column header="Product Price Range(min-max)" :sortable="false">
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                         <div  v-tooltip.top="'Variations Price Range'">
+                             <div v-if="prop.data && prop.data.product_variation_prices ">
+                                 {{ prop.data.product ? store.calculatePriceRange(prop.data.product, prop.data.product_variation_prices) : ' ' }}
+
+                             </div>
+                             <div v-else>
+                                 No Price Available
+                             </div>
+                         </div>
+                     </div>
+                 </template>
+             </Column>
+
+
+
 
              <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"
@@ -109,7 +127,7 @@ const useVaah = vaah();
 
              <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+
                         :sortable="true">
 
                     <template #body="prop">
@@ -120,7 +138,6 @@ const useVaah = vaah();
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="false"
-                    style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
@@ -135,7 +152,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 

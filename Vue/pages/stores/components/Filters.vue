@@ -48,43 +48,29 @@ const store = useStoreStore();
 
             </VhFieldVertical>
 
+
+
+
             <VhFieldVertical >
                 <template #label>
-                    <b>Status:</b>
+                    <b>Status By:</b>
                 </template>
+                <VhField label="Status">
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.status_option"
+                        filter
+                        optionValue="slug"
+                        optionLabel="name"
+                        data-testid="stores-filter-status"
+                        placeholder="Select Status"
+                        display="chip"
+                        append-to="self"
+                        class="w-full relative" />
+                </VhField>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="status-all"
-                                 value="all"
-                                 data-testid="stores-filters-status-all"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-all">All</label>
-                </div>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="stores-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-approved"
-                                 data-testid="stores-filters-status-approved"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-rejected"
-                                 data-testid="stores-filters-status-rejected"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
 
             </VhFieldVertical>
-
             <VhFieldVertical >
                 <template #label>
                     <b>Date Range Filter:</b>
@@ -93,6 +79,9 @@ const store = useStoreStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          class="w-full"
+                          append-to="self"
+                          placeholder="Choose date range"
                           :manualInput="false"/>
 
                 </VhFieldVertical >

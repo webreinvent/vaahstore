@@ -29,6 +29,7 @@ class ProductPrice extends VaahModel
         'uuid',
         'vh_st_vendor_id',
         'vh_st_product_id',
+        'vh_st_vendor_product_id',
         'vh_st_product_variation_id',
         'amount',
         'meta',
@@ -61,6 +62,10 @@ class ProductPrice extends VaahModel
     public function vendor()
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name','slug');
+    }
+    public function productVendor()
+    {
+        return $this->hasMany(ProductVendor::class,'vh_st_vendor_product_id','id');
     }
     //-------------------------------------------------
     public function product()

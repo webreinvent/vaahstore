@@ -148,7 +148,7 @@ class Product extends VaahModel
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')
+        return $this->belongsTo(Vendor::class,'vh_st_vendor_id','id')->withTrashed()
             ->select('id','name','slug');
     }
 
@@ -185,15 +185,19 @@ class Product extends VaahModel
     public function productVariations()
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
-            ->where('vh_st_product_variations.is_active', 1)
+            ->where('vh_st_product_variations.is_active', 1)->withTrashed()
             ->select();
+    }
+    public function productVariationsForVendorProduct()
+    {
+        return $this->hasMany(ProductVariation::class, 'vh_st_product_id', 'id')
+            ->withTrashed();
     }
 
     //-------------------------------------------------
     public function productVendors()
     {
         return $this->hasMany(ProductVendor::class,'vh_st_product_id','id')
-            ->where('vh_st_product_vendors.is_active', 1)
             ->select()
             ->with('vendor');
     }
@@ -803,7 +807,8 @@ class Product extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $items_id = self::all()->pluck('id')->toArray();
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+
                 foreach ($items_id as $item_id)
                 {
                     self::deleteRelatedRecords($item_id);
@@ -975,17 +980,17 @@ class Product extends VaahModel
     public static function searchBrand($request)
     {
 
-        $query = $request['filter']['q']['query'];
+        $query = $request['filter']['q']['query'] ?? null;
 
         if($query === null)
         {
-            $brands = Brand::take(10)
+            $brands = Brand::where('is_active', 1)->take(10)
                 ->get();
         }
 
         else{
 
-            $brands = Brand::where('name', 'like', "%$query%")
+            $brands = Brand::where('name', 'like', "%$query%")->where('is_active', 1)
                 ->get();
         }
 
@@ -1183,11 +1188,13 @@ class Product extends VaahModel
 
         // fill the store field here
         $stores = Store::where('is_active',1)->get();
-        $store_ids = $stores->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id',$store_id)->first();
-        $inputs['store'] = $store;
-        $inputs['vh_st_store_id'] = $store_id ;
+        if ($stores->count() > 0) {
+            $store_ids = $stores->pluck('id')->toArray();
+            $store_id = $store_ids[array_rand($store_ids)];
+            $store = $stores->where('id', $store_id)->first();
+            $inputs['store'] = $store;
+            $inputs['vh_st_store_id'] = $store_id;
+        }
 
         $default_brand = Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
         if($default_brand !== null)
@@ -1627,6 +1634,18 @@ class Product extends VaahModel
         }
         return $response;
 
+    }
+
+    //----------------------------------------------------------
+
+    public static function defaultStore($request)
+    {
+        $default_store = Store::where(['is_active' => 1, 'is_default' => 1])->first();
+
+        $response['success'] = true;
+        $response['data'] = $default_store;
+
+        return $response;
     }
 
 }

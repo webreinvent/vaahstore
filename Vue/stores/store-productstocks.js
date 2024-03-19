@@ -180,7 +180,7 @@ export const useProductStockStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if(this.watch_stopper && newVal && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -399,10 +399,11 @@ export const useProductStockStore = defineStore({
         //---------------------------------------------------------------------
         setProduct(event){
             let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-            this.item.product_variation = null;
-            this.item.vh_st_product_variation_id = null;
-
+            if (product && product.id) {
+                this.item.vh_st_product_id = product.id;
+                this.item.product_variation = null;
+                this.item.vh_st_product_variation_id = null;
+            }
         },
         //---------------------------------------------------------------------
         setProductVariation(event){
@@ -917,6 +918,7 @@ export const useProductStockStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultVendor()
             this.$router.push({name: 'productstocks.form'})
         },
         //---------------------------------------------------------------------
@@ -924,7 +926,7 @@ export const useProductStockStore = defineStore({
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'productstocks.view', params:{id:item.id,}})
-            this.route.query = this.query.filter;
+            // this.route.query = this.query.filter;
         },
         //---------------------------------------------------------------------
         toEdit(item)
@@ -1540,6 +1542,27 @@ export const useProductStockStore = defineStore({
                 }
             }
 
+        },
+        //-----------------------------------------------------------------------
+
+
+        async getDefaultVendor()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/vendor',
+                this.getDefaultVendorAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultVendorAfter(data,res) {
+            this.item.vendor = data ? data : [];
         },
 
     }

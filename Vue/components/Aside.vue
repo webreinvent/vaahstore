@@ -88,7 +88,7 @@ const items = ref([
             {
                 label: 'Attributes Group',
                 icon: 'fa-regular fa-folder-closed',
-                route: "/attributegroups"
+                route: "/attributesgroup"
             },
             {
                 label: 'Orders',
@@ -129,7 +129,7 @@ const items = ref([
 
 
     <div v-if="height">
-        <Menu :model="items"  class="w-full" >
+        <Menu :model="items" :pt="selected_page"  class="w-full" >
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">

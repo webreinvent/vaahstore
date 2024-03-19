@@ -77,7 +77,7 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public  function medias()
     {
-        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_variation_id', 'vh_st_product_media_id')->withTrashed()
             ->withPivot('id','vh_st_product_id');
     }
     public static function getUnFillableColumns()
@@ -123,11 +123,12 @@ class ProductVariation extends VaahModel
     protected static function booted()
     {
         static::updated(function ($productVariation) {
-            if ($productVariation->isDirty('quantity')) {
-                self::sendMailForStock();
-            }
+                if ($productVariation->isDirty('quantity')) {
+                    self::sendMailForStock();
+                }
         });
     }
+
 
 
 
@@ -185,8 +186,8 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->belongsTo(Product::class,'vh_st_product_id','id')
-            ->select('id','name','slug');
+        return $this->belongsTo(Product::class,'vh_st_product_id','id')->withTrashed()
+            ->select('id','name','slug','deleted_at');
     }
 
     //-------------------------------------------------
@@ -525,16 +526,21 @@ class ProductVariation extends VaahModel
 
     public static function getList($request)
     {
+        $default_variation = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('status','product');
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->statusFilter($request->filter);
-        $list->stockFilter($request->filter);
-        $list->defaultFilter($request->filter);
-        $list->dateRangeFilter($request->filter);
-        $list->quantityFilter($request->filter);
-        $list->productFilter($request->filter);
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->statusFilter($request->filter);
+            $list->stockFilter($request->filter);
+            $list->defaultFilter($request->filter);
+            $list->dateRangeFilter($request->filter);
+            $list->quantityFilter($request->filter);
+            $list->productFilter($request->filter);
+        }
+
+        $default_variation_exists = $default_variation;
 
         $rows = config('vaahcms.per_page');
 
@@ -545,8 +551,14 @@ class ProductVariation extends VaahModel
 
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_variation_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
 
@@ -785,7 +797,7 @@ class ProductVariation extends VaahModel
                 break;
             case 'delete-all':
 
-                $items_id = self::all()->pluck('id')->toArray();
+                $items_id = self::withTrashed()->pluck('id')->toArray();
                 foreach ($items_id as $item_id)
                 {
                     $item = self::where('id', $item_id)->withTrashed()->first();
@@ -1137,12 +1149,17 @@ class ProductVariation extends VaahModel
         }
         $inputs = $fillable['data']['fill'];
         $product_ids = Product::where(['is_active'=>1,'deleted_at'=>null])->pluck('id')->toArray();
-        $product_id = $product_ids[array_rand($product_ids)];
-        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
-        $inputs['vh_st_product_id'] = $product_id;
-        $inputs['product'] = $product;
 
-        $inputs['price'] = rand(1,100000);
+        $inputs['vh_st_product_id'] = null;
+        $inputs['product'] = null;
+        if (!empty($product_ids)) {
+            $product_id = $product_ids[array_rand($product_ids)];
+            $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+            $inputs['vh_st_product_id'] = $product_id;
+            $inputs['product'] = $product;
+        }
+
+            $inputs['price'] = rand(1,100000);
         $inputs['is_active'] = rand(0,1);
         $inputs['is_default'] = 0;
         $inputs['quantity'] = 0;
@@ -1187,7 +1204,12 @@ class ProductVariation extends VaahModel
             $filtered_data = $list_data->filter(function ($item) {
                 return $item->quantity >= 0 && $item->quantity < 10;
             });
-
+            $mailers = config('mail.mailers.smtp', []);
+            if (empty($mailers['host']) || empty($mailers['port'])|| empty($mailers['username'])|| empty($mailers['password'])) {
+                $response['success'] = false;
+                $response['errors'][] = 'mail configuration not set.';
+                return $response;
+            }
             foreach ($list_data as $item) {
                 if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
                     $item->is_mail_sent = 0;
@@ -1237,7 +1259,6 @@ class ProductVariation extends VaahModel
             }
 
             $message .= '</table>';
-
             if ($filtered_data->isNotEmpty()) {
                 // Send mail
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
@@ -1341,7 +1362,7 @@ class ProductVariation extends VaahModel
         $response=[];
 
         if ($item_id) {
-            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->first();
+            $item_exist = ProductAttribute::where('vh_st_product_variation_id', $item_id)->withTrashed()->first();
 
             if ($item_exist) {
 

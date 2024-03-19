@@ -4,10 +4,30 @@ import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {useProductVendorStore} from "../../stores/store-productvendors";
 
-
+const store1 = useProductVendorStore();
 const store = useProductVariationStore();
 const route = useRoute();
+const selected_product_id = ref(store1.selected_product_id);
+
+
+if(route.query && route.query.product_vendor)
+{
+    if ( selected_product_id.value && selected_product_id.value!=null){
+        store.item.product=selected_product_id.value;
+    }
+    else {
+        store.item.product = null
+    }
+}
+
+
+if(route.query && route.query.product_vendor)
+{
+    store.fetchDataBasedOnProductId(selected_product_id.value);
+}
+
 
 onMounted(async () => {
     if(route.params && route.params.id)
@@ -16,6 +36,13 @@ onMounted(async () => {
     }
 
     await store.getFormMenu();
+
+    if (store1.selected_product_id !== undefined) {
+        selected_product_id.value = store1.selected_product_id;
+    } else {
+        selected_product_id.value = null;
+    }
+
 });
 
 //--------form_menu
@@ -108,6 +135,7 @@ const permissions=store.assets.permissions;
             <div v-if="store.item" class="pt-2">
 
                 <VhField label="Product*">
+
 
                     <AutoComplete
                         value="id"

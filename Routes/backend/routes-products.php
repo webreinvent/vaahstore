@@ -185,4 +185,7 @@ function () {
     Route::post('/search/vendor', 'ProductsController@searchVendor')
         ->name('vh.backend.store.products.search.vendor');
 
+    Route::any('/get/default/store', 'ProductsController@defaultStore')
+        ->name('vh.backend.store.products.get.default.store');
+
 });

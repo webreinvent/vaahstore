@@ -704,6 +704,7 @@ export const useWarehouseStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultVendor()
             this.$router.push({name: 'warehouses.form'})
         },
         //---------------------------------------------------------------------
@@ -1114,6 +1115,25 @@ export const useWarehouseStore = defineStore({
             {
                 this.vendor_suggestions = data;
             }
+        },
+
+        async getDefaultVendor()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/vendor',
+                this.getDefaultVendorAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultVendorAfter(data,res) {
+            this.item.vendor = data ? data : [];
         },
     }
 });

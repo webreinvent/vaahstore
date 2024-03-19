@@ -390,7 +390,7 @@ const permissions=store.assets.permissions;
                                              alt="Uploaded Image"/>
                                     </template>
                                     <template v-else>
-                                        <a :href="store.item.business_document_file" :src="store.item.business_document_file">Download</a>
+                                        <a :href="store.item.business_document_file" :src="store.item.business_document_file" target="_blank">View Document</a>
                                     </template>
                                 </template>
                                 <Button v-if="store.item.business_document_file"

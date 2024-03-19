@@ -48,7 +48,7 @@ class Vendor extends VaahModel
         'auto_approve_products', 'approved_by',
         'approved_at', 'is_default', 'is_active',
         'taxonomy_id_vendor_status', 'status_notes', 'meta',
-        'is_active',
+
         'created_by',
         'updated_by',
         'deleted_by',
@@ -210,7 +210,7 @@ class Vendor extends VaahModel
 
     public function vendorProducts()
     {
-        return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')
+        return $this->belongsToMany(Product::class,'vh_st_product_vendors','vh_st_vendor_id','vh_st_product_id')->withTrashed()
             ->select('vh_st_products.id','vh_st_products.name','vh_st_products.slug','vh_st_products.status_notes','vh_st_products.taxonomy_id_product_status')
             ->withPivot([]);
     }
@@ -276,7 +276,7 @@ class Vendor extends VaahModel
 
             $vendor_product = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $value['product']['id']])->first();
            if($vendor_product){
-                $response['errors'][] = "This Product '{$value['product']['name']}'  already exists.";
+                $response['errors'][] = "'{$value['product']['name']}' already exists for this vendor.";
                 return $response;
             }
 
@@ -371,9 +371,8 @@ class Vendor extends VaahModel
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
 
         if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
+            $error_message = "This Name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -381,9 +380,8 @@ class Vendor extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
+            $error_message = "This Slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -391,7 +389,6 @@ class Vendor extends VaahModel
         if($inputs['is_default']){
             self::where('is_default',1)->update(['is_default' => 0]);
         }
-
         $inputs = $validation_result['data'];
         $item = new self();
         $item->fill($inputs);
@@ -435,7 +432,8 @@ class Vendor extends VaahModel
             'business_document_file' => 'nullable',
             'is_default' => 'nullable',
             'auto_approve_products' => 'nullable',
-            'vendor_products' =>'nullable'
+            'vendor_products' =>'nullable',
+            'is_active'=>'nullable',
         ];
 
         if (!empty($requestData['phone_number']) || !empty($requestData['country_code'])) {
@@ -660,15 +658,19 @@ class Vendor extends VaahModel
 
     public static function getList($request)
     {
+        $default_vendor = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with(['store', 'approvedByUser',
             'ownedByUser', 'status','vendorProducts','users']);
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->searchStore($request->filter);
-        $list->vendorStatus($request->filter);
-        $list->dateFilter($request->filter);
-        $list->productFilter($request->filter);
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->searchStore($request->filter);
+            $list->vendorStatus($request->filter);
+            $list->dateFilter($request->filter);
+            $list->productFilter($request->filter);
+        }
+        $default_vendor_exists = $default_vendor;
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -678,8 +680,14 @@ class Vendor extends VaahModel
 
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_vendor_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
 
@@ -1192,8 +1200,10 @@ class Vendor extends VaahModel
         $faker = Factory::create();
 
         $store = Store::where('is_active', 1)->inRandomOrder()->first();
-        $inputs['vh_st_store_id'] = $store->id;
-        $inputs['store'] = $store;
+        if ($store) {
+            $inputs['vh_st_store_id'] = $store->id;
+            $inputs['store'] = $store;
+        }
 
         $inputs['years_in_business'] = rand(1,100);
 
@@ -1226,6 +1236,7 @@ class Vendor extends VaahModel
         $inputs['status'] = $status;
 
         $inputs['is_active'] = 1;
+        $inputs['is_default'] = 0;
         $inputs['business_document_file'] = null;
 
         // set contact info field
@@ -1472,6 +1483,26 @@ class Vendor extends VaahModel
             $response['success'] = false;
             $response['message'] = 'No filter or products provided';
             $response['data'] = [];
+        }
+        return $response;
+    }
+
+
+    //-----------------------------------------------------------------
+
+    public static function defaultStore($request)
+    {
+        $default_store = Store::where(['is_active' => 1, 'is_default' => 1])->select('id', 'name', 'slug', 'is_default', 'is_multi_vendor')->first();
+
+
+        if($default_store)
+        {
+            $response['success'] = true;
+            $response['data'] = $default_store;
+        }
+        else {
+            $response['success'] = false;
+            $response['data'] = null;
         }
         return $response;
     }

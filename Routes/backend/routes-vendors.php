@@ -131,4 +131,7 @@ Route::group(
         Route::post('/search/route-query-products', 'VendorsController@setProductInFilter')
             ->name('vh.backend.store.vendors.search.products-using-url-slug');
 
+        Route::any('/get/default/store', 'VendorsController@defaultStore')
+            ->name('vh.backend.store.vendors.search.default.store');
+
     });

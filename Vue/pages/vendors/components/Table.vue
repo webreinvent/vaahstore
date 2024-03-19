@@ -13,6 +13,9 @@ const permissions=store.assets.permissions;
 <template>
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+        <Message v-if="!store.list.data || store.default_vendor_message" severity="warn" class="mt-1" :closable="false">
+            There is no default vendor. Mark a vendor as <strong>default</strong>.
+        </Message>
         <!--table-->
         <DataTable :value="store.list.data"
                    dataKey="id"
@@ -40,7 +43,7 @@ const permissions=store.assets.permissions;
                     <div style=" width:150px; overflow-wrap: break-word; word-wrap:break-word;">
                         {{prop.data.name}}
                         <span v-if="prop.data.is_default == 1">
-                         <badge>&nbsp;(Default)</badge>
+                         <Badge severity="info">&nbsp;(Default)</Badge>
                      </span>
                     </div>
                 </template>
@@ -79,14 +82,15 @@ const permissions=store.assets.permissions;
                              <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
 
                          </span>
-                        <button @click="store.toProduct(prop.data)"
-                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                        <Button @click="store.toProduct(prop.data)"
+                                style="cursor: pointer;"
+                                severity="info"
                                 data-testid="vendors-table-product"
                                 :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
                                 :class="{ 'blurred': $route.path.includes('product') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Products'">
                            <i class="pi pi-plus" style="color: white"></i>
-                        </button>
+                        </Button>
                     </div>
                 </template>
 
@@ -107,14 +111,15 @@ const permissions=store.assets.permissions;
                              <b>{{ prop.data.users ? prop.data.users.length : 0 }}</b>
 
                          </span>
-                        <button @click="store.toVendorRole(prop.data)"
+                        <Button @click="store.toVendorRole(prop.data)"
                                 data-testid="vendors-table-vendor-role"
-                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                style="cursor: pointer;"
+                                severity="info"
                                 :disabled="$route.path.includes('role') && prop.data.id===store.item?.id"
                                 :class="{ 'blurred': $route.path.includes('role') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Role'">
                             <i class="pi pi-plus" style="color: white"></i>
-                        </button>
+                        </Button>
                     </div>
                 </template>
 

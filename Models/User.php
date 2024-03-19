@@ -288,8 +288,10 @@ class User extends UserBase
             }
 
             $item = self::query()->where('id', $item['id'])->withTrashed()->first();
-
             if ($item) {
+                if ($item->customerGroups()->exists()) {
+                    $item->customerGroups()->detach();
+                }
                 $item->roles()->detach();
                 $item->forceDelete();
             }
@@ -354,9 +356,13 @@ class User extends UserBase
                 break;
             case 'delete-all':
                 \DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                $list->whereHas('activeRoles', function ($query) {
+                $items_id = self::whereHas('activeRoles', function ($query) {
                     $query->where('slug', 'customer');
-                })->withTrashed()->forceDelete();
+                })->withTrashed()->get();
+                $items_id->each(function ($item_id) {
+                    $item_id->customerGroups()->detach();
+                });
+                $list->whereIn('id', $items_id->pluck('id'))->forceDelete();
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1');
                 break;
 
@@ -396,6 +402,7 @@ class User extends UserBase
         return $response;
     }
 
+    //----------------------------------------------------------
     //----------------------------------------------------------
     public static function seedSampleItems($records=100)
     {
@@ -497,6 +504,28 @@ class User extends UserBase
         return $response;
     }
 
+    public static function deleteItem($request, $id): array
+    {
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans('vaahcms-general.record_does_not_exist');
+            return $response;
+        }
+        if($item->customerGroups)
+        {
+            $item->customerGroups()->detach();
+        }
+
+        $item->roles()->detach();
+        $item->forceDelete();
+
+        $response['success'] = true;
+        $response['data'] = [];
+        $response['messages'][] = trans('vaahcms-general.record_has_been_deleted');
+
+        return $response;
+    }
 
 
 }

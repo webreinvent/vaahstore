@@ -96,7 +96,8 @@ export const useVendorStore = defineStore({
         vendor_roles:null,
         selected_user:null,
         sel_product:null,
-        selected_vendor_role:null
+        selected_vendor_role:null,
+        default_vendor_message:null,
     }),
     getters: {
 
@@ -125,6 +126,7 @@ export const useVendorStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
 
         },
         //---------------------------------------------------------------------
@@ -211,6 +213,12 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         addProduct(){
+
+            if(!this.selected_product)
+            {
+                vaah().toastErrors(['Please choose a product']);
+                return false;
+            }
 
             if (!this.item.products) {
                 this.item.products = [];
@@ -518,6 +526,9 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_vendor_message = (res && res.data && res.data.message)
+                ? 'There is no default vendor. Mark a vendor as default.'
+                : null;
             if(data)
             {
                 this.list = data;
@@ -994,6 +1005,7 @@ export const useVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultStore();
             this.$router.push({name: 'vendors.form'})
         },
         //---------------------------------------------------------------------
@@ -1005,6 +1017,27 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.product', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+        async getDefaultStore()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/store',
+                this.getDefaultStoreAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultStoreAfter(data,res) {
+            this.item.store = data ? data : [];
+        },
+
+        //--------------------------------------------------------------------------
+
         toView(item)
         {
             this.item = vaah().clone(item);
@@ -1481,7 +1514,7 @@ export const useVendorStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    vendors: [vendor.slug]
+                    vendors: [vendor.slug],trashed: 'include'
                 }
             };
             const route = {
@@ -1704,6 +1737,18 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        watchProducts()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const deselected = newVal.products.some(item => !item.is_selected);
+                    this.select_all_product = !deselected;
+                },{deep: true}
+            )
+
+        },
 
 
 

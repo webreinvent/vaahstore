@@ -367,6 +367,7 @@ class Wishlist extends VaahModel
 
     public static function getList($request)
     {
+        $default_wishlist = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('user','status','products');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -376,7 +377,7 @@ class Wishlist extends VaahModel
         $list->dateRangeFilter($request->filter);
         $list->userFilter($request->filter);
         $list->productFilter($request->filter);
-
+        $default_wishlist_exists = $default_wishlist;
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -388,7 +389,9 @@ class Wishlist extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $list;
-
+        if (!$default_wishlist_exists) {
+            $response['message'] = true;
+        }
         return $response;
 
     }
@@ -600,7 +603,9 @@ class Wishlist extends VaahModel
                 }
                 break;
             case 'trash-all':
-                $items->update(['deleted_by' => auth()->user()->id,'is_default' => 0]);
+                $user_id = auth()->user()->id;
+                $list->update(['deleted_by' => $user_id]);
+                $list->update(['is_default' => 0]);
                 $list->delete();
                 break;
             case 'restore-all':

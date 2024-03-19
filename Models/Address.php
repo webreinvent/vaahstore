@@ -141,8 +141,8 @@ class Address extends VaahModel
     //-------------------------------------------------
     public function user()
     {
-        return $this->belongsTo(User::class,'vh_user_id','id')
-            ->select('id','first_name', 'email');
+        return $this->belongsTo(User::class,'vh_user_id','id')->withTrashed()
+            ->select('id','first_name', 'email','deleted_at');
     }
     //-------------------------------------------------
     public function status()
@@ -199,11 +199,12 @@ class Address extends VaahModel
             ->where('taxonomy_id_address_types',$inputs['taxonomy_id_address_types'])
             ->where('address_line_1', $inputs['address_line_1'])
             ->where('address_line_2', $inputs['address_line_2'])
+            ->withTrashed()
             ->first();
 
         if ($address) {
-            $response = [];
-            $response['errors'][] = 'This Address already exist for the user.';
+            $error_message = "This Address already exist for the user".($address->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
         $item = new self();
@@ -375,20 +376,12 @@ class Address extends VaahModel
 
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
-        {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('slug', $status);
-
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('slug', $status);
         });
 
     }
@@ -397,6 +390,7 @@ class Address extends VaahModel
 
     public static function getList($request)
     {
+        $default_address = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('user','status','addressType');
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -405,7 +399,7 @@ class Address extends VaahModel
         $list->addressTypeFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->userFilter($request->filter);
-
+        $default_address_exists = $default_address;
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -417,7 +411,9 @@ class Address extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $list;
-
+        if (!$default_address_exists) {
+            $response['message'] = true;
+        }
         return $response;
 
 
@@ -596,7 +592,7 @@ class Address extends VaahModel
                 $list->onlyTrashed()->update(['deleted_by' => null,'is_default' => 0]);
                 $list->restore();
                 break;
-                
+
             case 'delete-all':
                 $list->forceDelete();
                 break;
@@ -667,10 +663,11 @@ class Address extends VaahModel
             ->where('address_line_1', $inputs['address_line_1'])
             ->where('address_line_2', $inputs['address_line_2'])
             ->whereNot('id',$inputs['id'])
+            ->withTrashed()
             ->first();
         if ($address) {
-            $response = [];
-            $response['errors'][] = 'This Address already exist for the user.';
+            $error_message = "This Address already exist for the user".($address->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -767,7 +764,7 @@ class Address extends VaahModel
                 'vh_user_id' => 'required',
                 'taxonomy_id_address_types' => 'required',
                 'address_line_1'=>'required|max:150',
-                'address_line_2'=>'required|max:150',
+                'address_line_2'=>'nullable|max:150',
                 'taxonomy_id_address_status' => 'required',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
@@ -777,7 +774,6 @@ class Address extends VaahModel
             [
                 'vh_user_id.required' => 'The User field is required',
                 'address_line_1.required' => 'The Address Line 1 field is required',
-                'address_line_2.required' => 'The Address Line 2 field is required',
                 'address_line_1.max' => 'The Address Line 1 field cannot be more than :max characters.',
                 'address_line_2.max' => 'The Address Line 2 field cannot be more than :max characters.',
                 'taxonomy_id_address_types.required' => 'The Type field is required',

@@ -21,8 +21,10 @@ const store = useAttributeStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          data-testid="attributes-filters-created_date"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose date range"
 
                 />

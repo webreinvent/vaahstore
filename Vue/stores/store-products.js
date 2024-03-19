@@ -251,6 +251,8 @@ export const useProductStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
             if(this.query.filter.vendors)
             {
                 this.setVendorsAfterPageRefresh();
@@ -350,6 +352,8 @@ export const useProductStore = defineStore({
                         if (newVal && newVal !== "") {
                             this.item.name = newVal;
                             this.item.slug = vaah().strToSlug(newVal);
+                        }else{
+                            this.item.slug="";
                         }
                     }, {deep: true}
                 )
@@ -370,7 +374,7 @@ export const useProductStore = defineStore({
 
         watchQuantity()
         {
-            watch(() => [this.quantity.from, this.quantity.to], ([min, max]) => {
+            watch(() => [this.quantity?.from, this.quantity?.to], ([min, max]) => {
                 // Check if both from and too quantity are entered
 
                 if (min !== null && min !== '' && max !== null && max !== '') {
@@ -760,7 +764,6 @@ export const useProductStore = defineStore({
                         }
                         this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
                             if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
-                                // console.log(k);;
                                 if (variation_match_key == k){
                                     error_message.push('variation already exist');
                                 }else{
@@ -1161,7 +1164,6 @@ export const useProductStore = defineStore({
 
         async formActionAfter (data)
         {
-            console.log()
             switch (this.form.action)
             {
                 case 'create-and-new':
@@ -1403,7 +1405,32 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultStore();
+
             this.$router.push({name: 'products.form'})
+        },
+        //---------------------------------------------------------------------
+        async getDefaultStore()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/store',
+                this.getDefaultStoreAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultStoreAfter(data,res) {
+            if(data)
+            {
+                this.item.store = data;
+                this.item.vh_st_store_id=data.id;
+            }
         },
         //---------------------------------------------------------------------
         toView(item)
@@ -2108,7 +2135,7 @@ export const useProductStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    products: [product.slug]
+                    products: [product.slug],trashed: 'include'
                 }
             };
             const route = {
@@ -2126,7 +2153,7 @@ export const useProductStore = defineStore({
                 page: 1,
                 rows: 20,
                 filter: {
-                    products: [product.slug]
+                    products: [product.slug],trashed: 'include'
                 }
             };
             const route = {

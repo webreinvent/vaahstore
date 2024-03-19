@@ -9,6 +9,9 @@ const useVaah = vaah();
 <template>
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+        <Message v-if="!store.list.data || store.default_message" severity="warn" class="mt-1" :closable="false">
+            There is no default wishlist. Mark a wishlist as <strong>default</strong>.
+        </Message>
         <!--table-->
          <DataTable :value="store.list.data"
                    dataKey="id"
@@ -31,7 +34,7 @@ const useVaah = vaah();
                  <template #body="prop">
                      <template v-if="prop.data.is_default == 1">
                          <Badge v-if="prop.data.deleted_at" value="Trashed" severity="danger"></Badge>
-                         <Badge severity="primary" >Default</Badge>
+                         <Badge severity="info" >Default</Badge>
                          <div style="word-break: break-word;">{{ prop.data.name }}</div>
                      </template>
                      <template v-else>
@@ -56,9 +59,8 @@ const useVaah = vaah();
                          <span class="p-inputgroup-addon" v-else>
                              <b>{{prop.data.products.length}}</b>
                          </span>
-                         <Button :disabled="!store.assets.permissions.includes('can-update-module')"
-                                icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
+                         <Button :disabled="$route.path.includes('product') && prop.data.id === (store.item && store.item.id)"
+                                 icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Products'"
                                  @click="store.toProduct(prop.data)" />
                      </div>
@@ -135,9 +137,9 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="wishlists-table-action-share"
                                 v-tooltip.top="'Copy link'"
-                                :disabled="!prop.data.type"
+                                :disabled="!prop.data.type || (prop.data.products && prop.data.products.length === 0)"
                                 v-if="store.assets.permissions.includes('can-update-module')"
-                                @click="useVaah.copy(`https://test.dev.getdemo.dev/store-dev/suraj-k001/public/backend/store#/wishlists/${prop.data.id}/product`)"
+                                @click="useVaah.copy(`${store.assets.urls.public}/${prop.data.id}/product`)"
                                 icon="pi pi-copy" />
 
                     </div>

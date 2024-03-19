@@ -200,8 +200,8 @@ class ProductStock extends VaahModel
 
         //update quantity in product
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->withTrashed()->sum('quantity');
+
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
 
         $response = self::getItem($item->id);
@@ -567,7 +567,7 @@ class ProductStock extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $item_ids = $list->pluck('id')->toArray();
+                $item_ids = self::withTrashed()->pluck('id')->toArray();
                 foreach($item_ids as $item_id)
                 {
                     self::updateStock($item_id);
@@ -639,41 +639,43 @@ class ProductStock extends VaahModel
         }
 
         $inputs = $request->all();
-
         $item = self::where('id', $id)->withTrashed()->first();
-
         //check stock we are adding for the variation is unique
         $conditions = [
             ['vh_st_vendor_id',$inputs['vh_st_vendor_id']],
             ['vh_st_product_variation_id',$inputs['vh_st_product_variation_id']],
         ];
 
-        $item = self::where($conditions)
+        $is_exist = self::where($conditions)
             ->whereNot('id',$item->id)
             ->withTrashed()->first();
 
-        if ($item) {
+        if ($is_exist) {
             $error_message = "Product Stock already exists for this variation".($item->deleted_at?' in trash.':'.');
             $response['errors'][] = $error_message;
             return $response;
         }
 
+        $difference_in_quantity = $inputs['quantity'] - $item->quantity;
         // calculate difference between new and old quantity
-        $difference_in_quantity =$inputs['quantity'] - $item->quantity;
         $item->fill($inputs);
+
+
+
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         //update the quantity in variation table
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
+
         $product_variation->quantity += $difference_in_quantity;
         $product_variation->save();
 
-        //update the quantity in product table
+        //update the quantity of products
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->withTrashed()->sum('quantity');
+
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
 
         $response = self::getItem($item->id);
@@ -762,6 +764,7 @@ class ProductStock extends VaahModel
     public static function seedSampleItems($records=100)
     {
 
+
         $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
@@ -777,17 +780,20 @@ class ProductStock extends VaahModel
             $item->fill($inputs);
             $item->save();
 
-            //update quantity in product variation
             $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
                 ->withTrashed()->first();
+
             $product_variation->quantity += $inputs['quantity'];
             $product_variation->save();
 
-            //update quantity in product
             $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-            $product->quantity = ProductVariation::where('vh_st_product_id',$inputs['vh_st_product_id'])
-                ->withTrashed()->sum('quantity');
+
+            $product->quantity = $product->productVariations->sum('quantity');
             $product->save();
+
+
+
+
             $i++;
 
         }
@@ -813,38 +819,52 @@ class ProductStock extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         //fill the Vendor field here
-        $vendor_id = Vendor::where('is_active', 1)->inRandomOrder()->value('id');
-        $vendor_id_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] =$vendor_id;
-        $inputs['vendor'] = $vendor_id_data;
+        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
+        $inputs['vh_st_vendor_id'] = null;
+        $inputs['vendor'] = null;
+        if (!empty($vendor)) {
+            $inputs['vh_st_vendor_id'] = $vendor->id;
+            $inputs['vendor'] = $vendor;
+        }
+
+
+
 
         //fill the product field here
-        $product_id = Product::where('is_active', 1)->inRandomOrder()->value('id');
-        $product_id_data = Product::where('is_active',1)->where('id',$product_id)->first();
-        $inputs['vh_st_product_id'] =$product_id;
-        $inputs['product'] = $product_id_data;
+
+        $product_ids = Product::where('is_active', 1)->whereHas('productVariations')->select('id', 'name', 'slug')->pluck('id')->toArray();
+        $product_id = $product_ids[array_rand($product_ids)];
+        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+        $inputs['vh_st_product_id'] = $product_id;
+        $inputs['product'] = $product;
+
 
         //fill the product variation field on the basis of product selected
 
-        $product_variation_id = ProductVariation::where('is_active', 1)
-            ->where('vh_st_product_id',$inputs['vh_st_product_id'])
-            ->inRandomOrder()->value('id');
+        $product_variation_ids = ProductVariation::where('vh_st_product_id', $inputs['vh_st_product_id'])
+            ->select('id', 'name', 'price')
+            ->pluck('id')
+            ->toArray();
+
+        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+        $product_variation = ProductVariation::where('id',$product_variation_id)->select('id','name','price')->first();
 
         $inputs['vh_st_product_variation_id'] = $product_variation_id;
-
-        $inputs['product_variation'] = ProductVariation::where('is_active',1)
-            ->where('id',$inputs['vh_st_product_variation_id'])->first();
-
+        $inputs['product_variation'] = $product_variation;
 
         //fill the warehouse field on the basis of vendor selected
 
-        $warehouse_id = Warehouse::where('is_active', 1)
-            ->where('vh_st_vendor_id',$inputs['vh_st_vendor_id'])
-            ->inRandomOrder()->value('id');
-
-        $warehouse_id_data = Warehouse::where('is_active',1)->where('id',$warehouse_id)->first();
-        $inputs['vh_st_warehouse_id'] =$warehouse_id;
-        $inputs['warehouse'] = $warehouse_id_data;
+        $warehouse = Warehouse::where('is_active', 1)
+            ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug')
+            ->first();
+        $inputs['vh_st_warehouse_id'] = null;
+        $inputs['warehouse'] = null;
+        if (!empty($warehouse)) {
+            $inputs['vh_st_warehouse_id'] = $warehouse->id;
+            $inputs['warehouse'] = $warehouse;
+        }
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
         $status_id = $taxonomy_status->pluck('id')->random();
@@ -1155,8 +1175,7 @@ class ProductStock extends VaahModel
 
         $product_variation->save();
         $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
-        $product->quantity = ProductVariation::where('vh_st_product_id',$item->vh_st_product_id)
-            ->withTrashed()->sum('quantity');
+        $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
     }
 
@@ -1250,5 +1269,22 @@ class ProductStock extends VaahModel
         $response['data'] = $warehouses;
         return $response;
 
+    }
+    //-------------------------------------------------
+    public static function defaultVendor($request)
+    {
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+
+
+        if($default_vendor)
+        {
+            $response['success'] = true;
+            $response['data'] = $default_vendor;
+        }
+        else {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+        return $response;
     }
 }

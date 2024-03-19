@@ -54,18 +54,8 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values of Store if it is not null
-            if($this->getDefaultStore() !== null)
-            {
-                $data['empty_item']['store'] = $this->getDefaultStore();
-                $data['empty_item']['vh_st_store_id'] = $this->getDefaultStore()->id;
-            }
 
-            // set default values of Brand if it is not null
-            if($this->getDefaultBrand() !== null)
-            {
-                $data['empty_item']['brand'] = $this->getDefaultBrand();
-                $data['empty_item']['vh_st_brand_id'] = $this->getDefaultBrand()->id;
-            }
+
 
             // get min and max quantity from the product filter
             $product = Product::withTrashed()->get();
@@ -137,15 +127,7 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function getDefaultStore(){
 
-        return Store::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
-
-    //----------------------------------------------------------
-    public function getDefaultBrand(){
-        return Brand::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
-    }
 
     //----------------------------------------------------------
     public function getStores(){
@@ -789,6 +771,24 @@ class ProductsController extends Controller
             return $response;
         }
 
+    }
+    //----------------------------------------------------------
+
+    public function defaultStore(Request $request)
+    {
+        try{
+            return Product::defaultStore($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
     }
 
 

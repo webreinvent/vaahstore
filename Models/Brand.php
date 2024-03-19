@@ -209,7 +209,7 @@ class Brand extends VaahModel
     //-------------------------------------------------
     public function products()
     {
-        return $this->hasMany(Product::class, 'vh_st_brand_id','id' );
+        return $this->hasMany(Product::class, 'vh_st_brand_id','id' )->select(['id', 'name', 'slug', 'vh_st_brand_id','vh_st_store_id']);
     }
     //-------------------------------------------------
     public function scopeExclude($query, $columns)

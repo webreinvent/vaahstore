@@ -35,7 +35,6 @@ const useVaah = vaah()
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        <Badge severity="info">Default</Badge>
                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>
@@ -49,11 +48,12 @@ const useVaah = vaah()
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.store.deleted_at"
+                     <Badge v-if="prop.data && prop.data.store && prop.data.store.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span>
-                        <div style="word-break: break-word;">{{ prop.data.store.name }}</div>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.store">
+                            {{ prop.data.store.name }}</div>
                          </span>
                  </template>
 
@@ -91,7 +91,6 @@ const useVaah = vaah()
                              <b>{{prop.data.product_variations.length}}</b>
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
                                  v-tooltip.top="'Add Variations'"
                                  :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
@@ -117,7 +116,6 @@ const useVaah = vaah()
 
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
                                  v-tooltip.top="'Add Vendors'"
                                  :disabled="prop.data.id===store.item?.id  && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />

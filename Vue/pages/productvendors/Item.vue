@@ -164,9 +164,17 @@ const toggleItemMenu = (event) => {
                                     <b>Store</b>
                                 </td>
                                 <td colspan="2">
-                                    <Tag style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;" v-for="product in store.item.store_vendor_product" :key="product.id">
-                                        {{ product.name }}
-                                    </Tag>
+                                    <div class="flex flex-wrap gap-2" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
+                                        <div v-if="store.item.store_vendor_product.some(product => product.deleted_at === null)">
+                                            <div v-for="(product, index) in store.item.store_vendor_product" :key="index">
+                                                <Badge class="h-max max-w-full mb-1" v-if="product.deleted_at === null">
+                                                    {{ product.name }}
+                                                </Badge>
+                                            </div>
+                                            <Badge class="h-max max-w-full" v-if="store.item.store_vendor_product.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
+                                        </div>
+                                        <Badge class="h-max max-w-full" v-else value="Trashed" severity="danger"></Badge>
+                                    </div>
                                 </td>
 
                             </tr>

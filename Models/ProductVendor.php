@@ -75,7 +75,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function storeVendorProduct()
     {
-        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id');
+        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id')->withTrashed();
     }
     //-------------------------------------------------
     public static function getFillableColumns()
@@ -129,12 +129,12 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function addedByUser()
     {
-        return $this->hasOne(User::class,'id','added_by');
+        return $this->hasOne(User::class,'id','added_by')->select('id','first_name');
     }
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->select('id', 'name', 'slug');
+        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->withTrashed()->select('id', 'name', 'slug','deleted_at');
     }
     //-------------------------------------------------
     public function stores()
@@ -145,7 +145,15 @@ class ProductVendor extends VaahModel
     //----------------------------------------------------------------------------------
     public function vendor()
     {
-        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name', 'slug','is_default');
+        return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->withTrashed()->select('id','name', 'slug','is_default','deleted_at');
+    }
+
+
+    public function productVariationPrices()
+    {
+        return $this->belongsToMany(ProductVariation::class,
+            'vh_st_product_prices','vh_st_vendor_product_id', 'vh_st_product_variation_id',
+        )->withPivot(['id','amount']);
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -188,6 +196,7 @@ class ProductVendor extends VaahModel
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
+        $vhStVendorProductId = $inputs['id'];
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -195,13 +204,16 @@ class ProductVendor extends VaahModel
 
         $response = [];
         $saved_variations = 0;
-
         foreach ($inputs['product_variation'] as $key => $variation) {
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
-                'vh_st_product_variation_id' => $variation['id']
+                'vh_st_product_variation_id' => $variation['id'],
             ])->first();
+
+            if (isset($variation['deleted_at'])) {
+                continue;
+            }
 
             if ($variation_price) {
                 if ($variation['amount'] === null) {
@@ -212,6 +224,7 @@ class ProductVendor extends VaahModel
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
+                        'vh_st_vendor_product_id' => $vhStVendorProductId,
                         'amount' => $variation['amount'],
                     ]);
                     $variation_price->save();
@@ -225,16 +238,23 @@ class ProductVendor extends VaahModel
                     'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                     'vh_st_product_id' => $inputs['vh_st_product_id'],
                     'vh_st_product_variation_id' => $variation['id'],
+                    'vh_st_vendor_product_id' => $vhStVendorProductId,
                     'amount' => $variation['amount'],
                 ]);
                 $new_variation_price->save();
                 $saved_variations++;
-
             }
         }
+
         if ($saved_variations > 0) {
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
         }
+
+
+        $response = self::getItem($vhStVendorProductId);
+
+
+
         return $response;
     }
 
@@ -417,7 +437,7 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product','vendor','addedByUser','status','stores');
+        $list = self::getSorted($request->filter)->with('product.productVariationsForVendorProduct','vendor','addedByUser','status','stores','productVariationPrices');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -661,14 +681,20 @@ class ProductVendor extends VaahModel
             return $response;
         }
 
-        $itemProduct = Product::where('id', $item->vh_st_product_id)->first();
-        $item['productList'] = Product::where('vh_st_store_id', $itemProduct->vh_st_store_id)->select('id', 'name', 'slug');
+        $item_product = Product::withTrashed()->find($item->vh_st_product_id);
+        if ($item_product !== null) {
+            $item['productList'] = Product::where('vh_st_store_id', $item_product->vh_st_store_id)
+                ->select('id', 'name', 'slug')
+                ->get();
+        }
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
         $variations = [];
-        $variations_data = ProductVariation::where('vh_st_product_id',$array_item['vh_st_product_id'])->
-        select('id', 'name', 'slug', 'is_default','price')->get();
+        $variations_data = ProductVariation::where('vh_st_product_id', $array_item['vh_st_product_id'])
+            ->select('id', 'name', 'slug', 'is_default', 'price','deleted_at')
+            ->withTrashed()
+            ->get();
         foreach($variations_data as $variation_data)
         {
             $price = ProductPrice::where('vh_st_vendor_id', $array_item['vh_st_vendor_id'])
@@ -679,6 +705,7 @@ class ProductVendor extends VaahModel
                 'name' => $variation_data['name'],
                 'id' => $variation_data['id'],
                 'amount' => $price === null ? $variation_data['price']:$price,
+                'deleted_at'=>$variation_data['deleted_at'],
             ];
 
 
@@ -716,7 +743,7 @@ class ProductVendor extends VaahModel
 
             if ($item) {
                 $response['success'] = false;
-                $response['errors'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist.";
+                $response['errors'][] = "This vendor and product (" . $inputs['product']['name'] . ") is already exist".($item->deleted_at?' in trash.':'.');
                 return $response;
             }
 
@@ -850,12 +877,14 @@ class ProductVendor extends VaahModel
     //-------------------validation for product price------------------------------
     public static function validationProductPrice($inputs)
     {
+
         $rules = validator($inputs, [
             'vh_st_product_id'=> 'required',
-            'product_variation.*.amount' => 'nullable|numeric|max:9999999',
+            'product_variation.*.amount' => 'nullable|min:1|max:9999999',
         ], [
             'vh_st_product_id.required' => 'The Product field is required',
-            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',        ]);
+            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',
+            ]);
         if($rules->fails()){
             return [
                 'success' => false,
@@ -1030,9 +1059,6 @@ class ProductVendor extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            $item->storeVendorProduct()->attach(
-                $inputs['vh_st_store_id']
-            );
 
             $i++;
 
@@ -1061,28 +1087,48 @@ class ProductVendor extends VaahModel
         $inputs['status']=$status;
 
         // fill the store field here
+
+        $vendors = Vendor::where('is_active', 1)->get();
+        $vendors_ids = $vendors->pluck('id')->toArray();
+        $inputs['vendor'] = null;
+        $inputs['vh_st_vendor_id'] = null;
+        if (!empty($vendors_ids)) {
+            $vendors_id = $vendors_ids[array_rand($vendors_ids)];
+            $vendor = $vendors->where('id', $vendors_id)->first();
+            $inputs['vendor'] = $vendor;
+            $inputs['vh_st_vendor_id'] = $vendors_id;
+        }
+
+
+
         $stores = Store::where('is_active', 1)->get();
         $store_ids = $stores->pluck('id')->toArray();
-        $store_id = $store_ids[array_rand($store_ids)];
-        $store = $stores->where('id', $store_id)->first();
-        $inputs['store_vendor_product'] = $store;
-        $inputs['vh_st_store_id'] = $store_id;
+        $store_id = null;
+
+        if (!empty($store_ids)) {
+            $store_id = $store_ids[array_rand($store_ids)];
+            $store = $stores->where('id', $store_id)->first();
+
+            $inputs['store_vendor_product'] = $store;
+            $inputs['vh_st_store_id'] = $store_id;
+        }
+
+
 
         $products = Product::where('is_active', 1)
             ->where('vh_st_store_id', $store_id)
             ->get();
 
-        if ($products->isEmpty()) {
-            $response['success'] = false;
-            $response['errors'][] = 'No products found for the selected store.';
-            return $response;
+        $product_ids = $products->pluck('id')->toArray();
+        $inputs['product'] = null;
+        $inputs['vh_st_product_id'] = null;
+        if (!empty($product_ids)) {
+            $product_ids = $product_ids[array_rand($product_ids)];
+            $products = $products->where('id', $product_ids)->first();
+            $inputs['product'] = $products;
+            $inputs['vh_st_product_id'] = $product_ids;
         }
 
-        $product_ids = $products->pluck('id')->toArray();
-        $product_ids = $product_ids[array_rand($product_ids)];
-        $products = $products->where('id', $product_ids)->first();
-        $inputs['product'] = $products;
-        $inputs['vh_st_product_id'] = $product_ids;
 
         $users = User::where('is_active',1)->get();
         $user_ids = $users->pluck('id')->toArray();
@@ -1091,12 +1137,8 @@ class ProductVendor extends VaahModel
         $inputs['added_by_user'] = $user;
         $inputs['added_by'] = $user_id ;
 
-        $vendors = Vendor::where('is_active',1)->get();
-        $vendors_ids = $vendors->pluck('id')->toArray();
-        $vendors_ids = $vendors_ids[array_rand($vendors_ids)];
-        $vendors = $vendors->where('id',$vendors_ids)->first();
-        $inputs['vendor'] = $vendors;
-        $inputs['vh_st_vendor_id'] = $vendors_ids ;
+
+
 
 
         $inputs['can_update'] =  rand(0,1);
@@ -1180,7 +1222,7 @@ class ProductVendor extends VaahModel
     {
         $input = $request->all();
         $id = $input['id'];
-        $product_variations = ProductVariation::where('vh_st_product_id', $id)
+        $product_variations = ProductVariation::where('vh_st_product_id', $id)->withTrashed()
             ->get();
 
         $response['success'] = true;
@@ -1224,4 +1266,29 @@ class ProductVendor extends VaahModel
     }
 
     //-------------------------------------------------
+
+
+
+    public static function getdefaultValues($request)
+    {
+        $default_store = Store::where(['is_active' => 1,'deleted_at'=>null, 'is_default' => 1])->first(['id', 'name', 'slug']);
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first(['id', 'name', 'slug']);
+
+        $response['success'] = true;
+        $response['data'] = [
+            'default_store' => $default_store ?: null,
+            'default_vendor' => $default_vendor ?: null,
+            ];
+
+        if ($default_store === null && $default_vendor === null) {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+
+        return $response;
+    }
+
+
+
+
 }

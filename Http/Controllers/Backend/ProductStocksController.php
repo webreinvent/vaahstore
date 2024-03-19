@@ -51,15 +51,8 @@ class ProductStocksController extends Controller
             $get_vendor_data = self::getVendorData();
             $data['empty_item']['vh_st_vendor_id'] = $this->getDefaultRow($get_vendor_data['vendors']) ?? null;
 
-            // set default values of Vendor if it is not null
 
-            $vendor = Vendor::where(['is_active' => 1, 'is_default' => 1])->get(['id','name', 'slug', 'is_default'])->first();
 
-            if($vendor !== null)
-            {
-                $data['empty_item']['vendor'] = $vendor;
-                $data['empty_item']['vh_st_vendor_id'] = $vendor->id;
-            }
 
             $product_stock = ProductStock::all();
             $data['min_quantity'] = 0;
@@ -522,6 +515,24 @@ class ProductStocksController extends Controller
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function defaultVendor(Request $request)
+    {
+        try{
+            return ProductStock::defaultVendor($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
         }
     }
 

@@ -77,4 +77,7 @@ function () {
     Route::any('/search/active-vendor', 'WarehousesController@searchActiveVendor')
         ->name('vh.backend.store.warehouses.search.vendor');
 
+    Route::any('/get/default/vendor', 'WarehousesController@defaultVendor')
+        ->name('vh.backend.store.warehouses.search.default.vendor');
+
 });

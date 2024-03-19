@@ -43,7 +43,7 @@ class ProductVendorsController extends Controller
 
             $data['empty_item']['can_update'] = 0;
             $data['empty_item']['status'] = null;
-            $data['empty_item']['is_active'] = 0;
+            $data['empty_item']['is_active'] = 1;
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
             $data['empty_item']['vendor'] = $this->getDefaultVendor();
@@ -592,5 +592,21 @@ class ProductVendorsController extends Controller
     }
 
     //----------------------------------------------------------
+    public function getDefaultValues(Request $request)
+    {
+        try{
+            return ProductVendor::getdefaultValues($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
     //----------------------------------------------------------
 }
