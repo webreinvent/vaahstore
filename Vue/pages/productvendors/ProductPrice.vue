@@ -99,7 +99,7 @@ const toggleFormMenu = (event) => {
                 </div>
             </div>
                 <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
-
+                    <Button v-if="store.product_variation_list.length > 0 && store.product_variation_list[0].amount !== null" class="text-right" @click="store.fillAllPrices">Fill All Prices</Button>
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
                         <thead class="p-datatable-thead">
                         <tr>
