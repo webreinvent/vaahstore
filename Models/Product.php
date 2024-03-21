@@ -1648,19 +1648,35 @@ class Product extends VaahModel
         return $response;
     }
 
+
+
     public static function getVendorsListForPrduct($id)
     {
         $product_vendors = ProductVendor::where('vh_st_product_id', $id)->get();
 
         $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
 
-
         $vendors = Vendor::whereIn('id', $vendor_ids)->get();
+
+        $product_prices = ProductPrice::where('vh_st_product_id', $id)
+            ->whereIn('vh_st_vendor_id', $vendor_ids)
+            ->get();
+
+        $variation_prices_by_vendor = [];
+        foreach ($product_prices as $price) {
+            if (!isset($variation_prices_by_vendor[$price->vh_st_vendor_id])) {
+                $variation_prices_by_vendor[$price->vh_st_vendor_id] = [];
+            }
+            $variation_prices_by_vendor[$price->vh_st_vendor_id][] = $price;
+        }
+
+        foreach ($vendors as &$vendor) {
+            $vendor->variation_prices = $variation_prices_by_vendor[$vendor->id] ?? [];
+        }
 
         $response['success'] = true;
         $response['data'] = $vendors;
         return $response;
-//        return $vendors;
     }
 
 }

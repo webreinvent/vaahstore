@@ -238,19 +238,24 @@ const useVaah = vaah()
                 </template>
             </Column>
 
-            <Column field="status" header="Default" style="border: 1px solid #ccc;">
+            <Column field="status" header="Is Default" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <span v-if="props.data.is_default === 1" style="color:green;">Default</span>
-                    <span v-else style="color:black;"></span>
+                    <span v-if="props.data.is_default === 1" style="color:green;">Yes</span>
+                    <span v-else style="color:black;">No</span>
+                </template>
+            </Column>
+            <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
+                <template #body="props">
+                    <span v-if="props.data.is_default === 1">  {{ store.calculatePriceRange(props.data.variation_prices) }}</span>
                 </template>
             </Column>
             <column field="Action" header="Action" style="border:1px solid #ccc;">
                 <template #body="props">
                     <Button icon="pi pi-trash"
-                            v-tooltip.top="'Remove Contact'"
+                            v-tooltip.top="'Remove vendor'"
                             class="p-button-tiny p-button-danger p-button-text"
                             aria-label="Cancel"
-                            @click="store.removeContact(props.data.id)" />
+                            />
                 </template>
             </column>
             <template #empty="prop">
