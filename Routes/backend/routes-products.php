@@ -188,4 +188,8 @@ function () {
     Route::any('/get/default/store', 'ProductsController@defaultStore')
         ->name('vh.backend.store.products.get.default.store');
 
+
+    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+        ->name('vh.backend.store.products.get.vendors-list');
+
 });

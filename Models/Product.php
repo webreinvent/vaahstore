@@ -1648,4 +1648,19 @@ class Product extends VaahModel
         return $response;
     }
 
+    public static function getVendorsListForPrduct($id)
+    {
+        $product_vendors = ProductVendor::where('vh_st_product_id', $id)->get();
+
+        $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
+
+
+        $vendors = Vendor::whereIn('id', $vendor_ids)->get();
+
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+//        return $vendors;
+    }
+
 }
