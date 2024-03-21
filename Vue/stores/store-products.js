@@ -2298,6 +2298,19 @@ export const useProductStore = defineStore({
             }
         },
 
+        calculatePriceRange(prices) {
+            const amounts = prices.map(price => price.amount);
+            if (amounts.length === 0) {
+                return 'No price available';
+            }
+            const minPrice = Math.min(...amounts);
+            const maxPrice = Math.max(...amounts);
+            if (minPrice===maxPrice){
+                return `${minPrice}`
+            }
+            return `${minPrice} - ${maxPrice}`;
+        },
+
 
     }
 });
