@@ -809,5 +809,23 @@ class ProductsController extends Controller
     }
 
 
+    public function vendorPreferredAction(Request $request,$id,$action)
+    {
+        try{
+            return Product::vendorPreferredAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+
 
 }
