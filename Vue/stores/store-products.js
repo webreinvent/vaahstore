@@ -2276,6 +2276,28 @@ export const useProductStore = defineStore({
 
         },
 
+        async openVendorsPanel(item)
+        {
+
+            this.show_vendor_panel = true;
+            if (item.id) {
+                await vaah().ajax(
+                    ajax_url + '/get-vendors-list'+'/' + item.id,
+                    this.openVendorsPanelAfter
+                );
+            }
+        },
+
+//---------------------------------------------------------------------
+
+        openVendorsPanelAfter(data, res) {
+            if (data) {
+                this.item.vendor_data = data;
+            } else {
+                this.$router.push({name: 'products.index', query: this.query});
+            }
+        },
+
 
     }
 });

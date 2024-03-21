@@ -106,7 +106,9 @@ const useVaah = vaah()
                          <span class="p-inputgroup-addon cursor-pointer"
                                v-tooltip.top="'View Vendors'"
                                v-if="prop.data.product_vendors && prop.data.product_vendors.length"
-                               @click="store.toViewVendors(prop.data)">
+
+                               @click="store.openVendorsPanel(prop.data)"
+                         >
                              <b >{{prop.data.product_vendors.length}}</b>
 
                          </span>
@@ -223,5 +225,40 @@ const useVaah = vaah()
         <!--/paginator-->
 
     </div>
+
+
+    <Sidebar v-model:visible="store.show_vendor_panel"  header="Vendor Details" position="right" style="width:800px;">
+        <template #header>
+            <h2 style="font-weight: bold;" v-if="store.item && store.item.name">{{store.item.name}}</h2>
+        </template>
+        <DataTable v-if="store.item " :value="store.item.vendor_data" style="border: 1px solid #ccc;margin-top:20px;" class="p-datatable-sm p-datatable-hoverable-rows">
+            <Column field="name" header="Vendor Name" style="border: 1px solid #ccc;">
+                <template #body="props">
+                    <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" >{{props.data.name}}</span>
+                </template>
+            </Column>
+
+            <Column field="status" header="Default" style="border: 1px solid #ccc;">
+                <template #body="props">
+                    <span v-if="props.data.is_default === 1" style="color:green;">Default</span>
+                    <span v-else style="color:black;"></span>
+                </template>
+            </Column>
+            <column field="Action" header="Action" style="border:1px solid #ccc;">
+                <template #body="props">
+                    <Button icon="pi pi-trash"
+                            v-tooltip.top="'Remove Contact'"
+                            class="p-button-tiny p-button-danger p-button-text"
+                            aria-label="Cancel"
+                            @click="store.removeContact(props.data.id)" />
+                </template>
+            </column>
+            <template #empty="prop">
+
+                <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+
+            </template>
+        </DataTable>
+    </Sidebar>
 
 </template>
