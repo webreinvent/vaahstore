@@ -205,7 +205,6 @@ export const useProductVendorStore = defineStore({
              */
             this.updateQueryFromUrl(route);
             await this.updateUrlQueryString(this.query);
-
             if (this.query.filter.product) this.getProductsBySlug();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
@@ -1519,7 +1518,14 @@ export const useProductVendorStore = defineStore({
             this.$router.push(route);
         },
         //---------------------------------------------------------------------
-
+        fillAllPrices(){
+            if (this.product_variation_list.length > 0 && this.product_variation_list[0].amount !== null) {
+                const firstPrice = this.product_variation_list[0].amount;
+                this.product_variation_list.forEach((variation) => {
+                    variation.amount = firstPrice;
+                });
+            }
+        },
     }
 });
 
