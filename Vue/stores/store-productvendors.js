@@ -1435,9 +1435,9 @@ export const useProductVendorStore = defineStore({
                 const max_price = Math.max(...valid_prices);
 
                 if (min_price === max_price) {
-                    return `Price: ${min_price}`;
+                    return ` ${min_price}`;
                 } else {
-                    return `Price Range: ${min_price} - ${max_price}`;
+                    return ` ${min_price} - ${max_price}`;
                 }
             }
 
@@ -1471,9 +1471,9 @@ export const useProductVendorStore = defineStore({
             const max_price = Math.max(...all_prices);
 
             if (min_price === max_price) {
-                return `Price: ${min_price}`;
+                return ` ${min_price}`;
             } else {
-                return `Price:  ${min_price} - ${max_price}`;
+                return ` ${min_price} - ${max_price}`;
             }
         },
 
