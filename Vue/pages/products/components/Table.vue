@@ -249,13 +249,15 @@ const useVaah = vaah()
                     <span v-if="props.data.is_default === 1">  {{ store.calculatePriceRange(props.data.variation_prices) }}</span>
                 </template>
             </Column>
-            <column field="Action" header="Action" style="border:1px solid #ccc;">
+            <column field="Action" header="Is Preferred" style="border:1px solid #ccc;">
                 <template #body="props">
-                    <Button icon="pi pi-trash"
-                            v-tooltip.top="'Remove vendor'"
-                            class="p-button-tiny p-button-danger p-button-text"
-                            aria-label="Cancel"
-                            />
+                    <InputSwitch v-model.bool="props.data.is_preferred "
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                                 data-testid="products-table-is-active"
+                                 v-bind:false-value="0"  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
+                                 @input="store.toggleIsPreferred(props.data)">
+                    </InputSwitch>
                 </template>
             </column>
             <template #empty="prop">

@@ -2280,6 +2280,7 @@ export const useProductStore = defineStore({
         {
 
             this.show_vendor_panel = true;
+            this.product_id=item.id;
             if (item.id) {
                 await vaah().ajax(
                     ajax_url + '/get-vendors-list'+'/' + item.id,
@@ -2298,6 +2299,8 @@ export const useProductStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+
         calculatePriceRange(prices) {
             const amounts = prices.map(price => price.amount);
             if (amounts.length === 0) {
@@ -2309,6 +2312,63 @@ export const useProductStore = defineStore({
                 return `${minPrice}`
             }
             return `${minPrice} - ${maxPrice}`;
+        },
+
+        //---------------------------------------------------------------------
+
+        async toggleIsPreferred(item)
+        {
+            if(item.is_preferred)
+            {
+                await this.vendorPreferredAction('preferred', item);
+            } else{
+                await this.vendorPreferredAction('notpreferred', item);
+            }
+        },
+
+        async vendorPreferredAction(type, item=null){
+            console.log(this.product_id);
+            console.log(item.id);
+            if(!item)
+            {
+                item = this.item;
+            }
+
+            this.form.action = type;
+
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'post',
+            };
+
+            /**
+             * Learn more about http request methods at
+             * https://www.youtube.com/watch?v=tkfVQK6UxDI
+             */
+            switch (type)
+            {
+
+                default:
+                    options.method = 'PATCH';
+                    ajax_url += '/'+this.product_id+'/action-for-vendor/'+type;
+                    break;
+            }
+
+            await vaah().ajax(
+                ajax_url,
+                this.vendorPreferredActionAfter,
+                options
+            );
+        },
+
+        async vendorPreferredActionAfter(data, res)
+        {
+            if(data)
+            {
+                console.log(data)
+            }
+
         },
 
 

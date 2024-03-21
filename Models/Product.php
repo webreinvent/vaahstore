@@ -1679,4 +1679,29 @@ class Product extends VaahModel
         return $response;
     }
 
+    public static function vendorPreferredAction($request, $id, $type): array
+    {
+        $product_vendors = ProductVendor::where('vh_st_product_id', $id)->get();
+        $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
+        dd($vendor_ids);
+
+
+        // Update the vendor based on the action type
+        switch ($type) {
+            case 'preferred':
+                ProductVendor::whereIn('vh_st_vendor_id', $vendor_ids)
+                    ->withTrashed()
+                    ->update(['is_preferred' => 1]);
+                break;
+            case 'notpreferred':
+                ProductVendor::whereIn('vh_st_vendor_id', $vendor_ids)
+                    ->withTrashed()
+                    ->update(['is_preferred' => null]);
+                break;
+        }
+
+        return self::getItem($id);
+    }
+
+
 }
