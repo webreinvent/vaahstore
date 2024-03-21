@@ -1519,11 +1519,16 @@ export const useProductVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         fillAllPrices(){
-            if (this.product_variation_list.length > 0 && this.product_variation_list[0].amount !== null) {
-                const firstPrice = this.product_variation_list[0].amount;
-                this.product_variation_list.forEach((variation) => {
-                    variation.amount = firstPrice;
-                });
+            if (this.product_variation_list.length > 0 ) {
+                const first_price = this.item.all_price;
+                if (first_price !== null && first_price !== undefined) {
+                    this.product_variation_list.forEach((variation) => {
+                        variation.amount = first_price;
+                    });
+                }
+                else{
+                    vaah().toastErrors(['Enter Price For All Variations.']);
+                }
             }
         },
     }
