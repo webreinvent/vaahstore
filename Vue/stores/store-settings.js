@@ -15,10 +15,67 @@ export const useSettingStore = defineStore({
         assets_is_fetching: true,
         assets: null,
         list: null,
+        quantity:null,
 
         user_roles_menu: null,
         meta_content: null,
         is_btn_loading: false,
+        crud_options: [
+            {
+                label: 'Store',
+                value: 'Store'
+            },
+            {
+                label: 'Address',
+                value: 'Address'
+            },
+            {
+                label: 'Wishlists',
+                value: 'Wishlists'
+            },
+            {
+                label: 'Brand',
+                value: 'Brand'
+            },
+            {
+                label: 'Customer',
+                value: 'Customer'
+            },
+            {
+                label: 'Customer Group',
+                value: 'CustomerGroup'
+            },
+            {
+                label: 'Vendor',
+                value: 'Vendors'
+            },
+            {
+                label: 'Product',
+                value: 'Product'
+            },
+            {
+                label: 'Product Variations',
+                value: 'ProductVariations'
+            },
+            {
+                label: 'Warehouses',
+                value: 'Warehouses'
+            },
+            {
+                label: 'Attributes',
+                value: 'Attributes'
+            },
+            {
+                label: 'Attribute Group',
+                value: 'AttributeGroups'
+            },
+            {
+                label: 'Product Attribute',
+                value: 'ProductAttribute'
+            },
+
+        ],
+        selected_crud:null,
     }),
     getters: {
 
@@ -73,24 +130,15 @@ export const useSettingStore = defineStore({
 
             let query = {
                 params:{
-                    crud: data[0],
-                    quantity:data[1]
+                    crud: this.selected_crud,
+                    quantity:this.quantity
                 }
             };
+
             const options = {
                 params: query,
                 method: 'post',
             };
-            /*let options = {
-                params:{
-                    list: data
-                }
-            };*/
-
-            /*let ajax_url = this.ajax_url;
-            await vaah().ajax(ajax_url, this.createBulkRecordsAfter, options);
-
-            console.log('sdf',data)*/
 
             await vaah().ajax(
                 this.ajax_url+'/fill/bulk/method',
@@ -106,12 +154,8 @@ export const useSettingStore = defineStore({
 
         async createBulkRecordsAfter (data, res) {
 
-            /*this.is_btn_loading = false;*/
-
-            /*if (data) {
-                this.list = data;
-            }*/
-            console.log(data)
+            this.quantity = null;
+            this.selected_crud = null;
         },
         //---------------------------------------------------------------------
 
