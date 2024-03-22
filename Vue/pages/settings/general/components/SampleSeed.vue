@@ -9,9 +9,9 @@
                   :options="store.crud_options"
                   optionLabel="label"
                   optionValue="value"
-                  id="account-status"
-                  name="users-status"
-                  data-testid="users-status"
+                  name="sample-crud_options"
+                  placeholder="Select Crud"
+                  data-testid="sample-crud_options"
         />
         <InputText id="input_text" v-model="store.quantity" placeholder="Enter Quantity" class="mr-1" />
         <Button label="Submit" @click="store.createBulkRecords()" />
