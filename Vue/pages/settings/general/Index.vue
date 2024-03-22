@@ -3,7 +3,6 @@ import { onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import {useSettingStore} from '../../../stores/store-settings'
 import { vaah } from '../../../vaahvue/pinia/vaah';
-import ModuleSettings from './components/ModuleSettings.vue';
 import SampleSeed from './components/SampleSeed.vue'
 
 
