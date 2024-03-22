@@ -73,6 +73,13 @@ const useVaah = vaah()
                             severity="info"></Badge>
                  </template>
              </Column>
+             <Column field="price range" header="Price Range" >
+                 <template #body="props">
+                     <span v-if="props.data.vendors_data && props.data.vendors_data.length > 0">
+                         {{ store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) }}
+                     </span>
+                 </template>
+             </Column>
 
              <Column field="variations" header="Variations"
                      :sortable="false">
@@ -227,26 +234,32 @@ const useVaah = vaah()
     </div>
 
 
-    <Sidebar v-model:visible="store.show_vendor_panel"  header="Vendor Details" position="right" style="width:800px;">
+    <Sidebar v-model:visible="store.show_vendor_panel"  header="Product Price With Vendors" position="right" style="width:800px;">
         <template #header>
-            <h2 style="font-weight: bold;" v-if="store.item && store.item.name">{{store.item.name}}</h2>
+            <h2 style="font-weight: bold;" v-if="store.item" >{{store.product_name}}</h2>
         </template>
         <DataTable v-if="store.item " :value="store.item.vendor_data" style="border: 1px solid #ccc;margin-top:20px;" class="p-datatable-sm p-datatable-hoverable-rows">
+            <Column header="Sr No" style="border: 1px solid #ccc;">
+                <template #body="props">
+                    {{ props.index + 1 }}
+                </template>
+            </Column>
             <Column field="name" header="Vendor Name" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" >{{props.data.name}}</span>
+                    <div  class=" hover:text-primary-700 cursor-pointer">
+                        {{props.data.name}}
+                        <span v-if="props.data.is_default === 1">
+                         <Badge severity="info">&nbsp;(Default)</Badge>
+                     </span>
+                    </div>
                 </template>
             </Column>
 
-            <Column field="status" header="Is Default" style="border: 1px solid #ccc;">
-                <template #body="props">
-                    <span v-if="props.data.is_default === 1" style="color:green;">Yes</span>
-                    <span v-else style="color:black;">No</span>
-                </template>
-            </Column>
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <span v-if="props.data.is_default === 1">  {{ store.calculatePriceRange(props.data.variation_prices) }}</span>
+                    <Badge  v-if="props.data.is_default === 1 || props.data.is_preferred===1">
+                        {{ store.calculatePriceRange(props.data.variation_prices) }}
+                    </Badge>
                 </template>
             </Column>
             <column field="Action" header="Is Preferred" style="border:1px solid #ccc;">

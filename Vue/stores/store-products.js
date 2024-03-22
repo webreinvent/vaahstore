@@ -122,6 +122,7 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        product_name:null,
 
     }),
     getters: {
@@ -2281,6 +2282,7 @@ export const useProductStore = defineStore({
 
             this.show_vendor_panel = true;
             this.product_id=item.id;
+            this.product_name=item.name;
             if (item.id) {
                 await vaah().ajax(
                     ajax_url + '/get-vendors-list'+'/' + item.id,
@@ -2304,7 +2306,7 @@ export const useProductStore = defineStore({
         calculatePriceRange(prices) {
             const amounts = prices.map(price => price.amount);
             if (amounts.length === 0) {
-                return 'No price available';
+                return 'Not available';
             }
             const minPrice = Math.min(...amounts);
             const maxPrice = Math.max(...amounts);
@@ -2313,6 +2315,30 @@ export const useProductStore = defineStore({
             }
             return `${minPrice} - ${maxPrice}`;
         },
+
+        calculatePriceRangeForProduct(prices) {
+
+            if (!prices || !Array.isArray(prices)) {
+                return 'Not available';
+            }
+
+            const numericPrices = prices.filter(price => typeof price === 'number');
+
+            if (numericPrices.length === 0) {
+                return 'Not available';
+            }
+
+            const minPrice = Math.min(...numericPrices);
+            const maxPrice = Math.max(...numericPrices);
+
+            if (minPrice === maxPrice) {
+                return `${minPrice}`;
+            }
+
+            return `${minPrice} - ${maxPrice}`;
+        },
+
+
 
         //---------------------------------------------------------------------
 
@@ -2327,8 +2353,7 @@ export const useProductStore = defineStore({
         },
 
         async vendorPreferredAction(type, item=null){
-            console.log(this.product_id);
-            console.log(item.id);
+
             if(!item)
             {
                 item = this.item;
@@ -2340,6 +2365,7 @@ export const useProductStore = defineStore({
 
             let options = {
                 method: 'post',
+
             };
 
             /**
@@ -2351,7 +2377,7 @@ export const useProductStore = defineStore({
 
                 default:
                     options.method = 'PATCH';
-                    ajax_url += '/'+this.product_id+'/action-for-vendor/'+type;
+                    ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
                     break;
             }
 
@@ -2366,7 +2392,7 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                console.log(data)
+                await this.getList();
             }
 
         },

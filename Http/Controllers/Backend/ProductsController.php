@@ -811,6 +811,7 @@ class ProductsController extends Controller
 
     public function vendorPreferredAction(Request $request,$id,$action)
     {
+
         try{
             return Product::vendorPreferredAction($request,$id,$action);
         }catch (\Exception $e){
