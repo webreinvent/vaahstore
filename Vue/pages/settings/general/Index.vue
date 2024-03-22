@@ -21,38 +21,6 @@ onMounted(async () => {
 </script>
 
 <template>
-<!--    <div>
-        <Card>
-            <template #header>
-                <div class="flex justify-content-between align-items-center w-full">
-                    <h5 class="font-semibold text-lg">General Settings</h5>
-                    <div>
-                        <Button label="Expand all" class="p-button-sm mr-2" @click="store.expandAll"></Button>
-                        <Button label="Collapse all" class="p-button-sm" @click="store.collapseAll"></Button>
-                    </div>
-                </div>
-            </template>
-
-            <template #content>
-                <Accordion :multiple="true" :activeIndex="store.active_index" id="accordionTabContainer">
-                    <AccordionTab>
-                        <template #header>
-                            <div class="w-full">
-                                <div>
-                                    <h5 class="font-semibold text-sm">Module Settings</h5>
-                                    <p class="text-color-secondary text-xs">
-                                       Basic settings of Module
-                                    </p>
-                                </div>
-                            </div>
-                        </template>
-
-                        <ModuleSettings />
-                    </AccordionTab>
-                </Accordion>
-            </template>
-        </Card>
-    </div>-->
 
     <div style="margin-top: 1rem">
         <Card>
