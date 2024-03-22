@@ -1672,6 +1672,9 @@ class Product extends VaahModel
 
         foreach ($vendors as &$vendor) {
             $vendor->variation_prices = $variation_prices_by_vendor[$vendor->id] ?? [];
+//            $vendor->pivot_ids = $product_vendors->where('vh_st_vendor_id', $vendor->id)->pluck('id')->toArray();
+            $pivot_id = $product_vendors->where('vh_st_vendor_id', $vendor->id)->pluck('id')->first();
+            $vendor->pivot_id = $pivot_id ?? null;
         }
 
         $response['success'] = true;
@@ -1681,27 +1684,29 @@ class Product extends VaahModel
 
     public static function vendorPreferredAction($request, $id, $type): array
     {
-        $product_vendors = ProductVendor::where('vh_st_product_id', $id)->get();
-        $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
-        dd($vendor_ids);
 
-
-        // Update the vendor based on the action type
         switch ($type) {
             case 'preferred':
-                ProductVendor::whereIn('vh_st_vendor_id', $vendor_ids)
+                ProductVendor::where('id', $id)
                     ->withTrashed()
                     ->update(['is_preferred' => 1]);
                 break;
             case 'notpreferred':
-                ProductVendor::whereIn('vh_st_vendor_id', $vendor_ids)
+                ProductVendor::where('id', $id)
                     ->withTrashed()
                     ->update(['is_preferred' => null]);
                 break;
         }
-
-        return self::getItem($id);
+        return [
+            'success' => true,
+            'message' => 'success.',
+        ];
+//        return self::getItem($id);
     }
+
+
+
+
 
 
 }
