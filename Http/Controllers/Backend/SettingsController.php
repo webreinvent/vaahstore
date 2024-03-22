@@ -11,6 +11,7 @@ use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductAttribute;
+use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
@@ -247,6 +248,15 @@ class SettingsController extends Controller
                         return $response;
                     }
                     ProductAttribute::seedSampleItems($quantity);
+                    break;
+                case "ProductMedia":
+                    $product = Product::all()->count();
+                    if(!$product){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product first';
+                        return $response;
+                    }
+                    ProductMedia::seedSampleItems($quantity);
                     break;
                 default:
                     break;

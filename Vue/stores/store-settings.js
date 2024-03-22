@@ -73,6 +73,10 @@ export const useSettingStore = defineStore({
                 label: 'Product Attribute',
                 value: 'ProductAttribute'
             },
+            {
+                label: 'Product Media',
+                value: 'ProductMedia'
+            },
 
         ],
         selected_crud:null,
