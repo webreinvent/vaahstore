@@ -246,7 +246,7 @@ const useVaah = vaah()
             </Column>
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <span v-if="props.data.is_default === 1">  {{ store.calculatePriceRange(props.data.variation_prices) }}</span>
+                    <span v-if="props.data.is_default === 1 ">  {{ store.calculatePriceRange(props.data.variation_prices) }}</span>
                 </template>
             </Column>
             <column field="Action" header="Is Preferred" style="border:1px solid #ccc;">

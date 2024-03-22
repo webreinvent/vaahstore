@@ -2327,8 +2327,7 @@ export const useProductStore = defineStore({
         },
 
         async vendorPreferredAction(type, item=null){
-            console.log(this.product_id);
-            console.log(item.id);
+
             if(!item)
             {
                 item = this.item;
@@ -2351,7 +2350,7 @@ export const useProductStore = defineStore({
 
                 default:
                     options.method = 'PATCH';
-                    ajax_url += '/'+this.product_id+'/action-for-vendor/'+type;
+                    ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
                     break;
             }
 
