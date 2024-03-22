@@ -12,6 +12,7 @@ use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductMedia;
+use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
@@ -234,8 +235,8 @@ class SettingsController extends Controller
                     AttributeGroup::seedSampleItems($quantity);
                     break;
                 case "ProductAttribute":
-                    $product = ProductVariation::all()->count();
-                    if(!$product){
+                    $product_variation = ProductVariation::all()->count();
+                    if(!$product_variation){
                         $response['success'] = false;
                         $response['errors'][] = 'Create a product variations first';
                         return $response;
@@ -257,6 +258,33 @@ class SettingsController extends Controller
                         return $response;
                     }
                     ProductMedia::seedSampleItems($quantity);
+                    break;
+                case "ProductStock":
+                    $vendor = Vendor::all()->count();
+                    if(!$vendor){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a vendor first';
+                        return $response;
+                    }
+                    $product = Product::all()->count();
+                    if(!$product){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product first';
+                        return $response;
+                    }
+                    $product_variation = ProductVariation::all()->count();
+                    if(!$product_variation){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product variations first';
+                        return $response;
+                    }
+                    $warehouse = Warehouse::all()->count();
+                    if(!$warehouse){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a warehouse first';
+                        return $response;
+                    }
+                    ProductStock::seedSampleItems($quantity);
                     break;
                 default:
                     break;
