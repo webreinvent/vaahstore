@@ -5,10 +5,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Address;
+use VaahCms\Modules\Store\Models\Attribute;
+use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\CustomerGroup;
+use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
+use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Warehouse;
 use VaahCms\Modules\Store\Models\Wishlist;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\Setting;
@@ -146,9 +152,11 @@ class SettingsController extends Controller
                 case "Brand":
                     Brand::seedSampleItems($quantity);
                     break;
+                case "Attributes":
+                    Attribute::seedSampleItems($quantity);
+                    break;
                 case "Customer":
                     $customer_role = Role::where('slug', 'customer')->first();
-
                     if($customer_role)
                     {
                         User::seedSampleItems($quantity);
@@ -162,6 +170,16 @@ class SettingsController extends Controller
                         break;
                     }
                     break;
+                case "Vendors":
+                    $store = Store::all()->count();
+                    if(!$store){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a store first';
+                        return $response;
+                    }
+                    Vendor::seedSampleItems($quantity);
+                    break;
+                
                 default:
                     break;
             }
@@ -178,7 +196,8 @@ class SettingsController extends Controller
             }
         }
 
-        return $response;
+
+
     }
 
     //----------------------------------------------------------
