@@ -12,6 +12,7 @@
                   name="sample-crud_options"
                   placeholder="Select Crud"
                   data-testid="sample-crud_options"
+                  filter
         />
         <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter Quantity" class="mr-1" />
         <Button label="Submit" @click="store.createBulkRecords()" />
