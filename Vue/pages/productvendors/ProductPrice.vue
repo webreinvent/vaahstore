@@ -99,12 +99,7 @@ const toggleFormMenu = (event) => {
                 </div>
             </div>
                 <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
-                    <div v-if="store.product_variation_list.length > 0 " class="d-flex justify-content-between align-items-center mb-2">
-                        <Button   @click="store.fillAllPrices">Fill All Prices</Button>
-                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm h-2rem m-1"
-                                 placeholder="Enter Price For All Variations"
-                        />
-                    </div>
+
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
                         <thead class="p-datatable-thead">
                         <tr>
