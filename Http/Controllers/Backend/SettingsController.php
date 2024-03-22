@@ -175,18 +175,23 @@ class SettingsController extends Controller
                     break;
                 case "Customer":
                     $customer_role = Role::where('slug', 'customer')->first();
-                    if($customer_role)
+                    if(!$customer_role)
                     {
-                        User::seedSampleItems($quantity);
+                        $response['success'] = false;
+                        $response['errors'][] = 'create a customer role first';
+                        return $response;
                     }
+                    User::seedSampleItems($quantity);
                     break;
                 case "CustomerGroup":
                     $user= User::all()->count();
-                    if($user > 1)
+                    if(!$user)
                     {
-                        CustomerGroup::seedSampleItems($quantity);
-                        break;
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a customer first';
+                        return $response;
                     }
+                    CustomerGroup::seedSampleItems($quantity);
                     break;
                 case "Vendors":
                     $store = Store::all()->count();
