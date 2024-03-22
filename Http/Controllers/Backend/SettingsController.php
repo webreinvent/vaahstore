@@ -5,7 +5,12 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use VaahCms\Modules\Store\Models\Address;
+use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\User;
+use VaahCms\Modules\Store\Models\Wishlist;
+use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\Setting;
 use WebReinvent\VaahExtend\Libraries\VaahArtisan;
 
@@ -134,6 +139,28 @@ class SettingsController extends Controller
                     break;
                 case "Address":
                     Address::seedSampleItems($quantity);
+                    break;
+                case "Wishlists":
+                    Wishlist::seedSampleItems($quantity);
+                    break;
+                case "Brand":
+                    Brand::seedSampleItems($quantity);
+                    break;
+                case "Customer":
+                    $customer_role = Role::where('slug', 'customer')->first();
+
+                    if($customer_role)
+                    {
+                        User::seedSampleItems($quantity);
+                    }
+                    break;
+                case "CustomerGroup":
+                    $user= User::all()->count();
+                    if($user > 1)
+                    {
+                        CustomerGroup::seedSampleItems($quantity);
+                        break;
+                    }
                     break;
                 default:
                     break;
