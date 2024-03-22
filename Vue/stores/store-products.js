@@ -2330,7 +2330,6 @@ export const useProductStore = defineStore({
 
             const minPrice = Math.min(...numericPrices);
             const maxPrice = Math.max(...numericPrices);
-            console.log(maxPrice);
 
             if (minPrice === maxPrice) {
                 return `${minPrice}`;
@@ -2366,6 +2365,7 @@ export const useProductStore = defineStore({
 
             let options = {
                 method: 'post',
+
             };
 
             /**

@@ -1728,20 +1728,51 @@ class Product extends VaahModel
     }
 
 
-    public static function vendorPreferredAction($request, $id, $type): array
+    public static function vendorPreferredAction(Request $request, $id, $type): array
     {
 
-        $is_preferred = ($type === 'preferred') ? 1 : null;
 
-        ProductVendor::where('id', $id)
-            ->withTrashed()
-            ->update(['is_preferred' => $is_preferred]);
+        $productVendor = ProductVendor::find($id);
 
+        if (!$productVendor) {
+            return [
+                'success' => false,
+                'message' => 'Product vendor not found.',
+            ];
+        }
+
+        $productId = $productVendor->vh_st_product_id;
+
+        $relatedProductVendorIds = ProductVendor::where('vh_st_product_id', $productId)
+            ->where('id', '!=', $id)
+            ->pluck('id')
+            ->toArray();
+
+        $isPreferred = ($type === 'preferred') ? 1 : null;
+        ProductVendor::where('id', $id)->update(['is_preferred' => $isPreferred]);
+
+        if (!empty($relatedProductVendorIds)) {
+            ProductVendor::whereIn('id', $relatedProductVendorIds)
+                ->update(['is_preferred' => null]);
+        }
+
+//        return self::getVendorsListForPrduct($productId);
         return [
             'success' => true,
-            'data'=>true,
+            'data' => true,
             'message' => 'Success.',
         ];
+//        $is_preferred = ($type === 'preferred') ? 1 : null;
+//
+//        ProductVendor::where('id', $id)
+//            ->withTrashed()
+//            ->update(['is_preferred' => $is_preferred]);
+//
+//        return [
+//            'success' => true,
+//            'data'=>true,
+//            'message' => 'Success.',
+//        ];
     }
 
 
