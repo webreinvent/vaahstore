@@ -73,6 +73,13 @@ const useVaah = vaah()
                             severity="info"></Badge>
                  </template>
              </Column>
+             <Column field="price range" header="Price Range" >
+                 <template #body="props">
+                     <span v-if="props.data.vendors_data && props.data.vendors_data.length > 0">
+                         {{ store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) }}
+                     </span>
+                 </template>
+             </Column>
 
              <Column field="variations" header="Variations"
                      :sortable="false">
