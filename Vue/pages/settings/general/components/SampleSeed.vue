@@ -13,7 +13,7 @@
                   placeholder="Select Crud"
                   data-testid="sample-crud_options"
         />
-        <InputText id="input_text" v-model="store.quantity" placeholder="Enter Quantity" class="mr-1" />
+        <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter Quantity" class="mr-1" />
         <Button label="Submit" @click="store.createBulkRecords()" />
     </div>
 </template>
