@@ -4,6 +4,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Models\Setting;
 use WebReinvent\VaahExtend\Libraries\VaahArtisan;
@@ -118,6 +119,7 @@ class SettingsController extends Controller
 
     public function bulkCreateRecords(Request $request)
     {
+        $response = [];
 
         try {
             $data = $request->params;
@@ -126,11 +128,15 @@ class SettingsController extends Controller
 
             $quantity = $data['quantity'];
 
-            if($crud==="Store")
-            {
-                $fill = Store::seedSampleItems($quantity);
-                $response['data'] = $fill ;
-                $response['messages'][] = 'Record has been Created';
+            switch ($crud) {
+                case "Store":
+                    Store::seedSampleItems($quantity);
+                    break;
+                case "Address":
+                    Address::seedSampleItems($quantity);
+                    break;
+                default:
+                    break;
             }
 
         } catch (\Exception $e) {
@@ -144,9 +150,8 @@ class SettingsController extends Controller
                 $response['errors'][] = 'Something went wrong.';
             }
         }
-        $response['success'] = true;
-        $response['data'] = [];
-        $response['messages'][] = 'Record has been Created';
+
+        return $response;
     }
 
     //----------------------------------------------------------
