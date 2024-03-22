@@ -122,6 +122,7 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        product_name:null,
 
     }),
     getters: {
@@ -2281,6 +2282,7 @@ export const useProductStore = defineStore({
 
             this.show_vendor_panel = true;
             this.product_id=item.id;
+            this.product_name=item.name;
             if (item.id) {
                 await vaah().ajax(
                     ajax_url + '/get-vendors-list'+'/' + item.id,
