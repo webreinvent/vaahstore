@@ -2316,6 +2316,31 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
 
+        calculatePriceRangeForProduct(prices) {
+
+            if (!prices || !Array.isArray(prices)) {
+                return 'Not available';
+            }
+
+            const numericPrices = prices.filter(price => typeof price === 'number');
+
+            if (numericPrices.length === 0) {
+                return 'Not available';
+            }
+
+            const minPrice = Math.min(...numericPrices);
+            const maxPrice = Math.max(...numericPrices);
+            console.log(maxPrice);
+
+            if (minPrice === maxPrice) {
+                return `${minPrice}`;
+            }
+
+            return `${minPrice} - ${maxPrice}`;
+        },
+
+
+
         //---------------------------------------------------------------------
 
         async toggleIsPreferred(item)
@@ -2367,7 +2392,7 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
-                console.log(data)
+                await this.getList();
             }
 
         },

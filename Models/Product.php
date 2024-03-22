@@ -629,7 +629,10 @@ class Product extends VaahModel
         }
 
         $list = $list->paginate($rows);
+        foreach($list as $item) {
 
+            $item->vendors_data = self::VendorsListForPrduct($item->id)['data'];
+        }
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -1649,6 +1652,44 @@ class Product extends VaahModel
     }
 
 
+    public static function VendorsListForPrduct($id)
+    {
+        $preferred_product_vendors = ProductVendor::where('vh_st_product_id', $id)
+            ->where('is_preferred', 1)
+            ->select('vh_st_vendor_id')
+            ->pluck('vh_st_vendor_id')
+            ->toArray();
+        $vendors = Vendor::where('is_default', 1)->get();
+
+
+        if (!empty($preferred_product_vendors)) {
+            $vendors = Vendor::whereIn('id', $preferred_product_vendors)->get();
+
+            $preferred_vendors = Vendor::whereIn('id', $preferred_product_vendors)->get();
+            $vendors = $vendors->concat($preferred_vendors);
+        }
+
+        $vendor_ids_default = $vendors->pluck('id')->toArray();
+        $product_prices = ProductPrice::where('vh_st_product_id', $id)
+            ->whereIn('vh_st_vendor_id', $vendor_ids_default)
+            ->get();
+
+        $vendor_prices = [];
+        foreach ($product_prices as $price) {
+            $vendor_prices[$price->vh_st_vendor_id][] = $price->amount;
+        }
+
+        // Attach variation prices to vendors
+        foreach ($vendors as $vendor) {
+            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
+        }
+
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
+    }
+
+
 
     public static function getVendorsListForPrduct($id)
     {
@@ -1698,6 +1739,7 @@ class Product extends VaahModel
 
         return [
             'success' => true,
+            'data'=>true,
             'message' => 'Success.',
         ];
     }
