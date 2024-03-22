@@ -179,7 +179,43 @@ class SettingsController extends Controller
                     }
                     Vendor::seedSampleItems($quantity);
                     break;
-                
+                case "Product":
+                    $store = Store::all()->count();
+                    if(!$store){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a store first';
+                        return $response;
+                    }
+                    Product::seedSampleItems($quantity);
+                    break;
+                case "ProductVariations":
+                    $product = Product::all()->count();
+                    if(!$product){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product first';
+                        return $response;
+                    }
+                    ProductVariation::seedSampleItems($quantity);
+                    break;
+                case "Warehouses":
+                    $vendor = Vendor::all()->count();
+                    if(!$vendor){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a vendor first';
+                        return $response;
+                    }
+                    Warehouse::seedSampleItems($quantity);
+                    break;
+                case "AttributeGroups":
+                    $attribute = Attribute::all()->count();
+                    if(!$attribute)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a attribute first';
+                        return $response;
+                    }
+                    AttributeGroup::seedSampleItems($quantity);
+                    break;
                 default:
                     break;
             }
@@ -197,7 +233,10 @@ class SettingsController extends Controller
         }
 
 
-
+        $response['success'] = true;
+        $response['data'] = [];
+        $response['messages'][] = 'Record has been Created';
+        return $response;
     }
 
     //----------------------------------------------------------
