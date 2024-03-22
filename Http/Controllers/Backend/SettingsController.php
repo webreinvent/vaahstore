@@ -116,6 +116,39 @@ class SettingsController extends Controller
     //----------------------------------------------------------
 
 
+    public function bulkCreateRecords(Request $request)
+    {
+
+        try {
+            $data = $request->params;
+
+            $crud = $data['crud'];
+
+            $quantity = $data['quantity'];
+
+            if($crud==="Store")
+            {
+                $fill = Store::seedSampleItems($quantity);
+                $response['data'] = $fill ;
+                $response['messages'][] = 'Record has been Created';
+            }
+
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = 'Something went wrong.';
+            }
+        }
+        $response['success'] = true;
+        $response['data'] = [];
+        $response['messages'][] = 'Record has been Created';
+    }
+
     //----------------------------------------------------------
     //----------------------------------------------------------
 }

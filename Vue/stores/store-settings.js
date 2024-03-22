@@ -67,6 +67,52 @@ export const useSettingStore = defineStore({
                 this.list = data;
             }
         },
+        //--------------------------------------------------------------------
+        async createBulkRecords( data) {
+
+
+            let query = {
+                params:{
+                    crud: data[0],
+                    quantity:data[1]
+                }
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            /*let options = {
+                params:{
+                    list: data
+                }
+            };*/
+
+            /*let ajax_url = this.ajax_url;
+            await vaah().ajax(ajax_url, this.createBulkRecordsAfter, options);
+
+            console.log('sdf',data)*/
+
+            await vaah().ajax(
+                this.ajax_url+'/fill/bulk/method',
+                this.createBulkRecordsAfter,
+                options
+            );
+
+
+        },
+
+
+        //---------------------------------------------------------------------
+
+        async createBulkRecordsAfter (data, res) {
+
+            /*this.is_btn_loading = false;*/
+
+            /*if (data) {
+                this.list = data;
+            }*/
+            console.log(data)
+        },
         //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------

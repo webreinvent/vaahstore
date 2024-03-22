@@ -26,5 +26,6 @@ function () {
         ->name('vh.backend.store.settings.list.update');
 
 
-
+    Route::any('/fill/bulk/method', 'SettingsController@bulkCreateRecords')
+        ->name('vh.backend.store.settings.create.bulk.records');
 });
