@@ -14,6 +14,7 @@ use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
@@ -290,6 +291,27 @@ class SettingsController extends Controller
                         return $response;
                     }
                     ProductStock::seedSampleItems($quantity);
+                    break;
+                case "VendorsProduct":
+                    $product = Product::all()->count();
+                    if(!$product){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product first';
+                        return $response;
+                    }
+                    $store = Store::all()->count();
+                    if(!$store){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a store first';
+                        return $response;
+                    }
+                    $vendor = Vendor::all()->count();
+                    if(!$vendor){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a vendor first';
+                        return $response;
+                    }
+                    ProductVendor::seedSampleItems($quantity);
                     break;
                 default:
                     break;
