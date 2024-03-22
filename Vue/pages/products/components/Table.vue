@@ -232,6 +232,11 @@ const useVaah = vaah()
             <h2 style="font-weight: bold;" v-if="store.item" >{{store.product_name}}</h2>
         </template>
         <DataTable v-if="store.item " :value="store.item.vendor_data" style="border: 1px solid #ccc;margin-top:20px;" class="p-datatable-sm p-datatable-hoverable-rows">
+            <Column header="Sr No" style="border: 1px solid #ccc;">
+                <template #body="props">
+                    {{ props.index + 1 }}
+                </template>
+            </Column>
             <Column field="name" header="Vendor Name" style="border: 1px solid #ccc;">
                 <template #body="props">
                     <div  class=" hover:text-primary-700 cursor-pointer">
@@ -245,7 +250,7 @@ const useVaah = vaah()
 
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <Badge v-if="props.data.is_default === 1 || props.data.is_preferred===1">
+                    <Badge  v-if="props.data.is_default === 1 || props.data.is_preferred===1">
                         {{ store.calculatePriceRange(props.data.variation_prices) }}
                     </Badge>
                 </template>
