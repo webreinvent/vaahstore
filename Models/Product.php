@@ -1794,11 +1794,45 @@ class Product extends VaahModel
         ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
         ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
 
+        if (!$productVendor) {
+            return [
+                'success' => false,
+                'message' => 'Product vendor not found.',
+            ];
+        }
+
+        $productId = $productVendor->vh_st_product_id;
+
+        $relatedProductVendorIds = ProductVendor::where('vh_st_product_id', $productId)
+            ->where('id', '!=', $id)
+            ->pluck('id')
+            ->toArray();
+
+        $isPreferred = ($type === 'preferred') ? 1 : null;
+        ProductVendor::where('id', $id)->update(['is_preferred' => $isPreferred]);
+
+        if (!empty($relatedProductVendorIds)) {
+            ProductVendor::whereIn('id', $relatedProductVendorIds)
+                ->update(['is_preferred' => null]);
+        }
+
+//        return self::getVendorsListForPrduct($productId);
         return [
             'success' => true,
             'data' => Product::find($product_id),
             'message' => 'Success.',
         ];
+//        $is_preferred = ($type === 'preferred') ? 1 : null;
+//
+//        ProductVendor::where('id', $id)
+//            ->withTrashed()
+//            ->update(['is_preferred' => $is_preferred]);
+//
+//        return [
+//            'success' => true,
+//            'data'=>true,
+//            'message' => 'Success.',
+//        ];
     }
 
 
