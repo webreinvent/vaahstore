@@ -4,9 +4,8 @@
 
     </div>
     <div class="card flex justify-content-center">
-        {{quantity_val}} {{selectedCrud}}
-        <Dropdown v-model="selectedCrud" :options="crud" optionLabel="name" placeholder="Select a Crud" class="w-full md:w-14rem" />
-        <InputText id="username" v-model="quantity_val" placeholder="Enter Quantity" />
+        <Dropdown v-model="selectedCrud" :options="crud" optionLabel="name" placeholder="Select a Crud" class="w-full md:w-14rem mr-1"  />
+        <InputText id="username" v-model="quantity_val" placeholder="Enter Quantity" class="mr-1" />
         <Button label="Submit" @click="store.createBulkRecords([selectedCrud.name ,quantity_val])" />
     </div>
 </template>
