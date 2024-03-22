@@ -10,6 +10,7 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\CustomerGroup;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
@@ -215,6 +216,22 @@ class SettingsController extends Controller
                         return $response;
                     }
                     AttributeGroup::seedSampleItems($quantity);
+                    break;
+                case "ProductAttribute":
+                    $product = ProductVariation::all()->count();
+                    if(!$product){
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a product variations first';
+                        return $response;
+                    }
+                    $attribute = Attribute::all()->count();
+                    if(!$attribute)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = 'Create a attribute first';
+                        return $response;
+                    }
+                    ProductAttribute::seedSampleItems($quantity);
                     break;
                 default:
                     break;
