@@ -140,6 +140,21 @@ class SettingsController extends Controller
 
             $quantity = $data['quantity'];
 
+            if(empty($crud))
+            {
+                $response['success'] = false;
+                $response['errors'][] = 'select a crud first';
+                return $response;
+
+            }
+            if(empty($quantity))
+            {
+                $response['success'] = false;
+                $response['errors'][] = 'Kindly fill a quantity';
+                return $response;
+
+            }
+
             switch ($crud) {
                 case "Store":
                     Store::seedSampleItems($quantity);
