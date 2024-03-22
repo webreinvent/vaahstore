@@ -68,9 +68,9 @@ onMounted(async () => {
                         <template #header>
                             <div class="w-full">
                                 <div>
-                                    <h5 class="font-semibold text-sm">Stores Crud</h5>
+                                    <h5 class="font-semibold text-sm">VaahStore Cruds</h5>
                                     <p class="text-color-secondary text-xs">
-                                        Generate Sample Records For Stores Crud
+                                        Generate Bulk Records For All VaahStores Crud
                                     </p>
                                 </div>
                             </div>
