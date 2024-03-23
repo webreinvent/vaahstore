@@ -1659,10 +1659,12 @@ class Product extends VaahModel
             ->pluck('vh_st_vendor_id')
             ->toArray();
 
-        $vendors = Vendor::where('is_default', 1)->get();
+        $vendors = Vendor::where('is_default', 1)->select('id', 'name', 'slug', 'is_default')
+            ->get();
 
         if (!empty($preferred_product_vendors)) {
-            $vendors = Vendor::whereIn('id', $preferred_product_vendors)->get();
+            $vendors = Vendor::whereIn('id', $preferred_product_vendors)->select('id', 'name', 'slug', 'is_default')
+                ->get();
         }
 
         $vendor_ids_default = $vendors->pluck('id')->toArray();
@@ -1693,8 +1695,9 @@ class Product extends VaahModel
 
         $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
 
-        $vendors = Vendor::whereIn('id', $vendor_ids)->get();
-
+        $vendors = Vendor::whereIn('id', $vendor_ids)
+            ->select('id', 'name', 'slug', 'is_default')
+            ->get();
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
             ->whereIn('vh_st_vendor_id', $vendor_ids)
             ->get();
