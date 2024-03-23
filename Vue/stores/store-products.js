@@ -2279,7 +2279,6 @@ export const useProductStore = defineStore({
 
         async openVendorsPanel(item)
         {
-
             this.show_vendor_panel = true;
             this.product_id=item.id;
             this.product_name=item.name;
@@ -2364,22 +2363,14 @@ export const useProductStore = defineStore({
             let ajax_url = this.ajax_url;
 
             let options = {
-                method: 'post',
+                method: 'PATCH',
 
             };
 
-            /**
-             * Learn more about http request methods at
-             * https://www.youtube.com/watch?v=tkfVQK6UxDI
-             */
-            switch (type)
-            {
 
-                default:
-                    options.method = 'PATCH';
+
                     ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
-                    break;
-            }
+
 
             await vaah().ajax(
                 ajax_url,
@@ -2390,9 +2381,11 @@ export const useProductStore = defineStore({
 
         async vendorPreferredActionAfter(data, res)
         {
+
             if(data)
             {
                 await this.getList();
+                await this.openVendorsPanel(data);
             }
 
         },
