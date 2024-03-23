@@ -198,7 +198,7 @@ const toggleFormMenu = (event) => {
                                   :complete-on-focus = "true"
                                   :suggestions="store.currency_suggestion_list"
                                   @change = "store.addCurrencies()"
-                                  @complete="store.searchCurrencies"
+                                  @complete="store.searchCurrencies($event)"
                                   class="w-full"
                     />
 
@@ -251,7 +251,7 @@ const toggleFormMenu = (event) => {
                                   :complete-on-focus = "true"
                                   :suggestions="store.language_suggestion_list"
                                   @change = "store.addLanguages()"
-                                  @complete="store.searchLanguages"
+                                  @complete="store.searchLanguages($event)"
                                   class="w-full"
                     />
 
