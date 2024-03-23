@@ -11,18 +11,6 @@ const store = useSettingStore();
 const route = useRoute();
 const useVaah = vaah();
 
-const sidebar_menu_items = ref([
-    {
-        label: 'Settings',
-        items: [
-            {
-                label: 'General',
-                icon: 'pi pi-cog',
-                to:{ path: '/settings/general' }
-            }
-        ]},
-]);
-
 onMounted(async () => {
 
     await store.getAssets();
@@ -36,9 +24,6 @@ onMounted(async () => {
 
 <template>
     <div class="grid justify-content-center">
-        <div class="col-fixed">
-            <Menu :model="sidebar_menu_items" />
-        </div>
         <div class="col">
             <router-view></router-view>
         </div>
