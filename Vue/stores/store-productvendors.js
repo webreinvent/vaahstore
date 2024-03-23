@@ -245,10 +245,9 @@ export const useProductVendorStore = defineStore({
         watchRoutes(route)
         {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
-                {
+            this.watch_stopper = watch(route, async (newVal, oldVal) => {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if (this.watch_stopper && !newVal.name.startsWith(this.route_prefix)) {
                         this.watch_stopper();
 
                         return false;
@@ -256,10 +255,10 @@ export const useProductVendorStore = defineStore({
 
                     this.route = newVal;
 
-                    if(newVal.params.id){
+                    if (newVal.params.id) {
                         this.disable_added_by = false;
-                        this.getItem(newVal.params.id);
-                    }else{
+                        await this.getItem(newVal.params.id);
+                    } else {
                         this.disable_added_by = true;
                     }
 
@@ -886,12 +885,11 @@ export const useProductVendorStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.index'})
         },
-        toProductPrice(item)
-        {
-            this.item.vh_st_product_id=item.vh_st_product_id;
-            this.searchVariationOfProduct();
+        async toProductPrice(item) {
+            this.item.vh_st_product_id = item.vh_st_product_id;
+            await this.searchVariationOfProduct();
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
+            this.$router.push({name: 'productvendors.productprice', params: {id: item.id}})
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1382,8 +1380,8 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchVariationOfProduct() {
+            await this.$router.replace({query: null});
             const query = {
-
                 id: this.item.vh_st_product_id
             };
             const options = {
