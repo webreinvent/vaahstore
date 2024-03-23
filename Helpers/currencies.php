@@ -1,5 +1,5 @@
 <?php
-function vh_get_country_by_country_currencies($country_code)
+function vh_get_currency_by_country_currency_code($country_code)
 {
     $currencies = vh_get_country_currencies();
 
@@ -9,7 +9,7 @@ function vh_get_country_by_country_currencies($country_code)
 }
 //---------------------------------------------------
 
-function vh_get_country_by_country_currency_name($country_name)
+function vh_get_currency_by_country_currency_name($country_name)
 {
     $currencies = vh_get_country_currencies();
 
@@ -18,7 +18,7 @@ function vh_get_country_by_country_currency_name($country_name)
 
 //---------------------------------------------------
 
-function vh_get_country_by_currency($currency)
+function vh_get_currency_by_currency($currency)
 {
     $currencies = vh_get_country_currencies();
 
@@ -42,7 +42,7 @@ function vh_search_currencies($array, $key_name, $value)
 
 //---------------------------------------------------
 
-function vh_get_country_list_select_options_on_currencies($show = 'country_name')
+function vh_get_currency_list_select_options_on_currencies($show = 'country_name')
 {
     $html = "";
     $list = vh_get_country_currencies();
