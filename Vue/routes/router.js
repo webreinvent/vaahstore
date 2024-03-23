@@ -3,6 +3,8 @@ import qs from 'qs';
 
 import routes from "./routes";
 import Default from "../layouts/Default.vue";
+import SettingsLayout from "../layouts/SettingLayout.vue";
+import settingRoutes from "../routes/vue-routes-settings"
 
 
 const router = createRouter({
@@ -13,6 +15,12 @@ const router = createRouter({
           component: Default,
           props: true,
           children: routes
+      },
+      {
+          path: '/settings',
+          component: SettingsLayout,
+          props: true,
+          children:settingRoutes
       }
   ],
     parseQuery(query) {
