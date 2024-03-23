@@ -1656,17 +1656,13 @@ class Product extends VaahModel
     {
         $preferred_product_vendors = ProductVendor::where('vh_st_product_id', $id)
             ->where('is_preferred', 1)
-            ->select('vh_st_vendor_id')
             ->pluck('vh_st_vendor_id')
             ->toArray();
-        $vendors = Vendor::where('is_default', 1)->get();
 
+        $vendors = Vendor::where('is_default', 1)->get();
 
         if (!empty($preferred_product_vendors)) {
             $vendors = Vendor::whereIn('id', $preferred_product_vendors)->get();
-
-            $preferred_vendors = Vendor::whereIn('id', $preferred_product_vendors)->get();
-            $vendors = $vendors->concat($preferred_vendors);
         }
 
         $vendor_ids_default = $vendors->pluck('id')->toArray();
@@ -1674,19 +1670,18 @@ class Product extends VaahModel
             ->whereIn('vh_st_vendor_id', $vendor_ids_default)
             ->get();
 
-        $vendor_prices = [];
-        foreach ($product_prices as $price) {
-            $vendor_prices[$price->vh_st_vendor_id][] = $price->amount;
-        }
+        $vendor_prices = $product_prices->groupBy('vh_st_vendor_id')->map->pluck('amount')->toArray();
 
-        foreach ($vendors as $vendor) {
+        $vendors->each(function ($vendor) use ($vendor_prices) {
             $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
-        }
+        });
 
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $vendors,
+        ];
     }
+
 
 
 
@@ -1699,68 +1694,58 @@ class Product extends VaahModel
         $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
 
         $vendors = Vendor::whereIn('id', $vendor_ids)->get();
-        $vendor_prices = [];
 
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
             ->whereIn('vh_st_vendor_id', $vendor_ids)
             ->get();
 
-        foreach ($product_prices as $price) {
-            $vendor_prices[$price->vh_st_vendor_id][] = $price;
-        }
+        $vendor_prices = $product_prices->groupBy('vh_st_vendor_id');
 
-        foreach ($vendors as $vendor) {
+        $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices) {
             $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
             $vendor->pivot_id = null;
             $vendor->is_preferred = null;
 
             $product_vendor = $product_vendors->where('vh_st_vendor_id', $vendor->id)->first();
+
             if ($product_vendor) {
                 $vendor->pivot_id = $product_vendor->id;
                 $vendor->is_preferred = $product_vendor->is_preferred;
             }
-        }
+        });
 
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $vendors,
+        ];
     }
 
 
     public static function vendorPreferredAction(Request $request, $id, $type): array
     {
+        $product_vendor = ProductVendor::find($id);
 
-
-        $productVendor = ProductVendor::find($id);
-
-        if (!$productVendor) {
+        if (!$product_vendor) {
             return [
                 'success' => false,
                 'message' => 'Product vendor not found.',
             ];
         }
 
-        $productId = $productVendor->vh_st_product_id;
+        $product_id = $product_vendor->vh_st_product_id;
 
-        $relatedProductVendorIds = ProductVendor::where('vh_st_product_id', $productId)
-            ->where('id', '!=', $id)
-            ->pluck('id')
-            ->toArray();
+        $is_preferred = ($type === 'preferred') ? 1 : null;
 
-        $isPreferred = ($type === 'preferred') ? 1 : null;
-        ProductVendor::where('id', $id)->update(['is_preferred' => $isPreferred]);
-        if (!empty($relatedProductVendorIds)) {
-            ProductVendor::whereIn('id', $relatedProductVendorIds)
-                ->update(['is_preferred' => null]);
-        }
+        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
+        ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
 
         return [
             'success' => true,
-            'data' => Product::find($productId),
+            'data' => Product::find($product_id),
             'message' => 'Success.',
         ];
-
     }
+
 
 
 
