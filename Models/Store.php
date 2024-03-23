@@ -1250,47 +1250,15 @@ class Store extends VaahModel
         $inputs['is_multi_currency'] = 0;
         $inputs['is_multi_lingual'] =  0;
 
-        $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
-        $selected_currencies = [];
-        $inputs['default_currency'] = null;
-
-        if (!empty($currency_list)) {
-            $random_currencies = array_rand($currency_list, min(3, count($currency_list)));
-
-            foreach ((array)$random_currencies as $index) {
-                if (isset($currency_list[$index])) {
-                    $selected_currencies[] = $currency_list[$index];
-                }
-            }
+        $currencies = vh_get_country_currencies();
+        $random_currencies = collect($currencies)->random(2);
+        if ($inputs['is_multi_currency'] == 1 && !$random_currencies->isEmpty()) {
+            $inputs['currencies'] = $random_currencies;
         }
-
-        if ($inputs['is_multi_currency'] == 1 && !empty($selected_currencies)) {
-            $inputs['default_currency'] = $selected_currencies[0];
-            $inputs['currencies'] = $selected_currencies;
-        } else {
-            $inputs['currencies'] = [];
-        }
-
-
-        $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
-        $selected_languages = [];
-        $inputs['default_language'] = null;
-
-        if (!empty($language_list)) {
-            $random_languages = array_rand($language_list, min(3, count($language_list)));
-
-            foreach ((array)$random_languages as $index) {
-                if (isset($language_list[$index])) {
-                    $selected_languages[] = $language_list[$index];
-                }
-            }
-        }
-
-        if ($inputs['is_multi_lingual'] == 1 && !empty($selected_languages)) {
-            $inputs['default_language'] = $selected_languages[0];
-            $inputs['languages'] = $selected_languages;
-        } else {
-            $inputs['languages'] = [];
+        $languages = vh_get_country_languages();
+        $random_languages = collect($languages)->random(2);
+        if ($inputs['is_multi_lingual'] == 1 && !$random_languages->isEmpty()) {
+            $inputs['languages'] = $random_languages;
         }
 
 
