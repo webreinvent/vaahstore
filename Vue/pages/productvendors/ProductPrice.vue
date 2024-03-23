@@ -4,18 +4,18 @@ import { useProductVendorStore } from '../../stores/store-productvendors'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {vaah} from "../../vaahvue/pinia/vaah";
 
 
 const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
-    if(route.params && route.params.id)
-    {
+    if (route.params?.id && store.product_variation_list.length <= 0) {
         await store.getItem(route.params.id);
+        await store.searchVariationOfProduct();
     }
 
-    await store.watchItem();
 });
 
 //--------form_menu
@@ -50,7 +50,6 @@ const toggleFormMenu = (event) => {
 
 
             </template>
-
             <template #icons>
 
 
