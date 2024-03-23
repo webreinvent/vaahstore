@@ -32,8 +32,8 @@ class StoresController extends Controller
             $data['fillable']['except'] = Store::getUnFillableColumns();
             $data['taxonomy']['store_status'] = Taxonomy::getTaxonomyByType('store-status');
 
-            $data['currencies'] = $this->getCurrencies();
-            $data['languages'] = $this->getLanguages();
+            $data['currencies'] = vh_get_country_currencies();
+            $data['languages'] = vh_get_country_languages();
             $data['empty_item'] = Store::getEmptyItem();
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];
@@ -104,40 +104,7 @@ class StoresController extends Controller
 
     //----------------------------------------------------------
 
-    public function getCurrencies()
-    {
-        if (method_exists('VaahCountry', 'getListWithCurrency')){
-            return VaahCountry::getListWithCurrency();
-        }else{
-            return array(
-                array("name" => "Australian Dollar", "code" => "AUD", "symbol" => "$"),
-                array("name" => "Barbadian Dollar", "code" => "BBD", "symbol" => "Bds$"),
-                array("name" => "Bitcoin", "code" => "BTC", "symbol" => "฿"),
-                array("name" => "Cambodian Riel", "code" => "KHR", "symbol" => "KHR"),
-                array("name" => "Danish Krone", "code" => "DKK", "symbol" => "Kr"),
-                array("name" => "Indian Rupee", "code" => "INR", "symbol" => "₹")
-            );
-        }
-    }
 
-    //----------------------------------------------------------
-
-    public function getLanguages()
-    {
-        if (method_exists('VaahCountry', 'getListWithLanguage')){
-            return VaahCountry::getListWithCurrency();
-        }else{
-            return array(
-                array("name" => "Acoli"),
-                array("name" => "Adangme"),
-                array("name" => "Adyghe"),
-                array("name" => "Bilin"),
-                array("name" => "Western Frisian"),
-                array("name" => "Gbaya"),
-                array("name" => "Haida"),
-            );
-        }
-    }
 
     //----------------------------------------------------------
 
