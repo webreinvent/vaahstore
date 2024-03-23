@@ -73,11 +73,15 @@ const useVaah = vaah()
                             severity="info"></Badge>
                  </template>
              </Column>
-             <Column field="price range" header="Price Range" >
+             <Column field="price range" header="Price Range">
                  <template #body="props">
-                     <span v-if="props.data.vendors_data && props.data.vendors_data.length > 0">
-                         {{ store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) }}
-                     </span>
+        <span>
+            {{
+                props.data.vendors_data && props.data.vendors_data.length > 0
+                ? store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) || 'Not available'
+                : 'Not available'
+            }}
+        </span>
                  </template>
              </Column>
 
