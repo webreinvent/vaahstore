@@ -22,6 +22,10 @@ export const useSettingStore = defineStore({
         is_btn_loading: false,
         crud_options: [
             {
+                label: 'All',
+                value: 'All'
+            },
+            {
                 label: 'Store',
                 value: 'Store'
             },
@@ -85,6 +89,7 @@ export const useSettingStore = defineStore({
                 label: 'Vendor Products',
                 value: 'VendorsProduct'
             },
+
 
         ],
         selected_crud:null,
