@@ -16,6 +16,7 @@ export const useSettingStore = defineStore({
         assets: null,
         list: null,
         quantity:null,
+        is_button_disabled:false,
 
         user_roles_menu: null,
         meta_content: null,
@@ -144,6 +145,8 @@ export const useSettingStore = defineStore({
         //--------------------------------------------------------------------
         async createBulkRecords( data) {
 
+            this.is_button_disabled = true;
+
 
             let query = {
                 params:{
@@ -176,6 +179,8 @@ export const useSettingStore = defineStore({
                 this.quantity = null;
                 this.selected_crud = null;
             }
+            this.is_button_disabled = false;
+
         },
         //---------------------------------------------------------------------
 

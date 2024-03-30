@@ -15,7 +15,8 @@
                   filter
         />
         <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter Quantity" class="mr-1" />
-        <Button label="Submit" @click="store.createBulkRecords()" />
+
+        <Button label="Submit" @click="store.createBulkRecords()" :disabled="store.is_button_disabled"   />
     </div>
 </template>
 
