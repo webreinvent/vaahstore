@@ -146,14 +146,14 @@ class SettingsController extends Controller
             if(empty($crud))
             {
                 $response['success'] = false;
-                $response['errors'][] = 'Select a crud first';
+                $response['errors'][] = trans("vaahcms-general.select_a_crud");
                 return $response;
 
             }
             if(empty($quantity))
             {
                 $response['success'] = false;
-                $response['errors'][] = 'Kindly fill a quantity';
+                $response['errors'][] = trans("vaahcms-general.fill_quantity");
                 return $response;
 
             }
@@ -179,7 +179,7 @@ class SettingsController extends Controller
                     if(!$customer_role)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a customer role first';
+                        $response['errors'][] = trans("vaahcms-general.create_customer_role");
                         return $response;
                     }
                     User::seedSampleItems($quantity);
@@ -189,7 +189,7 @@ class SettingsController extends Controller
                     if(!$user)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a customer first';
+                        $response['errors'][] = trans("vaahcms-general.create_customer");
                         return $response;
                     }
                     CustomerGroup::seedSampleItems($quantity);
@@ -198,7 +198,7 @@ class SettingsController extends Controller
                     $store = Store::all()->count();
                     if(!$store){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a store first';
+                        $response['errors'][] = trans("vaahcms-general.create_store");
                         return $response;
                     }
                     Vendor::seedSampleItems($quantity);
@@ -207,7 +207,7 @@ class SettingsController extends Controller
                     $store = Store::all()->count();
                     if(!$store){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a store first';
+                        $response['errors'][] = trans("vaahcms-general.create_store");
                         return $response;
                     }
                     Product::seedSampleItems($quantity);
@@ -216,7 +216,7 @@ class SettingsController extends Controller
                     $product = Product::all()->count();
                     if(!$product){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product first';
+                        $response['errors'][] = trans("vaahcms-general.create_product");
                         return $response;
                     }
                     ProductVariation::seedSampleItems($quantity);
@@ -225,7 +225,7 @@ class SettingsController extends Controller
                     $vendor = Vendor::all()->count();
                     if(!$vendor){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a vendor first';
+                        $response['errors'][] = trans("vaahcms-general.create_vendor");
                         return $response;
                     }
                     Warehouse::seedSampleItems($quantity);
@@ -235,7 +235,7 @@ class SettingsController extends Controller
                     if(!$attribute)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a attribute first';
+                        $response['errors'][] = trans("vaahcms-general.create_attribute");
                         return $response;
                     }
                     AttributeGroup::seedSampleItems($quantity);
@@ -244,14 +244,14 @@ class SettingsController extends Controller
                     $product_variation = ProductVariation::all()->count();
                     if(!$product_variation){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product variations first';
+                        $response['errors'][] = trans("vaahcms-general.create_variation");
                         return $response;
                     }
                     $attribute = Attribute::all()->count();
                     if(!$attribute)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a attribute first';
+                        $response['errors'][] = trans("vaahcms-general.create_attribute");
                         return $response;
                     }
                     ProductAttribute::seedSampleItems($quantity);
@@ -260,7 +260,7 @@ class SettingsController extends Controller
                     $product = Product::all()->count();
                     if(!$product){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product first';
+                        $response['errors'][] = trans("vaahcms-general.create_product");
                         return $response;
                     }
                     ProductMedia::seedSampleItems($quantity);
@@ -269,25 +269,25 @@ class SettingsController extends Controller
                     $vendor = Vendor::all()->count();
                     if(!$vendor){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a vendor first';
+                        $response['errors'][] = trans("vaahcms-general.create_vendor");
                         return $response;
                     }
                     $product = Product::all()->count();
                     if(!$product){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product first';
+                        $response['errors'][] = trans("vaahcms-general.create_product");
                         return $response;
                     }
                     $product_variation = ProductVariation::all()->count();
                     if(!$product_variation){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product variations first';
+                        $response['errors'][] = trans("vaahcms-general.create_variation");
                         return $response;
                     }
                     $warehouse = Warehouse::all()->count();
                     if(!$warehouse){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a warehouse first';
+                        $response['errors'][] = trans("vaahcms-general.create_warehouse");
                         return $response;
                     }
                     ProductStock::seedSampleItems($quantity);
@@ -296,19 +296,19 @@ class SettingsController extends Controller
                     $product = Product::all()->count();
                     if(!$product){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a product first';
+                        $response['errors'][] = trans("vaahcms-general.create_product");
                         return $response;
                     }
                     $store = Store::all()->count();
                     if(!$store){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a store first';
+                        $response['errors'][] = trans("vaahcms-general.create_store");
                         return $response;
                     }
                     $vendor = Vendor::all()->count();
                     if(!$vendor){
                         $response['success'] = false;
-                        $response['errors'][] = 'Create a vendor first';
+                        $response['errors'][] = trans("vaahcms-general.create_vendor");
                         return $response;
                     }
                     ProductVendor::seedSampleItems($quantity);
@@ -360,14 +360,14 @@ class SettingsController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'][] = $e->getTrace();
             } else {
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = 'Record has been Created';
+        $response['messages'][] = trans("vaahcms-general.record_created");
         return $response;
     }
 
