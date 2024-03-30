@@ -5,6 +5,21 @@ import {computed, ref, watch} from "vue";
 import VendorsList from './VendorsList.vue'
 const store = useProductStore();
 const useVaah = vaah()
+const show_preferred = ref(false);
+
+const filtered_vendors = computed(() => {
+    if (!store.item) return [];
+    if (show_preferred.value) {
+        return store.item.vendor_data.filter(vendor => vendor.is_preferred === 1);
+    } else {
+        return store.item.vendor_data;
+    }
+});
+watch(() => store.show_vendor_panel, (newValue) => {
+    if (!newValue) {
+        show_preferred.value = false;
+    }
+})
 
 </script>
 
