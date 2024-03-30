@@ -114,6 +114,18 @@ class Category extends VaahModel
     }
 
     //-------------------------------------------------
+    public function subCategories()
+    {
+        return $this->hasMany(Category::class, 'parent_category_id')->with(['subCategories']);
+    }
+
+    //-------------------------------------------------
+
+    public function parentCategory()
+    {
+        return $this->belongsTo(Category::class, 'parent_category_id', 'id');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -179,6 +191,7 @@ class Category extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
+        $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
         $response = self::getItem($item->id);

@@ -241,7 +241,7 @@ export const useCategoryStore = defineStore({
         {
             const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
             if (checkedItem) {
-                this.item.parent_id = checkedItem[0];
+                this.item.parent_category_id = checkedItem[0];
             }
         },
         //---------------------------------------------------------------------

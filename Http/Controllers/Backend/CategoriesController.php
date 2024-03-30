@@ -32,6 +32,9 @@ class CategoriesController extends Controller
             $data['empty_item'] = Category::getEmptyItem();
 
             $data['actions'] = [];
+            $data['category'] = Category::with('subCategories')
+                ->where('parent_category_id',null)
+                ->get();
 
             $response['success'] = true;
             $response['data'] = $data;
