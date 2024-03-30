@@ -16,11 +16,16 @@ export const useSettingStore = defineStore({
         assets: null,
         list: null,
         quantity:null,
+        is_button_disabled:false,
 
         user_roles_menu: null,
         meta_content: null,
         is_btn_loading: false,
         crud_options: [
+            {
+                label: 'All',
+                value: 'All'
+            },
             {
                 label: 'Store',
                 value: 'Store'
@@ -86,6 +91,7 @@ export const useSettingStore = defineStore({
                 value: 'VendorsProduct'
             },
 
+
         ],
         selected_crud:null,
     }),
@@ -139,6 +145,8 @@ export const useSettingStore = defineStore({
         //--------------------------------------------------------------------
         async createBulkRecords( data) {
 
+            this.is_button_disabled = true;
+
 
             let query = {
                 params:{
@@ -166,8 +174,13 @@ export const useSettingStore = defineStore({
 
         async createBulkRecordsAfter (data, res) {
 
-            this.quantity = null;
-            this.selected_crud = null;
+            if(res.data.success === true)
+            {
+                this.quantity = null;
+                this.selected_crud = null;
+            }
+            this.is_button_disabled = false;
+
         },
         //---------------------------------------------------------------------
 
