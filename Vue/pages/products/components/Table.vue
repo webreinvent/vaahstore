@@ -1,8 +1,24 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
+import {computed, ref, watch} from "vue";
 const store = useProductStore();
 const useVaah = vaah()
+const show_preferred = ref(false);
+
+const filtered_vendors = computed(() => {
+    if (!store.item) return [];
+    if (show_preferred.value) {
+        return store.item.vendor_data.filter(vendor => vendor.is_preferred === 1);
+    } else {
+        return store.item.vendor_data;
+    }
+});
+watch(() => store.show_vendor_panel, (newValue) => {
+    if (!newValue) {
+        show_preferred.value = false;
+    }
+})
 
 </script>
 
@@ -242,7 +258,15 @@ const useVaah = vaah()
         <template #header>
             <h2 style="font-weight: bold;" v-if="store.item" >{{store.product_name}}</h2>
         </template>
-        <DataTable v-if="store.item " :value="store.item.vendor_data" style="border: 1px solid #ccc;margin-top:20px;" class="p-datatable-sm p-datatable-hoverable-rows">
+        <div class="flex align-items-center">
+            <Checkbox v-model="show_preferred" :binary="true" />
+            <label for="preferred-filter" class="ml-2"> Only Preferred Vendor </label>
+        </div>
+
+        <DataTable v-if="store.item " :value="filtered_vendors" style="border: 1px solid #ccc;margin-top:20px;"
+                   :rows="10"
+        :paginator="true"
+                   class="p-datatable-sm p-datatable-hoverable-rows">
             <Column header="Sr No" style="border: 1px solid #ccc;">
                 <template #body="props">
                     {{ props.index + 1 }}
