@@ -120,6 +120,11 @@ const items = ref([
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
             },
+            {
+                label: 'Category',
+                icon: 'fa-regular fa-user',
+                route: "/categories"
+            },
         ]
     },
 ]);
