@@ -193,16 +193,55 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                if(!this.query.rows && data.rows)
+                if(data.rows)
                 {
                     this.query.rows = data.rows;
-                    this.empty_query.rows = data.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
                     this.item = vaah().clone(data.empty_item);
                 }
+                if(data.category)
+                {
+                    this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
 
+                }
+
+            }
+        },
+        //---------------------------------------------------------------------
+        convertToTreeselectFormat(data) {
+            let categories = [];
+
+            // Iterate through the categories data
+            data.forEach(category => {
+                let categoryItem = {
+                    key: category.id,
+                    label: category.name,
+                    data : category.name,
+                    children: []
+                };
+
+                // Check if the category has child categories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    // Recursively convert the child categories
+                    categoryItem.children = this.convertToTreeselectFormat(category.sub_categories);
+                }
+
+                // Add the category item to the categories array
+                categories.push(categoryItem);
+            });
+
+            return categories;
+        },
+
+        //---------------------------------------------------------------------
+
+        setParentId()
+        {
+            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+            if (checkedItem) {
+                this.item.parent_id = checkedItem[0];
             }
         },
         //---------------------------------------------------------------------
