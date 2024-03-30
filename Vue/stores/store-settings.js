@@ -171,8 +171,11 @@ export const useSettingStore = defineStore({
 
         async createBulkRecordsAfter (data, res) {
 
-            this.quantity = null;
-            this.selected_crud = null;
+            if(res.data.success === true)
+            {
+                this.quantity = null;
+                this.selected_crud = null;
+            }
         },
         //---------------------------------------------------------------------
 
