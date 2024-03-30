@@ -286,7 +286,8 @@ class Category extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::with('parentCategory');
+        $list ->getSorted($request->filter);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

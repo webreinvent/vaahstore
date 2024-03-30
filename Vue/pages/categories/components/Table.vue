@@ -41,6 +41,16 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column field="parent_category.name" header="Parent Category Type"
+                     :sortable="true">
+
+                 <span v-if="prop.data.parent_category && prop.data.parent_category.name">
+                     {{prop.data.parent_category.name}}
+
+                 </span>
+
+             </Column>
+
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
