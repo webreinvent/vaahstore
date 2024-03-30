@@ -65,7 +65,11 @@ export const useCategoryStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        filtered_categories : null,
+        categories_dropdown_data : null,
+        parent_category : [],
+
     }),
     getters: {
 
@@ -203,6 +207,7 @@ export const useCategoryStore = defineStore({
                 }
                 if(data.category)
                 {
+                    this.category_data=data.category;
                     this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
 
                 }
@@ -211,6 +216,9 @@ export const useCategoryStore = defineStore({
         },
         //---------------------------------------------------------------------
         convertToTreeselectFormat(data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
             let categories = [];
 
             // Iterate through the categories data
@@ -279,6 +287,7 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.parent_category=this.convertToTreeselectFormat(data.parent_category)
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }

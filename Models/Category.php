@@ -468,7 +468,7 @@ class Category extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','parentCategory.subCategories'])
             ->withTrashed()
             ->first();
 
