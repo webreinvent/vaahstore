@@ -19,6 +19,7 @@ import addresses from "./vue-routes-addresses";
 import customergroups from "./vue-routes-customergroups";
 import wishlists from "./vue-routes-wishlists";
 import productAttribute from "./vue-routes-productattributes";
+import categories from "./vue-routes-categories";
 import users from "./vue-routes-users";
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -40,5 +41,6 @@ routes = routes.concat(wishlists);
 routes = routes.concat(attributeGroups);
 routes = routes.concat(productAttribute);
 routes = routes.concat(users);
+routes = routes.concat(categories);
 
 export default routes;
