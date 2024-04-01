@@ -264,7 +264,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
         </div>
 
         <DataTable v-if="store.item " :value="filtered_vendors" style="border: 1px solid #ccc;margin-top:20px;"
-                   :rows="10"
+                   :rows="20"
         :paginator="true"
                    class="p-datatable-sm p-datatable-hoverable-rows">
             <Column header="Sr No" style="border: 1px solid #ccc;">
@@ -285,7 +285,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
 
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <Badge  v-if="props.data.is_default === 1 || props.data.is_preferred===1">
+                    <Badge severity="info"  >
                         {{ store.calculatePriceRange(props.data.variation_prices) }}
                     </Badge>
                 </template>

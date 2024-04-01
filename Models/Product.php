@@ -605,6 +605,35 @@ class Product extends VaahModel
         }
 
     }
+
+    public function scopePriceFilter($query, $filter)
+    {
+        $minPrice = $filter['min_price'] ?? null;
+        $maxPrice = $filter['max_price'] ?? null;
+
+        if ($minPrice !== null || $maxPrice !== null) {
+            $vendor_ids = ProductVendor::where('is_preferred', 1)
+                ->pluck('vh_st_vendor_id')
+                ->toArray();
+
+            $product_ids_query = ProductPrice::whereIn('vh_st_vendor_id', $vendor_ids);
+
+            if ($minPrice !== null) {
+                $product_ids_query->where('amount', '>=', $minPrice);
+            }
+
+            if ($maxPrice !== null) {
+                $product_ids_query->where('amount', '<=', $maxPrice);
+            }
+
+            $product_ids = $product_ids_query->pluck('vh_st_product_id')->toArray();
+
+            $query->whereIn('id', $product_ids);
+        }
+
+        return $query;
+    }
+
     //-------------------------------------------------
     public static function getList($request)
     {
@@ -621,6 +650,7 @@ class Product extends VaahModel
         $list->dateFilter($request->filter);
         $list->brandFilter($request->filter);
         $list->productTypeFilter($request->filter);
+        $list->priceFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
