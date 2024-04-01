@@ -207,19 +207,22 @@ const store = useProductStore();
 
                 <div class="card flex justify-content-center">
                     <div class="w-14rem">
-                        <div class="flex justify-content-between">
-                            <badge>{{ store.min_quantity | bold }}</badge>
-                            <badge>{{ store.max_quantity | bold }}</badge>
 
-                        </div>
+                        <InputNumber
+                            v-model="store.query.filter.min_quantity"
+                            data-testid="product-variation-filter-min_quantity"
+                            placeholder="Enter minimum quantity"
+                            @input="store.minQuantity($event)"
+                            class="w-14rem mt-2"
 
-                        <Slider v-model="store.quantity"
-                                range
-                                :min="store.assets.min_quantity"
-                                :max="store.assets.max_quantity"
-                                data-testid="product-variation-sliders"
-                                @change="store.quantityFilter()"
-                                class="w-14rem mt-2"
+                        />
+                        <InputNumber
+                            v-model="store.query.filter.max_quantity"
+                            data-testid="product-variation-filter-max_quantity"
+                            placeholder="Enter maximum quantity"
+                            @input="store.maxQuantity($event)"
+                            class="w-14rem mt-2"
+
                         />
                     </div>
                 </div>
