@@ -2179,6 +2179,16 @@ export const useProductStore = defineStore({
             this.$router.push(route);
         },
 
+
+        minQuantity(event){
+            this.query.filter.min_quantity = event.value
+
+        },
+
+        maxQuantity(event){
+            this.query.filter.max_quantity = event.value
+        },
+
         //---------------------------------------------------------------------
 
 
