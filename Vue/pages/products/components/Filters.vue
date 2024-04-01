@@ -2,35 +2,12 @@
 
 import { useProductStore } from '../../../stores/store-products'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-import {watchEffect} from "vue";
-import {useRouter} from "vue-router";
-const router=useRouter;
+
+
 const store = useProductStore();
 
 
-// Method to update price range in URL
-const updatePriceRangeInUrl = () => {
-    const minPrice = store.query.filter.min_price;
-    const maxPrice = store.query.filter.max_price;
 
-    const priceRange = [minPrice, maxPrice];
-
-    if (router.currentRoute) {
-        router.push({
-            query: {
-                ...router.currentRoute.value.query,
-                'filter[min_price]': priceRange[0],
-                'filter[max_price]': priceRange[1]
-            }
-        });
-    }
-};
-
-watchEffect(() => {
-    if (store.query.filter.min_price !== null && store.query.filter.max_price !== null) {
-        updatePriceRangeInUrl();
-    }
-});
 
 </script>
 
@@ -45,8 +22,8 @@ watchEffect(() => {
                     <b>Price Range:</b>
                 </template>
                 <div>
-                    <InputNumber v-model="store.query.filter.min_price" placeholder="Min Price" inputId="integeronly" />
-                    <InputNumber v-model="store.query.filter.max_price" placeholder="Max Price" inputId="integeronly" />
+                    <InputNumber v-model="store.query.filter.min_price" placeholder="Minimum Price" class="w-full" @input="store.minPrice($event)" inputId="integeronly" />
+                    <InputNumber v-model="store.query.filter.max_price" placeholder="Maximum Price" class="w-full" @input="store.maxPrice($event)" inputId="integeronly" />
                 </div>
             </VhFieldVertical>
 
