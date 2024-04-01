@@ -613,10 +613,10 @@ class Product extends VaahModel
 
         if ($minPrice !== null || $maxPrice !== null) {
             $vendor_ids = ProductVendor::where('is_preferred', 1)
-                ->pluck('vh_st_vendor_id')
+                ->pluck('id')
                 ->toArray();
 
-            $product_ids_query = ProductPrice::whereIn('vh_st_vendor_id', $vendor_ids);
+            $product_ids_query = ProductPrice::whereIn('vh_st_vendor_product_id', $vendor_ids);
 
             if ($minPrice !== null) {
                 $product_ids_query->where('amount', '>=', $minPrice);
