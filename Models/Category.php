@@ -283,6 +283,28 @@ class Category extends VaahModel
         }
 
     }
+    public function scopeCategoryFilter($query, $filter)
+    {
+        if (isset($filter['parent_category']) && is_array($filter['parent_category'])) {
+            $category_ids = [];
+
+            foreach ($filter['parent_category'] as $category_id => $item) {
+                if (isset($item['checked']) && $item['checked'] === "true") {
+                    $category_ids[] = $category_id;
+                }
+            }
+//dd($category_ids);
+            if (!empty($category_ids)) {
+//                $query->whereIn('parent_category_id', $category_ids);
+                $query->whereIn('parent_category_id', $category_ids)
+                    ->orWhereIn('id', $category_ids);
+            }
+        }
+
+        return $query;
+    }
+
+
     //-------------------------------------------------
     public static function getList($request)
     {
@@ -291,6 +313,7 @@ class Category extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->categoryFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 

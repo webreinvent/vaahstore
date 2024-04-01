@@ -2,9 +2,23 @@
 
 import { useCategoryStore } from '../../../stores/store-categories'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
 const store = useCategoryStore();
+const route = useRoute();
+const router = useRouter();
+const selectedCategory = ref('');
 
+const categoryFromUrl = route.query.category;
+
+selectedCategory.value = categoryFromUrl || '';
+
+const updateCategoryInUrl = () => {
+    const queryParams = { ...route.query };
+    queryParams.category = selectedCategory.value;
+    router.push({ query: queryParams });
+};
 </script>
 
 <template>
@@ -36,6 +50,31 @@ const store = useCategoryStore();
                     </div>
 
                 </template>
+
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Category By:</b>
+                    </template>{{selectedCategory}}
+<!--                    <TreeSelect-->
+<!--                        v-model="store.query.filter.parent_category"-->
+<!--                        :options="store.categories_dropdown_data"-->
+<!--                        selectionMode="checkbox"-->
+<!--                        placeholder="Select Category"-->
+<!--                        :show-count="true"-->
+<!--                        data-testid="categories-parent_category"-->
+<!--                        @change="store.setParentId()"-->
+<!--                        class=" w-full" />-->
+
+                    <TreeSelect
+                        v-model="store.query.filter.parent_category"
+                        :options="store.categories_dropdown_data"
+                        selectionMode="checkbox"
+                        placeholder="Select Category"
+                        :show-count="true"
+                        data-testid="categories-parent_category"
+                        @change="store.setParentId()"
+                        class=" w-full" />
+                </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>

@@ -41,7 +41,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column field="parent_category.name" header="Parent Category Type"
+             <Column field="parent_category.name" header="Parent Category"
                      :sortable="true">
 
                  <span v-if="prop.data.parent_category && prop.data.parent_category.name">
