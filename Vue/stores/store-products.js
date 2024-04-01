@@ -2389,6 +2389,13 @@ export const useProductStore = defineStore({
             }
 
         },
+        minPrice(event){
+          this.query.filter.min_price=event.value;
+        },
+        maxPrice(event){
+            this.query.filter.max_price=event.value;
+
+        }
 
 
     }
