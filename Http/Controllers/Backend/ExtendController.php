@@ -46,11 +46,6 @@ class ExtendController extends Controller
             'icon'=> 'table',
             'label'=> 'Store'
         ];
-        $links[1] = [
-            'link' => route('vh.backend.store').'#/settings/general',
-            'icon'=> 'table',
-            'label'=> 'Store Settings'
-        ];
 
         $response['status'] = 'success';
         $response['data'] = $links;

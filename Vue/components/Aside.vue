@@ -120,6 +120,12 @@ const items = ref([
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
             },
+
+            {
+                label: 'Store settings',
+                icon: 'pi pi-spin pi-cog',
+                route: "/settings/general"
+            },
         ]
     },
 ]);
