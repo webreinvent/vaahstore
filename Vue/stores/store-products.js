@@ -26,6 +26,8 @@ let empty_states = {
             product_types : null,
             quantity : null,
             status:null,
+            min_quantity:null,
+            max_quantity:null
         },
     },
     action: {
@@ -2177,27 +2179,21 @@ export const useProductStore = defineStore({
             this.$router.push(route);
         },
 
-        //---------------------------------------------------------------------
 
-        quantityFilter(event){
-
-            this.min_quantity = this.quantity [0];
-            this.max_quantity = this.quantity [1];
-
-            if(!this.quantity){
-                return false;
-            }
-            for (const quantity of this.quantity) {
-                if(!quantity){
-                    continue ;
-                }
-                if(this.quantity[0] != null && this.quantity[1] !=null)
-                {
-                    this.query.filter.quantity = this.quantity;
-                }
-            }
+        minQuantity(event){
+            this.query.filter.min_quantity = event.value
 
         },
+
+        maxQuantity(event){
+            this.query.filter.max_quantity = event.value
+        },
+
+        //---------------------------------------------------------------------
+
+
+
+
 
         //---------------------------------------------------------------------
         updateMinQuantity(event)
