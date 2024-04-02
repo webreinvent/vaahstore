@@ -287,43 +287,41 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.item = data;
-                // this.test=this.convertToTreeselectFormat(data.parent_category)
-                // this.item.parent_category=this.test[0];
-                const categoriesData = {}; // Define categoriesData here
-                this.convertCategoryToTreeselectData(data.parent_category, categoriesData);
-                this.item.parent_category = categoriesData;
+                const categories_data = {};
+                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
+                this.item.parent_category = categories_data;
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        convertCategoryToTreeselectData(category, categoriesData) {
+        convertCategoryToTreeselectData(category, categories_data) {
             if (category) {
-                const categoryId = category.id.toString();
-                let partialChecked = false;
-                let checked = false;
+                const category_id = category.id.toString();
+                let partial_checked = true;
+                let checked = true;
 
                 // Check if the category has subcategories
                 if (category.sub_categories && category.sub_categories.length > 0) {
                     category.sub_categories.forEach(subCategory => {
-                        this.convertCategoryToTreeselectData(subCategory, categoriesData);
-                        if (categoriesData[subCategory.id]) {
-                            if (categoriesData[subCategory.id].checked || categoriesData[subCategory.id].partialChecked) {
+                        this.convertCategoryToTreeselectData(subCategory, categories_data);
+                        if (categories_data[subCategory.id]) {
+                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
                                 checked = true;
                             }
-                            if (categoriesData[subCategory.id].partialChecked) {
-                                partialChecked = true;
+                            if (categories_data[subCategory.id].partial_checked) {
+                                partial_checked = true;
                             }
                         }
                     });
                 } else {
-                    partialChecked = true;
+                    partial_checked = true;
                 }
 
-                categoriesData[categoryId] = {
+                categories_data[category_id] = {
                     checked: checked,
-                    partialChecked: partialChecked
+                    partialChecked: partial_checked
                 };
             }
         },
