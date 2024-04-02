@@ -121,8 +121,8 @@ const items = ref([
                 route: "/customergroups"
             },
             {
-                label: 'Category',
-                icon: 'fa-regular fa-user',
+                label: 'Categories',
+                icon: 'fa-solid fa-list',
                 route: "/categories"
             },
         ]

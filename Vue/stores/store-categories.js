@@ -498,11 +498,16 @@ export const useCategoryStore = defineStore({
         {
             if(data)
             {
+                await this.updatedCategory();
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
             }
+        },
+        async updatedCategory(){
+            this.assets_is_fetching=true;
+            await this.getAssets();
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
