@@ -122,6 +122,7 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        add_to_cart:false,
 
     }),
     getters: {
@@ -2275,6 +2276,9 @@ export const useProductStore = defineStore({
             )
 
         },
+        addToCart(item){
+            this.add_to_cart=true;
+        }
 
 
     }

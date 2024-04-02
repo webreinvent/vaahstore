@@ -166,6 +166,12 @@ const useVaah = vaah()
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-view"
+                                v-tooltip.top="'View'"
+                                @click="store.addToCart(prop.data)"
+                                icon="pi pi-shopping-cart" />
+
+                        <Button class="p-button-tiny p-button-text"
+                                data-testid="products-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
@@ -223,5 +229,20 @@ const useVaah = vaah()
         <!--/paginator-->
 
     </div>
+
+    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">Username</label>
+            <InputText id="username" class="flex-auto" autocomplete="off" />
+        </div>
+        <div class="flex align-items-center gap-3 mb-5">
+            <label for="email" class="font-semibold w-6rem">Email</label>
+            <InputText id="email" class="flex-auto" autocomplete="off" />
+        </div>
+        <div class="flex justify-content-end gap-2">
+            <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+            <Button type="button" label="Save" @click="visible = false"></Button>
+        </div>
+    </Dialog>
 
 </template>
