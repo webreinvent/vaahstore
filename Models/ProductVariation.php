@@ -1274,6 +1274,7 @@ class ProductVariation extends VaahModel
                     $message .= '<tr>';
                     $message .= '<td>' . $product_name . '</td>';
                     $message .= '<td>' . $variation_name . '</td>';
+                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[in_stock][]='.true.'">View</a></td>';
                     $message .= '</tr>';
                 }
 
