@@ -1233,77 +1233,44 @@ class ProductVariation extends VaahModel
     public static function sendMailForStock()
     {
         try {
-            $list_data = ProductVariation::with('product')->get();
+            $list_data = ProductVariation::with('product')
+                ->whereNotNull('low_stock_at')
+                ->orderBy('low_stock_at', 'desc')
+                ->get();
 
             $filtered_data = $list_data->filter(function ($item) {
-                return $item->quantity >= 0 && $item->quantity < 10;
+                return $item->low_stock_at;
             });
+
             $mailers = config('mail.mailers.smtp', []);
             if (empty($mailers['host']) || empty($mailers['port'])|| empty($mailers['username'])|| empty($mailers['password'])) {
                 $response['success'] = false;
                 $response['errors'][] = 'mail configuration not set.';
                 return $response;
             }
-            foreach ($list_data as $item) {
-                if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
-                    $item->is_mail_sent = 0;
-                    $item->save();
-                }
-            }
-
-            $product_variation_count = $filtered_data->groupBy('vh_st_product_id')->map(function ($variations) {
-                $min_quantity = $variations->min('quantity');
-                $max_quantity = $variations->max('quantity');
-
-                // If min_quantity is same as max_quantity, set min_quantity to 0
-                if ($min_quantity === $max_quantity) {
-                    $min_quantity = 0;
-                }
-
-                return [
-                    'count' => $variations->count(),
-                    'min_quantity' => $min_quantity,
-                    'max_quantity' => $max_quantity
-                ];
-            });
 
             $subject = 'Low Stock Alert';
             $message = '<html><body>';
             $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
             $message .= '<table border="1">';
-            $message .= '<tr><th>Product Name</th><th>Low Quantity Variations Count</th><th>Quantity Range Between </th><th>Link</th></tr>';
+            $message .= '<tr><th>Product Name</th><th>Variation Name</th></tr>';
 
-            $processed_products = []; // Track processed products
-
-            foreach ($filtered_data as $item) {
+            foreach ($filtered_data->take(10) as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
-                $product_slug = isset($item->product) ? $item->product->slug : '';
-                $product_id = $item->vh_st_product_id;
+                $variation_name = $item->name ?? '';
 
-                if (!in_array($product_name, $processed_products)) {
-                    $processed_products[] = $product_name;
 
                     $message .= '<tr>';
                     $message .= '<td>' . $product_name . '</td>';
-                    $message .= '<td>' . $product_variation_count[$product_id]['count'] . '</td>';
-                    $message .= '<td>' . $product_variation_count[$product_id]['min_quantity'] . ' to ' . $product_variation_count[$product_id]['max_quantity'] . '</td>';
-                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[products][]=' . $product_slug. '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
+                    $message .= '<td>' . $variation_name . '</td>';
+                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[in_stock][]='.true.'">View</a></td>';
                     $message .= '</tr>';
                 }
-            }
+
 
             $message .= '</table>';
             if ($filtered_data->isNotEmpty()) {
-                // Send mail
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
-
-                // Update is_mail_sent flag
-                foreach ($filtered_data as $item) {
-                    if ($item->is_mail_sent === null || $item->is_mail_sent === 0) {
-                        $item->is_mail_sent = 1;
-                        $item->save();
-                    }
-                }
             }
 
             $response['success'] = true;
