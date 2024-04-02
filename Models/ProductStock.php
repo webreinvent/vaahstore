@@ -659,9 +659,6 @@ class ProductStock extends VaahModel
         $difference_in_quantity = $inputs['quantity'] - $item->quantity;
         // calculate difference between new and old quantity
         $item->fill($inputs);
-
-
-
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -670,6 +667,15 @@ class ProductStock extends VaahModel
             ->withTrashed()->first();
 
         $product_variation->quantity += $difference_in_quantity;
+
+        if ($product_variation->quantity < 10) {
+            $product_variation->is_quantity_low = 1;
+            $product_variation->low_stock_at = now('Asia/Kolkata');
+        } else {
+            $product_variation->is_quantity_low = 0;
+            $product_variation->low_stock_at = null;
+        }
+
         $product_variation->save();
 
         //update the quantity of products
@@ -677,7 +683,6 @@ class ProductStock extends VaahModel
 
         $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
-
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
