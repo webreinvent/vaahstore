@@ -52,6 +52,7 @@ class Product extends VaahModel
         'taxonomy_id_product_status', 'status_notes', 'meta',
         'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
+        'category_id',
         'updated_by',
         'deleted_by',
         'is_featured_on_home_page',
@@ -119,7 +120,17 @@ class Product extends VaahModel
             'created_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
+    public function subCategories()
+    {
+        return $this->hasMany(Category::class, 'category_id')->with(['subCategories']);
+    }
 
+    //-------------------------------------------------
+
+    public function parentCategory()
+    {
+        return $this->belongsTo(Category::class, 'category_id','id', );
+    }
     //-------------------------------------------------
     public function updatedByUser()
     {
@@ -608,7 +619,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','parentCategory');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -849,7 +860,7 @@ class Product extends VaahModel
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status',
+                'brand','store','type','status','parentCategory.subCategories'
             ])
             ->withTrashed()
             ->first();

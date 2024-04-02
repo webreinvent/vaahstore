@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
@@ -55,7 +56,9 @@ class ProductsController extends Controller
 
             // set default values of Store if it is not null
 
-
+            $data['category'] = Category::with('subCategories')
+                ->where('parent_category_id',null)
+                ->get();
 
             // get min and max quantity from the product filter
             $product = Product::withTrashed()->get();

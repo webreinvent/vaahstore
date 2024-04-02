@@ -834,6 +834,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
                     this.min_quantity=this.route.query.filter.quantity[0];
@@ -849,6 +850,40 @@ export const useProductStore = defineStore({
                 }
 
 
+            }
+        },
+        convertToTreeselectFormat(data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            let categories = [];
+
+            // Iterate through the categories data
+            data.forEach(category => {
+                let categoryItem = {
+                    key: category.id,
+                    label: category.name,
+                    data : category.name,
+                    children: []
+                };
+
+                // Check if the category has child categories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    // Recursively convert the child categories
+                    categoryItem.children = this.convertToTreeselectFormat(category.sub_categories);
+                }
+
+                // Add the category item to the categories array
+                categories.push(categoryItem);
+            });
+
+            return categories;
+        },
+        setParentId()
+        {
+            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+            if (checkedItem) {
+                this.item.category_id = checkedItem[0];
             }
         },
         //---------------------------------------------------------------------
@@ -888,11 +923,43 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
+                const categories_data = {};
+                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
+                this.item.parent_category = categories_data;
             }else{
                 this.$router.push({name: 'products.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
+        },
+        convertCategoryToTreeselectData(category, categories_data) {
+            if (category) {
+                const category_id = category.id.toString();
+                let partial_checked = true;
+                let checked = true;
+
+                // Check if the category has subcategories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    category.sub_categories.forEach(subCategory => {
+                        this.convertCategoryToTreeselectData(subCategory, categories_data);
+                        if (categories_data[subCategory.id]) {
+                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
+                                checked = true;
+                            }
+                            if (categories_data[subCategory.id].partial_checked) {
+                                partial_checked = true;
+                            }
+                        }
+                    });
+                } else {
+                    partial_checked = true;
+                }
+
+                categories_data[category_id] = {
+                    checked: checked,
+                    partialChecked: partial_checked
+                };
+            }
         },
         //---------------------------------------------------------------------
         isListActionValid()

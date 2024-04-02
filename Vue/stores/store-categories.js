@@ -287,12 +287,43 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.parent_category=this.convertToTreeselectFormat(data.parent_category)
+                const categories_data = {};
+                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
+                this.item.parent_category = categories_data;
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
+        },
+        convertCategoryToTreeselectData(category, categories_data) {
+            if (category) {
+                const category_id = category.id.toString();
+                let partial_checked = true;
+                let checked = true;
+
+                // Check if the category has subcategories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    category.sub_categories.forEach(subCategory => {
+                        this.convertCategoryToTreeselectData(subCategory, categories_data);
+                        if (categories_data[subCategory.id]) {
+                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
+                                checked = true;
+                            }
+                            if (categories_data[subCategory.id].partial_checked) {
+                                partial_checked = true;
+                            }
+                        }
+                    });
+                } else {
+                    partial_checked = true;
+                }
+
+                categories_data[category_id] = {
+                    checked: checked,
+                    partialChecked: partial_checked
+                };
+            }
         },
         //---------------------------------------------------------------------
         isListActionValid()
@@ -467,11 +498,16 @@ export const useCategoryStore = defineStore({
         {
             if(data)
             {
+                await this.updatedCategory();
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
             }
+        },
+        async updatedCategory(){
+            this.assets_is_fetching=true;
+            await this.getAssets();
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
