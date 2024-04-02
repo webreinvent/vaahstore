@@ -9,8 +9,16 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list" class="p-4 bg-white">
+    <div v-if="store.list" class="bg-white">
         <div class="cart_detail">
+                <div class="flex flex-row">
+                    <div >
+                        <b class="mr-1">UUID-Carts 1-Rahul</b>
+                    </div>
+
+                </div>
+
+
         <!--table-->
         <DataTable :value="store.list.data"
                    dataKey="id"
