@@ -9,7 +9,7 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store.list" class="p-4 bg-white">
         <div class="cart_detail">
         <!--table-->
         <DataTable :value="store.list.data"
@@ -69,6 +69,10 @@ const useVaah = vaah();
 
                 <template #body="prop">
                     {{'40000'}}
+                    <Button class="p-button-tiny p-button-danger p-button-text"
+                            data-testid="orders-table-action-trash"
+                            v-tooltip.top="'Remove'"
+                            icon="pi pi-trash" />
                 </template>
 
             </Column>
