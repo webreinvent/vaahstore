@@ -287,12 +287,45 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.parent_category=this.convertToTreeselectFormat(data.parent_category)
+                // this.test=this.convertToTreeselectFormat(data.parent_category)
+                // this.item.parent_category=this.test[0];
+                const categoriesData = {}; // Define categoriesData here
+                this.convertCategoryToTreeselectData(data.parent_category, categoriesData);
+                this.item.parent_category = categoriesData;
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
+        },
+        convertCategoryToTreeselectData(category, categoriesData) {
+            if (category) {
+                const categoryId = category.id.toString();
+                let partialChecked = false;
+                let checked = false;
+
+                // Check if the category has subcategories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    category.sub_categories.forEach(subCategory => {
+                        this.convertCategoryToTreeselectData(subCategory, categoriesData);
+                        if (categoriesData[subCategory.id]) {
+                            if (categoriesData[subCategory.id].checked || categoriesData[subCategory.id].partialChecked) {
+                                checked = true;
+                            }
+                            if (categoriesData[subCategory.id].partialChecked) {
+                                partialChecked = true;
+                            }
+                        }
+                    });
+                } else {
+                    partialChecked = true;
+                }
+
+                categoriesData[categoryId] = {
+                    checked: checked,
+                    partialChecked: partialChecked
+                };
+            }
         },
         //---------------------------------------------------------------------
         isListActionValid()
