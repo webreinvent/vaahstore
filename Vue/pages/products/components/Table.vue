@@ -231,17 +231,19 @@ const useVaah = vaah()
     </div>
 
     <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
-        <div class="flex align-items-center gap-3 mb-3">
-            <label for="username" class="font-semibold w-6rem">Username</label>
-            <InputText id="username" class="flex-auto" autocomplete="off" />
+        <div class="p-inputgroup ">
+            <InputText id="create_cart" class="flex-auto" autocomplete="off" />
+            <Button type="button" label="Create New Cart" @click="store.add_to_cart = false"></Button>
         </div>
-        <div class="flex align-items-center gap-3 mb-5">
-            <label for="email" class="font-semibold w-6rem">Email</label>
-            <InputText id="email" class="flex-auto" autocomplete="off" />
+
+        <div class="p-inputgroup pt-4">
+            <InputText id="create_cart" class="flex-auto" autocomplete="off" />
+            <Button type="button" label="Search" @click="store.add_to_cart = false"></Button>
         </div>
-        <div class="flex justify-content-end gap-2">
-            <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-            <Button type="button" label="Save" @click="visible = false"></Button>
+
+        <div class="flex justify-content-end gap-2 mt-3">
+            <Button type="button" label="Cancel" severity="secondary" @click="store.add_to_cart = false"></Button>
+            <Button type="button" label="Add" @click="store.add_to_cart = false"></Button>
         </div>
     </Dialog>
 
