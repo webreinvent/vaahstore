@@ -125,6 +125,15 @@ const useVaah = vaah()
 
 
              </Column>
+             <Column field="parent_category.name" header=" Category"
+                     :sortable="true">
+
+                 <span v-if="prop.data.parent_category && prop.data.parent_category.name">
+                     {{prop.data.parent_category.name}}
+
+                 </span>
+
+             </Column>
 
              <Column field="status.name" header="Status"
                      :sortable="true">
