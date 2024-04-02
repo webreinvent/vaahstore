@@ -834,6 +834,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
                     this.min_quantity=this.route.query.filter.quantity[0];
@@ -849,6 +850,40 @@ export const useProductStore = defineStore({
                 }
 
 
+            }
+        },
+        convertToTreeselectFormat(data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            let categories = [];
+
+            // Iterate through the categories data
+            data.forEach(category => {
+                let categoryItem = {
+                    key: category.id,
+                    label: category.name,
+                    data : category.name,
+                    children: []
+                };
+
+                // Check if the category has child categories
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    // Recursively convert the child categories
+                    categoryItem.children = this.convertToTreeselectFormat(category.sub_categories);
+                }
+
+                // Add the category item to the categories array
+                categories.push(categoryItem);
+            });
+
+            return categories;
+        },
+        setParentId()
+        {
+            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+            if (checkedItem) {
+                this.item.category_id = checkedItem[0];
             }
         },
         //---------------------------------------------------------------------

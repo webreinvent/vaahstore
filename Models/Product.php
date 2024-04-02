@@ -52,6 +52,7 @@ class Product extends VaahModel
         'taxonomy_id_product_status', 'status_notes', 'meta',
         'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
+        'category_id',
         'updated_by',
         'deleted_by',
         'is_featured_on_home_page',

@@ -128,7 +128,18 @@ const toggleFormMenu = (event) => {
                     </div>
 
                 </Message>
+                <VhField label="Parent Category">{{store.item.parent_category}}
+                    <TreeSelect
+                        v-model="store.item.parent_category"
+                        :options="store.categories_dropdown_data"
+                        selectionMode="checkbox"
+                        placeholder="Select Category"
+                        :show-count="true"
+                        data-testid="categories-parent_category"
+                        @change="store.setParentId()"
+                        class=" w-full" />
 
+                </VhField>
 
                 <VhField label="Name*">
                     <InputText class="w-full"
