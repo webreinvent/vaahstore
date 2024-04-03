@@ -131,6 +131,11 @@ class Product extends VaahModel
     {
         return $this->belongsTo(Category::class, 'category_id','id', );
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'category_id');
+    }
     //-------------------------------------------------
     public function updatedByUser()
     {
@@ -475,16 +480,14 @@ class Product extends VaahModel
         }
         $query->whereBetween('updated_at', [$from, $to]);
     }
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'category_id');
-    }
+
 
     //-------------------------------------------------
     public static function createItem($request)
     {
 
         $inputs = $request->all();
+//        dd($inputs['parent_category']);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -528,11 +531,21 @@ class Product extends VaahModel
 
         $item->save();
 
+//        if (isset($inputs['parent_category'])) {
+//            $categoryIds = array_keys($inputs['parent_category']);
+//            $item->categories()->attach($categoryIds, ['vh_st_product_id' => $item->id]);
+//
+//        }
         if (isset($inputs['parent_category'])) {
-            $categoryIds = array_keys($inputs['parent_category']);
-            $item->categories()->attach($categoryIds, ['vh_st_product_id' => $item->id]);
+            // Filter the array to only include keys where the 'checked' value is true
+            $selectedCategoryIds = array_keys(array_filter($inputs['parent_category'], function($value) {
+                return $value['checked'] === true;
+            }));
 
+            // Attach the selected category IDs to the product
+            $item->categories()->attach($selectedCategoryIds, ['vh_st_product_id' => $item->id]);
         }
+
 
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
@@ -648,7 +661,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','parentCategory');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

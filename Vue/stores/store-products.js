@@ -887,6 +887,7 @@ export const useProductStore = defineStore({
         //         this.item.category_id = checkedItem[0];
         //     }
         // },
+
         setParentId() {
             const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
 
@@ -906,6 +907,18 @@ export const useProductStore = defineStore({
                 this.item.category_id = null;
             }
         },
+
+        // setParentId() {
+        //     const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+        //
+        //     if (selectedParent) {
+        //         const parentId = selectedParent[0]; // Extract the id of the selected parent
+        //         this.item.category_id = parentId;
+        //     } else {
+        //         this.item.category_id = null;
+        //     }
+        // },
+
 
         //---------------------------------------------------------------------
         async getList() {
