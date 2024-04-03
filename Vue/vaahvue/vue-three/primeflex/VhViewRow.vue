@@ -211,8 +211,12 @@ const props = defineProps({
 
         <template v-else-if="type==='quantity'">
             <td colspan="2">
-                <Badge value="Yes" v-if="store.item.quantity > 0" severity="success">In Stock</Badge>
-                <Badge v-else value="No" severity="danger">Out Of Stock</Badge>
+                <Badge v-if="store.item.quantity === 0"
+                       severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
+                <Badge v-else-if="store.item.quantity > 0 && store.item.quantity < 10"
+                       severity="warning">Low Stock</Badge>
+                <Badge v-else-if="store.item.quantity >= 10"
+                       severity="success">In Stock</Badge>
             </td>
         </template>
         <template v-else-if="type==='description'">
