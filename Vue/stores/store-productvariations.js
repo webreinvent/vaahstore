@@ -20,11 +20,13 @@ let empty_states = {
             trashed: null,
             sort: null,
             date: null,
-            in_stock: null,
             default: null,
             product:null,
             quantity:null,
             product_variation_status:null,
+            stock_status:null,
+            min_quantity:null,
+            max_quantity:null
         },
     },
     action: {
@@ -93,14 +95,32 @@ export const useProductVariationStore = defineStore({
         products:null,
         fetched_product_id: null,
         default_variation_message:null,
+        stock_options :[
+
+            {
+                label: 'In Stock',
+                value: 'in_stock'
+            },
+            {
+                label: 'Out of Stock',
+                value: 'out_of_stock'
+            },
+            {
+                label: 'low Stock',
+                value: 'low_stock'
+            },
+        ]
+
+
+
     }),
     getters: {
 
     },
     actions: {
         async fetchDataBasedOnProductId(selected_product_id) {
-this.fetched_product_id=selected_product_id;
-            if (selected_product_id && selected_product_id.id) {
+                this.fetched_product_id=selected_product_id;
+                if (selected_product_id && selected_product_id.id) {
                 this.item.product=this.fetched_product_id;
                 this.item.vh_st_product_id = selected_product_id.id;
 
@@ -763,10 +783,6 @@ this.fetched_product_id=selected_product_id;
 
             this.quantity =[];
 
-            this.min_quantity = this.assets.min_max_quantity.min_quantity;
-
-            this.max_quantity = this.assets.min_max_quantity.max_quantity;
-
 
             vaah().toastSuccess(['Action was successful']);
             await this.getList();
@@ -1207,47 +1223,21 @@ this.fetched_product_id=selected_product_id;
 
         //---------------------------------------------------------------------
 
-        quantityFilter(event){
+        quantityFilterMin(event){
 
-            this.min_quantity = this.quantity [0];
+            this.query.filter.min_quantity = event.value;
 
-            this.max_quantity = this.quantity [1];
+            },
 
-            if(!this.quantity){
-                return false;
-            }
-            for (const quantity of this.quantity) {
-                if(!quantity){
-                    continue ;
-                }
-                if(this.quantity[0] != null && this.quantity[1] !=null)
-                {
-                    this.query.filter.quantity = this.quantity;
-                }
-            }
+        //---------------------------------------------------------------------
+
+        quantityFilterMax(event){
+
+            this.query.filter.max_quantity = event.value;
 
         },
 
         //---------------------------------------------------------------------
-
-        async setQuantityRange(){
-
-            if(this.route.query.filter && this.route.query.filter.quantity)
-            {
-                this.quantity = this.route.query.filter.quantity;
-
-                this.min_quantity = this.route.query.filter.quantity[0];
-
-                this.max_quantity = this.route.query.filter.quantity[1];
-            }
-
-            if(!this.route.query.filter)
-            {
-                this.max_quantity = this.assets.min_max_quantity.max_quantity;
-                this.min_quantity = this.assets.min_max_quantity.min_quantity;
-            }
-        },
-        //-----------------------------------------------------
 
         addSelectedProduct () {
 
@@ -1297,6 +1287,10 @@ this.fetched_product_id=selected_product_id;
         },
 
     },
+
+    //---------------------------------------------------------------------
+
+    //---------------------------------------------------------------------
 
     //---------------------------------------------------------------------
 

@@ -433,41 +433,52 @@ class ProductVariation extends VaahModel
 
     public function scopeStockFilter($query, $filter)
     {
-        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+        if (!isset($filter['stock_status']) || is_null($filter['stock_status']) || $filter['stock_status'] === 'null') {
             return $query;
         }
 
-        $in_stock = $filter['in_stock'];
+        $stock_statuses = $filter['stock_status'];
 
-        if ($in_stock === 'false') {
-            $query->where('quantity', '=', 0);
-        } elseif ($in_stock === 'true') {
-            $query->where('quantity', '>', 0);
+        foreach ($stock_statuses as $status) {
+            if ($status === 'low_stock') {
+                $query->orWhere(function ($query) {
+                    $query->where('quantity', '>=', 1)
+                        ->where('quantity', '<', 10);
+                });
+            } elseif ($status === 'in_stock') {
+                $query->orWhere('quantity', '>=', 10);
+            } elseif ($status === 'out_of_stock') {
+                $query->orWhere('quantity', '=', 0);
+            }
         }
 
         return $query;
     }
 
 
+
     //-------------------------------------------------
 
     public function scopeQuantityFilter($query, $filter)
     {
+
+
         if (
-            !isset($filter['quantity']) ||
-            is_null($filter['quantity']) ||
-            $filter['quantity'] === 'null' ||
-            count($filter['quantity']) < 2 ||
-            is_null($filter['quantity'][0]) ||
-            is_null($filter['quantity'][1])
+            !isset($filter['min_quantity']) ||
+            is_null($filter['min_quantity']) ||
+            !isset($filter['max_quantity']) ||
+            is_null($filter['max_quantity'])
         ) {
+            // If any of them are null, return the query without applying any filter
             return $query;
         }
 
-        $min_quantity = $filter['quantity'][0];
-        $max_quantity = $filter['quantity'][1];
 
+        $min_quantity = $filter['min_quantity'];
+        $max_quantity = $filter['max_quantity'];
         return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+
+
     }
 
 
@@ -1229,12 +1240,17 @@ class ProductVariation extends VaahModel
                     $message .= '<tr>';
                     $message .= '<td>' . $product_name . '</td>';
                     $message .= '<td>' . $variation_name . '</td>';
-                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[in_stock][]='.true.'">View</a></td>';
                     $message .= '</tr>';
                 }
 
 
             $message .= '</table>';
+            $message .= '<p style="margin-top: 0.6rem; font-size: 15px">For more low stock variations, click here</p>';
+            $message .= '<p><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[in_stock][]='.true.'"
+                         style="background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 25px;
+                         text-decoration: none; display: inline-block; cursor: pointer; font-size: 14px; width: 7rem;
+                         text-align: center; margin-top: 0.3rem;">View</a></p>';
+
             if ($filtered_data->isNotEmpty()) {
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
             }

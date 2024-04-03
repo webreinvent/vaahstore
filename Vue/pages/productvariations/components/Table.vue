@@ -88,8 +88,10 @@ const route = useRoute();
                 <template #body="prop">
                     <Badge v-if="prop.data.quantity === 0"
                            severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
-                    <Badge v-else-if="prop.data.quantity > 0"
-                           severity="info">In Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity > 0 && prop.data.quantity < 10"
+                           severity="warning">Low Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity >= 10"
+                           severity="success">In Stock</Badge>
                 </template>
 
             </Column>
@@ -214,3 +216,10 @@ const route = useRoute();
     </div>
 
 </template>
+
+<style scoped>
+.v-badge--low-stock {
+    background-color: #FFCCCB;
+    color: #FFFFFF; /* Text color */
+}
+</style>
