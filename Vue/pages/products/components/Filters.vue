@@ -210,7 +210,7 @@ const store = useProductStore();
 
                         <InputNumber
                             v-model="store.query.filter.min_quantity"
-                            data-testid="product-variation-filter-min_quantity"
+                            data-testid="product-filter-min_quantity"
                             placeholder="Enter minimum quantity"
                             @input="store.minQuantity($event)"
                             class="w-14rem mt-2"
@@ -218,7 +218,7 @@ const store = useProductStore();
                         />
                         <InputNumber
                             v-model="store.query.filter.max_quantity"
-                            data-testid="product-variation-filter-max_quantity"
+                            data-testid="product-filter-max_quantity"
                             placeholder="Enter maximum quantity"
                             @input="store.maxQuantity($event)"
                             class="w-14rem mt-2"
