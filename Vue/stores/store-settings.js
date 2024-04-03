@@ -27,41 +27,45 @@ export const useSettingStore = defineStore({
                 value: 'All'
             },
             {
-                label: 'Store',
+                label: 'Stores',
                 value: 'Store'
             },
             {
-                label: 'Address',
-                value: 'Address'
-            },
-            {
-                label: 'Wishlists',
-                value: 'Wishlists'
-            },
-            {
-                label: 'Brand',
-                value: 'Brand'
-            },
-            {
-                label: 'Customer',
-                value: 'Customer'
-            },
-            {
-                label: 'Customer Group',
-                value: 'CustomerGroup'
-            },
-            {
-                label: 'Vendor',
+                label: 'Vendors',
                 value: 'Vendors'
             },
             {
-                label: 'Product',
+                label: 'Vendor Products',
+                value: 'VendorsProduct'
+            },
+
+            {
+                label: 'Products',
                 value: 'Product'
             },
             {
                 label: 'Product Variations',
                 value: 'ProductVariations'
             },
+            {
+                label: 'Product Attributes',
+                value: 'ProductAttribute'
+            },
+            {
+                label: 'Product Medias',
+                value: 'ProductMedia'
+            },
+
+            {
+                label: 'Product Stocks',
+                value: 'ProductStock'
+            },
+
+            {
+                label: 'Brands',
+                value: 'Brand'
+            },
+
             {
                 label: 'Warehouses',
                 value: 'Warehouses'
@@ -70,25 +74,27 @@ export const useSettingStore = defineStore({
                 label: 'Attributes',
                 value: 'Attributes'
             },
+
             {
-                label: 'Attribute Group',
+                label: 'Attributes Group',
                 value: 'AttributeGroups'
             },
             {
-                label: 'Product Attribute',
-                value: 'ProductAttribute'
+                label: 'Addresses',
+                value: 'Address'
             },
             {
-                label: 'Product Media',
-                value: 'ProductMedia'
+                label: 'Wishlists',
+                value: 'Wishlists'
+            },
+
+            {
+                label: 'Customer',
+                value: 'Customer'
             },
             {
-                label: 'Product Stock',
-                value: 'ProductStock'
-            },
-            {
-                label: 'Vendor Products',
-                value: 'VendorsProduct'
+                label: 'Customer Group',
+                value: 'CustomerGroup'
             },
 
 
