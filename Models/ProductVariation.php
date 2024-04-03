@@ -449,7 +449,7 @@ class ProductVariation extends VaahModel
         foreach ($stock_statuses as $status) {
             if ($status === 'low_stock') {
                 $query->orWhere(function ($query) {
-                    $query->where('quantity', '>=', 1)
+                    $query->where('quantity', '>', 1)
                         ->where('quantity', '<', 10);
                 });
             } elseif ($status === 'in_stock') {
@@ -1284,11 +1284,6 @@ class ProductVariation extends VaahModel
                          style="background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 25px;
                          text-decoration: none; display: inline-block; cursor: pointer; font-size: 14px; width: 7rem;
                          text-align: center; margin-top: 0.3rem;">View</a></p>';
-
-
-
-
-
 
             if ($filtered_data->isNotEmpty()) {
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
