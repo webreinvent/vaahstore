@@ -254,14 +254,14 @@ onMounted(async () => {
                 </template>
 
                 <div class="card flex justify-content-center">
-                    <div class="w-full">
+                    <div class="w-14rem">
 
                         <InputNumber
                             v-model="store.query.filter.min_quantity"
                             data-testid="product-variation-filter-min_quantity"
                             placeholder="Enter minimum quantity"
                             @input="store.quantityFilterMin($event)"
-                            class="w-full mt-2"
+                            class="w-14rem mt-2"
 
                         />
 
@@ -270,7 +270,7 @@ onMounted(async () => {
                             data-testid="product-variation-filter-max_quantity"
                             placeholder="Enter maximum quantity"
                             @input="store.quantityFilterMax($event)"
-                            class="w-full mt-2"
+                            class="w-14rem mt-2"
 
                         />
                     </div>
