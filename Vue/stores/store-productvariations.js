@@ -24,7 +24,9 @@ let empty_states = {
             product:null,
             quantity:null,
             product_variation_status:null,
-            stock_status:null
+            stock_status:null,
+            min_quantity:null,
+            max_quantity:null
         },
     },
     action: {
@@ -781,10 +783,6 @@ export const useProductVariationStore = defineStore({
 
             this.quantity =[];
 
-            this.min_quantity = this.assets.min_max_quantity.min_quantity;
-
-            this.max_quantity = this.assets.min_max_quantity.max_quantity;
-
 
             vaah().toastSuccess(['Action was successful']);
             await this.getList();
@@ -1225,47 +1223,21 @@ export const useProductVariationStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        quantityFilter(event){
+        quantityFilterMin(event){
 
-            this.min_quantity = this.quantity [0];
+            this.query.filter.min_quantity = event.value;
 
-            this.max_quantity = this.quantity [1];
+            },
 
-            if(!this.quantity){
-                return false;
-            }
-            for (const quantity of this.quantity) {
-                if(!quantity){
-                    continue ;
-                }
-                if(this.quantity[0] != null && this.quantity[1] !=null)
-                {
-                    this.query.filter.quantity = this.quantity;
-                }
-            }
+        //---------------------------------------------------------------------
+
+        quantityFilterMax(event){
+
+            this.query.filter.max_quantity = event.value;
 
         },
 
         //---------------------------------------------------------------------
-
-        async setQuantityRange(){
-
-            if(this.route.query.filter && this.route.query.filter.quantity)
-            {
-                this.quantity = this.route.query.filter.quantity;
-
-                this.min_quantity = this.route.query.filter.quantity[0];
-
-                this.max_quantity = this.route.query.filter.quantity[1];
-            }
-
-            if(!this.route.query.filter)
-            {
-                this.max_quantity = this.assets.min_max_quantity.max_quantity;
-                this.min_quantity = this.assets.min_max_quantity.min_quantity;
-            }
-        },
-        //-----------------------------------------------------
 
         addSelectedProduct () {
 
@@ -1315,6 +1287,10 @@ export const useProductVariationStore = defineStore({
         },
 
     },
+
+    //---------------------------------------------------------------------
+
+    //---------------------------------------------------------------------
 
     //---------------------------------------------------------------------
 
