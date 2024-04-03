@@ -52,7 +52,7 @@ export const useSettingStore = defineStore({
                 value: 'ProductAttribute'
             },
             {
-                label: 'Product Media',
+                label: 'Product Medias',
                 value: 'ProductMedia'
             },
 
