@@ -461,21 +461,24 @@ class ProductVariation extends VaahModel
 
     public function scopeQuantityFilter($query, $filter)
     {
+
+
         if (
-            !isset($filter['quantity']) ||
-            is_null($filter['quantity']) ||
-            $filter['quantity'] === 'null' ||
-            count($filter['quantity']) < 2 ||
-            is_null($filter['quantity'][0]) ||
-            is_null($filter['quantity'][1])
+            !isset($filter['min_quantity']) ||
+            is_null($filter['min_quantity']) ||
+            !isset($filter['max_quantity']) ||
+            is_null($filter['max_quantity'])
         ) {
+            // If any of them are null, return the query without applying any filter
             return $query;
         }
 
-        $min_quantity = $filter['quantity'][0];
-        $max_quantity = $filter['quantity'][1];
 
+        $min_quantity = $filter['min_quantity'];
+        $max_quantity = $filter['max_quantity'];
         return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+
+
     }
 
 
