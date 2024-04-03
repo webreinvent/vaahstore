@@ -145,6 +145,7 @@ const permissions=store.assets.permissions;
                         || column === 'status'|| column === 'product' || column === 'status_notes' || column === 'meta' || column === 'quantity' || column === 'sku'
                         || column === 'price' || column === 'has_media' || column === 'taxonomy_id_variation_status' || column === 'is_default'
                         || column === 'is_active' || column === 'meta_keywords' || column === 'meta_description' || column === 'meta_title'  || column === 'is_mail_sent'
+                        || column === 'is_quantity_low'
 ">
                         </template>
 
@@ -204,8 +205,9 @@ const permissions=store.assets.permissions;
                             </tr>
                             <tr>
                                 <td><b>Price</b></td>
-                                <td  colspan="2" >
-                                    <badge>{{store.item.price}}</badge>
+                                <td  colspan="2">
+                                    <badge v-if="store.item.price >= 1">{{store.item.price}}</badge>
+
                                 </td>
                             </tr>
 
