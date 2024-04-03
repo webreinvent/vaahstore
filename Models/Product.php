@@ -475,6 +475,10 @@ class Product extends VaahModel
         }
         $query->whereBetween('updated_at', [$from, $to]);
     }
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'category_id');
+    }
 
     //-------------------------------------------------
     public static function createItem($request)
@@ -523,6 +527,12 @@ class Product extends VaahModel
         $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
 
         $item->save();
+
+        if (isset($inputs['parent_category'])) {
+            $categoryIds = array_keys($inputs['parent_category']);
+            $item->categories()->attach($categoryIds, ['vh_st_product_id' => $item->id]);
+
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
@@ -880,7 +890,7 @@ class Product extends VaahModel
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status','parentCategory.subCategories'
+                'brand','store','type','status','parentCategory.subCategories','categories'
             ])
             ->withTrashed()
             ->first();
@@ -958,6 +968,10 @@ class Product extends VaahModel
         $item->launch_at = Carbon::parse($item->launch_at)->addDay()->toDateString();
         $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
+        if (isset($inputs['parent_category'])) {
+            $category_ids = array_keys($inputs['parent_category']);
+            $item->categories()->sync($category_ids);
+        }
 
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");

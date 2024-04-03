@@ -210,7 +210,7 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
 
                 </VhField>
-                <VhField label="Category">
+                <VhField label="Category">{{store.item.parent_category}}
                     <TreeSelect
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"

@@ -834,6 +834,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                this.categories_data=data.category;
                 this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
@@ -879,13 +880,33 @@ export const useProductStore = defineStore({
 
             return categories;
         },
-        setParentId()
-        {
-            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-            if (checkedItem) {
-                this.item.category_id = checkedItem[0];
+        // setParentId()
+        // {
+        //     const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+        //     if (checkedItem) {
+        //         this.item.category_id = checkedItem[0];
+        //     }
+        // },
+        setParentId() {
+            const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+
+            if (selectedParent) {
+                // Check if the selected parent is in assest.category
+                const matchedCategory = this.categories_data.find(category => category.id === selectedParent[0]);
+
+                if (matchedCategory) {
+                    // If the selected parent exists in assest.category, set its id
+                    this.item.category_id = matchedCategory.id;
+                } else {
+                    // If the selected parent doesn't exist in assest.category, set category_id to null
+                    this.item.category_id = null;
+                }
+            } else {
+                // If no parent is selected, set category_id to null
+                this.item.category_id = null;
             }
         },
+
         //---------------------------------------------------------------------
         async getList() {
             let options = {
@@ -924,14 +945,39 @@ export const useProductStore = defineStore({
             {
                 this.item = data;
                 const categories_data = {};
-                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
-                this.item.parent_category = categories_data;
+                // this.convertCategoryToTreeselectData(data.parent_category, categories_data);
+                // this.item.parent_category = categories_data;
+                this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
+
             }else{
                 this.$router.push({name: 'products.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
+        convertToTreeSelectFormat(data) {
+            const treeSelectData = {};
+
+            data.forEach(category => {
+                const categoryId = category.id.toString(); // Convert category ID to string
+                treeSelectData[categoryId] = {
+                    checked: true, // Set to true by default, adjust as needed
+                    partialChecked: false // Set to false by default, adjust as needed
+                };
+
+                // Recursively process children if they exist
+                if (category.children && category.children.length > 0) {
+                    const childrenData = convertCategoryToTreeSelectFormat(category.children);
+                    Object.assign(treeSelectData[categoryId], childrenData);
+                }
+            });
+
+            return treeSelectData;
+        },
+
+
+
+
         convertCategoryToTreeselectData(category, categories_data) {
             if (category) {
                 const category_id = category.id.toString();

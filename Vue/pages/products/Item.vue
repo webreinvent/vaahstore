@@ -197,10 +197,18 @@ const toggleItemMenu = (event) => {
                                         {{store.item.brand.name}}</div>
                                 </td>
                             </tr>
+                            <tr v-if="store.item.parent_category">
+                                <td><b>Category</b></td>
+                                <td  colspan="2" >
+                                    <div class="word-overflow" style="word-break: break-word;">
+                                        {{store.item.parent_category}}</div>
+                                </td>
+                            </tr>
 
                             <tr>
                                 <td><b>Status</b></td>
                                 <td  colspan="2" >
+                                    <template v-if="store.item.status">
                                     <Badge v-if="store.item.status.slug == 'approved'" severity="success">
                                         {{store.item.status.name}}
                                     </Badge>
@@ -213,6 +221,7 @@ const toggleItemMenu = (event) => {
                                     <Badge v-else severity="primary">
                                         {{store.item.status.name}}
                                     </Badge>
+                                    </template>
                                 </td>
                             </tr>
 
