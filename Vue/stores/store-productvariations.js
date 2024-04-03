@@ -24,7 +24,9 @@ let empty_states = {
             product:null,
             quantity:null,
             product_variation_status:null,
-            stock_status:null
+            stock_status:null,
+            min_quantity:null,
+            max_quantity:null
         },
     },
     action: {
