@@ -449,7 +449,7 @@ class ProductVariation extends VaahModel
         foreach ($stock_statuses as $status) {
             if ($status === 'low_stock') {
                 $query->orWhere(function ($query) {
-                    $query->where('quantity', '>', 1)
+                    $query->where('quantity', '>=', 1)
                         ->where('quantity', '<', 10);
                 });
             } elseif ($status === 'in_stock') {
