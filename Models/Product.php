@@ -616,6 +616,25 @@ class Product extends VaahModel
         }
 
     }
+    public function scopeCategoryFilter($query, $filter)
+    {
+        if (isset($filter['category']) && is_array($filter['category'])) {
+
+            $category_ids = [];
+
+            foreach ($filter['category'] as $category_id => $item) {
+                $category_ids[] = $category_id;
+            }
+
+            if (!empty($category_ids)) {
+                $query->whereIn('category_id', $category_ids);
+            }
+        }
+
+        return $query;
+    }
+
+
     //-------------------------------------------------
     public static function getList($request)
     {
@@ -632,6 +651,7 @@ class Product extends VaahModel
         $list->dateFilter($request->filter);
         $list->brandFilter($request->filter);
         $list->productTypeFilter($request->filter);
+        $list->categoryFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))

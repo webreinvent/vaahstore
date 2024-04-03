@@ -12,7 +12,20 @@ const store = useProductStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
-
+            <VhFieldVertical >
+                <template #label>
+                    <b>Category By:</b>
+                </template>
+                <TreeSelect
+                    v-model="store.query.filter.category"
+                    :options="store.categories_dropdown_data"
+                    selectionMode="checkbox"
+                    placeholder="Select Category"
+                    :show-count="true"
+                    data-testid="products-category"
+                    append-to="self"
+                    class=" w-full" />
+            </VhFieldVertical>
             <VhFieldVertical >
                 <template #label>
                     <b>Status:</b>
