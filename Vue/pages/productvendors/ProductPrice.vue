@@ -12,7 +12,6 @@ const route = useRoute();
 
 onMounted(async () => {
     if (route.params?.id ) {
-        console.log(store.product_variation_list)
         await store.getItem(route.params.id);
         await store.searchVariationOfProduct();
     }
