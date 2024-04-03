@@ -886,7 +886,7 @@ export const useProductVendorStore = defineStore({
             this.$router.push({name: 'productvendors.index'})
         },
         async toProductPrice(item) {
-            this.item.vh_st_product_id = item.vh_st_product_id;
+            this.item.vh_st_product_id = item?.vh_st_product_id;
             await this.searchVariationOfProduct();
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.productprice', params: {id: item.id}})
