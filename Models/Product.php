@@ -661,7 +661,8 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories');
+//        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories.parentCategory');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -683,7 +684,10 @@ class Product extends VaahModel
         }
 
         $list = $list->paginate($rows);
-
+        foreach ($list as $category) {
+            $parent_category_name = $category->parentCategory?->name;
+            $category->parentCategoryName = $parent_category_name;
+        }
         $response['success'] = true;
         $response['data'] = $list;
 

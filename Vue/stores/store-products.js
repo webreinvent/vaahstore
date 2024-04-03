@@ -987,7 +987,10 @@ export const useProductStore = defineStore({
 
             return treeSelectData;
         },
-
+        getTooltipText(categories) {
+            const remaining_categories = categories.slice(1).map(category => category.name);
+            return remaining_categories.join(', ');
+        },
 
 
 
