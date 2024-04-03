@@ -433,20 +433,28 @@ class ProductVariation extends VaahModel
 
     public function scopeStockFilter($query, $filter)
     {
-        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+        if (!isset($filter['stock_status']) || is_null($filter['stock_status']) || $filter['stock_status'] === 'null') {
             return $query;
         }
 
-        $in_stock = $filter['in_stock'];
+        $stock_statuses = $filter['stock_status'];
 
-        if ($in_stock === 'false') {
-            $query->where('quantity', '=', 0);
-        } elseif ($in_stock === 'true') {
-            $query->where('quantity', '>', 0);
+        foreach ($stock_statuses as $status) {
+            if ($status === 'low_stock') {
+                $query->orWhere(function ($query) {
+                    $query->where('quantity', '>', 1)
+                        ->where('quantity', '<', 10);
+                });
+            } elseif ($status === 'in_stock') {
+                $query->orWhere('quantity', '>=', 10);
+            } elseif ($status === 'out_of_stock') {
+                $query->orWhere('quantity', '=', 0);
+            }
         }
 
         return $query;
     }
+
 
 
     //-------------------------------------------------
@@ -1239,11 +1247,6 @@ class ProductVariation extends VaahModel
                          style="background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 25px;
                          text-decoration: none; display: inline-block; cursor: pointer; font-size: 14px; width: 7rem;
                          text-align: center; margin-top: 0.3rem;">View</a></p>';
-
-
-
-
-
 
             if ($filtered_data->isNotEmpty()) {
                 $send_mail = UserBase::notifySuperAdmins($subject, $message);
