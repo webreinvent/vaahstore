@@ -21,16 +21,13 @@ const useVaah = vaah();
                     <AccordionTab header="Products (count of product)" class="w-full">
                        <div class="flex ">
                            <div class="product_img">
-                               <img src="https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcReobsOp4aeemFOSz18m3LbeawKUwfhGTdJn7joKxuMBFbO8I-_cxdzcZ3YnlGqNImJdNnpRdoln1dHaId6wvw28TupAM2wSQz-JerCr-QzePWAp_ZiQC5J&usqp=CAE"
+                               <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
                                     alt="Error" class="shadow-4" width="64" />
                            </div>
                            <div class="product_desc ml-3">
                                <h4>
                                    Nokia 2660 Flip 4G Volte keypad Phone, Pop Pink
                                </h4>
-                               <p>
-                                   Touchscreen Is No. In The Box Is Handset, Charger, Battery, Quick Start Guide, Safety Booklet. Otg Compatible Is No. Model Name Is 2660. Browse Type Is Feature Phones. Quick ...
-                               </p>
                            </div>
                        </div>
                     </AccordionTab>
@@ -130,6 +127,10 @@ const useVaah = vaah();
                         </div>
                     </template>
                 </Card>
+
+                <div class="table_bottom mt-4 border-1 border-gray-200">
+                    <InputNumber v-model="store" inputId="integeronly" class="w-full"/>
+                </div>
             </div>
         </div>
 

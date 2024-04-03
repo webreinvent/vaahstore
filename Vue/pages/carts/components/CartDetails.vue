@@ -79,12 +79,31 @@ const useVaah = vaah();
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
                             <p>{{ '40000' }}</p>
+                        </div>
+                    </template>
+
+                </Column>
+
+
+                <Column field="actions"
+                        :style="{width: store.getActionWidth() }"
+                        header="Actions">
+
+                    <template #body="prop">
+                        <div class="p-inputgroup ">
+                            <Button class="p-button-tiny p-button-danger p-button-text"
+                                    data-testid="orders-table-action-trash"
+                                    v-tooltip.top="'Wishlist'"
+                                    icon="pi pi-heart"/>
+
                             <Button class="p-button-tiny p-button-danger p-button-text"
                                     data-testid="orders-table-action-trash"
                                     v-tooltip.top="'Remove'"
                                     icon="pi pi-trash"/>
                         </div>
+
                     </template>
+
 
                 </Column>
 
@@ -96,8 +115,8 @@ const useVaah = vaah();
 
             </DataTable>
             <!--/table-->
-            <div class="table_bottom">
-                <InputNumber v-model="store" value="40000" inputId="integeronly"/>
+            <div class="table_bottom mr-4">
+                <p><b>Total Amount: </b>₹40000</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
