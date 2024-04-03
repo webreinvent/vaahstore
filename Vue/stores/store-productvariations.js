@@ -20,11 +20,11 @@ let empty_states = {
             trashed: null,
             sort: null,
             date: null,
-            in_stock: null,
             default: null,
             product:null,
             quantity:null,
             product_variation_status:null,
+            stock_status:null
         },
     },
     action: {
@@ -93,14 +93,32 @@ export const useProductVariationStore = defineStore({
         products:null,
         fetched_product_id: null,
         default_variation_message:null,
+        stock_options :[
+
+            {
+                label: 'In Stock',
+                value: 'in_stock'
+            },
+            {
+                label: 'Out of Stock',
+                value: 'out_of_stock'
+            },
+            {
+                label: 'low Stock',
+                value: 'low_stock'
+            },
+        ]
+
+
+
     }),
     getters: {
 
     },
     actions: {
         async fetchDataBasedOnProductId(selected_product_id) {
-this.fetched_product_id=selected_product_id;
-            if (selected_product_id && selected_product_id.id) {
+                this.fetched_product_id=selected_product_id;
+                if (selected_product_id && selected_product_id.id) {
                 this.item.product=this.fetched_product_id;
                 this.item.vh_st_product_id = selected_product_id.id;
 
