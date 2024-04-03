@@ -1,6 +1,7 @@
 <script setup>
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
+import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useCartStore();
 const useVaah = vaah();
@@ -16,37 +17,86 @@ const useVaah = vaah();
         <div class="flex gap-3 my-3">
 
             <div class="w-full">
-                <Accordion :activeIndex="0" class="w-full">
-                    <AccordionTab header="Products" class="w-full">
-                        <p class="m-0">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                            laboris nisi ut aliquip ex ea commodo
-                            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                            officia deserunt mollit anim id est
-                            laborum.
-                        </p>
+                <Accordion :multiple="true" :activeIndex="[0]" class="w-full">
+                    <AccordionTab header="Products (count of product)" class="w-full">
+                       <div class="flex ">
+                           <div class="product_img">
+                               <img src="https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcReobsOp4aeemFOSz18m3LbeawKUwfhGTdJn7joKxuMBFbO8I-_cxdzcZ3YnlGqNImJdNnpRdoln1dHaId6wvw28TupAM2wSQz-JerCr-QzePWAp_ZiQC5J&usqp=CAE"
+                                    alt="Error" class="shadow-4" width="64" />
+                           </div>
+                           <div class="product_desc ml-3">
+                               <h4>
+                                   Nokia 2660 Flip 4G Volte keypad Phone, Pop Pink
+                               </h4>
+                               <p>
+                                   Touchscreen Is No. In The Box Is Handset, Charger, Battery, Quick Start Guide, Safety Booklet. Otg Compatible Is No. Model Name Is 2660. Browse Type Is Feature Phones. Quick ...
+                               </p>
+                           </div>
+                       </div>
                     </AccordionTab>
                     <AccordionTab header="Shipping Details">
-                        <p class="m-0">
-                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                            laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-                            architecto beatae vitae dicta sunt explicabo. Nemo
-                            enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
-                            magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed
-                            quia non numquam eius modi.
-                        </p>
+                        <div>
+                            <VhField label="Name">
+                            <InputText class="w-full"
+                                       name="products-name"
+                                       data-testid="products-name"
+                                       placeholder="Enter Name"
+                                       v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Email">
+                                <InputText class="w-full"
+                                           name="cart-email"
+                                           data-testid="cart-email"
+                                           placeholder="Enter Email"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Phone">
+                                <InputText class="w-full"
+                                           name="cart-phone"
+                                           data-testid="cart-phone"
+                                           placeholder="Enter Name"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Address">
+                                <InputText class="w-full"
+                                           name="cart-address"
+                                           data-testid="cart-address"
+                                           placeholder="Enter Address"
+                                           v-model="store.item"/>
+                            </VhField>
+                        </div>
                     </AccordionTab>
                     <AccordionTab header="Billing Details">
-                        <p class="m-0">
-                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                            laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-                            architecto beatae vitae dicta sunt explicabo. Nemo
-                            enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
-                            magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed
-                            quia non numquam eius modi.
-                        </p>
+                        <div>
+                            <VhField label="Name">
+                                <InputText class="w-full"
+                                           name="products-name"
+                                           data-testid="products-name"
+                                           placeholder="Enter Name"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Email">
+                                <InputText class="w-full"
+                                           name="cart-email"
+                                           data-testid="cart-email"
+                                           placeholder="Enter Email"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Phone">
+                                <InputText class="w-full"
+                                           name="cart-phone"
+                                           data-testid="cart-phone"
+                                           placeholder="Enter Name"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="Address">
+                                <InputText class="w-full"
+                                           name="cart-address"
+                                           data-testid="cart-address"
+                                           placeholder="Enter Address"
+                                           v-model="store.item"/>
+                            </VhField>
+                        </div>
                     </AccordionTab>
                     <AccordionTab header="Payment">
                         <div class="flex flex-column px-4 gap-2 max-w-14rem">
@@ -63,20 +113,26 @@ const useVaah = vaah();
                 </Accordion>
             </div>
             <div>
-                <Card class="border-1 border-gray-200 w-20rem">
-                    <template #title>Simple Card</template>
+                <Card class="border-1 border-gray-200 w-20rem" :pt="{content: {class: 'pb-0'} }">
+                    <template #title>Check Summary</template>
                     <template #content>
                         <p class="m-0">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error
-                            repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa
-                            ratione quam perferendis esse, cupiditate neque
-                            quas!
+                            Total
                         </p>
+                        <p class="m-0">
+                            Tax
+                        </p>
+                        <p class="m-0">
+                            discount
+                        </p>
+                        <div class="text-center">
+                            <Button label="Place an order" class="bg-blue-700 text-white p-2 mt-3 border-round w-full"/>
+                        </div>
                     </template>
                 </Card>
             </div>
         </div>
-        <Button label="Place an order" class="bg-blue-700 text-white p-2"/>
+
     </div>
 
 </template>
