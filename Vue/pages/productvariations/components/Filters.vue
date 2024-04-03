@@ -58,24 +58,23 @@ onMounted(async () => {
 
             <VhFieldVertical >
                 <template #label>
-                    <b>In Stock:</b>
+                    <b>Stock Status:</b>
                 </template>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-yes"
-                                 value="true"
-                                 data-testid="product-variations-filters-in-stock-yes"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-yes">Yes</label>
-                </div>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-no"
-                                 value="false"
-                                 data-testid="product-variations-filters-in-stock-no"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-no">No</label>
-                </div>
+                <VhField label="Stock Status">
+                    <MultiSelect
+                        v-model="store.query.filter.stock_status"
+                        :options="store.stock_options"
+                        filter
+                        option-value="value"
+                        optionLabel="label"
+                        placeholder="Select Stock Status"
+                        display="chip"
+                        class="w-full relative"
+                        data-testid="product-variations-stock-status-filters"
+                        appendTo="self"
+                    />
+                </VhField>
 
             </VhFieldVertical>
 
