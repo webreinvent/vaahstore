@@ -834,6 +834,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                this.categories_data=data.category;
                 this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
@@ -879,13 +880,46 @@ export const useProductStore = defineStore({
 
             return categories;
         },
-        setParentId()
-        {
-            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-            if (checkedItem) {
-                this.item.category_id = checkedItem[0];
+        // setParentId()
+        // {
+        //     const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+        //     if (checkedItem) {
+        //         this.item.category_id = checkedItem[0];
+        //     }
+        // },
+
+        setParentId() {
+            const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+
+            if (selectedParent) {
+                // Check if the selected parent is in assest.category
+                const matchedCategory = this.categories_data.find(category => category.id === selectedParent[0]);
+
+                if (matchedCategory) {
+                    // If the selected parent exists in assest.category, set its id
+                    this.item.category_id = matchedCategory.id;
+                } else {
+                    // If the selected parent doesn't exist in assest.category, set category_id to null
+                    this.item.category_id = null;
+                }
+            } else {
+                // If no parent is selected, set category_id to null
+                this.item.category_id = null;
             }
         },
+
+        // setParentId() {
+        //     const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
+        //
+        //     if (selectedParent) {
+        //         const parentId = selectedParent[0]; // Extract the id of the selected parent
+        //         this.item.category_id = parentId;
+        //     } else {
+        //         this.item.category_id = null;
+        //     }
+        // },
+
+
         //---------------------------------------------------------------------
         async getList() {
             let options = {
@@ -923,44 +957,72 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                const categories_data = {};
-                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
-                this.item.parent_category = categories_data;
+                // const categories_data = {};
+                // this.convertCategoryToTreeselectData(data.parent_category, categories_data);
+                // this.item.parent_category = categories_data;
+                this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
+
             }else{
                 this.$router.push({name: 'products.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        convertCategoryToTreeselectData(category, categories_data) {
-            if (category) {
-                const category_id = category.id.toString();
-                let partial_checked = true;
-                let checked = true;
+        convertToTreeSelectFormat(data) {
+            const treeSelectData = {};
 
-                // Check if the category has subcategories
-                if (category.sub_categories && category.sub_categories.length > 0) {
-                    category.sub_categories.forEach(subCategory => {
-                        this.convertCategoryToTreeselectData(subCategory, categories_data);
-                        if (categories_data[subCategory.id]) {
-                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
-                                checked = true;
-                            }
-                            if (categories_data[subCategory.id].partial_checked) {
-                                partial_checked = true;
-                            }
-                        }
-                    });
-                } else {
-                    partial_checked = true;
-                }
-
-                categories_data[category_id] = {
-                    checked: checked,
-                    partialChecked: partial_checked
+            data.forEach(category => {
+                const categoryId = category.id.toString(); // Convert category ID to string
+                treeSelectData[categoryId] = {
+                    checked: true, // Set to true by default, adjust as needed
+                    partialChecked: false // Set to false by default, adjust as needed
                 };
-            }
+
+                // Recursively process children if they exist
+                if (category.children && category.children.length > 0) {
+                    const childrenData = convertCategoryToTreeSelectFormat(category.children);
+                    Object.assign(treeSelectData[categoryId], childrenData);
+                }
+            });
+
+            return treeSelectData;
         },
+        getTooltipText(categories) {
+            const remaining_categories = categories.slice(1).map(category => category.name);
+            return remaining_categories.join(', ');
+        },
+
+
+
+        // convertCategoryToTreeselectData(category, categories_data) {
+        //     if (category) {
+        //         const category_id = category.id.toString();
+        //         let partial_checked = true;
+        //         let checked = true;
+        //
+        //         // Check if the category has subcategories
+        //         if (category.sub_categories && category.sub_categories.length > 0) {
+        //             category.sub_categories.forEach(subCategory => {
+        //                 this.convertCategoryToTreeselectData(subCategory, categories_data);
+        //                 if (categories_data[subCategory.id]) {
+        //                     if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
+        //                         checked = true;
+        //                     }
+        //                     if (categories_data[subCategory.id].partial_checked) {
+        //                         partial_checked = true;
+        //                     }
+        //                 }
+        //             });
+        //         } else {
+        //             partial_checked = true;
+        //         }
+        //
+        //         categories_data[category_id] = {
+        //             checked: checked,
+        //             partialChecked: partial_checked
+        //         };
+        //     }
+        // },
         //---------------------------------------------------------------------
         isListActionValid()
         {

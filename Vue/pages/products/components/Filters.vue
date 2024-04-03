@@ -14,7 +14,7 @@ const store = useProductStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
-                    <b>Category By:</b>
+                    <b>Categories By:</b>
                 </template>
                 <TreeSelect
                     v-model="store.query.filter.category"

@@ -125,15 +125,78 @@ const useVaah = vaah()
 
 
              </Column>
-             <Column field="parent_category.name" header=" Category"
-                     :sortable="true">
+<!--             <Column field="parent_category.name" header=" Category"-->
+<!--                     :sortable="true">-->
 
-                 <span v-if="prop.data.parent_category && prop.data.parent_category.name">
-                     {{prop.data.parent_category.name}}
+<!--                 <span v-if="prop.data.parent_category && prop.data.parent_category.name">-->
+<!--                     {{prop.data.parent_category.name}}-->
 
-                 </span>
+<!--                 </span>-->
 
+<!--             </Column>-->
+<!--             <Column field="categories.name" header=" Category"-->
+<!--                     :sortable="true">-->
+<!--                 <template #body="prop">-->
+<!--                     <div class="flex flex-wrap gap-2" v-if="prop.data.categories && prop.data.categories.length > 0">-->
+<!--                         <template v-if="prop.data.categories.some(category => category.deleted_at === null)">-->
+<!--                             <template v-for="(category, index) in prop.data.categories" :key="index">-->
+<!--                                 <Badge class="h-max max-w-full" v-if="category.deleted_at === null">-->
+<!--                                     {{ category.name }}-->
+<!--                                 </Badge>-->
+<!--                             </template>-->
+<!--                             <Badge v-if="prop.data.categories.some(category => category.deleted_at !== null)" value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                         <template v-else>-->
+<!--                             <Badge value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                     </div>-->
+<!--                 </template>-->
+<!--             </Column>-->
+
+             <Column field="categories.name" header="Category" :sortable="true">
+                 <template #body="prop">
+                     <div class="flex flex-wrap gap-2" v-if="prop.data.categories && prop.data.categories.length">
+                         <template v-if="prop.data.categories.some(category => category.deleted_at === null)">
+                             <template v-for="(category, index) in prop.data.categories" :key="index">
+                                 <Badge class="h-max max-w-full" v-if="index === 0 && category.deleted_at === null">
+                                     {{ category.name }}
+                                 </Badge>
+                             </template>
+                             <template v-if="prop.data.categories.length > 1">
+                                 <Badge v-if="prop.data.categories.some(category => category.deleted_at === null && category.parent_category_id !== null)"
+                                        :value="'+' +(prop.data.categories.filter(category => category.deleted_at === null &&
+                                         category.parent_category_id !== null).length )+ ' more'" severity="info" class="cursor-pointer"  v-tooltip.top="store.getTooltipText(prop.data.categories)"></Badge>
+                             </template>
+                             <Badge v-if="prop.data.categories.some(category => category.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
+                         </template>
+                         <template v-else>
+                             <Badge value="Trashed" severity="danger"></Badge>
+                         </template>
+                     </div>
+                 </template>
              </Column>
+
+
+             <!--             <Column field="parent_category.name" header="Category" :sortable="true">-->
+<!--                 <template #body="prop">-->
+<!--                     <div v-if="prop.data.categories && prop.data.categories.length > 0">-->
+<!--                         <template v-if="prop.data.categories.some(category => category.deleted_at === null)">-->
+<!--                             <template v-for="(category, index) in prop.data.categories" :key="index">-->
+<!--                                 <template v-if="category.deleted_at === null && !category.parent_category_id">-->
+<!--                                     <Badge class="h-max max-w-full">-->
+<!--                                         {{ category.name }}-->
+<!--                                     </Badge>-->
+<!--                                 </template>-->
+<!--                             </template>-->
+<!--                             <Badge v-if="prop.data.categories.some(category => category.deleted_at !== null)" value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                         <template v-else>-->
+<!--                             <Badge v-if="prop.data.categories.some(category => category.deleted_at !== null)" value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                     </div>-->
+<!--                 </template>-->
+<!--             </Column>-->
+
 
              <Column field="status.name" header="Status"
                      :sortable="true">
