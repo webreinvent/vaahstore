@@ -487,7 +487,6 @@ class Product extends VaahModel
     {
 
         $inputs = $request->all();
-//        dd($inputs['parent_category']);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -639,23 +638,44 @@ class Product extends VaahModel
         }
 
     }
+//    public function scopeCategoryFilter($query, $filter)
+//    {
+//        if (isset($filter['category']) && is_array($filter['category'])) {
+//
+//            $category_ids = [];
+//
+//            foreach ($filter['category'] as $category_id => $item) {
+//                $category_ids[] = $category_id;
+//            }
+//
+//            if (!empty($category_ids)) {
+////                $query->whereIn('category_id', $category_ids);
+//                $search = $filter['category'];
+//                $query->whereHas('categories',function ($q) use ($search) {
+//                    $q->whereIn('category_parent_id',$search);
+//                });
+//            }
+//        }
+//
+//        return $query;
+//    }
+
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-
-            $category_ids = [];
-
-            foreach ($filter['category'] as $category_id => $item) {
-                $category_ids[] = $category_id;
-            }
+            $category_ids = array_keys($filter['category']);
 
             if (!empty($category_ids)) {
-                $query->whereIn('category_id', $category_ids);
+                $query->whereHas('categories', function ($q) use ($category_ids) {
+                    $q->whereIn('vh_st_categories.id', $category_ids);
+                });
             }
         }
 
         return $query;
     }
+
+
 
 
     //-------------------------------------------------
@@ -781,6 +801,9 @@ class Product extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('categories')->whereIn('id', $items_id)->each(function ($item) {
+            $item->categories()->detach();
+        });
         foreach ($items_id as $item_id)
         {
             self::deleteRelatedRecords($item_id);
@@ -865,8 +888,11 @@ class Product extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
                 $items_id = self::withTrashed()->pluck('id')->toArray();
-
+                foreach ($items as $item) {
+                    $item->categories()->detach();
+                }
                 foreach ($items_id as $item_id)
                 {
                     self::deleteRelatedRecords($item_id);
@@ -986,7 +1012,10 @@ class Product extends VaahModel
         $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
         if (isset($inputs['parent_category'])) {
-            $category_ids = array_keys($inputs['parent_category']);
+//            $category_ids = array_keys($inputs['parent_category']);
+            $category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
+                return $value['checked'] === true;
+            }));
             $item->categories()->sync($category_ids);
         }
 
@@ -1005,6 +1034,10 @@ class Product extends VaahModel
             return $response;
         }
         self::deleteRelatedRecords($item->id);
+        $categories_ids = $item->categories->pluck('id')->toArray();
+        foreach ($categories_ids as $category_id) {
+            $item->categories()->detach($category_id);
+        }
         $item->forceDelete();
         $response['success'] = true;
         $response['data'] = [];

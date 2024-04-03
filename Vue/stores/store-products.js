@@ -957,7 +957,7 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                const categories_data = {};
+                // const categories_data = {};
                 // this.convertCategoryToTreeselectData(data.parent_category, categories_data);
                 // this.item.parent_category = categories_data;
                 this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
@@ -994,35 +994,35 @@ export const useProductStore = defineStore({
 
 
 
-        convertCategoryToTreeselectData(category, categories_data) {
-            if (category) {
-                const category_id = category.id.toString();
-                let partial_checked = true;
-                let checked = true;
-
-                // Check if the category has subcategories
-                if (category.sub_categories && category.sub_categories.length > 0) {
-                    category.sub_categories.forEach(subCategory => {
-                        this.convertCategoryToTreeselectData(subCategory, categories_data);
-                        if (categories_data[subCategory.id]) {
-                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
-                                checked = true;
-                            }
-                            if (categories_data[subCategory.id].partial_checked) {
-                                partial_checked = true;
-                            }
-                        }
-                    });
-                } else {
-                    partial_checked = true;
-                }
-
-                categories_data[category_id] = {
-                    checked: checked,
-                    partialChecked: partial_checked
-                };
-            }
-        },
+        // convertCategoryToTreeselectData(category, categories_data) {
+        //     if (category) {
+        //         const category_id = category.id.toString();
+        //         let partial_checked = true;
+        //         let checked = true;
+        //
+        //         // Check if the category has subcategories
+        //         if (category.sub_categories && category.sub_categories.length > 0) {
+        //             category.sub_categories.forEach(subCategory => {
+        //                 this.convertCategoryToTreeselectData(subCategory, categories_data);
+        //                 if (categories_data[subCategory.id]) {
+        //                     if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
+        //                         checked = true;
+        //                     }
+        //                     if (categories_data[subCategory.id].partial_checked) {
+        //                         partial_checked = true;
+        //                     }
+        //                 }
+        //             });
+        //         } else {
+        //             partial_checked = true;
+        //         }
+        //
+        //         categories_data[category_id] = {
+        //             checked: checked,
+        //             partialChecked: partial_checked
+        //         };
+        //     }
+        // },
         //---------------------------------------------------------------------
         isListActionValid()
         {

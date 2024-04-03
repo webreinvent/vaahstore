@@ -140,7 +140,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-if="column === 'created_by'|| column === 'updated_by'|| column === 'all_variation'
                             || column === 'product_attributes'|| column === 'product_vendors'|| column === 'brand'
-                            || column === 'store'|| column === 'type'|| column === 'status'||
+                            || column === 'store'|| column === 'category_id'|| column === 'parent_category'|| column === 'categories'|| column === 'type'|| column === 'status'||
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
@@ -197,13 +197,27 @@ const toggleItemMenu = (event) => {
                                         {{store.item.brand.name}}</div>
                                 </td>
                             </tr>
-                            <tr v-if="store.item.parent_category">
-                                <td><b>Category</b></td>
-                                <td  colspan="2" >
+
+
+                            <tr v-if="store.item.categories">
+                                <td><b>Categories</b></td>
+                                <td colspan="2">
                                     <div class="word-overflow" style="word-break: break-word;">
-                                        {{store.item.parent_category}}</div>
+                                        <template v-for="(category, index) in store.item.categories" :key="category.id">
+                                            <Badge class="h-max max-w-full" v-if="index === 0 && !category.deleted_at">
+                                                {{ category.name }}
+                                            </Badge>
+                                        </template>
+                                        <template v-if="store.item.categories.length > 1">
+                                            <Badge v-if="store.item.categories.some(category => !category.deleted_at && category.parent_category_id !== null)"
+                                                   :value="'+' + (store.item.categories.filter(category => !category.deleted_at && category.parent_category_id !== null).length) + ' more'"
+                                                   severity="info" class="cursor-pointer" v-tooltip.top="store.getTooltipText(store.item.categories)"></Badge>
+                                        </template>
+                                        <Badge v-if="store.item.categories.some(category => category.deleted_at)" value="Trashed" severity="danger"></Badge>
+                                    </div>
                                 </td>
                             </tr>
+
 
                             <tr>
                                 <td><b>Status</b></td>
