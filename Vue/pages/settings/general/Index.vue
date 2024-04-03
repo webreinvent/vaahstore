@@ -37,7 +37,7 @@ onMounted(async () => {
                                 <div>
                                     <h5 class="font-semibold text-sm">VaahStore Cruds</h5>
                                     <p class="text-color-secondary text-xs">
-                                        Generate Bulk Records For All VaahStores Crud
+                                        Generate Bulk Records For All VaahStore Crud
                                     </p>
                                 </div>
                             </div>
