@@ -78,7 +78,7 @@ const useVaah = vaah();
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>{{ '40000' }}</p>
+                            <p>{{ '4000' }}</p>
                         </div>
                     </template>
 
@@ -116,7 +116,7 @@ const useVaah = vaah();
             </DataTable>
             <!--/table-->
             <div class="table_bottom mr-4">
-                <p><b>Total Amount: </b>₹40000</p>
+                <p><b>Total Amount: </b>₹4000</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"

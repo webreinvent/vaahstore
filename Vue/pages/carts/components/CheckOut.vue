@@ -28,69 +28,131 @@ const useVaah = vaah();
                                <h4>
                                    Nokia 2660 Flip 4G Volte keypad Phone, Pop Pink
                                </h4>
+                               <p><b>Price: </b>₹4000 <s class="text-300">₹6000</s></p>
+                               <p><b>Qty:</b> 1</p>
                            </div>
                        </div>
                     </AccordionTab>
                     <AccordionTab header="Shipping Details">
                         <div>
-                            <VhField label="Name">
+                            <VhField label="Country/Region">
+                                <Dropdown v-model="store.item"
+                                          :options="store.assets"
+                                          optionLabel="name"
+                                          placeholder="Select a Country/Region"
+                                          class="w-full md:w-14rem" />
+
+                            </VhField>
+
+                            <VhField label="Full Name ">
                             <InputText class="w-full"
                                        name="products-name"
                                        data-testid="products-name"
-                                       placeholder="Enter Name"
+                                       placeholder="Enter Full Name "
                                        v-model="store.item"/>
                             </VhField>
-                            <VhField label="Email">
+
+                            <VhField label="Phone No.">
                                 <InputText class="w-full"
-                                           name="cart-email"
-                                           data-testid="cart-email"
-                                           placeholder="Enter Email"
-                                           v-model="store.item"/>
-                            </VhField>
-                            <VhField label="Phone">
-                                <InputText class="w-full"
-                                           name="cart-phone"
-                                           data-testid="cart-phone"
-                                           placeholder="Enter Name"
+                                           name="products-phone"
+                                           data-testid="products-phone"
+                                           placeholder="Enter Phone No."
                                            v-model="store.item"/>
                             </VhField>
                             <VhField label="Address">
                                 <InputText class="w-full"
-                                           name="cart-address"
-                                           data-testid="cart-address"
-                                           placeholder="Enter Address"
+                                           name="cart-email"
+                                           data-testid="cart-email"
+                                           placeholder="Enter Address (House No, Building, Street, Area)*"
                                            v-model="store.item"/>
                             </VhField>
+
+                            <VhField label="PIN Code">
+                                <InputText class="w-full"
+                                           name="cart-pin_code"
+                                           data-testid="cart-pin_code"
+                                           placeholder="Enter Pin Code"
+                                           v-model="store.item"/>
+                            </VhField>
+
+                            <VhField label="City">
+                                <InputText class="w-full"
+                                           name="cart-city"
+                                           data-testid="cart-city"
+                                           placeholder="Enter City"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="State">
+                                <InputText class="w-full"
+                                           name="cart-address"
+                                           data-testid="cart-address"
+                                           placeholder="Enter State / Province / Region"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <div class="flex justify-content-between">
+                                <Button icon="pi pi-plus" label="Add a new address" link />
+                                <Button label="2 More Address" link />
+                            </div>
                         </div>
                     </AccordionTab>
                     <AccordionTab header="Billing Details">
                         <div>
-                            <VhField label="Name">
+                                <div class="flex align-items-center mb-2">
+                                    <Checkbox v-model="pizza" inputId="ingredient1" name="pizza" value="Cheese" />
+                                    <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
+                                </div>
+                            <VhField label="Country/Region">
+                                <Dropdown v-model="store.item"
+                                          :options="store.assets"
+                                          optionLabel="name"
+                                          placeholder="Select a Country/Region"
+                                          class="w-full md:w-14rem" />
+
+                            </VhField>
+
+                            <VhField label="Full Name ">
                                 <InputText class="w-full"
                                            name="products-name"
                                            data-testid="products-name"
-                                           placeholder="Enter Name"
+                                           placeholder="Enter Full Name "
                                            v-model="store.item"/>
                             </VhField>
-                            <VhField label="Email">
+
+                            <VhField label="Phone No.">
                                 <InputText class="w-full"
-                                           name="cart-email"
-                                           data-testid="cart-email"
-                                           placeholder="Enter Email"
-                                           v-model="store.item"/>
-                            </VhField>
-                            <VhField label="Phone">
-                                <InputText class="w-full"
-                                           name="cart-phone"
-                                           data-testid="cart-phone"
-                                           placeholder="Enter Name"
+                                           name="products-phone"
+                                           data-testid="products-phone"
+                                           placeholder="Enter Phone No."
                                            v-model="store.item"/>
                             </VhField>
                             <VhField label="Address">
                                 <InputText class="w-full"
+                                           name="cart-email"
+                                           data-testid="cart-email"
+                                           placeholder="Enter Address (House No, Building, Street, Area)*"
+                                           v-model="store.item"/>
+                            </VhField>
+
+                            <VhField label="PIN Code">
+                                <InputText class="w-full"
+                                           name="cart-pin_code"
+                                           data-testid="cart-pin_code"
+                                           placeholder="Enter Pin Code"
+                                           v-model="store.item"/>
+                            </VhField>
+
+                            <VhField label="City">
+                                <InputText class="w-full"
+                                           name="cart-city"
+                                           data-testid="cart-city"
+                                           placeholder="Enter City"
+                                           v-model="store.item"/>
+                            </VhField>
+                            <VhField label="State">
+                                <InputText class="w-full"
                                            name="cart-address"
                                            data-testid="cart-address"
-                                           placeholder="Enter Address"
+                                           placeholder="Enter State / Province / Region"
                                            v-model="store.item"/>
                             </VhField>
                         </div>
@@ -113,15 +175,54 @@ const useVaah = vaah();
                 <Card class="border-1 border-gray-200 w-20rem" :pt="{content: {class: 'pb-0'} }">
                     <template #title>Check Summary</template>
                     <template #content>
-                        <p class="m-0">
-                            Total
-                        </p>
-                        <p class="m-0">
-                            Tax
-                        </p>
-                        <p class="m-0">
-                            discount
-                        </p>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                                <b>Total MRP :</b>
+                            </p>
+                            <p class="m-0">
+                                ₹6000
+                            </p>
+                        </div>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                                <b>Delivery :</b>
+                            </p>
+                            <p>
+                                ₹120
+                            </p>
+                        </div>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                               <b>Tax :</b>
+                            </p>
+                            <p>
+                                ₹200
+                             </p>
+                        </div>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                                <b>Discount :</b>
+                            </p>
+                            <p class="text-teal-500">
+                                -₹2000
+                            </p>
+                        </div>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                                <b>Coupon Discount :</b>
+                            </p>
+                            <p><Button  label="Apply Coupon" link /></p>
+                        </div>
+                        <hr>
+                        <div class="flex justify-content-between">
+                            <p class="m-0">
+                                <b>Total Amount :</b>
+                            </p>
+                            <p>
+                                <b>₹4020</b>
+                            </p>
+                        </div>
+
                         <div class="text-center">
                             <Button label="Place an order" class="bg-blue-700 text-white p-2 mt-3 border-round w-full"/>
                         </div>
@@ -129,7 +230,7 @@ const useVaah = vaah();
                 </Card>
 
                 <div class="table_bottom mt-4 border-1 border-gray-200">
-                    <InputNumber v-model="store" inputId="integeronly" class="w-full"/>
+                    <InputText v-model="store.item" placeholder="Enter promo code" class="w-full"/>
                 </div>
             </div>
         </div>
