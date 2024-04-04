@@ -123,6 +123,7 @@ export const useProductStore = defineStore({
         min_quantity : null,
         max_quantity : null,
         product_name:null,
+        default_vendor_message:null,
 
     }),
     getters: {
@@ -2419,19 +2420,9 @@ export const useProductStore = defineStore({
 
         redirectToVendorProducts()
         {
-            // const query = {
-            //     page: 1,
-            //     rows: 20,
-            //     filter: {
-            //         vendors: [vendor.slug],trashed: 'include'
-            //     }
-            // };
+
             this.$router.push({name: 'productvendors.index'});
-            // const route = {
-            //     name: 'vendorproducts.index',
-            //
-            // };
-            // this.$router.push(route);
+
         },
 
 
