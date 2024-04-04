@@ -2294,6 +2294,7 @@ export const useProductStore = defineStore({
 
         openVendorsPanelAfter(data, res) {
             if (data) {
+                data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
                 this.item.vendor_data = data;
             } else {
                 this.$router.push({name: 'products.index', query: this.query});
