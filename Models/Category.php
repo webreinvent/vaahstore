@@ -503,6 +503,9 @@ class Category extends VaahModel
         }
         $response['success'] = true;
         $response['data'] = $item;
+        $response['data']['parent_category_name'] = $item->parentCategory?->name;
+
+
 
         return $response;
 
