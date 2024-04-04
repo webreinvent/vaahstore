@@ -1734,7 +1734,14 @@ class Product extends VaahModel
 
         $vendor_prices = $product_prices->groupBy('vh_st_vendor_id');
 
-        $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices) {
+//        $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices) {
+        $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices, $id) {
+            $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->sum('quantity');
+
+            $vendor->quantity = $quantity;
+
             $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
             $vendor->pivot_id = null;
             $vendor->is_preferred = null;

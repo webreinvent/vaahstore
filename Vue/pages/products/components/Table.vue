@@ -283,7 +283,11 @@ watch(() => store.show_vendor_panel, (newValue) => {
                     </div>
                 </template>
             </Column>
-
+            <Column  header="Product Quantity" style="border: 1px solid #ccc;">
+                <template #body="props">
+                   {{props.data.quantity}}
+                </template>
+            </Column>
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
                     <Badge severity="info"  >
