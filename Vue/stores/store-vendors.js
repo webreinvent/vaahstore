@@ -1523,6 +1523,10 @@ export const useVendorStore = defineStore({
             };
             this.$router.push(route);
         },
+        toViewAllProduct()
+        {
+            this.$router.push({name: 'products.index'});
+        },
 
 
         //-----------------------------------------------------------------------
