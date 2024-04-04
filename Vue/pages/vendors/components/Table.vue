@@ -86,7 +86,6 @@ const permissions=store.assets.permissions;
                         <span class="p-inputgroup-addon"
                               v-else-if="prop.data.is_default">
                              <b>{{store.assets.total_product}}</b>
-
                          </span>
                         <span class="p-inputgroup-addon"
                               v-else>
