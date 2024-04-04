@@ -2294,7 +2294,23 @@ export const useProductStore = defineStore({
 
         openVendorsPanelAfter(data, res) {
             if (data) {
-                data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
+                // data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
+                // this.item.vendor_data = data;
+
+                data.sort((a, b) => {
+                    const preferred_vendor = b.is_preferred - a.is_preferred;
+                    if (preferred_vendor !== 0) {
+                        return preferred_vendor;
+                    }
+
+                    const default_vendor = b.is_default - a.is_default;
+                    if (preferred_vendor !== 0) {
+                        return preferred_vendor;
+                    }
+
+                    return b.quantity - a.quantity;
+                });
+
                 this.item.vendor_data = data;
             } else {
                 this.$router.push({name: 'products.index', query: this.query});
