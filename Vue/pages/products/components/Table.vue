@@ -283,22 +283,25 @@ watch(() => store.show_vendor_panel, (newValue) => {
                     </div>
                 </template>
             </Column>
-            <Column  header="Product Quantity" style="border: 1px solid #ccc;">
+            <Column header="Product Quantity" style="border: 1px solid #ccc;">
                 <template #body="props">
-                   {{props.data.quantity}}
+                    <Badge :severity="props.data.quantity === 0 ? 'danger' : 'info'">
+                        {{ props.data.quantity }}
+                    </Badge>
                 </template>
             </Column>
             <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <Badge severity="info"  >
+                    <Badge :severity="props.data.variation_prices.length ? 'info' : 'danger'">
                         {{ store.calculatePriceRange(props.data.variation_prices) }}
                     </Badge>
                 </template>
             </Column>
+
             <column field="Action" header="Is Preferred" style="border:1px solid #ccc;">
                 <template #body="props">
                     <InputSwitch v-model.bool="props.data.is_preferred "
-                                 :disabled="!store.assets.permissions.includes('can-update-module')"
+                                 :disabled=" (props.data.quantity === 0 || props.data.variation_prices.length===0 )"
                                  data-testid="products-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
