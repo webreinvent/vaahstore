@@ -77,15 +77,15 @@ const permissions=store.assets.permissions;
                             @click="store.toViewProducts(prop.data)">
                                <b>{{prop.data.vendor_products.length}}</b>
                         </span>
-                        <span class="p-inputgroup-addon"
-                              v-else-if="prop.data.is_default">
+                        <span class="p-inputgroup-addon cursor-pointer"
+                              v-tooltip.top="'All Products'"
+                              v-else-if="prop.data.is_default "
+                              @click="store.toViewAllProduct()">
                              <b>{{store.assets.total_product}}</b>
-
                          </span>
                         <span class="p-inputgroup-addon"
                               v-else>
                              <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
-
                          </span>
                         <Button @click="store.toProduct(prop.data)"
                                 style="cursor: pointer;"
