@@ -2293,6 +2293,9 @@ export const useProductStore = defineStore({
 //---------------------------------------------------------------------
 
         openVendorsPanelAfter(data, res) {
+            this.default_vendor_message = (res && res.data && res.data.message)
+                ? 'This default vendor does not exist with this product in vendor products table. click to'
+                : null;
             if (data) {
                 // data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
                 // this.item.vendor_data = data;
@@ -2304,8 +2307,8 @@ export const useProductStore = defineStore({
                     }
 
                     const default_vendor = b.is_default - a.is_default;
-                    if (preferred_vendor !== 0) {
-                        return preferred_vendor;
+                    if (default_vendor !== 0) {
+                        return default_vendor;
                     }
 
                     return b.quantity - a.quantity;
@@ -2412,7 +2415,24 @@ export const useProductStore = defineStore({
         maxPrice(event){
             this.query.filter.max_price=event.value;
 
-        }
+        },
+
+        redirectToVendorProducts()
+        {
+            // const query = {
+            //     page: 1,
+            //     rows: 20,
+            //     filter: {
+            //         vendors: [vendor.slug],trashed: 'include'
+            //     }
+            // };
+            this.$router.push({name: 'productvendors.index'});
+            // const route = {
+            //     name: 'vendorproducts.index',
+            //
+            // };
+            // this.$router.push(route);
+        },
 
 
     }

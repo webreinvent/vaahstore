@@ -29,6 +29,12 @@ watch(() => store.show_vendor_panel, (newValue) => {
         <template #header>
             <h2 style="font-weight: bold;" v-if="store.item" >{{store.product_name}}</h2>
         </template>
+        <Message v-if="store.default_vendor_message" severity="warn" class="mt-1" :closable="false">
+            {{store.default_vendor_message}} <Button @click="this.$router.push({name: 'productvendors.index'});">Create Record </Button>.
+        </Message>
+
+
+
         <div class="flex align-items-center pt-1">
             <Checkbox v-model="show_preferred" :binary="true" />
             <label for="preferred-filter" class="ml-2"> Only Preferred Vendor </label>

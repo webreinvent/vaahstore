@@ -1728,20 +1728,34 @@ class Product extends VaahModel
         $vendors = Vendor::whereIn('id', $vendor_ids)
             ->select('id', 'name', 'slug', 'is_default')
             ->get();
+
+        // Check if there are any default vendors missing
+        $default_vendor_ids = $vendors->where('is_default', 1)->pluck('id')->toArray();
+        $missing_default_vendors = Vendor::whereNotIn('id', $default_vendor_ids)
+            ->where('is_default', 1)
+            ->select('id', 'name', 'slug', 'is_default')
+            ->get();
+
+        $vendors = $vendors->merge($missing_default_vendors);
+
+        $message = false;
+
+        if ($missing_default_vendors->isNotEmpty()) {
+            $message = true;
+        }
+
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
             ->whereIn('vh_st_vendor_id', $vendor_ids)
             ->get();
 
         $vendor_prices = $product_prices->groupBy('vh_st_vendor_id');
 
-//        $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices) {
         $vendors->each(function ($vendor) use ($product_vendors, $vendor_prices, $id) {
             $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
                 ->where('vh_st_product_id', $id)
                 ->sum('quantity');
 
             $vendor->quantity = $quantity;
-
             $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
             $vendor->pivot_id = null;
             $vendor->is_preferred = null;
@@ -1757,6 +1771,7 @@ class Product extends VaahModel
         return [
             'success' => true,
             'data' => $vendors,
+            'message' => $message,
         ];
     }
 
@@ -1785,6 +1800,8 @@ class Product extends VaahModel
             'message' => 'Success.',
         ];
     }
+
+
 
 
 
