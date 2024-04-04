@@ -73,10 +73,15 @@ const permissions=store.assets.permissions;
                     <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon cursor-pointer"
                               v-tooltip.top="'View Products'"
-                              v-if="prop.data.vendor_products && prop.data.vendor_products.length"
+                              v-if="(prop.data.vendor_products && prop.data.vendor_products.length)&& !prop.data.is_default"
                             @click="store.toViewProducts(prop.data)">
                                <b>{{prop.data.vendor_products.length}}</b>
                         </span>
+                        <span class="p-inputgroup-addon"
+                              v-else-if="prop.data.is_default">
+                             <b>{{store.assets.total_product}}</b>
+
+                         </span>
                         <span class="p-inputgroup-addon"
                               v-else>
                              <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
