@@ -1,7 +1,8 @@
 <script setup>
-import { vaah } from '../../../vaahvue/pinia/vaah'
-import { useProductStore } from '../../../stores/store-products'
+import {vaah} from '../../../vaahvue/pinia/vaah'
+import {useProductStore} from '../../../stores/store-products'
 import {computed, ref, watch} from "vue";
+
 const store = useProductStore();
 const useVaah = vaah()
 const show_preferred = ref(false);
