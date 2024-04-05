@@ -14,7 +14,7 @@
                   data-testid="sample-crud_options"
                   filter
         />
-        <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter numbers of records" class="mr-1" />
+        <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter no. of records" class="mr-1" />
 
         <Button label="Submit" @click="store.createBulkRecords()" :disabled="store.is_button_disabled"   />
     </div>
