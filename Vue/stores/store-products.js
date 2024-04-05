@@ -2295,7 +2295,7 @@ export const useProductStore = defineStore({
 
         openVendorsPanelAfter(data, res) {
             this.default_vendor_message = (res && res.data && res.data.message)
-                ? 'This default vendor does not exist with this product in vendor products table. click to'
+                ? 'This default vendor does not exist with product.Click to'
                 : null;
             if (data) {
                 // data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
