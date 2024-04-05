@@ -77,11 +77,11 @@ const useVaah = vaah();
             <Column field="status" header="Status"
                     v-if="store.isViewLarge()">
                 <template #body="prop">
-                    <Badge v-if="prop.data.status.slug === 'approved'"
+                    <Badge v-if="prop.data && prop.data.status &&  prop.data.status.slug === 'approved'"
                            severity="success"> {{prop.data.status.name}} </Badge>
-                    <Badge v-else-if="prop.data.status.slug === 'rejected'"
+                    <Badge v-else-if="prop.data && prop.data.status &&  prop.data.status.slug === 'rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
-                    <Badge v-else
+                    <Badge v-else-if="prop.data && prop.data.status &&  prop.data.status.slug === 'pending'"
                            severity="warning"> {{prop.data.status.name}} </Badge>
                 </template>
             </Column>
