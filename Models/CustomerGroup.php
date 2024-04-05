@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Role;
+use WebReinvent\VaahCms\Models\RoleBase;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -745,19 +747,70 @@ class CustomerGroup extends VaahModel
     }
 
 
+    //---------------------------------------------------
+
+    public static function getRandomCustomers($count = 5)
+    {
+        return \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
+            $query->where('slug', 'customer');
+        })->where('is_active', 1)->inRandomOrder()->limit($count)->get();
+    }
+
+    //--------------------------------------------------
+
+
+    public function users() {
+        return $this->belongsToMany( User::class,
+            'vh_user_roles', 'vh_role_id', 'vh_user_id'
+        )->withPivot('is_active',
+            'created_by',
+            'created_at',
+            'updated_by',
+            'updated_at');
+    }
+
+
     //-------------------------------------------------
+
+    public static function syncRolesWithUsers()
+    {
+        $customer_role = RoleBase::slug('customer')->first();
+        $customer = $customer_role->users()->wherePivot('is_active', 1)
+            ->get()
+            ->first();
+
+
+        return $customer;
+    }
+
+    //----------------------------------------------------------------------------------------
     public static function seedSampleItems($records=100)
     {
 
         $i = 0;
 
+        $customer = self::syncRolesWithUsers();
+
+        if(!$customer)
+        {
+           \VaahCms\Modules\Store\Models\User::seedSampleItems(1);
+
+        }
+
         while($i < $records)
         {
             $inputs = self::fillItem(false);
-
             $item =  new self();
             $item->fill($inputs);
             $item->save();
+            if ($customers = self::getRandomCustomers()) {
+                $customer_ids = $customers->pluck('id')->toArray();
+                $item->customers()->sync($customer_ids);
+            } else {
+                $error_message = "No customer exists.";
+                $response['errors'][] = $error_message;
+                return $response;
+            }
 
             $i++;
 
@@ -806,6 +859,8 @@ class CustomerGroup extends VaahModel
             'first_name' => $randomCustomerGroup->first_name,
             'last_name' => $randomCustomerGroup->last_name,
             'display_name' => $randomCustomerGroup->display_name,
+            'name' => $randomCustomerGroup->name,
+            'avatar' => $randomCustomerGroup->avatar,
         ];
         $faker = Factory::create();
 
