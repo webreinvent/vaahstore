@@ -11,7 +11,7 @@ const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
-    if (route.params?.id ) {
+    if (route.params?.id && store.product_variation_list.length <= 0) {
         await store.getItem(route.params.id);
         await store.searchVariationOfProduct();
     }
@@ -87,16 +87,19 @@ const toggleFormMenu = (event) => {
 
             </template>
 
-            <div v-if="store.product_variation_list.length > 0 " class="grid align-items-center mb-2">
+            <div v-if="store.product_variation_list.length > 0 " class="grid align-items-center ">
                 <div class="col-5">
-                    <Button @click="store.fillAllPrices">Fill All Prices</Button>
+                    <div class="flex w-full mb-1">
+                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm w-full"
+                                     placeholder="Enter Price"
+                        />
+                        <Button class="min-w-max" @click="store.fillAllPrices">Fill All </Button>
+                    </div>
+
                 </div>
 
-                <div class="col-7 pl-3">
-                    <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm h-2rem m-1"
-                                 placeholder="Enter Price For All Variations"
-                    />
-                </div>
+
+
             </div>
                 <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 

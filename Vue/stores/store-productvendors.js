@@ -1525,7 +1525,7 @@ export const useProductVendorStore = defineStore({
                     });
                 }
                 else{
-                    vaah().toastErrors(['Enter Price For All Variations.']);
+                    vaah().toastErrors(['Please Enter Price.']);
                 }
             }
         },
