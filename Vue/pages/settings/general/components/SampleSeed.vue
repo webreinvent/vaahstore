@@ -22,7 +22,18 @@
 
 <script setup>
 import {useSettingStore} from '../../../../stores/store-settings'
+import {useRoute} from "vue-router";
+import {onMounted} from "vue";
 
 const store = useSettingStore();
+
+const route = useRoute();
+
+onMounted(async () => {
+
+      store.is_button_disabled = false;
+    store.quantity = null;
+    store.selected_crud = null;
+});
 
 </script>
