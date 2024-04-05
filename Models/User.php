@@ -457,7 +457,7 @@ class User extends UserBase
         $timezones = vh_get_timezones();
         $random_zone = collect($timezones)->random()['slug'];
         $inputs['timezone'] = $random_zone;
-        $inputs['is_active'] = rand(0, 1);
+        $inputs['is_active'] = 1;
 
         $faker = Factory::create();
         $phone_number_length = 10;
