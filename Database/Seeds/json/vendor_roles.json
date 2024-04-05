@@ -10,5 +10,9 @@
     {
         "name": "Vendor Staff",
         "details": "Somebody who executes vendor-related tasks"
+    },
+    {
+        "name": "Customer",
+        "details": "Some who has executes order purchase  related tasks"
     }
 ]
