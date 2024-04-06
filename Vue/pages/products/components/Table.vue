@@ -78,12 +78,12 @@ const useVaah = vaah()
              <Column field="price range" header="Price Range">
                  <template #body="props">
         <span>
-            {{
-                props.data.vendors_data && props.data.vendors_data.length > 0
-                ? store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) || 'Not available'
-                : 'Not available'
-            }}
-        </span>
+    {{
+        props.data.default_product_price_range && props.data.default_product_price_range.price_range && props.data.default_product_price_range.price_range.length > 0
+        ? store.calculatePriceRangeForProduct(props.data.default_product_price_range.price_range) || 'Not available'
+        : 'Not available'
+    }}
+</span>
                  </template>
              </Column>
 
