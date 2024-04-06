@@ -661,7 +661,7 @@ class Product extends VaahModel
         $list = $list->paginate($rows);
         foreach($list as $item) {
 
-            $item->vendors_data = self::VendorsListForPrduct($item->id)['data'];
+            $item->vendors_data = self::getPriceRangeOfProduct($item->id)['data'];
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1682,9 +1682,9 @@ class Product extends VaahModel
     }
 
 
-    public static function VendorsListForPrduct($id)
+    public static function getPriceRangeOfProduct($id)
     {
-        $preferred_product_vendors = ProductVendor::where('vh_st_product_id', $id)
+        $preferred_product_vendors_ids = ProductVendor::where('vh_st_product_id', $id)
             ->where('is_preferred', 1)
             ->pluck('vh_st_vendor_id')
             ->toArray();
@@ -1692,21 +1692,40 @@ class Product extends VaahModel
         $vendors = Vendor::where('is_default', 1)->select('id', 'name', 'slug', 'is_default')
             ->get();
 
-        if (!empty($preferred_product_vendors)) {
-            $vendors = Vendor::whereIn('id', $preferred_product_vendors)->select('id', 'name', 'slug', 'is_default')
+        if (!empty($preferred_product_vendors_ids)) {
+            $vendors = Vendor::whereIn('id', $preferred_product_vendors_ids)->select('id', 'name', 'slug', 'is_default')
                 ->get();
         }
 
-        $vendor_ids_default = $vendors->pluck('id')->toArray();
+        $default_vendor_ids = $vendors->pluck('id')->toArray();
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
-            ->whereIn('vh_st_vendor_id', $vendor_ids_default)
+            ->whereIn('vh_st_vendor_id', $default_vendor_ids)
             ->get();
 
-        $vendor_prices = $product_prices->groupBy('vh_st_vendor_id')->map->pluck('amount')->toArray();
+        $product_prices_with_vendor = $product_prices->groupBy('vh_st_vendor_id')->map->pluck('amount')->toArray();
 
-        $vendors->each(function ($vendor) use ($vendor_prices) {
-            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
+//        $vendors->each(function ($vendor) use ($vendor_prices) {
+//            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
+//        });
+
+        $vendors->each(function ($vendor) use ($id, $product_prices_with_vendor) {
+            $vendor->variation_prices = $product_prices_with_vendor[$vendor->id] ?? [];
+
+            // If variation prices are empty, fetch from product variation table
+            if (empty($vendor->variation_prices)) {
+                $product_variation_prices = ProductVariation::where('vh_st_product_id', $id)
+                    ->pluck('price')
+                    ->toArray();
+
+                // Filter out null or empty prices
+                $product_price_array = array_filter($product_variation_prices);
+
+                // Assign variation prices from product variations
+                $vendor->variation_prices = $product_price_array;
+            }
         });
+
+
 
         return [
             'success' => true,
@@ -1756,7 +1775,45 @@ class Product extends VaahModel
                 ->sum('quantity');
 
             $vendor->quantity = $quantity;
-            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
+//            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
+
+            $vendor->variation_prices = [];
+            if (isset($vendor_prices[$vendor->id])) {
+                $prices = $vendor_prices[$vendor->id]->pluck('amount')->toArray();
+                $vendor->variation_prices = $prices;
+            }
+            if (empty($vendor->variation_prices)) {
+                // Fetch prices from ProductVariation
+                $productVariationPrices = ProductVariation::where('vh_st_product_id', $id)
+                    ->pluck('price')
+                    ->toArray();
+
+                // Filter out null or empty prices
+                $productVariationPrices = array_filter($productVariationPrices);
+
+                // Merge ProductVariation prices with existing variation_prices
+                $vendor->variation_prices = array_merge($vendor->variation_prices, $productVariationPrices);
+            }
+//            $vendor->variation_prices = [];
+//            if (isset($vendor_prices[$vendor->id]) && is_array($vendor_prices[$vendor->id])) {
+//                $vendor->variation_prices = array_map(function ($price) {
+//                    return $price['amount'];
+//                }, $vendor_prices[$vendor->id]);
+//            }
+//
+//
+//
+//            if (empty($vendor->variation_prices)) {
+//                $productVariationPrices = ProductVariation::where('vh_st_product_id', $id)
+//                    ->pluck('price')
+//                    ->toArray();
+//
+//                // Filter out null or empty prices
+//                $productVariationPrices = array_filter($productVariationPrices);
+//
+//                // Assign variation prices from product variations
+//                $vendor->variation_prices = $productVariationPrices;
+//            }
             $vendor->pivot_id = null;
             $vendor->is_preferred = null;
 
