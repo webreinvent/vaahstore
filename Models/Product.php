@@ -1710,14 +1710,52 @@ class Product extends VaahModel
         // Retrieve vendors
         $vendors = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
 
-        // If there are no vendors found, return null
         if ($vendors->isEmpty()) {
+
+            // Query vendors with product stocks having quantity greater than 0
+            $price_range = ProductVariation::where('vh_st_product_id', $id)
+                ->where('price', '>=', 0)
+                ->pluck('price')
+                ->toArray();
+
+            $quantity = null;
+            $price_range = $price_range ? $price_range : [];
+            $vendors = Vendor::whereHas('productStocks', function ($query) use ($id) {
+                $query->where('vh_st_product_id', $id)
+                    ->where('quantity', '>', 0);
+            })
+                ->select('id', 'name', 'slug', 'is_default')
+                ->get();
+
+            // If no vendors with non-zero quantity are found, return null
+            if ($vendors->isEmpty()) {
+                return [
+                    'success' => true,
+                    'data' => [
+                        'price_range' => $price_range,
+                    ],
+                ];
+            }
+
+            // Pick a random vendor from the obtained results
+            $random_vendor = $vendors->random();
+            $quantity = ProductStock::where('vh_st_vendor_id', $random_vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->sum('quantity');
+
+
+
+            $quantity = $quantity ? $quantity : null;
+            $random_vendor->price_range=$price_range;
+            $random_vendor->quantity=$quantity;
+
+
+
             return [
                 'success' => true,
-                'data' => null,
+                'data' =>$random_vendor ,
             ];
         }
-
         // Filter out vendors with quantity of 0
         $vendors = $vendors->filter(function ($vendor) use ($id) {
             return ProductStock::where('vh_st_vendor_id', $vendor->id)
