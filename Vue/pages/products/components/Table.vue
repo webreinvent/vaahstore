@@ -62,6 +62,7 @@ const useVaah = vaah()
              </Column>
 
 
+
              <Column field="quantity" header="Quantity"
                      v-if="store.isViewLarge()"
                      :sortable="true">
@@ -75,15 +76,32 @@ const useVaah = vaah()
                             severity="info"></Badge>
                  </template>
              </Column>
+
+
+
              <Column field="price range" header="Price Range">
-                 <template #body="props">
+                 <template #body="prop">
         <span>
     {{
-        props.data.default_product_price_range && props.data.default_product_price_range.price_range && props.data.default_product_price_range.price_range.length > 0
-        ? store.calculatePriceRangeForProduct(props.data.default_product_price_range.price_range) || 'Not available'
+        prop.data.default_product_price_range && prop.data.default_product_price_range.price_range && prop.data.default_product_price_range.price_range.length > 0
+        ? store.calculatePriceRangeForProduct(prop.data.default_product_price_range.price_range) || 'Not available'
         : 'Not available'
     }}
 </span>
+                 </template>
+             </Column>
+
+             <Column  header="Selected Vendor"
+                      v-if="store.isViewLarge()">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data && prop.data.default_product_price_range && prop.data.default_product_price_range.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.default_product_price_range">
+                            {{ prop.data.default_product_price_range.name }}</div>
+                         </span>
                  </template>
              </Column>
 
