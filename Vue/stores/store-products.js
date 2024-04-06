@@ -2322,7 +2322,7 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+////not usable
         calculatePriceRange(prices) {
             const amounts = prices.map(price => price.amount);
             if (amounts.length === 0) {
