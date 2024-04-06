@@ -205,7 +205,14 @@ class Vendor extends VaahModel
     public function business_type(){
         return $this->belongsTo(Taxonomy::class, 'taxonomy_id_vendor_business_type', 'id');
     }
-
+    public function productStocks()
+    {
+        return $this->hasMany(ProductStock::class, 'vh_st_vendor_id', 'id');
+    }
+    public function productPrices()
+    {
+        return $this->hasMany(ProductPrice::class, 'vh_st_vendor_id', 'id');
+    }
     //-------------------------------------------------
 
     public function vendorProducts()
