@@ -77,7 +77,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
             <column field="Action" header="Is Preferred" style="border:1px solid #ccc;">
                 <template #body="props">
                     <InputSwitch v-model.bool="props.data.is_preferred "
-
+                                 :disabled=" (props.data.quantity === 0 || props.data.product_price_range.length===0 )"
                                  data-testid="products-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"

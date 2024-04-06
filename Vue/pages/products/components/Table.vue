@@ -82,11 +82,11 @@ const useVaah = vaah()
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data && prop.data.default_product_price_range"
+                     <Badge v-if="prop.data && prop.data.default_product_price_range.quantity"
                             :value="prop.data.default_product_price_range.quantity"
                             severity="info"></Badge>
                      <Badge v-else
-                            value="0"
+                            :value="prop.data.quantity"
                             severity="danger"></Badge>
                  </template>
              </Column>
@@ -97,7 +97,7 @@ const useVaah = vaah()
     {{
         prop.data.default_product_price_range && prop.data.default_product_price_range.price_range && prop.data.default_product_price_range.price_range.length > 0
         ? store.calculatePriceRangeForProduct(prop.data.default_product_price_range.price_range) || 'Not available'
-        : 'Not available'
+        : ''
     }}
 </span>
                  </template>
