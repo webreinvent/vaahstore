@@ -527,7 +527,7 @@ export const useVendorStore = defineStore({
         afterGetList: function (data, res)
         {
             this.default_vendor_message = (res && res.data && res.data.message)
-                ? 'There is no default vendor. Mark a vendor as default.'
+                ? res.data.message
                 : null;
             if(data)
             {

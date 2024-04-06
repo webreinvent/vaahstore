@@ -62,28 +62,58 @@ const useVaah = vaah()
              </Column>
 
 
+
+<!--             <Column field="quantity" header="Quantity"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     :sortable="true">-->
+
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.quantity == 0 || prop.data.quantity === null"-->
+<!--                            value="0"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-else-if="prop.data.quantity > 0"-->
+<!--                            :value="prop.data.quantity"-->
+<!--                            severity="info"></Badge>-->
+<!--                 </template>-->
+<!--             </Column>-->
+
              <Column field="quantity" header="Quantity"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0 || prop.data.quantity === null"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.quantity > 0"
-                            :value="prop.data.quantity"
+                     <Badge v-if="prop.data && prop.data.default_product_price_range.quantity"
+                            :value="prop.data.default_product_price_range.quantity"
                             severity="info"></Badge>
+                     <Badge v-else
+                            :value="prop.data.quantity"
+                            severity="danger"></Badge>
                  </template>
              </Column>
+
              <Column field="price range" header="Price Range">
-                 <template #body="props">
+                 <template #body="prop">
         <span>
-            {{
-                props.data.vendors_data && props.data.vendors_data.length > 0
-                ? store.calculatePriceRangeForProduct(props.data.vendors_data[0].variation_prices) || 'Not available'
-                : 'Not available'
-            }}
-        </span>
+    {{
+        prop.data.default_product_price_range && prop.data.default_product_price_range.price_range && prop.data.default_product_price_range.price_range.length > 0
+        ? store.calculatePriceRangeForProduct(prop.data.default_product_price_range.price_range) || 'Not available'
+        : ''
+    }}
+</span>
+                 </template>
+             </Column>
+
+             <Column  header="Selected Vendor"
+                      v-if="store.isViewLarge()">
+
+                 <template #body="prop">
+                     <Badge v-if="prop.data && prop.data.default_product_price_range && prop.data.default_product_price_range.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <span>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.default_product_price_range">
+                            {{ prop.data.default_product_price_range.name }}</div>
+                         </span>
                  </template>
              </Column>
 

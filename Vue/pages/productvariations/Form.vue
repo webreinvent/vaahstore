@@ -196,7 +196,7 @@ const permissions=store.assets.permissions;
                         v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
-                        :min = 1
+                        :min = 0
                         name="productvariations-price"
                         data-testid="productvariations-price"/>
                 </VhField>
