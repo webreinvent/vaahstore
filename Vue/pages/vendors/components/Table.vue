@@ -14,7 +14,7 @@ const permissions=store.assets.permissions;
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <Message v-if="!store.list.data || store.default_vendor_message" severity="warn" class="mt-1" :closable="false">
-            There is no default vendor. Mark a vendor as <strong>default</strong>.
+            {{store.default_vendor_message}}
         </Message>
         <!--table-->
         <DataTable :value="store.list.data"

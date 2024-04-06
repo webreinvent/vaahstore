@@ -1703,7 +1703,7 @@ class Product extends VaahModel
                     ->where('quantity', '>', 0);
             })->whereHas('productPrices', function ($query) use ($id) {
                 $query->where('vh_st_product_id', $id)
-                    ->whereNotNull('amount');
+                    ->where('amount', '>', 0);
             });
         }
 

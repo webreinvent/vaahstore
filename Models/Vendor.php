@@ -663,11 +663,16 @@ class Vendor extends VaahModel
 
     //-------------------------------------------------
 
+
     public static function getList($request)
     {
         $default_vendor = self::where('is_default', 1)->first();
+        $is_exist = $default_vendor ? true : false;
+        $default_vendor_product_exists = $is_exist ? ProductVendor::where('vh_st_vendor_id', $default_vendor->id)->exists() : false;
+
         $list = self::getSorted($request->filter)->with(['store', 'approvedByUser',
             'ownedByUser', 'status','vendorProducts','users']);
+
         if ($request->has('filter')) {
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
@@ -677,14 +682,11 @@ class Vendor extends VaahModel
             $list->dateFilter($request->filter);
             $list->productFilter($request->filter);
         }
-        $default_vendor_exists = $default_vendor;
-        $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        $rows = config('vaahcms.per_page');
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
-
         $list = $list->paginate($rows);
 
         $response = [
@@ -692,13 +694,13 @@ class Vendor extends VaahModel
             'data' => $list,
         ];
 
-        if (!$default_vendor_exists) {
-            $response['message'] = true;
+        if (!$is_exist) {
+            $response['message'] = ' There is no default vendor. Mark a vendor as default.';
+        } elseif (!$default_vendor_product_exists) {
+            $response['message'] = 'The default vendor is not associated with any product in vendor products table.';
         }
 
         return $response;
-
-
     }
 
     //-------------------------------------------------
