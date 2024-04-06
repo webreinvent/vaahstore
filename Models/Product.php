@@ -1708,10 +1708,17 @@ class Product extends VaahModel
                     ->pluck('price')
                     ->toArray();
                 // Filter out null or empty prices
-                $product_price_array = array_filter($product_variation_prices);
+                $product_price_array = array_filter($product_variation_prices, function($value) {
+                    return $value !== null && $value !== ''; // Filter out null or empty values
+                });
                 // Assign variation prices from product variations
                 $vendor->price_range = $product_price_array;
             }
+            $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->sum('quantity');
+
+            $vendor->quantity = $quantity;
         });
         $price_data_with_vendor = $vendors->first();
         return [
@@ -1765,19 +1772,20 @@ class Product extends VaahModel
 //            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
 
             $vendor->product_price_range = [];
-            if (isset($product_price_range_with_vendors[$vendor->id])) {
-                $prices = $product_price_range_with_vendors[$vendor->id]->pluck('amount')->toArray();
-                $vendor->product_price_range = $prices;
-            }
+
+            $vendor->product_price_range = isset($product_price_range_with_vendors[$vendor->id])
+                ? $product_price_range_with_vendors[$vendor->id]->pluck('amount')->toArray()
+                : [];
+
             if (empty($vendor->product_price_range)) {
                 // Fetch prices from ProductVariation
                 $default_product_price = ProductVariation::where('vh_st_product_id', $id)
                     ->pluck('price')
                     ->toArray();
-
                 // Filter out null or empty prices
-                $default_product_price_array = array_filter($default_product_price);
-
+                $default_product_price_array = array_filter($default_product_price, function($value) {
+                    return $value !== null && $value !== ''; // Filter out null or empty values
+                });
                 // Merge ProductVariation prices with existing variation_prices
                 $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
             }
