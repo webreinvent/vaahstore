@@ -841,26 +841,26 @@ class CustomerGroup extends VaahModel
 
         $inputs['taxonomy_id_customer_groups_status'] = $status_id;
         $inputs['status']=$status;
-        $customer_group_data = \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
+        $customer_data = \VaahCms\Modules\Store\Models\User::whereHas('activeRoles', function ($query) {
             $query->where('slug', 'customer');
         })->where('is_active', 1)->get();
 
-        if ($customer_group_data->isEmpty()) {
+        if ($customer_data->isEmpty()) {
             $error_message = "No customer exists.";
             $response['errors'][] = $error_message;
             return $response;
 
         }
 
-        $randomCustomerGroup = $customer_group_data->random();
+        $customer_details = $customer_data->random();
 
         $inputs['customers'] = [
-            'id' => $randomCustomerGroup->id,
-            'first_name' => $randomCustomerGroup->first_name,
-            'last_name' => $randomCustomerGroup->last_name,
-            'display_name' => $randomCustomerGroup->display_name,
-            'name' => $randomCustomerGroup->name,
-            'avatar' => $randomCustomerGroup->avatar,
+            'id' => $customer_details->id,
+            'first_name' => $customer_details->first_name,
+            'last_name' => $customer_details->last_name,
+            'display_name' => $customer_details->display_name,
+            'name' => $customer_details->name,
+            'avatar' => $customer_details->avatar,
         ];
         $faker = Factory::create();
 
