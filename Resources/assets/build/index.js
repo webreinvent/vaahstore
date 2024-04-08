@@ -2866,7 +2866,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 #`.concat(this.containerId,` [data-pc-section="thumbnailitem"] {
                     flex: 1 0 `).concat(100/this.d_numVisible,`%
                 }
-            `);if(this.responsiveOptions&&!this.isUnstyled){this.sortedResponsiveOptions=Vl(this.responsiveOptions);var o=B.localeComparator();this.sortedResponsiveOptions.sort(function(l,c){var d=l.breakpoint,b=c.breakpoint;return B.sort(d,b,-1,o)});for(var a=0;a<this.sortedResponsiveOptions.length;a++){var s=this.sortedResponsiveOptions[a];i+=`
+            `);if(this.responsiveOptions&&!this.isUnstyled){this.sortedResponsiveOptions=Dl(this.responsiveOptions);var o=B.localeComparator();this.sortedResponsiveOptions.sort(function(l,c){var d=l.breakpoint,b=c.breakpoint;return B.sort(d,b,-1,o)});for(var a=0;a<this.sortedResponsiveOptions.length;a++){var s=this.sortedResponsiveOptions[a];i+=`
                         @media screen and (max-width: `.concat(s.breakpoint,`) {
                             #`).concat(this.containerId,` .p-galleria-thumbnail-item {
                                 flex: 1 0 `).concat(100/s.numVisible,`%
