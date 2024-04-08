@@ -75,7 +75,20 @@ const updateCategoryInUrl = () => {
                         @change="store.setParentId()"
                         class=" w-full" />
                 </VhFieldVertical>
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Select Created Date:</b>
+                    </template>
 
+                    <Calendar v-model="store.selected_dates"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              data-testid="categories-filters-created_at"
+                              placeholder="Choose date range"
+                              :manualInput="false"
+                              class="w-full"/>
+
+                </VhFieldVertical >
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>

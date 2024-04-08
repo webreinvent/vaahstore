@@ -2,6 +2,7 @@ import {watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Category';
 
@@ -71,6 +72,7 @@ export const useCategoryStore = defineStore({
         parent_category : [],
         prev_list:[],
         current_list:[],
+        selected_dates : null,
 
     }),
     getters: {
@@ -91,7 +93,10 @@ export const useCategoryStore = defineStore({
             await this.setViewAndWidth(route.name);
 
             await(this.query = vaah().clone(this.empty_query));
-
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
             await this.countFilters(this.query);
 
             /**
@@ -706,7 +711,7 @@ export const useCategoryStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
-
+            this.selected_dates=[];
             //reload page list
             await this.getList();
             vaah().toastSuccess(['Action was successful']);
@@ -1042,6 +1047,37 @@ export const useCategoryStore = defineStore({
             },)
 
             this.form_menu_list = form_menu;
+
+        },
+        //---------------------------------------------------------------------
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
 
         },
         //---------------------------------------------------------------------

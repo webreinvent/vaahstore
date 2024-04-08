@@ -283,6 +283,8 @@ class Category extends VaahModel
         }
 
     }
+    //-------------------------------------------------
+
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['parent_category']) && is_array($filter['parent_category'])) {
@@ -293,9 +295,8 @@ class Category extends VaahModel
                     $category_ids[] = $category_id;
                 }
             }
-//dd($category_ids);
+
             if (!empty($category_ids)) {
-//                $query->whereIn('parent_category_id', $category_ids);
                 $query->whereIn('parent_category_id', $category_ids)
                     ->orWhereIn('id', $category_ids);
             }
@@ -304,6 +305,30 @@ class Category extends VaahModel
         return $query;
     }
 
+    //-------------------------------------------------
+
+    public function scopeDateFilter($query, $filter)
+    {
+
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
 
     //-------------------------------------------------
     public static function getList($request)
@@ -314,6 +339,7 @@ class Category extends VaahModel
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->categoryFilter($request->filter);
+        $list->dateFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -511,50 +537,7 @@ class Category extends VaahModel
 
     }
 
-//    public static function getItem($id)
-//    {
-//        $item = self::where('id', $id)
-//            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','parentCategory.subCategories'])
-//            ->withTrashed()
-//            ->first();
-//
-//        if(!$item)
-//        {
-//            $response['success'] = false;
-//            $response['errors'][] = 'Record not found with ID: '.$id;
-//            return $response;
-//        }
-//
-//        // Set checked and partialChecked properties for the item's parent category
-//        if($item->parentCategory) {
-//            $item->parentCategory->checked = true; // Set checked status
-//            $item->parentCategory->partialChecked = false; // Set partialChecked status
-//        }
-//
-//        $response['success'] = true;
-//        $response['data'] = $item;
-//
-//        return $response;
-//    }
-//
-//
-//    protected static function setCheckStatus($item)
-//    {
-//        // Set checked status for the current item
-//        $item['checked'] = true;  // Set the default value
-//
-//        // Set partialChecked status for the current item
-//        $item['partialChecked'] = false; // Set the default value
-//
-//        // Set checked and partialChecked status for sub-categories recursively
-//        if(isset($item['subCategories']) && count($item['subCategories']) > 0) {
-//            foreach ($item['subCategories'] as &$subcategory) {
-//                $subcategory = self::setCheckStatus($subcategory);
-//            }
-//        }
-//
-//        return $item;
-//    }
+
 
     //-------------------------------------------------
     public static function updateItem($request, $id)
