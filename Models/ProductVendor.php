@@ -196,7 +196,7 @@ class ProductVendor extends VaahModel
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
-        $vhStVendorProductId = $inputs['id'];
+        $vendor_product_id = $inputs['id'];
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -205,6 +205,10 @@ class ProductVendor extends VaahModel
         $response = [];
         $saved_variations = 0;
         foreach ($inputs['product_variation'] as $key => $variation) {
+            if ($variation['amount'] === null) {
+                $variation['amount'] = 0;
+            }
+
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
@@ -224,7 +228,7 @@ class ProductVendor extends VaahModel
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
-                        'vh_st_vendor_product_id' => $vhStVendorProductId,
+                        'vh_st_vendor_product_id' => $vendor_product_id,
                         'amount' => $variation['amount'],
                     ]);
                     $variation_price->save();
@@ -238,7 +242,7 @@ class ProductVendor extends VaahModel
                     'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                     'vh_st_product_id' => $inputs['vh_st_product_id'],
                     'vh_st_product_variation_id' => $variation['id'],
-                    'vh_st_vendor_product_id' => $vhStVendorProductId,
+                    'vh_st_vendor_product_id' => $vendor_product_id,
                     'amount' => $variation['amount'],
                 ]);
                 $new_variation_price->save();
@@ -251,7 +255,7 @@ class ProductVendor extends VaahModel
         }
 
 
-        $response = self::getItem($vhStVendorProductId);
+        $response = self::getItem($vendor_product_id);
 
 
 
