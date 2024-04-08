@@ -69,6 +69,8 @@ export const useCategoryStore = defineStore({
         filtered_categories : null,
         categories_dropdown_data : null,
         parent_category : [],
+        prev_list:[],
+        current_list:[],
 
     }),
     getters: {
@@ -463,6 +465,7 @@ export const useCategoryStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -498,16 +501,32 @@ export const useCategoryStore = defineStore({
         {
             if(data)
             {
+                this.prev_list =this.list.data;
                 await this.updatedCategory();
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
             }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
         },
+        //---------------------------------------------------------------------
         async updatedCategory(){
             this.assets_is_fetching=true;
             await this.getAssets();
+        },
+        //---------------------------------------------------------------------
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
+            }
         },
         //---------------------------------------------------------------------
         async formActionAfter (data)
@@ -535,6 +554,7 @@ export const useCategoryStore = defineStore({
                     if(this.item && this.item.id){
                         this.item = data;
                     }
+                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'delete':
                     this.item = null;
@@ -563,6 +583,7 @@ export const useCategoryStore = defineStore({
         {
             await this.getAssets();
             await this.getList();
+            vaah().toastSuccess(['Page Reloaded']);
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
@@ -688,6 +709,7 @@ export const useCategoryStore = defineStore({
 
             //reload page list
             await this.getList();
+            vaah().toastSuccess(['Action was successful']);
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -957,6 +979,14 @@ export const useCategoryStore = defineStore({
 
                             this.itemAction('save-and-clone');
 
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
                         }
                     },
                     {

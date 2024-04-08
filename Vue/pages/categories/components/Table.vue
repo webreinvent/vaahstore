@@ -58,7 +58,7 @@ const useVaah = vaah();
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                        {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>
