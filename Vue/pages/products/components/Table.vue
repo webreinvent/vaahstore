@@ -61,23 +61,25 @@ const useVaah = vaah()
 
              </Column>
 
-
-
-
-
-             <Column field="quantity" header="Quantity"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
-
+             <Column field="quantity" header="Quantity" v-if="store.isViewLarge()" :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data && prop.data.product_price_range.quantity"
-                            :value="prop.data.product_price_range.quantity"
-                            severity="info"></Badge>
-                     <Badge v-else
-                            :value="prop.data.quantity"
-                            severity="danger"></Badge>
+                     <template v-if="prop.data && prop.data.product_price_range">
+                         <Badge v-if="prop.data.product_price_range.quantity"
+                                :value="prop.data.product_price_range.quantity"
+                                severity="info"></Badge>
+                         <Badge v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
+                                value="0"
+                                severity="danger"></Badge>
+                         <Badge v-else
+                                :value="prop.data.quantity"
+                                severity="danger"></Badge>
+                     </template>
+                     <template v-else>
+                         <Badge value="0" severity="danger"></Badge>
+                     </template>
                  </template>
              </Column>
+
 
              <Column field="price range" header="Price Range">
                  <template #body="prop">
