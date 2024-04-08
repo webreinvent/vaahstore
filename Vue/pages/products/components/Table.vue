@@ -166,7 +166,7 @@ const useVaah = vaah()
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-view"
-                                v-tooltip.top="'View'"
+                                v-tooltip.top="'Add To Cart'"
                                 @click="store.addToCart(prop.data)"
                                 icon="pi pi-shopping-cart" />
 
@@ -233,7 +233,7 @@ const useVaah = vaah()
     <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
         <div class="p-inputgroup py-3">
             <InputText id="create_cart" class="flex-auto" placeholder="Enter Email or Phone" autocomplete="off" />
-            <Button type="button" label="Add To Cart" @click="store.add_to_cart = false"></Button>
+            <Button type="button" label="Add To Cart" @click="store.showMsg()"></Button>
         </div>
     </Dialog>
 
