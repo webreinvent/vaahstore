@@ -661,7 +661,7 @@ class Product extends VaahModel
         $list = $list->paginate($rows);
         foreach($list as $item) {
 
-            $item->default_product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
+            $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1685,7 +1685,7 @@ class Product extends VaahModel
     public static function getPriceRangeOfProduct($id)
     {
         // Get preferred product vendors IDs
-        $preferred_product_vendors_id = ProductVendor::where('vh_st_product_id', $id)
+        $preferred_product_vendor_id = ProductVendor::where('vh_st_product_id', $id)
             ->where('is_preferred', 1)
             ->pluck('vh_st_vendor_id')
             ->toArray();
@@ -1694,8 +1694,8 @@ class Product extends VaahModel
         $vendors_query = Vendor::query();
 
         // If there are preferred product vendors, filter vendors accordingly
-        if (!empty($preferred_product_vendors_id)) {
-            $vendors_query->whereIn('id', $preferred_product_vendors_id);
+        if (!empty($preferred_product_vendor_id)) {
+            $vendors_query->whereIn('id', $preferred_product_vendor_id);
         } else {
             // If there are no preferred product vendors, filter vendors by non-zero quantity and price
             $vendors_query->whereHas('productStocks', function ($query) use ($id) {
@@ -1708,9 +1708,8 @@ class Product extends VaahModel
         }
 
         // Retrieve vendors
-        $vendors = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
-
-        if ($vendors->isEmpty()) {
+        $vendor = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
+        if ($vendor->isEmpty()) {
 
             // Query vendors with product stocks having quantity greater than 0
             $price_range = ProductVariation::where('vh_st_product_id', $id)
@@ -1720,7 +1719,7 @@ class Product extends VaahModel
 
             $quantity = null;
             $price_range = $price_range ? $price_range : [];
-            $vendors = Vendor::whereHas('productStocks', function ($query) use ($id) {
+            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
                 $query->where('vh_st_product_id', $id)
                     ->where('quantity', '>', 0);
             })
@@ -1728,7 +1727,7 @@ class Product extends VaahModel
                 ->get();
 
             // If no vendors with non-zero quantity are found, return null
-            if ($vendors->isEmpty()) {
+            if ($vendor->isEmpty()) {
                 return [
                     'success' => true,
                     'data' => [
@@ -1738,7 +1737,7 @@ class Product extends VaahModel
             }
 
             // Pick a random vendor from the obtained results
-            $random_vendor = $vendors->random();
+            $random_vendor = $vendor->random();
             $quantity = ProductStock::where('vh_st_vendor_id', $random_vendor->id)
                 ->where('vh_st_product_id', $id)
                 ->sum('quantity');
@@ -1757,15 +1756,14 @@ class Product extends VaahModel
             ];
         }
         // Filter out vendors with quantity of 0
-        $vendors = $vendors->filter(function ($vendor) use ($id) {
+        $vendor = $vendor->filter(function ($vendor) use ($id) {
             return ProductStock::where('vh_st_vendor_id', $vendor->id)
                     ->where('vh_st_product_id', $id)
                     ->sum('quantity') > 0;
         });
-
         // If there are no vendors with non-zero quantity, pick a random vendor
-        if ($vendors->isEmpty()) {
-            $vendors = Vendor::whereHas('productStocks', function ($query) use ($id) {
+        if ($vendor->isEmpty()) {
+            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
                 $query->where('vh_st_product_id', $id)
                     ->where('quantity', '>', 0);
             })
@@ -1774,7 +1772,7 @@ class Product extends VaahModel
         }
 
         // Pick a random vendor if there are vendors available
-        $random_vendor = $vendors->isNotEmpty() ? $vendors->random() : null;
+        $random_vendor = $vendor->isNotEmpty() ? $vendor->random() : null;
 
         // Get the quantity and price range for the selected vendor
         $quantity = $random_vendor ? ProductStock::where('vh_st_vendor_id', $random_vendor->id)
@@ -1819,18 +1817,13 @@ class Product extends VaahModel
 
         // Check if there are any default vendors missing
         $default_vendor_id = $vendors_data->where('is_default', 1)->pluck('id')->toArray();
-        $missing_default_vendors = Vendor::whereNotIn('id', $default_vendor_id)
+        $missing_default_vendor = Vendor::whereNotIn('id', $default_vendor_id)
             ->where('is_default', 1)
             ->select('id', 'name', 'slug', 'is_default')
             ->get();
 
-        $vendors = $vendors_data->merge($missing_default_vendors);
+        $vendors = $vendors_data->merge($missing_default_vendor);
 
-        $message = false;
-
-        if ($missing_default_vendors->isNotEmpty()) {
-            $message = true;
-        }
 
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
             ->whereIn('vh_st_vendor_id', $vendor_ids)
@@ -1859,7 +1852,7 @@ class Product extends VaahModel
                     ->toArray();
                 // Filter out null or empty prices
                 $default_product_price_array = array_filter($default_product_price, function($value) {
-                    return $value !== null && $value !== ''; // Filter out null or empty values
+                    return $value !== null && $value !== '';
                 });
                 // Merge ProductVariation prices with existing variation_prices
                 $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
@@ -1879,7 +1872,7 @@ class Product extends VaahModel
         return [
             'success' => true,
             'data' => $vendors,
-            'message' => $message,
+
         ];
     }
 
