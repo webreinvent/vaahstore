@@ -1160,7 +1160,7 @@ class ProductVariation extends VaahModel
         }
 
             $inputs['price'] = rand(1,100000);
-        $inputs['is_active'] = rand(0,1);
+        $inputs['is_active'] = 1;
         $inputs['is_default'] = 0;
         $inputs['quantity'] = 0;
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-variation-status');
