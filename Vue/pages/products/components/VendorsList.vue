@@ -66,11 +66,17 @@ watch(() => store.show_vendor_panel, (newValue) => {
                     </Badge>
                 </template>
             </Column>
-            <Column field="price range" header="Price Range" style="border: 1px solid #ccc;">
+
+            <Column field="product_price_range" header="Price Range" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <Badge :severity="props.data.product_price_range.length ? 'info' : 'danger'">
-                        {{ store.calculatePriceRangeForProduct(props.data.product_price_range) }}
-                    </Badge>
+                    <template v-if="props.data.product_price_range.length">
+                        <Badge severity="info">
+                            {{ store.calculatePriceRangeForProduct(props.data.product_price_range) }}
+                        </Badge>
+                    </template>
+                    <template v-else>
+                        <span ></span>
+                    </template>
                 </template>
             </Column>
 

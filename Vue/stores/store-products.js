@@ -2345,7 +2345,7 @@ export const useProductStore = defineStore({
             const numericPrices = prices.filter(price => typeof price === 'number');
 
             if (numericPrices.length === 0) {
-                return 'Not available';
+                return '';
             }
 
             const minPrice = Math.min(...numericPrices);
