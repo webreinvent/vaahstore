@@ -190,7 +190,7 @@ const permissions=store.assets.permissions;
                                v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="Price">
+                <VhField label="Price*">
                     <InputNumber
                         class="w-full"
                         v-model="store.item.price"
