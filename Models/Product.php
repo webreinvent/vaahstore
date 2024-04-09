@@ -1697,18 +1697,34 @@ class Product extends VaahModel
         if (!empty($preferred_product_vendor_id)) {
             $vendors_query->whereIn('id', $preferred_product_vendor_id);
         } else {
-            // If there are no preferred product vendors, filter vendors by non-zero quantity and price
-            $vendors_query->whereHas('productStocks', function ($query) use ($id) {
-                $query->where('vh_st_product_id', $id)
-                    ->where('quantity', '>', 0);
-            })->whereHas('productPrices', function ($query) use ($id) {
-                $query->where('vh_st_product_id', $id)
-                    ->where('amount', '>', 0);
+            $vendors_query->where(function ($query) use ($id) {
+                $query->where('is_default', 1)
+                    ->orWhere(function ($query) use ($id) {
+                        $query->whereHas('productStocks', function ($query) use ($id) {
+                            $query->where('vh_st_product_id', $id)
+                                ->where('quantity', '>', 0);
+                        })->whereHas('productPrices', function ($query) use ($id) {
+                            $query->where('vh_st_product_id', $id)
+                                ->where('amount', '>', 0);
+                        });
+                    });
+            })->orWhere(function ($query) use ($id) {
+                $query->whereHas('productStocks', function ($query) use ($id) {
+                    $query->where('vh_st_product_id', $id)
+                        ->where('quantity', '>', 0);
+                })->whereHas('productPrices', function ($query) use ($id) {
+                    $query->where('vh_st_product_id', $id)
+                        ->where('amount', '>', 0);
+                })->where('is_default', '<>', 1)
+                    ->whereHas('productVendors', function ($query) use ($id) {
+                        $query->where('vh_st_product_id', $id);
+                    });
             });
-        }
 
-        // Retrieve vendors
+
+        }
         $vendor = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
+
         if ($vendor->isEmpty()) {
 
             // Query vendors with product stocks having quantity greater than 0
@@ -1737,22 +1753,22 @@ class Product extends VaahModel
             }
 
             // Pick a random vendor from the obtained results
-            $random_vendor = $vendor->random();
-            $quantity = ProductStock::where('vh_st_vendor_id', $random_vendor->id)
+            $selected_vendor = $vendor->random();
+            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
                 ->where('vh_st_product_id', $id)
                 ->sum('quantity');
 
 
 
             $quantity = $quantity ? $quantity : null;
-            $random_vendor->price_range=$price_range;
-            $random_vendor->quantity=$quantity;
+            $selected_vendor->price_range=$price_range;
+            $selected_vendor->quantity=$quantity;
 
 
 
             return [
                 'success' => true,
-                'data' =>$random_vendor ,
+                'data' =>$selected_vendor ,
             ];
         }
         // Filter out vendors with quantity of 0
@@ -1769,37 +1785,55 @@ class Product extends VaahModel
             })
                 ->select('id', 'name', 'slug', 'is_default')
                 ->get();
+
         }
 
-        // Pick a random vendor if there are vendors available
-        $random_vendor = $vendor->isNotEmpty() ? $vendor->random() : null;
+        $selected_vendor = $vendor->isNotEmpty() ? $vendor->random() : null;
+        if ($selected_vendor) {
+            // Get the quantity for the selected vendor
+            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->sum('quantity');
 
-        // Get the quantity and price range for the selected vendor
-        $quantity = $random_vendor ? ProductStock::where('vh_st_vendor_id', $random_vendor->id)
-            ->where('vh_st_product_id', $id)
-            ->sum('quantity') : 0;
+            $selected_vendor->quantity = $quantity;
 
-        $random_vendor->quantity=$quantity;
-        $product_prices = $random_vendor ? ProductPrice::where('vh_st_vendor_id', $random_vendor->id)
-            ->where('vh_st_product_id', $id)
-            ->whereNotNull('amount')
-            ->pluck('amount')
-            ->toArray() : [];
+            // Get the product prices for the selected vendor
+            $product_prices = ProductPrice::where('vh_st_vendor_id', $selected_vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->whereNotNull('amount')
+                ->pluck('amount')
+                ->toArray();
 
-        if (empty($product_prices)) {
-            $product_prices = ProductVariation::where('vh_st_product_id', $id)
+            if (empty($product_prices)) {
+                // If product prices are empty, fallback to product variations
+                $product_prices = ProductVariation::where('vh_st_product_id', $id)
+                    ->whereNotNull('price')
+                    ->pluck('price')
+                    ->toArray();
+            }
+
+            $price_range = $product_prices ?: [];
+            $selected_vendor->price_range = $price_range;
+
+            return [
+                'success' => true,
+                'data' => $selected_vendor,
+            ];
+        } else {
+            // If no random vendor is available, return the default product price
+            $default_price_range = ProductVariation::where('vh_st_product_id', $id)
                 ->whereNotNull('price')
                 ->pluck('price')
                 ->toArray();
+
+            return [
+                'success' => true,
+                'data' => [
+                    'price_range' => $default_price_range,
+                ],
+            ];
         }
 
-// Assign price range based on the availability of product prices
-        $price_range = $product_prices ? $product_prices : [];
-        $random_vendor->price_range=$price_range;
-        return [
-            'success' => true,
-            'data' =>$random_vendor ,
-        ];
     }
 
 

@@ -115,6 +115,7 @@ class Vendor extends VaahModel
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
 
+    //-------------------------------------------------
 
     public function users()
     {
@@ -122,6 +123,14 @@ class Vendor extends VaahModel
             'vh_st_vendor_users','vh_st_vendor_id', 'vh_user_id',
         )->withPivot('vh_st_vendor_id','vh_user_id','vh_role_id','id');
     }
+    //-------------------------------------------------
+
+    public function productVendors()
+    {
+
+        return $this->hasMany(ProductVendor::class, 'vh_st_vendor_id', 'id');
+    }
+    //-------------------------------------------------
 
     public function roles()
     {
@@ -129,6 +138,7 @@ class Vendor extends VaahModel
             'vh_user_roles', 'vh_user_id', 'vh_role_id'
         )->withPivot('is_active');
     }
+    //-------------------------------------------------
 
     public function updatedByUser()
     {
