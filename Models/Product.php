@@ -606,27 +606,39 @@ class Product extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
+
     public function scopePriceFilter($query, $filter)
     {
-        $minPrice = $filter['min_price'] ?? null;
-        $maxPrice = $filter['max_price'] ?? null;
+        $min_price = $filter['min_price'] ?? null;
+        $max_price = $filter['max_price'] ?? null;
 
-        if ($minPrice !== null || $maxPrice !== null) {
-            $vendor_ids = ProductVendor::where('is_preferred', 1)
-                ->pluck('id')
-                ->toArray();
-
-            $product_ids_query = ProductPrice::whereIn('vh_st_vendor_product_id', $vendor_ids);
-
-            if ($minPrice !== null) {
-                $product_ids_query->where('amount', '>=', $minPrice);
+        if ($min_price !== null || $max_price !== null) {
+            $product_price_query = ProductPrice::query();
+            if ($min_price !== null) {
+                $product_price_query->where('amount', '>=', $min_price);
             }
 
-            if ($maxPrice !== null) {
-                $product_ids_query->where('amount', '<=', $maxPrice);
+            if ($max_price !== null) {
+                $product_price_query->where('amount', '<=', $max_price);
             }
 
-            $product_ids = $product_ids_query->pluck('vh_st_product_id')->toArray();
+            $product_ids_from_price = $product_price_query->pluck('vh_st_product_id')->toArray();
+
+            $product_variation_price_query = ProductVariation::query();
+
+            if ($min_price !== null) {
+                $product_variation_price_query->where('price', '>=', $min_price);
+            }
+
+            if ($max_price !== null) {
+                $product_variation_price_query->where('price', '<=', $max_price);
+            }
+
+            $product_ids_from_variation = $product_variation_price_query->pluck('vh_st_product_id')->toArray();
+
+            $product_ids = array_merge($product_ids_from_price, $product_ids_from_variation);
 
             $query->whereIn('id', $product_ids);
         }
