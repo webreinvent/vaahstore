@@ -122,8 +122,7 @@ const toggleFormMenu = (event) => {
                                     :inputId="'minmax-buttons-' + index"
                                     :name="'productprices-amount-' + index"
                                     v-model="variation.amount"
-                                    :min="0"
-                                    :max="150000000000000"
+
                                     mode="decimal"
                                     class="p-inputtext-sm h-2rem m-1"
                                     :data-testid="'productprices-amount-' + index"
