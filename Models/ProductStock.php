@@ -840,10 +840,14 @@ class ProductStock extends VaahModel
         //fill the product field here
 
         $product_ids = Product::where('is_active', 1)->whereHas('productVariations')->select('id', 'name', 'slug')->pluck('id')->toArray();
-        $product_id = $product_ids[array_rand($product_ids)];
-        $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
-        $inputs['vh_st_product_id'] = $product_id;
-        $inputs['product'] = $product;
+        if($product_ids)
+        {
+            $product_id = $product_ids[array_rand($product_ids)];
+            $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
+            $inputs['vh_st_product_id'] = $product_id;
+            $inputs['product'] = $product;
+        }
+
 
 
         //fill the product variation field on the basis of product selected
@@ -853,11 +857,18 @@ class ProductStock extends VaahModel
             ->pluck('id')
             ->toArray();
 
-        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-        $product_variation = ProductVariation::where('id',$product_variation_id)->select('id','name','price')->first();
+        if($product_variation_ids)
+        {
+            $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
+            $product_variation = ProductVariation::where('id',$product_variation_id)->select('id','name','price')->first();
 
-        $inputs['vh_st_product_variation_id'] = $product_variation_id;
-        $inputs['product_variation'] = $product_variation;
+            $inputs['vh_st_product_variation_id'] = $product_variation_id;
+            $inputs['product_variation'] = $product_variation;
+
+        }
+
+
+
 
         //fill the warehouse field on the basis of vendor selected
 
