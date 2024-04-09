@@ -205,9 +205,7 @@ class ProductVendor extends VaahModel
         $response = [];
         $saved_variations = 0;
         foreach ($inputs['product_variation'] as $key => $variation) {
-            if ($variation['amount'] === null) {
-                $variation['amount'] = 0;
-            }
+
 
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
@@ -878,17 +876,19 @@ class ProductVendor extends VaahModel
 
     }
 
-    //-------------------validation for product price------------------------------
+
+
     public static function validationProductPrice($inputs)
     {
 
         $rules = validator($inputs, [
             'vh_st_product_id'=> 'required',
-            'product_variation.*.amount' => 'nullable|numeric|min:0|max:9999999',
+            'product_variation.*.amount' => 'required|numeric|min:0|max:9999999',
         ], [
             'vh_st_product_id.required' => 'The Product field is required',
-            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',
-            ]);
+            'product_variation.*.amount.min' => 'The Price field cannot be less than :min',
+            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max',
+        ]);
         if($rules->fails()){
             return [
                 'success' => false,
@@ -903,7 +903,6 @@ class ProductVendor extends VaahModel
         ];
 
     }
-
     //-------------------------------------------------
     public static function getActiveItems()
     {
