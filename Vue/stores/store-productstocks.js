@@ -1562,7 +1562,10 @@ export const useProductStockStore = defineStore({
         //-----------------------------------------------------------------------
 
         getDefaultVendorAfter(data,res) {
-            this.item.vendor = data ? data : [];
+            if (data) {
+                this.item.vendor =  data ;
+                this.item.vh_st_vendor_id = data.id;
+            }
         },
 
     }

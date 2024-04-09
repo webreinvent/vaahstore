@@ -1278,7 +1278,7 @@ if ($product_variation) {
     //-------------------------------------------------
     public static function defaultVendor($request)
     {
-        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first(['id', 'name', 'slug']);
 
 
         if($default_vendor)
