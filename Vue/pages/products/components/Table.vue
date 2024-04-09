@@ -132,34 +132,27 @@ const useVaah = vaah()
                  </template>
              </Column>
 
-             <Column field="vendors" header="Vendors"
-                     :sortable="false">
+             <Column field="vendors" header="Vendors" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon cursor-pointer"
-                               v-tooltip.top="'View Vendors'"
-                               v-if="prop.data"
-
-                               @click="store.openVendorsPanel(prop.data)"
-                         >
-                             <b >{{prop.data.product_vendors.length}}</b>
-
-                         </span>
-                         <span class="p-inputgroup-addon"
-                               v-else>
-                             <b >{{prop.data.product_vendors.length}}</b>
-
-                         </span>
+            <span class="p-inputgroup-addon cursor-pointer"
+                  v-tooltip.top="'View Vendors'"
+                  @click="store.openVendorsPanel(prop.data)">
+                <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
+                    {{ prop.data.product_vendors.length + 1 }}
+                </b>
+                <b v-else>
+                    {{ prop.data ? prop.data.product_vendors.length : 0 }}
+                </b>
+            </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Vendors'"
-                                 :disabled="prop.data.id===store.item?.id  && $route.path.includes('vendor')"
+                                 :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
-
                      </div>
                  </template>
-
-
              </Column>
+
 
              <Column field="status.name" header="Status"
                      :sortable="true">
