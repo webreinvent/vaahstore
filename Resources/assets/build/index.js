@@ -1148,7 +1148,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 .p-carousel[`.concat(this.attributeSelector,`] .p-carousel-item {
                     flex: 1 0 `).concat(100/this.d_numVisible,`%
                 }
-            `);if(this.responsiveOptions&&!this.isUnstyled){var o=_n(this.responsiveOptions),a=B.localeComparator();o.sort(function(c,d){var b=c.breakpoint,M=d.breakpoint;return B.sort(b,M,-1,a)});for(var s=0;s<o.length;s++){var l=o[s];i+=`
+            `);if(this.responsiveOptions&&!this.isUnstyled){var o=Wn(this.responsiveOptions),a=B.localeComparator();o.sort(function(c,d){var b=c.breakpoint,M=d.breakpoint;return B.sort(b,M,-1,a)});for(var s=0;s<o.length;s++){var l=o[s];i+=`
                         @media screen and (max-width: `.concat(l.breakpoint,`) {
                             .p-carousel[`).concat(this.attributeSelector,`] .p-carousel-item {
                                 flex: 1 0 `).concat(100/l.numVisible,`%
