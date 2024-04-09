@@ -662,6 +662,8 @@ class Product extends VaahModel
         foreach($list as $item) {
 
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
+            $message = self::getVendorsListForPrduct($item->id)['message'];
+            $item->is_attached_default_vendor = $message ? false : null;
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1855,6 +1857,7 @@ class Product extends VaahModel
             ->where('is_default', 1)
             ->select('id', 'name', 'slug', 'is_default')
             ->get();
+        $message = $missing_default_vendor->isNotEmpty();
 
         $vendors = $vendors_data->merge($missing_default_vendor);
 
@@ -1906,7 +1909,7 @@ class Product extends VaahModel
         return [
             'success' => true,
             'data' => $vendors,
-
+            'message' => $message,
         ];
     }
 
