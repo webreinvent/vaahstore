@@ -220,6 +220,10 @@ export const useProductVendorStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+                    case 'productvendors.productprice':
+                    this.view = 'small';
+                    this.list_view_width = 7;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;

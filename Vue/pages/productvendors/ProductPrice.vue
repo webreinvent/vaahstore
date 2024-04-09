@@ -28,7 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-5" >
 
         <Panel :pt="{
             content: {
