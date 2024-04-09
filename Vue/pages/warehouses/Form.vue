@@ -150,6 +150,7 @@ const toggleFormMenu = (event) => {
                                v-model="store.item.slug"/>
                 </VhField>
 
+
                 <VhField label="Vendor*">
                     <AutoComplete
                         value="id"
