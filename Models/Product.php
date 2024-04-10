@@ -1739,8 +1739,36 @@ class Product extends VaahModel
         }
         $vendor = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
 
-        if ($vendor->isEmpty()) {
+        if ($vendor->isNotEmpty()) {
+            $default_vendor = $vendor->firstWhere('is_default', 1);
+            if ($default_vendor && $default_vendor->productStocks()->where('vh_st_product_id', $id)->where('quantity', '>', 0)->exists()) {
+                $quantity = ProductStock::where('vh_st_vendor_id', $default_vendor->id)
+                    ->where('vh_st_product_id', $id)
+                    ->sum('quantity');
 
+                $product_prices = ProductPrice::where('vh_st_vendor_id', $default_vendor->id)
+                    ->where('vh_st_product_id', $id)
+                    ->whereNotNull('amount')
+                    ->pluck('amount')
+                    ->toArray();
+
+                if (empty($product_prices)) {
+                    $product_prices = ProductVariation::where('vh_st_product_id', $id)
+                        ->whereNotNull('price')
+                        ->pluck('price')
+                        ->toArray();
+                }
+
+                $default_vendor->quantity = $quantity;
+                $default_vendor->price_range = $product_prices;
+
+                return [
+                    'success' => true,
+                    'data' => $default_vendor,
+                ];
+            }
+        }
+        if ($vendor->isEmpty()) {
             // Query vendors with product stocks having quantity greater than 0
             $price_range = ProductVariation::where('vh_st_product_id', $id)
                 ->where('price', '>=', 0)
