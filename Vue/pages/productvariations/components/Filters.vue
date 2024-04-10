@@ -37,7 +37,7 @@ onMounted(async () => {
                               :complete-on-focus = "true"
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
-                              placeholder = "select product"
+                              placeholder = "Select Product"
                               class="w-full "
                               append-to="self"
                               :pt="{
@@ -231,7 +231,7 @@ onMounted(async () => {
                     <Calendar v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
-                              placeholder="Choose date range"
+                              placeholder="Choose Date Range"
                               data-testid="product-variation-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
@@ -254,14 +254,14 @@ onMounted(async () => {
                 </template>
 
                 <div class="card flex justify-content-center">
-                    <div class="w-14rem">
+                    <div class="w-full">
 
                         <InputNumber
                             v-model="store.query.filter.min_quantity"
                             data-testid="product-variation-filter-min_quantity"
                             placeholder="Enter minimum quantity"
                             @input="store.quantityFilterMin($event)"
-                            class="w-14rem mt-2"
+                            class="w-full mt-2"
 
                         />
 
@@ -270,7 +270,7 @@ onMounted(async () => {
                             data-testid="product-variation-filter-max_quantity"
                             placeholder="Enter maximum quantity"
                             @input="store.quantityFilterMax($event)"
-                            class="w-14rem mt-2"
+                            class="w-full mt-2"
 
                         />
                     </div>
