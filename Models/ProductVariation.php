@@ -1280,7 +1280,7 @@ class ProductVariation extends VaahModel
 
             $message .= '</table>';
             $message .= '<p style="margin-top: 0.6rem; font-size: 15px">For more low stock variations, click here</p>';
-            $message .= '<p><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[in_stock][]='.true.'"
+            $message .= '<p><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[stock_status][]=low_stock"
                          style="background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 25px;
                          text-decoration: none; display: inline-block; cursor: pointer; font-size: 14px; width: 7rem;
                          text-align: center; margin-top: 0.3rem;">View</a></p>';
