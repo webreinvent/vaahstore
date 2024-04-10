@@ -1309,6 +1309,7 @@ export const useProductStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
                     this.route.params.id = null;
                     this.$router.push({name: 'products.form'});
                     await this.getFormMenu();
@@ -1320,6 +1321,7 @@ export const useProductStore = defineStore({
                     break;
                 case 'save':
                     this.item = data;
+                    this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
                     break;
                 case 'delete':
                     this.item = null;
