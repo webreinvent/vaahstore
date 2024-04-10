@@ -106,7 +106,7 @@ export const useProductVariationStore = defineStore({
                 value: 'out_of_stock'
             },
             {
-                label: 'low Stock',
+                label: 'Low Stock',
                 value: 'low_stock'
             },
         ]
