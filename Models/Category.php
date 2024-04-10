@@ -574,6 +574,14 @@ class Category extends VaahModel
          }
 
         $item = self::where('id', $id)->withTrashed()->first();
+
+        $parent_ids_indexes = array_keys($inputs['parent_category']);
+        if (in_array($id, $parent_ids_indexes)) {
+            $response['success'] = true;
+            $response['errors'][] = "This category " .$item->name . " is already exist as parent category";
+            return $response;
+        }
+
         $item->fill($inputs);
         $item->save();
 
