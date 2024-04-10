@@ -155,7 +155,8 @@ const useVaah = vaah()
 
 
              <Column field="status.name" header="Status"
-                     :sortable="true">
+                     :sortable="true"
+                     v-if="store.isViewLarge()">
 
                  <template #body="prop">
 

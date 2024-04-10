@@ -297,6 +297,9 @@ export const useProductStore = defineStore({
                     this.list_view_width = 12;
                     break;
                 case 'products.variation':
+                    this.view = 'small';
+                    this.list_view_width = 6;
+                    break;
                 case 'products.vendor':
                     this.view = 'small';
                     this.list_view_width = 4;
@@ -748,6 +751,14 @@ export const useProductStore = defineStore({
             this.item.all_variation.structured_variation.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
+        },
+        //---------------------------------------------------------------------
+        setDefault(){
+            this.item.all_variation.structured_variation.forEach((variation) => {
+                if (variation['is_default'] !== this.variation_item.is_default) {
+                    variation['is_default'] = false;
+                }
+            });
         },
         //---------------------------------------------------------------------
         addNewProductVariation(new_record){

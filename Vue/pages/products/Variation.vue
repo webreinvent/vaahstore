@@ -40,7 +40,7 @@ const toggleSelectedAttributeMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-6" >
 
         <Panel >
 
@@ -228,6 +228,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                                           :binary="true" @click="store.selectAllVariation()" />
                             </th>
                             <th scope="col">Variation name</th>
+                            <th scope="col">Is Default</th>
                             <th scope="col"
                                 v-for="(item, index) in store.item.all_variation.all_attribute_name">
                                 {{ item }}
@@ -244,6 +245,11 @@ const toggleSelectedAttributeMenuState = (event) => {
                                 <td v-for="(i) in store.item.all_variation.all_attribute_name">
                                     <div class="text-center">
                                         <InputText v-model="item[i]['value']" class="w-full md:w-5rem" disabled="true"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                    <Checkbox v-model="item['is_default']" :binary="true" @click="store.setDefault()" />
                                     </div>
                                 </td>
                                 <td>

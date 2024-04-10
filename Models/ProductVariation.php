@@ -297,8 +297,15 @@ class ProductVariation extends VaahModel
         }
 
         // handle if current record is default
-        if($inputs['is_default']){
-            self::where('is_default',1)->update(['is_default' => 0]);
+        if ($inputs['is_default'] && isset($inputs['product'])) {
+            $product_variations = self::where('vh_st_product_id', $inputs['product']['id'])->get();
+
+            foreach ($product_variations as $variation) {
+                if ($variation->is_default == 1) {
+                    $variation->is_default = 0;
+                    $variation->save();
+                }
+            }
         }
 
         $item = new self();
@@ -916,8 +923,16 @@ class ProductVariation extends VaahModel
         }
 
         // handle if current record is default
-        if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::where('is_default',1)->update(['is_default' => 0]);
+        if (isset($inputs['product']) && $inputs['is_default']) {
+            $product_variations = self::where('vh_st_product_id', $inputs['product']['id'])->get();
+
+            foreach ($product_variations as $variation) {
+                if ($variation->is_default == 1) {
+                    $variation->is_default = 0;
+                    $variation->save();
+                    break;
+                }
+            }
         }
 
         $item = self::where('id', $id)->withTrashed()->first();

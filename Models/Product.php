@@ -298,6 +298,12 @@ class Product extends VaahModel
             $item->taxonomy_id_variation_status = $taxonomy_status_id;
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
+            if (isset($value['is_default']) && $value['is_default']) {
+                ProductVariation::where('vh_st_product_id', $product_id)
+                    ->where('is_default', 1)
+                    ->update(['is_default' => 0]);
+                $item->is_default = 1;
+            }
             $item->save();
             foreach ($all_attribute as $k => $v) {
                 $item2 = new ProductAttribute();
