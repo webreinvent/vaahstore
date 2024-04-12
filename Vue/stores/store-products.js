@@ -869,9 +869,9 @@ export const useProductStore = defineStore({
                 };
 
                 // Check if the category has child categories
-                if (category.sub_categories && category.sub_categories.length > 0) {
+                if (category.active_sub_categories_for_product && category.active_sub_categories_for_product.length > 0) {
                     // Recursively convert the child categories
-                    categoryItem.children = this.convertToTreeselectFormat(category.sub_categories);
+                    categoryItem.children = this.convertToTreeselectFormat(category.active_sub_categories_for_product);
                 }
 
                 // Add the category item to the categories array
@@ -908,16 +908,7 @@ export const useProductStore = defineStore({
             }
         },
 
-        // setParentId() {
-        //     const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-        //
-        //     if (selectedParent) {
-        //         const parentId = selectedParent[0]; // Extract the id of the selected parent
-        //         this.item.category_id = parentId;
-        //     } else {
-        //         this.item.category_id = null;
-        //     }
-        // },
+
 
 
         //---------------------------------------------------------------------

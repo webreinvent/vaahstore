@@ -93,7 +93,7 @@ class ProductsController extends Controller
     //------------------------------------------------------------------------------------
     protected function getActiveCategories()
     {
-        return Category::with('getActiveCategoriesForProduct')->whereNull('parent_category_id')->where('is_active', 1)->get();
+        return Category::with('activeSubCategoriesForProduct')->whereNull('parent_category_id')->where('is_active', 1)->get();
     }
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
