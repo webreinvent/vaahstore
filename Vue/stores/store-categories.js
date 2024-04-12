@@ -254,10 +254,16 @@ export const useCategoryStore = defineStore({
 
         setParentId()
         {
-            const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-            if (checkedItem) {
-                this.item.parent_category_id = checkedItem[0];
+            if (this.item.parent_category) {
+                const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value === true);
+                if (checkedItem) {
+                    this.item.parent_category_id = checkedItem[0];
+                } else {
+                    this.item.parent_category_id = null;
+                }
+
             }
+
         },
         //---------------------------------------------------------------------
         async getList() {
@@ -295,43 +301,24 @@ export const useCategoryStore = defineStore({
             {
                 this.item = data;
                 const categories_data = {};
-                this.convertCategoryToTreeselectData(data.parent_category, categories_data);
-                this.item.parent_category = categories_data;
+                this.item.parent_category = this.convertCategoryToTreeselectData(data.parent_category);
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        convertCategoryToTreeselectData(category, categories_data) {
+
+
+        convertCategoryToTreeselectData(category) {
             if (category) {
-                const category_id = category.id.toString();
-                let partial_checked = true;
-                let checked = true;
-
-                // Check if the category has subcategories
-                if (category.sub_categories && category.sub_categories.length > 0) {
-                    category.sub_categories.forEach(subCategory => {
-                        this.convertCategoryToTreeselectData(subCategory, categories_data);
-                        if (categories_data[subCategory.id]) {
-                            if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
-                                checked = true;
-                            }
-                            if (categories_data[subCategory.id].partial_checked) {
-                                partial_checked = true;
-                            }
-                        }
-                    });
-                } else {
-                    partial_checked = true;
-                }
-
-                categories_data[category_id] = {
-                    checked: checked,
-                    partialChecked: partial_checked
-                };
+                const categoryId = category.id.toString();
+                return {[`${categoryId}`]: true};
             }
+            return {};
         },
+
+
         //---------------------------------------------------------------------
         isListActionValid()
         {
@@ -558,6 +545,7 @@ export const useCategoryStore = defineStore({
                 case 'save':
                     if(this.item && this.item.id){
                         this.item = data;
+                        this.item.parent_category = this.convertCategoryToTreeselectData(data.parent_category);
                     }
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
