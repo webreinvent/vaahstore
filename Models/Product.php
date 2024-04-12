@@ -1218,8 +1218,13 @@ class Product extends VaahModel
 
             $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
             $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
-            $item->save();
 
+
+
+            $item->save();
+            if (isset($inputs['category'])) {
+                $item->categories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
+            }
             $i++;
 
         }
