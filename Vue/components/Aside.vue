@@ -71,6 +71,11 @@ const items = ref([
                 route: "/productstocks"
             },
             {
+                label: 'Categories',
+                icon: 'fa-solid fa-list',
+                route: "/categories"
+            },
+            {
                 label: 'Brands',
                 icon: 'fa-regular fa-copyright',
                 route: "/brands"
@@ -120,11 +125,7 @@ const items = ref([
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
             },
-            {
-                label: 'Categories',
-                icon: 'fa-solid fa-list',
-                route: "/categories"
-            },
+
         ]
     },
 ]);
