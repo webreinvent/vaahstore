@@ -118,7 +118,10 @@ class Category extends VaahModel
     {
         return $this->hasMany(Category::class, 'parent_category_id')->with(['subCategories']);
     }
-
+    public function getActiveCategoriesForProduct()
+    {
+        return $this->hasMany(Category::class, 'parent_category_id')->where('is_active', 1)->with(['subCategories']);
+    }
     //-------------------------------------------------
 
     public function parentCategory()

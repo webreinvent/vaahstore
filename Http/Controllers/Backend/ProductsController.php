@@ -55,10 +55,7 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values of Store if it is not null
-
-            $data['category'] = Category::with('subCategories')
-                ->where('parent_category_id',null)
-                ->get();
+            $data['categories'] = $this->getActiveCategories();
 
             // get min and max quantity from the product filter
             $product = Product::withTrashed()->get();
@@ -93,7 +90,11 @@ class ProductsController extends Controller
         return $response;
     }
 
-
+    //------------------------------------------------------------------------------------
+    protected function getActiveCategories()
+    {
+        return Category::with('getActiveCategoriesForProduct')->whereNull('parent_category_id')->where('is_active', 1)->get();
+    }
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
         try{

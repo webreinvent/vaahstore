@@ -835,7 +835,7 @@ export const useProductStore = defineStore({
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
                 this.categories_data=data.category;
-                this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
+                this.categories_dropdown_data = this.convertToTreeselectFormat(data.categories);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
                     this.min_quantity=this.route.query.filter.quantity[0];
@@ -1370,6 +1370,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 let self = this;
+                if (data.fill.category) {
+                    const category_after_fill = [data.fill.category]
+                    this.item.parent_category = this.convertToTreeSelectFormat(category_after_fill);
+                }
                 Object.keys(data.fill).forEach(function(key) {
                     self.item[key] = data.fill[key];
                 });
