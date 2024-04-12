@@ -54,24 +54,14 @@ const updateCategoryInUrl = () => {
                 <VhFieldVertical >
                     <template #label>
                         <b>Category By:</b>
-                    </template>{{selectedCategory}}
-<!--                    <TreeSelect-->
-<!--                        v-model="store.query.filter.parent_category"-->
-<!--                        :options="store.categories_dropdown_data"-->
-<!--                        selectionMode="checkbox"-->
-<!--                        placeholder="Select Category"-->
-<!--                        :show-count="true"-->
-<!--                        data-testid="categories-parent_category"-->
-<!--                        @change="store.setParentId()"-->
-<!--                        class=" w-full" />-->
-
+                    </template>
                     <TreeSelect
                         v-model="store.query.filter.parent_category"
                         :options="store.categories_dropdown_data"
                         selectionMode="checkbox"
                         placeholder="Select Category"
                         :show-count="true"
-                        data-testid="categories-parent_category"
+                        data-testid="categories-filters-category"
                         @change="store.setParentId()"
                         class=" w-full" />
                 </VhFieldVertical>

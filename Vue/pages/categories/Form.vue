@@ -134,7 +134,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="Parent Category">{{store.item.parent_category}}
+                <VhField label="Parent Category">
                     <TreeSelect
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"
