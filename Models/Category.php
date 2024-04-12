@@ -584,6 +584,18 @@ class Category extends VaahModel
             $response['errors'][] = "This category " .$item->name . " is already exist as parent category";
             return $response;
         }
+        if (isset($inputs['parent_category'])) {
+            foreach ($inputs['parent_category'] as $parent_id => $value) {
+                $parent_category = Category::with('subCategories')->find($parent_id);
+
+                if ($parent_category && $parent_category->isSubCategory($id)) {
+                    return [
+                        'success' => false,
+                        'errors' => ["Cannot move the category under its own child category."]
+                    ];
+                }
+            }
+        }
 
         $item->fill($inputs);
         $item->save();
@@ -593,6 +605,20 @@ class Category extends VaahModel
         return $response;
 
     }
+
+    public function isSubCategory($parent_id)
+    {
+        $current_id = $this->id;
+
+        return $this->where('id', $current_id)
+            ->where(function($query) use ($parent_id) {
+                $query->where('parent_category_id', $parent_id)
+                    ->orWhereHas('parentCategory', function($query) use ($parent_id) {
+                        $query->where('parent_category_id', $parent_id);
+                    });
+            })->exists();
+    }
+
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
