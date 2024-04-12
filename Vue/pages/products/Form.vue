@@ -214,7 +214,7 @@ const toggleFormMenu = (event) => {
                     <TreeSelect
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"
-                        selectionMode="checkbox"
+                        selectionMode="multiple"
                         placeholder="Select Category"
                         :show-count="true"
                         data-testid="product-category"

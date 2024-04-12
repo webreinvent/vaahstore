@@ -530,20 +530,15 @@ class Product extends VaahModel
 
         $item->save();
 
-//        if (isset($inputs['parent_category'])) {
-//            $categoryIds = array_keys($inputs['parent_category']);
-//            $item->categories()->attach($categoryIds, ['vh_st_product_id' => $item->id]);
-//
-//        }
+
         if (isset($inputs['parent_category'])) {
-            // Filter the array to only include keys where the 'checked' value is true
-            $selectedCategoryIds = array_keys(array_filter($inputs['parent_category'], function($value) {
-                return $value['checked'] === true;
+            $selected_category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
+                return $value === true;
             }));
 
-            // Attach the selected category IDs to the product
-            $item->categories()->attach($selectedCategoryIds, ['vh_st_product_id' => $item->id]);
+            $item->categories()->attach($selected_category_ids, ['vh_st_product_id' => $item->id]);
         }
+
 
 
         $response = self::getItem($item->id);
@@ -1012,11 +1007,10 @@ class Product extends VaahModel
         $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
         if (isset($inputs['parent_category'])) {
-//            $category_ids = array_keys($inputs['parent_category']);
-            $category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
-                return $value['checked'] === true;
+            $selected_category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
+                return $value === true;
             }));
-            $item->categories()->sync($category_ids);
+            $item->categories()->sync($selected_category_ids);
         }
 
         $response = self::getItem($item->id);

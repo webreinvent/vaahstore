@@ -204,15 +204,16 @@ const toggleItemMenu = (event) => {
                                 <td colspan="2">
                                     <div class="word-overflow" style="word-break: break-word;">
                                         <template v-for="(category, index) in store.item.categories" :key="category.id">
-                                            <Badge class="h-max max-w-full" v-if="index === 0 && !category.deleted_at">
-                                                {{ category.name }}
-                                            </Badge>
+                                             <span v-if="index === 0 && category.deleted_at === null" class="h-max max-w-full ">
+                            {{ category.name }}
+                        </span>
+                                            <span v-tooltip.top="store.getTooltipText(store.item.categories)"
+                                                  v-if="index === 0 && category.deleted_at === null && store.item.categories.length > 1"
+                                                  class="cursor-pointer ml-1 text-blue-500">
+                            +{{ store.item.categories.filter(category => category.deleted_at === null).length - 1 }} more
+                        </span>
                                         </template>
-                                        <template v-if="store.item.categories.length > 1">
-                                            <Badge v-if="store.item.categories.some(category => !category.deleted_at && category.parent_category_id !== null)"
-                                                   :value="'+' + (store.item.categories.filter(category => !category.deleted_at && category.parent_category_id !== null).length) + ' more'"
-                                                   severity="info" class="cursor-pointer" v-tooltip.top="store.getTooltipText(store.item.categories)"></Badge>
-                                        </template>
+
                                         <Badge v-if="store.item.categories.some(category => category.deleted_at)" value="Trashed" severity="danger"></Badge>
                                     </div>
                                 </td>

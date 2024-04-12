@@ -880,33 +880,18 @@ export const useProductStore = defineStore({
 
             return categories;
         },
-        // setParentId()
-        // {
-        //     const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-        //     if (checkedItem) {
-        //         this.item.category_id = checkedItem[0];
-        //     }
-        // },
 
         setParentId() {
-            const selectedParent = Object.entries(this.item.parent_category).find(([key, value]) => value.checked === true);
-
-            if (selectedParent) {
-                // Check if the selected parent is in assest.category
-                const matchedCategory = this.categories_data.find(category => category.id === selectedParent[0]);
-
-                if (matchedCategory) {
-                    // If the selected parent exists in assest.category, set its id
-                    this.item.category_id = matchedCategory.id;
+            if (this.item.parent_category) {
+                const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value === true);
+                if (checkedItem) {
+                    this.item.parent_category_id = checkedItem[0];
                 } else {
-                    // If the selected parent doesn't exist in assest.category, set category_id to null
-                    this.item.category_id = null;
+                    this.item.parent_category_id = null;
                 }
-            } else {
-                // If no parent is selected, set category_id to null
-                this.item.category_id = null;
             }
         },
+
 
 
 
@@ -948,9 +933,6 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                // const categories_data = {};
-                // this.convertCategoryToTreeselectData(data.parent_category, categories_data);
-                // this.item.parent_category = categories_data;
                 this.item.parent_category = this.convertToTreeSelectFormat(data.categories);
 
             }else{
@@ -959,25 +941,25 @@ export const useProductStore = defineStore({
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        convertToTreeSelectFormat(data) {
-            const treeSelectData = {};
 
-            data.forEach(category => {
-                const categoryId = category.id.toString(); // Convert category ID to string
-                treeSelectData[categoryId] = {
-                    checked: true, // Set to true by default, adjust as needed
-                    partialChecked: false // Set to false by default, adjust as needed
-                };
-
-                // Recursively process children if they exist
-                if (category.children && category.children.length > 0) {
-                    const childrenData = convertCategoryToTreeSelectFormat(category.children);
-                    Object.assign(treeSelectData[categoryId], childrenData);
-                }
-            });
-
-            return treeSelectData;
+        convertToTreeSelectFormat(category) {
+            if (category && category.length) {
+                return category.reduce((acc, curr) => {
+                    const categoryId = curr.id.toString();
+                    acc[categoryId] = true;
+                    if (curr.sub_categories && curr.sub_categories.length) {
+                        const subCategories = this.convertToTreeSelectFormat(curr.sub_categories);
+                        Object.assign(acc, subCategories);
+                    }
+                    return acc;
+                }, {});
+            }
+            return {};
         },
+
+
+
+
         getTooltipText(categories) {
             const remaining_categories = categories.slice(1).map(category => category.name);
             return remaining_categories.join(', ');
@@ -985,36 +967,7 @@ export const useProductStore = defineStore({
 
 
 
-        // convertCategoryToTreeselectData(category, categories_data) {
-        //     if (category) {
-        //         const category_id = category.id.toString();
-        //         let partial_checked = true;
-        //         let checked = true;
-        //
-        //         // Check if the category has subcategories
-        //         if (category.sub_categories && category.sub_categories.length > 0) {
-        //             category.sub_categories.forEach(subCategory => {
-        //                 this.convertCategoryToTreeselectData(subCategory, categories_data);
-        //                 if (categories_data[subCategory.id]) {
-        //                     if (categories_data[subCategory.id].checked || categories_data[subCategory.id].partial_checked) {
-        //                         checked = true;
-        //                     }
-        //                     if (categories_data[subCategory.id].partial_checked) {
-        //                         partial_checked = true;
-        //                     }
-        //                 }
-        //             });
-        //         } else {
-        //             partial_checked = true;
-        //         }
-        //
-        //         categories_data[category_id] = {
-        //             checked: checked,
-        //             partialChecked: partial_checked
-        //         };
-        //     }
-        // },
-        //---------------------------------------------------------------------
+
         isListActionValid()
         {
 
