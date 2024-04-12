@@ -228,11 +228,12 @@ const toggleSelectedAttributeMenuState = (event) => {
                                           :binary="true" @click="store.selectAllVariation()" />
                             </th>
                             <th scope="col">Variation name</th>
-                            <th scope="col">Is Default</th>
+
                             <th scope="col"
                                 v-for="(item, index) in store.item.all_variation.all_attribute_name">
                                 {{ item }}
                             </th>
+                            <th scope="col">Is Default</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
