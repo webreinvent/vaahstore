@@ -302,7 +302,7 @@ export const useProductStore = defineStore({
                     break;
                 case 'products.vendor':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 6;
                     break;
                 default:
                     this.view = 'small';
