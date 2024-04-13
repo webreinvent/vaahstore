@@ -72,7 +72,7 @@ const useVaah = vaah()
                                 severity="danger"></Badge>
                          <Badge v-else
                                 :value="prop.data.quantity"
-                                severity="danger"></Badge>
+                                severity="info"></Badge>
                      </template>
                      <template v-else>
                          <Badge value="0" severity="danger"></Badge>

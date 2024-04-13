@@ -934,6 +934,23 @@ class ProductVariation extends VaahModel
                 }
             }
         }
+        $product_stocks = ProductStock::where('vh_st_product_variation_id', $id)->get();
+        if ($product_stocks->isNotEmpty()) {
+            foreach ($product_stocks as $product_stock) {
+                $product_stock->vh_st_product_id = $inputs['product']['id'];
+                $product_stock->save();
+            }
+            $product_variation = self::findOrFail($id);
+            $old_product = Product::findOrFail($product_variation->vh_st_product_id);
+            $new_product = Product::findOrFail($inputs['product']['id']);
+            $old_total_quantity = self::where('vh_st_product_id', $old_product->id)->sum('quantity');
+            $new_total_quantity = self::where('vh_st_product_id', $new_product->id)->sum('quantity');
+            $old_product->quantity = $old_total_quantity - $product_variation->quantity;
+            $old_product->save();
+            $new_product->quantity = $new_total_quantity + $product_variation->quantity;
+            $new_product->save();
+        }
+        
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
