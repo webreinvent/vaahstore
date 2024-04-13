@@ -53,17 +53,15 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="add_price" header="Add Price"
-                     :sortable="false"  >
-
+             <Column field="add_price" header="Add Price" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-                        <span class="p-inputgroup-addon"
-                              v-tooltip.top="'Total Variations'" @click="store.toViewProductVariations(prop.data.product)">
-                              <b>{{ prop.data.product && prop.data.product.product_variations_for_vendor_product ? prop.data.product.product_variations_for_vendor_product.length : 0 }}
-
-</b>
-                        </span>
+            <span class="p-inputgroup-addon"
+                  v-tooltip.top="'Total Variations'"
+                  @click="prop.data.product?.product_variations_for_vendor_product?.length && store.toViewProductVariations(prop.data.product)"
+                  :class="{ 'cursor-pointer': prop.data.product?.product_variations_for_vendor_product?.length }">
+                <b>{{ prop.data.product?.product_variations_for_vendor_product?.length || 0 }}</b>
+            </span>
                          <Button class="p-button-tiny"
                                  v-tooltip.top="'Add Price Item'"
                                  icon="pi pi-plus" severity="info"
@@ -74,21 +72,18 @@ const useVaah = vaah();
                          </Button>
                      </div>
                  </template>
-
              </Column>
+
              <Column header="Product Price Range(min-max)" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
                          <div v-tooltip.top="'Variations Price Range'">
-                             <div v-if="prop.data && Array.isArray(prop.data.product_price_range)">
-                                 {{ prop.data.product_price_range.join('-') }}
-                             </div>
-                             <div v-else-if="prop.data && prop.data.product_price_range !== undefined">
-                                 {{ prop.data.product_price_range }}
-                             </div>
-                             <div v-else>
-                                 No Price Available
-                             </div>
+                             <Badge severity="info" v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
+                                 {{ prop.data.product_price_range.join(' - ') }}
+                             </Badge>
+                             <Badge severity="danger" v-else>
+                                 Not Available
+                             </Badge>
                          </div>
                      </div>
                  </template>
