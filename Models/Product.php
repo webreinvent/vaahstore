@@ -294,6 +294,7 @@ class Product extends VaahModel
             $item->slug = Str::slug($value['variation_name']);
             $item->in_stock = 'No';
             $item->quantity = 0;
+            $item->price = 0;
             $taxonomy_status_id = Taxonomy::getTaxonomyByType('product-variation-status')->where('name', 'Pending')->pluck('id')->first();
             $item->taxonomy_id_variation_status = $taxonomy_status_id;
             $item->vh_st_product_id = $product_id;
@@ -1722,7 +1723,7 @@ class Product extends VaahModel
                     ->orWhere(function ($query) use ($id) {
                         $query->whereHas('productStocks', function ($query) use ($id) {
                             $query->where('vh_st_product_id', $id)
-                                ->where('quantity', '>', 0);
+                                ->where('quantity', '>', 0)->where('is_active', 1);
                         })->whereHas('productPrices', function ($query) use ($id) {
                             $query->where('vh_st_product_id', $id)
                                 ->where('amount', '>', 0);
@@ -1731,7 +1732,7 @@ class Product extends VaahModel
             })->orWhere(function ($query) use ($id) {
                 $query->whereHas('productStocks', function ($query) use ($id) {
                     $query->where('vh_st_product_id', $id)
-                        ->where('quantity', '>', 0);
+                        ->where('quantity', '>', 0)->where('is_active', 1);
                 })->whereHas('productPrices', function ($query) use ($id) {
                     $query->where('vh_st_product_id', $id)
                         ->where('amount', '>', 0);
@@ -1744,10 +1745,9 @@ class Product extends VaahModel
 
         }
         $vendor = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
-
         if ($vendor->isNotEmpty()) {
             $default_vendor = $vendor->firstWhere('is_default', 1);
-            if ($default_vendor && $default_vendor->productStocks()->where('vh_st_product_id', $id)->where('quantity', '>', 0)->exists()) {
+            if ($default_vendor && $default_vendor->productStocks()->where('vh_st_product_id', $id)->where('quantity', '>', 0)->where('is_active', 1)->exists()) {
                 $quantity = ProductStock::where('vh_st_vendor_id', $default_vendor->id)
                     ->where('vh_st_product_id', $id)
                     ->sum('quantity');
@@ -1767,7 +1767,6 @@ class Product extends VaahModel
 
                 $default_vendor->quantity = $quantity;
                 $default_vendor->price_range = $product_prices;
-
                 return [
                     'success' => true,
                     'data' => $default_vendor,
@@ -1785,7 +1784,7 @@ class Product extends VaahModel
             $price_range = $price_range ? $price_range : [];
             $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
                 $query->where('vh_st_product_id', $id)
-                    ->where('quantity', '>', 0);
+                    ->where('quantity', '>', 0)->where('is_active', 1);
             })
                 ->select('id', 'name', 'slug', 'is_default')
                 ->get();
@@ -1799,21 +1798,21 @@ class Product extends VaahModel
                     ],
                 ];
             }
+            $vendors_sorted_by_quantity = $vendor->sortByDesc(function ($vendor) use ($id) {
+                return ProductStock::where('vh_st_vendor_id', $vendor->id)
+                    ->where('vh_st_product_id', $id)
+                    ->sum('quantity');
+            });
 
             // Pick a random vendor from the obtained results
-            $selected_vendor = $vendor->random();
+            $selected_vendor = $vendors_sorted_by_quantity->first();
             $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
-                ->where('vh_st_product_id', $id)
+                ->where('vh_st_product_id', $id)->where('is_active', 1)
                 ->sum('quantity');
-
-
 
             $quantity = $quantity ? $quantity : null;
             $selected_vendor->price_range=$price_range;
             $selected_vendor->quantity=$quantity;
-
-
-
             return [
                 'success' => true,
                 'data' =>$selected_vendor ,
@@ -1822,25 +1821,28 @@ class Product extends VaahModel
         // Filter out vendors with quantity of 0
         $vendor = $vendor->filter(function ($vendor) use ($id) {
             return ProductStock::where('vh_st_vendor_id', $vendor->id)
-                    ->where('vh_st_product_id', $id)
+                    ->where('vh_st_product_id', $id)->where('is_active', 1)
                     ->sum('quantity') > 0;
         });
         // If there are no vendors with non-zero quantity, pick a random vendor
         if ($vendor->isEmpty()) {
             $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
-                $query->where('vh_st_product_id', $id)
+                $query->where('vh_st_product_id', $id)->where('is_active', 1)
                     ->where('quantity', '>', 0);
             })
                 ->select('id', 'name', 'slug', 'is_default')
                 ->get();
-
         }
-
-        $selected_vendor = $vendor->isNotEmpty() ? $vendor->random() : null;
+        $vendor = $vendor->sortByDesc(function ($vendor) use ($id) {
+            return ProductStock::where('vh_st_vendor_id', $vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->sum('quantity');
+        });
+        $selected_vendor = $vendor->isNotEmpty() ? $vendor->first() : null;
         if ($selected_vendor) {
             // Get the quantity for the selected vendor
             $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
-                ->where('vh_st_product_id', $id)
+                ->where('vh_st_product_id', $id)->where('is_active', 1)
                 ->sum('quantity');
 
             $selected_vendor->quantity = $quantity;
@@ -1916,7 +1918,7 @@ class Product extends VaahModel
 
         $vendors->each(function ($vendor) use ($product_vendors, $product_price_range_with_vendors, $id) {
             $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
-                ->where('vh_st_product_id', $id)
+                ->where('vh_st_product_id', $id)->where('is_active', 1)
                 ->sum('quantity');
 
             $vendor->quantity = $quantity;
