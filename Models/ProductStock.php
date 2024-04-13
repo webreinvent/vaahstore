@@ -819,12 +819,32 @@ if ($product_variation) {
         $inputs = $fillable['data']['fill'];
 
         //fill the Vendor field here
-        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
+        $vendor = Vendor::where('is_active', 1)
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug','is_default')
+            ->first();
+
         $inputs['vh_st_vendor_id'] = null;
         $inputs['vendor'] = null;
+
         if (!empty($vendor)) {
+            $product_ids = Product::where('is_active', 1)
+                ->whereHas('productVendors', function ($query) use ($vendor) {
+                    $query->where('vh_st_vendor_id', $vendor->id);
+                })
+                ->whereHas('productVariations')
+                ->select('id', 'name', 'slug')
+                ->pluck('id')
+                ->toArray();
+
+            $product_id = !empty($product_ids) ? $product_ids[array_rand($product_ids)] : null;
+
+            $product = !empty($product_id) ? Product::where(['is_active' => 1, 'id' => $product_id])->first() : null;
+
             $inputs['vh_st_vendor_id'] = $vendor->id;
             $inputs['vendor'] = $vendor;
+            $inputs['vh_st_product_id'] = $product_id;
+            $inputs['product'] = $product;
         }
 
 
