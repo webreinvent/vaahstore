@@ -934,6 +934,11 @@ class ProductVariation extends VaahModel
                 }
             }
         }
+        $product_stock = ProductStock::where('vh_st_product_variation_id', $id)->first();
+        if ($product_stock) {
+            $product_stock->vh_st_product_id = $inputs['product']['id'];
+            $product_stock->save();
+        }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
