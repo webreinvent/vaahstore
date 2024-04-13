@@ -439,7 +439,8 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product.productVariationsForVendorProduct','vendor','addedByUser','status','stores','productVariationPrices');
+        $list = self::getSorted($request->filter)
+            ->with( 'vendor', 'addedByUser', 'status', 'stores' );
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -449,21 +450,61 @@ class ProductVendor extends VaahModel
 
         $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
         $list = $list->paginate($rows);
 
+
+        $list = self::productPriceRange($list);
         $response['success'] = true;
         $response['data'] = $list;
 
         return $response;
-
-
     }
 
+    //-------------------------------------------------
+
+    public static function productPriceRange($list)
+    {
+        $list->getCollection()->transform(function ($item) {
+            $product = $item->product;
+
+            // get variation prices from pivot
+            $variation_price_with_vendor = $item->productVariationPrices ?
+                $item->productVariationPrices->pluck('pivot.amount')->toArray() :
+                [];
+            // get product variation id's associated with product
+            $product_variation_ids_with_vendor = $item->productVariationPrices ?
+                $item->productVariationPrices->pluck('id')->toArray() :
+                [];
+            $all_product_variation_ids = $product && $product->productVariationsForVendorProduct ?
+                $product->productVariationsForVendorProduct->pluck('id')->toArray() :
+                [];
+            // get remaining  variation ids without associated in pivot
+            $product_variation_ids_without_vendor = array_diff($all_product_variation_ids, $product_variation_ids_with_vendor);
+            // fetch prices of product variations without pivot
+            $variation_prices_without_vendor = [];
+            if (!empty($product_variation_ids_without_vendor)) {
+                $variation_prices_without_vendor = ProductVariation::whereIn('id', $product_variation_ids_without_vendor)
+                    ->pluck('price')->toArray();
+            }
+            // merge prices of variations from pivot table and product variations without associated prices
+            $merged_prices = array_merge($variation_price_with_vendor, $variation_prices_without_vendor);
+            if (empty($merged_prices)) {
+                $item->product_price_range = [];
+            } else {
+                $min_price = min($merged_prices);
+                $max_price = max($merged_prices);
+
+                $item->product_price_range = $min_price === $max_price ? [$min_price] : [$min_price, $max_price];
+            }
+
+            return $item;
+        });
+        return $list;
+    }
     //-------------------------------------------------
     public static function updateList($request)
     {

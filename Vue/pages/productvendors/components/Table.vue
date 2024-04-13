@@ -79,10 +79,12 @@ const useVaah = vaah();
              <Column header="Product Price Range(min-max)" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup flex-1">
-                         <div  v-tooltip.top="'Variations Price Range'">
-                             <div v-if="prop.data && prop.data.product_variation_prices ">
-                                 {{ prop.data.product ? store.calculatePriceRange(prop.data.product, prop.data.product_variation_prices) : ' ' }}
-
+                         <div v-tooltip.top="'Variations Price Range'">
+                             <div v-if="prop.data && Array.isArray(prop.data.product_price_range)">
+                                 {{ prop.data.product_price_range.join('-') }}
+                             </div>
+                             <div v-else-if="prop.data && prop.data.product_price_range !== undefined">
+                                 {{ prop.data.product_price_range }}
                              </div>
                              <div v-else>
                                  No Price Available
@@ -91,6 +93,7 @@ const useVaah = vaah();
                      </div>
                  </template>
              </Column>
+
 
 
 
