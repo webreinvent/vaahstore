@@ -1416,67 +1416,7 @@ export const useProductVendorStore = defineStore({
         },
 
 
-        calculatePriceRange(product, product_variation_prices) {
-            // Check if product_variations and product_variation_prices are equal in length
-            if (
-                product.product_variations_for_vendor_product &&
-                product.product_variations_for_vendor_product.length === product_variation_prices.length
-            ) {
-                // If equal, use product_variation_prices directly
-                const prices = product_variation_prices.map(variation_price => variation_price.pivot.amount);
-
-                // Filter out undefined or null values
-                const valid_prices = prices.filter(price => price !== undefined && price !== null);
-
-                if (valid_prices.length === 0) {
-                    return 'No prices available';
-                }
-
-                const min_price = Math.min(...valid_prices);
-                const max_price = Math.max(...valid_prices);
-
-                if (min_price === max_price) {
-                    return ` ${min_price}`;
-                } else {
-                    return ` ${min_price} - ${max_price}`;
-                }
-            }
-
-
-            let all_prices = [];
-
-            if (product.product_variations_for_vendor_product && product.product_variations_for_vendor_product.length > 0) {
-                // Combine prices from product_variations
-                all_prices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
-                    if (variation.price !== undefined && variation.price !== null) {
-                        prices.push(variation.price);
-                    }
-                    return prices;
-                }, []);
-            }
-
-            all_prices = all_prices.concat(
-                product_variation_prices.reduce((amounts, variation_price) => {
-                    if (variation_price.amount !== undefined && variation_price.amount !== null) {
-                        amounts.push(variation_price.amount);
-                    }
-                    return amounts;
-                }, [])
-            );
-
-            if (all_prices.length === 0) {
-                return 'No prices available';
-            }
-
-            const min_price = Math.min(...all_prices);
-            const max_price = Math.max(...all_prices);
-
-            if (min_price === max_price) {
-                return ` ${min_price}`;
-            } else {
-                return ` ${min_price} - ${max_price}`;
-            }
-        },
+       
 
 
         //---------------------------------------------------------------------
