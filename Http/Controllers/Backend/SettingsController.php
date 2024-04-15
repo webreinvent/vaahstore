@@ -252,7 +252,7 @@ class SettingsController extends Controller
                     Warehouse::seedSampleItems($quantity);
                     break;
                 case "AttributeGroups":
-                    $attribute = Attribute::all()->count();
+                    $attribute = Attribute::exists();
                     if(!$attribute)
                     {
                         $response['success'] = false;
@@ -271,37 +271,43 @@ class SettingsController extends Controller
 
                     $attribute = Attribute::exists();
 
-                    if(!$product && !$store && !$product_variation && !$attribute)
+                    if(!$store && !$attribute  && !$product && !$product_variation)
                     {
                         $response['success'] = false;
                         $response['errors'][] = "create store , attribute , product and product variation respectively";
                         return $response;
                     }
 
-                    if(!$attribute && !$product && !$product_variation)
+                    if(!$store  && !$product && !$product_variation)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = "create attribute , product and product variation respectively";
+                        $response['errors'][] = "create store  , product and product variation respectively";
                         return $response;
                     }
 
-                    if(!$attribute && !$product_variation)
+                    if(!$attribute && !$product_variation && !$product)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = "create attribute and product variation respectively";
+                        $response['errors'][] = "create product , product variation and attribute respectively";
                         return $response;
                     }
 
-                    if(!$product_variation){
+                    if(!$product && !$product_variation )
+                    {
                         $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_variation");
+                        $response['errors'][] = "create product ,  product variation  respectively";
                         return $response;
                     }
-                    $attribute = Attribute::all()->count();
+
                     if(!$attribute)
                     {
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_attribute");
+                        return $response;
+                    }
+                    if(!$product_variation){
+                        $response['success'] = false;
+                        $response['errors'][] = trans("vaahcms-general.create_variation");
                         return $response;
                     }
                     ProductAttribute::seedSampleItems($quantity);
@@ -326,25 +332,43 @@ class SettingsController extends Controller
                     ProductMedia::seedSampleItems($quantity);
                     break;
                 case "ProductStock":
-                    $vendor = Vendor::all()->count();
-                    if(!$vendor){
+                    $vendor = Vendor::exists();
+
+                    $product = Product::exists();
+
+                    $product_variation = ProductVariation::exists();
+
+                    $warehouse = Warehouse::exists();
+
+                    $store = Store::exists();
+
+                    if(!$store && !$warehouse && !$vendor && !$product && !$product_variation)
+                    {
                         $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_vendor");
+                        $response['errors'][] = "create store  , vendor , warehouse,  product and product variation respectively";
                         return $response;
                     }
-                    $product = Product::all()->count();
-                    if(!$product){
+
+                    if( !$vendor && !$warehouse && !$product && !$product_variation)
+                    {
                         $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_product");
+                        $response['errors'][] = "create vendor ,  warehouse , product and product variation respectively";
                         return $response;
                     }
-                    $product_variation = ProductVariation::all()->count();
+
+                    if(!$warehouse && !$product && !$product_variation)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create warehouse , product and product variation respectively";
+                        return $response;
+                    }
+
                     if(!$product_variation){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_variation");
                         return $response;
                     }
-                    $warehouse = Warehouse::all()->count();
+
                     if(!$warehouse){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_warehouse");
