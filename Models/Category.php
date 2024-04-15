@@ -446,7 +446,16 @@ class Category extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+
+        $sub_categories = Category::whereIn('category_id', $items_id)->get();
+
+        foreach ($sub_categories as $sub_category) {
+            $sub_category->category_id = $sub_category->parentCategory->category_id;
+            $sub_category->save();
+        }
+
         self::whereIn('id', $items_id)->forceDelete();
+
 
         $response['success'] = true;
         $response['data'] = true;
@@ -627,6 +636,13 @@ class Category extends VaahModel
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
+        }
+        $sub_categories = Category::where('category_id', $id)->get();
+        foreach ($sub_categories as $sub_category) {
+            if ($sub_category->parentCategory) {
+                $sub_category->category_id = $sub_category->parentCategory->category_id;
+                $sub_category->save();
+            }
         }
         $item->forceDelete();
 

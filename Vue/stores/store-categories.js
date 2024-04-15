@@ -729,6 +729,7 @@ export const useCategoryStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.updatedCategory();
             this.show_filters=false;
             this.$router.push({name: 'categories.form',query:this.query})
         },
