@@ -29,7 +29,7 @@ class Category extends VaahModel
         'uuid',
         'name',
         'slug',
-        'parent_category_id',
+        'category_id',
         'is_active',
         'created_by',
         'updated_by',
@@ -116,17 +116,17 @@ class Category extends VaahModel
     //-------------------------------------------------
     public function subCategories()
     {
-        return $this->hasMany(Category::class, 'parent_category_id')->with(['subCategories']);
+        return $this->hasMany(Category::class, 'category_id')->with(['subCategories']);
     }
     public function activeSubCategoriesForProduct()
     {
-        return $this->hasMany(Category::class, 'parent_category_id')->where('is_active', 1)->with(['activeSubCategoriesForProduct']);
+        return $this->hasMany(Category::class, 'category_id')->where('is_active', 1)->with(['activeSubCategoriesForProduct']);
     }
     //-------------------------------------------------
 
     public function parentCategory()
     {
-        return $this->belongsTo(Category::class, 'parent_category_id', 'id');
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -300,7 +300,7 @@ class Category extends VaahModel
             }
 
             if (!empty($category_ids)) {
-                $query->whereIn('parent_category_id', $category_ids)
+                $query->whereIn('category_id', $category_ids)
                     ->orWhereIn('id', $category_ids);
             }
         }
@@ -612,9 +612,9 @@ class Category extends VaahModel
 
         return $this->where('id', $current_id)
             ->where(function($query) use ($parent_id) {
-                $query->where('parent_category_id', $parent_id)
+                $query->where('category_id', $parent_id)
                     ->orWhereHas('parentCategory', function($query) use ($parent_id) {
-                        $query->where('parent_category_id', $parent_id);
+                        $query->where('category_id', $parent_id);
                     });
             })->exists();
     }
