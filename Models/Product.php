@@ -1327,7 +1327,7 @@ class Product extends VaahModel
          * You should also return relationship from here
          */
 
-        $random_category = Category::whereNull('parent_category_id') ->where('is_active', 1)->inRandomOrder()->first();
+        $random_category = Category::whereNull('category_id') ->where('is_active', 1)->inRandomOrder()->first();
         $inputs['category'] = $random_category;
 
 
