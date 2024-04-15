@@ -213,6 +213,7 @@ class SettingsController extends Controller
                     Product::seedSampleItems($quantity);
                     break;
                 case "ProductVariations":
+
                     $product = Product::exists();
 
                     $store = Store::exists();
@@ -232,7 +233,17 @@ class SettingsController extends Controller
                     ProductVariation::seedSampleItems($quantity);
                     break;
                 case "Warehouses":
-                    $vendor = Vendor::all()->count();
+                    $vendor = Vendor::exists();
+
+                    $store = Store::exists();
+
+                    if(!$vendor && !$store)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create store and vendor respectively";
+                        return $response;
+                    }
+
                     if(!$vendor){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_vendor");
@@ -251,7 +262,36 @@ class SettingsController extends Controller
                     AttributeGroup::seedSampleItems($quantity);
                     break;
                 case "ProductAttribute":
-                    $product_variation = ProductVariation::all()->count();
+
+                    $store = Store::exists();
+
+                    $product = Product::exists();
+
+                    $product_variation = ProductVariation::exists();
+
+                    $attribute = Attribute::exists();
+
+                    if(!$product && !$store && !$product_variation && !$attribute)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create store , attribute , product and product variation respectively";
+                        return $response;
+                    }
+
+                    if(!$attribute && !$product && !$product_variation)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create attribute , product and product variation respectively";
+                        return $response;
+                    }
+
+                    if(!$attribute && !$product_variation)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create attribute and product variation respectively";
+                        return $response;
+                    }
+
                     if(!$product_variation){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_variation");
