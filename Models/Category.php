@@ -407,7 +407,10 @@ class Category extends VaahModel
             case 'trash':
                 $category_model = new Category();
                 foreach ($items_id as $item_id) {
-                    $category_model->recursiveTrashCategories($item_id);
+                    $sub_categories = Category::where('category_id', $item_id)->exists();
+                    if ($sub_categories) {
+                        $category_model->recursiveTrashCategories($item_id);
+                    }
                 }
                 self::whereIn('id', $items_id)
                     ->get()->each->delete();
@@ -453,7 +456,11 @@ class Category extends VaahModel
 
         $category_model = new Category();
         foreach ($items_id as $item_id) {
-            $category_model->recursiveDeleteCategories($item_id);
+            $sub_categories = Category::where('category_id', $item_id)->exists();
+
+            if ($sub_categories) {
+                $category_model->recursiveDeleteCategories($item_id);
+            }
         }
 
 
@@ -650,10 +657,11 @@ class Category extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-
-        $category_model = new Category();
+        $is_exist_sub_categories = Category::where('category_id', $item->id)->exists();
+        if ($is_exist_sub_categories) {
+            $category_model = new Category();
             $category_model->recursiveDeleteCategories($item->id);
-
+        }
         $item->forceDelete();
 
         $response['success'] = true;
@@ -678,8 +686,11 @@ class Category extends VaahModel
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                $category_model = new Category();
-                $category_model->recursiveTrashCategories($id);
+                $is_exist_sub_categories = Category::where('category_id', $id)->exists();
+                if ($is_exist_sub_categories) {
+                    $category_model = new Category();
+                    $category_model->recursiveTrashCategories($id);
+                }
                 self::find($id)
                     ->delete();
                 break;
