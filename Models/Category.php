@@ -405,6 +405,10 @@ class Category extends VaahModel
                 })->update(['is_active' => 1]);
                 break;
             case 'trash':
+                $category_model = new Category();
+                foreach ($items_id as $item_id) {
+                    $category_model->recursiveTrashCategories($item_id);
+                }
                 self::whereIn('id', $items_id)
                     ->get()->each->delete();
                 break;
@@ -447,12 +451,11 @@ class Category extends VaahModel
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
 
-        $sub_categories = Category::whereIn('category_id', $items_id)->get();
-
-        foreach ($sub_categories as $sub_category) {
-            $sub_category->category_id = $sub_category->parentCategory->category_id;
-            $sub_category->save();
+        $category_model = new Category();
+        foreach ($items_id as $item_id) {
+            $category_model->recursiveDeleteCategories($item_id);
         }
+
 
         self::whereIn('id', $items_id)->forceDelete();
 
@@ -462,6 +465,16 @@ class Category extends VaahModel
         $response['messages'][] = trans("vaahcms-general.action_successful");
 
         return $response;
+    }
+    //-------------------------------------------------
+
+    private function recursiveDeleteCategories($category_ids)
+    {
+        $sub_categories = Category::withTrashed()->where('category_id', $category_ids)->get();
+        foreach ($sub_categories as $sub_category) {
+            $this->recursiveDeleteCategories($sub_category->id);
+            $sub_category->forceDelete();
+        }
     }
     //-------------------------------------------------
      public static function listAction($request, $type): array
@@ -637,13 +650,10 @@ class Category extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        $sub_categories = Category::where('category_id', $id)->get();
-        foreach ($sub_categories as $sub_category) {
-            if ($sub_category->parentCategory) {
-                $sub_category->category_id = $sub_category->parentCategory->category_id;
-                $sub_category->save();
-            }
-        }
+
+        $category_model = new Category();
+            $category_model->recursiveDeleteCategories($item->id);
+
         $item->forceDelete();
 
         $response['success'] = true;
@@ -668,6 +678,8 @@ class Category extends VaahModel
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
+                $category_model = new Category();
+                $category_model->recursiveTrashCategories($id);
                 self::find($id)
                     ->delete();
                 break;
@@ -679,6 +691,15 @@ class Category extends VaahModel
         }
 
         return self::getItem($id);
+    }
+
+    private function recursiveTrashCategories($category_id)
+    {
+        $sub_categories = Category::where('category_id', $category_id)->get();
+        foreach ($sub_categories as $sub_category) {
+            $this->recursiveTrashCategories($sub_category->id);
+            $sub_category->delete();
+        }
     }
     //-------------------------------------------------
 
