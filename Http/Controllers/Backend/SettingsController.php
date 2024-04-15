@@ -204,7 +204,7 @@ class SettingsController extends Controller
                     Vendor::seedSampleItems($quantity);
                     break;
                 case "Product":
-                    $store = Store::all()->count();
+                    $store = Store::exists();
                     if(!$store){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_store");
@@ -220,7 +220,7 @@ class SettingsController extends Controller
                     if(!$product && !$store)
                     {
                         $response['success'] = false;
-                        $response['errors'][] = "create store and product first";
+                        $response['errors'][] = "create store and product respectively";
                         return $response;
                     }
 
@@ -267,7 +267,17 @@ class SettingsController extends Controller
                     ProductAttribute::seedSampleItems($quantity);
                     break;
                 case "ProductMedia":
-                    $product = Product::all()->count();
+                    $product = Product::exists();
+
+                    $store = Store::exists();
+
+                    if(!$product && !$store)
+                    {
+                        $response['success'] = false;
+                        $response['errors'][] = "create store and product respectively";
+                        return $response;
+                    }
+
                     if(!$product){
                         $response['success'] = false;
                         $response['errors'][] = trans("vaahcms-general.create_product");
@@ -312,20 +322,20 @@ class SettingsController extends Controller
                     if(!$product && !$store && !$vendor) {
 
                         $response['success'] = false;
-                        $response['errors'][] = "create a store , vendor and product first ";
+                        $response['errors'][] = "create a store , vendor and product respectively";
                         return $response;
                     }
 
                     if(!$product && !$vendor) {
 
                         $response['success'] = false;
-                        $response['errors'][] = "create a vendor and product first ";
+                        $response['errors'][] = "create a vendor and product respectively";
                         return $response;
                     }
                     if(!$store && !$vendor) {
 
                         $response['success'] = false;
-                        $response['errors'][] = "create a store , vendor first ";
+                        $response['errors'][] = "create a store , vendor respectively";
                         return $response;
                     }
                     if(!$product){
