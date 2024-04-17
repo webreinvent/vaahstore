@@ -12,7 +12,6 @@
                   name="sample-crud_options"
                   placeholder="Select Crud"
                   data-testid="sample-crud_options"
-                  filter
         />
         <InputNumber id="input_text" v-model="store.quantity" placeholder="Enter no. of records" class="mr-1" />
 
