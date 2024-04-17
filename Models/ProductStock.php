@@ -782,15 +782,15 @@ class ProductStock extends VaahModel
 
             $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
                 ->withTrashed()->first();
+            if ($product_variation) {
+                $product_variation->quantity += $inputs['quantity'];
+                $product_variation->save();
 
-            $product_variation->quantity += $inputs['quantity'];
-            $product_variation->save();
+                $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
 
-            $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
-
-            $product->quantity = $product->productVariations->sum('quantity');
-            $product->save();
-
+                $product->quantity = $product->productVariations->sum('quantity');
+                $product->save();
+            }
 
 
 
@@ -1183,15 +1183,15 @@ class ProductStock extends VaahModel
         $item = self::where('id',$id)->withTrashed()->first();
         $product_variation = ProductVariation::where('id', $item->vh_st_product_variation_id)
             ->withTrashed()->first();
-        if($product_variation->quantity)
-        {
+        if($product_variation) {
             $product_variation->quantity -= $item->quantity;
-        }
 
-        $product_variation->save();
-        $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
-        $product->quantity = $product->productVariations->sum('quantity');
-        $product->save();
+
+            $product_variation->save();
+            $product = Product::where('id', $item->vh_st_product_id)->withTrashed()->first();
+            $product->quantity = $product->productVariations->sum('quantity');
+            $product->save();
+        }
     }
 
     //-------------------------------------------------
