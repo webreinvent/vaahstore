@@ -49,7 +49,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
             </Column>
             <Column field="name" header="Vendor Name" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    <div  class=" hover:text-primary-700 cursor-pointer">
+                    <div  >
                         {{props.data.name}}
                         <span v-if="props.data.is_default === 1">
                          <Badge severity="info">&nbsp;(Default)</Badge>
