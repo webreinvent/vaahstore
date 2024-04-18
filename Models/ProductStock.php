@@ -853,19 +853,21 @@ if ($product_variation) {
             $inputs['vh_st_product_variation_id'] = $product_variation_id;
             $inputs['product_variation'] = $product_variation;
         }
-        //fill the warehouse field on the basis of vendor selected
+
 
         $warehouse = Warehouse::where('is_active', 1)
             ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
             ->inRandomOrder()
             ->select('id', 'name', 'slug')
             ->first();
-        $inputs['vh_st_warehouse_id'] = null;
-        $inputs['warehouse'] = null;
-        if (!empty($warehouse)) {
-            $inputs['vh_st_warehouse_id'] = $warehouse->id;
-            $inputs['warehouse'] = $warehouse;
+        if (empty($warehouse)) {
+            $warehouse = Warehouse::where('is_active', 1)
+                ->inRandomOrder()
+                ->select('id', 'name', 'slug')
+                ->first();
         }
+        $inputs['vh_st_warehouse_id'] = $warehouse->id ?? null;
+        $inputs['warehouse'] = $warehouse ?? null;
 
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-stock-status');
         $status_id = $taxonomy_status->pluck('id')->random();
