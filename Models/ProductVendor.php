@@ -1059,7 +1059,10 @@ class ProductVendor extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-
+            if (isset($inputs['store_vendor_product']) && $inputs['store_vendor_product'] ) {
+                $storeId = $inputs['store_vendor_product']->id;
+                $item->storeVendorProduct()->attach($storeId);
+            }
             $i++;
 
         }
@@ -1120,13 +1123,25 @@ class ProductVendor extends VaahModel
             ->get();
 
         $product_ids = $products->pluck('id')->toArray();
+
         $inputs['product'] = null;
         $inputs['vh_st_product_id'] = null;
+
         if (!empty($product_ids)) {
-            $product_ids = $product_ids[array_rand($product_ids)];
-            $products = $products->where('id', $product_ids)->first();
-            $inputs['product'] = $products;
-            $inputs['vh_st_product_id'] = $product_ids;
+
+            $product_id = $product_ids[array_rand($product_ids)];
+
+            $product = $products->where('id', $product_id)->first();
+
+            $inputs['product'] = $product;
+            $inputs['vh_st_product_id'] = $product_id;
+        } else {
+            $any_active_product = Product::where('is_active', 1)
+                ->inRandomOrder()
+                ->first();
+
+            $inputs['product'] = $any_active_product;
+            $inputs['vh_st_product_id'] = $any_active_product ? $any_active_product->id : null;
         }
 
 

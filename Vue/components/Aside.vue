@@ -16,8 +16,7 @@ function isActive(routePaths) {
 
 const selected_page = ref({
     menuitem: ({ props }) => ({
-        class: route.matched && route.matched[1] &&
-        route.matched[1].path === props.item.route ? 'p-focus' : ''
+        class: route.path === props.item.route ? 'p-focus' : ''
     })
 });
 
@@ -119,6 +118,12 @@ const items = ref([
                 label: 'Customer Groups',
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
+            },
+
+            {
+                label: 'Settings',
+                icon: 'fas fas-spin fa-cog',
+                route: "/settings/general"
             },
         ]
     },

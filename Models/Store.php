@@ -1247,8 +1247,8 @@ class Store extends VaahModel
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
 
-        $inputs['is_multi_currency'] = rand(0,1);
-        $inputs['is_multi_lingual'] =  rand(0,1);
+        $inputs['is_multi_currency'] = 0;
+        $inputs['is_multi_lingual'] =  0;
 
         $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
         $selected_currencies = [];
