@@ -21,7 +21,7 @@ onMounted(async () => {
 
 <template>
 
-    <div style="margin-top: 1rem">
+    <div>
         <Card>
             <template #header>
                 <div class="flex justify-content-between align-items-center w-full">
