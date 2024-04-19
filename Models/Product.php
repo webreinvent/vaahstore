@@ -1773,51 +1773,51 @@ class Product extends VaahModel
                 ];
             }
         }
-        if ($vendor->isEmpty()) {
-            // Query vendors with product stocks having quantity greater than 0
-            $price_range = ProductVariation::where('vh_st_product_id', $id)
-                ->where('price', '>=', 0)
-                ->pluck('price')
-                ->toArray();
-
-            $quantity = null;
-            $price_range = $price_range ? $price_range : [];
-            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
-                $query->where('vh_st_product_id', $id)
-                    ->where('quantity', '>', 0)->where('is_active', 1);
-            })
-                ->select('id', 'name', 'slug', 'is_default')
-                ->get();
-
-            // If no vendors with non-zero quantity are found, return null
-            if ($vendor->isEmpty()) {
-                return [
-                    'success' => true,
-                    'data' => [
-                        'price_range' => $price_range,
-                    ],
-                ];
-            }
-            $vendors_sorted_by_quantity = $vendor->sortByDesc(function ($vendor) use ($id) {
-                return ProductStock::where('vh_st_vendor_id', $vendor->id)
-                    ->where('vh_st_product_id', $id)
-                    ->sum('quantity');
-            });
-
-            // Pick a random vendor from the obtained results
-            $selected_vendor = $vendors_sorted_by_quantity->first();
-            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
-                ->where('vh_st_product_id', $id)->where('is_active', 1)
-                ->sum('quantity');
-
-            $quantity = $quantity ? $quantity : null;
-            $selected_vendor->price_range=$price_range;
-            $selected_vendor->quantity=$quantity;
-            return [
-                'success' => true,
-                'data' =>$selected_vendor ,
-            ];
-        }
+//        if ($vendor->isEmpty()) {
+//            // Query vendors with product stocks having quantity greater than 0
+//            $price_range = ProductVariation::where('vh_st_product_id', $id)
+//                ->where('price', '>=', 0)
+//                ->pluck('price')
+//                ->toArray();
+//
+//            $quantity = null;
+//            $price_range = $price_range ? $price_range : [];
+//            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
+//                $query->where('vh_st_product_id', $id)
+//                    ->where('quantity', '>', 0)->where('is_active', 1);
+//            })
+//                ->select('id', 'name', 'slug', 'is_default')
+//                ->get();
+//
+//            // If no vendors with non-zero quantity are found, return null
+//            if ($vendor->isEmpty()) {
+//                return [
+//                    'success' => true,
+//                    'data' => [
+//                        'price_range' => $price_range,
+//                    ],
+//                ];
+//            }
+//            $vendors_sorted_by_quantity = $vendor->sortByDesc(function ($vendor) use ($id) {
+//                return ProductStock::where('vh_st_vendor_id', $vendor->id)
+//                    ->where('vh_st_product_id', $id)
+//                    ->sum('quantity');
+//            });
+//
+//            // Pick a random vendor from the obtained results
+//            $selected_vendor = $vendors_sorted_by_quantity->first();
+//            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
+//                ->where('vh_st_product_id', $id)->where('is_active', 1)
+//                ->sum('quantity');
+//
+//            $quantity = $quantity ? $quantity : null;
+//            $selected_vendor->price_range=$price_range;
+//            $selected_vendor->quantity=$quantity;
+//            return [
+//                'success' => true,
+//                'data' =>$selected_vendor ,
+//            ];
+//        }
         // Filter out vendors with quantity of 0
         $vendor = $vendor->filter(function ($vendor) use ($id) {
             return ProductStock::where('vh_st_vendor_id', $vendor->id)

@@ -87,7 +87,7 @@ const useVaah = vaah()
     {{
         prop.data.product_price_range && prop.data.product_price_range.price_range && prop.data.product_price_range.price_range.length > 0
         ? store.calculatePriceRangeForProduct(prop.data.product_price_range.price_range) || ''
-        : ''
+        : '0'
     }}
 </span>
                  </template>

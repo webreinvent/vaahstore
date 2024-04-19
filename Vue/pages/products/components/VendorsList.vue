@@ -73,7 +73,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
                         </Badge>
                     </template>
                     <template v-else>
-                        <span ></span>
+                        <span >0</span>
                     </template>
                 </template>
             </Column>
