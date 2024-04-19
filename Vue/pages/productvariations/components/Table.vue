@@ -43,7 +43,7 @@ const route = useRoute();
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        
+
                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>
