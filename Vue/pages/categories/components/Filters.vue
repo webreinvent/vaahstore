@@ -56,9 +56,9 @@ const updateCategoryInUrl = () => {
                         <b>Category By:</b>
                     </template>
                     <TreeSelect
-                        v-model="store.query.filter.parent_category"
+                        v-model="store.query.filter.category"
                         :options="store.categories_dropdown_data"
-                        selectionMode="checkbox"
+                        selectionMode="multiple"
                         placeholder="Select Category"
                         :show-count="true"
                         data-testid="categories-filters-category"
