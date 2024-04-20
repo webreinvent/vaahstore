@@ -676,7 +676,6 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-//        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories');
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories.parentCategory');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);

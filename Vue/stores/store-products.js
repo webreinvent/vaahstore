@@ -122,6 +122,7 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        filter_category:null,
 
     }),
     getters: {
@@ -2354,6 +2355,72 @@ export const useProductStore = defineStore({
             )
 
         },
+
+        // setFilter(event){
+        //
+        //     console.log(event)
+        //     // Accessing the selected categories from the store
+        //     const selectedCategories = this.filter_category;
+        //
+        //     // Iterate over the keys of selectedCategories
+        //     Object.keys(selectedCategories).forEach(categoryKey => {
+        //         const category = selectedCategories[categoryKey];
+        //
+        //
+        //         const label = category.name; // Assuming the label is stored under the 'name' property
+        //         console.log("Category Key:", categoryKey);
+        //     });
+        // },
+
+        // setFilter(event) {
+        //     console.log(event);
+        //
+        //     // Accessing the selected categories from the store
+        //     const selectedCategories = this.filter_category;
+        //     console.log(selectedCategories);
+        //
+        //     // Array to store selected category keys
+        //     const selectedCategoryKeys = [];
+        //
+        //     // Iterate over the keys of selectedCategories
+        //     Object.keys(selectedCategories).forEach(categoryKey => {
+        //         const category = selectedCategories[categoryKey];
+        //         // Assuming the category has a 'name' property for the label
+        //         const label = category.name;
+        //
+        //         console.log("Category Key:", categoryKey);
+        //         console.log("asasas Key:", category);
+        //
+        //         // Push the categoryKey to the selectedCategoryKeys array
+        //         selectedCategoryKeys.push(categoryKey);
+        //     });
+        //
+        //     // Assign the selectedCategoryKeys array to this.query.filter.category
+        //     this.query.filter.category = selectedCategoryKeys;
+        // }
+
+        setFilter(event) {
+            // Array to store selected category keys
+            console.log(event)
+            const selectedCategoryKeys = [];
+
+            // Iterate over the children of the event object
+            event.children.forEach(child => {
+                const childKey = child.key;
+                const childLabel = child.label;
+
+                console.log("Category Key:", childKey);
+                console.log("Category Label:", childLabel);
+
+                // Push the childKey to the selectedCategoryKeys array
+                selectedCategoryKeys.push(childKey);
+            });
+
+            // Assign the selectedCategoryKeys array to this.query.filter.category
+            this.query.filter.category = selectedCategoryKeys;
+        }
+
+
 
 
     }

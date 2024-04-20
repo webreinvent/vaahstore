@@ -2,8 +2,21 @@
 
 import { useProductStore } from '../../../stores/store-products'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import {computed} from "vue";
 
 const store = useProductStore();
+// const categoryFilterQuery = computed(() => {
+//     const selectedCategories = store.query.filter.category;
+//     console.log(selectedCategories); // Add this line for logging
+//     const queryString = selectedCategories
+//         .filter(category => category.partialChecked)
+//         .map(category => {
+//             const categoryId = category.key; // Assuming 'key' represents the category ID
+//             return `filter[category][${categoryId}][checked]=true`;
+//         }).join('&');
+//     console.log(queryString)
+//     return queryString;
+// });
 
 </script>
 
@@ -14,12 +27,24 @@ const store = useProductStore();
                  position="right">
             <VhFieldVertical >
                 <template #label>
-                    <b>Categories By:</b>
+                    <b>Categories By:</b>{{store.filter_category}}
                 </template>
+<!--                <TreeSelect-->
+<!--                    v-model="store.filter_category"-->
+<!--                    :options="store.categories_dropdown_data"-->
+<!--                    selectionMode="checkbox"-->
+<!--                    placeholder="Select Category"-->
+<!--                    :show-count="true"-->
+<!--                    data-testid="products-category"-->
+<!--                    append-to="self"-->
+<!--                    class=" w-full" />-->
+
+
                 <TreeSelect
                     v-model="store.query.filter.category"
                     :options="store.categories_dropdown_data"
-                    selectionMode="checkbox"
+                    selectionMode="multiple"
+                    @node-select="store.setFilter($event)"
                     placeholder="Select Category"
                     :show-count="true"
                     data-testid="products-category"
