@@ -2305,13 +2305,8 @@ export const useProductStore = defineStore({
 //---------------------------------------------------------------------
 
         openVendorsPanelAfter(data, res) {
-            this.default_vendor_message = (res && res.data && res.data.message)
-                ? 'This default vendor does not exist with product.Click to'
-                : null;
-            if (data) {
-                // data.sort((a, b) => b.is_preferred - a.is_preferred || b.is_default - a.is_default);
-                // this.item.vendor_data = data;
 
+            if (data) {
                 data.sort((a, b) => {
                     const preferred_vendor = b.is_preferred - a.is_preferred;
                     if (preferred_vendor !== 0) {
@@ -2347,6 +2342,7 @@ export const useProductStore = defineStore({
                 await this.vendorPreferredAction('notpreferred', item);
             }
         },
+        //---------------------------------------------------------------------
 
         async vendorPreferredAction(type, item=null){
 
@@ -2361,24 +2357,18 @@ export const useProductStore = defineStore({
 
             let options = {
                 method: 'PATCH',
-
             };
-
-
-
-                    ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
-
-
+            ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
             await vaah().ajax(
                 ajax_url,
                 this.vendorPreferredActionAfter,
                 options
             );
         },
+        //---------------------------------------------------------------------
 
         async vendorPreferredActionAfter(data, res)
         {
-
             if(data)
             {
                 await this.getList();
@@ -2386,6 +2376,8 @@ export const useProductStore = defineStore({
             }
 
         },
+        //---------------------------------------------------------------------
+
         minPrice(event){
           this.query.filter.min_price=event.value;
         },
@@ -2393,14 +2385,37 @@ export const useProductStore = defineStore({
             this.query.filter.max_price=event.value;
 
         },
+        //---------------------------------------------------------------------
 
         redirectToVendorProducts()
         {
-
             this.$router.push({name: 'productvendors.index'});
-
         },
+        //---------------------------------------------------------------------
 
+        getPriceRangeOfProduct(prices) {
+
+            if (!prices || !Array.isArray(prices)) {
+                return 'Not available';
+            }
+
+            const numericPrices = prices.filter(price => typeof price === 'number');
+
+            if (numericPrices.length === 0) {
+                return '';
+            }
+
+            const minPrice = Math.min(...numericPrices);
+            const maxPrice = Math.max(...numericPrices);
+
+            if (minPrice === maxPrice) {
+                return `${minPrice}`;
+            }
+
+            return `${minPrice} - ${maxPrice}`;
+        },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
 
     }
 });

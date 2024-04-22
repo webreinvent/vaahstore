@@ -192,7 +192,7 @@ function () {
     Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.products.get.vendors-list');
 
-    Route::any('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
+    Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
         ->name('vh.backend.store.products.preferred-vendor');
 
 });

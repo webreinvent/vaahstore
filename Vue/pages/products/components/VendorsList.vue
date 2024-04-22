@@ -69,7 +69,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
                 <template #body="props">
                     <template v-if="props.data.product_price_range.length">
                         <Badge severity="info">
-                            {{ store.calculatePriceRangeForProduct(props.data.product_price_range) }}
+                            {{ store.getPriceRangeOfProduct(props.data.product_price_range) }}
                         </Badge>
                     </template>
                     <template v-else>
@@ -82,7 +82,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
                 <template #body="props">
                     <InputSwitch v-model.bool="props.data.is_preferred "
                                  :disabled=" (props.data.quantity === 0 || props.data.product_price_range.length===0 )"
-                                 data-testid="products-table-is-active"
+                                 data-testid="products-vendors_list-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  @input="store.toggleIsPreferred(props.data)">

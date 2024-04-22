@@ -791,6 +791,8 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+
     public function getVendorsListForPrduct(Request $request, $id)
     {
         try{
@@ -808,6 +810,7 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
 
     public function vendorPreferredAction(Request $request,$id,$action)
     {

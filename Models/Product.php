@@ -1702,6 +1702,7 @@ class Product extends VaahModel
         return $response;
     }
 
+    //----------------------------------------------------------
 
     public static function getPriceRangeOfProduct($id)
     {
@@ -1716,6 +1717,7 @@ class Product extends VaahModel
 
         return ['success' => true, 'data' => $data];
     }
+    //----------------------------------------------------------
 
     protected static function getPreferredProductVendorIds($id)
     {
@@ -1724,6 +1726,7 @@ class Product extends VaahModel
             ->pluck('vh_st_vendor_id')
             ->toArray();
     }
+    //----------------------------------------------------------
 
     protected static function buildVendorQuery($preferred_vendor_product_id, $id)
     {
@@ -1748,6 +1751,8 @@ class Product extends VaahModel
         return $vendors_query;
     }
 
+    //----------------------------------------------------------
+
     protected static function isVendorStockActive($vendor, $id)
     {
         return $vendor->productStocks()
@@ -1756,6 +1761,9 @@ class Product extends VaahModel
             ->where('is_active', 1)
             ->exists();
     }
+
+    //----------------------------------------------------------
+
     protected static function getRandomVendor($id)
     {
         $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
@@ -1809,6 +1817,9 @@ class Product extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
+
+
     protected static function getVendorPriceAndQuantity($vendor, $id)
     {
         $quantity = $vendor->productStocks()
@@ -1841,6 +1852,7 @@ class Product extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
 
 
     public static function getVendorsListForPrduct($id)
@@ -1878,8 +1890,6 @@ class Product extends VaahModel
                 ->sum('quantity');
 
             $vendor->quantity = $quantity;
-//            $vendor->variation_prices = $vendor_prices[$vendor->id] ?? [];
-
             $vendor->product_price_range = [];
 
             $vendor->product_price_range = isset($product_price_range_with_vendors[$vendor->id])
@@ -1917,6 +1927,7 @@ class Product extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
 
     public static function vendorPreferredAction(Request $request, $id, $type): array
     {
@@ -1928,20 +1939,6 @@ class Product extends VaahModel
                 'message' => 'Product vendor not found.',
             ];
         }
-
-        $product_id = $product_vendor->vh_st_product_id;
-
-        $is_preferred = ($type === 'preferred') ? 1 : null;
-
-        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
-        ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
-
-//        if (!$productVendor) {
-//            return [
-//                'success' => false,
-//                'message' => 'Product vendor not found.',
-//            ];
-//        }
 
         $product_id = $product_vendor->vh_st_product_id;
 
