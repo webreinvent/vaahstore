@@ -1778,7 +1778,10 @@ class Product extends VaahModel
             ->first();
 
         if ($vendor) {
-            $quantity = $vendor->quantity;
+            $quantity = $vendor->productStocks()
+                ->where('vh_st_product_id', $id)
+                ->where('is_active', 1)
+                ->sum('quantity');
 
             $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
                 ->where('vh_st_product_id', $id)
