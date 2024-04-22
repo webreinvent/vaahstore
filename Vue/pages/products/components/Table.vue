@@ -48,7 +48,6 @@ const useVaah = vaah()
 
              <Column field="store.name" header="Store"
                      :sortable="true">
-
                  <template #body="prop">
                      <Badge v-if="prop.data && prop.data.store && prop.data.store.deleted_at"
                             value="Trashed"
