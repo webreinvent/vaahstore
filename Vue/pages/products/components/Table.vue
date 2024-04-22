@@ -101,8 +101,8 @@ const useVaah = vaah()
                             value="Trashed"
                             severity="danger"></Badge>
                      <span>
-                        <div style="word-break: break-word;" v-if="prop.data && prop.data.product_price_range">
-                            {{ prop.data.product_price_range.name }}</div>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.product_price_range.selected_vendor">
+                            {{ prop.data.product_price_range.selected_vendor.name }}</div>
                          </span>
                  </template>
              </Column>

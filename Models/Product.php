@@ -1705,186 +1705,128 @@ class Product extends VaahModel
 
     public static function getPriceRangeOfProduct($id)
     {
-        // Get preferred product vendors IDs
-        $preferred_product_vendor_id = ProductVendor::where('vh_st_product_id', $id)
+        $preferred_vendor_product_id = static::getPreferredProductVendorIds($id);
+        $vendor = static::buildVendorQuery($preferred_vendor_product_id, $id)->first();
+
+        if ($vendor && static::isVendorStockActive($vendor, $id)) {
+            $data = static::getVendorPriceAndQuantity($vendor, $id);
+        } else {
+            $data = static::getRandomVendor($id);
+        }
+
+        return ['success' => true, 'data' => $data];
+    }
+
+    protected static function getPreferredProductVendorIds($id)
+    {
+        return ProductVendor::where('vh_st_product_id', $id)
             ->where('is_preferred', 1)
             ->pluck('vh_st_vendor_id')
             ->toArray();
+    }
 
-        // Initialize the vendors query
+    protected static function buildVendorQuery($preferred_vendor_product_id, $id)
+    {
         $vendors_query = Vendor::query();
 
-        // If there are preferred product vendors, filter vendors accordingly
-        if (!empty($preferred_product_vendor_id)) {
-            $vendors_query->whereIn('id', $preferred_product_vendor_id);
+        if (!empty($preferred_vendor_product_id)) {
+            $vendors_query->whereIn('id', $preferred_vendor_product_id);
         } else {
-            $vendors_query->where(function ($query) use ($id) {
-                $query->where('is_default', 1)
-                    ->orWhere(function ($query) use ($id) {
-                        $query->whereHas('productStocks', function ($query) use ($id) {
-                            $query->where('vh_st_product_id', $id)
-                                ->where('quantity', '>', 0)->where('is_active', 1);
-                        })->whereHas('productPrices', function ($query) use ($id) {
-                            $query->where('vh_st_product_id', $id)
-                                ->where('amount', '>', 0);
-                        });
+            $vendors_query->where('is_default', 1)
+                ->orWhere(function ($query) use ($id) {
+                    $query->whereHas('productStocks', function ($query) use ($id) {
+                        $query->where('vh_st_product_id', $id)
+                            ->where('quantity', '>', 0)
+                            ->where('is_active', 1);
+                    })->whereHas('productPrices', function ($query) use ($id) {
+                        $query->where('vh_st_product_id', $id)
+                            ->where('amount', '>', 0);
                     });
-            })->orWhere(function ($query) use ($id) {
-                $query->whereHas('productStocks', function ($query) use ($id) {
-                    $query->where('vh_st_product_id', $id)
-                        ->where('quantity', '>', 0)->where('is_active', 1);
-                })->whereHas('productPrices', function ($query) use ($id) {
-                    $query->where('vh_st_product_id', $id)
-                        ->where('amount', '>', 0);
-                })->where('is_default', '<>', 1)
-                    ->whereHas('productVendors', function ($query) use ($id) {
-                        $query->where('vh_st_product_id', $id);
-                    });
-            });
-
-
+                });
         }
-        $vendor = $vendors_query->select('id', 'name', 'slug', 'is_default')->get();
-        if ($vendor->isNotEmpty()) {
-            $default_vendor = $vendor->firstWhere('is_default', 1);
-            if ($default_vendor && $default_vendor->productStocks()->where('vh_st_product_id', $id)->where('quantity', '>', 0)->where('is_active', 1)->exists()) {
-                $quantity = ProductStock::where('vh_st_vendor_id', $default_vendor->id)
-                    ->where('vh_st_product_id', $id)
-                    ->sum('quantity');
 
-                $product_prices = ProductPrice::where('vh_st_vendor_id', $default_vendor->id)
-                    ->where('vh_st_product_id', $id)
-                    ->whereNotNull('amount')
-                    ->pluck('amount')
-                    ->toArray();
+        return $vendors_query;
+    }
 
-                if (empty($product_prices)) {
-                    $product_prices = ProductVariation::where('vh_st_product_id', $id)
-                        ->whereNotNull('price')
-                        ->pluck('price')
-                        ->toArray();
-                }
+    protected static function isVendorStockActive($vendor, $id)
+    {
+        return $vendor->productStocks()
+            ->where('vh_st_product_id', $id)
+            ->where('quantity', '>', 0)
+            ->where('is_active', 1)
+            ->exists();
+    }
+    protected static function getRandomVendor($id)
+    {
+        $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
+            $query->where('vh_st_product_id', $id)->where('is_active', 1)
+                ->where('quantity', '>', 0);
+        })
+            ->select('vh_st_vendors.*')
+            ->withCount(['productStocks as quantity' => function ($query) use ($id) {
+                $query->where('vh_st_product_id', $id)->where('is_active', 1);
+            }])
+            ->orderByDesc('quantity')
+            ->first();
 
-                $default_vendor->quantity = $quantity;
-                $default_vendor->price_range = $product_prices;
-                return [
-                    'success' => true,
-                    'data' => $default_vendor,
-                ];
-            }
-        }
-//        if ($vendor->isEmpty()) {
-//            // Query vendors with product stocks having quantity greater than 0
-//            $price_range = ProductVariation::where('vh_st_product_id', $id)
-//                ->where('price', '>=', 0)
-//                ->pluck('price')
-//                ->toArray();
-//
-//            $quantity = null;
-//            $price_range = $price_range ? $price_range : [];
-//            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
-//                $query->where('vh_st_product_id', $id)
-//                    ->where('quantity', '>', 0)->where('is_active', 1);
-//            })
-//                ->select('id', 'name', 'slug', 'is_default')
-//                ->get();
-//
-//            // If no vendors with non-zero quantity are found, return null
-//            if ($vendor->isEmpty()) {
-//                return [
-//                    'success' => true,
-//                    'data' => [
-//                        'price_range' => $price_range,
-//                    ],
-//                ];
-//            }
-//            $vendors_sorted_by_quantity = $vendor->sortByDesc(function ($vendor) use ($id) {
-//                return ProductStock::where('vh_st_vendor_id', $vendor->id)
-//                    ->where('vh_st_product_id', $id)
-//                    ->sum('quantity');
-//            });
-//
-//            // Pick a random vendor from the obtained results
-//            $selected_vendor = $vendors_sorted_by_quantity->first();
-//            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
-//                ->where('vh_st_product_id', $id)->where('is_active', 1)
-//                ->sum('quantity');
-//
-//            $quantity = $quantity ? $quantity : null;
-//            $selected_vendor->price_range=$price_range;
-//            $selected_vendor->quantity=$quantity;
-//            return [
-//                'success' => true,
-//                'data' =>$selected_vendor ,
-//            ];
-//        }
-        // Filter out vendors with quantity of 0
-        $vendor = $vendor->filter(function ($vendor) use ($id) {
-            return ProductStock::where('vh_st_vendor_id', $vendor->id)
-                    ->where('vh_st_product_id', $id)->where('is_active', 1)
-                    ->sum('quantity') > 0;
-        });
-        // If there are no vendors with non-zero quantity, pick a random vendor
-        if ($vendor->isEmpty()) {
-            $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
-                $query->where('vh_st_product_id', $id)->where('is_active', 1)
-                    ->where('quantity', '>', 0);
-            })
-                ->select('id', 'name', 'slug', 'is_default')
-                ->get();
-        }
-        $vendor = $vendor->sortByDesc(function ($vendor) use ($id) {
-            return ProductStock::where('vh_st_vendor_id', $vendor->id)
-                ->where('vh_st_product_id', $id)
-                ->sum('quantity');
-        });
-        $selected_vendor = $vendor->isNotEmpty() ? $vendor->first() : null;
-        if ($selected_vendor) {
-            // Get the quantity for the selected vendor
-            $quantity = ProductStock::where('vh_st_vendor_id', $selected_vendor->id)
-                ->where('vh_st_product_id', $id)->where('is_active', 1)
-                ->sum('quantity');
+        if ($vendor) {
+            $quantity = $vendor->quantity;
 
-            $selected_vendor->quantity = $quantity;
-
-            // Get the product prices for the selected vendor
-            $product_prices = ProductPrice::where('vh_st_vendor_id', $selected_vendor->id)
+            $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
                 ->where('vh_st_product_id', $id)
                 ->whereNotNull('amount')
                 ->pluck('amount')
                 ->toArray();
 
-            if (empty($product_prices)) {
-                // If product prices are empty, fallback to product variations
-                $product_prices = ProductVariation::where('vh_st_product_id', $id)
+            if (empty($price_range)) {
+                $price_range = ProductVariation::where('vh_st_product_id', $id)
                     ->whereNotNull('price')
                     ->pluck('price')
                     ->toArray();
             }
 
-            $price_range = $product_prices ?: [];
-            $selected_vendor->price_range = $price_range;
-
             return [
-                'success' => true,
-                'data' => $selected_vendor,
-            ];
-        } else {
-            // If no random vendor is available, return the default product price
-            $default_price_range = ProductVariation::where('vh_st_product_id', $id)
-                ->whereNotNull('price')
-                ->pluck('price')
-                ->toArray();
-
-            return [
-                'success' => true,
-                'data' => [
-                    'price_range' => $default_price_range,
-                ],
+                'price_range' => $price_range ?: [],
+                'quantity' => $quantity,
+                'selected_vendor' => $vendor,
             ];
         }
 
+        $default_price_range = ProductVariation::where('vh_st_product_id', $id)
+            ->whereNotNull('price')
+            ->pluck('price')
+            ->toArray();
+
+        return ['price_range' => $default_price_range ?: []];
     }
+
+    protected static function getVendorPriceAndQuantity($vendor, $id)
+    {
+        $quantity = $vendor->productStocks()
+            ->where('vh_st_product_id', $id)
+            ->where('is_active', 1)
+            ->sum('quantity');
+
+        $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
+            ->where('vh_st_product_id', $id)
+            ->whereNotNull('amount')
+            ->pluck('amount')
+            ->toArray();
+
+        if (empty($price_range)) {
+            $price_range = ProductVariation::where('vh_st_product_id', $id)
+                ->whereNotNull('price')
+                ->pluck('price')
+                ->toArray();
+        }
+
+        return [
+            'price_range' => $price_range ?: [],
+            'quantity' => $quantity,
+            'selected_vendor' => $vendor,
+        ];
+    }
+
 
 
     public static function getVendorsListForPrduct($id)
@@ -1980,12 +1922,12 @@ class Product extends VaahModel
         ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
         ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
 
-        if (!$productVendor) {
-            return [
-                'success' => false,
-                'message' => 'Product vendor not found.',
-            ];
-        }
+//        if (!$productVendor) {
+//            return [
+//                'success' => false,
+//                'message' => 'Product vendor not found.',
+//            ];
+//        }
 
         $product_id = $product_vendor->vh_st_product_id;
 
