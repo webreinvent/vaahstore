@@ -81,17 +81,19 @@ const useVaah = vaah()
              </Column>
 
 
+
+
              <Column field="price range" header="Price Range">
                  <template #body="prop">
-        <span>
-    {{
-        prop.data.product_price_range && prop.data.product_price_range.price_range && prop.data.product_price_range.price_range.length > 0
-        ? store.calculatePriceRangeForProduct(prop.data.product_price_range.price_range) || ''
-        : '0'
-    }}
-</span>
+        <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
+            {{ prop.data.product_price_range.price_range.join(' - ') }}
+        </span>
+                     <span v-else>
+            0
+        </span>
                  </template>
              </Column>
+
 
              <Column  header="Selected Vendor"
                       v-if="store.isViewLarge()">

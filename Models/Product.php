@@ -1784,9 +1784,11 @@ class Product extends VaahModel
                     ->pluck('price')
                     ->toArray();
             }
+            $min_price = !empty($price_range) ? min($price_range) : null;
+            $max_price = !empty($price_range) ? max($price_range) : null;
 
             return [
-                'price_range' => $price_range ?: [],
+                'price_range' => ($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
                 'quantity' => $quantity,
                 'selected_vendor' => $vendor,
             ];
@@ -1796,8 +1798,15 @@ class Product extends VaahModel
             ->whereNotNull('price')
             ->pluck('price')
             ->toArray();
+        $min_price = !empty($default_price_range) ? min($default_price_range) : null;
+        $max_price = !empty($default_price_range) ? max($default_price_range) : null;
 
-        return ['price_range' => $default_price_range ?: []];
+
+        return [
+            'price_range' => ($min_price !== null && $min_price === $max_price)
+                ? [$min_price]
+                : ($min_price !== null ? [$min_price, $max_price] : [])
+        ];
     }
 
     protected static function getVendorPriceAndQuantity($vendor, $id)
@@ -1820,8 +1829,13 @@ class Product extends VaahModel
                 ->toArray();
         }
 
+
+
+        $min_price = !empty($price_range) ? min($price_range) : null;
+        $max_price = !empty($price_range) ? max($price_range) : null;
+
         return [
-            'price_range' => $price_range ?: [],
+            'price_range' =>($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
             'quantity' => $quantity,
             'selected_vendor' => $vendor,
         ];

@@ -2333,41 +2333,6 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-////not usable
-        calculatePriceRange(prices) {
-            const amounts = prices.map(price => price.amount);
-            if (amounts.length === 0) {
-                return 'Not available';
-            }
-            const minPrice = Math.min(...amounts);
-            const maxPrice = Math.max(...amounts);
-            if (minPrice===maxPrice){
-                return `${minPrice}`
-            }
-            return `${minPrice} - ${maxPrice}`;
-        },
-
-        calculatePriceRangeForProduct(prices) {
-
-            if (!prices || !Array.isArray(prices)) {
-                return 'Not available';
-            }
-
-            const numericPrices = prices.filter(price => typeof price === 'number');
-
-            if (numericPrices.length === 0) {
-                return '';
-            }
-
-            const minPrice = Math.min(...numericPrices);
-            const maxPrice = Math.max(...numericPrices);
-
-            if (minPrice === maxPrice) {
-                return `${minPrice}`;
-            }
-
-            return `${minPrice} - ${maxPrice}`;
-        },
 
 
 
