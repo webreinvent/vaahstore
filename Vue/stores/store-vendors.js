@@ -98,6 +98,8 @@ export const useVendorStore = defineStore({
         sel_product:null,
         selected_vendor_role:null,
         default_vendor_message:null,
+        total_product_count:0,
+
     }),
     getters: {
 
@@ -114,6 +116,7 @@ export const useVendorStore = defineStore({
             /**
              * Update with view and list css column number
              */
+            await this.getProductCount();
             this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
@@ -1752,6 +1755,28 @@ export const useVendorStore = defineStore({
                 },{deep: true}
             )
 
+        },
+        //---------------------------------------------------------------------
+
+        async getProductCount()
+        {
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/product/count',
+                this.getProductCountAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        getProductCountAfter(data,res) {
+            if (data  ) {
+                this.total_product_count = data.all_product_count;
+            }
         },
 
 

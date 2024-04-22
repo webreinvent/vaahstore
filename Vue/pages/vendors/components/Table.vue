@@ -81,7 +81,8 @@ const permissions=store.assets.permissions;
                               v-tooltip.top="'All Products'"
                               v-else-if="prop.data.is_default "
                               @click="store.toViewAllProduct()">
-                             <b>{{store.assets.total_product}}</b>
+                             <b>{{store.total_product_count}}</b>
+
                          </span>
                         <span class="p-inputgroup-addon"
                               v-else-if="prop.data.is_default">

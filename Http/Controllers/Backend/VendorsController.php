@@ -47,7 +47,6 @@ class VendorsController extends Controller
             $data['empty_item']['owned_by_user'] = null;
             $data['empty_item']['approved_by_user'] = null;
             $data['empty_item']['status_record'] = null;
-            $data['total_product'] = Product::all()->count();
             $data['actions'] = [];
 
             $active_stores = $this->getActiveStores();
@@ -571,6 +570,28 @@ class VendorsController extends Controller
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+    public function getProductCount(Request $request)
+    {
+        try {
+            $count = Product::withTrashed()->count();
+
+            $response['success'] = true;
+            $response['data']['all_product_count'] = $count;
+            return $response;
+        } catch (\Exception $e) {
+            $response = [];
+            $response['status'] = 'failed';
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
         }
     }
 
