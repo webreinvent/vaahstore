@@ -43,7 +43,40 @@ class SettingsController extends Controller
         try {
             $data = [];
 
+            $data['store_count'] = Store::all()->count();
+
+            $data['wishlist_count'] = Wishlist::all()->count();
+
+            $data['address_count'] = Address::all()->count();
+
+            $data['brand_count'] = Brand::all()->count();
+
+            $data['attribute_count'] = Attribute::all()->count();
+
+            $data['attribute_group_count'] = AttributeGroup::all()->count();
+
+            $data['customer_count'] = User::all()->count();
+
+            $data['customer_group_count'] = CustomerGroup::all()->count();
+
+            $data['product_count'] = Product::all()->count();
+
+            $data['product_variation_count'] = ProductVariation::all()->count();
+
+            $data['vendor_count'] = Vendor::all()->count();
+
+            $data['product_attribute_count'] = ProductAttribute::all()->count();
+
+            $data['product_media_count'] = ProductMedia::all()->count();
+
+            $data['product_vendor_count'] = ProductVendor::all()->count();
+
+            $data['warehouse_count'] = Warehouse::all()->count();
+
+            $data['product_stock_count'] = ProductStock::all()->count();
+
             $response['success'] = true;
+
             $response['data'] = $data;
         } catch (\Exception $e) {
             $response = [];
