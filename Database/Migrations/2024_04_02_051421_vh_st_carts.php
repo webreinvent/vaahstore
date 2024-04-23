@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class VhStcart extends Migration
+class VhStcarts extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class VhStcart extends Migration
     public function up()
     {
 
-        if (!Schema::hasTable('vh_st_cart')) {
-            Schema::create('vh_st_cart', function (Blueprint $table) {
+        if (!Schema::hasTable('vh_st_carts')) {
+            Schema::create('vh_st_carts', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
 
@@ -46,6 +46,6 @@ class VhStcart extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_cart');
+        Schema::dropIfExists('vh_st_carts');
     }
 }
