@@ -17,7 +17,7 @@ class Cart extends VaahModel
     use CrudWithUuidObservantTrait;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_cart';
+    protected $table = 'vh_st_carts';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
