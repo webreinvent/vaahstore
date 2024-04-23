@@ -21,6 +21,7 @@ import wishlists from "./vue-routes-wishlists";
 import productAttribute from "./vue-routes-productattributes";
 import users from "./vue-routes-users";
 import cart from "./vue-routes-carts";
+import settings from "./vue-routes-settings";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -43,5 +44,8 @@ routes = routes.concat(attributeGroups);
 routes = routes.concat(productAttribute);
 routes = routes.concat(users);
 routes = routes.concat(cart);
+routes = routes.concat(settings);
+
+
 
 export default routes;
