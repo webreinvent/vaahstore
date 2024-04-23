@@ -1,8 +1,30 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductStore } from '../../../stores/store-products'
+import ProductCategories from '../components/ProductCategories.vue'
+import { useDialog } from "primevue/usedialog";
+import {ref} from "vue";
 const store = useProductStore();
 const useVaah = vaah()
+const visible = ref(false);
+
+const dialog = useDialog();
+const openProductCategories = (categories) => {
+    const dialogRef = dialog.open(ProductCategories, {
+        props: {
+            header: 'Categories',
+            style: {
+                width: '50vw',
+            },
+            breakpoints:{
+                '960px': '75vw',
+                '640px': '90vw'
+            },
+            modal: true
+        },
+        data : {'categories' : categories},
+    });
+}
 
 </script>
 
@@ -131,8 +153,16 @@ const useVaah = vaah()
                  <template #body="prop">
                      <div class="flex flex-wrap gap-2" v-if="prop.data.categories && prop.data.categories.length">
                          <template v-if="prop.data.categories.some(category => category.deleted_at === null)">
+<!--                             <Button label="View" @click="visible = true" />-->
+                             <Button class="p-button-tiny p-button-text"
+                                     data-testid="taxonomies-table-to-manage-taxonomy-type-modal"
+
+                                     icon="pi pi-pencil"
+                                     @click="openProductCategories(prop.data.categories)"
+                             />
                              <template v-for="(category, index) in prop.data.categories" :key="index">
                                  <div>
+
                         <span v-if="index === 0 && category.deleted_at === null" class="h-max max-w-full ">
                             {{ category.name }}
                         </span>
@@ -248,7 +278,40 @@ const useVaah = vaah()
                    class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
+        <DynamicDialog  />
 
+        <Dialog v-model:visible="visible" modal header="Credit Card Information" class="rounded-dialog"  :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '30vw'}">
+            <hr>
+            <span class="p-text-secondary block mt-4 mb-5">We hope you are doing well. Please make the payment using the following URL:
+    <a href="https://www.simoc.com/solos-auto-repair/avcst125xfrssssdhfkjndsfsuwieqw4567dsfsd">https://www.simoc.com/solos-auto-repair/avcst125xfrssssdhfkjndsfsuwieqw4567dsfsd</a>
+</span>
+
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr  style="border: 1px solid #ccc;">
+                    <td style="padding: 8px; border-right: 1px solid #ddd;">Card No</td>
+                    <!--                <td style="padding: 8px;">{{store.item.categories}}</td>-->
+
+                    <td v-for="(category, index) in store.item.categories" :key="category.id">
+                                             <span v-if="category.deleted_at === null" class="h-max max-w-full ">
+                            {{ category.name }}
+                        </span>
+                    </td>
+                </tr>
+                <tr  style="border: 1px solid #ccc;">
+                    <td style="padding: 8px; border-right: 1px solid #ddd;">CVV</td>
+                    <td style="padding: 8px;">{{store.item.cvv}}</td>
+                </tr>
+                <tr  style="border: 1px solid #ccc;">
+                    <td style="padding: 8px; border-right: 1px solid #ddd;">Expires On</td>
+                    <td style="padding: 8px;">{{store.item.expires_year}}/{{store.item.expires_month}}</td>
+                </tr>
+            </table>
+            <div class="mt-5" style="display: flex; justify-content: space-between;">
+                <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+                <Button type="button" label="Send Mail" class="p-button-primary" @click="sendMail"></Button>
+            </div>
+
+        </Dialog>
     </div>
 
 </template>
