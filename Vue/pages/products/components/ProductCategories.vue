@@ -1,41 +1,40 @@
 <script setup>
-import { defineProps, inject, onMounted, ref } from 'vue';
+import {computed, defineProps, inject, onMounted, ref} from 'vue';
 import { vaah } from '../../../vaahvue/pinia/vaah';
 import { useProductStore } from '../../../stores/store-products';
 
 const store = useProductStore();
 const useVaah = vaah();
-
-
-
-
-// const injectedCategories=ref();
 const injectedCategories = ref({ categories: [] });
-
 const dialogRef = inject('dialogRef');
-
 onMounted(() => {
     if (dialogRef && dialogRef.value && dialogRef.value.data) {
         injectedCategories.value = dialogRef.value.data;
-        // console.log(injectedCategories.value.categories);
-
-
     }
 })
-const removeCategory = (category) => {
-    store.removeCategory('delete', category);
-    // uupdate the table data by filtering out the removed category
+const categoriesData = computed(() => {
+    const search = (store.item.search_category || '').toLowerCase().trim();
+    return injectedCategories.value.categories.filter(category =>
+        category.name.toLowerCase().includes(search)
+    );
+});
+
+const removeCategory = async (category) => {
+    await store.removeCategory('delete', category);
     injectedCategories.value.categories = injectedCategories.value.categories.filter(c => c.id !== category.id);
 };
 
 </script>
 
 <template>
-    <div>
-
-<!--        <div v-if="injectedCategories.categories && injectedCategories.categories.length">-->
+    <div v-if="store.item">
+        <InputText
+            v-model="store.item.search_category"
+            placeholder="Search category..."
+            class="p-mb-2"
+        />
         <DataTable
-            :value="injectedCategories.categories"
+            :value="categoriesData"
             :rows="10"
             :paginator="true"
             style="border: 1px solid #ccc; margin-top: 20px;"
@@ -73,5 +72,4 @@ const removeCategory = (category) => {
 </template>
 
 
-<style scoped>
-</style>
+
