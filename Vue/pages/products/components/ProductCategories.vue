@@ -19,45 +19,44 @@ onMounted(() => {
         injectedCategories.value = dialogRef.value.data;
         // console.log(injectedCategories.value.categories);
 
-        // const categoriesArray = Object.values(injectedCategories.value.categories);
-        // store.convertToTreeSelectFormat(categoriesArray);
-        // store.convertToTreeSelectFormat(injectedCategories.value.categories);
+
     }
 })
-
+const removeCategory = (category) => {
+    store.removeCategory('delete', category);
+    // uupdate the table data by filtering out the removed category
+    injectedCategories.value.categories = injectedCategories.value.categories.filter(c => c.id !== category.id);
+};
 
 </script>
 
 <template>
     <div>
-<!--        <TreeSelect-->
-<!--            v-model="store.item.parent_category"-->
-<!--            :options="store.categories_dropdown_data"-->
-<!--            selectionMode="multiple"-->
-<!--            placeholder="Select Category"-->
-<!--            :show-count="true"-->
-<!--            data-testid="product-category"-->
-<!--            @change="store.setParentId()"-->
-<!--            class=" w-full" />{{store.item.parent_category}}-->
-        <div v-if="injectedCategories.categories && injectedCategories.categories.length">
+
+<!--        <div v-if="injectedCategories.categories && injectedCategories.categories.length">-->
         <DataTable
             :value="injectedCategories.categories"
-            :rows="20"
+            :rows="10"
             :paginator="true"
             style="border: 1px solid #ccc; margin-top: 20px;"
             class="p-datatable-sm p-datatable-hoverable-rows"
         >
-            <Column field="name" header="Category" style="border: 1px solid #ccc;">
+            <Column header="Sr No" style="border: 1px solid #ccc; width: 10px">
+                <template #body="props">
+                    {{ props.index + 1 }}
+                </template>
+            </Column>
+            <Column field="name" header="Category Name" style="border: 1px solid #ccc;">
                 <template #body="props">
                     {{ props.data.name }}
                 </template>
             </Column>
 
             <Column header="Action"  style="border: 1px solid #ccc;">
-                <template #body="props">{{props.data.id}}
+                <template #body="props">
                     <Button class="p-button-tiny p-button-danger p-button-text"
                             data-testid="products-table-action-trash"
-                            @click="store.removeCategory('delete', props.data)"
+                            @click="removeCategory(props.data)"
                             v-tooltip.top="'Remove'"
                             icon="pi pi-trash" />
                 </template>
@@ -65,14 +64,11 @@ onMounted(() => {
 
             <template #empty="prop">
                 <div style="text-align: center; font-size: 12px; color: #888;">
-                    No records found.
+                    No category found.
                 </div>
             </template>
         </DataTable>
 
-
-
-    </div>
     </div>
 </template>
 

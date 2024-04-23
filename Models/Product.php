@@ -1750,6 +1750,22 @@ class Product extends VaahModel
         $category_id = $request->category_id;
 
         $product = Product::find($product_id);
-        $product->categories()->detach($category_id);    }
+
+        if (!$product) {
+            $response['errors'][] = trans("Product not found");
+            return $response;
+        }
+
+        $category = Category::find($category_id);
+
+        if (!$category) {
+            $response['errors'][] = trans("Category not found");
+            return $response;
+        }
+
+        $product->categories()->detach($category_id);
+        $response['messages'][] = trans("vaahcms-general.action_successful");
+        return $response;
+    }
 
 }

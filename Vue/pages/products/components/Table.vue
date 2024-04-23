@@ -9,10 +9,10 @@ const useVaah = vaah()
 const visible = ref(false);
 
 const dialog = useDialog();
-const openProductCategories = (categories,product_id) => {
+const openProductCategories = (categories,product) => {
     const dialogRef = dialog.open(ProductCategories, {
         props: {
-            header: 'Categories',
+            header: product,
             style: {
                 width: '50vw',
             },
@@ -23,7 +23,7 @@ const openProductCategories = (categories,product_id) => {
             modal: true
         },
         data : {'categories' : categories
-        ,'product_id':product_id
+
         },
     });
 }
@@ -151,33 +151,15 @@ const openProductCategories = (categories,product_id) => {
              </Column>
 
 
-             <Column field="categories.name" header="Category" :sortable="true">
+             <Column field="categories.name" header="Categories">
                  <template #body="prop">
-                     <div class="flex flex-wrap gap-2" v-if="prop.data.categories && prop.data.categories.length">
-                         <template v-if="prop.data.categories.some(category => category.deleted_at === null)">
-<!--                             <Button label="View" @click="visible = true" />-->
-                             <Button class="p-button-tiny p-button-text"
-                                     data-testid="taxonomies-table-to-manage-taxonomy-type-modal"
-
-                                     icon="pi pi-pencil"
-                                     @click="openProductCategories(prop.data.categories,prop.data.id)"
-                             />
-                             <template v-for="(category, index) in prop.data.categories" :key="index">
-                                 <div>
-
-                        <span v-if="index === 0 && category.deleted_at === null" class="h-max max-w-full ">
-                            {{ category.name }}
-                        </span>
-                                     <span v-tooltip.top="store.getTooltipText(prop.data.categories)" v-if="index === 0 && category.deleted_at === null && prop.data.categories.length > 1" class="cursor-pointer ml-1 text-blue-500">
-                            +{{ prop.data.categories.filter(category => category.deleted_at === null).length - 1 }} more
-                        </span>
-                                 </div>
-                             </template>
-                         </template>
-                         <template v-else>
-                             <Badge value="Trashed" severity="danger"></Badge>
-                         </template>
-                     </div>
+                     <Button class="p-button-sm  white-space-nowrap ml-3"
+                             data-testid="product-list_category_view"
+                             v-tooltip.top="'View Categories'"
+                             icon="pi pi-pencil"
+                             :disabled="prop.data.categories.length === 0"
+                             @click="openProductCategories(prop.data.categories,prop.data.name)"
+                     >{{prop.data.categories.length}}</Button>
                  </template>
              </Column>
 
