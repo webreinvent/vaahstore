@@ -41,10 +41,11 @@ const store = useProductStore();
 
 
                 <TreeSelect
-                    v-model="store.query.filter.category"
+                    v-model="store.product_category_filter"
                     :options="store.categories_dropdown_data"
                     selectionMode="multiple"
                     @node-select="store.setFilter($event)"
+                    @node-unselect="store.removeFilter($event)"
                     placeholder="Select Category"
                     :show-count="true"
                     data-testid="products-category"
