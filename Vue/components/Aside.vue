@@ -30,6 +30,11 @@ const items = ref([
                 route: "/stores",
             },
             {
+                label: 'Carts',
+                icon: 'pi pi-shopping-cart',
+                route: "/carts",
+            },
+            {
                 label: 'Store Payment Methods',
                 icon: 'fa-regular fa-credit-card',
                 route: "/storepaymentmethods"

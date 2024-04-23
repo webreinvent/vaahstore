@@ -48,4 +48,5 @@ include_once __DIR__."/backend/routes-wishlists.php";
 include_once __DIR__."/backend/routes-productattributes.php";
 include_once __DIR__."/backend/routes-attributegroups.php";
 include_once __DIR__."/backend/routes-users.php";
+include_once __DIR__."/backend/routes-carts.php";
 include_once __DIR__."/backend/routes-settings.php";
