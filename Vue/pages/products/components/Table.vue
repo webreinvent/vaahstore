@@ -264,38 +264,6 @@ const openProductCategories = (categories,product) => {
         <!--/paginator-->
         <DynamicDialog  />
 
-        <Dialog v-model:visible="visible" modal header="Credit Card Information" class="rounded-dialog"  :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '30vw'}">
-            <hr>
-            <span class="p-text-secondary block mt-4 mb-5">We hope you are doing well. Please make the payment using the following URL:
-    <a href="https://www.simoc.com/solos-auto-repair/avcst125xfrssssdhfkjndsfsuwieqw4567dsfsd">https://www.simoc.com/solos-auto-repair/avcst125xfrssssdhfkjndsfsuwieqw4567dsfsd</a>
-</span>
-
-            <table style="border-collapse: collapse; width: 100%;">
-                <tr  style="border: 1px solid #ccc;">
-                    <td style="padding: 8px; border-right: 1px solid #ddd;">Card No</td>
-                    <!--                <td style="padding: 8px;">{{store.item.categories}}</td>-->
-
-                    <td v-for="(category, index) in store.item.categories" :key="category.id">
-                                             <span v-if="category.deleted_at === null" class="h-max max-w-full ">
-                            {{ category.name }}
-                        </span>
-                    </td>
-                </tr>
-                <tr  style="border: 1px solid #ccc;">
-                    <td style="padding: 8px; border-right: 1px solid #ddd;">CVV</td>
-                    <td style="padding: 8px;">{{store.item.cvv}}</td>
-                </tr>
-                <tr  style="border: 1px solid #ccc;">
-                    <td style="padding: 8px; border-right: 1px solid #ddd;">Expires On</td>
-                    <td style="padding: 8px;">{{store.item.expires_year}}/{{store.item.expires_month}}</td>
-                </tr>
-            </table>
-            <div class="mt-5" style="display: flex; justify-content: space-between;">
-                <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-                <Button type="button" label="Send Mail" class="p-button-primary" @click="sendMail"></Button>
-            </div>
-
-        </Dialog>
     </div>
 
 </template>
