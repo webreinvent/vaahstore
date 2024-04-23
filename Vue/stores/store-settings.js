@@ -17,7 +17,7 @@ export const useSettingStore = defineStore({
         list: null,
         quantity:null,
         is_button_disabled:false,
-
+        input_number_value:null,
         user_roles_menu: null,
         meta_content: null,
         is_btn_loading: false,
@@ -213,6 +213,24 @@ export const useSettingStore = defineStore({
         storeSettingsAfter(){
             this.getList();
         },
+
+        fillAll() {
+
+            if (!this.input_number_value)
+            {
+                vaah().toastErrors(['Fill Quantity Atleast in a single column']);
+            }
+
+            const columns = document.querySelectorAll('.align-items-center');
+            columns.forEach(column => {
+                const inputNumber = column.querySelector('input[type="number"]');
+            });
+        } ,
+
+        resetAll() {
+
+            this.input_number_value=null;
+        }
 
     }
 });

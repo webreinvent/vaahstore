@@ -3,6 +3,7 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Product;
@@ -37,6 +38,7 @@ class DatabaseTableSeeder extends Seeder
         $this->seedDefaultBrand();
         $this->seedDefaultPrdouct();
         $this->seedRoles();
+        $this->seedLanguageCategories();
 
         $seeder = new SettingTableSeeder();
         $seeder->run();
@@ -150,6 +152,44 @@ class DatabaseTableSeeder extends Seeder
     {
         $json_file_path = __DIR__."/json/vendor_roles.json";
         VaahSeeder::roles($json_file_path);
+    }
+
+    //----------------------------------------------------------------
+
+    public function seedLanguageCategories()
+    {
+        $list = [
+
+            ["name" => 'VaahStore Crud Action'],
+        ];
+
+        $this->storeSeeds('vh_lang_categories', $list);
+
+    }
+
+    public function storeSeeds($table, $list, $primary_key='slug', $create_slug=true, $create_slug_from='name')
+    {
+        foreach ($list as $item)
+        {
+            if($create_slug)
+            {
+                $item['slug'] = Str::slug($item[$create_slug_from]);
+            }
+
+
+            $record = DB::table($table)
+                ->where($primary_key, $item[$primary_key])
+                ->first();
+
+
+            if(!$record)
+            {
+                DB::table($table)->insert($item);
+            } else{
+                DB::table($table)->where($primary_key, $item[$primary_key])
+                    ->update($item);
+            }
+        }
     }
 
 }
