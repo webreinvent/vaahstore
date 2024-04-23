@@ -633,42 +633,33 @@ class Product extends VaahModel
         }
 
     }
-//    public function scopeCategoryFilter($query, $filter)
-//    {
-//        if (isset($filter['category']) && is_array($filter['category'])) {
-//
-//            $category_ids = [];
-//
-//            foreach ($filter['category'] as $category_id => $item) {
-//                $category_ids[] = $category_id;
-//            }
-//
-//            if (!empty($category_ids)) {
-////                $query->whereIn('category_id', $category_ids);
-//                $search = $filter['category'];
-//                $query->whereHas('categories',function ($q) use ($search) {
-//                    $q->whereIn('category_parent_id',$search);
-//                });
-//            }
-//        }
-//
-//        return $query;
-//    }
-
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-            $category_ids = array_keys($filter['category']);
+            $category_names = array_column($filter['category'], 'name');
 
-            if (!empty($category_ids)) {
-                $query->whereHas('categories', function ($q) use ($category_ids) {
-                    $q->whereIn('vh_st_categories.id', $category_ids);
+            $category_ids = Category::whereIn('name', $category_names)->pluck('id');
+            $all_category_ids = Category::whereIn('name', $category_names)->pluck('id')->toArray();
+
+            $get_sub_category_ids = function ($parentCategoryIds) use (&$get_sub_category_ids, &$all_category_ids) {
+                $sub_category_ids = Category::whereIn('category_id', $parentCategoryIds)->pluck('id')->toArray();
+                if (!empty($sub_category_ids)) {
+                    $all_category_ids = array_merge($all_category_ids, $sub_category_ids);
+                    $get_sub_category_ids($sub_category_ids);
+                }
+            };
+            $get_sub_category_ids($category_ids->toArray());
+            if (!empty($all_category_ids)) {
+                $query->whereHas('categories', function ($q) use ($all_category_ids) {
+                    $q->whereIn('vh_st_categories.id', $all_category_ids);
                 });
             }
         }
 
         return $query;
     }
+
+
 
 
 
@@ -1742,6 +1733,29 @@ class Product extends VaahModel
         $response['success'] = true;
         $response['data'] = $default_store;
 
+        return $response;
+    }
+
+    public static function deleteCategory($request){
+        $product_id = $request->vh_st_product_id;
+        $category_id = $request->category_id;
+
+        $product = Product::find($product_id);
+
+        if (!$product) {
+            $response['errors'][] = trans("Product not found");
+            return $response;
+        }
+
+        $category = Category::find($category_id);
+
+        if (!$category) {
+            $response['errors'][] = trans("Category not found");
+            return $response;
+        }
+
+        $product->categories()->detach($category_id);
+        $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }
 
