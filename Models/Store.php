@@ -1250,12 +1250,12 @@ class Store extends VaahModel
         $inputs['is_multi_currency'] = 0;
         $inputs['is_multi_lingual'] =  0;
 
-        $currencies = vh_get_country_currencies();
+        $currencies = vh_st_get_country_currencies();
         $random_currencies = collect($currencies)->random(2);
         if ($inputs['is_multi_currency'] == 1 && !$random_currencies->isEmpty()) {
             $inputs['currencies'] = $random_currencies;
         }
-        $languages = vh_get_country_languages();
+        $languages = vh_st_get_country_languages();
         $random_languages = collect($languages)->random(2);
         if ($inputs['is_multi_lingual'] == 1 && !$random_languages->isEmpty()) {
             $inputs['languages'] = $random_languages;

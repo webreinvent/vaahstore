@@ -32,8 +32,8 @@ class StoresController extends Controller
             $data['fillable']['except'] = Store::getUnFillableColumns();
             $data['taxonomy']['store_status'] = Taxonomy::getTaxonomyByType('store-status');
 
-            $data['currencies'] = vh_get_country_currencies();
-            $data['languages'] = vh_get_country_languages();
+            $data['currencies'] = vh_st_get_country_currencies();
+            $data['languages'] = vh_st_get_country_languages();
             $data['empty_item'] = Store::getEmptyItem();
             $data['empty_item']['is_active'] = 1;
             $data['actions'] = [];

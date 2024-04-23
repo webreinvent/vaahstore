@@ -1,35 +1,35 @@
 <?php
-function vh_get_currency_by_country_currency_code($country_code)
+function vh_st_get_currency_by_country_currency_code($country_code)
 {
-    $currencies = vh_get_country_currencies();
+    $currencies = vh_st_get_country_currencies();
 
-    $country = vh_search_currencies($currencies, 'code', $country_code);
+    $country = vh_st_search_currencies($currencies, 'code', $country_code);
 
     return $country;
 }
 //---------------------------------------------------
 
-function vh_get_currency_by_country_currency_name($country_name)
+function vh_st_get_currency_by_country_currency_name($country_name)
 {
-    $currencies = vh_get_country_currencies();
+    $currencies = vh_st_get_country_currencies();
 
-    return vh_search_currencies($currencies, 'name', $country_name);
+    return vh_st_search_currencies($currencies, 'name', $country_name);
 }
 
 //---------------------------------------------------
 
-function vh_get_currency_by_currency($currency)
+function vh_st_get_currency_by_currency($currency)
 {
-    $currencies = vh_get_country_currencies();
+    $currencies = vh_st_get_country_currencies();
 
-    return vh_search_currencies($currencies, 'currencies', $currency);
+    return vh_st_search_currencies($currencies, 'currencies', $currency);
 }
 
 //---------------------------------------------------
 //---------------------------------------------------
 //---------------------------------------------------
 
-function vh_search_currencies($array, $key_name, $value)
+function vh_st_search_currencies($array, $key_name, $value)
 {
     foreach($array as $key => $array_item)
     {
@@ -42,10 +42,10 @@ function vh_search_currencies($array, $key_name, $value)
 
 //---------------------------------------------------
 
-function vh_get_currency_list_select_options_on_currencies($show = 'country_name')
+function vh_st_get_currency_list_select_options_on_currencies($show = 'country_name')
 {
     $html = "";
-    $list = vh_get_country_currencies();
+    $list = vh_st_get_country_currencies();
 
     $html .= '<option value="">Select</option>';
 
@@ -68,7 +68,7 @@ function vh_get_currency_list_select_options_on_currencies($show = 'country_name
 
 //---------------------------------------------------
 
-function vh_get_country_currencies()
+function vh_st_get_country_currencies()
 {
 
     $currencies = [
@@ -252,7 +252,7 @@ function vh_get_country_currencies()
 
 //---------------------------------------------------
 
-function vh_get_country_languages()
+function vh_st_get_country_languages()
 {
     $languages = [
         ["code" => "aa", "name" => "Afar"],
