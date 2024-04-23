@@ -1129,6 +1129,30 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        async removeCategory(type, item=null){
+
+            if(!item)
+            {
+                item = this.item;
+            }
+
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'POST',
+                params:item.pivot
+            };
+            ajax_url += '/category/'+type;
+            await vaah().ajax(
+                ajax_url,
+                this.removeCategoryAfter,
+                options
+            );
+        },
+        removeCategoryAfter(){
+            this.getList();
+        },
+        //---------------------------------------------------------------------
 
         async itemAction(type, item=null){
             if(!item)

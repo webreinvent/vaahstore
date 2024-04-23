@@ -9,7 +9,7 @@ const useVaah = vaah()
 const visible = ref(false);
 
 const dialog = useDialog();
-const openProductCategories = (categories) => {
+const openProductCategories = (categories,product_id) => {
     const dialogRef = dialog.open(ProductCategories, {
         props: {
             header: 'Categories',
@@ -22,7 +22,9 @@ const openProductCategories = (categories) => {
             },
             modal: true
         },
-        data : {'categories' : categories},
+        data : {'categories' : categories
+        ,'product_id':product_id
+        },
     });
 }
 
@@ -158,7 +160,7 @@ const openProductCategories = (categories) => {
                                      data-testid="taxonomies-table-to-manage-taxonomy-type-modal"
 
                                      icon="pi pi-pencil"
-                                     @click="openProductCategories(prop.data.categories)"
+                                     @click="openProductCategories(prop.data.categories,prop.data.id)"
                              />
                              <template v-for="(category, index) in prop.data.categories" :key="index">
                                  <div>

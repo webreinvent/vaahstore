@@ -1745,4 +1745,11 @@ class Product extends VaahModel
         return $response;
     }
 
+    public static function deleteCategory($request){
+        $product_id = $request->vh_st_product_id;
+        $category_id = $request->category_id;
+
+        $product = Product::find($product_id);
+        $product->categories()->detach($category_id);    }
+
 }

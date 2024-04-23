@@ -188,4 +188,7 @@ function () {
     Route::any('/get/default/store', 'ProductsController@defaultStore')
         ->name('vh.backend.store.products.get.default.store');
 
+    Route::any('/category/{action}', 'ProductsController@deleteCategory')
+        ->name('vh.backend.store.products.get.default.store');
+
 });
