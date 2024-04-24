@@ -1246,8 +1246,14 @@ class ProductVariation extends VaahModel
         try {
             $list_data = ProductVariation::with('product')
                 ->whereNotNull('low_stock_at')
+                ->where('is_mail_sent', '=', 0)
+                ->whereHas('product', function ($query) {
+                    $query->where('is_active', '=', 1);
+                })
+                ->where('is_active', '=', 1)
                 ->orderBy('low_stock_at', 'desc')
                 ->get();
+
 
             $filtered_data = $list_data->filter(function ($item) {
                 return $item->low_stock_at;

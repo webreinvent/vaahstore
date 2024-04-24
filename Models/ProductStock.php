@@ -196,6 +196,20 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
         $product_variation->quantity += $inputs['quantity'];
+
+        if ($product_variation->quantity < 10) {
+            $product_variation->is_quantity_low = 1;
+            $product_variation->is_mail_sent = 1;
+            $product_variation->low_stock_at = now('Asia/Kolkata');
+        } else {
+            $product_variation->is_quantity_low = 0;
+            $product_variation->is_mail_sent = 0;
+            $product_variation->low_stock_at = null;
+        }
+
+        $product_variation->save();
+
+
         $product_variation->save();
 
         //update quantity in product
@@ -1219,6 +1233,16 @@ if ($product_variation) {
         if ($product_variation) {
             if ($product_variation->quantity) {
                 $product_variation->quantity -= $item->quantity;
+            }
+
+            if ($product_variation->quantity < 10) {
+                $product_variation->is_quantity_low = 1;
+                $product_variation->is_mail_sent = 1;
+                $product_variation->low_stock_at = now('Asia/Kolkata');
+            } else {
+                $product_variation->is_quantity_low = 0;
+                $product_variation->is_mail_sent = 0;
+                $product_variation->low_stock_at = null;
             }
 
             $product_variation->save();
