@@ -191,4 +191,7 @@ function () {
     Route::any('/category/{action}', 'ProductsController@deleteCategory')
         ->name('vh.backend.store.products.get.default.store');
 
+    Route::post('/search/category-using-slug', 'ProductsController@searchCategoryUsingSlug')
+        ->name('vh.backend.store.products.search.filtered-category');
+
 });

@@ -254,6 +254,9 @@ export const useProductStore = defineStore({
              */
             this.updateQueryFromUrl(route);
             await this.updateUrlQueryString(this.query);
+            if (this.route.query.filter && this.route.query.filter.category) {
+                await this.setCategoryInFilterAfterRefresh();
+            }
             if(this.query.filter.vendors)
             {
                 this.setVendorsAfterPageRefresh();
@@ -2380,6 +2383,9 @@ export const useProductStore = defineStore({
             )
 
         },
+
+        //---------------------------------------------------------------------
+
         setFilter(event) {
             const selected_categories = this.query.filter.category || [];
             const existing_category = selected_categories.find(category => category.name === event.data.toLowerCase());
@@ -2389,6 +2395,7 @@ export const useProductStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
 
         removeFilter(event) {
             let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
@@ -2404,8 +2411,60 @@ export const useProductStore = defineStore({
                 this.query.filter.category = selected_categories;
 
             }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setCategoryInFilterAfterRefresh() {
+            if (this.route.query.filter && this.route.query.filter.category) {
+                let category =this.route.query.filter.category[0];
+                if (category && category.name) {
+                    let query = {
+                        filter: {
+                            category: {
+                                name: category.name
+                            }
+                        }
+                    };
+
+                    const options = {
+                        params: query,
+                        method: 'post'
+                    };
+
+                    await vaah().ajax(
+                        this.ajax_url+'/search/category-using-slug',
+                        this.setCategoryInFilterAfterRefreshAfter,
+                        options
+                    );
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+
+
+        setCategoryInFilterAfterRefreshAfter(data, res) {
+
+            if (data) {
+                this.product_category_filter = this.convertFilterCategoryToTreeSelect(data);
+            }
+        },
+        //---------------------------------------------------------------------
+
+        convertFilterCategoryToTreeSelect(data) {
+            const tree_select_data = {};
+            for (const category_name in data) {
+                if (data.hasOwnProperty(category_name)) {
+                    const category = data[category_name];
+                    const category_id = category.id.toString();
+                    tree_select_data[category_id] = true;
+                }
+            }
+            return tree_select_data;
         }
 
+
+        //---------------------------------------------------------------------
 
 
 

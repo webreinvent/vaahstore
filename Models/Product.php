@@ -1759,4 +1759,44 @@ class Product extends VaahModel
         return $response;
     }
 
+    public static function searchCategoryUsingSlug($request)
+    {
+        if ($request->has('filter')) {
+            $filter = $request->input('filter');
+            if (isset($filter['category'])) {
+                $category_names = $filter['category']['name'];
+                if (!is_array($category_names)) {
+                    $category_names = [$category_names];
+                }
+                $categories = Category::with('subCategories')->whereIn('name', $category_names)->get();
+                $formatted_data = [];
+                foreach ($categories as $category) {
+                    $formatted_category = [
+                        'id' => $category->id,
+                        'uuid' => $category->uuid,
+                        'name' => $category->name,
+                        'subCategories' => []
+                    ];
+
+                    foreach ($category->subCategories as $sub_category) {
+                        $formatted_category['subCategories'][] = [
+                            'id' => $sub_category->id,
+                            'name' => $sub_category->name
+                        ];
+                    }
+
+                    $formatted_data[$category->name] = $formatted_category;
+                }
+
+                $response['success'] = true;
+                $response['data'] = $formatted_data;
+                return $response;
+            }
+        }
+
+        $response['success'] = false;
+        $response['data'] = false;
+        return $response;
+    }
+
 }
