@@ -56,13 +56,15 @@ const updateCategoryInUrl = () => {
                         <b>Category By:</b>
                     </template>
                     <TreeSelect
-                        v-model="store.query.filter.category"
+                        v-model="store.category_filter"
                         :options="store.categories_dropdown_data"
                         selectionMode="multiple"
                         placeholder="Select Category"
                         :show-count="true"
+                        @node-select="store.setFilter($event)"
+                        @node-unselect="store.removeFilter($event)"
                         data-testid="categories-filters-category"
-                        @change="store.setParentId()"
+
                         class=" w-full" />
                 </VhFieldVertical>
                 <VhFieldVertical >

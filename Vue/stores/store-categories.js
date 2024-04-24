@@ -73,6 +73,7 @@ export const useCategoryStore = defineStore({
         prev_list:[],
         current_list:[],
         selected_dates : null,
+        category_filter:null,
 
     }),
     getters: {
@@ -700,6 +701,7 @@ export const useCategoryStore = defineStore({
             //reset query strings
             await this.resetQueryString();
             this.selected_dates=[];
+            this.category_filter=null;
             //reload page list
             await this.getList();
             vaah().toastSuccess(['Action was successful']);
@@ -1070,6 +1072,32 @@ export const useCategoryStore = defineStore({
             }
 
         },
+
+        setFilter(event) {
+            const selected_categories = this.query.filter.category || [];
+            const existing_category = selected_categories.find(category => category.name === event.data.toLowerCase());
+            if (!existing_category) {
+                selected_categories.push({ name: event.data.toLowerCase() });
+                this.query.filter.category = selected_categories;
+            }
+        },
+
+
+        removeFilter(event) {
+            let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
+            if (Array.isArray(selected_categories)) {
+                const index = selected_categories.findIndex(category => category.name === event.data.toLowerCase());
+
+                if (index !== -1) {
+                    selected_categories.splice(index, 1);
+                }
+                else {
+                    selected_categories.push({ name: event.data.toLowerCase() });
+                }
+                this.query.filter.category = selected_categories;
+
+            }
+        }
         //---------------------------------------------------------------------
     }
 });

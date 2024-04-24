@@ -294,20 +294,18 @@ class Category extends VaahModel
         if (isset($filter['category']) && is_array($filter['category'])) {
             $category_ids = [];
 
-            // recursively get all sub_category of Parent category
+            $category_names = array_column($filter['category'], 'name');
+            $category_ids = self::whereIn('name', $category_names)->pluck('id')->toArray();
+
             $get_all_sub_category_ids = function ($parent_category_id) use (&$get_all_sub_category_ids, &$category_ids) {
-                $children = $this->where('category_id', $parent_category_id)->get();
+                $children = self::where('category_id', $parent_category_id)->get();
                 foreach ($children as $child) {
                     $category_ids[] = $child->id;
                     $get_all_sub_category_ids($child->id);
                 }
             };
 
-            foreach ($filter['category'] as $category_id => $item) {
-                // include the selected parent category
-                $category_ids[] = $category_id;
-
-                // fetch all sub_categories of the selected parent category recursively
+            foreach ($category_ids as $category_id) {
                 $get_all_sub_category_ids($category_id);
             }
 
@@ -318,6 +316,7 @@ class Category extends VaahModel
 
         return $query;
     }
+
 
     //-------------------------------------------------
 
