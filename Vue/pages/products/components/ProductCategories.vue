@@ -6,10 +6,12 @@ import { useProductStore } from '../../../stores/store-products';
 const store = useProductStore();
 const useVaah = vaah();
 const injectedCategories = ref({ categories: [] });
+const header = ref('');
 const dialogRef = inject('dialogRef');
 onMounted(() => {
     if (dialogRef && dialogRef.value && dialogRef.value.data) {
         injectedCategories.value = dialogRef.value.data;
+        header.value = dialogRef.value.options.props.header;
     }
 })
 const categoriesData = computed(() => {
@@ -56,6 +58,7 @@ const removeCategory = async (category) => {
                     <Button class="p-button-tiny p-button-danger p-button-text"
                             data-testid="products-table-action-trash"
                             @click="removeCategory(props.data)"
+                            :disabled="header === undefined"
                             v-tooltip.top="'Remove'"
                             icon="pi pi-trash" />
                 </template>

@@ -5,6 +5,8 @@ import {useRoute} from 'vue-router';
 import { useProductStore } from '../../stores/store-products'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
+import {useDialog} from "primevue/usedialog";
+import ProductCategories from "./components/ProductCategories.vue";
 const store = useProductStore();
 const route = useRoute();
 
@@ -41,7 +43,25 @@ const toggleItemMenu = (event) => {
     item_menu_state.value.toggle(event);
 };
 //--------/toggle item menu
+const dialog = useDialog();
+const openProductCategories = (categories,product) => {
+    const dialogRef = dialog.open(ProductCategories, {
+        props: {
+            header: product,
+            style: {
+                width: '50vw',
+            },
+            breakpoints:{
+                '960px': '75vw',
+                '640px': '90vw'
+            },
+            modal: true
+        },
+        data : {'categories' : categories
 
+        },
+    });
+}
 </script>
 <template>
 
@@ -202,20 +222,12 @@ const toggleItemMenu = (event) => {
                             <tr v-if="store.item.categories">
                                 <td><b>Categories</b></td>
                                 <td colspan="2">
-                                    <div class="word-overflow" style="word-break: break-word;">
-                                        <template v-for="(category, index) in store.item.categories" :key="category.id">
-                                             <span v-if="index === 0 && category.deleted_at === null" class="h-max max-w-full ">
-                            {{ category.name }}
-                        </span>
-                                            <span v-tooltip.top="store.getTooltipText(store.item.categories)"
-                                                  v-if="index === 0 && category.deleted_at === null && store.item.categories.length > 1"
-                                                  class="cursor-pointer ml-1 text-blue-500">
-                            +{{ store.item.categories.filter(category => category.deleted_at === null).length - 1 }} more
-                        </span>
-                                        </template>
-
-                                        <Badge v-if="store.item.categories.some(category => category.deleted_at)" value="Trashed" severity="danger"></Badge>
-                                    </div>
+                                    <Button class="white-space-nowrap"
+                                            data-testid="product-list_category_view"
+                                            v-tooltip.top="'View Categories'"
+                                            :disabled="store.item.categories.length === 0"
+                                            @click="openProductCategories(store.item.categories)"
+                                    >{{store.item.categories.length}}</Button>
                                 </td>
                             </tr>
 
@@ -426,6 +438,7 @@ const toggleItemMenu = (event) => {
         </Panel>
 
     </div>
+    <DynamicDialog  />
     <Dialog header="Meta Fields"
             v-model:visible="store.display_seo_modal"
             :breakpoints="{'960px': '75vw', '640px': '90vw'}"
