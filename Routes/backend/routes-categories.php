@@ -5,9 +5,9 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\CategoriesController;
 Route::group(
     [
         'prefix' => 'backend/store/categories',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
 ],
 function () {
     /**
@@ -70,6 +70,14 @@ function () {
      */
     Route::any('/{id}/action/{action}', [CategoriesController::class, 'itemAction'])
         ->name('vh.backend.store.categories.item.action');
+
+
+    /**
+     * search categories using slug
+     */
+
+    Route::post('/search/category-using-slug', [CategoriesController::class, 'searchCategoryUsingSlug'])
+        ->name('vh.backend.store.categories.search.filtered-category');
 
     //---------------------------------------------------------
 

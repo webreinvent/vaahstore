@@ -94,6 +94,10 @@ export const useCategoryStore = defineStore({
             await this.setViewAndWidth(route.name);
 
             await(this.query = vaah().clone(this.empty_query));
+
+            if (this.route.query.filter && this.route.query.filter.category) {
+                await this.setCategoryInFilterAfterRefresh();
+            }
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
                 this.selected_dates = this.selected_dates.join(' - ');
@@ -1072,6 +1076,7 @@ export const useCategoryStore = defineStore({
             }
 
         },
+        //---------------------------------------------------------------------
 
         setFilter(event) {
             const selected_categories = this.query.filter.category || [];
@@ -1081,6 +1086,7 @@ export const useCategoryStore = defineStore({
                 this.query.filter.category = selected_categories;
             }
         },
+        //---------------------------------------------------------------------
 
 
         removeFilter(event) {
@@ -1097,7 +1103,57 @@ export const useCategoryStore = defineStore({
                 this.query.filter.category = selected_categories;
 
             }
+        },
+        //---------------------------------------------------------------------
+
+        async setCategoryInFilterAfterRefresh() {
+            if (this.route.query.filter && this.route.query.filter.category) {
+                let category =this.route.query.filter.category[0];
+                if (category && category.name) {
+                    let query = {
+                        filter: {
+                            category: {
+                                name: category.name
+                            }
+                        }
+                    };
+
+                    const options = {
+                        params: query,
+                        method: 'post'
+                    };
+
+                    await vaah().ajax(
+                        this.ajax_url+'/search/category-using-slug',
+                        this.setCategoryInFilterAfterRefreshAfter,
+                        options
+                    );
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+
+
+        setCategoryInFilterAfterRefreshAfter(data, res) {
+
+            if (data) {
+                this.category_filter = this.convertFilterCategoryToTreeSelect(data);
+            }
+        },
+        //---------------------------------------------------------------------
+
+        convertFilterCategoryToTreeSelect(data) {
+            const tree_select_data = {};
+            for (const category_name in data) {
+                if (data.hasOwnProperty(category_name)) {
+                    const category = data[category_name];
+                    const category_id = category.id.toString();
+                    tree_select_data[category_id] = true;
+                }
+            }
+            return tree_select_data;
         }
+
         //---------------------------------------------------------------------
     }
 });
