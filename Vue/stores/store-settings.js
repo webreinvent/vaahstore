@@ -21,80 +21,115 @@ export const useSettingStore = defineStore({
         user_roles_menu: null,
         meta_content: null,
         is_btn_loading: false,
+        is_checked:false,
         crud_options: [
             {
                 label: 'All',
-                value: 'All'
+                value: 'All',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Stores',
-                value: 'Store'
+                value: 'Store',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Vendors',
-                value: 'Vendors'
+                value: 'Vendors',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Vendor Products',
-                value: 'VendorsProduct'
+                value: 'VendorsProduct',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Products',
-                value: 'Product'
+                value: 'Product',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Product Variations',
-                value: 'ProductVariations'
+                value: 'ProductVariations',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Product Attributes',
-                value: 'ProductAttribute'
+                value: 'ProductAttribute',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Product Medias',
-                value: 'ProductMedia'
+                value: 'ProductMedia',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Product Stocks',
-                value: 'ProductStock'
+                value: 'ProductStock',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Brands',
-                value: 'Brand'
+                value: 'Brand',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Warehouses',
-                value: 'Warehouses'
+                value: 'Warehouses',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Attributes',
-                value: 'Attributes'
+                value: 'Attributes',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Attributes Group',
-                value: 'AttributeGroups'
+                value: 'AttributeGroups',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Addresses',
-                value: 'Address'
+                value: 'Address',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Wishlists',
-                value: 'Wishlists'
+                value: 'Wishlists',
+                isChecked: false,
+                quantity: 0
             },
 
             {
                 label: 'Customer',
-                value: 'Customer'
+                value: 'Customer',
+                isChecked: false,
+                quantity: 0
             },
             {
                 label: 'Customer Group',
-                value: 'CustomerGroup'
+                value: 'CustomerGroup',
+                isChecked: false,
+                quantity: 0
             },
 
 
@@ -148,29 +183,51 @@ export const useSettingStore = defineStore({
                 this.list = data;
             }
         },
+
+
+        checkAll(item) {
+            if (item.label === 'All') {
+                if (item.isChecked) {
+                    // If "All" checkbox is checked, mark all other checkboxes as checked
+                    this.store.crud_options.forEach(option => {
+                        option.isChecked = true;
+                    });
+                } else {
+                    // If "All" checkbox is unchecked, mark all other checkboxes as unchecked
+                    this.store.crud_options.forEach(option => {
+                        option.isChecked = false;
+                    });
+                }
+            }
+        },
+
+
         //--------------------------------------------------------------------
         async createBulkRecords( data) {
 
-            this.is_button_disabled = true;
+
+            const selectedItems = this.crud_options.filter(item => item.isChecked);
+
+            console.log(selectedItems)
 
 
-            let query = {
-                params:{
-                    crud: this.selected_crud,
-                    quantity:this.quantity
-                }
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/fill/bulk/method',
-                this.createBulkRecordsAfter,
-                options
-            );
+            // let query = {
+            //     params:{
+            //         crud: this.selected_crud,
+            //         quantity:this.quantity
+            //     }
+            // };
+            //
+            // const options = {
+            //     params: query,
+            //     method: 'post',
+            // };
+            //
+            // await vaah().ajax(
+            //     this.ajax_url+'/fill/bulk/method',
+            //     this.createBulkRecordsAfter,
+            //     options
+            // );
 
 
         },
@@ -178,16 +235,16 @@ export const useSettingStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async createBulkRecordsAfter (data, res) {
-
-            if(res.data.success === true)
-            {
-                this.quantity = null;
-                this.selected_crud = null;
-            }
-            this.is_button_disabled = false;
-
-        },
+        // async createBulkRecordsAfter (data, res) {
+        //
+        //     if(res.data.success === true)
+        //     {
+        //         this.quantity = null;
+        //         this.selected_crud = null;
+        //     }
+        //     this.is_button_disabled = false;
+        //
+        // },
         //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
@@ -230,6 +287,7 @@ export const useSettingStore = defineStore({
         resetAll() {
 
             this.input_number_value=null;
+            vaah().toastSuccess(['Action Was Successful']);
         }
 
     }
