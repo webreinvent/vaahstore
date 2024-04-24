@@ -122,8 +122,9 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        add_to_cart:false,
+        show_cart_msg:false,
         product_name:null,
-        default_vendor_message:null,
 
     }),
     getters: {
@@ -2287,6 +2288,13 @@ export const useProductStore = defineStore({
                 },{deep: true}
             )
 
+        },
+        addToCart(item){
+            this.add_to_cart=true;
+        },
+        showMsg(){
+            this.add_to_cart = false;
+            this.show_cart_msg=true;
         },
 
         async openVendorsPanel(item)
