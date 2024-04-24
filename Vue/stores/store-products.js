@@ -124,6 +124,7 @@ export const useProductStore = defineStore({
         max_quantity : null,
         add_to_cart:false,
         show_cart_msg:false,
+        user_suggestions:null,
 
     }),
     getters: {
@@ -2283,7 +2284,41 @@ export const useProductStore = defineStore({
         showMsg(){
             this.add_to_cart = false;
             this.show_cart_msg=true;
-        }
+        },
+
+
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUsersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                // this.customer_suggestions = data;
+                this.user_suggestions = data;
+
+            }
+        },
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            if (user && user.id) {
+                this.item.vh_user_id = user.id;
+            }
+
+        },
 
 
     }

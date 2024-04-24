@@ -188,4 +188,8 @@ function () {
     Route::any('/get/default/store', 'ProductsController@defaultStore')
         ->name('vh.backend.store.products.get.default.store');
 
+
+    Route::post('/search/user', 'ProductsController@searchUsers')
+        ->name('vh.backend.store.products.search.user-for-cart');
+
 });

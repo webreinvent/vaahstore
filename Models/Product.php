@@ -1648,4 +1648,28 @@ class Product extends VaahModel
         return $response;
     }
 
+
+    public static function searchUsers($request){
+        $active_users = User::select('id', 'first_name', 'last_name','display_name','email','phone')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $active_users->where(function ($q) use ($query) {
+                $q->where('email', 'LIKE', '%' . $query . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $users = $active_users->limit(10)->get()->map(function ($user) {
+            $user['name'] = $user['display_name'] ;
+            return $user;
+        });
+
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+
+    }
 }
