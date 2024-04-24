@@ -203,6 +203,11 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
+    public function cart()
+    {
+        return $this->hasOne(User::class,'vh_st_carts','id');
+    }
+    //-------------------------------------------------
 
     public function scopeStatusFilter($query, $filter)
     {
@@ -1663,13 +1668,40 @@ class Product extends VaahModel
         }
 
         $users = $active_users->limit(10)->get()->map(function ($user) {
-            $user['name'] = $user['display_name'] ;
+            $user['name'] = $user['display_name'] ?? '';
             return $user;
         });
 
         $response['success'] = true;
         $response['data'] = $users;
         return $response;
+
+    }
+
+    public static function saveUserInfo($request){
+        $user_data = $request->only(['first_name', 'last_name', 'display_name', 'email', 'phone']);
+
+        if (!$user_data) {
+            $error_message = "Please enter valid user";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
+            $user = User::firstOrCreate(['email' => $user_data['email']], $user_data);
+            $existing_cart = Cart::where('vh_user_id', $user->id)->first();
+            if ($existing_cart) {
+                $error_message = "This user already have a cart";
+                $response['errors'][] = $error_message;
+                return $response;
+            }
+            $cart = new Cart();
+            $cart->vh_user_id = $user->id;
+            $cart->save();
+
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data']=$user;
+        return $response;
+
 
     }
 }

@@ -2281,9 +2281,26 @@ export const useProductStore = defineStore({
         addToCart(item){
             this.add_to_cart=true;
         },
-        showMsg(){
-            this.add_to_cart = false;
-            this.show_cart_msg=true;
+        async showMsg(){
+            // this.add_to_cart = false;
+            // this.show_cart_msg=true;
+            const user_info = this.item.user;
+            const query = user_info;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/save/userInfo',
+                this.showMsgAfter,
+                options
+            );
+        },
+        showMsgAfter(data,res){
+           if (data){
+               this.item.user=null;
+           }
         },
 
 

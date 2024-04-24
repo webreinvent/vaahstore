@@ -242,7 +242,7 @@ const useVaah = vaah()
                 placeholder="Enter Email or Phone"
                 data-testid="products-cart"
                 name="products-cart"
-                optionLabel="display_name"
+                optionLabel="name"
                 forceSelection
                 :pt="{
                                               token: {
@@ -257,7 +257,9 @@ const useVaah = vaah()
                     panel: { class: 'w-16rem ' }
                                                 }">
             </AutoComplete>
-            <Button type="button" label="Add To Cart" @click="store.showMsg()"></Button>
+            <Button type="button" label="Add To Cart" @click="store.showMsg()">
+
+            </Button>
         </div>
     </Dialog>
 

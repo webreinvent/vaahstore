@@ -28,12 +28,12 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="user" header="Name"
                     class="overflow-wrap-anywhere"
                     :sortable="true">
 
                 <template #body="prop">
-                    {{prop.data.name}}
+                    {{ prop.data.user.first_name }}
                 </template>
 
             </Column>

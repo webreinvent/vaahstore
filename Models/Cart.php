@@ -113,6 +113,11 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'vh_user_id');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -272,7 +277,7 @@ class Cart extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
