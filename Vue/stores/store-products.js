@@ -126,6 +126,7 @@ export const useProductStore = defineStore({
         show_cart_msg:false,
         user_suggestions:null,
         active_cart_user_name:null,
+        product_detail:null,
 
     }),
     getters: {
@@ -2285,25 +2286,34 @@ export const useProductStore = defineStore({
 
         },
         addToCart(item){
-            this.add_to_cart=true;
+            this.product_detail=item;
+            // if (!this.show_cart_msg){
+                this.add_to_cart=true;
+            // }
+
         },
-        async showMsg(){
+        async saveProductInCart(product){
+            // console.log(product)
             // this.add_to_cart = false;
             // this.show_cart_msg=true;
             const user_info = this.item.user;
-            const query = user_info;
+            // const query = user_info;
+            const query = {
+                user_info: user_info,
+                product: product
+            };
             const options = {
                 params: query,
                 method: 'post',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/save/userInfo',
-                this.showMsgAfter,
+                this.ajax_url+'/save/product-to-cart',
+                this.saveProductInCartAfter,
                 options
             );
         },
-        showMsgAfter(data,res){
+        saveProductInCartAfter(data,res){
            if (data){
                this.item.user=null;
            }

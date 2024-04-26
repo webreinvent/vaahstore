@@ -192,7 +192,7 @@ function () {
     Route::post('/search/user', 'ProductsController@searchUsers')
         ->name('vh.backend.store.products.search.user-for-cart');
 
-    Route::post('/save/userInfo', 'ProductsController@saveUserInfo')
+    Route::post('/save/product-to-cart', 'ProductsController@saveProductInCart')
         ->name('vh.backend.store.products.save.user-info');
 
 });

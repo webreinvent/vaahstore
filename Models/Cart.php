@@ -118,6 +118,12 @@ class Cart extends VaahModel
         return $this->hasOne(User::class, 'id', 'vh_user_id');
     }
     //-------------------------------------------------
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'vh_st_cart_products', 'vh_st_cart_id', 'vh_st_product_id')
+            ->withPivot('vh_st_product_variation_id', 'quantity');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()

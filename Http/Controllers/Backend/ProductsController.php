@@ -808,10 +808,10 @@ class ProductsController extends Controller
         }
     }
 
-    public function saveUserInfo(Request $request)
+    public function saveProductInCart(Request $request)
     {
         try{
-            return Product::saveUserInfo($request);
+            return Product::saveProductInCart($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

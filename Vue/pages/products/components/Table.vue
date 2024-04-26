@@ -257,7 +257,7 @@ const useVaah = vaah()
                     panel: { class: 'w-16rem ' }
                                                 }">
             </AutoComplete>
-            <Button type="button" label="Add To Cart" @click="store.showMsg()">
+            <Button type="button" label="Add To Cart" @click="store.saveProductInCart(store.product_detail)">
 
             </Button>
         </div>

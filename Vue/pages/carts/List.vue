@@ -82,7 +82,7 @@ const toggleCreateMenu = (event) => {
                     </div>
 
                 </template>
-
+                <Actions/>
                 <Table/>
 
             </Panel>
