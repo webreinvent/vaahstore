@@ -2287,17 +2287,21 @@ export const useProductStore = defineStore({
             )
 
         },
-        addToCart(item){
+        async addToCart(item){
             this.product_detail=item;
             if (!this.show_cart_msg){
                 this.add_to_cart=true;
+            }
+            if (this.show_cart_msg && this.active_user !== null) {
+                await this.addProductToCart(item);
             }
 
         },
         async addProductToCart(product){
             // this.add_to_cart = false;
             // this.show_cart_msg=true;
-            const user_info = this.item.user;
+            // const user_info = this.item.user;
+            const user_info = this.item.user ? this.item.user : this.active_user;
             // const query = user_info;
             const query = {
                 user_info: user_info,

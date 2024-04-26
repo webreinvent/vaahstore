@@ -1705,7 +1705,7 @@ class Product extends VaahModel
         $cart = self::findOrCreateCart($user);
         if ($cart->products->contains($product->id)) {
             $error_message = "This product already exists in the cart";
-            Session::forget('vh_user_id');
+//            Session::forget('vh_user_id');
             $response['errors'][] = $error_message;
             return $response;
         }
