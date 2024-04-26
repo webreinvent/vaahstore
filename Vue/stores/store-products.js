@@ -127,6 +127,7 @@ export const useProductStore = defineStore({
         user_suggestions:null,
         active_cart_user_name:null,
         product_detail:null,
+        active_user:null,
 
     }),
     getters: {
@@ -873,6 +874,7 @@ export const useProductStore = defineStore({
             if (res && res.data.active_cart_user){
                 this.add_to_cart = false;
                 this.show_cart_msg=true;
+                this.active_user=res.data.active_cart_user;
                 this.active_cart_user_name = res.data.active_cart_user.first_name;
             }
             if(data)
@@ -2287,13 +2289,12 @@ export const useProductStore = defineStore({
         },
         addToCart(item){
             this.product_detail=item;
-            // if (!this.show_cart_msg){
+            if (!this.show_cart_msg){
                 this.add_to_cart=true;
-            // }
+            }
 
         },
-        async saveProductInCart(product){
-            // console.log(product)
+        async addProductToCart(product){
             // this.add_to_cart = false;
             // this.show_cart_msg=true;
             const user_info = this.item.user;
@@ -2308,7 +2309,7 @@ export const useProductStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/save/product-to-cart',
+                this.ajax_url+'/add/product-to-cart',
                 this.saveProductInCartAfter,
                 options
             );
@@ -2316,6 +2317,7 @@ export const useProductStore = defineStore({
         saveProductInCartAfter(data,res){
            if (data){
                this.item.user=null;
+               this.getList();
            }
         },
 
@@ -2352,6 +2354,25 @@ export const useProductStore = defineStore({
             }
 
         },
+
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        disableUserCartAfter(){
+            this.show_cart_msg=false;
+        }
 
 
     }

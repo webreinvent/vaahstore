@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Session;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
@@ -808,10 +809,10 @@ class ProductsController extends Controller
         }
     }
 
-    public function saveProductInCart(Request $request)
+    public function addProductToCart(Request $request)
     {
         try{
-            return Product::saveProductInCart($request);
+            return Product::addProductToCart($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -825,4 +826,25 @@ class ProductsController extends Controller
         }
     }
 
+    public function disableActiveCart(Request $request)
+    {
+
+        try{
+            Session::forget('vh_user_id');
+            return [
+                'success' => true,
+                'message' => trans("vaahcms-general.cart_disabled_successfully")
+            ];
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }

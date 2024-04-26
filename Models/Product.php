@@ -1691,7 +1691,7 @@ class Product extends VaahModel
 
     }
 
-    public static function saveProductInCart($request){
+    public static function addProductToCart($request){
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
         $product = Product::find($product_id);
@@ -1705,6 +1705,7 @@ class Product extends VaahModel
         $cart = self::findOrCreateCart($user);
         if ($cart->products->contains($product->id)) {
             $error_message = "This product already exists in the cart";
+            Session::forget('vh_user_id');
             $response['errors'][] = $error_message;
             return $response;
         }
