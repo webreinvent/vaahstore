@@ -14,7 +14,7 @@ const permissions=store.assets.permissions;
 
     <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <Message v-if="!store.list.data || store.default_vendor_message" severity="warn" class="mt-1" :closable="false">
-            There is no default vendor. Mark a vendor as <strong>default</strong>.
+            {{store.default_vendor_message}}
         </Message>
         <!--table-->
         <DataTable :value="store.list.data"
@@ -73,14 +73,24 @@ const permissions=store.assets.permissions;
                     <div class="p-inputgroup flex-1">
                         <span class="p-inputgroup-addon cursor-pointer"
                               v-tooltip.top="'View Products'"
-                              v-if="prop.data.vendor_products && prop.data.vendor_products.length"
+                              v-if="(prop.data.vendor_products && prop.data.vendor_products.length)&& !prop.data.is_default"
                             @click="store.toViewProducts(prop.data)">
                                <b>{{prop.data.vendor_products.length}}</b>
                         </span>
+                        <span class="p-inputgroup-addon cursor-pointer"
+                              v-tooltip.top="'All Products'"
+                              v-else-if="prop.data.is_default "
+                              @click="store.toViewAllProduct()">
+                             <b>{{store.total_product_count}}</b>
+
+                         </span>
+                        <span class="p-inputgroup-addon"
+                              v-else-if="prop.data.is_default">
+                             <b>{{store.assets.total_product}}</b>
+                         </span>
                         <span class="p-inputgroup-addon"
                               v-else>
                              <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
-
                          </span>
                         <Button @click="store.toProduct(prop.data)"
                                 style="cursor: pointer;"

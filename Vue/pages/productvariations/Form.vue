@@ -190,13 +190,13 @@ const permissions=store.assets.permissions;
                                v-model="store.item.sku"/>
                 </VhField>
 
-                <VhField label="Price">
+                <VhField label="Price*">
                     <InputNumber
                         class="w-full"
                         v-model="store.item.price"
                         placeholder="Enter Price"
                         @input = "store.checkPrice($event)"
-                        :min = 1
+                        :min = 0
                         name="productvariations-price"
                         data-testid="productvariations-price"/>
                 </VhField>

@@ -134,4 +134,10 @@ Route::group(
         Route::any('/get/default/store', 'VendorsController@defaultStore')
             ->name('vh.backend.store.vendors.search.default.store');
 
+        /**
+         * Get product count for default vendor
+         */
+        Route::get('/get/product/count', 'VendorsController@getProductCount')
+            ->name('vh.backend.store.vendors.get.product_count');
+
     });
