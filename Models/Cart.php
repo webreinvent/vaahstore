@@ -274,8 +274,10 @@ class Cart extends VaahModel
         foreach ($search_array as $search_item){
             $query->where(function ($q1) use ($search_item) {
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
-                    ->orWhere('slug', 'LIKE', '%' . $search_item . '%')
-                    ->orWhere('id', 'LIKE', $search_item . '%');
+                    ->orWhereHas('user', function ($q) use ($search_item) {
+                        $q->where('name', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%');
+                    });
             });
         }
 

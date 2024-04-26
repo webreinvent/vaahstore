@@ -624,6 +624,10 @@ class Product extends VaahModel
         $user_id = session('vh_user_id');
         if ($user_id) {
             $user = User::find($user_id);
+            if ($user) {
+                $cart = self::findOrCreateCart($user);
+                $cart_records = $cart->products()->count();
+            }
         } else {
             $user = null;
         }
@@ -652,7 +656,9 @@ class Product extends VaahModel
         $response['success'] = true;
         $response['data'] = $list;
         $response['active_cart_user'] = $user;
-
+        if ($user) {
+            $response['active_cart_user']['cart_records'] = $cart_records;
+        }
         return $response;
     }
 

@@ -128,6 +128,7 @@ export const useProductStore = defineStore({
         active_cart_user_name:null,
         product_detail:null,
         active_user:null,
+        total_cart_product:0,
 
     }),
     getters: {
@@ -875,6 +876,7 @@ export const useProductStore = defineStore({
                 this.add_to_cart = false;
                 this.show_cart_msg=true;
                 this.active_user=res.data.active_cart_user;
+                this.total_cart_product= res.data.active_cart_user.cart_records;
                 this.active_cart_user_name = res.data.active_cart_user.first_name;
             }
             if(data)
