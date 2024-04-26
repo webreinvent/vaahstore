@@ -64,7 +64,8 @@ const toggleCreateMenu = (event) => {
 
 </script>
 <template>
-    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :sticky="true" :life="1000">(Count) products added in Rahul's Cart <Button class="line-height-1" label="View Cart" link /></Message>
+    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :sticky="true" :life="1000">(Count)
+        {{store.active_cart_user_name}} <Button class="line-height-1" label="View Cart" link /></Message>
     <div class="grid" v-if="store.assets">
 
         <div :class="'col-'+store.list_view_width">

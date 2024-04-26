@@ -125,6 +125,7 @@ export const useProductStore = defineStore({
         add_to_cart:false,
         show_cart_msg:false,
         user_suggestions:null,
+        active_cart_user_name:null,
 
     }),
     getters: {
@@ -868,6 +869,11 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            if (res && res.data.active_cart_user){
+                this.add_to_cart = false;
+                this.show_cart_msg=true;
+                this.active_cart_user_name = res.data.active_cart_user.first_name;
+            }
             if(data)
             {
                 this.list = data;
@@ -2323,8 +2329,8 @@ export const useProductStore = defineStore({
         searchUsersAfter(data,res) {
             if(data)
             {
-                // this.customer_suggestions = data;
                 this.user_suggestions = data;
+
 
             }
         },

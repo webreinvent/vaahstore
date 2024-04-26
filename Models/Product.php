@@ -5,6 +5,8 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\ProductVariation;
@@ -613,6 +615,12 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
+        $user_id = session('vh_user_id');
+        if ($user_id) {
+            $user = User::find($user_id);
+        } else {
+            $user = null;
+        }
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -637,10 +645,9 @@ class Product extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $list;
+        $response['active_cart_user'] = $user;
 
         return $response;
-
-
     }
 
     //-------------------------------------------------
@@ -1679,25 +1686,27 @@ class Product extends VaahModel
     }
 
     public static function saveUserInfo($request){
-        $user_data = $request->only(['first_name', 'last_name', 'display_name', 'email', 'phone']);
-
+        $user_data = $request->only(['id','first_name', 'last_name', 'display_name', 'email', 'phone']);
         if (!$user_data) {
             $error_message = "Please enter valid user";
             $response['errors'][] = $error_message;
             return $response;
         }
 
-            $user = User::firstOrCreate(['email' => $user_data['email']], $user_data);
+//            $user = User::firstOrCreate(['email' => $user_data['email']], $user_data);
+            $user = User::findOrFail($user_data['id']);
             $existing_cart = Cart::where('vh_user_id', $user->id)->first();
             if ($existing_cart) {
+                Session::forget('vh_user_id');
                 $error_message = "This user already have a cart";
                 $response['errors'][] = $error_message;
                 return $response;
             }
             $cart = new Cart();
             $cart->vh_user_id = $user->id;
+            Session::put('vh_user_id', $user->id);
             $cart->save();
-
+        $userId = session('vh_user_id');
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['data']=$user;
         return $response;
