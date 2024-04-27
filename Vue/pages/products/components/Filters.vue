@@ -3,7 +3,11 @@
 import { useProductStore } from '../../../stores/store-products'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
+
 const store = useProductStore();
+
+
+
 
 </script>
 
@@ -12,6 +16,16 @@ const store = useProductStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+
+            <VhFieldVertical>
+                <template #label>
+                    <b>Price Range:</b>
+                </template>
+                <div>
+                    <InputNumber v-model="store.query.filter.min_price" placeholder="Minimum Price" class="w-full" @input="store.minPrice($event)" inputId="integeronly" />
+                    <InputNumber v-model="store.query.filter.max_price" placeholder="Maximum Price" class="w-full" @input="store.maxPrice($event)" inputId="integeronly" />
+                </div>
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>

@@ -573,6 +573,28 @@ class VendorsController extends Controller
         }
     }
 
+    //-------------------------------------------------------------------------
+    public function getProductCount(Request $request)
+    {
+        try {
+            $count = Product::withTrashed()->count();
+
+            $response['success'] = true;
+            $response['data']['all_product_count'] = $count;
+            return $response;
+        } catch (\Exception $e) {
+            $response = [];
+            $response['status'] = 'failed';
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
 
 
 }

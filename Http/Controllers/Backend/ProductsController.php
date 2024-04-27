@@ -808,11 +808,28 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function addProductToCart(Request $request)
     {
         try{
             return Product::addProductToCart($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    public function getVendorsListForPrduct(Request $request, $id)
+    {
+        try{
+            return Product::getVendorsListForPrduct($id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -847,4 +864,26 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
+
+    public function vendorPreferredAction(Request $request,$id,$action)
+    {
+
+        try{
+            return Product::vendorPreferredAction($request,$id,$action);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+
+
 }

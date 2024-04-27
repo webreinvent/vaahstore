@@ -32,7 +32,7 @@ const toggleSelectedMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-6" >
 
         <Panel >
 
