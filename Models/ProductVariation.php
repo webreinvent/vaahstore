@@ -533,6 +533,12 @@ class ProductVariation extends VaahModel
 
     public static function getList($request)
     {
+        $user_id = session('vh_user_id');
+        if ($user_id) {
+            $user = User::find($user_id);
+        } else {
+            $user = null;
+        }
         $default_variation = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('status','product');
         if ($request->has('filter')) {
@@ -561,6 +567,7 @@ class ProductVariation extends VaahModel
         $response = [
             'success' => true,
             'data' => $list,
+            'active_cart_user'=>$user,
         ];
 
         if (!$default_variation_exists) {
@@ -950,7 +957,7 @@ class ProductVariation extends VaahModel
             $new_product->quantity = $new_total_quantity + $product_variation->quantity;
             $new_product->save();
         }
-        
+
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);

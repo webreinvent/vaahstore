@@ -332,6 +332,14 @@ this.fetched_product_id=selected_product_id;
             this.default_variation_message = (res && res.data && res.data.message)
                 ? 'There is no default product variation. Mark a product variation as default.'
                 : null;
+
+            if (res && res.data.active_cart_user){
+                // this.add_to_cart = false;
+                this.show_cart_msg=true;
+                this.active_user=res.data.active_cart_user;
+                this.total_cart_product= res.data.active_cart_user.cart_records;
+                this.active_cart_user_name = res.data.active_cart_user.first_name;
+            }
             if(data)
             {
                 this.list = data;
