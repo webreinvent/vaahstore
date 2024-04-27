@@ -13,14 +13,18 @@ const useVaah = vaah();
         <div class="cart_detail">
             <div class="flex flex-row">
                 <div>
-                    <b class="mr-1">UUID-Carts 1-Rahul</b>
+<!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
+                    <b class="mr-1" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts {{ store.item.user.first_name }}</b>
+
+
                 </div>
 
             </div>
 
 
             <!--table-->
-            <DataTable :value="store.list.data"
+            <div v-if="store.item && store.item.user">
+            <DataTable :value="store.item.product_variations"
                        dataKey="id"
                        :rowClass="store.setRowClass"
                        class="p-datatable-sm p-datatable-hoverable-rows"
@@ -37,15 +41,15 @@ const useVaah = vaah();
                 <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                <Column field="product_name" header="Product Name"
-                        class="overflow-wrap-anywhere"
-                        :sortable="true">
+                    <Column field="product_name" header="Product Name"
+                            class="overflow-wrap-anywhere"
+                            :sortable="true">
 
-                    <template #body="prop">
-                        {{ 'Nokia 2660 Flip 4G Volte keypad Phone' }}
-                    </template>
+                        <template #body="prop">{{prop.data.product.name}}-{{prop.data.name}}
+    <!--                        {{ 'Nokia 2660 Flip 4G Volte keypad Phone' }}-->
+                        </template>
 
-                </Column>
+                    </Column>
 
                 <Column field="product_quantity" header="Product Quantity"
                         class="overflow-wrap-anywhere"
@@ -59,7 +63,7 @@ const useVaah = vaah();
                                     v-tooltip.top="'Minus'"
                                     @click=""
                                     icon="pi pi-minus"/>
-                            <InputNumber v-model="value" style="width: 1rem" :min="0" :max="99"
+                            <InputNumber v-model="prop.data.pivot.quantity" style="width: 1rem" :min="0" :max="99"
                                          class="w-full md:w-1rem"/>
 
                             <Button class="p-button-tiny p-button-text"
@@ -114,6 +118,7 @@ const useVaah = vaah();
                 </template>
 
             </DataTable>
+            </div>
             <!--/table-->
             <div class="table_bottom mr-4">
                 <p><b>Total Amount: </b>₹4000</p>

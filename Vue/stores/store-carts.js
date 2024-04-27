@@ -223,6 +223,8 @@ export const useCartStore = defineStore({
             if(data)
             {
                 this.list = data;
+                console.log(this.list)
+                this.product_list = data.products;
             }
         },
         //---------------------------------------------------------------------
@@ -655,7 +657,8 @@ export const useCartStore = defineStore({
             // if(!this.item || !this.item.id || this.item.id !== item.id){
             //     this.item = vaah().clone(item);
             // }
-            this.$router.push({name: 'carts.details'})
+            // this.item = item.user;
+            this.$router.push({name: 'carts.details',params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
         checkOut(cart)

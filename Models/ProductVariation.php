@@ -211,7 +211,10 @@ class ProductVariation extends VaahModel
     {
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
-
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class, 'vh_st_cart_products', 'vh_st_product_variation_id', 'vh_st_cart_id');
+    }
     //-------------------------------------------------
 
     public function scopeDefaultFilter($query, $filter)
