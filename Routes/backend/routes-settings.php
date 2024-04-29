@@ -28,4 +28,7 @@ function () {
 
     Route::any('/fill/bulk/method', 'SettingsController@bulkCreateRecords')
         ->name('vh.backend.store.settings.create.bulk.records');
+
+    Route::get('/get/all-item/count', 'SettingsController@getItemsCount')
+        ->name('vh.backend.store.settings.get.items.count');
 });
