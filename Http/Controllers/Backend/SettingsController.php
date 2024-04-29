@@ -43,38 +43,6 @@ class SettingsController extends Controller
         try {
             $data = [];
 
-            $data['store_count'] = Store::all()->count();
-
-            $data['wishlist_count'] = Wishlist::all()->count();
-
-            $data['address_count'] = Address::all()->count();
-
-            $data['brand_count'] = Brand::all()->count();
-
-            $data['attribute_count'] = Attribute::all()->count();
-
-            $data['attribute_group_count'] = AttributeGroup::all()->count();
-
-            $data['customer_count'] = User::all()->count();
-
-            $data['customer_group_count'] = CustomerGroup::all()->count();
-
-            $data['product_count'] = Product::all()->count();
-
-            $data['product_variation_count'] = ProductVariation::all()->count();
-
-            $data['vendor_count'] = Vendor::all()->count();
-
-            $data['product_attribute_count'] = ProductAttribute::all()->count();
-
-            $data['product_media_count'] = ProductMedia::all()->count();
-
-            $data['product_vendor_count'] = ProductVendor::all()->count();
-
-            $data['warehouse_count'] = Warehouse::all()->count();
-
-            $data['product_stock_count'] = ProductStock::all()->count();
-
             $response['success'] = true;
 
             $response['data'] = $data;
@@ -170,326 +138,330 @@ class SettingsController extends Controller
         $response = [];
 
         try {
-            $data = $request->params;
 
-            $crud = $data['crud'];
 
-            $quantity = $data['quantity'];
+            $data = $request->all();
 
-            if(empty($crud))
-            {
-                $response['success'] = false;
-                $response['errors'][] = trans("vaahcms-general.select_a_crud");
-                return $response;
 
-            }
-            if(empty($quantity))
-            {
-                $response['success'] = false;
-                $response['errors'][] = trans("vaahcms-general.fill_quantity");
-                return $response;
 
-            }
 
-            switch ($crud) {
-                case "Store":
-                    Store::seedSampleItems($quantity);
-                    break;
-                case "Address":
-                    Address::seedSampleItems($quantity);
-                    break;
-                case "Wishlists":
-                    Wishlist::seedSampleItems($quantity);
-                    break;
-                case "Brand":
-                    Brand::seedSampleItems($quantity);
-                    break;
-                case "Attributes":
-                    Attribute::seedSampleItems($quantity);
-                    break;
-                case "Customer":
-                    $customer_role = Role::where('slug', 'customer')->first();
-                    if(!$customer_role)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_customer_role");
-                        return $response;
-                    }
-                    User::seedSampleItems($quantity);
-                    break;
-                case "CustomerGroup":
-                    $user= User::all()->count();
-                    if(!$user)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_customer");
-                        return $response;
-                    }
-                    CustomerGroup::seedSampleItems($quantity);
-                    break;
-                case "Vendors":
-                    $store = Store::exists();
-                    if(!$store){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_store");
-                        return $response;
-                    }
-                    Vendor::seedSampleItems($quantity);
-                    break;
-                case "Product":
-                    $store = Store::exists();
-                    if(!$store){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_store");
-                        return $response;
-                    }
-                    Product::seedSampleItems($quantity);
-                    break;
-                case "ProductVariations":
+//            if(empty($crud))
+//            {
+//                $response['success'] = false;
+//                $response['errors'][] = trans("vaahcms-general.select_a_crud");
+//                return $response;
+//
+//            }
+//            if(empty($quantity))
+//            {
+//                $response['success'] = false;
+//                $response['errors'][] = trans("vaahcms-general.fill_quantity");
+//                return $response;
+//
+//            }
 
-                    $product = Product::exists();
+            foreach ($data['selectedCrud'] as $item) {
 
-                    $store = Store::exists();
+                $crud = $item['value'];
 
-                    if(!$product && !$store)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store and product respectively";
-                        return $response;
-                    }
+                $quantity = $item['quantity'];
 
-                    if(!$product){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_product");
-                        return $response;
-                    }
-                    ProductVariation::seedSampleItems($quantity);
-                    break;
-                case "Warehouses":
-                    $vendor = Vendor::exists();
+                $is_check = $item ['isChecked'];
 
-                    $store = Store::exists();
+                switch ($crud) {
+                    case "Store":
+                        if($is_check === false)
+                        {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.fill_quantity");
+                            return $response;
+                        }
 
-                    if(!$vendor && !$store)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store and vendor respectively";
-                        return $response;
-                    }
+                        Store::seedSampleItems($quantity);
+                        break;
+                    case "Address":
+                        Address::seedSampleItems($quantity);
+                        break;
+                    case "Wishlists":
+                        Wishlist::seedSampleItems($quantity);
+                        break;
+                    case "Brand":
+                        Brand::seedSampleItems($quantity);
+                        break;
+                    case "Attributes":
+                        Attribute::seedSampleItems($quantity);
+                        break;
+                    case "Customer":
+                        $customer_role = Role::where('slug', 'customer')->first();
+                        if (!$customer_role) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_customer_role");
+                            return $response;
+                        }
+                        User::seedSampleItems($quantity);
+                        break;
+                    case "CustomerGroup":
+                        $user = User::all()->count();
+                        if (!$user) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_customer");
+                            return $response;
+                        }
+                        CustomerGroup::seedSampleItems($quantity);
+                        break;
+                    case "Vendors":
+                        $store = Store::exists();
+                        if (!$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            return $response;
+                        }
+                        Vendor::seedSampleItems($quantity);
+                        break;
+                    case "Product":
+                        $store = Store::exists();
+                        if (!$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            return $response;
+                        }
+                        Product::seedSampleItems($quantity);
+                        break;
+                    case "ProductVariations":
 
-                    if(!$vendor){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_vendor");
-                        return $response;
-                    }
-                    Warehouse::seedSampleItems($quantity);
-                    break;
-                case "AttributeGroups":
-                    $attribute = Attribute::exists();
-                    if(!$attribute)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_attribute");
-                        return $response;
-                    }
-                    AttributeGroup::seedSampleItems($quantity);
-                    break;
-                case "ProductAttribute":
+                        $product = Product::exists();
 
-                    $store = Store::exists();
+                        $store = Store::exists();
 
-                    $product = Product::exists();
+                        if (!$product && !$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store and product respectively";
+                            return $response;
+                        }
 
-                    $product_variation = ProductVariation::exists();
+                        if (!$product) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            return $response;
+                        }
+                        ProductVariation::seedSampleItems($quantity);
+                        break;
+                    case "Warehouses":
+                        $vendor = Vendor::exists();
 
-                    $attribute = Attribute::exists();
+                        $store = Store::exists();
 
-                    if(!$store && !$attribute  && !$product && !$product_variation)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store , attribute , product and product variation respectively";
-                        return $response;
-                    }
+                        if (!$vendor && !$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store and vendor respectively";
+                            return $response;
+                        }
 
-                    if(!$store  && !$product && !$product_variation)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store  , product and product variation respectively";
-                        return $response;
-                    }
+                        if (!$vendor) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_vendor");
+                            return $response;
+                        }
+                        Warehouse::seedSampleItems($quantity);
+                        break;
+                    case "AttributeGroups":
+                        $attribute = Attribute::exists();
+                        if (!$attribute) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_attribute");
+                            return $response;
+                        }
+                        AttributeGroup::seedSampleItems($quantity);
+                        break;
+                    case "ProductAttribute":
 
-                    if(!$attribute && !$product_variation && !$product)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create product , product variation and attribute respectively";
-                        return $response;
-                    }
+                        $store = Store::exists();
 
-                    if(!$product && !$product_variation )
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create product ,  product variation  respectively";
-                        return $response;
-                    }
+                        $product = Product::exists();
 
-                    if(!$attribute)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_attribute");
-                        return $response;
-                    }
-                    if(!$product_variation){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_variation");
-                        return $response;
-                    }
-                    ProductAttribute::seedSampleItems($quantity);
-                    break;
-                case "ProductMedia":
-                    $product = Product::exists();
+                        $product_variation = ProductVariation::exists();
 
-                    $store = Store::exists();
+                        $attribute = Attribute::exists();
 
-                    if(!$product && !$store)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store and product respectively";
-                        return $response;
-                    }
+                        if (!$store && !$attribute && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store , attribute , product and product variation respectively";
+                            return $response;
+                        }
 
-                    if(!$product){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_product");
-                        return $response;
-                    }
-                    ProductMedia::seedSampleItems($quantity);
-                    break;
-                case "ProductStock":
-                    $vendor = Vendor::exists();
+                        if (!$store && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store  , product and product variation respectively";
+                            return $response;
+                        }
 
-                    $product = Product::exists();
+                        if (!$attribute && !$product_variation && !$product) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create product , product variation and attribute respectively";
+                            return $response;
+                        }
 
-                    $product_variation = ProductVariation::exists();
+                        if (!$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create product ,  product variation  respectively";
+                            return $response;
+                        }
 
-                    $warehouse = Warehouse::exists();
+                        if (!$attribute) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_attribute");
+                            return $response;
+                        }
+                        if (!$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_variation");
+                            return $response;
+                        }
+                        ProductAttribute::seedSampleItems($quantity);
+                        break;
+                    case "ProductMedia":
+                        $product = Product::exists();
 
-                    $store = Store::exists();
+                        $store = Store::exists();
 
-                    if(!$store && !$warehouse && !$vendor && !$product && !$product_variation)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create store  , vendor , warehouse,  product and product variation respectively";
-                        return $response;
-                    }
+                        if (!$product && !$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store and product respectively";
+                            return $response;
+                        }
 
-                    if( !$vendor && !$warehouse && !$product && !$product_variation)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create vendor ,  warehouse , product and product variation respectively";
-                        return $response;
-                    }
+                        if (!$product) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            return $response;
+                        }
+                        ProductMedia::seedSampleItems($quantity);
+                        break;
+                    case "ProductStock":
+                        $vendor = Vendor::exists();
 
-                    if(!$warehouse && !$product && !$product_variation)
-                    {
-                        $response['success'] = false;
-                        $response['errors'][] = "create warehouse , product and product variation respectively";
-                        return $response;
-                    }
+                        $product = Product::exists();
 
-                    if(!$product_variation){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_variation");
-                        return $response;
-                    }
+                        $product_variation = ProductVariation::exists();
 
-                    if(!$warehouse){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_warehouse");
-                        return $response;
-                    }
-                    ProductStock::seedSampleItems($quantity);
-                    break;
-                case "VendorsProduct":
-                    $product = Product::exists();
+                        $warehouse = Warehouse::exists();
 
-                    $store = Store::exists();
+                        $store = Store::exists();
 
-                    $vendor = Vendor::exists();
+                        if (!$store && !$warehouse && !$vendor && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create store  , vendor , warehouse,  product and product variation respectively";
+                            return $response;
+                        }
 
-                    if(!$product && !$store && !$vendor) {
+                        if (!$vendor && !$warehouse && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create vendor ,  warehouse , product and product variation respectively";
+                            return $response;
+                        }
 
-                        $response['success'] = false;
-                        $response['errors'][] = "create a store , vendor and product respectively";
-                        return $response;
-                    }
+                        if (!$warehouse && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = "create warehouse , product and product variation respectively";
+                            return $response;
+                        }
 
-                    if(!$product && !$vendor) {
+                        if (!$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_variation");
+                            return $response;
+                        }
 
-                        $response['success'] = false;
-                        $response['errors'][] = "create a vendor and product respectively";
-                        return $response;
-                    }
-                    if(!$store && !$vendor) {
+                        if (!$warehouse) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_warehouse");
+                            return $response;
+                        }
+                        ProductStock::seedSampleItems($quantity);
+                        break;
+                    case "VendorsProduct":
+                        $product = Product::exists();
 
-                        $response['success'] = false;
-                        $response['errors'][] = "create a store , vendor respectively";
-                        return $response;
-                    }
-                    if(!$product){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_product");
-                        return $response;
-                    }
-                    if(!$store){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_store");
-                        return $response;
-                    }
-                    if(!$vendor){
-                        $response['success'] = false;
-                        $response['errors'][] = trans("vaahcms-general.create_vendor");
-                        return $response;
-                    }
-                    ProductVendor::seedSampleItems($quantity);
-                    break;
-                case "All":
+                        $store = Store::exists();
 
-                    Store::seedSampleItems($quantity);
+                        $vendor = Vendor::exists();
 
-                    Wishlist::seedSampleItems($quantity);
+                        if (!$product && !$store && !$vendor) {
 
-                    Address::seedSampleItems($quantity);
+                            $response['success'] = false;
+                            $response['errors'][] = "create a store , vendor and product respectively";
+                            return $response;
+                        }
 
-                    Brand::seedSampleItems($quantity);
+                        if (!$product && !$vendor) {
 
-                    Attribute::seedSampleItems($quantity);
+                            $response['success'] = false;
+                            $response['errors'][] = "create a vendor and product respectively";
+                            return $response;
+                        }
+                        if (!$store && !$vendor) {
 
-                    AttributeGroup::seedSampleItems($quantity);
+                            $response['success'] = false;
+                            $response['errors'][] = "create a store , vendor respectively";
+                            return $response;
+                        }
+                        if (!$product) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            return $response;
+                        }
+                        if (!$store) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            return $response;
+                        }
+                        if (!$vendor) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-general.create_vendor");
+                            return $response;
+                        }
+                        ProductVendor::seedSampleItems($quantity);
+                        break;
+                    case "All":
 
-                    User::seedSampleItems($quantity);
+                        Store::seedSampleItems($quantity);
 
-                    CustomerGroup::seedSampleItems($quantity);
+                        Wishlist::seedSampleItems($quantity);
 
-                    Product::seedSampleItems($quantity);
+                        Address::seedSampleItems($quantity);
 
-                    ProductVariation::seedSampleItems($quantity);
+                        Brand::seedSampleItems($quantity);
 
-                    Vendor::seedSampleItems($quantity);
+                        Attribute::seedSampleItems($quantity);
 
-                    ProductAttribute::seedSampleItems($quantity);
+                        AttributeGroup::seedSampleItems($quantity);
 
-                    ProductMedia::seedSampleItems($quantity);
+                        User::seedSampleItems($quantity);
 
-                    ProductVendor::seedSampleItems($quantity);
+                        CustomerGroup::seedSampleItems($quantity);
 
-                    Warehouse::seedSampleItems($quantity);
+                        Product::seedSampleItems($quantity);
 
-                    ProductStock::seedSampleItems($quantity);
+                        ProductVariation::seedSampleItems($quantity);
 
-                    break;
+                        Vendor::seedSampleItems($quantity);
 
-                default:
-                    break;
+                        ProductAttribute::seedSampleItems($quantity);
+
+                        ProductMedia::seedSampleItems($quantity);
+
+                        ProductVendor::seedSampleItems($quantity);
+
+                        Warehouse::seedSampleItems($quantity);
+
+                        ProductStock::seedSampleItems($quantity);
+
+                        break;
+
+                    default:
+                        break;
+                }
+
             }
 
         } catch (\Exception $e) {
@@ -509,6 +481,71 @@ class SettingsController extends Controller
         $response['data'] = [];
         $response['messages'][] = trans("vaahcms-general.record_created");
         return $response;
+    }
+
+    public function getItemsCount(Request $request): JsonResponse
+    {
+        try {
+
+            $data['count']['Store'] = Store::all()->count();
+
+            $data['count']['Wishlists'] = Wishlist::all()->count();
+
+            $data['count']['Address'] = Address::all()->count();
+
+            $data['count']['Brand'] = Brand::all()->count();
+
+            $data['count']['Attributes'] = Attribute::all()->count();
+
+            $data['count']['AttributeGroups'] = AttributeGroup::all()->count();
+
+            $data['count']['Customer'] = User::all()->count() - 1;
+
+            $data['count']['CustomerGroup'] = CustomerGroup::all()->count();
+
+            $data['count']['Product'] = Product::all()->count();
+
+            $data['count']['ProductVariations'] = ProductVariation::all()->count();
+
+            $data['count']['Vendors'] = Vendor::all()->count();
+
+            $data['count']['ProductAttribute'] = ProductAttribute::all()->count();
+
+            $data['count']['ProductMedia'] = ProductMedia::all()->count();
+
+            $data['count']['VendorsProduct'] = ProductVendor::all()->count();
+
+            $data['count']['Warehouses'] = Warehouse::all()->count();
+
+            $data['count']['ProductStock'] = ProductStock::all()->count();
+
+            $data['count']['All'] = $data['count']['ProductStock'] +  $data['count']['Warehouses']
+
+                + $data['count']['VendorsProduct']  + $data['count']['ProductMedia'] +  $data['count']['ProductAttribute'] + $data['count']['Vendors']
+
+                + $data['count']['ProductVariations'] +   $data['count']['Product'] + $data['count']['CustomerGroup']  +  $data['count']['Customer']  +
+
+                $data['count']['Attributes'] +   $data['count']['Brand'] + $data['count']['Address'] + $data['count']['Wishlists'] +
+
+                $data['count']['Store'] ;
+
+
+            $response['success'] = true;
+
+            $response['data'] = $data;
+
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+        return response()->json($response);
     }
 
     //----------------------------------------------------------

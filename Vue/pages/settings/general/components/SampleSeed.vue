@@ -17,7 +17,7 @@
     -->
 
 
-<!--    <Button type="button" label="Fill All Inputs" icon="pi pi-arrow-down" @click="store.fillAll()" style="margin-left: 50rem"/>-->
+    <Button type="button" label="Fill All Inputs" icon="pi pi-arrow-down" @click="store.fillAll()" style="margin-left: 50rem"/>
 
 <!--    <Button type="button" label="Reset All Inputs " icon="pi pi-refresh" @click="store.resetAll()"/>-->
 
@@ -160,15 +160,19 @@
 <!--    <Button label="Submit" @click="store.createBulkRecords()" style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem" />-->
 
 
-
-
     <div class="card justify-content-center gap-3 mt-5">
         <div v-for="item in store.crud_options" class="flex align-items-center mb-3">
-            <Checkbox v-model="item.isChecked" :value="item.isChecked" class="ml-3" @click="store.checkAll(item)" />
-            <label class="ml-3" >{{ item.label }}</label>
+            <Checkbox v-model="item.isChecked" :value="item.value"  class="ml-3" @click="store.checkAll(item)" :binary="true" />
+            <label class="ml-3" > {{ item.label}}  </label>
+            <label class="ml-3" >( {{item.count }} )  </label>
+
             <InputNumber placeholder="Enter quantity" class="ml-3" v-model="item.quantity" />
         </div>
-        <Button label="Submit" @click="store.createBulkRecords()" style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem" />
+
+        <Button label="Submit"
+                @click="store.createBulkRecords()"
+                style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem"
+                :disabled="store.is_button_disabled" />
     </div>
 
 </template>
@@ -176,7 +180,7 @@
 <script setup>
 import {useSettingStore} from '../../../../stores/store-settings'
 import {useRoute} from "vue-router";
-import {onMounted , ref} from "vue";
+import {onMounted , ref , getCurrentInstance} from "vue";
 
 const store = useSettingStore();
 
@@ -184,12 +188,16 @@ const route = useRoute();
 
 onMounted(async () => {
 
-    store.is_button_disabled = false;
-    store.quantity = null;
-    store.selected_crud = null;
+    // store.is_button_disabled = false;
+    // store.quantity = null;
+    // store.selected_crud = null;
+
+    store.updateCounts();
 });
 
-const is_checked = ref()
+
+//
+// const is_checked = ref()
 
 
 
