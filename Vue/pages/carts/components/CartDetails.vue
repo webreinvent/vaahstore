@@ -14,7 +14,7 @@ const useVaah = vaah();
             <div class="flex flex-row">
                 <div>
 <!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
-                    <b class="mr-1" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts {{ store.item.user.first_name }}</b>
+                    <b class="mr-1" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
 
 
                 </div>
@@ -24,7 +24,7 @@ const useVaah = vaah();
 
             <!--table-->
             <div v-if="store.item && store.item.user">
-            <DataTable :value="store.item.product_variations"
+            <DataTable :value="store.cart_products"
                        dataKey="id"
                        :rowClass="store.setRowClass"
                        class="p-datatable-sm p-datatable-hoverable-rows"
@@ -41,15 +41,13 @@ const useVaah = vaah();
                 <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                    <Column field="product_name" header="Product Name"
-                            class="overflow-wrap-anywhere"
-                            :sortable="true">
+                <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere" :sortable="true">
+                    <template #body="prop">
+                        {{ prop.data.pivot.cart_product_variation !== null ? prop.data.name + ' - ' + prop.data.pivot.cart_product_variation : prop.data.name }}
+                    </template>
+                </Column>
 
-                        <template #body="prop">{{prop.data.product.name}}-{{prop.data.name}}
-    <!--                        {{ 'Nokia 2660 Flip 4G Volte keypad Phone' }}-->
-                        </template>
 
-                    </Column>
 
                 <Column field="product_quantity" header="Product Quantity"
                         class="overflow-wrap-anywhere"

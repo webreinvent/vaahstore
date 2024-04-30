@@ -291,7 +291,7 @@ class Cart extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user','products','productVariations');
+        $list = self::getSorted($request->filter)->with('user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -304,11 +304,7 @@ class Cart extends VaahModel
         }
 
         $list = $list->paginate($rows);
-        foreach($list as $item) {
 
-            $item->cart_products = self::getCartProducts($item->id)['data'];
-
-        }
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -317,45 +313,7 @@ class Cart extends VaahModel
 
     }
 
-    public static function getCartProducts($cartId)
-    {
-        // Retrieve the cart with the specified ID
-        $cart = self::findOrFail($cartId);
-
-        // Get the products associated with the cart
-        $cartProducts = $cart->products;
-
-        // Initialize an associative array to store the formatted cart products
-        $formattedCartProducts = [];
-
-        // Iterate over each product in the cart
-        foreach ($cartProducts as $product) {
-            // Check if the product ID already exists in the formatted cart products array
-            if (!isset($formattedCartProducts[$product->id])) {
-                // If not, add the product to the formatted cart products array
-                $formattedCartProducts[$product->id] = [
-                    'product_id' => $product->id, // Product ID
-                    'name' => $product->name, // Product name
-                    'variations' => [] // Initialize an array for variations
-                ];
-
-                // Get variations for the product
-                $variations = $product->productVariations;
-                foreach ($variations as $variation) {
-                    // Add variation details to the formatted product
-                    $formattedCartProducts[$product->id]['variations'][] = [
-                        'name' => $variation->name
-                    ];
-                }
-            }
-        }
-
-        // Convert the associative array to a sequential array
-        $formattedCartProducts = array_values($formattedCartProducts);
-
-        // Return the formatted cart products encapsulated within an array with 'data' key
-        return ['data' => $formattedCartProducts];
-    }
+   
 
     //-------------------------------------------------
     public static function updateList($request)
@@ -516,7 +474,7 @@ class Cart extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','products','productVariations'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user'])
             ->withTrashed()
             ->first();
 
@@ -526,6 +484,13 @@ class Cart extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        foreach ($item->products as $product) {
+            $variation_id = $product->pivot->vh_st_product_variation_id;
+            $variation = ProductVariation::find($variation_id);
+            $variation_name = $variation?->name;
+            $product->pivot->cart_product_variation = $variation_name;
+        }
+
         $response['success'] = true;
         $response['data'] = $item;
 
