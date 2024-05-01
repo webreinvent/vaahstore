@@ -1806,7 +1806,7 @@ class Product extends VaahModel
         if ($product_with_variants) {
             $cart->products()->attach($product->id, [
                 'vh_st_product_variation_id' => $product_with_variants['variation_id'],
-                'quantity' => $product_with_variants['quantity']
+                'quantity' =>1
             ]);
         } else {
             $cart->products()->attach($product->id, ['quantity' => 1]);

@@ -50,7 +50,9 @@ onMounted(async () => {
     await store.getListCreateMenu();
     await store.watchQuantity();
 
-
+    // setTimeout(() => {
+    //     store.disableActiveCart();
+    // }, 1000);
 
 });
 
