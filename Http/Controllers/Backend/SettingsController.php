@@ -202,7 +202,7 @@ class SettingsController extends Controller
                         break;
                     case "CustomerGroup":
                         $user = User::all()->count();
-                        if (!$user) {
+                        if ($user < 2 ) {
                             $response['success'] = false;
                             $response['errors'][] = trans("vaahcms-general.create_customer");
                             return $response;
