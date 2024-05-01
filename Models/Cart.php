@@ -313,7 +313,7 @@ class Cart extends VaahModel
 
     }
 
-   
+
 
     //-------------------------------------------------
     public static function updateList($request)
@@ -489,6 +489,7 @@ class Cart extends VaahModel
             $variation = ProductVariation::find($variation_id);
             $variation_name = $variation?->name;
             $product->pivot->cart_product_variation = $variation_name;
+            $product->pivot->price = ProductVariation::getPriceOfProductVariants($variation_id);
         }
 
         $response['success'] = true;

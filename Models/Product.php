@@ -1752,6 +1752,8 @@ class Product extends VaahModel
     }
 
     public static function addProductToCart($request){
+//        dd($request->product['product_price_range']['selected_vendor']);
+        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
         $product = Product::find($product_id);
@@ -1980,6 +1982,10 @@ class Product extends VaahModel
             'selected_vendor' => $vendor,
         ];
     }
+
+
+
+
 
     //----------------------------------------------------------
 

@@ -80,7 +80,7 @@ const useVaah = vaah();
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>{{ '4000' }}</p>
+                            <p>{{ prop.data.pivot.price }}</p>
                         </div>
                     </template>
 

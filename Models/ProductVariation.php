@@ -1453,5 +1453,15 @@ class ProductVariation extends VaahModel
         return $response;
     }
 
+    public static function getPriceOfProductVariants($variation_id)
+    {
+        $variation = self::find($variation_id);
+
+        if (!$variation) {
+            return null;
+        }
+        return $variation->price;
+    }
+
 
 }
