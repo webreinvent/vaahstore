@@ -1756,6 +1756,9 @@ class Product extends VaahModel
         $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
+        if (is_null($product_id)) {
+            $product_id = $request->input('product_variation.vh_st_product_id');
+        }
         $product = Product::find($product_id);
         $user_data = ['id' => $user_info['id']];
         if (!$user_data) {

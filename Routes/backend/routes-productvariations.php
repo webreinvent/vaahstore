@@ -87,7 +87,14 @@ function () {
     Route::post('/search/route-query-products', 'ProductVariationsController@setProductInFilter')
         ->name('vh.backend.store.productvariations.search.products-using-url-slug');
 
+    Route::post('/search/user', 'ProductVariationsController@searchUsers')
+        ->name('vh.backend.store.productvariations.search.user-for-cart');
+
+    Route::post('/add/product-to-cart', 'ProductVariationsController@addProductToCart')
+        ->name('vh.backend.store.productvariations.save.user-info');
 
     Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')
         ->name('vh.backend.store.productvariations.disable.active-cart');
+
+
 });
