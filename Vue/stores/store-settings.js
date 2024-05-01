@@ -137,7 +137,8 @@ export const useSettingStore = defineStore({
                 label: 'Customer',
                 value: 'Customer',
                 isChecked: false,
-                quantity: 0
+                quantity: 0,
+                count: 0
             },
             {
                 label: 'Customer Group',
@@ -200,6 +201,9 @@ export const useSettingStore = defineStore({
         },
 
 
+        //------------------------------------------------------------------------
+
+
         checkAll(item) {
             if (item.label === 'All') {
                 // Toggle isChecked for all options based on the isChecked state of the "All" option
@@ -207,10 +211,101 @@ export const useSettingStore = defineStore({
                 this.crud_options.forEach(option => {
                     option.isChecked = !allChecked;
                 });
-            } else {
+            }
+
+            else if (item.label === 'Customer Group')
+            {
+                const labelsToCheck = ['Customer'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Vendors')
+            {
+                const labelsToCheck = ['Stores'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Products')
+            {
+                const labelsToCheck = ['Stores'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Product Variations') {
+
+                const labelsToCheck = ['Vendors', 'Stores'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Warehouses') {
+
+                const labelsToCheck = ['Stores', 'Products'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Product Attributes') {
+
+                const labelsToCheck = ['Stores', 'Products' , 'Product Variations' , 'Attributes'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Product Medias') {
+
+                const labelsToCheck = ['Stores', 'Products'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Product Stocks') {
+
+                const labelsToCheck = ['Stores', 'Products' ,'Warehouses', 'Product Variations' , 'Vendors'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Vendor Products') {
+
+                const labelsToCheck = ['Stores', 'Products'  , 'Vendors'];
+
+                this.labelsToCheck(labelsToCheck)
+            }
+
+            else if (item.label === 'Attributes Group') {
+
+                const labelsToCheck = ['Attributes'];
+
+                this.labelsToCheck(labelsToCheck)
+
+            }
+
+            else {
                 // If it's not "All", toggle only the isChecked property of the clicked option
                 item.isChecked = !item.isChecked;
             }
+        },
+
+        //--------------------------------------------------------------------
+
+        async labelsToCheck(labelsToCheck)
+        {
+            this.crud_options.forEach(option => {
+
+                if (labelsToCheck.includes(option.label)) {
+
+                    const count = option.count;
+
+                    if (count < 1) {
+                        option.isChecked = !option.isChecked;
+                    }
+                }
+            });
+
         },
 
 
@@ -252,6 +347,9 @@ export const useSettingStore = defineStore({
             //     this.quantity = null;
             //     this.selected_crud = null;
             // }
+            this.crud_options.forEach(option => {
+                option.isChecked = false;
+            });
             this.updateCounts();
             this.is_button_disabled = false;
 
@@ -319,7 +417,7 @@ export const useSettingStore = defineStore({
             );
         },
 
-        updateCountsAfter(data , res ){
+        updateCountsAfter(data , res ) {
 
             this.crud_options.forEach(option => {
                         option.count = data.count[`${option.value}`] || 0;
