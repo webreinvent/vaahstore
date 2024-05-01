@@ -63,11 +63,11 @@ const permissions=store.assets ? store.assets.permissions : 0;
 
 </script>
 <template>
-<!--    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :closable="false" :sticky="true" :life="1000">-->
-<!--        ( {{product_store.total_cart_product}} )-->
-<!--        {{store.active_cart_user_name}} <Button class="line-height-1" label="View Cart" link />-->
-<!--        <Button @click="product_store.disableActiveCart()">X</Button>-->
-<!--    </Message>-->
+    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :closable="false" :sticky="true" :life="1000">
+        ( {{store.total_cart_product}} )
+        {{store.active_cart_user_name}} <Button class="line-height-1" label="View Cart" link />
+            <Button @click="store.disableActiveCart()">X</Button>
+    </Message>
     <div class="grid" v-if="store.assets">
 
         <div :class="'col-'+store.list_view_width">

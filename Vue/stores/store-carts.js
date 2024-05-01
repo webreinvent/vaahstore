@@ -67,6 +67,7 @@ export const useCartStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         bill_form:null,
+        cart_products:null,
     }),
     getters: {
 
@@ -243,6 +244,7 @@ export const useCartStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.cart_products=data.products;
             }else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }

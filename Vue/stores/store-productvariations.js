@@ -1304,6 +1304,100 @@ this.fetched_product_id=selected_product_id;
             }
         },
 
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        disableUserCartAfter(){
+            this.show_cart_msg=false;
+        },
+
+        async addToCart(item){
+            this.product_detail=item;
+            if (!this.show_cart_msg){
+                this.add_to_cart=true;
+            }
+            if (this.show_cart_msg && this.active_user !== null) {
+                await this.addProductToCart(item);
+            }
+
+        },
+        showMsg(){
+            this.add_to_cart = false;
+            this.show_cart_msg=true;
+        },
+        async addProductToCart(product_variation){
+            // this.add_to_cart = false;
+            // this.show_cart_msg=true;
+            // const user_info = this.item.user;
+            const user_info = this.item.user ? this.item.user : this.active_user;
+            // const query = user_info;
+            const query = {
+                user_info: user_info,
+                product_variation: product_variation
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/add/product-to-cart',
+                this.saveProductInCartAfter,
+                options
+            );
+        },
+        saveProductInCartAfter(data,res){
+            if (data){
+                this.item.user=null;
+                this.getList();
+            }
+        },
+
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUsersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestions = data;
+
+
+            }
+        },
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            if (user && user.id) {
+                this.item.vh_user_id = user.id;
+            }
+
+        },
+
     },
 
     //---------------------------------------------------------------------

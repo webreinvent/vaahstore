@@ -539,6 +539,10 @@ class ProductVariation extends VaahModel
         $user_id = session('vh_user_id');
         if ($user_id) {
             $user = User::find($user_id);
+            if ($user) {
+                $cart = Product::findOrCreateCart($user);
+                $cart_records = $cart->products()->count();
+            }
         } else {
             $user = null;
         }
@@ -567,11 +571,23 @@ class ProductVariation extends VaahModel
 
         $list = $list->paginate($rows);
 
+//        $response = [
+//            'success' => true,
+//            'data' => $list,
+//            'active_cart_user'=>$user,
+//
+//        ];
         $response = [
             'success' => true,
             'data' => $list,
-            'active_cart_user'=>$user,
         ];
+
+        $response['active_cart_user'] = $user;
+
+        if ($user) {
+            $response['active_cart_user']['cart_records'] = $cart_records;
+        }
+
 
         if (!$default_variation_exists) {
             $response['message'] = true;
@@ -1451,6 +1467,16 @@ class ProductVariation extends VaahModel
             $response['data'] = [];
         }
         return $response;
+    }
+
+    public static function getPriceOfProductVariants($variation_id)
+    {
+        $variation = self::find($variation_id);
+
+        if (!$variation) {
+            return null;
+        }
+        return $variation->price;
     }
 
 

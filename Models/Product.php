@@ -1752,8 +1752,13 @@ class Product extends VaahModel
     }
 
     public static function addProductToCart($request){
+//        dd($request->product['product_price_range']['selected_vendor']);
+        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
+        if (is_null($product_id)) {
+            $product_id = $request->input('product_variation.vh_st_product_id');
+        }
         $product = Product::find($product_id);
         $user_data = ['id' => $user_info['id']];
         if (!$user_data) {
@@ -1806,7 +1811,7 @@ class Product extends VaahModel
         if ($product_with_variants) {
             $cart->products()->attach($product->id, [
                 'vh_st_product_variation_id' => $product_with_variants['variation_id'],
-                'quantity' => $product_with_variants['quantity']
+                'quantity' =>1
             ]);
         } else {
             $cart->products()->attach($product->id, ['quantity' => 1]);
@@ -1980,6 +1985,10 @@ class Product extends VaahModel
             'selected_vendor' => $vendor,
         ];
     }
+
+
+
+
 
     //----------------------------------------------------------
 

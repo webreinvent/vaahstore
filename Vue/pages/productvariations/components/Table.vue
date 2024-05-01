@@ -117,7 +117,7 @@ const route = useRoute();
              </Column>
 
 
-               
+
 
             <Column
                 field="is_active"
@@ -151,6 +151,11 @@ const route = useRoute();
                 <template #body="prop">
                     <div class="p-inputgroup ">
 
+                        <Button class="p-button-tiny p-button-text"
+                                data-testid="products-table-to-view"
+                                v-tooltip.top="'Add To Cart'"
+                                @click="store.addToCart(prop.data)"
+                                icon="pi pi-shopping-cart" />
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
@@ -210,5 +215,36 @@ const route = useRoute();
         <!--/paginator-->
 
     </div>
+    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
+        <div class="p-inputgroup py-3">
+            <!--            <InputText id="create_cart" class="flex-auto" placeholder="Enter Email or Phone" autocomplete="off" />-->
+            <AutoComplete
+                v-model="store.item.user"
+                @change="store.setUser($event)"
+                class="w-full"
+                :suggestions="store.user_suggestions"
+                @complete="store.searchUser($event)"
+                placeholder="Enter Email or Phone"
+                data-testid="products-cart"
+                name="products-cart"
+                optionLabel="name"
+                forceSelection
+                :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }">
+            </AutoComplete>
+            <Button type="button" label="Add To Cart" @click="store.addProductToCart(store.product_detail)">
 
+            </Button>
+        </div>
+    </Dialog>
 </template>
