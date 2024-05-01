@@ -1304,6 +1304,25 @@ this.fetched_product_id=selected_product_id;
             }
         },
 
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        disableUserCartAfter(){
+            this.show_cart_msg=false;
+        },
+
     },
 
     //---------------------------------------------------------------------

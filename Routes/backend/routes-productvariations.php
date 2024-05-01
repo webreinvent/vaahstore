@@ -88,5 +88,6 @@ function () {
         ->name('vh.backend.store.productvariations.search.products-using-url-slug');
 
 
-
+    Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')
+        ->name('vh.backend.store.productvariations.disable.active-cart');
 });
