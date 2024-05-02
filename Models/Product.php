@@ -643,10 +643,10 @@ class Product extends VaahModel
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-            $category_names = array_column($filter['category'], 'name');
+            $category_names = $filter['category'];
 
-            $category_ids = Category::whereIn('name', $category_names)->pluck('id');
-            $all_category_ids = Category::whereIn('name', $category_names)->pluck('id')->toArray();
+            $category_ids = Category::whereIn('slug', $category_names)->pluck('id');
+            $all_category_ids = $category_ids->toArray();
 
             $get_sub_category_ids = function ($parentCategoryIds) use (&$get_sub_category_ids, &$all_category_ids) {
                 $sub_category_ids = Category::whereIn('category_id', $parentCategoryIds)->pluck('id')->toArray();
@@ -665,6 +665,7 @@ class Product extends VaahModel
 
         return $query;
     }
+
 
 
 
@@ -1820,12 +1821,14 @@ class Product extends VaahModel
         if ($request->has('filter')) {
             $filter = $request->input('filter');
             if (isset($filter['category'])) {
-                $category_names = $filter['category']['name'];
+                $category_names = $filter['category'];
                 if (!is_array($category_names)) {
                     $category_names = [$category_names];
                 }
-                $categories = Category::with('subCategories')->whereIn('name', $category_names)->get();
+
+                $categories = Category::with('subCategories')->whereIn('slug', $category_names)->get();
                 $formatted_data = [];
+
                 foreach ($categories as $category) {
                     $formatted_category = [
                         'id' => $category->id,
@@ -1841,7 +1844,7 @@ class Product extends VaahModel
                         ];
                     }
 
-                    $formatted_data[$category->name] = $formatted_category;
+                    $formatted_data[$category->slug] = $formatted_category;
                 }
 
                 $response['success'] = true;
@@ -1854,6 +1857,7 @@ class Product extends VaahModel
         $response['data'] = false;
         return $response;
     }
+
 
     //----------------------------------------------------------
 

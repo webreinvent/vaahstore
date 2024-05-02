@@ -294,8 +294,8 @@ class Category extends VaahModel
         if (isset($filter['category']) && is_array($filter['category'])) {
             $category_ids = [];
 
-            $category_names = array_column($filter['category'], 'name');
-            $category_ids = self::whereIn('name', $category_names)->pluck('id')->toArray();
+            $category_names = $filter['category'];
+            $category_ids = self::whereIn('slug', $category_names)->pluck('id')->toArray();
 
             $get_all_sub_category_ids = function ($parent_category_id) use (&$get_all_sub_category_ids, &$category_ids) {
                 $children = self::where('category_id', $parent_category_id)->get();
@@ -811,11 +811,11 @@ class Category extends VaahModel
         if ($request->has('filter')) {
             $filter = $request->input('filter');
             if (isset($filter['category'])) {
-                $category_names = $filter['category']['name'];
+                $category_names = $filter['category'];
                 if (!is_array($category_names)) {
                     $category_names = [$category_names];
                 }
-                $categories = Category::with('subCategories')->whereIn('name', $category_names)->get();
+                $categories = Category::with('subCategories')->whereIn('slug', $category_names)->get();
                 $formatted_data = [];
                 foreach ($categories as $category) {
                     $formatted_category = [
@@ -832,7 +832,7 @@ class Category extends VaahModel
                         ];
                     }
 
-                    $formatted_data[$category->name] = $formatted_category;
+                    $formatted_data[$category->slug] = $formatted_category;
                 }
 
                 $response['success'] = true;

@@ -238,7 +238,7 @@ export const useCategoryStore = defineStore({
                 let categoryItem = {
                     key: category.id,
                     label: category.name,
-                    data : category.name,
+                    data : category.slug,
                     children: []
                 };
 
@@ -1080,9 +1080,9 @@ export const useCategoryStore = defineStore({
 
         setFilter(event) {
             const selected_categories = this.query.filter.category || [];
-            const existing_category = selected_categories.find(category => category.name === event.data.toLowerCase());
+            const existing_category = selected_categories.find(category => category === event.data.toLowerCase());
             if (!existing_category) {
-                selected_categories.push({ name: event.data.toLowerCase() });
+                selected_categories.push(event.data.toLowerCase());
                 this.query.filter.category = selected_categories;
             }
         },
@@ -1091,44 +1091,39 @@ export const useCategoryStore = defineStore({
 
         removeFilter(event) {
             let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
+
             if (Array.isArray(selected_categories)) {
-                const index = selected_categories.findIndex(category => category.name === event.data.toLowerCase());
+                const index = selected_categories.findIndex(category => category === event.data.toLowerCase());
 
                 if (index !== -1) {
                     selected_categories.splice(index, 1);
                 }
-                else {
-                    selected_categories.push({ name: event.data.toLowerCase() });
-                }
-                this.query.filter.category = selected_categories;
 
+                this.query.filter.category = selected_categories;
             }
         },
         //---------------------------------------------------------------------
 
         async setCategoryInFilterAfterRefresh() {
             if (this.route.query.filter && this.route.query.filter.category) {
-                let category =this.route.query.filter.category[0];
-                if (category && category.name) {
-                    let query = {
-                        filter: {
-                            category: {
-                                name: category.name
-                            }
-                        }
-                    };
+                let category = this.route.query.filter.category;
 
-                    const options = {
-                        params: query,
-                        method: 'post'
-                    };
+                let query = {
+                    filter: {
+                        category: category
+                    }
+                };
 
-                    await vaah().ajax(
-                        this.ajax_url+'/search/category-using-slug',
-                        this.setCategoryInFilterAfterRefreshAfter,
-                        options
-                    );
-                }
+                const options = {
+                    params: query,
+                    method: 'post'
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/search/category-using-slug',
+                    this.setCategoryInFilterAfterRefreshAfter,
+                    options
+                );
             }
         },
         //---------------------------------------------------------------------
