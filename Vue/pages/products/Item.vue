@@ -226,7 +226,7 @@ const openProductCategories = (categories,product) => {
                                             data-testid="product-list_category_view"
                                             v-tooltip.top="'View Categories'"
                                             :disabled="store.item.categories.length === 0"
-                                            @click="openProductCategories(store.item.categories)"
+                                            @click="openProductCategories(store.item.categories,store.item.name)"
                                     >{{store.item.categories.length}}</Button>
                                 </td>
                             </tr>

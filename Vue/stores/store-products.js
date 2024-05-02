@@ -1165,8 +1165,13 @@ export const useProductStore = defineStore({
                 options
             );
         },
-        removeCategoryAfter(){
-            this.getList();
+        removeCategoryAfter(data,res){
+            if (data){
+                this.getList();
+                if (this.route.name === 'products.view'){
+                    this.getItem(data.product.id);
+                }
+            }
         },
         //---------------------------------------------------------------------
 
