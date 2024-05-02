@@ -853,7 +853,6 @@ export const useProductStore = defineStore({
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
                 this.categories_data=data.category;
-                this.categories_dropdown_data = this.convertToTreeselectFormat(data.categories);
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
                     this.min_quantity=this.route.query.filter.quantity[0];
@@ -1528,8 +1527,24 @@ export const useProductStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.getDefaultStore();
+            this.getCategories();
 
             this.$router.push({name: 'products.form'})
+        },
+        //---------------------------------------------------------------------
+        async getCategories(){
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/categories',
+                this.getCategoriesAfter,
+                options
+            );
+        },
+        getCategoriesAfter(data,res){
+            this.categories_dropdown_data = this.convertToTreeselectFormat(data.categories);
         },
         //---------------------------------------------------------------------
         async getDefaultStore()
@@ -1588,6 +1603,7 @@ export const useProductStore = defineStore({
         {
             this.item = item;
             this.$router.push({name: 'products.form', params:{id:item.id}})
+            this.getCategories();
         },
         //---------------------------------------------------------------------
         isViewLarge()
