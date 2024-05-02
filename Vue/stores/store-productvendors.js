@@ -205,7 +205,6 @@ export const useProductVendorStore = defineStore({
              */
             this.updateQueryFromUrl(route);
             await this.updateUrlQueryString(this.query);
-
             if (this.query.filter.product) this.getProductsBySlug();
             if (route.query && route.query.filter && route.query.filter.date) {
                 this.selected_dates = route.query.filter.date;
@@ -220,6 +219,10 @@ export const useProductVendorStore = defineStore({
                 case 'productvendors.index':
                     this.view = 'large';
                     this.list_view_width = 12;
+                    break;
+                    case 'productvendors.productprice':
+                    this.view = 'small';
+                    this.list_view_width = 7;
                     break;
                 default:
                     this.view = 'small';
@@ -246,10 +249,9 @@ export const useProductVendorStore = defineStore({
         watchRoutes(route)
         {
             //watch routes
-            this.watch_stopper = watch(route, (newVal,oldVal) =>
-                {
+            this.watch_stopper = watch(route, async (newVal, oldVal) => {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if (this.watch_stopper && !newVal.name.startsWith(this.route_prefix)) {
                         this.watch_stopper();
 
                         return false;
@@ -257,10 +259,10 @@ export const useProductVendorStore = defineStore({
 
                     this.route = newVal;
 
-                    if(newVal.params.id){
+                    if (newVal.params.id) {
                         this.disable_added_by = false;
-                        this.getItem(newVal.params.id);
-                    }else{
+                        await this.getItem(newVal.params.id);
+                    } else {
                         this.disable_added_by = true;
                     }
 
@@ -887,12 +889,11 @@ export const useProductVendorStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'productvendors.index'})
         },
-        toProductPrice(item)
-        {
-            this.item.vh_st_product_id=item.vh_st_product_id;
-            this.searchVariationOfProduct();
+        async toProductPrice(item) {
+            this.item.vh_st_product_id = item?.vh_st_product_id;
+            await this.searchVariationOfProduct();
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'productvendors.productprice', params:{id:item.id}})
+            this.$router.push({name: 'productvendors.productprice', params: {id: item.id}})
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1383,8 +1384,8 @@ export const useProductVendorStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchVariationOfProduct() {
+            await this.$router.replace({query: null});
             const query = {
-
                 id: this.item.vh_st_product_id
             };
             const options = {
@@ -1415,67 +1416,7 @@ export const useProductVendorStore = defineStore({
         },
 
 
-        calculatePriceRange(product, product_variation_prices) {
-            // Check if product_variations and product_variation_prices are equal in length
-            if (
-                product.product_variations_for_vendor_product &&
-                product.product_variations_for_vendor_product.length === product_variation_prices.length
-            ) {
-                // If equal, use product_variation_prices directly
-                const prices = product_variation_prices.map(variation_price => variation_price.pivot.amount);
-
-                // Filter out undefined or null values
-                const valid_prices = prices.filter(price => price !== undefined && price !== null);
-
-                if (valid_prices.length === 0) {
-                    return 'No prices available';
-                }
-
-                const min_price = Math.min(...valid_prices);
-                const max_price = Math.max(...valid_prices);
-
-                if (min_price === max_price) {
-                    return `Price: ${min_price}`;
-                } else {
-                    return `Price Range: ${min_price} - ${max_price}`;
-                }
-            }
-
-
-            let all_prices = [];
-
-            if (product.product_variations_for_vendor_product && product.product_variations_for_vendor_product.length > 0) {
-                // Combine prices from product_variations
-                all_prices = product.product_variations_for_vendor_product.reduce((prices, variation) => {
-                    if (variation.price !== undefined && variation.price !== null) {
-                        prices.push(variation.price);
-                    }
-                    return prices;
-                }, []);
-            }
-
-            all_prices = all_prices.concat(
-                product_variation_prices.reduce((amounts, variation_price) => {
-                    if (variation_price.amount !== undefined && variation_price.amount !== null) {
-                        amounts.push(variation_price.amount);
-                    }
-                    return amounts;
-                }, [])
-            );
-
-            if (all_prices.length === 0) {
-                return 'No prices available';
-            }
-
-            const min_price = Math.min(...all_prices);
-            const max_price = Math.max(...all_prices);
-
-            if (min_price === max_price) {
-                return `Price: ${min_price}`;
-            } else {
-                return `Price:  ${min_price} - ${max_price}`;
-            }
-        },
+       
 
 
         //---------------------------------------------------------------------
@@ -1519,7 +1460,19 @@ export const useProductVendorStore = defineStore({
             this.$router.push(route);
         },
         //---------------------------------------------------------------------
-
+        fillAllPrices(){
+            if (this.product_variation_list.length > 0 ) {
+                const first_price = this.item.all_price;
+                if (first_price !== null && first_price !== undefined) {
+                    this.product_variation_list.forEach((variation) => {
+                        variation.amount = first_price;
+                    });
+                }
+                else{
+                    vaah().toastErrors(['Please Enter Price.']);
+                }
+            }
+        },
     }
 });
 

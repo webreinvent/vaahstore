@@ -123,7 +123,10 @@ export const useProductStore = defineStore({
         min_quantity : null,
         max_quantity : null,
         filter_category:null,
-        product_category_filter:null
+        product_category_filter:null,
+        add_to_cart:false,
+        show_cart_msg:false,
+        product_name:null,
 
     }),
     getters: {
@@ -299,9 +302,12 @@ export const useProductStore = defineStore({
                     this.list_view_width = 12;
                     break;
                 case 'products.variation':
+                    this.view = 'small';
+                    this.list_view_width = 6;
+                    break;
                 case 'products.vendor':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 6;
                     break;
                 default:
                     this.view = 'small';
@@ -750,6 +756,14 @@ export const useProductStore = defineStore({
             this.item.all_variation.structured_variation.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
+        },
+        //---------------------------------------------------------------------
+        setDefault(){
+            this.item.all_variation.structured_variation.forEach((variation) => {
+                if (variation['is_default'] !== this.variation_item.is_default) {
+                    variation['is_default'] = false;
+                }
+            });
         },
         //---------------------------------------------------------------------
         addNewProductVariation(new_record){
@@ -2383,8 +2397,27 @@ export const useProductStore = defineStore({
             )
 
         },
+        addToCart(item){
+            this.add_to_cart=true;
+        },
+        showMsg(){
+            this.add_to_cart = false;
+            this.show_cart_msg=true;
+        },
 
         //---------------------------------------------------------------------
+        async openVendorsPanel(item)
+        {
+            this.show_vendor_panel = true;
+            this.product_id=item.id;
+            this.product_name=item.name;
+            if (item.id) {
+                await vaah().ajax(
+                    ajax_url + '/get-vendors-list'+'/' + item.id,
+                    this.openVendorsPanelAfter
+                );
+            }
+        },
 
         setFilter(event) {
             const selected_categories = this.query.filter.category || [];
@@ -2461,7 +2494,7 @@ export const useProductStore = defineStore({
                 }
             }
             return tree_select_data;
-        }
+        },
 
 
         //---------------------------------------------------------------------
@@ -2474,6 +2507,121 @@ export const useProductStore = defineStore({
 
 
 
+
+//---------------------------------------------------------------------
+
+        openVendorsPanelAfter(data, res) {
+
+            if (data) {
+                data.sort((a, b) => {
+                    const preferred_vendor = b.is_preferred - a.is_preferred;
+                    if (preferred_vendor !== 0) {
+                        return preferred_vendor;
+                    }
+
+                    const default_vendor = b.is_default - a.is_default;
+                    if (default_vendor !== 0) {
+                        return default_vendor;
+                    }
+
+                    return b.quantity - a.quantity;
+                });
+
+                this.item.vendor_data = data;
+            } else {
+                this.$router.push({name: 'products.index', query: this.query});
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+
+        //---------------------------------------------------------------------
+
+        async toggleIsPreferred(item)
+        {
+            if(item.is_preferred)
+            {
+                await this.vendorPreferredAction('preferred', item);
+            } else{
+                await this.vendorPreferredAction('notpreferred', item);
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async vendorPreferredAction(type, item=null){
+
+            if(!item)
+            {
+                item = this.item;
+            }
+
+            this.form.action = type;
+
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'PATCH',
+            };
+            ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
+            await vaah().ajax(
+                ajax_url,
+                this.vendorPreferredActionAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        async vendorPreferredActionAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                await this.openVendorsPanel(data);
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        minPrice(event){
+          this.query.filter.min_price=event.value;
+        },
+        maxPrice(event){
+            this.query.filter.max_price=event.value;
+
+        },
+        //---------------------------------------------------------------------
+
+        redirectToVendorProducts()
+        {
+            this.$router.push({name: 'productvendors.index'});
+        },
+        //---------------------------------------------------------------------
+
+        getPriceRangeOfProduct(prices) {
+
+            if (!prices || !Array.isArray(prices)) {
+                return 'Not available';
+            }
+
+            const numericPrices = prices.filter(price => typeof price === 'number');
+
+            if (numericPrices.length === 0) {
+                return '';
+            }
+
+            const minPrice = Math.min(...numericPrices);
+            const maxPrice = Math.max(...numericPrices);
+
+            if (minPrice === maxPrice) {
+                return `${minPrice}`;
+            }
+
+            return `${minPrice} - ${maxPrice}`;
+        },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
 
     }
 });

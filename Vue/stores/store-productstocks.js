@@ -264,13 +264,20 @@ export const useProductStockStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-       async searchProduct(event) {
-            const query = event;
+        async searchProduct(event) {
+            if(!this.item.vendor)
+            {
+                vaah().toastErrors(['Please Choose a Vendor First']);
+                return false;
+            }
+            const query = {
+                vendor_id: this.item.vh_st_vendor_id,
+                search: event
+            };
             const options = {
                 params: query,
                 method: 'post',
             };
-
             await vaah().ajax(
                 this.ajax_url+'/search/product',
                 this.searchProductAfter,
@@ -395,6 +402,10 @@ export const useProductStockStore = defineStore({
             this.item.vh_st_vendor_id = vendor.id;
             this.item.warehouse = null;
             this.item.vh_st_warehouse_id = null;
+            this.item.product = null;
+            this.item.product_variation = null;
+            this.item.vh_st_product_id = null;
+            this.item.vh_st_product_variation_id = null;
         },
         //---------------------------------------------------------------------
         setProduct(event){
@@ -1562,7 +1573,10 @@ export const useProductStockStore = defineStore({
         //-----------------------------------------------------------------------
 
         getDefaultVendorAfter(data,res) {
-            this.item.vendor = data ? data : [];
+            if (data) {
+                this.item.vendor =  data ;
+                this.item.vh_st_vendor_id = data.id;
+            }
         },
 
     }

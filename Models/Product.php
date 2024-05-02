@@ -310,10 +310,17 @@ class Product extends VaahModel
             $item->slug = Str::slug($value['variation_name']);
             $item->in_stock = 'No';
             $item->quantity = 0;
+            $item->price = 0;
             $taxonomy_status_id = Taxonomy::getTaxonomyByType('product-variation-status')->where('name', 'Pending')->pluck('id')->first();
             $item->taxonomy_id_variation_status = $taxonomy_status_id;
             $item->vh_st_product_id = $product_id;
             $item->is_active = 1;
+            if (isset($value['is_default']) && $value['is_default']) {
+                ProductVariation::where('vh_st_product_id', $product_id)
+                    ->where('is_default', 1)
+                    ->update(['is_default' => 0]);
+                $item->is_default = 1;
+            }
             $item->save();
             foreach ($all_attribute as $k => $v) {
                 $item2 = new ProductAttribute();
@@ -664,6 +671,47 @@ class Product extends VaahModel
 
 
 
+
+    //-------------------------------------------------
+
+
+    public function scopePriceFilter($query, $filter)
+    {
+        $min_price = $filter['min_price'] ?? null;
+        $max_price = $filter['max_price'] ?? null;
+
+        if ($min_price !== null || $max_price !== null) {
+            $product_price_query = ProductPrice::query();
+            if ($min_price !== null) {
+                $product_price_query->where('amount', '>=', $min_price);
+            }
+
+            if ($max_price !== null) {
+                $product_price_query->where('amount', '<=', $max_price);
+            }
+
+            $product_ids_from_price = $product_price_query->pluck('vh_st_product_id')->toArray();
+
+            $product_variation_price_query = ProductVariation::query();
+
+            if ($min_price !== null) {
+                $product_variation_price_query->where('price', '>=', $min_price);
+            }
+
+            if ($max_price !== null) {
+                $product_variation_price_query->where('price', '<=', $max_price);
+            }
+
+            $product_ids_from_variation = $product_variation_price_query->pluck('vh_st_product_id')->toArray();
+
+            $product_ids = array_merge($product_ids_from_price, $product_ids_from_variation);
+
+            $query->whereIn('id', $product_ids);
+        }
+
+        return $query;
+    }
+
     //-------------------------------------------------
     public static function getList($request)
     {
@@ -681,6 +729,7 @@ class Product extends VaahModel
         $list->brandFilter($request->filter);
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
+        $list->priceFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -692,6 +741,12 @@ class Product extends VaahModel
         foreach ($list as $category) {
             $parent_category_name = $category->parentCategory?->name;
             $category->parentCategoryName = $parent_category_name;
+        }
+        foreach($list as $item) {
+
+            $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
+            $message = self::getVendorsListForPrduct($item->id)['message'];
+            $item->is_attached_default_vendor = $message ? false : null;
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1799,5 +1854,268 @@ class Product extends VaahModel
         $response['data'] = false;
         return $response;
     }
+
+    //----------------------------------------------------------
+
+    public static function getPriceRangeOfProduct($id)
+    {
+        $preferred_vendor_product_id = static::getPreferredProductVendorIds($id);
+        $vendor = static::buildVendorQuery($preferred_vendor_product_id, $id)->first();
+
+        if ($vendor && static::isVendorStockActive($vendor, $id)) {
+            $data = static::getVendorPriceAndQuantity($vendor, $id);
+        } else {
+            $data = static::getRandomVendor($id);
+        }
+
+        return ['success' => true, 'data' => $data];
+    }
+    //----------------------------------------------------------
+
+    protected static function getPreferredProductVendorIds($id)
+    {
+        return ProductVendor::where('vh_st_product_id', $id)
+            ->where('is_preferred', 1)
+            ->pluck('vh_st_vendor_id')
+            ->toArray();
+    }
+    //----------------------------------------------------------
+
+    protected static function buildVendorQuery($preferred_vendor_product_id, $id)
+    {
+        $vendors_query = Vendor::query();
+
+        if (!empty($preferred_vendor_product_id)) {
+            $vendors_query->whereIn('id', $preferred_vendor_product_id);
+        } else {
+            $vendors_query->where('is_default', 1)
+                ->orWhere(function ($query) use ($id) {
+                    $query->whereHas('productStocks', function ($query) use ($id) {
+                        $query->where('vh_st_product_id', $id)
+                            ->where('quantity', '>', 0)
+                            ->where('is_active', 1);
+                    })->whereHas('productPrices', function ($query) use ($id) {
+                        $query->where('vh_st_product_id', $id)
+                            ->where('amount', '>', 0);
+                    });
+                });
+        }
+
+        return $vendors_query;
+    }
+
+    //----------------------------------------------------------
+
+    protected static function isVendorStockActive($vendor, $id)
+    {
+        return $vendor->productStocks()
+            ->where('vh_st_product_id', $id)
+            ->where('quantity', '>', 0)
+            ->where('is_active', 1)
+            ->exists();
+    }
+
+    //----------------------------------------------------------
+
+    protected static function getRandomVendor($id)
+    {
+        $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
+            $query->where('vh_st_product_id', $id)->where('is_active', 1)
+                ->where('quantity', '>', 0);
+        })
+            ->select('vh_st_vendors.*')
+            ->withCount(['productStocks as quantity' => function ($query) use ($id) {
+                $query->where('vh_st_product_id', $id)->where('is_active', 1);
+            }])
+            ->orderByDesc('quantity')
+            ->first();
+
+        if ($vendor) {
+            $quantity = $vendor->productStocks()
+                ->where('vh_st_product_id', $id)
+                ->where('is_active', 1)
+                ->sum('quantity');
+
+            $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
+                ->where('vh_st_product_id', $id)
+                ->whereNotNull('amount')
+                ->pluck('amount')
+                ->toArray();
+
+            if (empty($price_range)) {
+                $price_range = ProductVariation::where('vh_st_product_id', $id)
+                    ->whereNotNull('price')
+                    ->pluck('price')
+                    ->toArray();
+            }
+            $min_price = !empty($price_range) ? min($price_range) : null;
+            $max_price = !empty($price_range) ? max($price_range) : null;
+
+            return [
+                'price_range' => ($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
+                'quantity' => $quantity,
+                'selected_vendor' => $vendor,
+            ];
+        }
+
+        $default_price_range = ProductVariation::where('vh_st_product_id', $id)
+            ->whereNotNull('price')
+            ->pluck('price')
+            ->toArray();
+        $min_price = !empty($default_price_range) ? min($default_price_range) : null;
+        $max_price = !empty($default_price_range) ? max($default_price_range) : null;
+
+
+        return [
+            'price_range' => ($min_price !== null && $min_price === $max_price)
+                ? [$min_price]
+                : ($min_price !== null ? [$min_price, $max_price] : [])
+        ];
+    }
+
+    //----------------------------------------------------------
+
+
+    protected static function getVendorPriceAndQuantity($vendor, $id)
+    {
+        $quantity = $vendor->productStocks()
+            ->where('vh_st_product_id', $id)
+            ->where('is_active', 1)
+            ->sum('quantity');
+
+        $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
+            ->where('vh_st_product_id', $id)
+            ->whereNotNull('amount')
+            ->pluck('amount')
+            ->toArray();
+
+        if (empty($price_range)) {
+            $price_range = ProductVariation::where('vh_st_product_id', $id)
+                ->whereNotNull('price')
+                ->pluck('price')
+                ->toArray();
+        }
+
+
+
+        $min_price = !empty($price_range) ? min($price_range) : null;
+        $max_price = !empty($price_range) ? max($price_range) : null;
+
+        return [
+            'price_range' =>($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
+            'quantity' => $quantity,
+            'selected_vendor' => $vendor,
+        ];
+    }
+
+    //----------------------------------------------------------
+
+
+    public static function getVendorsListForPrduct($id)
+    {
+        $product_vendors = ProductVendor::where('vh_st_product_id', $id)
+            ->select('id', 'vh_st_vendor_id', 'is_preferred')
+            ->get();
+
+        $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
+
+        $vendors_data = Vendor::whereIn('id', $vendor_ids)
+            ->select('id', 'name', 'slug', 'is_default')
+            ->get();
+
+        // Check if there are any default vendors missing
+        $default_vendor_id = $vendors_data->where('is_default', 1)->pluck('id')->toArray();
+        $missing_default_vendor = Vendor::whereNotIn('id', $default_vendor_id)
+            ->where('is_default', 1)
+            ->select('id', 'name', 'slug', 'is_default')
+            ->get();
+        $message = $missing_default_vendor->isNotEmpty();
+
+        $vendors = $vendors_data->merge($missing_default_vendor);
+
+
+        $product_prices = ProductPrice::where('vh_st_product_id', $id)
+            ->whereIn('vh_st_vendor_id', $vendor_ids)
+            ->get();
+
+        $product_price_range_with_vendors = $product_prices->groupBy('vh_st_vendor_id');
+
+        $vendors->each(function ($vendor) use ($product_vendors, $product_price_range_with_vendors, $id) {
+            $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
+                ->where('vh_st_product_id', $id)->where('is_active', 1)
+                ->sum('quantity');
+
+            $vendor->quantity = $quantity;
+            $vendor->product_price_range = [];
+
+            $vendor->product_price_range = isset($product_price_range_with_vendors[$vendor->id])
+                ? $product_price_range_with_vendors[$vendor->id]->pluck('amount')->toArray()
+                : [];
+
+            if (empty($vendor->product_price_range)) {
+                // Fetch prices from ProductVariation
+                $default_product_price = ProductVariation::where('vh_st_product_id', $id)
+                    ->pluck('price')
+                    ->toArray();
+                // Filter out null or empty prices
+                $default_product_price_array = array_filter($default_product_price, function($value) {
+                    return $value !== null && $value !== '';
+                });
+                // Merge ProductVariation prices with existing variation_prices
+                $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
+            }
+
+            $vendor->pivot_id = null;
+            $vendor->is_preferred = null;
+
+            $product_vendor = $product_vendors->where('vh_st_vendor_id', $vendor->id)->first();
+
+            if ($product_vendor) {
+                $vendor->pivot_id = $product_vendor->id;
+                $vendor->is_preferred = $product_vendor->is_preferred;
+            }
+        });
+
+        return [
+            'success' => true,
+            'data' => $vendors,
+            'message' => $message,
+        ];
+    }
+
+    //----------------------------------------------------------
+
+    public static function vendorPreferredAction(Request $request, $id, $type): array
+    {
+        $product_vendor = ProductVendor::find($id);
+
+        if (!$product_vendor) {
+            return [
+                'success' => false,
+                'message' => 'Product vendor not found.',
+            ];
+        }
+
+        $product_id = $product_vendor->vh_st_product_id;
+
+        $is_preferred = ($type === 'preferred') ? 1 : null;
+
+        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
+        ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
+
+        return [
+            'success' => true,
+            'data' => Product::find($product_id),
+            'message' => 'Success.',
+        ];
+    }
+
+
+
+
+
+
+
+
 
 }

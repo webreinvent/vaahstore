@@ -782,7 +782,7 @@ class Warehouse extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $inputs['country'] = $countries[array_rand($countries)];
-        $inputs['is_active'] = rand(0,1);
+        $inputs['is_active'] = 1;
         $taxonomy_status = Taxonomy::getTaxonomyByType('warehouse-status');
 
         $status_ids = $taxonomy_status->pluck('id')->toArray();

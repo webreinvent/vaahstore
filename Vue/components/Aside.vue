@@ -16,8 +16,7 @@ function isActive(routePaths) {
 
 const selected_page = ref({
     menuitem: ({ props }) => ({
-        class: route.matched && route.matched[1] &&
-        route.matched[1].path === props.item.route ? 'p-focus' : ''
+        class: route.path === props.item.route ? 'p-focus' : ''
     })
 });
 
@@ -29,6 +28,11 @@ const items = ref([
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
                 route: "/stores",
+            },
+            {
+                label: 'Carts',
+                icon: 'pi pi-shopping-cart',
+                route: "/carts",
             },
             {
                 label: 'Store Payment Methods',
@@ -126,6 +130,12 @@ const items = ref([
                 route: "/customergroups"
             },
 
+
+            {
+                label: 'Settings',
+                icon: 'fas fas-spin fa-cog',
+                route: "/settings/general"
+            },
         ]
     },
 ]);

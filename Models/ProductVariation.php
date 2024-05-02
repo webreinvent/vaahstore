@@ -297,8 +297,15 @@ class ProductVariation extends VaahModel
         }
 
         // handle if current record is default
-        if($inputs['is_default']){
-            self::where('is_default',1)->update(['is_default' => 0]);
+        if ($inputs['is_default'] && isset($inputs['product'])) {
+            $product_variations = self::where('vh_st_product_id', $inputs['product']['id'])->get();
+
+            foreach ($product_variations as $variation) {
+                if ($variation->is_default == 1) {
+                    $variation->is_default = 0;
+                    $variation->save();
+                }
+            }
         }
 
         $item = new self();
@@ -916,9 +923,34 @@ class ProductVariation extends VaahModel
         }
 
         // handle if current record is default
-        if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::where('is_default',1)->update(['is_default' => 0]);
+        if (isset($inputs['product']) && $inputs['is_default']) {
+            $product_variations = self::where('vh_st_product_id', $inputs['product']['id'])->get();
+
+            foreach ($product_variations as $variation) {
+                if ($variation->is_default == 1) {
+                    $variation->is_default = 0;
+                    $variation->save();
+                    break;
+                }
+            }
         }
+        $product_stocks = ProductStock::where('vh_st_product_variation_id', $id)->get();
+        if ($product_stocks->isNotEmpty()) {
+            foreach ($product_stocks as $product_stock) {
+                $product_stock->vh_st_product_id = $inputs['product']['id'];
+                $product_stock->save();
+            }
+            $product_variation = self::findOrFail($id);
+            $old_product = Product::findOrFail($product_variation->vh_st_product_id);
+            $new_product = Product::findOrFail($inputs['product']['id']);
+            $old_total_quantity = self::where('vh_st_product_id', $old_product->id)->sum('quantity');
+            $new_total_quantity = self::where('vh_st_product_id', $new_product->id)->sum('quantity');
+            $old_product->quantity = $old_total_quantity - $product_variation->quantity;
+            $old_product->save();
+            $new_product->quantity = $new_total_quantity + $product_variation->quantity;
+            $new_product->save();
+        }
+        
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -1026,7 +1058,7 @@ class ProductVariation extends VaahModel
             'sku' => 'required|min:1|max:50',
             'description'=>'max:255',
             'taxonomy_id_variation_status'=> 'required',
-            'price' => 'nullable|numeric|max:9999999',
+            'price' => 'required|numeric|min:0|max:9999999',
             'meta_title' => 'nullable|max:100',
             'meta_description' => 'nullable|max:100',
             'meta_keywords' => 'nullable|array|max:15',
@@ -1044,6 +1076,8 @@ class ProductVariation extends VaahModel
                 'slug.required'=>'The Slug field is required.',
                 'taxonomy_id_variation_status.required' => 'The Status field is required.',
                 'sku.required'=>'The SKU field is required.',
+                'price.required'=>'The Price field is required.',
+                'price.min' => 'The Price field cannot be less than :min digits.',
                 'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
                 'quantity.digits_between' => 'The quantity field must not be greater than 9 digits',
                 'description.max' => 'The Description field may not be greater than :max characters.',
@@ -1160,7 +1194,7 @@ class ProductVariation extends VaahModel
         }
 
             $inputs['price'] = rand(1,100000);
-        $inputs['is_active'] = rand(0,1);
+        $inputs['is_active'] = 1;
         $inputs['is_default'] = 0;
         $inputs['quantity'] = 0;
         $taxonomy_status = Taxonomy::getTaxonomyByType('product-variation-status');

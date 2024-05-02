@@ -194,4 +194,11 @@ function () {
     Route::post('/search/category-using-slug', 'ProductsController@searchCategoryUsingSlug')
         ->name('vh.backend.store.products.search.filtered-category');
 
+
+    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+        ->name('vh.backend.store.products.get.vendors-list');
+
+    Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
+        ->name('vh.backend.store.products.preferred-vendor');
+
 });

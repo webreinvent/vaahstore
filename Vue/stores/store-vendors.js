@@ -98,6 +98,8 @@ export const useVendorStore = defineStore({
         sel_product:null,
         selected_vendor_role:null,
         default_vendor_message:null,
+        total_product_count:0,
+
     }),
     getters: {
 
@@ -114,6 +116,7 @@ export const useVendorStore = defineStore({
             /**
              * Update with view and list css column number
              */
+            await this.getProductCount();
             this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
@@ -140,7 +143,7 @@ export const useVendorStore = defineStore({
                     break;
                 case 'vendors.product':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 6;
                     break;
                 default:
                     this.view = 'small';
@@ -527,7 +530,7 @@ export const useVendorStore = defineStore({
         afterGetList: function (data, res)
         {
             this.default_vendor_message = (res && res.data && res.data.message)
-                ? 'There is no default vendor. Mark a vendor as default.'
+                ? res.data.message
                 : null;
             if(data)
             {
@@ -1523,6 +1526,10 @@ export const useVendorStore = defineStore({
             };
             this.$router.push(route);
         },
+        toViewAllProduct()
+        {
+            this.$router.push({name: 'products.index'});
+        },
 
 
         //-----------------------------------------------------------------------
@@ -1748,6 +1755,28 @@ export const useVendorStore = defineStore({
                 },{deep: true}
             )
 
+        },
+        //---------------------------------------------------------------------
+
+        async getProductCount()
+        {
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/product/count',
+                this.getProductCountAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        getProductCountAfter(data,res) {
+            if (data  ) {
+                this.total_product_count = data.all_product_count;
+            }
         },
 
 

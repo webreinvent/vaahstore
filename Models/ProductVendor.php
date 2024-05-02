@@ -196,7 +196,7 @@ class ProductVendor extends VaahModel
     public static function createProductPrice($request)
     {
         $inputs = $request->all();
-        $vhStVendorProductId = $inputs['id'];
+        $vendor_product_id = $inputs['id'];
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -205,6 +205,8 @@ class ProductVendor extends VaahModel
         $response = [];
         $saved_variations = 0;
         foreach ($inputs['product_variation'] as $key => $variation) {
+
+
             $variation_price = ProductPrice::where([
                 'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                 'vh_st_product_id' => $inputs['vh_st_product_id'],
@@ -224,7 +226,7 @@ class ProductVendor extends VaahModel
                         'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                         'vh_st_product_id' => $inputs['vh_st_product_id'],
                         'vh_st_product_variation_id' => $variation['id'],
-                        'vh_st_vendor_product_id' => $vhStVendorProductId,
+                        'vh_st_vendor_product_id' => $vendor_product_id,
                         'amount' => $variation['amount'],
                     ]);
                     $variation_price->save();
@@ -238,7 +240,7 @@ class ProductVendor extends VaahModel
                     'vh_st_vendor_id' => $inputs['vh_st_vendor_id'],
                     'vh_st_product_id' => $inputs['vh_st_product_id'],
                     'vh_st_product_variation_id' => $variation['id'],
-                    'vh_st_vendor_product_id' => $vhStVendorProductId,
+                    'vh_st_vendor_product_id' => $vendor_product_id,
                     'amount' => $variation['amount'],
                 ]);
                 $new_variation_price->save();
@@ -251,7 +253,7 @@ class ProductVendor extends VaahModel
         }
 
 
-        $response = self::getItem($vhStVendorProductId);
+        $response = self::getItem($vendor_product_id);
 
 
 
@@ -437,7 +439,8 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('product.productVariationsForVendorProduct','vendor','addedByUser','status','stores','productVariationPrices');
+        $list = self::getSorted($request->filter)
+            ->with( 'vendor', 'addedByUser', 'status', 'stores' );
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -447,21 +450,61 @@ class ProductVendor extends VaahModel
 
         $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
         $list = $list->paginate($rows);
 
+
+        $list = self::productPriceRange($list);
         $response['success'] = true;
         $response['data'] = $list;
 
         return $response;
-
-
     }
 
+    //-------------------------------------------------
+
+    public static function productPriceRange($list)
+    {
+        $list->getCollection()->transform(function ($item) {
+            $product = $item->product;
+
+            // get variation prices from pivot
+            $variation_price_with_vendor = $item->productVariationPrices ?
+                $item->productVariationPrices->pluck('pivot.amount')->toArray() :
+                [];
+            // get product variation id's associated with product
+            $product_variation_ids_with_vendor = $item->productVariationPrices ?
+                $item->productVariationPrices->pluck('id')->toArray() :
+                [];
+            $all_product_variation_ids = $product && $product->productVariationsForVendorProduct ?
+                $product->productVariationsForVendorProduct->pluck('id')->toArray() :
+                [];
+            // get remaining  variation ids without associated in pivot
+            $product_variation_ids_without_vendor = array_diff($all_product_variation_ids, $product_variation_ids_with_vendor);
+            // fetch prices of product variations without pivot
+            $variation_prices_without_vendor = [];
+            if (!empty($product_variation_ids_without_vendor)) {
+                $variation_prices_without_vendor = ProductVariation::whereIn('id', $product_variation_ids_without_vendor)
+                    ->pluck('price')->toArray();
+            }
+            // merge prices of variations from pivot table and product variations without associated prices
+            $merged_prices = array_merge($variation_price_with_vendor, $variation_prices_without_vendor);
+            if (empty($merged_prices)) {
+                $item->product_price_range = [];
+            } else {
+                $min_price = min($merged_prices);
+                $max_price = max($merged_prices);
+
+                $item->product_price_range = $min_price === $max_price ? [$min_price] : [$min_price, $max_price];
+            }
+
+            return $item;
+        });
+        return $list;
+    }
     //-------------------------------------------------
     public static function updateList($request)
     {
@@ -874,17 +917,19 @@ class ProductVendor extends VaahModel
 
     }
 
-    //-------------------validation for product price------------------------------
+
+
     public static function validationProductPrice($inputs)
     {
 
         $rules = validator($inputs, [
             'vh_st_product_id'=> 'required',
-            'product_variation.*.amount' => 'nullable|min:1|max:9999999',
+            'product_variation.*.amount' => 'required|numeric|min:0|max:9999999',
         ], [
             'vh_st_product_id.required' => 'The Product field is required',
-            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max.',
-            ]);
+            'product_variation.*.amount.min' => 'The Price field cannot be less than :min',
+            'product_variation.*.amount.max' => 'The Price field cannot be greater than :max',
+        ]);
         if($rules->fails()){
             return [
                 'success' => false,
@@ -899,7 +944,6 @@ class ProductVendor extends VaahModel
         ];
 
     }
-
     //-------------------------------------------------
     public static function getActiveItems()
     {
@@ -1059,7 +1103,10 @@ class ProductVendor extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-
+            if (isset($inputs['store_vendor_product']) && $inputs['store_vendor_product'] ) {
+                $storeId = $inputs['store_vendor_product']->id;
+                $item->storeVendorProduct()->attach($storeId);
+            }
             $i++;
 
         }
@@ -1120,13 +1167,25 @@ class ProductVendor extends VaahModel
             ->get();
 
         $product_ids = $products->pluck('id')->toArray();
+
         $inputs['product'] = null;
         $inputs['vh_st_product_id'] = null;
+
         if (!empty($product_ids)) {
-            $product_ids = $product_ids[array_rand($product_ids)];
-            $products = $products->where('id', $product_ids)->first();
-            $inputs['product'] = $products;
-            $inputs['vh_st_product_id'] = $product_ids;
+
+            $product_id = $product_ids[array_rand($product_ids)];
+
+            $product = $products->where('id', $product_id)->first();
+
+            $inputs['product'] = $product;
+            $inputs['vh_st_product_id'] = $product_id;
+        } else {
+            $any_active_product = Product::where('is_active', 1)
+                ->inRandomOrder()
+                ->first();
+
+            $inputs['product'] = $any_active_product;
+            $inputs['vh_st_product_id'] = $any_active_product ? $any_active_product->id : null;
         }
 
 

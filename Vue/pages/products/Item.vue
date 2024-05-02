@@ -268,7 +268,7 @@ const openProductCategories = (categories,product) => {
                                 </td>
                             </tr>
                             <tr v-if="store.item.quantity > 0">
-                                <td><b>Quantity</b></td>
+                                <td><b>Total Quantity</b></td>
                                 <td colspan="2">
                                     {{ store.item.quantity }}
                                 </td>

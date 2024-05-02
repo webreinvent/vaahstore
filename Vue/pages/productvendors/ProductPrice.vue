@@ -4,18 +4,18 @@ import { useProductVendorStore } from '../../stores/store-productvendors'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {vaah} from "../../vaahvue/pinia/vaah";
 
 
 const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
-    if(route.params && route.params.id)
-    {
+    if (route.params?.id && store.product_variation_list.length <= 0) {
         await store.getItem(route.params.id);
+        await store.searchVariationOfProduct();
     }
 
-    await store.watchItem();
 });
 
 //--------form_menu
@@ -28,9 +28,13 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-5" >
 
-        <Panel >
+        <Panel :pt="{
+            content: {
+                class: 'pt-1'
+            }
+        }" >
 
             <template class="p-1" #header>
 
@@ -46,7 +50,6 @@ const toggleFormMenu = (event) => {
 
 
             </template>
-
             <template #icons>
 
 
@@ -84,7 +87,20 @@ const toggleFormMenu = (event) => {
 
             </template>
 
+            <div v-if="store.product_variation_list.length > 0 " class="grid align-items-center ">
+                <div class="col-5">
+                    <div class="flex w-full mb-1">
+                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm w-full"
+                                     placeholder="Enter Price"
+                        />
+                        <Button class="min-w-max" @click="store.fillAllPrices">Fill All </Button>
+                    </div>
 
+                </div>
+
+
+
+            </div>
                 <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 
                     <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
@@ -102,12 +118,11 @@ const toggleFormMenu = (event) => {
                                        severity="danger"></Badge></td>
                             <td>
                                 <InputNumber
-                                    :placeholder="'Enter price '"
+                                    :placeholder="'Enter Price '"
                                     :inputId="'minmax-buttons-' + index"
                                     :name="'productprices-amount-' + index"
                                     v-model="variation.amount"
-                                    :min="0"
-                                    :max="150000000000000"
+
                                     mode="decimal"
                                     class="p-inputtext-sm h-2rem m-1"
                                     :data-testid="'productprices-amount-' + index"

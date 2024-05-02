@@ -275,35 +275,17 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async searchCurrencies(event) {
 
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url + '/search/currencies',
-                this.searchCurrenciesAfter,
-                options
-            );
-
+        searchCurrencies(event) {
+            const query = event.query.toLowerCase();
+            this.currency_suggestion_list = this.currencies_list.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
         },
 
         //---------------------------------------------------------------------
 
-        searchCurrenciesAfter(data, res) {
 
-            if (data) {
-                this.currency_suggestion_list = data;
-            }
-
-        },
 
         //---------------------------------------------------------------------
 
@@ -420,34 +402,17 @@ export const useStoreStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async searchLanguages(event) {
 
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
 
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url + '/search/languages',
-                this.searchLanguagesAfter,
-                options
-            );
-
+        searchLanguages(event) {
+            const query = event.query.toLowerCase();
+            this.language_suggestion_list = this.languages_list.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
         },
 
         //---------------------------------------------------------------------
 
-        searchLanguagesAfter(data, res) {
-
-            if (data) {
-                this.language_suggestion_list = data;
-            }
-        },
 
         //---------------------------------------------------------------------
 

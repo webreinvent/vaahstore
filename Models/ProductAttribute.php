@@ -893,12 +893,14 @@ class ProductAttribute extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            foreach ($inputs['attribute_values'] as $key=>$value){
-                $item1 = new ProductAttributeValue();
-                $item1->vh_st_product_attribute_id = $item->id;
-                $item1->vh_st_attribute_value_id = $value['id'];
-                $item1->value = $value['new_value'] ?? $value['default_value'];
-                $item1->save();
+            if (isset($inputs['attribute_values'])) {
+                foreach ($inputs['attribute_values'] as $key => $value) {
+                    $item1 = new ProductAttributeValue();
+                    $item1->vh_st_product_attribute_id = $item->id;
+                    $item1->vh_st_attribute_value_id = $value['id'];
+                    $item1->value = $value['new_value'] ?? $value['default_value'];
+                    $item1->save();
+                }
             }
             $i++;
 

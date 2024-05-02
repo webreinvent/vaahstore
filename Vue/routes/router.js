@@ -3,6 +3,7 @@ import qs from 'qs';
 
 import routes from "./routes";
 import Default from "../layouts/Default.vue";
+import settingRoutes from "../routes/vue-routes-settings"
 
 
 const router = createRouter({
@@ -13,7 +14,7 @@ const router = createRouter({
           component: Default,
           props: true,
           children: routes
-      }
+      },
   ],
     parseQuery(query) {
         return qs.parse(query);

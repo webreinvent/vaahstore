@@ -37,6 +37,10 @@ class DatabaseTableSeeder extends Seeder
         $this->seedDefaultBrand();
         $this->seedDefaultPrdouct();
         $this->seedRoles();
+
+        $seeder = new SettingTableSeeder();
+        $seeder->run();
+
     }
 
     //---------------------------------------------------------------

@@ -23,8 +23,7 @@ const useVaah = vaah();
                     v-if="store.isViewLarge()"
                     headerStyle="width: 3em">
             </Column>
-
-            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
+             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
              <Column field="vendor.name" header="Vendor"
