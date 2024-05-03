@@ -224,7 +224,6 @@ export const useCartStore = defineStore({
             if(data)
             {
                 this.list = data;
-                console.log(this.list)
                 this.product_list = data.products;
             }
         },
@@ -955,7 +954,23 @@ export const useCartStore = defineStore({
 
         totalPrice(){
             return true;
-        }
+        },
+        calculateTotalAmount (products) {
+            return products.reduce((total, product) => {
+                return total + this.calculatePrice(product);
+            }, 0);
+        },
+
+        calculatePrice(product){
+            const price = parseFloat(product.pivot.price);
+            const quantity = parseInt(product.pivot.quantity);
+            let totalPrice = price * quantity;
+
+            if (isNaN(totalPrice)) {
+                totalPrice = 0;
+            }
+            return totalPrice;
+        },
         //---------------------------------------------------------------------
     }
 });

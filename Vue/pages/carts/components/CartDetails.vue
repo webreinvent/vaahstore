@@ -1,10 +1,26 @@
 <script setup>
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
-
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
+import {useRoute} from "vue-router";
+const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
+const cartProducts = ref([]);
 
+onMounted(async () => {
+    if (route.params && route.params.id) {
+        await store.getItem(route.params.id);
+    }
+    cartProducts.value = store.cart_products;
+});
+watch(cartProducts, (newValue, oldValue) => {
+    totalAmount.value = store.calculateTotalAmount(newValue);
+}, { deep: true });
+
+const totalAmount = computed(() => {
+    return store.calculateTotalAmount(cartProducts.value);
+});
 </script>
 
 <template>
@@ -55,20 +71,19 @@ const useVaah = vaah();
 
                     <template #body="prop">
                         <div class="p-inputgroup w-8rem max-w-full">
+                            <InputNumber v-model="prop.data.pivot.quantity"
+                                         buttonLayout="horizontal"
 
-                            <Button class="p-button-tiny p-button-text"
-                                    data-testid="carts-table-to-view"
-                                    v-tooltip.top="'Minus'"
-                                    @click=""
-                                    icon="pi pi-minus"/>
-                            <InputNumber v-model="prop.data.pivot.quantity" style="width: 1rem" :min="0" :max="99"
-                                         class="w-full md:w-1rem"/>
+                                         showButtons  :min="0" :max="99"
+                            >
+                                <template #incrementbuttonicon>
+                                    <span class="pi pi-plus" />
+                                </template>
+                                <template #decrementbuttonicon>
+                                    <span class="pi pi-minus" />
+                                </template>
+                            </InputNumber>
 
-                            <Button class="p-button-tiny p-button-text"
-                                    data-testid="carts-table-to-view"
-                                    v-tooltip.top="'Plus'"
-                                    @click=""
-                                    icon="pi pi-plus"/>
                         </div>
                     </template>
 
@@ -81,6 +96,7 @@ const useVaah = vaah();
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
                             <p>{{ prop.data.pivot.price }}</p>
+<!--                            <p>{{ calculatePrice(prop.data) }}</p>-->
                         </div>
                     </template>
 
@@ -119,7 +135,7 @@ const useVaah = vaah();
             </div>
             <!--/table-->
             <div class="table_bottom mr-4">
-                <p><b>Total Amount: </b>₹4000</p>
+                <p><b>Total Amount: </b>{{ totalAmount }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
