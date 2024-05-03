@@ -1756,9 +1756,6 @@ class Product extends VaahModel
         $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
-        if (is_null($product_id)) {
-            $product_id = $request->input('product_variation.vh_st_product_id');
-        }
         $product = Product::find($product_id);
         $user_data = ['id' => $user_info['id']];
         if (!$user_data) {
@@ -1768,11 +1765,13 @@ class Product extends VaahModel
         }
         $user = self::findOrCreateUser($user_data);
         $cart = self::findOrCreateCart($user);
+
         if ($cart->products->contains($product->id)) {
-            $error_message = "This product already exists in the cart";
-//            Session::forget('vh_user_id');
-//            Session::put('vh_user_id', $cart->vh_user_id);
-            $response['errors'][] = $error_message;
+            $existing_cart_item = $cart->products()->where('vh_st_product_id', $product->id)->first();
+            $existing_cart_item->pivot->quantity++;
+            $existing_cart_item->pivot->save();
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $user;
             return $response;
         }
 

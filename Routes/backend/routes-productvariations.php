@@ -90,7 +90,7 @@ function () {
     Route::post('/search/user', 'ProductVariationsController@searchUsers')
         ->name('vh.backend.store.productvariations.search.user-for-cart');
 
-    Route::post('/add/product-to-cart', 'ProductVariationsController@addProductToCart')
+    Route::post('/add/variation-to-cart', 'ProductVariationsController@addVariationToCart')
         ->name('vh.backend.store.productvariations.save.user-info');
 
     Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')

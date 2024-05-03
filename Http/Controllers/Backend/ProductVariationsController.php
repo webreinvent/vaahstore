@@ -330,10 +330,10 @@ class ProductVariationsController extends Controller
         }
     }
 
-    public function addProductToCart(Request $request)
+    public function addVariationToCart(Request $request)
     {
         try{
-            return Product::addProductToCart($request);
+            return ProductVariation::addVariationToCart($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

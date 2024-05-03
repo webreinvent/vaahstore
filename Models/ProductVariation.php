@@ -5,6 +5,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Libraries\VaahMail;
@@ -1479,5 +1480,63 @@ class ProductVariation extends VaahModel
         return $variation->price;
     }
 
+    public static function addVariationToCart($request){
+        $user_info = $request->input('user_info');
+        $product_variation_id = $request->input('product_variation.id');
+        $product_variation = ProductVariation::find($product_variation_id);
+        $user_data = ['id' => $user_info['id']];
+        if (!$user_data) {
+            $error_message = "Please enter valid user";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+        $user = self::findOrCreateUser($user_data);
+        $cart = self::findOrCreateCart($user);
+
+        if ($cart->productVariations->contains($product_variation->id)) {
+            $existing_cart_item = $cart->productVariations->where('id',$product_variation_id)->first();
+            $existing_cart_item->pivot->quantity++;
+            $existing_cart_item->pivot->save();
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $user;
+            return $response;
+        }
+
+        self::attachVariantionToCart($cart, $product_variation);
+        Session::put('vh_user_id', $user->id);
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = $user;
+        return $response;
+    }
+
+    protected static function findOrCreateUser($user_data)
+    {
+        $user = User::findOrFail($user_data['id']);
+        return $user;
+    }
+
+    protected static function findOrCreateCart($user)
+    {
+        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
+        if ($existing_cart) {
+            return $existing_cart;
+        } else {
+            $cart = new Cart();
+            $cart->vh_user_id = $user->id;
+            $cart->save();
+            return $cart;
+        }
+    }
+
+    protected static function attachVariantionToCart($cart,$product_variation)
+    {
+        $cart->productVariations()->attach([
+            $product_variation->id => [
+                'vh_st_product_id' => $product_variation->vh_st_product_id,
+                'quantity' => 1,
+            ]
+        ]);
+
+    }
 
 }

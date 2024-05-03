@@ -1329,7 +1329,7 @@ this.fetched_product_id=selected_product_id;
                 this.add_to_cart=true;
             }
             if (this.show_cart_msg && this.active_user !== null) {
-                await this.addProductToCart(item);
+                await this.addVariationToCart(item);
             }
 
         },
@@ -1337,7 +1337,7 @@ this.fetched_product_id=selected_product_id;
             this.add_to_cart = false;
             this.show_cart_msg=true;
         },
-        async addProductToCart(product_variation){
+        async addVariationToCart(product_variation){
             // this.add_to_cart = false;
             // this.show_cart_msg=true;
             // const user_info = this.item.user;
@@ -1353,12 +1353,12 @@ this.fetched_product_id=selected_product_id;
             };
 
             await vaah().ajax(
-                this.ajax_url+'/add/product-to-cart',
-                this.saveProductInCartAfter,
+                this.ajax_url+'/add/variation-to-cart',
+                this.addVariationToCartAfter,
                 options
             );
         },
-        saveProductInCartAfter(data,res){
+        addVariationToCartAfter(data,res){
             if (data){
                 this.item.user=null;
                 this.getList();
