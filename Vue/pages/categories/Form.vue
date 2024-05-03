@@ -139,7 +139,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"
 
-                        placeholder="Select Category"
+                        placeholder="Select category"
                         :show-count="true"
                         data-testid="categories-parent_category"
                         @change="store.setParentId()"
