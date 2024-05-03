@@ -12,7 +12,7 @@ onMounted(async () => {
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
-
+    await store.getCategories();
     await store.getFormMenu();
     await store.watchItem();
 });

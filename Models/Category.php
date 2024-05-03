@@ -788,7 +788,14 @@ class Category extends VaahModel
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
-
+        $random_category = Category::where('is_active', 1)
+            ->inRandomOrder()
+            ->first();
+        if ($random_category){
+            $inputs['category']=$random_category;
+            $inputs['category_id']=$random_category->id;
+        }
+        $inputs['is_active'] = 1;
         $faker = Factory::create();
 
         /*

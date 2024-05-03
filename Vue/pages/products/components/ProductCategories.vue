@@ -58,7 +58,6 @@ const removeCategory = async (category) => {
                     <Button class="p-button-tiny p-button-danger p-button-text"
                             data-testid="products-table-action-trash"
                             @click="removeCategory(props.data)"
-                            :disabled="header === undefined"
                             v-tooltip.top="'Remove'"
                             icon="pi pi-trash" />
                 </template>

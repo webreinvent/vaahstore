@@ -201,4 +201,7 @@ function () {
     Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
         ->name('vh.backend.store.products.preferred-vendor');
 
+    Route::get('/get/categories', 'ProductsController@getCategories')
+        ->name('vh.backend.store.products.get.categories');
+
 });

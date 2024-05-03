@@ -1811,7 +1811,7 @@ class Product extends VaahModel
         }
 
         $product->categories()->detach($category_id);
-        $response = self::getItem($product_id);
+        $response['data']['product'] = $product;
         $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;
     }

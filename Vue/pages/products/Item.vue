@@ -226,7 +226,7 @@ const openProductCategories = (categories,product) => {
                                             data-testid="product-list_category_view"
                                             v-tooltip.top="'View Categories'"
                                             :disabled="store.item.categories.length === 0"
-                                            @click="openProductCategories(store.item.categories)"
+                                            @click="openProductCategories(store.item.categories,store.item.name)"
                                     >{{store.item.categories.length}}</Button>
                                 </td>
                             </tr>
@@ -438,7 +438,7 @@ const openProductCategories = (categories,product) => {
         </Panel>
 
     </div>
-    <DynamicDialog  />
+   
     <Dialog header="Meta Fields"
             v-model:visible="store.display_seo_modal"
             :breakpoints="{'960px': '75vw', '640px': '90vw'}"

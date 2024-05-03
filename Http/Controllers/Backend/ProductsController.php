@@ -55,7 +55,7 @@ class ProductsController extends Controller
             $data = array_merge($data, $active_stores, $active_brands, $active_vendors);
 
             // set default values of Store if it is not null
-            $data['categories'] = $this->getActiveCategories();
+
 
             // get min and max quantity from the product filter
             $product = Product::withTrashed()->get();
@@ -91,10 +91,7 @@ class ProductsController extends Controller
     }
 
     //------------------------------------------------------------------------------------
-    protected function getActiveCategories()
-    {
-        return Category::with('activeSubCategoriesForProduct')->whereNull('category_id')->where('is_active', 1)->get();
-    }
+
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
         try{
@@ -112,6 +109,7 @@ class ProductsController extends Controller
             }
         }
     }
+
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
         try{
@@ -872,6 +870,29 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+    public function getCategories(Request $request){
+        try{
 
+            $data = [];
+
+            $categories=Category::with('activeSubCategoriesForProduct')
+                ->whereNull('category_id')->where('is_active', 1)->get();
+            $data['categories'] = $categories;
+            $response['success'] = true;
+            $response['data'] = $data;
+            return $response;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
 
 }

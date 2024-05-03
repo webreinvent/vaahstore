@@ -602,8 +602,13 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 let self = this;
+
+                if (data.fill.category) {
+                    const category_after_fill = data.fill.category;
+                    this.item.parent_category = this.convertCategoryToTreeselectData(category_after_fill);
+                }
                 Object.keys(data.fill).forEach(function(key) {
-                    self.item[key] = data.fill[key];
+                        self.item[key] = data.fill[key];
                 });
             }
         },
