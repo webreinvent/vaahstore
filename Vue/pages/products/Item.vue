@@ -438,7 +438,7 @@ const openProductCategories = (categories,product) => {
         </Panel>
 
     </div>
-    <DynamicDialog  />
+   
     <Dialog header="Meta Fields"
             v-model:visible="store.display_seo_modal"
             :breakpoints="{'960px': '75vw', '640px': '90vw'}"
