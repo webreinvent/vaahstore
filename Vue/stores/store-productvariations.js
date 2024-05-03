@@ -1360,6 +1360,7 @@ this.fetched_product_id=selected_product_id;
         },
         addVariationToCartAfter(data,res){
             if (data){
+                this.add_to_cart = false;
                 this.item.user=null;
                 this.getList();
             }

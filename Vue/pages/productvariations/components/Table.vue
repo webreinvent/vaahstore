@@ -242,7 +242,7 @@ const route = useRoute();
                     panel: { class: 'w-16rem ' }
                                                 }">
             </AutoComplete>
-            <Button type="button" label="Add To Cart" @click="store.addProductToCart(store.product_detail)">
+            <Button type="button" label="Add To Cart" @click="store.addVariationToCart(store.product_detail)">
 
             </Button>
         </div>

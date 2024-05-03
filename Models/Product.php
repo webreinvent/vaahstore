@@ -1770,6 +1770,9 @@ class Product extends VaahModel
             $existing_cart_item = $cart->products()->where('vh_st_product_id', $product->id)->first();
             $existing_cart_item->pivot->quantity++;
             $existing_cart_item->pivot->save();
+            if (!Session::has('vh_user_id')) {
+                Session::put('vh_user_id', $user->id);
+            }
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
             $response['data'] = $user;
             return $response;
