@@ -28,28 +28,34 @@ export const useSettingStore = defineStore({
                 value: 'All',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0 ,
+                disabled:false
             },
             {
                 label: 'Stores',
                 value: 'Store',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false
             },
             {
                 label: 'Vendors',
                 value: 'Vendors',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Stores']
             },
             {
                 label: 'Vendor Products',
                 value: 'VendorsProduct',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Stores' , 'Vendors' , 'Products']
             },
 
             {
@@ -58,6 +64,9 @@ export const useSettingStore = defineStore({
                 isChecked: false,
                 quantity: 0,
                 count: 0 ,
+                disabled:false,
+                labelsToCheck: ['Stores']
+
 
             },
             {
@@ -65,20 +74,26 @@ export const useSettingStore = defineStore({
                 value: 'ProductVariations',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Vendors', 'Stores']
             },
             {
                 label: 'Product Attributes',
                 value: 'ProductAttribute',
                 isChecked: false,
-                quantity: 0
+                quantity: 0,
+                disabled:false,
+                labelsToCheck: ['Product Variations' , 'Attributes']
             },
             {
                 label: 'Product Medias',
                 value: 'ProductMedia',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck:['Products']
             },
 
             {
@@ -86,7 +101,9 @@ export const useSettingStore = defineStore({
                 value: 'ProductStock',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors']
             },
 
             {
@@ -94,7 +111,8 @@ export const useSettingStore = defineStore({
                 value: 'Brand',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false
             },
 
             {
@@ -102,13 +120,16 @@ export const useSettingStore = defineStore({
                 value: 'Warehouses',
                 isChecked: false,
                 quantity: 0 ,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Vendors']
             },
             {
                 label: 'Attributes',
                 value: 'Attributes',
                 isChecked: false,
-                quantity: 0
+                quantity: 0,
+                disabled:false
             },
 
             {
@@ -116,21 +137,26 @@ export const useSettingStore = defineStore({
                 value: 'AttributeGroups',
                 isChecked: false,
                 quantity: 0 ,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Attributes']
             },
             {
                 label: 'Addresses',
                 value: 'Address',
                 isChecked: false,
                 quantity: 0 ,
-                count: 0
+                count: 0,
+                disabled:false
             },
             {
                 label: 'Wishlists',
                 value: 'Wishlists',
                 isChecked: false,
                 quantity: 0 ,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelToCheck:['']
             },
 
             {
@@ -138,14 +164,18 @@ export const useSettingStore = defineStore({
                 value: 'Customer',
                 isChecked: false,
                 quantity: 0,
-                count: 0
+                count: 0,
+                disabled:false
             },
             {
                 label: 'Customer Group',
                 value: 'CustomerGroup',
                 isChecked: false,
                 quantity: 0 ,
-                count: 0
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Customer']
+
             },
 
 
@@ -205,106 +235,60 @@ export const useSettingStore = defineStore({
 
 
         checkAll(item) {
+
             if (item.label === 'All') {
                 // Toggle isChecked for all options based on the isChecked state of the "All" option
-                const allChecked = item.isChecked;
                 this.crud_options.forEach(option => {
-                    option.isChecked = !allChecked;
+                    option.isChecked = item.isChecked;
                 });
             }
 
-            else if (item.label === 'Customer Group')
+            else if (item.hasOwnProperty('labelsToCheck'))
             {
-                const labelsToCheck = ['Customer'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Vendors')
-            {
-                const labelsToCheck = ['Stores'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Products')
-            {
-                const labelsToCheck = ['Stores'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Product Variations') {
-
-                const labelsToCheck = ['Vendors', 'Stores'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Warehouses') {
-
-                const labelsToCheck = ['Stores', 'Products'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Product Attributes') {
-
-                const labelsToCheck = ['Stores', 'Products' , 'Product Variations' , 'Attributes'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Product Medias') {
-
-                const labelsToCheck = ['Stores', 'Products'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Product Stocks') {
-
-                const labelsToCheck = ['Stores', 'Products' ,'Warehouses', 'Product Variations' , 'Vendors'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Vendor Products') {
-
-                const labelsToCheck = ['Stores', 'Products'  , 'Vendors'];
-
-                this.labelsToCheck(labelsToCheck)
-            }
-
-            else if (item.label === 'Attributes Group') {
-
-                const labelsToCheck = ['Attributes'];
-
-                this.labelsToCheck(labelsToCheck)
-
-            }
-
-            else {
-                // If it's not "All", toggle only the isChecked property of the clicked option
-                item.isChecked = !item.isChecked;
+                console.log('item.isChecked',item.isChecked)
+                this.labelsToCheck(item.labelsToCheck,item.isChecked)
             }
         },
 
         //--------------------------------------------------------------------
 
-        async labelsToCheck(labelsToCheck)
+        async labelsToCheck(labelsToCheck, is_checked = false)
         {
-            this.crud_options.forEach(option => {
+            let self = this;
+            await(self.crud_options.forEach(option => {
 
                 if (labelsToCheck.includes(option.label)) {
 
                     const count = option.count;
 
                     if (count < 1) {
-                        option.isChecked = !option.isChecked;
+                        option.isChecked = is_checked
+                        option.disabled = is_checked
+
                     }
                 }
-            });
+            }));
+
+            await(self.crud_options.forEach(option => {
+
+                if (option.isChecked) {
+
+                    self.crud_options.forEach(opt => {
+
+                        if (option.hasOwnProperty('labelsToCheck') && option.labelsToCheck.includes(opt.label)) {
+
+                            const count = opt.count;
+
+                            if (!opt.isChecked && count < 1) {
+                                opt.isChecked = true
+                                opt.disabled = true
+
+                            }
+                        }
+
+                    });
+                }
+            }));
 
         },
 
@@ -315,18 +299,41 @@ export const useSettingStore = defineStore({
 
            this.selected_crud = this.crud_options.filter(item => item.isChecked);
 
-            console.log(this.selected_crud)
-
             if (this.selected_crud.length === 0) {
                 vaah().toastErrors(['Please Choose A crud First']);
                 return;
             }
+
+            let errorOptions = [];
+
+            this.crud_options.forEach(option => {
+                // Check if the option is checked and has zero quantity
+                if (option.isChecked && option.quantity === 0) {
+                    // Add the name of the option to the errorOptions array
+                    errorOptions.push(option.label);
+                }
+            });
+
+// Check if any options with zero quantity were found
+            if (errorOptions.length > 0) {
+                // Construct the error message
+                let errorMessage = `Please fill the quantity of the following CRUD options: ${errorOptions.join(', ')}`;
+
+                // Display the error message
+                vaah().toastErrors([errorMessage]);
+
+                return;
+            }
+
+
 
             const query = {selectedCrud : this.selected_crud};
             const options = {
                 params: query,
                 method: 'post',
             };
+
+            console.log(options);
 
             await vaah().ajax(
                 this.ajax_url+'/fill/bulk/method',
