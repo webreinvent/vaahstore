@@ -68,6 +68,7 @@ export const useCartStore = defineStore({
         form_menu_list: [],
         bill_form:null,
         cart_products:null,
+        cart_item_at_checkout:[],
     }),
     getters: {
 
@@ -667,7 +668,7 @@ export const useCartStore = defineStore({
             // if(!this.item || !this.item.id || this.item.id !== item.id){
             //     this.item = vaah().clone(item);
             // }
-            this.$router.push({name: 'carts.check_out'})
+            this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -972,6 +973,72 @@ export const useCartStore = defineStore({
             return totalPrice;
         },
         //---------------------------------------------------------------------
+        async updateQuantity(pivot_data,event){
+            if (event.value===null ) {
+                return;
+            }
+            const query = {
+                cart_product_details:pivot_data,
+                quantity:event.value
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/update/quantity',
+                this.updateQuantityAfter,
+                options
+            );
+        },
+        updateQuantityAfter(data,res){
+            this.getItem(data);
+        },
+        async deleteCartItem(pivot_data){
+            const query = {
+                cart_product_details:pivot_data,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/delete-cart-item',
+                this.deleteCartItemAfter,
+                options
+            );
+        },
+        deleteCartItemAfter(data,res){
+            if (data){
+                this.getItem(data.cart.id);
+            }
+        },
+
+        async getCartItemDetailsAtCheckout(id) {
+            if(id){
+                await vaah().ajax(
+                    ajax_url+'/cart-check-out/'+id,
+                    this.getCartItemDetailsAtCheckoutAfter
+                );
+            }
+        },
+        //---------------------------------------------------------------------
+        async getCartItemDetailsAtCheckoutAfter(data, res)
+        {
+            if(data)
+            {
+                console.log(data.products)
+                this.cart_item_at_checkout=data.product_details;
+                // this.item = data;
+                // this.cart_products=data.products;
+            }else{
+                this.$router.push({name: 'carts.index',query:this.query});
+            }
+            await this.getItemMenu();
+            await this.getFormMenu();
+        },
     }
 });
 

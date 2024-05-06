@@ -670,8 +670,204 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function updateQuantity($request){
+
+        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
+        $product_id = $request['cart_product_details']['vh_st_product_id'];
+        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'];
+        $new_quantity = $request['quantity'];
+
+        $cart = Cart::find($cart_id);
+        $product = Product::find($product_id);
+        if ($new_quantity < 1) {
+            $cart->products()->detach($product_id);
+            $response['data'] = $cart_id;
+            $response['messages'][] = trans("vaahcms-general.record_deleted");
+        } else {
+            $cart->products()->updateExistingPivot($product_id, [
+                'quantity' => $new_quantity,
+                'vh_st_product_variation_id' => $variation_id
+            ]);
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $cart_id;
+        }
+
+        return $response;
+    }
+
     //-------------------------------------------------
+    public static function deleteCartItem($request){
+        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
+        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'] ?? null;
+
+        $cart = Cart::find($cart_id);
+
+        if ($variation_id === null) {
+            $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+        } else {
+            $cart->productVariations()->detach($variation_id);
+        }
+
+        return [
+            'data' => ['cart' => $cart],
+            'messages' => [trans("vaahcms-general.record_deleted")]
+        ];
+    }
+
     //-------------------------------------------------
+
+
+//    public static function getCartItemDetailsAtCheckout($id)
+//    {
+//        $response = [];
+//
+//        $cart = Cart::with(['user', 'products', 'productVariations'])->find($id);
+//
+//        if ($cart) {
+//            $response['success'] = true;
+//            $response['data'] = [];
+//
+//            foreach ($cart->products as $product) {
+//                if ($product->pivot->vh_st_product_id && $product->pivot->vh_st_product_variation_id) {
+//                    $product_media_id = $product->productVariationMedia()
+//                        ->where('vh_st_product_variation_id', $product->pivot->vh_st_product_variation_id)
+//                        ->pluck('vh_st_product_media_id')->first();
+//                } else {
+//                    $product_media_ids = ProductMedia::where('vh_st_product_id', $product->id)->pluck('id')->toArray();
+//                }
+//
+//                $image_urls = [];
+//
+//                if (isset($product_media_id)) {
+//                    $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+//
+//                    if ($product_media_image) {
+//                        $image_urls[] = $product_media_image->url;
+//                    }
+//                } else {
+//                    foreach ($product_media_ids as $product_media_id) {
+//                        $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+//
+//                        if ($product_media_image) {
+//                            $image_urls[] = $product_media_image->url;
+//                        }
+//                    }
+//                }
+//
+//                $variation_id = $product->pivot->vh_st_product_variation_id;
+//                $variation = ProductVariation::find($variation_id);
+//                $variation_name = $variation ? $variation->name : null;
+//                $product->pivot->cart_product_variation = $variation_name;
+//                $product->pivot->price = ProductVariation::getPriceOfProductVariants($variation_id);
+//
+//                $response['data'][] = [
+//                    'product_id' => $product->id,
+//                    'name' => $product->name,
+//                    'description' => $product->description,
+//                    'image_urls' => $image_urls,
+//                    'pivot' => $product->pivot,
+//                ];
+//            }
+//        } else {
+//            $response['success'] = false;
+//            $response['data'] = null;
+//        }
+//
+//        return $response;
+//    }
+
+    public static function getCartItemDetailsAtCheckout($id)
+    {
+        $response = [];
+
+        $cart = Cart::with(['user', 'products', 'productVariations'])->find($id);
+
+        if ($cart) {
+            $response['success'] = true;
+            $response['data'] = [
+                'product_details' => [],
+                'user_address' => null
+            ];
+
+            // Get user address
+            $user = $cart->user;
+            $userAddress = Address::where('vh_user_id', $user->id)->first();
+            $response['data']['user_address'] = $userAddress;
+
+            foreach ($cart->products as $product) {
+                // Get product media IDs
+                $product_media_ids = self::getProductMediaIds($product);
+
+                // Get image URLs
+                $image_urls = self::getImageUrls($product_media_ids);
+
+                // Get product variation name
+                $variation_name = self::getProductVariationName($product);
+
+                // Get product price
+                $price = self::getProductPrice($product);
+
+                // Append data to product_details array
+                $response['data']['product_details'][] = [
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'image_urls' => $image_urls,
+                    'pivot' => [
+                        'cart_product_variation' => $variation_name,
+                        'price' => $price,
+                        'quantity' => $product->pivot->quantity,
+                    ],
+                ];
+            }
+        } else {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+
+        return $response;
+    }
+
+
+    private static function getProductMediaIds($product)
+    {
+        if ($product->pivot->vh_st_product_id && $product->pivot->vh_st_product_variation_id) {
+            return $product->productVariationMedia()
+                ->where('vh_st_product_variation_id', $product->pivot->vh_st_product_variation_id)
+                ->pluck('vh_st_product_media_id')->toArray();
+        } else {
+            return ProductMedia::where('vh_st_product_id', $product->id)->pluck('id')->toArray();
+        }
+    }
+
+    private static function getImageUrls($product_media_ids)
+    {
+        $image_urls = [];
+        foreach ($product_media_ids as $product_media_id) {
+            $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+            if ($product_media_image) {
+                $image_urls[] = $product_media_image->url;
+            }
+        }
+        return $image_urls;
+    }
+
+    private static function getProductVariationName($product)
+    {
+        $variation_id = $product->pivot->vh_st_product_variation_id;
+        $variation = ProductVariation::find($variation_id);
+        return $variation ? $variation->name : null;
+    }
+
+    private static function getProductPrice($product)
+    {
+        $variation_id = $product->pivot->vh_st_product_variation_id;
+        return ProductVariation::getPriceOfProductVariants($variation_id);
+    }
+
+
+
+
 
 
 }

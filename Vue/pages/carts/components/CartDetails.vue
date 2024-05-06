@@ -12,6 +12,8 @@ onMounted(async () => {
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
+    await store.onLoad(route);
+    await store.getList();
     cartProducts.value = store.cart_products;
 });
 watch(cartProducts, (newValue, oldValue) => {
@@ -30,10 +32,14 @@ const totalAmount = computed(() => {
             <div class="flex flex-row">
                 <div>
 <!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
-                    <b class="mr-1" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
+                    <Button
+                        @click="this.$router.push({name: 'carts.index'})"
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
 
 
                 </div>
+
+
 
             </div>
 
@@ -65,17 +71,10 @@ const totalAmount = computed(() => {
 
 
 
-                <Column field="product_quantity" header="Product Quantity"
-                        class="overflow-wrap-anywhere"
-                >
-
+                <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere">
                     <template #body="prop">
                         <div class="p-inputgroup w-8rem max-w-full">
-                            <InputNumber v-model="prop.data.pivot.quantity"
-                                         buttonLayout="horizontal"
-
-                                         showButtons  :min="0" :max="99"
-                            >
+                            <InputNumber   v-model="prop.data.pivot.quantity" buttonLayout="horizontal" showButtons :min="1" :max="99" @input="store.updateQuantity(prop.data.pivot,$event)">
                                 <template #incrementbuttonicon>
                                     <span class="pi pi-plus" />
                                 </template>
@@ -83,11 +82,11 @@ const totalAmount = computed(() => {
                                     <span class="pi pi-minus" />
                                 </template>
                             </InputNumber>
-
                         </div>
                     </template>
-
                 </Column>
+
+
 
                 <Column field="product_price" header="Product Price"
                         class="overflow-wrap-anywhere"
@@ -114,10 +113,12 @@ const totalAmount = computed(() => {
                                     v-tooltip.top="'Wishlist'"
                                     icon="pi pi-heart"/>
 
+
                             <Button class="p-button-tiny p-button-danger p-button-text"
-                                    data-testid="orders-table-action-trash"
+                                    data-testid="products-table-action-trash"
+                                    @click="store.deleteCartItem(prop.data.pivot)"
                                     v-tooltip.top="'Remove'"
-                                    icon="pi pi-trash"/>
+                                    icon="pi pi-trash" />
                         </div>
 
                     </template>
@@ -139,7 +140,7 @@ const totalAmount = computed(() => {
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
-                        @click="store.checkOut({id:1})"
+                        @click="store.checkOut(store.item.id)"
                 />
             </div>
         </div>
