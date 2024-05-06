@@ -12,6 +12,8 @@ onMounted(async () => {
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
+    await store.onLoad(route);
+    await store.getList();
     cartProducts.value = store.cart_products;
 });
 watch(cartProducts, (newValue, oldValue) => {
