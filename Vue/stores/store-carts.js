@@ -1030,7 +1030,7 @@ export const useCartStore = defineStore({
             if(data)
             {
                 console.log(data.products)
-                this.cart_item_at_checkout=data;
+                this.cart_item_at_checkout=data.product_details;
                 // this.item = data;
                 // this.cart_products=data.products;
             }else{

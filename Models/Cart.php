@@ -784,7 +784,15 @@ class Cart extends VaahModel
 
         if ($cart) {
             $response['success'] = true;
-            $response['data'] = [];
+            $response['data'] = [
+                'product_details' => [],
+                'user_address' => null
+            ];
+
+            // Get user address
+            $user = $cart->user;
+            $userAddress = Address::where('vh_user_id', $user->id)->first();
+            $response['data']['user_address'] = $userAddress;
 
             foreach ($cart->products as $product) {
                 // Get product media IDs
@@ -799,8 +807,8 @@ class Cart extends VaahModel
                 // Get product price
                 $price = self::getProductPrice($product);
 
-                // Append data to response
-                $response['data'][] = [
+                // Append data to product_details array
+                $response['data']['product_details'][] = [
                     'product_id' => $product->id,
                     'name' => $product->name,
                     'description' => $product->description,
@@ -808,7 +816,7 @@ class Cart extends VaahModel
                     'pivot' => [
                         'cart_product_variation' => $variation_name,
                         'price' => $price,
-                       'quantity'=> $quantity = $product->pivot->quantity,
+                        'quantity' => $product->pivot->quantity,
                     ],
                 ];
             }
@@ -819,6 +827,7 @@ class Cart extends VaahModel
 
         return $response;
     }
+
 
     private static function getProductMediaIds($product)
     {
