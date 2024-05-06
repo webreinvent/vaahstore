@@ -5,9 +5,9 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\CartsController;
 Route::group(
     [
         'prefix' => 'backend/store/carts',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
 ],
 function () {
     /**
@@ -72,5 +72,6 @@ function () {
         ->name('vh.backend.store.carts.item.action');
 
     //---------------------------------------------------------
-
+    Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
+        ->name('vh.backend.store.carts.update.quantity');
 });

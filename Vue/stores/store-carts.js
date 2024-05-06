@@ -972,6 +972,28 @@ export const useCartStore = defineStore({
             return totalPrice;
         },
         //---------------------------------------------------------------------
+        async updateQuantity(pivot_data,event){
+            if (event.value===null) {
+                return;
+            }
+            const query = {
+                cart_product_details:pivot_data,
+                quantity:event.value
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/update/quantity',
+                this.updateQuantityAfter,
+                options
+            );
+        },
+        updateQuantityAfter(){
+
+        }
     }
 });
 

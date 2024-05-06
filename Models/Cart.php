@@ -670,6 +670,27 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function updateQuantity($request){
+
+        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
+        $product_id = $request['cart_product_details']['vh_st_product_id'];
+        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'];
+        $new_quantity = $request['quantity'];
+
+        $cart = Cart::find($cart_id);
+        $product = Product::find($product_id);
+
+        $cart->products()->updateExistingPivot($product_id, [
+            'quantity' => $new_quantity
+        ]);
+        $cart->products()->updateExistingPivot($product_id, [
+            'vh_st_product_variation_id' => $variation_id
+        ]);
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = $product;
+        return $response;
+    }
+
     //-------------------------------------------------
     //-------------------------------------------------
 
