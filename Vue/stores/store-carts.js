@@ -973,7 +973,7 @@ export const useCartStore = defineStore({
         },
         //---------------------------------------------------------------------
         async updateQuantity(pivot_data,event){
-            if (event.value===null) {
+            if (event.value===null ) {
                 return;
             }
             const query = {
@@ -991,8 +991,8 @@ export const useCartStore = defineStore({
                 options
             );
         },
-        updateQuantityAfter(){
-
+        updateQuantityAfter(data,res){
+            this.getItem(data);
         }
     }
 });

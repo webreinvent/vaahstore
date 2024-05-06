@@ -679,15 +679,19 @@ class Cart extends VaahModel
 
         $cart = Cart::find($cart_id);
         $product = Product::find($product_id);
+        if ($new_quantity < 1) {
+            $cart->products()->detach($product_id);
+            $response['data'] = $cart_id;
+            $response['messages'][] = trans("vaahcms-general.record_deleted");
+        } else {
+            $cart->products()->updateExistingPivot($product_id, [
+                'quantity' => $new_quantity,
+                'vh_st_product_variation_id' => $variation_id
+            ]);
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $cart_id;
+        }
 
-        $cart->products()->updateExistingPivot($product_id, [
-            'quantity' => $new_quantity
-        ]);
-        $cart->products()->updateExistingPivot($product_id, [
-            'vh_st_product_variation_id' => $variation_id
-        ]);
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        $response['data'] = $product;
         return $response;
     }
 

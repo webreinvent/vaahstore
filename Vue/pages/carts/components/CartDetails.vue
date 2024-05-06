@@ -68,7 +68,7 @@ const totalAmount = computed(() => {
                 <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere">
                     <template #body="prop">
                         <div class="p-inputgroup w-8rem max-w-full">
-                            <InputNumber   v-model="prop.data.pivot.quantity" buttonLayout="horizontal" showButtons :min="0" :max="99" @input="store.updateQuantity(prop.data.pivot,$event)">
+                            <InputNumber   v-model="prop.data.pivot.quantity" buttonLayout="horizontal" showButtons :min="1" :max="99" @input="store.updateQuantity(prop.data.pivot,$event)">
                                 <template #incrementbuttonicon>
                                     <span class="pi pi-plus" />
                                 </template>
