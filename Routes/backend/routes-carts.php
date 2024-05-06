@@ -77,4 +77,7 @@ function () {
 
     Route::post('/delete-cart-item', [CartsController::class, 'deleteCartItem'])
         ->name('vh.backend.store.carts.delete.item');
+
+    Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
+        ->name('vh.backend.store.carts.read');
 });

@@ -2,38 +2,60 @@
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
 import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
-
+import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
+onMounted(async () => {
+    if (route.params && route.params.id) {
+        await store.getItem(route.params.id);
+        await store.getCartItemDetailsAtCheckout(route.params.id);
+    }
+    // await store.onLoad(route);
+    // await store.getList();
 
+});
 </script>
 
 <template>
     <div class="p-3 bg-white border-1 border-gray-200">
 
         <Button
-            @click="store.cartDetails({id:1})"
+            @click="store.cartDetails(store.item)"
             label="Back"/>
         <div class="flex gap-3 my-3">
 
             <div class="w-full">
                 <Accordion :multiple="true" :activeIndex="[0]" class="w-full">
-                    <AccordionTab header="Products (count of product)" class="w-full">
-                       <div class="flex ">
-                           <div class="product_img">
-                               <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                    alt="Error" class="shadow-4" width="64" />
-                           </div>
-                           <div class="product_desc ml-3">
-                               <h4>
-                                   Nokia 2660 Flip 4G Volte keypad Phone, Pop Pink
-                               </h4>
-                               <p><b>Price: </b>₹4000 <s class="text-300">₹6000</s></p>
-                               <p><b>Qty:</b> 1</p>
-                           </div>
-                       </div>
+                    <AccordionTab v-if="store.cart_item_at_checkout && store.cart_item_at_checkout.length" :header="`Products (${store.cart_item_at_checkout.length})`" class="w-full">
+
+                    <div >
+                            <div v-for="(product, index) in store.cart_item_at_checkout" :key="index" class="flex">
+                                <div class="product_img">
+                                    <div v-if="Array.isArray(product.image_urls)">
+                                        <div v-for="(imageUrl, imgIndex) in product.image_urls" :key="imgIndex">
+                                            <Image preview :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl" alt="Error" class="shadow-4" width="64" />
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <Image preview :src="'http://localhost/shivam-g001/store-dev/public/' + product.image_urls" alt="Error" class="shadow-4" width="64" />
+                                    </div>
+                                </div>
+                                <div class="product_desc ml-3">
+                                    <h4>{{ product.pivot.cart_product_variation ? product.name + '-' + product.pivot.cart_product_variation : product.name }}</h4>
+
+                                    <!-- Replace static price with dynamic data if available -->
+                                    <p v-if="product.pivot.price"><b>Price: </b>{{ product.pivot.price }}</p>
+                                    <!-- Replace static quantity with dynamic data if available -->
+                                    <p v-if="product.pivot.quantity"><b>Qty:</b> {{ product.pivot.quantity }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </AccordionTab>
-                    <AccordionTab header="Shipping Details (No Address)">
+
+
+                <AccordionTab header="Shipping Details (No Address)">
                         <div>
                             <VhField label="Country/Region">
                                 <Dropdown v-model="store.item"

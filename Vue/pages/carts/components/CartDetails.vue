@@ -140,7 +140,7 @@ const totalAmount = computed(() => {
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
-                        @click="store.checkOut({id:1})"
+                        @click="store.checkOut(store.item.id)"
                 />
             </div>
         </div>

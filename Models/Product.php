@@ -216,7 +216,11 @@ class Product extends VaahModel
             ->withPivot('vh_st_product_variation_id', 'quantity');
     }
     //-------------------------------------------------
-
+    public function productVariationMedia()
+    {
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_medias', 'vh_st_product_id', 'vh_st_product_variation_id')
+            ->withPivot('vh_st_product_media_id');
+    }
     public function scopeStatusFilter($query, $filter)
     {
 
