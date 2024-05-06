@@ -32,10 +32,14 @@ const totalAmount = computed(() => {
             <div class="flex flex-row">
                 <div>
 <!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
-                    <b class="mr-1" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
+                    <Button
+                        @click="this.$router.push({name: 'carts.index'})"
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
 
 
                 </div>
+
+
 
             </div>
 
