@@ -993,6 +993,26 @@ export const useCartStore = defineStore({
         },
         updateQuantityAfter(data,res){
             this.getItem(data);
+        },
+        async deleteCartItem(pivot_data){
+            const query = {
+                cart_product_details:pivot_data,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/delete-cart-item',
+                this.deleteCartItemAfter,
+                options
+            );
+        },
+        deleteCartItemAfter(data,res){
+            if (data){
+                this.getItem(data.cart.id);
+            }
         }
     }
 });

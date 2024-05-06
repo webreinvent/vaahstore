@@ -112,7 +112,7 @@ const totalAmount = computed(() => {
 
                             <Button class="p-button-tiny p-button-danger p-button-text"
                                     data-testid="products-table-action-trash"
-                                    @click="store.itemAction('Remove', prop.data)"
+                                    @click="store.deleteCartItem(prop.data.pivot)"
                                     v-tooltip.top="'Remove'"
                                     icon="pi pi-trash" />
                         </div>

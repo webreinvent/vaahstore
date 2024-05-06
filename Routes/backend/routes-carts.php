@@ -74,4 +74,7 @@ function () {
     //---------------------------------------------------------
     Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.carts.update.quantity');
+
+    Route::post('/delete-cart-item', [CartsController::class, 'deleteCartItem'])
+        ->name('vh.backend.store.carts.delete.item');
 });

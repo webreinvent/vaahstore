@@ -696,6 +696,24 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function deleteCartItem($request){
+        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
+        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'] ?? null;
+
+        $cart = Cart::find($cart_id);
+
+        if ($variation_id === null) {
+            $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+        } else {
+            $cart->productVariations()->detach($variation_id);
+        }
+
+        return [
+            'data' => ['cart' => $cart],
+            'messages' => [trans("vaahcms-general.record_deleted")]
+        ];
+    }
+
     //-------------------------------------------------
 
 
