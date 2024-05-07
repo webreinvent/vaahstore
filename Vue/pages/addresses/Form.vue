@@ -159,6 +159,34 @@ const toggleFormMenu = (event) => {
                               v-model="store.item.address_line_2"/>
                 </VhField>
 
+
+                <VhField label="City">
+                    <InputText class="w-full"
+                               name="warehouses-city"
+                               data-testid="warehouses-city"
+                               placeholder="Enter City"
+                               v-model="store.item.city"/>
+                </VhField>
+                <VhField label="State">
+                    <InputText class="w-full"
+                               name="warehouses-state"
+                               data-testid="warehouses-state"
+                               placeholder="Enter State"
+                               v-model="store.item.state"/>
+                </VhField>
+                <VhField label="Country*">
+                    <AutoComplete v-model="store.item.country"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="warehouses-country"
+                                  :suggestions="store.country_suggestions"
+                                  @complete="store.searchCountry($event)"
+                                  :dropdown="true"
+                                  placeholder="Select Country"
+                                  forceSelection />
+                </VhField>
+
+
                 <VhField label="Status*">
                     <AutoComplete
                         v-model="store.item.status"
