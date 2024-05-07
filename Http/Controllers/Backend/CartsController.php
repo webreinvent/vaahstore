@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Cart;
+use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 
 class CartsController extends Controller
@@ -30,7 +31,7 @@ class CartsController extends Controller
             $data['fillable']['columns'] = Cart::getFillableColumns();
             $data['fillable']['except'] = Cart::getUnFillableColumns();
             $data['empty_item'] = Cart::getEmptyItem();
-
+            $data['countries'] = array_column(VaahCountry::getList(), 'name');
             $data['actions'] = [];
 
             $response['success'] = true;

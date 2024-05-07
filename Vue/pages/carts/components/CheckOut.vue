@@ -7,12 +7,15 @@ import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
+let routeParamsId = null;
 onMounted(async () => {
+    document.title = 'Carts - Check-out';
     if (route.params && route.params.id) {
+        routeParamsId = route.params;
         await store.getItem(route.params.id);
         await store.getCartItemDetailsAtCheckout(route.params.id);
     }
-    // await store.onLoad(route);
+    await store.onLoad(route);
     // await store.getList();
 
 });
@@ -22,12 +25,12 @@ onMounted(async () => {
     <div class="p-3 bg-white border-1 border-gray-200">
 
         <Button
-            @click="store.cartDetails(store.item)"
+            @click="store.cartDetails(routeParamsId)"
             label="Back"/>
         <div class="flex gap-3 my-3">
 
             <div class="w-full">
-                <Accordion :multiple="true" :activeIndex="[0]" class="w-full">
+                <Accordion :multiple="true" :activeIndex="[0, 1]" class="w-full">
                     <AccordionTab v-if="store.cart_item_at_checkout && store.cart_item_at_checkout.length" :header="`Products (${store.cart_item_at_checkout.length})`" class="w-full">
 
                     <div >
@@ -55,77 +58,89 @@ onMounted(async () => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (No Address)">
-                        <div>
-                            <VhField label="Country/Region">
-                                <Dropdown v-model="store.item"
-                                          :options="store.assets"
-                                          optionLabel="name"
-                                          placeholder="Select a Country/Region"
-                                          class="w-full md:w-14rem" />
+                <AccordionTab header="Shipping Details (No Address)" v-if="store && store.item && store.user_address===null">
+                    <div >
+
+                    <VhField label="Country/Region">
+                                <AutoComplete v-model="store.item"
+                                              value="id"
+
+                                              data-testid="warehouses-country"
+                                              :suggestions="store.country_suggestions"
+                                              @complete="store.searchCountry($event)"
+                                              :dropdown="true"
+                                              placeholder="Select Country"
+                                              forceSelection />
 
                             </VhField>
 
-                            <VhField label="Full Name ">
+                        <VhField label="Full Name ">
                             <InputText class="w-full"
                                        name="products-name"
                                        data-testid="products-name"
                                        placeholder="Enter Full Name "
+                                       v-model="store.item.first_name "/>
+                        </VhField>
+
+                        <VhField label="Phone No.">
+                            <InputText class="w-full"
+                                       name="products-phone"
+                                       data-testid="products-phone"
+                                       placeholder="Enter Phone No."
+                                       v-model="store.item.phone"/>
+                        </VhField>
+                        <VhField label="Address">
+                            <InputText class="w-full"
+                                       name="cart-email"
+                                       data-testid="cart-email"
+                                       placeholder="Enter Address (House No, Building, Street, Area)*"
                                        v-model="store.item"/>
-                            </VhField>
+                        </VhField>
 
-                            <VhField label="Phone No.">
-                                <InputText class="w-full"
-                                           name="products-phone"
-                                           data-testid="products-phone"
-                                           placeholder="Enter Phone No."
-                                           v-model="store.item"/>
-                            </VhField>
-                            <VhField label="Address">
-                                <InputText class="w-full"
-                                           name="cart-email"
-                                           data-testid="cart-email"
-                                           placeholder="Enter Address (House No, Building, Street, Area)*"
-                                           v-model="store.item"/>
-                            </VhField>
+                        <VhField label="PIN Code">
+                            <InputText class="w-full"
+                                       name="cart-pin_code"
+                                       data-testid="cart-pin_code"
+                                       placeholder="Enter Pin Code"
+                                       v-model="store.item"/>
+                        </VhField>
 
-                            <VhField label="PIN Code">
-                                <InputText class="w-full"
-                                           name="cart-pin_code"
-                                           data-testid="cart-pin_code"
-                                           placeholder="Enter Pin Code"
-                                           v-model="store.item"/>
-                            </VhField>
+                        <VhField label="City">
+                            <InputText class="w-full"
+                                       name="cart-city"
+                                       data-testid="cart-city"
+                                       placeholder="Enter City"
+                                       v-model="store.item"/>
+                        </VhField>
+                        <VhField label="State">
+                            <InputText class="w-full"
+                                       name="cart-address"
+                                       data-testid="cart-address"
+                                       placeholder="Enter State / Province / Region"
+                                       v-model="store.item"/>
+                        </VhField>
+                    </div>
 
-                            <VhField label="City">
-                                <InputText class="w-full"
-                                           name="cart-city"
-                                           data-testid="cart-city"
-                                           placeholder="Enter City"
-                                           v-model="store.item"/>
-                            </VhField>
-                            <VhField label="State">
-                                <InputText class="w-full"
-                                           name="cart-address"
-                                           data-testid="cart-address"
-                                           placeholder="Enter State / Province / Region"
-                                           v-model="store.item"/>
-                            </VhField>
-                        </div>
-                    </AccordionTab>
-                    <AccordionTab header="Shipping Details (Saved Address)">
-                        <div>
+                </AccordionTab>
+                    <AccordionTab header="Shipping Details (Saved Address)" v-if="store && store.item && store.user_address">
+                        <div >
                             <Card>
                                 <template #content>
                                     <div class="flex align-items-center">
                                         <RadioButton v-model="ingredient" inputId="ingredient1" name="pizza" value="Cheese" />
-                                        <label for="ingredient1" class="ml-2"><b>vineet kumar</b></label>
+                                        <label for="ingredient1" class="ml-2"><b>{{ store.item.first_name }}</b></label>
                                     </div>
-                                    <div class="p-2"><p>b2-70/A  street number - 9, Uttam Nagar</p>
-                                        <span>New Delhi, Delhi - 110059</span>
+                                    <div class="p-2"><p>
+                                        {{store.user_address.address_line_2 }}
+                                    </p>
+                                        <span>
+<!--                                            New Delhi, Delhi - 110059-->
+                                            {{store.item.country}}</span>
                                     </div>
                                     <div class="p-2">
-                                        <span>Mobile: </span><b>9958362265</b>
+                                        <span>Mobile: </span><b>
+                                        <!--                                        9958362265-->
+                                        {{store.item.phone}}</b>
                                     </div>
                                     <div class="flex justify-content-end gap-2">
                                         <Button type="button" label="Remove" severity="secondary" @click="visible = false"></Button>
@@ -204,6 +219,7 @@ onMounted(async () => {
                             <Button icon="pi pi-plus" label="Add a new addresses" link />
                             <Button label="2 More Address" link />
                         </div>
+
                     </AccordionTab>
                     <AccordionTab header="Billing Details">
                         <div>

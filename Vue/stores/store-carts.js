@@ -69,6 +69,7 @@ export const useCartStore = defineStore({
         bill_form:null,
         cart_products:null,
         cart_item_at_checkout:[],
+        country_suggestions: null,
     }),
     getters: {
 
@@ -95,10 +96,15 @@ export const useCartStore = defineStore({
              * Update query state with the query parameters of url
              */
             await this.updateQueryFromUrl(route);
+            await this.LoadAssets();
         },
         //---------------------------------------------------------------------
         setRowClass(data){
             return [{ 'bg-gray-200': data.id == this.route.params.id }];
+        },
+        async LoadAssets(){
+            this.assets_is_fetching=true;
+            await this.getAssets();
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -196,6 +202,7 @@ export const useCartStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.countries = data.countries;
                 if(!this.query.rows && data.rows)
                 {
                     this.query.rows = data.rows;
@@ -1029,15 +1036,22 @@ export const useCartStore = defineStore({
         {
             if(data)
             {
-                console.log(data.products)
                 this.cart_item_at_checkout=data.product_details;
-                // this.item = data;
+                this.user_address=data.user_address;
+                this.item = data.user;
                 // this.cart_products=data.products;
             }else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
+        },
+        searchCountry(event) {
+
+            this.country_suggestions = this.countries.filter((department) => {
+                return department.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
         },
     }
 });

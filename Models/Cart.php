@@ -786,7 +786,8 @@ class Cart extends VaahModel
             $response['success'] = true;
             $response['data'] = [
                 'product_details' => [],
-                'user_address' => null
+                'user_address' => null,
+                'user'=>$cart->user,
             ];
 
             // Get user address
