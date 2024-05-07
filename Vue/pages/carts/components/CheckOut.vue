@@ -12,10 +12,10 @@ onMounted(async () => {
     document.title = 'Carts - Check-out';
     if (route.params && route.params.id) {
         routeParamsId = route.params;
-        await store.getItem(route.params.id);
+        await store.getItem(route.params.id);await store.onLoad(route);
         await store.getCartItemDetailsAtCheckout(route.params.id);
     }
-    await store.onLoad(route);
+
     // await store.getList();
 
 });
@@ -24,14 +24,14 @@ const selectedAddress = ref(null);
 const showAll = ref(false);
 
 const displayedAddresses = computed(() => {
-    return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 3);
+    return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 2);
 });
 
 const shouldShowViewMoreButton = computed(() => {
     return !showAll.value && store.many_adresses.length > 3;
 });
 const remainingAddressCount = computed(() => {
-    return store.many_adresses.length - 3;
+    return store.many_adresses.length - 2;
 });
 const moveAddressToTop = (index) => {
     const selected = store.many_adresses.splice(index, 1)[0];
@@ -42,6 +42,11 @@ const showAllAddresses = () => {
 };
 const isSelectedAddress = (address) => {
     return address === selectedAddress.value;
+};
+const shouldShowNewAddressTab = ref(false);
+const toggleNewAddressTab = () => {
+    shouldShowNewAddressTab.value = !shouldShowNewAddressTab.value;
+
 };
 </script>
 
@@ -82,11 +87,11 @@ const isSelectedAddress = (address) => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (No Address)" v-if="store && store.item && store.user_address===null">
+                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
-                                <AutoComplete v-model="store.item"
+                                <AutoComplete v-model="store.item_user_address.country"
                                               value="id"
 
                                               data-testid="warehouses-country"
@@ -103,7 +108,7 @@ const isSelectedAddress = (address) => {
                                        name="products-name"
                                        data-testid="products-name"
                                        placeholder="Enter Full Name "
-                                       v-model="store.item.first_name "/>
+                                       v-model="store.item_user.first_name "/>
                         </VhField>
 
                         <VhField label="Phone No.">
@@ -111,14 +116,14 @@ const isSelectedAddress = (address) => {
                                        name="products-phone"
                                        data-testid="products-phone"
                                        placeholder="Enter Phone No."
-                                       v-model="store.item.phone"/>
+                                       v-model="store.item_user.phone"/>
                         </VhField>
                         <VhField label="Address">
                             <InputText class="w-full"
                                        name="cart-email"
                                        data-testid="cart-email"
                                        placeholder="Enter Address (House No, Building, Street, Area)*"
-                                       v-model="store.item"/>
+                                       v-model="store.item_user_address.address_line_1"/>
                         </VhField>
 
                         <VhField label="PIN Code">
@@ -126,7 +131,7 @@ const isSelectedAddress = (address) => {
                                        name="cart-pin_code"
                                        data-testid="cart-pin_code"
                                        placeholder="Enter Pin Code"
-                                       v-model="store.item"/>
+                                       v-model="store.item_user_address.pin_code"/>
                         </VhField>
 
                         <VhField label="City">
@@ -134,67 +139,39 @@ const isSelectedAddress = (address) => {
                                        name="cart-city"
                                        data-testid="cart-city"
                                        placeholder="Enter City"
-                                       v-model="store.item"/>
+                                       v-model="store.item_user_address.city"/>
                         </VhField>
                         <VhField label="State">
                             <InputText class="w-full"
                                        name="cart-address"
                                        data-testid="cart-address"
                                        placeholder="Enter State / Province / Region"
-                                       v-model="store.item"/>
+                                       v-model="store.item_user_address.state"/>
                         </VhField>
                     </div>
-
+                    <div class="flex justify-content-end gap-2">
+                        <!-- Add your Remove and Edit buttons here -->
+                        <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>
+                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address,store.item_user.id)"></Button>
+                    </div>
                 </AccordionTab>
-                    <AccordionTab header="Shipping Details (Saved Address)" v-if="store && store.item && store.user_address">
-                        <div >
-                            <Card>
-                                <template #content>
-                                    <div class="flex align-items-center">
-                                        <RadioButton v-model="ingredient" inputId="ingredient1" name="pizza" value="Cheese" />
-                                        <label for="ingredient1" class="ml-2"><b>{{ store.item.first_name }}</b></label>
-                                    </div>
-                                    <div class="p-2"><p>
-                                        {{store.user_address.address_line_1 }} , {{store.user_address.city }}
-                                    </p>
-                                        <span>
-<!--                                            New Delhi, Delhi - 110059-->
-                                            {{store.user_address.country}}</span>
-                                    </div>
-                                    <div class="p-2">
-                                        <span>Mobile: </span><b>
-                                        <!--                                        9958362265-->
-                                        {{store.item.phone}}</b>
-                                    </div>
-                                    <div class="flex justify-content-end gap-2">
-                                        <Button type="button" label="Remove" severity="secondary" @click="visible = false"></Button>
-                                        <Button type="button" label="Edit" @click="visible = false"></Button>
-                                    </div>
-                                </template>
-                            </Card>
-                            <div class="flex justify-content-between mt-3">
-                                <Button icon="pi pi-plus" label="Add a new address" link />
-                            </div>
-                        </div>
-                    </AccordionTab>
-
-                    <AccordionTab header="Shipping Details (Many Address)" v-if="store && store.item && store.many_adresses && store.many_adresses.length > 1">
+                <AccordionTab header="Shipping Details (Many Address)" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <!-- Iterate over user addresses, limit to 3 initially -->
                             <template v-for="(address, index) in displayedAddresses" :key="index">
-                                <Card class="mt-2" :pt="{ content: { class: 'py-0' } }">
+                                <Card :class="{ 'selected-card': isSelectedAddress(address) }" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
                                         <div class="flex align-items-center">
                                             <!-- Use RadioButton for address selection if needed -->
                                             <RadioButton v-model="selectedAddress" :inputId="'address' + index" :name="'address'" :value="address" @click="moveAddressToTop(index)" />
-                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item.first_name }}</b></label>
+                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item_user.first_name }}</b></label>
                                         </div>
                                         <div class="p-2">
                                             <p>{{ address.address_line_1 }}, {{ address.city }}</p>
                                             <span>{{ address.country }}</span>
                                         </div>
                                         <div class="p-2">
-                                            <span>Mobile: </span><b>{{ store.item.phone }}</b>
+                                            <span>Mobile: </span><b>{{ store.item_user.phone }}</b>
                                         </div>
 
                                     </template>
@@ -207,7 +184,7 @@ const isSelectedAddress = (address) => {
                             </div>
                         </div>
                         <div class="flex justify-content-between mt-3">
-                            <Button icon="pi pi-plus" label="Add a new addresses" link />
+                            <Button icon="pi pi-plus" label="Add a new addresses"  @click="toggleNewAddressTab" link />
                             <Button v-if="shouldShowViewMoreButton" @click="showAllAddresses" :label="`(${remainingAddressCount}) More Address`" :link="true" />
                         </div>
                     </AccordionTab>
@@ -216,7 +193,7 @@ const isSelectedAddress = (address) => {
 
 
 
-                    <AccordionTab header="Billing Details">
+                <AccordionTab header="Billing Details">
                         <div>
                                 <div class="flex align-items-center mb-2">
                                     <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />
@@ -365,3 +342,11 @@ const isSelectedAddress = (address) => {
     </div>
 
 </template>
+
+<style scoped>
+.selected-card {
+    height: 250px;
+    /* Add any additional styles as needed */
+}
+
+</style>

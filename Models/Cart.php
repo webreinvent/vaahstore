@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -867,6 +868,25 @@ class Cart extends VaahModel
     }
 
 
+
+    public static function saveCartUserAddress($request){
+        $address_details = $request->input('user_address');
+
+        $userId = $request->input('user_id');
+        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->pluck('id')->first();
+        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->pluck('id')->first();
+        $address_details['vh_user_id'] = $userId;
+        $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
+        $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
+        Address::create($address_details);
+        $cart = Cart::where('vh_user_id', $userId)->first();
+        $response['success'] = true;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = [
+            'cart_id' => $cart->id,
+        ];
+        return $response;
+    }
 
 
 

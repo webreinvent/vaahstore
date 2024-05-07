@@ -80,4 +80,7 @@ function () {
 
     Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.carts.read');
+
+    Route::post('/save/cart-user-address', [CartsController::class, 'saveCartUserAddress'])
+        ->name('vh.backend.store.carts.save.adress');
 });

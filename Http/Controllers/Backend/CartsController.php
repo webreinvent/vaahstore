@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Cart;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
@@ -31,6 +32,7 @@ class CartsController extends Controller
             $data['fillable']['columns'] = Cart::getFillableColumns();
             $data['fillable']['except'] = Cart::getUnFillableColumns();
             $data['empty_item'] = Cart::getEmptyItem();
+            $data['item_user_address'] = Address::getEmptyItem();
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
             $data['actions'] = [];
 
@@ -263,6 +265,23 @@ class CartsController extends Controller
     {
         try{
             return Cart::getCartItemDetailsAtCheckout($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    public function saveCartUserAddress(Request $request)
+    {
+        try{
+            return Cart::saveCartUserAddress($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

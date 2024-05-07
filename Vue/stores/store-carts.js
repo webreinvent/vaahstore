@@ -675,7 +675,10 @@ export const useCartStore = defineStore({
             // if(!this.item || !this.item.id || this.item.id !== item.id){
             //     this.item = vaah().clone(item);
             // }
+
             this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
+            this.item_user_address = vaah().clone(this.assets.item_user_address);
+
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -1039,7 +1042,9 @@ export const useCartStore = defineStore({
                 this.cart_item_at_checkout=data.product_details;
 
 
-                this.item = data.user;
+                this.item_user = data.user;
+                this.item_user_address = vaah().clone(this.assets.item_user_address);
+                // this.item_user_address=data.user_addresses;
                 if (data.user_addresses){
                     this.many_adresses=data.user_addresses;
                     const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
@@ -1064,6 +1069,27 @@ export const useCartStore = defineStore({
                 return department.toLowerCase().startsWith(event.query.toLowerCase());
             });
 
+        },
+        async saveCartUserAddress(item,user_id){
+            const query = {
+                user_address:item,
+                user_id:user_id
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/save/cart-user-address',
+                this.saveCartUserAddressAfter,
+                options
+            );
+        },
+        saveCartUserAddressAfter(data,res){
+            if (data){
+                this.getCartItemDetailsAtCheckout(data.cart_id);
+            }
         },
     }
 });
