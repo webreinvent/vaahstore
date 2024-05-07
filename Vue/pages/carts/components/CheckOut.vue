@@ -2,7 +2,7 @@
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
 import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
-import {onMounted} from "vue";
+import {onMounted,ref,computed} from "vue";
 import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
@@ -19,6 +19,30 @@ onMounted(async () => {
     // await store.getList();
 
 });
+
+const selectedAddress = ref(null);
+const showAll = ref(false);
+
+const displayedAddresses = computed(() => {
+    return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 3);
+});
+
+const shouldShowViewMoreButton = computed(() => {
+    return !showAll.value && store.many_adresses.length > 3;
+});
+const remainingAddressCount = computed(() => {
+    return store.many_adresses.length - 3;
+});
+const moveAddressToTop = (index) => {
+    const selected = store.many_adresses.splice(index, 1)[0];
+    store.many_adresses.unshift(selected);
+};
+const showAllAddresses = () => {
+    showAll.value = true;
+};
+const isSelectedAddress = (address) => {
+    return address === selectedAddress.value;
+};
 </script>
 
 <template>
@@ -131,11 +155,11 @@ onMounted(async () => {
                                         <label for="ingredient1" class="ml-2"><b>{{ store.item.first_name }}</b></label>
                                     </div>
                                     <div class="p-2"><p>
-                                        {{store.user_address.address_line_2 }}
+                                        {{store.user_address.address_line_1 }} , {{store.user_address.city }}
                                     </p>
                                         <span>
 <!--                                            New Delhi, Delhi - 110059-->
-                                            {{store.item.country}}</span>
+                                            {{store.user_address.country}}</span>
                                     </div>
                                     <div class="p-2">
                                         <span>Mobile: </span><b>
@@ -153,74 +177,45 @@ onMounted(async () => {
                             </div>
                         </div>
                     </AccordionTab>
-                    <AccordionTab header="Shipping Details (Many Address)">
+
+                    <AccordionTab header="Shipping Details (Many Address)" v-if="store && store.item && store.many_adresses && store.many_adresses.length > 1">
                         <div>
-                            <Card>
-                                <template #content>
-                                    <div class="flex align-items-center">
-                                        <RadioButton v-model="ingredient" inputId="ingredient1" name="address"
-                                                     value="address1" />
-                                        <label for="ingredient1" class="ml-2"><b>vineet kumar</b></label>
-                                    </div>
-                                    <div class="p-2"><p>b2-70/A  street number - 9, Uttam Nagar</p>
-                                        <span>New Delhi, Delhi - 110059</span>
-                                    </div>
-                                    <div class="p-2">
-                                        <span>Mobile: </span><b>9958362265</b>
-                                    </div>
-                                    <div class="flex justify-content-end gap-2">
-                                        <Button type="button" label="Remove" severity="secondary" @click="visible = false"></Button>
-                                        <Button type="button" label="Edit" @click="visible = false"></Button>
-                                    </div>
-                                </template>
-                            </Card>
+                            <!-- Iterate over user addresses, limit to 3 initially -->
+                            <template v-for="(address, index) in displayedAddresses" :key="index">
+                                <Card class="mt-2" :pt="{ content: { class: 'py-0' } }">
+                                    <template #content>
+                                        <div class="flex align-items-center">
+                                            <!-- Use RadioButton for address selection if needed -->
+                                            <RadioButton v-model="selectedAddress" :inputId="'address' + index" :name="'address'" :value="address" @click="moveAddressToTop(index)" />
+                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item.first_name }}</b></label>
+                                        </div>
+                                        <div class="p-2">
+                                            <p>{{ address.address_line_1 }}, {{ address.city }}</p>
+                                            <span>{{ address.country }}</span>
+                                        </div>
+                                        <div class="p-2">
+                                            <span>Mobile: </span><b>{{ store.item.phone }}</b>
+                                        </div>
 
-                            <Card class="mt-2" :pt="{
-                                content: {
-                                    class: 'py-0'
-                                }
-                            }">
-                                <template #content>
-                                    <div class="flex align-items-center">
-                                        <RadioButton v-model="ingredient" inputId="ingredient1" name="address"
-                                                     value="address2" />
-                                        <label for="ingredient1" class="ml-2"><b>vineet kumar</b></label>
-                                    </div>
-                                    <div class="p-2"><p>b2-70/A  street number - 9, Uttam Nagar</p>
-                                        <span>New Delhi, Delhi - 110059</span>
-                                    </div>
-                                    <div class="p-2 pb-0">
-                                        <span>Mobile: </span><b>9958362265</b>
-                                    </div>
-                                </template>
-                            </Card>
-
-                            <Card class="mt-2" :pt="{
-                                content: {
-                                    class: 'py-0'
-                                }
-                            }">
-                                <template #content>
-                                    <div class="flex align-items-center">
-                                        <RadioButton v-model="ingredient" inputId="ingredient1" name="address"
-                                                     value="address3" />
-                                        <label for="ingredient1" class="ml-2"><b>vineet kumar</b></label>
-                                    </div>
-                                    <div class="p-2"><p>b2-70/A  street number - 9, Uttam Nagar</p>
-                                        <span>New Delhi, Delhi - 110059</span>
-                                    </div>
-                                    <div class="p-2 pb-0">
-                                        <span>Mobile: </span><b>9958362265</b>
-                                    </div>
-                                </template>
-                            </Card>
+                                    </template>
+                                </Card>
+                            </template>
+                            <div class="flex justify-content-end gap-2">
+                                <!-- Add your Remove and Edit buttons here -->
+                                <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>
+                                <Button type="button" label="Edit" @click="editAddress(index)"></Button>
+                            </div>
                         </div>
                         <div class="flex justify-content-between mt-3">
                             <Button icon="pi pi-plus" label="Add a new addresses" link />
-                            <Button label="2 More Address" link />
+                            <Button v-if="shouldShowViewMoreButton" @click="showAllAddresses" :label="`(${remainingAddressCount}) More Address`" :link="true" />
                         </div>
-
                     </AccordionTab>
+
+
+
+
+
                     <AccordionTab header="Billing Details">
                         <div>
                                 <div class="flex align-items-center mb-2">
@@ -286,6 +281,9 @@ onMounted(async () => {
                             </div>
                         </div>
                     </AccordionTab>
+
+
+
                     <AccordionTab header="Payment">
                         <div class="flex flex-column px-4 gap-2 max-w-14rem">
                             <label for="ingredient" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">

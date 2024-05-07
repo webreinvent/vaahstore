@@ -786,14 +786,14 @@ class Cart extends VaahModel
             $response['success'] = true;
             $response['data'] = [
                 'product_details' => [],
-                'user_address' => null,
+                'user_addresses' => null,
                 'user'=>$cart->user,
             ];
 
             // Get user address
             $user = $cart->user;
-            $userAddress = Address::where('vh_user_id', $user->id)->first();
-            $response['data']['user_address'] = $userAddress;
+            $user_addresses = Address::where('vh_user_id', $user->id)->get();
+            $response['data']['user_addresses'] = $user_addresses;
 
             foreach ($cart->products as $product) {
                 // Get product media IDs

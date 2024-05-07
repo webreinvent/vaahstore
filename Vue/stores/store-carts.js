@@ -1037,9 +1037,21 @@ export const useCartStore = defineStore({
             if(data)
             {
                 this.cart_item_at_checkout=data.product_details;
-                this.user_address=data.user_address;
+
+
                 this.item = data.user;
-                // this.cart_products=data.products;
+                if (data.user_addresses){
+                    this.many_adresses=data.user_addresses;
+                    const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
+                    if (defaultAddress) {
+                        // If a default address is found, set it as the user_address
+                        this.user_address = defaultAddress;
+                    } else {
+                        // If there is no default address, select a random one
+                        const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
+                        this.user_address = data.user_addresses[randomIndex];
+                    }
+                }
             }else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
