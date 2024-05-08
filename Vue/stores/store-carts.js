@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {computed, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -69,12 +69,39 @@ export const useCartStore = defineStore({
         bill_form:null,
         cart_products:null,
         cart_item_at_checkout:[],
-        country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,
+        country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,showAll:false,selectedAddress:null,
     }),
     getters: {
+        displayedAddresses() {
+            return this.showAll ? this.many_adresses : this.many_adresses.slice(0, 2);
+        },
+        showViewMoreButton() {
+            return !this.showAll && this.many_adresses.length >= 3;
+        },
+        showAllAddresses() {
+            return () => {
+                this.showAll = true;
+            };
+        },
+        hideAddressTab() {
+            return () => {
+                this.showAll = !this.showAll;
+            };
+        },
+        remainingAddressCount (){
+            return this.many_adresses.length - 2;
+        },
+        isSelectedAddress() {
+            return (address) => {
+                return address === this.selectedAddress;
+            };
+        },
 
     },
     actions: {
+        setSelectedAddress(address)  {
+            this.selectedAddress = address;
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -1044,6 +1071,7 @@ export const useCartStore = defineStore({
 
                 this.item_user = data.user;
                 this.item_user_address = vaah().clone(this.assets.item_user_address);
+                this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
                 // this.item_user_address=data.user_addresses;
                 if (data.user_addresses){
                     this.many_adresses=data.user_addresses;
@@ -1077,7 +1105,7 @@ export const useCartStore = defineStore({
         async saveCartUserAddress(item,user_id){
             const query = {
                 user_address:item,
-                user_id:user_id
+                user_data:user_id
             };
             const options = {
                 params: query,
@@ -1118,7 +1146,8 @@ export const useCartStore = defineStore({
             }
         },
 
-        editAddress(address){
+        editAddress(address,itemUser){
+            this.new_user_at_shipping = { ...itemUser };
             this.item_user_address = {
                 country: address.country,
                 address_line_1: address.address_line_1,
@@ -1130,6 +1159,16 @@ export const useCartStore = defineStore({
             this.editingAddress = address;
             this.shouldShowNewAddressTab = true;
         },
+
+        saveShippingAddress(itemUserAddress, isNewUser){
+            if (this.editingAddress) {
+                this.item_user_address.id = this.editingAddress.id;
+            }
+            this.saveCartUserAddress(itemUserAddress,isNewUser);
+        },
+        async saveBillingAddress(){
+
+        }
 
     }
 });

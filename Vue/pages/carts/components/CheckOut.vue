@@ -20,56 +20,37 @@ onMounted(async () => {
 
 });
 
-const selectedAddress = ref(null);
-const showAll = ref(false);
-
-const displayedAddresses = computed(() => {
-    return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 2);
-});
-
-const shouldShowViewMoreButton = computed(() => {
-    return !showAll.value && store.many_adresses.length > 3;
-});
-const remainingAddressCount = computed(() => {
-    return store.many_adresses.length - 2;
-});
-const moveAddressToTop = (index) => {
-    const selected = store.many_adresses.splice(index, 1)[0];
-    store.many_adresses.unshift(selected);
-};
-const showAllAddresses = () => {
-    showAll.value = true;
-};
-const isSelectedAddress = (address) => {
-    return address === selectedAddress.value;
-};
-// const shouldShowNewAddressTab = ref(false);
-// const toggleNewAddressTab = () => {
-//     shouldShowNewAddressTab.value = !shouldShowNewAddressTab.value;
+// const selectedAddress = ref(null);
+// const showAll = ref(false);
 //
+// const displayedAddresses = computed(() => {
+//     return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 2);
+// });
+//
+// const showViewMoreButton = computed(() => {
+//     return !showAll.value && store.many_adresses.length >= 3;
+// });
+// const remainingAddressCount = computed(() => {
+//     return store.many_adresses.length - 2;
+// });
+//
+// const showAllAddresses = () => {
+//     showAll.value = true;
+// };
+// const hideAddressTab = () => {
+//     showAll.value = !showAll.value;
+// };
+// const isSelectedAddress = (address) => {
+//     return address === selectedAddress.value;
 // };
 
 
-// const editAddress=(address)=> {
-//     // Set the pre-filled data in the store
-//     store.item_user_address = {
-//         country: address.country,
-//         address_line_1: address.address_line_1,
-//         pin_code: address.pin_code,
-//         city: address.city,
-//         state: address.state
-//         // Add other fields as needed
-//     };
-//
-//     this.shouldShowNewAddressTab = true;
+// const saveAddress=()=>{
+//     if (store.editingAddress) {
+//         store.item_user_address.id = store.editingAddress.id;
+//     }
+//     store.saveCartUserAddress(store.item_user_address,store.new_user_at_shipping);
 // };
-
-const saveAddress=()=>{
-    if (store.editingAddress) {
-        store.item_user_address.id = store.editingAddress.id;
-    }
-    store.saveCartUserAddress(store.item_user_address,store.item_user.id);
-};
 </script>
 
 <template>
@@ -109,7 +90,7 @@ const saveAddress=()=>{
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user&& store.new_user_at_shipping && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -130,7 +111,7 @@ const saveAddress=()=>{
                                        name="products-name"
                                        data-testid="products-name"
                                        placeholder="Enter Full Name "
-                                       v-model="store.item_user.first_name "/>
+                                       v-model="store.new_user_at_shipping.display_name "/>
                         </VhField>
 
                         <VhField label="Phone No.">
@@ -138,7 +119,7 @@ const saveAddress=()=>{
                                        name="products-phone"
                                        data-testid="products-phone"
                                        placeholder="Enter Phone No."
-                                       v-model="store.item_user.phone"/>
+                                       v-model="store.new_user_at_shipping.phone"/>
                         </VhField>
                         <VhField label="Address">
                             <InputText class="w-full"
@@ -173,22 +154,22 @@ const saveAddress=()=>{
                     </div>
                     <div class="flex justify-content-end gap-2">
                         <!-- Add your Remove and Edit buttons here -->
-                        <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>
+<!--                        <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>-->
 <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
-                        <Button type="button" label="Save" @click="saveAddress()"></Button>
+                        <Button type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.new_user_at_shipping)"></Button>
 
                     </div>
                 </AccordionTab>
                 <AccordionTab header="Shipping Details" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <!-- Iterate over user addresses, limit to 3 initially -->
-                            <template v-for="(address, index) in displayedAddresses" :key="index">
-                                <Card :class="{ 'selected-card': isSelectedAddress(address) }" class="mt-2" :pt="{ content: { class: 'py-0' } }">
+                            <template v-for="(address, index) in store.displayedAddresses" :key="index">
+                                <Card :class="{ 'selected-card': store.isSelectedAddress(address) }" @click="store.setSelectedAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
                                         <div class="flex align-items-center">
                                             <!-- Use RadioButton for address selection if needed -->
-                                            <RadioButton v-model="selectedAddress" :inputId="'address' + index" :name="'address'" :value="address" @click="moveAddressToTop(index)" />
-                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item_user.first_name }}</b></label>
+                                            <RadioButton v-model="store.selectedAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
+                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item_user.display_name }}</b></label>
                                         </div>
                                         <div class="p-2">
                                             <p>{{ address.address_line_1 }}, {{ address.city }}</p>
@@ -197,10 +178,11 @@ const saveAddress=()=>{
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ store.item_user.phone }}</b>
                                         </div>
-                                        <div class="flex justify-content-end gap-2">
+                                        <li class="p-2" v-if="store.isSelectedAddress(address)">Pay On Delivery Available</li>
+                                        <div v-if="store.isSelectedAddress(address)"  class="flex justify-content gap-2 mt-5">
                                             <!-- Add your Remove and Edit buttons here -->
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
-                                            <Button type="button" label="Edit" @click="store.editAddress(address)"></Button>
+                                            <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
                                     </template>
                                 </Card>
@@ -209,7 +191,8 @@ const saveAddress=()=>{
                         </div>
                         <div class="flex justify-content-between mt-3">
                             <Button icon="pi pi-plus" label="Add a new addresses"  @click="store.toggleNewAddressTab" link />
-                            <Button v-if="shouldShowViewMoreButton" @click="showAllAddresses" :label="`(${remainingAddressCount}) More Address`" :link="true" />
+                            <Button v-if="store.showViewMoreButton" @click="store.showAllAddresses" :label="`(${store.remainingAddressCount}) More Address`" :link="true" />
+                            <Button v-if="!store.showViewMoreButton && store.many_adresses.length >2" @click=" store.hideAddressTab" :label="` Hide Address`" :link="true" />
                         </div>
                     </AccordionTab>
 
@@ -217,19 +200,24 @@ const saveAddress=()=>{
 
 
 
-                <AccordionTab header="Billing Details">
+                <AccordionTab header="Billing Details" >
                         <div>
                                 <div class="flex align-items-center mb-2">
                                     <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />
                                     <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                                 </div>
                             <div v-show="!store.bill_form?.length==1">
+                                <div v-if="store && store.item && store.item_user_address && store.item_user">
                                 <VhField label="Country/Region">
-                                    <Dropdown v-model="store.item"
-                                              :options="store.assets"
-                                              optionLabel="name"
-                                              placeholder="Select a Country/Region"
-                                              class="w-full md:w-14rem" />
+                                    <AutoComplete v-model="store.item_user_address.country"
+                                                  value="id"
+
+                                                  data-testid="warehouses-country"
+                                                  :suggestions="store.country_suggestions"
+                                                  @complete="store.searchCountry($event)"
+                                                  :dropdown="true"
+                                                  placeholder="Select Country"
+                                                  forceSelection />
 
                                 </VhField>
                                 <div >
@@ -238,7 +226,7 @@ const saveAddress=()=>{
                                                    name="products-name"
                                                    data-testid="products-name"
                                                    placeholder="Enter Full Name "
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user.name"/>
                                     </VhField>
 
                                     <VhField label="Phone No.">
@@ -246,14 +234,14 @@ const saveAddress=()=>{
                                                    name="products-phone"
                                                    data-testid="products-phone"
                                                    placeholder="Enter Phone No."
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user.phone"/>
                                     </VhField>
                                     <VhField label="Address">
                                         <InputText class="w-full"
                                                    name="cart-email"
                                                    data-testid="cart-email"
                                                    placeholder="Enter Address (House No, Building, Street, Area)*"
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user_address.address_line_1"/>
                                     </VhField>
 
                                     <VhField label="PIN Code">
@@ -261,7 +249,7 @@ const saveAddress=()=>{
                                                    name="cart-pin_code"
                                                    data-testid="cart-pin_code"
                                                    placeholder="Enter Pin Code"
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user_address.pin_code"/>
                                     </VhField>
 
                                     <VhField label="City">
@@ -269,18 +257,25 @@ const saveAddress=()=>{
                                                    name="cart-city"
                                                    data-testid="cart-city"
                                                    placeholder="Enter City"
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user_address.city"/>
                                     </VhField>
                                     <VhField label="State">
                                         <InputText class="w-full"
                                                    name="cart-address"
                                                    data-testid="cart-address"
                                                    placeholder="Enter State / Province / Region"
-                                                   v-model="store.item"/>
+                                                   v-model="store.item_user_address.state"/>
                                     </VhField>
                             </div>
+                                </div>
                             </div>
                         </div>
+                    <div class="flex justify-content-end gap-2">
+
+                        <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
+                        <Button type="button" label="Save" @click="store.saveBillingAddress(store.item_user_address, store.item_user)"></Button>
+
+                    </div>
                     </AccordionTab>
 
 

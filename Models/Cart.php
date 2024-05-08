@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -872,8 +873,28 @@ class Cart extends VaahModel
     public static function saveCartUserAddress($request){
         dd($request);
       $address_details = $request->input('user_address');
-        $userId = $request->input('user_id');
+        $userId = $request->input('user_data');
+        $user_data = $request->input('user_data');
 
+        $existing_user = User::where('display_name', $user_data['display_name'])->first();
+
+//        dd($existingUser);
+        if ($existing_user) {
+            $userId = $existing_user->id;
+        } else {
+            $new_user = new User();
+
+            $new_user->email = $user_data['email'];
+            $new_user->first_name = $user_data['display_name'];
+            $new_user->display_name = $user_data['display_name'];
+            $new_user->phone = $user_data['phone'];
+            $new_user->save();
+            Role::syncRolesWithUsers();
+            $registered_role = Role::where('slug', 'customer')->first();
+            $registered_role?->users()->updateExistingPivot($new_user, ['is_active' => 1]);
+            $userId = $new_user->id;
+        }
+        dd(2);
         $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
         $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
 
@@ -887,7 +908,8 @@ class Cart extends VaahModel
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
         $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
 
-        $address = Address::findOrNew($address_details['id']);
+        $address = Address::findOrNew($address_details['id'] ?? null);
+
         $address->fill($address_details);
         $address->save(); // Save the address
 

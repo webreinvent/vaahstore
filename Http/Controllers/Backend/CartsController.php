@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Cart;
+use VaahCms\Modules\Store\Models\User;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 
@@ -33,6 +34,15 @@ class CartsController extends Controller
             $data['fillable']['except'] = Cart::getUnFillableColumns();
             $data['empty_item'] = Cart::getEmptyItem();
             $data['item_user_address'] = Address::getEmptyItem();
+            $model = new User();
+            $fillable = $model->getFillable();
+            $data['fillable']['columns'] = array_diff(
+                $fillable, $data['fillable']['except']
+            );
+
+            foreach ($fillable as $column) {
+                $data['new_user_at_shipping'][$column] = null;
+            }
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
             $data['actions'] = [];
 
