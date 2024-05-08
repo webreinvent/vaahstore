@@ -245,7 +245,6 @@ export const useSettingStore = defineStore({
 
             else if (item.hasOwnProperty('labelsToCheck'))
             {
-                console.log('item.isChecked',item.isChecked)
                 this.labelsToCheck(item.labelsToCheck,item.isChecked)
             }
         },
@@ -314,16 +313,15 @@ export const useSettingStore = defineStore({
                 }
             });
 
-// Check if any options with zero quantity were found
             if (errorOptions.length > 0) {
-                // Construct the error message
                 let errorMessage = `Please fill the quantity of the following CRUD options: ${errorOptions.join(', ')}`;
 
-                // Display the error message
                 vaah().toastErrors([errorMessage]);
 
                 return;
             }
+
+            this.is_button_disabled = true ;
 
 
 
@@ -349,15 +347,14 @@ export const useSettingStore = defineStore({
 
         async createBulkRecordsAfter (data, res) {
 
-            // if(res.data.success === true)
-            // {
-            //     this.quantity = null;
-            //     this.selected_crud = null;
-            // }
             this.crud_options.forEach(option => {
                 option.isChecked = false;
+
+                option.quantity = 0;
             });
+
             this.updateCounts();
+
             this.is_button_disabled = false;
 
 
