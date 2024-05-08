@@ -69,7 +69,7 @@ export const useCartStore = defineStore({
         bill_form:null,
         cart_products:null,
         cart_item_at_checkout:[],
-        country_suggestions: null,
+        country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,
     }),
     getters: {
 
@@ -1070,6 +1070,10 @@ export const useCartStore = defineStore({
             });
 
         },
+        toggleNewAddressTab(){
+            this.editingAddress=null;
+            this.shouldShowNewAddressTab=true;
+        },
         async saveCartUserAddress(item,user_id){
             const query = {
                 user_address:item,
@@ -1089,8 +1093,44 @@ export const useCartStore = defineStore({
         saveCartUserAddressAfter(data,res){
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
+                this.editingAddress = null;
             }
         },
+
+       async removeAddress(address){
+           const query = {
+               user_address:address,
+           };
+           const options = {
+               params: query,
+               method: 'post',
+           };
+
+           await vaah().ajax(
+               this.ajax_url+'/remove/cart-user-address',
+               this.removeAddressAfter,
+               options
+           );
+        },
+        removeAddressAfter(data,res){
+            if (data){
+                this.getCartItemDetailsAtCheckout(data.cart_id);
+            }
+        },
+
+        editAddress(address){
+            this.item_user_address = {
+                country: address.country,
+                address_line_1: address.address_line_1,
+                pin_code: address.pin_code,
+                city: address.city,
+                state: address.state
+            };
+
+            this.editingAddress = address;
+            this.shouldShowNewAddressTab = true;
+        },
+
     }
 });
 

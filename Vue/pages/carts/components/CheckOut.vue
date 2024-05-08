@@ -43,10 +43,32 @@ const showAllAddresses = () => {
 const isSelectedAddress = (address) => {
     return address === selectedAddress.value;
 };
-const shouldShowNewAddressTab = ref(false);
-const toggleNewAddressTab = () => {
-    shouldShowNewAddressTab.value = !shouldShowNewAddressTab.value;
+// const shouldShowNewAddressTab = ref(false);
+// const toggleNewAddressTab = () => {
+//     shouldShowNewAddressTab.value = !shouldShowNewAddressTab.value;
+//
+// };
 
+
+// const editAddress=(address)=> {
+//     // Set the pre-filled data in the store
+//     store.item_user_address = {
+//         country: address.country,
+//         address_line_1: address.address_line_1,
+//         pin_code: address.pin_code,
+//         city: address.city,
+//         state: address.state
+//         // Add other fields as needed
+//     };
+//
+//     this.shouldShowNewAddressTab = true;
+// };
+
+const saveAddress=()=>{
+    if (store.editingAddress) {
+        store.item_user_address.id = store.editingAddress.id;
+    }
+    store.saveCartUserAddress(store.item_user_address,store.item_user.id);
 };
 </script>
 
@@ -87,7 +109,7 @@ const toggleNewAddressTab = () => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || shouldShowNewAddressTab">
+                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -152,10 +174,12 @@ const toggleNewAddressTab = () => {
                     <div class="flex justify-content-end gap-2">
                         <!-- Add your Remove and Edit buttons here -->
                         <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>
-                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address,store.item_user.id)"></Button>
+<!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
+                        <Button type="button" label="Save" @click="saveAddress()"></Button>
+
                     </div>
                 </AccordionTab>
-                <AccordionTab header="Shipping Details (Many Address)" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
+                <AccordionTab header="Shipping Details" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <!-- Iterate over user addresses, limit to 3 initially -->
                             <template v-for="(address, index) in displayedAddresses" :key="index">
@@ -173,18 +197,18 @@ const toggleNewAddressTab = () => {
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ store.item_user.phone }}</b>
                                         </div>
-
+                                        <div class="flex justify-content-end gap-2">
+                                            <!-- Add your Remove and Edit buttons here -->
+                                            <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
+                                            <Button type="button" label="Edit" @click="store.editAddress(address)"></Button>
+                                        </div>
                                     </template>
                                 </Card>
                             </template>
-                            <div class="flex justify-content-end gap-2">
-                                <!-- Add your Remove and Edit buttons here -->
-                                <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>
-                                <Button type="button" label="Edit" @click="editAddress(index)"></Button>
-                            </div>
+
                         </div>
                         <div class="flex justify-content-between mt-3">
-                            <Button icon="pi pi-plus" label="Add a new addresses"  @click="toggleNewAddressTab" link />
+                            <Button icon="pi pi-plus" label="Add a new addresses"  @click="store.toggleNewAddressTab" link />
                             <Button v-if="shouldShowViewMoreButton" @click="showAllAddresses" :label="`(${remainingAddressCount}) More Address`" :link="true" />
                         </div>
                     </AccordionTab>

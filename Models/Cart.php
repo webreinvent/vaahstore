@@ -870,18 +870,49 @@ class Cart extends VaahModel
 
 
     public static function saveCartUserAddress($request){
-        $address_details = $request->input('user_address');
-
+        dd($request);
+      $address_details = $request->input('user_address');
         $userId = $request->input('user_id');
-        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->pluck('id')->first();
-        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->pluck('id')->first();
+
+        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
+        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
+
+        if (!$taxonomy_id_address_status || !$taxonomy_id_address_types) {
+            $response['success'] = false;
+            $response['messages'][] = trans("vaahcms-general.error_saving_address");
+            return $response;
+        }
+
         $address_details['vh_user_id'] = $userId;
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
         $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
-        Address::create($address_details);
+
+        $address = Address::findOrNew($address_details['id']);
+        $address->fill($address_details);
+        $address->save(); // Save the address
+
         $cart = Cart::where('vh_user_id', $userId)->first();
+
         $response['success'] = true;
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = [
+            'cart_id' => $cart->id,
+        ];
+
+        return $response;
+    }
+
+    public static function removeCartUserAddress($request){
+        $address_details = $request->input('user_address');
+
+        $vh_user_id = $address_details['vh_user_id'];
+        $address_line_1 = $address_details['address_line_1'];
+
+        Address::where('vh_user_id', $vh_user_id)
+            ->where('address_line_1', $address_line_1)
+            ->delete();
+        $cart = Cart::where('vh_user_id', $vh_user_id)->first();
+        $response['messages'][] = trans("vaahcms-general.successfully_deleted");
         $response['data'] = [
             'cart_id' => $cart->id,
         ];
