@@ -11,13 +11,11 @@
                           @input="store.checkAll(item)"
                           :binary="true" :disabled="item.disabled"/>
             </td>
-
-                <label class="ml-3"> {{ item.label }} </label>
-
             <td>
+                <label class="ml-3"> {{ item.label }} </label>
                 <label class="ml-3">( {{ item.count }} ) </label>
-
             </td>
+
             <td>
                 <InputNumber placeholder="Enter quantity" class="ml-4" v-model="item.quantity"/>
             </td>
