@@ -76,7 +76,7 @@ export const useSettingStore = defineStore({
                 quantity: 0,
                 count: 0,
                 disabled:false,
-                labelsToCheck: ['Vendors', 'Stores']
+                labelsToCheck: ['Products' ,'Stores']
             },
             {
                 label: 'Product Attributes',
@@ -84,7 +84,7 @@ export const useSettingStore = defineStore({
                 isChecked: false,
                 quantity: 0,
                 disabled:false,
-                labelsToCheck: ['Product Variations' , 'Attributes']
+                labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores']
             },
             {
                 label: 'Product Medias',
@@ -93,7 +93,7 @@ export const useSettingStore = defineStore({
                 quantity: 0,
                 count: 0,
                 disabled:false,
-                labelsToCheck:['Products']
+                labelsToCheck:['Products' , 'Product Variations' ,'Stores']
             },
 
             {
@@ -103,7 +103,7 @@ export const useSettingStore = defineStore({
                 quantity: 0,
                 count: 0,
                 disabled:false,
-                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors']
+                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores']
             },
 
             {
@@ -156,7 +156,7 @@ export const useSettingStore = defineStore({
                 quantity: 0 ,
                 count: 0,
                 disabled:false,
-                labelToCheck:['']
+                labelsToCheck: ['Customer']
             },
 
             {
@@ -351,6 +351,8 @@ export const useSettingStore = defineStore({
                 option.isChecked = false;
 
                 option.quantity = 0;
+
+                option.disabled = false
             });
 
             this.updateCounts();
