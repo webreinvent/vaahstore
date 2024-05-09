@@ -388,6 +388,9 @@ export const useSettingStore = defineStore({
         },
 
         fillAll() {
+
+
+            // for all items
             const hasQuantity = this.crud_options.some(item => item.quantity > 0);
 
             if (!hasQuantity) {
@@ -398,10 +401,28 @@ export const useSettingStore = defineStore({
             // Get the quantity of the first item with a non-zero quantity
             const firstNonZeroQuantity = this.crud_options.find(item => item.quantity > 0).quantity;
 
+            const checkedCrud = this.crud_options.filter(item => item.isChecked);
+
             // Set the quantity of all items to the quantity of the first item with a non-zero quantity
-            this.crud_options.forEach(item => {
-                item.quantity = firstNonZeroQuantity;
-            });
+
+            if(checkedCrud.length === 0)
+
+            {
+                this.crud_options.forEach(item => {
+                    item.quantity = firstNonZeroQuantity;
+                });
+            }
+
+            // If any checked items exist
+            if (checkedCrud.length > 0) {
+                // Get the quantity of the first checked item with a non-zero quantity
+                const firstCheckedCrudQuantity = checkedCrud.find(item => item.quantity > 0).quantity;
+
+                // Set the quantity of checked items to the quantity of the first checked item with a non-zero quantity
+                checkedCrud.forEach(item => {
+                    item.quantity = firstCheckedCrudQuantity;
+                });
+            }
         },
 
 
