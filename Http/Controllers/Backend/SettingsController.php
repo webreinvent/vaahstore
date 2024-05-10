@@ -133,7 +133,7 @@ class SettingsController extends Controller
     //----------------------------------------------------------
 
 
-    public function bulkCreateRecords(Request $request)
+    public function createBulkRecords(Request $request)
     {
         $response = [];
 
@@ -142,23 +142,13 @@ class SettingsController extends Controller
 
             $data = $request->all();
 
+            if(empty($data['selectedCrud']))
+            {
+                $response['success'] = false;
+                $response['errors'][] =  trans("vaahcms-vaahstore-crud-action.select_crud");
+                return $response;
 
-
-
-//            if(empty($crud))
-//            {
-//                $response['success'] = false;
-//                $response['errors'][] = trans("vaahcms-general.select_a_crud");
-//                return $response;
-//
-//            }
-//            if(empty($quantity))
-//            {
-//                $response['success'] = false;
-//                $response['errors'][] = trans("vaahcms-general.fill_quantity");
-//                return $response;
-//
-//            }
+            }
 
             foreach ($data['selectedCrud'] as $item) {
 
