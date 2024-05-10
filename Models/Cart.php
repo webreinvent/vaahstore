@@ -778,6 +778,58 @@ class Cart extends VaahModel
 //        return $response;
 //    }
 
+//    public static function getCartItemDetailsAtCheckout($id)
+//    {
+//        $response = [];
+//
+//        $cart = Cart::with(['user', 'products', 'productVariations'])->find($id);
+//
+//        if ($cart) {
+//            $response['success'] = true;
+//            $response['data'] = [
+//                'product_details' => [],
+//                'user_addresses' => null,
+//                'user'=>$cart->user,
+//            ];
+//
+//            // Get user address
+//            $user = $cart->user;
+//            $user_addresses = Address::where('vh_user_id', $user->id)->get();
+//            $response['data']['user_addresses'] = $user_addresses;
+//
+//            foreach ($cart->products as $product) {
+//                // Get product media IDs
+//                $product_media_ids = self::getProductMediaIds($product);
+//
+//                // Get image URLs
+//                $image_urls = self::getImageUrls($product_media_ids);
+//
+//                // Get product variation name
+//                $variation_name = self::getProductVariationName($product);
+//
+//                // Get product price
+//                $price = self::getProductPrice($product);
+//
+//                // Append data to product_details array
+//                $response['data']['product_details'][] = [
+//                    'product_id' => $product->id,
+//                    'name' => $product->name,
+//                    'description' => $product->description,
+//                    'image_urls' => $image_urls,
+//                    'pivot' => [
+//                        'cart_product_variation' => $variation_name,
+//                        'price' => $price,
+//                        'quantity' => $product->pivot->quantity,
+//                    ],
+//                ];
+//            }
+//        } else {
+//            $response['success'] = false;
+//            $response['data'] = null;
+//        }
+//
+//        return $response;
+//    }
     public static function getCartItemDetailsAtCheckout($id)
     {
         $response = [];
@@ -789,7 +841,8 @@ class Cart extends VaahModel
             $response['data'] = [
                 'product_details' => [],
                 'user_addresses' => null,
-                'user'=>$cart->user,
+                'user' => $cart->user,
+                'total_mrp' => 0, // Initialize total price
             ];
 
             // Get user address
@@ -810,6 +863,12 @@ class Cart extends VaahModel
                 // Get product price
                 $price = self::getProductPrice($product);
 
+                // Calculate subtotal for this product
+                $subtotal = $price * $product->pivot->quantity;
+
+                // Add the subtotal of this product to the overall total price
+                $response['data']['total_mrp'] += $subtotal;
+
                 // Append data to product_details array
                 $response['data']['product_details'][] = [
                     'product_id' => $product->id,
@@ -820,6 +879,7 @@ class Cart extends VaahModel
                         'cart_product_variation' => $variation_name,
                         'price' => $price,
                         'quantity' => $product->pivot->quantity,
+                        'subtotal' => $subtotal,
                     ],
                 ];
             }

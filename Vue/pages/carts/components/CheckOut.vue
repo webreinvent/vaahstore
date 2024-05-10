@@ -203,7 +203,9 @@ onMounted(async () => {
                 <AccordionTab header="Billing Details" >
                         <div>
                                 <div class="flex align-items-center mb-2">
-                                    <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />
+<!--                                    <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />-->
+                                    <Checkbox v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
+
                                     <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                                 </div>
                             <div v-show="!store.bill_form?.length==1">
@@ -303,7 +305,7 @@ onMounted(async () => {
                                 <b>Total MRP :</b>
                             </p>
                             <p class="m-0">
-                                ₹6000
+                                ₹{{ store.total_mrp }}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -342,7 +344,7 @@ onMounted(async () => {
                                 <b>Total Amount :</b>
                             </p>
                             <p>
-                                <b>₹4020</b>
+                                <b>₹{{ store.total_mrp - 2000 }}</b>
                             </p>
                         </div>
 

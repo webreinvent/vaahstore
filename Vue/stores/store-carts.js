@@ -1070,6 +1070,7 @@ export const useCartStore = defineStore({
 
 
                 this.item_user = data.user;
+                this.total_mrp = data.total_mrp;
                 this.item_user_address = vaah().clone(this.assets.item_user_address);
                 this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
                 // this.item_user_address=data.user_addresses;
@@ -1166,10 +1167,27 @@ export const useCartStore = defineStore({
             }
             this.saveCartUserAddress(itemUserAddress,isNewUser);
         },
-        async saveBillingAddress(){
 
+        handleSameAsShippingChange() {
+            if (this.selectedAddress ) {
+                if (this.bill_form) {
+
+                    this.item_user_address = { ...this.selectedAddress };
+                    this.item_user.name = this.selectedAddress.display_name;
+                    this.item_user.phone = this.selectedAddress.phone;
+                    this.saveBillingAddress();
+                }
+            }
+        },
+
+        saveBillingAddress() {
+            if (this.bill_form) {
+                console.log(this.item_user_address, this.item_user);
+                // this.saveBillingAddress(this.item_user_address, this.item_user);
+            } else {
+                console.log(this.item_user_address, this.item_user);
+            }
         }
-
     }
 });
 
