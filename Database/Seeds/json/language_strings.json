@@ -1,0 +1,116 @@
+[
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Select Crud",
+        "content": "Select a crud ."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Quantity Required",
+        "content": "The quantity field is required."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create customer role",
+        "content": "Create a  customer role."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create customer",
+        "content": "Create a customer."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store",
+        "content": "Create a store."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create product variation",
+        "content": "Create a product variation."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create product",
+        "content": "Create a product."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create vendor",
+        "content": "Create a vendor."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create attributes",
+        "content": "Create a attribute."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create warehouse",
+        "content": "Create a warehouse."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store and product",
+        "content": "Create vendor and product respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create product and product variation",
+        "content": "Create product and product variation respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store , product and product variation",
+        "content": "Create store , product and product variation respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create attribute , product and product variation",
+        "content": "Create attribute , product and product variation respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create product , product variation and attribute",
+        "content": "Create product and product variation respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store and vendor",
+        "content": "Create store and vendor respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store,vendor and product",
+        "content": "Create store , vendor and product respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store  , vendor , warehouse, product and product variation",
+        "content": "Create store  , vendor , warehouse,  product and product variation respectively"
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store  , attribute , product and product variation",
+        "content": "Create store , attribute , product and product variation respectively"
+    }
+]
