@@ -163,10 +163,9 @@ class SettingsController extends Controller
                         if($is_check === false)
                         {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.fill_quantity");
+                            $response['errors'][] =trans("vaahcms-vaahstore-crud-action.quantity_required");
                             return $response;
                         }
-
                         Store::seedSampleItems($quantity);
                         break;
                     case "Address":
@@ -185,7 +184,7 @@ class SettingsController extends Controller
                         $customer_role = Role::where('slug', 'customer')->first();
                         if (!$customer_role) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_customer_role");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_customer_role");
                             return $response;
                         }
                         User::seedSampleItems($quantity);
@@ -194,7 +193,7 @@ class SettingsController extends Controller
                         $user = User::all()->count();
                         if ($user < 2 ) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_customer");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_customer");
                             return $response;
                         }
                         CustomerGroup::seedSampleItems($quantity);
@@ -203,7 +202,7 @@ class SettingsController extends Controller
                         $store = Store::exists();
                         if (!$store) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store");
                             return $response;
                         }
                         Vendor::seedSampleItems($quantity);
@@ -212,7 +211,7 @@ class SettingsController extends Controller
                         $store = Store::exists();
                         if (!$store) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store");
                             return $response;
                         }
                         Product::seedSampleItems($quantity);
@@ -225,13 +224,13 @@ class SettingsController extends Controller
 
                         if (!$product && !$store) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store and product respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_and_product");
                             return $response;
                         }
 
                         if (!$product) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product");
                             return $response;
                         }
                         ProductVariation::seedSampleItems($quantity);
@@ -243,13 +242,13 @@ class SettingsController extends Controller
 
                         if (!$vendor && !$store) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store and vendor respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_and_vendor");
                             return $response;
                         }
 
                         if (!$vendor) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_vendor");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_vendor");
                             return $response;
                         }
                         Warehouse::seedSampleItems($quantity);
@@ -258,7 +257,7 @@ class SettingsController extends Controller
                         $attribute = Attribute::exists();
                         if (!$attribute) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_attribute");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_attributes");
                             return $response;
                         }
                         AttributeGroup::seedSampleItems($quantity);
@@ -275,36 +274,36 @@ class SettingsController extends Controller
 
                         if (!$store && !$attribute && !$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store , attribute , product and product variation respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_attribute_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$store && !$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store  , product and product variation respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$attribute && !$product_variation && !$product) {
                             $response['success'] = false;
-                            $response['errors'][] = "create product , product variation and attribute respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_attribute_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create product ,  product variation  respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$attribute) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_attribute");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_attributes");
                             return $response;
                         }
                         if (!$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_variation");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product_variation");
                             return $response;
                         }
                         ProductAttribute::seedSampleItems($quantity);
@@ -316,13 +315,13 @@ class SettingsController extends Controller
 
                         if (!$product && !$store) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store and product respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_and_product");
                             return $response;
                         }
 
                         if (!$product) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product");
                             return $response;
                         }
                         ProductMedia::seedSampleItems($quantity);
@@ -340,31 +339,31 @@ class SettingsController extends Controller
 
                         if (!$store && !$warehouse && !$vendor && !$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create store  , vendor , warehouse,  product and product variation respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_vendor_warehouse_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$vendor && !$warehouse && !$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create vendor ,  warehouse , product and product variation respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_vendor_warehouse_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$warehouse && !$product && !$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = "create warehouse , product and product variation respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_warehouse_product_and_product_variation");
                             return $response;
                         }
 
                         if (!$product_variation) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_variation");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product_variation");
                             return $response;
                         }
 
                         if (!$warehouse) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_warehouse");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_warehouse");
                             return $response;
                         }
                         ProductStock::seedSampleItems($quantity);
@@ -379,35 +378,35 @@ class SettingsController extends Controller
                         if (!$product && !$store && !$vendor) {
 
                             $response['success'] = false;
-                            $response['errors'][] = "create a store , vendor and product respectively";
+                            $response['errors'][] =  trans("vaahcms-vaahstore-crud-action.create_storevendor_and_product");
                             return $response;
                         }
 
                         if (!$product && !$vendor) {
 
                             $response['success'] = false;
-                            $response['errors'][] = "create a vendor and product respectively";
+                            $response['errors'][] =  trans("vaahcms-vaahstore-crud-action.create_vendor_and_product");
                             return $response;
                         }
                         if (!$store && !$vendor) {
 
                             $response['success'] = false;
-                            $response['errors'][] = "create a store , vendor respectively";
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_and_vendor");
                             return $response;
                         }
                         if (!$product) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_product");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product");
                             return $response;
                         }
                         if (!$store) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_store");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store");
                             return $response;
                         }
                         if (!$vendor) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-general.create_vendor");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_vendor");
                             return $response;
                         }
                         ProductVendor::seedSampleItems($quantity);
