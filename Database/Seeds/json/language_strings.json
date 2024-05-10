@@ -62,8 +62,14 @@
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
-        "name": "Create store and product",
+        "name": "Create vendor and product",
         "content": "Create vendor and product respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create store and product",
+        "content": "Create store and product respectively."
     },
     {
         "locale_code_iso_639": "en",
@@ -76,6 +82,12 @@
         "category": "vaahstore-crud-action",
         "name": "Create store , product and product variation",
         "content": "Create store , product and product variation respectively."
+    },
+    {
+        "locale_code_iso_639": "en",
+        "category": "vaahstore-crud-action",
+        "name": "Create warehouse , product and product variation",
+        "content": "Create warehouse , product and product variation respectively."
     },
     {
         "locale_code_iso_639": "en",
