@@ -88,4 +88,7 @@ function () {
 
     Route::post('/update/user-shipping-address', [CartsController::class, 'updateUserShippingAddress'])
         ->name('vh.backend.store.carts.update.address');
+
+    Route::post('/create/billing-address', [CartsController::class, 'newBillingAddress'])
+        ->name('vh.backend.store.carts.update.address');
 });

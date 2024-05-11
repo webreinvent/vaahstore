@@ -889,7 +889,8 @@ class Cart extends VaahModel
 
             // Get user address
             $user = $cart->user;
-            $user_addresses = Address::where('vh_user_id', $user->id)->get();
+            $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
+            $user_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_types)->get();
             $response['data']['user_addresses'] = $user_addresses;
 
             foreach ($cart->products as $product) {
@@ -1070,6 +1071,49 @@ class Cart extends VaahModel
         return $response;
     }
 
+
+    public static function newBillingAddress($request){
+        $inputs = $request->input('billing_address_detail');
+
+        $validation = self::validationShippingAddress($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+        $address_details = $request->input('billing_address_detail');
+        $userId = $request->input('user_detail.id');
+//        $user_data = $request->input('user_data');
+
+
+
+        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
+        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Billing')->value('id');
+
+        if (!$taxonomy_id_address_status || !$taxonomy_id_address_types) {
+            $response['success'] = false;
+            $response['messages'][] = trans("vaahcms-general.error_saving_address");
+            return $response;
+        }
+
+        $address_details['vh_user_id'] = $userId;
+        $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
+        $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
+//dd($address_details);
+//        $address = Address::findOrNew($address_details['id'] ?? null);
+        $address = new Address();
+        $address->fill($address_details);
+        $address->save();
+
+        $cart = Cart::where('vh_user_id', $userId)->first();
+
+        $response['success'] = true;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = [
+            'cart_id' => $cart->id,
+        ];
+
+        return $response;
+
+    }
 
 
 }

@@ -83,6 +83,8 @@ export const useCartStore = defineStore({
 
             if (defaultAddress) {
                 this.selectedAddress = defaultAddress;
+            }else if (sortedAddresses.length > 0) {
+                this.selectedAddress = sortedAddresses[0];
             }
 
             return this.showAll ? sortedAddresses : sortedAddresses.slice(0, 2);
@@ -1160,6 +1162,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         removeAddressAfter(data,res){
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
+                this.selectedAddress=null;
             }
         },
 
@@ -1220,22 +1223,40 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         handleSameAsShippingChange() {
             if (this.selectedAddress ) {
                 if (this.bill_form) {
-
                     this.item_user_address = { ...this.selectedAddress };
-                    this.item_user.name = this.selectedAddress.display_name;
-                    this.item_user.phone = this.selectedAddress.phone;
-                    this.saveBillingAddress();
+                    // this.billing_user = this.selectedAddress.display_name;
+                    // this.item_user.phone = this.selectedAddress.phone;
+                    // this.saveBillingAddress( this.item_user_address,);
+                }
+                if (this.bill_form.length === 0){
+                    this.item_user_address = vaah().clone(this.assets.item_user_address);
                 }
             }
+
         },
 
-        saveBillingAddress() {
-            if (this.bill_form) {
-                console.log(this.item_user_address, this.item_user);
-                // this.saveBillingAddress(this.item_user_address, this.item_user);
-            } else {
-                console.log(this.item_user_address, this.item_user);
-            }
+        async newBillingAddress(billing_address,user) {
+            // if (this.bill_form) {
+            //     console.log('asasast',address,user);
+            //     // this.saveBillingAddress(this.item_user_address, this.item_user);
+            // } else {
+            //     console.log(address,user);
+            // }
+
+            const query = {
+                billing_address_detail:billing_address,
+                user_detail:user,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/create/billing-address',
+                this.updateAddressAfter,
+                options
+            );
         },
 
     }

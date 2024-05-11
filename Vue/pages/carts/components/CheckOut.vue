@@ -153,9 +153,7 @@ onMounted(async () => {
                         </VhField>
                     </div>
                     <div class="flex justify-content-end gap-2">
-                        <!-- Add your Remove and Edit buttons here -->
                         <Button v-if="store.many_adresses.length >= 1" type="button" label="Remove" severity="secondary" @click="store.removeTab(index)"></Button>
-<!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
                         <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
 
                         <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>
@@ -204,9 +202,9 @@ onMounted(async () => {
 
                 <AccordionTab header="Billing Details" >
                         <div>
-                                <div class="flex align-items-center mb-2">
+                                <div v-if="store.selectedAddress" class="flex align-items-center mb-2">
 <!--                                    <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />-->
-                                    <Checkbox v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
+                                    <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
 
                                     <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                                 </div>
@@ -230,7 +228,7 @@ onMounted(async () => {
                                                    name="products-name"
                                                    data-testid="products-name"
                                                    placeholder="Enter Full Name "
-                                                   v-model="store.item_user.name"/>
+                                                   v-model="store.item_user_address.name"/>
                                     </VhField>
 
                                     <VhField label="Phone No.">
@@ -238,7 +236,7 @@ onMounted(async () => {
                                                    name="products-phone"
                                                    data-testid="products-phone"
                                                    placeholder="Enter Phone No."
-                                                   v-model="store.item_user.phone"/>
+                                                   v-model="store.item_user_address.phone"/>
                                     </VhField>
                                     <VhField label="Address">
                                         <InputText class="w-full"
@@ -277,7 +275,7 @@ onMounted(async () => {
                     <div class="flex justify-content-end gap-2">
 
                         <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
-                        <Button type="button" label="Save" @click="store.saveBillingAddress(store.item_user_address, store.item_user)"></Button>
+                        <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_user_address, store.item_user)"></Button>
 
                     </div>
                     </AccordionTab>
