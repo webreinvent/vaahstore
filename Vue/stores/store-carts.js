@@ -709,7 +709,11 @@ export const useCartStore = defineStore({
             //     this.item = vaah().clone(item);
             // }
             // this.item = item.user;
+
             this.$router.push({name: 'carts.details',params:{id:item.id},query:this.query})
+            this.cash_on_delivery=null;
+            this.item_billing_address=null;
+            this.bill_form=!this.bill_form;
         },
         //---------------------------------------------------------------------
         checkOut(cart)
@@ -1257,8 +1261,8 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         handleSameAsShippingChange() {
             if (this.selectedAddress ) {
                 if (this.bill_form) {
-                    this.item_user_address = { ...this.selectedAddress };
-                   
+                    this.item_billing_address = { ...this.selectedAddress };
+
                 }
                 if (this.bill_form.length === 0){
                     this.item_user_address = vaah().clone(this.assets.item_user_address);
@@ -1286,6 +1290,31 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             );
         },
         //---------------------------------------------------------------------
+        async placeOrder(orderParams) {
+            console.log(orderParams);
+
+            // Check if orderParams or billing_address is not present
+            if (!orderParams || !orderParams.billing_address) {
+                vaah().toastErrors(['Please provide billing details']);
+                return; // Stop further execution
+            }
+
+            const query = {
+                order_details: orderParams,
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            // Call ajax function with this context for updateAddressAfter
+            await vaah().ajax(
+                this.ajax_url+'/place-order',
+                this.updateAddressAfter,
+                options
+            );
+        }
 
 
     }

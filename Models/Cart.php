@@ -1109,5 +1109,32 @@ class Cart extends VaahModel
 
     }
 
+    public static function placeOrder($request)
+    {
+dd($request);
+        $order = new Order();
+
+//        $order->shipping_address_id = $request->order_details['shipping_address']['id'];
+        $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
+        $order->amount = $request->order_details['total_amount'];
+        $order->payable = $request->order_details['payable'];
+        $order->discount = $request->order_details['discounts'];
+        $order->taxes = $request->order_details['taxes'];
+        $order->delivery_fee = $request->order_details['delivery_fee'];
+
+//        $order->save();
+
+        foreach ($request->order_details['order_items'] as $item) {
+            dd($item);
+            $orderItem = new OrderItem();
+            $orderItem->order_id = $order->id;
+            $orderItem->vh_st_product_id = $item['product_id'];
+            $orderItem->vh_st_product_variation_id = $item['product_id'];
+            $orderItem->quantity = $item['quantity'];
+            $orderItem->save();
+        }
+    }
+
+
 
 }

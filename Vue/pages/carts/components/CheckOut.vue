@@ -2,7 +2,7 @@
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
 import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
-import {onMounted,ref,computed} from "vue";
+import {onMounted, ref, computed, watchEffect} from "vue";
 import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
@@ -20,7 +20,23 @@ onMounted(async () => {
 
 });
 
+const orderParams = ref([]);
 
+// Watch for changes in the required data and update the orderParams array
+watchEffect(() => {
+    orderParams.value = {
+        shipping_address: store.selectedAddress,
+        total_amount: store.total_mrp - 2000,
+        payable: store.total_mrp - 2000,
+        discounts: 2000,
+        taxes: 0,
+        delivery_fee: 0,
+        // userId: store.item_user ,
+        billing_address:store.item_billing_address,
+        payment_method:store.cash_on_delivery,
+        order_items:store.cart_item_at_checkout,
+    };
+});
 </script>
 
 <template>
@@ -260,7 +276,7 @@ onMounted(async () => {
                 </Accordion>
             </div>
             <div>
-                <Card class="border-1 border-gray-200 w-20rem" :pt="{content: {class: 'pb-0'} }">
+                <Card class="border-1 border-gray-200 w-25rem" :pt="{content: {class: 'pb-0'} }">
                     <template #title>Check Summary</template>
                     <template #content>
                         <div class="flex justify-content-between">
@@ -312,7 +328,7 @@ onMounted(async () => {
                         </div>
 
                         <div class="text-center">
-                            <Button label="Place an order" class="bg-blue-700 text-white p-2 mt-3 border-round w-full"/>
+                            <Button label="Place an order" @click="store.placeOrder(orderParams)" class="bg-blue-700 text-white p-2 mt-3 border-round w-full"/>
                         </div>
                     </template>
                 </Card>
