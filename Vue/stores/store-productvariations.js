@@ -339,6 +339,7 @@ this.fetched_product_id=selected_product_id;
                 this.active_user=res.data.active_cart_user;
                 this.total_cart_product= res.data.active_cart_user.cart_records;
                 this.active_cart_user_name = res.data.active_cart_user.first_name;
+                this.cart_id = res.data.active_cart_user.vh_st_cart_id;
             }
             if(data)
             {
@@ -1398,6 +1399,9 @@ this.fetched_product_id=selected_product_id;
             }
 
         },
+        viewCart(id){
+            this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
+        }
 
     },
 

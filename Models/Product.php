@@ -716,6 +716,7 @@ class Product extends VaahModel
         $response['active_cart_user'] = $user;
         if ($user) {
             $response['active_cart_user']['cart_records'] = $cart_records;
+            $response['active_cart_user']['vh_st_cart_id'] = $cart->id;
         }
         return $response;
     }
