@@ -611,6 +611,48 @@ class Cart extends VaahModel
 
     }
 
+    public static function validationShippingAddress($inputs)
+    {
+
+        $rules = array(
+            'country' => 'required',
+            'name' => 'required|max:100',
+            'phone' => 'required|numeric',
+            'address_line_1' => 'required|max:100',
+            'pin_code' => 'required|max:10',
+            'city' => 'required|max:100',
+            'state' => 'required|max:100',
+        );
+
+        $messages = array(
+            'name.required' => 'The Name field is required.',
+            'phone.required' => 'The Phone field is required.',
+            'name.max' => 'The Name field may not be greater than :max characters.',
+            'country.required' => 'The Country field is required.',
+            'state.required' => 'The State field is required.',
+            'pin_code.required' => 'The Pin Code field is required.',
+            'city.required' => 'The City field is required.',
+            'state.max' => 'The State field may not be greater than :max characters.',
+            'address_line_1.required' => 'The Address  field is required.',
+            'address_line_1.max' => 'The Address  field may not be greater than :max characters.',
+            'city.max' => 'The City field may not be greater than :max characters.',
+            'pin_code.max' => 'The Pin Code field may not be greater than :max digits.',
+
+        );
+
+        $validator = \Validator::make($inputs, $rules,$messages);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $response['success'] = false;
+            $response['errors'] = $messages->all();
+            return $response;
+        }
+
+        $response['success'] = true;
+        return $response;
+
+    }
+
     //-------------------------------------------------
     public static function getActiveItems()
     {
@@ -932,6 +974,12 @@ class Cart extends VaahModel
 
     public static function saveCartUserAddress($request){
 //        dd($request);
+        $inputs = $request->input('user_address');
+
+        $validation = self::validationShippingAddress($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
       $address_details = $request->input('user_address');
         $userId = $request->input('user_data.id');
         $user_data = $request->input('user_data');
@@ -969,12 +1017,11 @@ class Cart extends VaahModel
 
     public static function removeCartUserAddress($request){
         $address_details = $request->input('user_address');
+        $shipping_address_id = $request->input('user_address.id');
 
         $vh_user_id = $address_details['vh_user_id'];
-        $address_line_1 = $address_details['address_line_1'];
 
-        Address::where('vh_user_id', $vh_user_id)
-            ->where('address_line_1', $address_line_1)
+        Address::where('id', $shipping_address_id)
             ->delete();
         $cart = Cart::where('vh_user_id', $vh_user_id)->first();
         $response['messages'][] = trans("vaahcms-general.successfully_deleted");
@@ -986,6 +1033,13 @@ class Cart extends VaahModel
 
 
     public static function updateUserShippingAddress($request){
+
+        $inputs = $request->input('address_detail');
+
+        $validation = self::validationShippingAddress($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
         $address_details = $request->input('address_detail');
         $userId = $request->input('user_detail.id');
         $address_id = $address_details['id'];

@@ -154,7 +154,7 @@ onMounted(async () => {
                     </div>
                     <div class="flex justify-content-end gap-2">
                         <!-- Add your Remove and Edit buttons here -->
-<!--                        <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>-->
+                        <Button v-if="store.many_adresses.length >= 1" type="button" label="Remove" severity="secondary" @click="store.removeTab(index)"></Button>
 <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
                         <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
 

@@ -73,8 +73,21 @@ export const useCartStore = defineStore({
     }),
     getters: {
         displayedAddresses() {
-            return this.showAll ? this.many_adresses : this.many_adresses.slice(0, 2);
+            const sortedAddresses = this.many_adresses.sort((a, b) => {
+                if (a.is_default === 1 && b.is_default === 0) return -1;
+                if (a.is_default === 0 && b.is_default === 1) return 1;
+                return 0;
+            });
+
+            const defaultAddress = sortedAddresses.find(address => address.is_default === 1);
+
+            if (defaultAddress) {
+                this.selectedAddress = defaultAddress;
+            }
+
+            return this.showAll ? sortedAddresses : sortedAddresses.slice(0, 2);
         },
+
         showViewMoreButton() {
             return !this.showAll && this.many_adresses.length >= 3;
         },
@@ -1102,7 +1115,7 @@ export const useCartStore = defineStore({
         toggleNewAddressTab(){
             this.editingAddress=null;
             this.isEditing = false;
-
+this.item_user_address=vaah().clone(this.assets.item_user_address);
             this.shouldShowNewAddressTab=true;
         },
         async saveCartUserAddress(item,user_id){
@@ -1192,6 +1205,11 @@ export const useCartStore = defineStore({
             }
 
         },
+
+        removeTab(index){
+            this.shouldShowNewAddressTab=false;
+        },
+
         saveShippingAddress(itemUserAddress, isNewUser){
             if (this.editingAddress) {
                 this.item_user_address.id = this.editingAddress.id;
@@ -1218,7 +1236,8 @@ export const useCartStore = defineStore({
             } else {
                 console.log(this.item_user_address, this.item_user);
             }
-        }
+        },
+
     }
 });
 
