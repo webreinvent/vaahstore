@@ -7,12 +7,12 @@ import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
-let routeParamsId = null;
+let route_params_id = null;
 onMounted(async () => {
     document.title = 'Carts - Check-out';
     if (route.params && route.params.id) {
-        routeParamsId = route.params;
-        await store.getItem(route.params.id);await store.onLoad(route);
+        route_params_id = route.params;
+        await store.onLoad(route);
         await store.getCartItemDetailsAtCheckout(route.params.id);
     }
 
@@ -22,7 +22,6 @@ onMounted(async () => {
 
 const orderParams = ref([]);
 
-// Watch for changes in the required data and update the orderParams array
 watchEffect(() => {
     orderParams.value = {
         shipping_address: store.selectedAddress,
@@ -43,7 +42,7 @@ watchEffect(() => {
     <div class="p-3 bg-white border-1 border-gray-200">
 
         <Button
-            @click="store.cartDetails(routeParamsId)"
+            @click="store.cartDetails(route_params_id)"
             label="Back"/>
         <div class="flex gap-3 my-3">
 
@@ -66,7 +65,7 @@ watchEffect(() => {
                                 <div class="product_desc ml-3">
                                     <h4>{{ product.pivot.cart_product_variation ? product.name + '-' + product.pivot.cart_product_variation : product.name }}</h4>
 
-                                    <p v-if="product.pivot.price"><b>Price: </b>{{ product.pivot.price }}</p>
+                                    <p v-if="product.pivot.price !== null && product.pivot.price !== undefined"><b>Price: </b>{{ product.pivot.price }}</p>
                                     <p v-if="product.pivot.quantity"><b>Qty:</b> {{ product.pivot.quantity }}</p>
                                 </div>
                             </div>

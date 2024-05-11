@@ -9,6 +9,7 @@ const useVaah = vaah();
 const cartProducts = ref([]);
 
 onMounted(async () => {
+    document.title = 'Carts - Items';
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
@@ -34,7 +35,7 @@ const totalAmount = computed(() => {
 <!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
                     <Button
                         @click="this.$router.push({name: 'carts.index'})"
-                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts  {{ store.item.user.first_name }}</b>
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts {{store.cart_products.length}} - {{ store.item.user.first_name }}</b>
 
 
                 </div>

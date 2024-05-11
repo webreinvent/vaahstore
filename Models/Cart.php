@@ -884,7 +884,7 @@ class Cart extends VaahModel
                 'product_details' => [],
                 'user_addresses' => null,
                 'user' => $cart->user,
-                'total_mrp' => 0, // Initialize total price
+                'total_mrp' => 0,
             ];
 
             // Get user address
@@ -893,39 +893,37 @@ class Cart extends VaahModel
             $user_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_types)->get();
             $response['data']['user_addresses'] = $user_addresses;
 
+
             foreach ($cart->products as $product) {
-                // Get product media IDs
-                $product_media_ids = self::getProductMediaIds($product);
+                if (!is_null($product->pivot->vh_st_product_variation_id)) {
+                    $variation_price = self::getProductPrice($product);
 
-                // Get image URLs
-                $image_urls = self::getImageUrls($product_media_ids);
+                    if ($variation_price != 0) {
+                        $product_media_ids = self::getProductMediaIds($product);
+                        $image_urls = self::getImageUrls($product_media_ids);
 
-                // Get product variation name
-                $variation_name = self::getProductVariationName($product);
+                        $variation_name = self::getProductVariationName($product);
 
-                // Get product price
-                $price = self::getProductPrice($product);
+                        $subtotal = $variation_price * $product->pivot->quantity;
 
-                // Calculate subtotal for this product
-                $subtotal = $price * $product->pivot->quantity;
+                        $response['data']['total_mrp'] += $subtotal;
 
-                // Add the subtotal of this product to the overall total price
-                $response['data']['total_mrp'] += $subtotal;
-
-                // Append data to product_details array
-                $response['data']['product_details'][] = [
-                    'product_id' => $product->id,
-                    'name' => $product->name,
-                    'description' => $product->description,
-                    'image_urls' => $image_urls,
-                    'pivot' => [
-                        'cart_product_variation' => $variation_name,
-                        'price' => $price,
-                        'quantity' => $product->pivot->quantity,
-                        'subtotal' => $subtotal,
-                    ],
-                ];
+                        $response['data']['product_details'][] = [
+                            'product_id' => $product->id,
+                            'name' => $product->name,
+                            'description' => $product->description,
+                            'image_urls' => $image_urls,
+                            'pivot' => [
+                                'cart_product_variation' => $variation_name,
+                                'price' => $variation_price,
+                                'quantity' => $product->pivot->quantity,
+                                'subtotal' => $subtotal,
+                            ],
+                        ];
+                    }
+                }
             }
+
         } else {
             $response['success'] = false;
             $response['data'] = null;
