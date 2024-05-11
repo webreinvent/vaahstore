@@ -931,30 +931,13 @@ class Cart extends VaahModel
 
 
     public static function saveCartUserAddress($request){
-        dd($request);
+//        dd($request);
       $address_details = $request->input('user_address');
-        $userId = $request->input('user_data');
+        $userId = $request->input('user_data.id');
         $user_data = $request->input('user_data');
 
-        $existing_user = User::where('display_name', $user_data['display_name'])->first();
 
-//        dd($existingUser);
-        if ($existing_user) {
-            $userId = $existing_user->id;
-        } else {
-            $new_user = new User();
 
-            $new_user->email = $user_data['email'];
-            $new_user->first_name = $user_data['display_name'];
-            $new_user->display_name = $user_data['display_name'];
-            $new_user->phone = $user_data['phone'];
-            $new_user->save();
-            Role::syncRolesWithUsers();
-            $registered_role = Role::where('slug', 'customer')->first();
-            $registered_role?->users()->updateExistingPivot($new_user, ['is_active' => 1]);
-            $userId = $new_user->id;
-        }
-        dd(2);
         $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
         $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
 
@@ -967,11 +950,11 @@ class Cart extends VaahModel
         $address_details['vh_user_id'] = $userId;
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
         $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
-
-        $address = Address::findOrNew($address_details['id'] ?? null);
-
+//dd($address_details);
+//        $address = Address::findOrNew($address_details['id'] ?? null);
+        $address = new Address();
         $address->fill($address_details);
-        $address->save(); // Save the address
+        $address->save();
 
         $cart = Cart::where('vh_user_id', $userId)->first();
 
@@ -1001,6 +984,37 @@ class Cart extends VaahModel
         return $response;
     }
 
+
+    public static function updateUserShippingAddress($request){
+        $address_details = $request->input('address_detail');
+        $userId = $request->input('user_detail.id');
+        $address_id = $address_details['id'];
+        $address = Address::find($address_id);
+
+        if (!$address) {
+            $response['success'] = false;
+            $response['messages'][] = trans("vaahcms-general.error_saving_address");
+            return $response;
+        }
+
+        $address->country = $address_details['country'];
+        $address->name = $address_details['name'];
+        $address->phone = $address_details['phone'];
+        $address->address_line_1 = $address_details['address_line_1'];
+        $address->pin_code = $address_details['pin_code'];
+        $address->city = $address_details['city'];
+        $address->state = $address_details['state'];
+
+        $address->save();
+        $cart = Cart::where('vh_user_id', $userId)->first();
+        $response['success'] = true;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = [
+            'cart_id' => $cart->id,
+        ];
+
+        return $response;
+    }
 
 
 

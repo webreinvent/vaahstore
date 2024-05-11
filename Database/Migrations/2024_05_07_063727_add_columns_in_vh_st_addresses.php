@@ -16,6 +16,8 @@ class AddColumnsInVhStAddresses extends Migration
 
         Schema::table('vh_st_addresses', function($table) {
             $table->after('address_line_2',function($table){
+                $table->string('name')->nullable()->index();
+                $table->bigInteger('phone')->nullable()->index();
                 $table->string('pin_code')->nullable()->index();
                 $table->string('city')->nullable()->index();
                 $table->string('state')->nullable()->index();
@@ -32,7 +34,7 @@ class AddColumnsInVhStAddresses extends Migration
     public function down()
     {
         Schema::table('vh_st_addresses', function($table) {
-            $table->dropColumn(['pin_code','city','state','country']);
+            $table->dropColumn(['name','phone','pin_code','city','state','country']);
 
         });
     }

@@ -35,7 +35,7 @@ class Address extends VaahModel
         'vh_user_id',
         'taxonomy_id_address_types',
         'taxonomy_id_address_status',
-        'address_line_1', 'city','country', 'state','pin_code',
+        'address_line_1','name','phone', 'city','country', 'state','pin_code',
         'address_line_2',
         'is_default',
         'status_notes',

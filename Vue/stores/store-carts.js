@@ -1101,6 +1101,8 @@ export const useCartStore = defineStore({
         },
         toggleNewAddressTab(){
             this.editingAddress=null;
+            this.isEditing = false;
+
             this.shouldShowNewAddressTab=true;
         },
         async saveCartUserAddress(item,user_id){
@@ -1123,6 +1125,7 @@ export const useCartStore = defineStore({
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.editingAddress = null;
+                this.shouldShowNewAddressTab=false;
             }
         },
 
@@ -1148,9 +1151,13 @@ export const useCartStore = defineStore({
         },
 
         editAddress(address,itemUser){
+
             this.new_user_at_shipping = { ...itemUser };
             this.item_user_address = {
+                id:address.id,
                 country: address.country,
+                name: address.name,
+                phone: address.phone,
                 address_line_1: address.address_line_1,
                 pin_code: address.pin_code,
                 city: address.city,
@@ -1159,8 +1166,32 @@ export const useCartStore = defineStore({
 
             this.editingAddress = address;
             this.shouldShowNewAddressTab = true;
+            this.isEditing = true;
         },
+        async updateAddress(address,user){
+            const query = {
+                address_detail:address,
+                user_detail:user,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
 
+            await vaah().ajax(
+                this.ajax_url+'/update/user-shipping-address',
+                this.updateAddressAfter,
+                options
+            );
+        },
+        updateAddressAfter(data,res){
+            if (data){
+                this.editingAddress = null;
+                this.getCartItemDetailsAtCheckout(data.cart_id);
+                this.shouldShowNewAddressTab = false;
+            }
+
+        },
         saveShippingAddress(itemUserAddress, isNewUser){
             if (this.editingAddress) {
                 this.item_user_address.id = this.editingAddress.id;

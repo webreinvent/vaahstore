@@ -84,5 +84,8 @@ function () {
     Route::post('/save/cart-user-address', [CartsController::class, 'saveCartUserAddress'])
         ->name('vh.backend.store.carts.save.adress');
     Route::post('/remove/cart-user-address', [CartsController::class, 'removeCartUserAddress'])
-        ->name('vh.backend.store.carts.save.adress');
+        ->name('vh.backend.store.carts.save.address');
+
+    Route::post('/update/user-shipping-address', [CartsController::class, 'updateUserShippingAddress'])
+        ->name('vh.backend.store.carts.update.address');
 });

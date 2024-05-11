@@ -111,7 +111,7 @@ onMounted(async () => {
                                        name="products-name"
                                        data-testid="products-name"
                                        placeholder="Enter Full Name "
-                                       v-model="store.new_user_at_shipping.display_name "/>
+                                       v-model="store.item_user_address.name "/>
                         </VhField>
 
                         <VhField label="Phone No.">
@@ -119,7 +119,7 @@ onMounted(async () => {
                                        name="products-phone"
                                        data-testid="products-phone"
                                        placeholder="Enter Phone No."
-                                       v-model="store.new_user_at_shipping.phone"/>
+                                       v-model="store.item_user_address.phone"/>
                         </VhField>
                         <VhField label="Address">
                             <InputText class="w-full"
@@ -156,7 +156,9 @@ onMounted(async () => {
                         <!-- Add your Remove and Edit buttons here -->
 <!--                        <Button type="button" label="Remove" severity="secondary" @click="removeAddress(index)"></Button>-->
 <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
-                        <Button type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.new_user_at_shipping)"></Button>
+                        <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
+
+                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>
 
                     </div>
                 </AccordionTab>
@@ -169,14 +171,14 @@ onMounted(async () => {
                                         <div class="flex align-items-center">
                                             <!-- Use RadioButton for address selection if needed -->
                                             <RadioButton v-model="store.selectedAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
-                                            <label :for="'address' + index" class="ml-2"><b>{{  store.item_user.display_name }}</b></label>
+                                            <label :for="'address' + index" class="ml-2"><b>{{  address.name }}</b></label>
                                         </div>
                                         <div class="p-2">
                                             <p>{{ address.address_line_1 }}, {{ address.city }}</p>
                                             <span>{{ address.country }}</span>
                                         </div>
                                         <div class="p-2">
-                                            <span>Mobile: </span><b>{{ store.item_user.phone }}</b>
+                                            <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
                                         <li class="p-2" v-if="store.isSelectedAddress(address)">Pay On Delivery Available</li>
                                         <div v-if="store.isSelectedAddress(address)"  class="flex justify-content gap-2 mt-5">
