@@ -983,7 +983,6 @@ class Cart extends VaahModel
         }
       $address_details = $request->input('user_address');
         $userId = $request->input('user_data.id');
-        $user_data = $request->input('user_data');
 
 
 
@@ -999,8 +998,7 @@ class Cart extends VaahModel
         $address_details['vh_user_id'] = $userId;
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
         $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
-//dd($address_details);
-//        $address = Address::findOrNew($address_details['id'] ?? null);
+
         $address = new Address();
         $address->fill($address_details);
         $address->save();
@@ -1081,9 +1079,6 @@ class Cart extends VaahModel
         }
         $address_details = $request->input('billing_address_detail');
         $userId = $request->input('user_detail.id');
-//        $user_data = $request->input('user_data');
-
-
 
         $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
         $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Billing')->value('id');
@@ -1097,8 +1092,7 @@ class Cart extends VaahModel
         $address_details['vh_user_id'] = $userId;
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
         $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
-//dd($address_details);
-//        $address = Address::findOrNew($address_details['id'] ?? null);
+
         $address = new Address();
         $address->fill($address_details);
         $address->save();

@@ -1044,9 +1044,14 @@ export const useCartStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         updateQuantityAfter(data,res){
             this.getItem(data);
         },
+
+        //---------------------------------------------------------------------
+
         async deleteCartItem(pivot_data){
             const query = {
                 cart_product_details:pivot_data,
@@ -1062,11 +1067,15 @@ export const useCartStore = defineStore({
                 options
             );
         },
+
+        //---------------------------------------------------------------------
+
         deleteCartItemAfter(data,res){
             if (data){
                 this.getItem(data.cart.id);
             }
         },
+        //---------------------------------------------------------------------
 
         async getCartItemDetailsAtCheckout(id) {
             if(id){
@@ -1107,6 +1116,9 @@ export const useCartStore = defineStore({
             await this.getItemMenu();
             await this.getFormMenu();
         },
+
+        //---------------------------------------------------------------------
+
         searchCountry(event) {
 
             this.country_suggestions = this.countries.filter((department) => {
@@ -1114,6 +1126,9 @@ export const useCartStore = defineStore({
             });
 
         },
+
+        //---------------------------------------------------------------------
+
         toggleNewAddressTab(){
             this.editingAddress=null;
             this.isEditing = false;
@@ -1136,6 +1151,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 options
             );
         },
+
+        //---------------------------------------------------------------------
+
         saveCartUserAddressAfter(data,res){
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
@@ -1144,7 +1162,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             }
         },
 
-       async removeAddress(address){
+        //---------------------------------------------------------------------
+
+        async removeAddress(address){
            const query = {
                user_address:address,
            };
@@ -1165,6 +1185,8 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 this.selectedAddress=null;
             }
         },
+        //---------------------------------------------------------------------
+
 
         editAddress(address,itemUser){
 
@@ -1184,6 +1206,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             this.shouldShowNewAddressTab = true;
             this.isEditing = true;
         },
+
+        //---------------------------------------------------------------------
+
         async updateAddress(address,user){
             const query = {
                 address_detail:address,
@@ -1200,6 +1225,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 options
             );
         },
+
+        //---------------------------------------------------------------------
+
         updateAddressAfter(data,res){
             if (data){
                 this.editingAddress = null;
@@ -1208,10 +1236,14 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             }
 
         },
+        //---------------------------------------------------------------------
+
 
         removeTab(index){
             this.shouldShowNewAddressTab=false;
         },
+
+        //---------------------------------------------------------------------
 
         saveShippingAddress(itemUserAddress, isNewUser){
             if (this.editingAddress) {
@@ -1220,13 +1252,13 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             this.saveCartUserAddress(itemUserAddress,isNewUser);
         },
 
+        //---------------------------------------------------------------------
+
         handleSameAsShippingChange() {
             if (this.selectedAddress ) {
                 if (this.bill_form) {
                     this.item_user_address = { ...this.selectedAddress };
-                    // this.billing_user = this.selectedAddress.display_name;
-                    // this.item_user.phone = this.selectedAddress.phone;
-                    // this.saveBillingAddress( this.item_user_address,);
+                   
                 }
                 if (this.bill_form.length === 0){
                     this.item_user_address = vaah().clone(this.assets.item_user_address);
@@ -1235,14 +1267,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         },
 
-        async newBillingAddress(billing_address,user) {
-            // if (this.bill_form) {
-            //     console.log('asasast',address,user);
-            //     // this.saveBillingAddress(this.item_user_address, this.item_user);
-            // } else {
-            //     console.log(address,user);
-            // }
+        //---------------------------------------------------------------------
 
+        async newBillingAddress(billing_address,user) {
             const query = {
                 billing_address_detail:billing_address,
                 user_detail:user,
@@ -1258,6 +1285,8 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 options
             );
         },
+        //---------------------------------------------------------------------
+
 
     }
 });

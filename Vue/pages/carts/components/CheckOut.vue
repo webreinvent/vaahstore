@@ -20,37 +20,7 @@ onMounted(async () => {
 
 });
 
-// const selectedAddress = ref(null);
-// const showAll = ref(false);
-//
-// const displayedAddresses = computed(() => {
-//     return showAll.value ? store.many_adresses : store.many_adresses.slice(0, 2);
-// });
-//
-// const showViewMoreButton = computed(() => {
-//     return !showAll.value && store.many_adresses.length >= 3;
-// });
-// const remainingAddressCount = computed(() => {
-//     return store.many_adresses.length - 2;
-// });
-//
-// const showAllAddresses = () => {
-//     showAll.value = true;
-// };
-// const hideAddressTab = () => {
-//     showAll.value = !showAll.value;
-// };
-// const isSelectedAddress = (address) => {
-//     return address === selectedAddress.value;
-// };
 
-
-// const saveAddress=()=>{
-//     if (store.editingAddress) {
-//         store.item_user_address.id = store.editingAddress.id;
-//     }
-//     store.saveCartUserAddress(store.item_user_address,store.new_user_at_shipping);
-// };
 </script>
 
 <template>
@@ -80,9 +50,7 @@ onMounted(async () => {
                                 <div class="product_desc ml-3">
                                     <h4>{{ product.pivot.cart_product_variation ? product.name + '-' + product.pivot.cart_product_variation : product.name }}</h4>
 
-                                    <!-- Replace static price with dynamic data if available -->
                                     <p v-if="product.pivot.price"><b>Price: </b>{{ product.pivot.price }}</p>
-                                    <!-- Replace static quantity with dynamic data if available -->
                                     <p v-if="product.pivot.quantity"><b>Qty:</b> {{ product.pivot.quantity }}</p>
                                 </div>
                             </div>
@@ -90,7 +58,7 @@ onMounted(async () => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (No Address)" v-if="(store && store.item && store.item_user&& store.new_user_at_shipping && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab header="Shipping Details (Add New Address)" v-if="(store && store.item && store.item_user&& store.new_user_at_shipping && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -160,14 +128,12 @@ onMounted(async () => {
 
                     </div>
                 </AccordionTab>
-                <AccordionTab header="Shipping Details" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
+                <AccordionTab header="Shipping Details (Other Addresses)" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
-                            <!-- Iterate over user addresses, limit to 3 initially -->
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedAddress(address) }" @click="store.setSelectedAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
                                         <div class="flex align-items-center">
-                                            <!-- Use RadioButton for address selection if needed -->
                                             <RadioButton v-model="store.selectedAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
                                             <label :for="'address' + index" class="ml-2"><b>{{  address.name }}</b></label>
                                         </div>
@@ -180,7 +146,6 @@ onMounted(async () => {
                                         </div>
                                         <li class="p-2" v-if="store.isSelectedAddress(address)">Pay On Delivery Available</li>
                                         <div v-if="store.isSelectedAddress(address)"  class="flex justify-content gap-2 mt-5">
-                                            <!-- Add your Remove and Edit buttons here -->
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
@@ -203,7 +168,6 @@ onMounted(async () => {
                 <AccordionTab header="Billing Details" >
                         <div>
                                 <div v-if="store.selectedAddress" class="flex align-items-center mb-2">
-<!--                                    <Checkbox v-model="store.bill_form" inputId="ingredient1" name="bill_form" value="1" />-->
                                     <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
 
                                     <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
@@ -274,7 +238,6 @@ onMounted(async () => {
                         </div>
                     <div class="flex justify-content-end gap-2">
 
-                        <!--                        <Button type="button" label="Save" @click="store.saveCartUserAddress(store.item_user_address, store.item_user.id)"></Button>-->
                         <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_user_address, store.item_user)"></Button>
 
                     </div>
@@ -284,12 +247,12 @@ onMounted(async () => {
 
                     <AccordionTab header="Payment">
                         <div class="flex flex-column px-4 gap-2 max-w-14rem">
-                            <label for="ingredient" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">
-                                <RadioButton v-model="ingredient" inputId="ingredient1" name="pizza" value="Cheese"/>
-                                <span class="ml-2">Gpay</span>
-                            </label>
-                                <label for="ingredient1" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">
-                                    <RadioButton v-model="ingredient" inputId="ingredient1" name="pizza" value="Cheese"/>
+<!--                            <label for="ingredient" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">-->
+<!--                                <RadioButton v-model="ingredient" inputId="ingredient1" name="pizza" value="Cheese"/>-->
+<!--                                <span class="ml-2">Gpay</span>-->
+<!--                            </label>-->
+                                <label for="ingredient1" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">{{store.cash_on_delivery}}
+                                    <RadioButton v-model="store.cash_on_delivery" inputId="COD" name="COD" value="COD"/>
                                     <span class="ml-2">Cash On Delivery</span>
                                 </label>
                         </div>
