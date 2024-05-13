@@ -12,7 +12,7 @@ onMounted(async () => {
     document.title = 'Carts - Check-out';
     if (route.params && route.params.id) {
         route_params_id = route.params;
-        await store.onLoad(route);
+        await store.getItem(route.params.id);await store.onLoad(route);
         await store.getCartItemDetailsAtCheckout(route.params.id);
     }
 
@@ -73,7 +73,7 @@ watchEffect(() => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (Add New Address)" v-if="(store && store.item && store.item_user&& store.new_user_at_shipping && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab header="Shipping Details (Add New Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -136,14 +136,14 @@ watchEffect(() => {
                         </VhField>
                     </div>
                     <div class="flex justify-content-end gap-2">
-                        <Button v-if="store.many_adresses.length >= 1" type="button" label="Remove" severity="secondary" @click="store.removeTab(index)"></Button>
+                        <Button v-if="store.many_adresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
                         <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
 
                         <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>
 
                     </div>
                 </AccordionTab>
-                <AccordionTab header="Shipping Details (Other Addresses)" v-if="store && store.item && store.item_user && store.user_address &&store.many_adresses && store.many_adresses.length >= 1">
+                <AccordionTab header="Shipping Details (Other Addresses)" v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedAddress(address) }" @click="store.setSelectedAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
