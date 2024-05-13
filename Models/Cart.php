@@ -752,7 +752,10 @@ class Cart extends VaahModel
                 ->toArray();
 
             if (!empty($cart_product_table_ids)) {
-                $cart->products()->detach($cart_product_table_ids);
+                foreach ($cart_product_table_ids as $cart_product_id) {
+                    $cart->cartItems()->detach($cart_product_id);
+                }
+
                 $response['messages'][] = trans("vaahcms-general.record_deleted");
             }
         }
@@ -772,13 +775,26 @@ class Cart extends VaahModel
     public static function deleteCartItem($request){
         $cart_id = $request['cart_product_details']['vh_st_cart_id'];
         $variation_id = $request['cart_product_details']['vh_st_product_variation_id'] ?? null;
-
+        $product_id = $request['cart_product_details']['vh_st_product_id'];
+        $vendor_id = $request['cart_product_details']['vh_st_vendor_id'];
         $cart = Cart::find($cart_id);
 
         if ($variation_id === null) {
             $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
         } else {
-            $cart->productVariations()->detach($variation_id);
+            $cart_product_table_ids = $cart->products()
+                ->wherePivot('vh_st_cart_id', $cart_id)
+                ->wherePivot('vh_st_product_id', $product_id)
+                ->wherePivot('vh_st_product_variation_id', $variation_id)
+                ->wherePivot('vh_st_vendor_id', $vendor_id)
+                ->pluck('vh_st_cart_products.id')
+                ->toArray();
+
+            if (!empty($cart_product_table_ids)) {
+                foreach ($cart_product_table_ids as $cart_product_id) {
+                    $cart->cartItems()->detach($cart_product_id);
+                }
+            }
         }
 
         return [
