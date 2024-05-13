@@ -123,13 +123,19 @@ class Cart extends VaahModel
     public function products()
     {
         return $this->belongsToMany(Product::class, 'vh_st_cart_products', 'vh_st_cart_id', 'vh_st_product_id')
-            ->withPivot('vh_st_product_variation_id', 'quantity');
+            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id');
     }
     //-------------------------------------------------
     public function productVariations()
     {
         return $this->belongsToMany(ProductVariation::class, 'vh_st_cart_products', 'vh_st_cart_id', 'vh_st_product_variation_id')
-            ->withPivot('vh_st_product_id', 'quantity')->with('product');
+            ->withPivot('vh_st_product_id', 'quantity','vh_st_vendor_id')->with('product');
+    }
+    //-------------------------------------------------
+    public function cartItems()
+    {
+        return $this->belongsToMany(self::class, 'vh_st_cart_products', 'vh_st_cart_id', 'id')
+            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -488,10 +494,24 @@ class Cart extends VaahModel
         }
         foreach ($item->products as $product) {
             $variation_id = $product->pivot->vh_st_product_variation_id;
+            $vendor_id = $product->pivot->vh_st_vendor_id;
             $variation = ProductVariation::find($variation_id);
             $variation_name = $variation?->name;
+
+            $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
+                ->where('vh_st_vendor_id', $vendor_id)
+                ->value('amount');
+            if ($price === null) {
+                $price = ProductVariation::getPriceOfProductVariants($variation_id);
+            }
             $product->pivot->cart_product_variation = $variation_name;
-            $product->pivot->price = ProductVariation::getPriceOfProductVariants($variation_id);
+            $product->pivot->price = $price;
+
+//            $product->pivot->cart_product_variation = $variation_name;
+//            $product->pivot->price = ProductVariation::getPriceOfProductVariants($variation_id);
+//            $selected_vendor = Product::getPriceRangeOfProduct($product->id);
+//            $product->pivot->vendor_to_this_product =  $selected_vendor;
+//            $product->pivot->vendor_id = Product::getRandomVendor($product->id);
         }
 
         $response['success'] = true;
@@ -715,27 +735,36 @@ class Cart extends VaahModel
 
     //-------------------------------------------------
     public static function updateQuantity($request){
-
         $cart_id = $request['cart_product_details']['vh_st_cart_id'];
         $product_id = $request['cart_product_details']['vh_st_product_id'];
         $variation_id = $request['cart_product_details']['vh_st_product_variation_id'];
+        $vendor_id = $request['cart_product_details']['vh_st_vendor_id'];
         $new_quantity = $request['quantity'];
 
         $cart = Cart::find($cart_id);
-        $product = Product::find($product_id);
         if ($new_quantity < 1) {
-            $cart->products()->detach($product_id);
-            $response['data'] = $cart_id;
-            $response['messages'][] = trans("vaahcms-general.record_deleted");
-        } else {
+            $cart_product_table_ids = $cart->products()
+                ->wherePivot('vh_st_cart_id', $cart_id)
+                ->wherePivot('vh_st_product_id', $product_id)
+                ->wherePivot('vh_st_product_variation_id', $variation_id)
+                ->wherePivot('vh_st_vendor_id', $vendor_id)
+                ->pluck('vh_st_cart_products.id')
+                ->toArray();
+
+            if (!empty($cart_product_table_ids)) {
+                $cart->products()->detach($cart_product_table_ids);
+                $response['messages'][] = trans("vaahcms-general.record_deleted");
+            }
+        }
+        else {
             $cart->products()->updateExistingPivot($product_id, [
                 'quantity' => $new_quantity,
                 'vh_st_product_variation_id' => $variation_id
             ]);
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
-            $response['data'] = $cart_id;
-        }
 
+        }
+        $response['data'] = $cart_id;
         return $response;
     }
 
@@ -896,8 +925,15 @@ class Cart extends VaahModel
 
             foreach ($cart->products as $product) {
                 if (!is_null($product->pivot->vh_st_product_variation_id)) {
-                    $variation_price = self::getProductPrice($product);
-
+//                    $variation_price = self::getProductPrice($product);
+                    $vendor_id = $product->pivot->vh_st_vendor_id;
+                    $variation_id = $product->pivot->vh_st_product_variation_id;
+                    $variation_price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
+                        ->where('vh_st_vendor_id', $vendor_id)
+                        ->value('amount');
+                    if ($variation_price === null) {
+                        $variation_price = self::getProductPrice($product);
+                    }
                     if ($variation_price != 0) {
                         $product_media_ids = self::getProductMediaIds($product);
                         $image_urls = self::getImageUrls($product_media_ids);
@@ -915,9 +951,11 @@ class Cart extends VaahModel
                             'image_urls' => $image_urls,
                             'pivot' => [
                                 'cart_product_variation' => $variation_name,
+                                'product_variation_id' => $product->pivot->vh_st_product_variation_id,
                                 'price' => $variation_price,
                                 'quantity' => $product->pivot->quantity,
                                 'subtotal' => $subtotal,
+                                'selected_vendor_id' => $product->pivot->vh_st_vendor_id,
                             ],
                         ];
                     }

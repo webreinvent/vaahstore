@@ -721,7 +721,10 @@ export const useCartStore = defineStore({
             // if(!this.item || !this.item.id || this.item.id !== item.id){
             //     this.item = vaah().clone(item);
             // }
-
+            if(this.cart_products.length<1){
+                vaah().toastErrors(['No product available in the cart']);
+                return;
+            }
             this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
             this.item_user_address = vaah().clone(this.assets.item_user_address);
 

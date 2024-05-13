@@ -55,7 +55,7 @@ watchEffect(() => {
                                 <div class="product_img">
                                     <div v-if="Array.isArray(product.image_urls) && product.image_urls.length > 0">
                                         <div v-for="(imageUrl, imgIndex) in product.image_urls" :key="imgIndex">
-                                            <Image preview :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl" alt="Error" class="shadow-4" width="64" />
+                                            <Image preview :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl" alt="Error" class="shadow-4" width="100" />
                                         </div>
                                     </div>
                                     <div v-else>

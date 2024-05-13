@@ -19,6 +19,7 @@ class VhStCartProducts extends Migration
             $table->uuid('uuid')->nullable()->index();
 
             $table->integer('vh_st_cart_id')->nullable()->index();
+            $table->integer('vh_st_vendor_id')->nullable()->index();
             $table->integer('vh_st_product_id')->nullable()->index();
             $table->integer('vh_st_product_variation_id')->nullable()->index();
             $table->integer('quantity')->nullable()->index();

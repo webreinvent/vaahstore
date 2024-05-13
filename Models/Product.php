@@ -1780,12 +1780,13 @@ class Product extends VaahModel
             }
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
             $response['data'] = $user;
+            $response['data']['selected_vendor_id'] = $selected_vendor['id'];
             return $response;
         }
 
         $product_with_variants = self::getDefaultVariation($product);
 
-        self::attachProductToCart($cart, $product, $product_with_variants);
+        self::attachProductToCart($cart, $product, $product_with_variants,$selected_vendor['id'] ?? null);
 
 //        Session::forget('vh_user_id');
         Session::put('vh_user_id', $user->id);
@@ -1813,11 +1814,12 @@ class Product extends VaahModel
         }
     }
 
-    protected static function attachProductToCart($cart, $product, $product_with_variants)
+    protected static function attachProductToCart($cart, $product, $product_with_variants,$selected_vendor_id)
     {
         if ($product_with_variants) {
             $cart->products()->attach($product->id, [
                 'vh_st_product_variation_id' => $product_with_variants['variation_id'],
+                'vh_st_vendor_id' => $selected_vendor_id,
                 'quantity' =>1
             ]);
         } else {
