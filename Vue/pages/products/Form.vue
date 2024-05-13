@@ -215,6 +215,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"
                         selectionMode="multiple"
+                        display="chip"
                         placeholder="Select Category"
                         :show-count="true"
                         data-testid="product-category"

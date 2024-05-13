@@ -121,7 +121,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by'|| column === 'parent_category_name'|| column === 'parent_category' || column === 'updated_by'
+                        <template v-if="column === 'created_by'|| column === 'parent_category_name'|| column === 'meta'|| column === 'category_id'|| column === 'parent_category' || column === 'updated_by'
                         || column === 'deleted_by'">
                         </template>
 
@@ -131,17 +131,7 @@ const toggleItemMenu = (event) => {
                                        :can_copy="true"
                             />
                         </template>
-
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
-                        || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="user"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'parent_category_id'">
-
+                        <template v-else-if="column === 'name'">
                             <tr v-if="store.item.parent_category">
                                 <td><b>Parent Category</b></td>
                                 <td  colspan="2" >
@@ -150,7 +140,24 @@ const toggleItemMenu = (event) => {
                                     </span>
                                 </td>
                             </tr>
+                            <tr v-if="store.item.parent_category">
+                                <td><b>Name</b></td>
+                                <td  colspan="2" >
+                                    <span >
+                                        {{store.item.name}}
+                                    </span>
+                                </td>
+                            </tr>
                         </template>
+                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                        || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                            <VhViewRow :label="column"
+                                       :value="value"
+                                       type="user"
+                            />
+                        </template>
+
+
                         <template v-else-if="column === 'is_active'">
                             <VhViewRow :label="column"
                                        :value="value"

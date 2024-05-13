@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useCategoryStore } from '../../stores/store-categories'
+import {useCategoryStore} from '../../stores/store-categories'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
@@ -13,9 +13,8 @@ onMounted(async () => {
     /**
      * Fetch the record from the database
      */
-    if((!store.item || Object.keys(store.item).length < 1)
-            && route.params && route.params.id)
-    {
+    if ((!store.item || Object.keys(store.item).length < 1)
+        && route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
 
@@ -32,7 +31,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-6">
 
         <Panel class="is-small">
 
@@ -92,7 +91,7 @@ const toggleFormMenu = (event) => {
 
                     <Menu ref="form_menu"
                           :model="store.form_menu_list"
-                          :popup="true" />
+                          :popup="true"/>
                     <!--/form_menu-->
 
 
@@ -102,7 +101,6 @@ const toggleFormMenu = (event) => {
                             @click="store.toList()">
                     </Button>
                 </div>
-
 
 
             </template>
@@ -119,7 +117,7 @@ const toggleFormMenu = (event) => {
                     <div class="flex align-items-center justify-content-between">
 
                         <div class="">
-                            Deleted {{store.item.deleted_at}}
+                            Deleted {{ store.item.deleted_at }}
                         </div>
 
                         <div class="ml-3">
@@ -138,12 +136,11 @@ const toggleFormMenu = (event) => {
                     <TreeSelect
                         v-model="store.item.parent_category"
                         :options="store.categories_dropdown_data"
-
                         placeholder="Select category"
                         :show-count="true"
                         data-testid="categories-parent_category"
                         @change="store.setParentId()"
-                        class=" w-full" />
+                        class=" w-full"/>
 
                 </VhField>
                 <VhField label="Name">
