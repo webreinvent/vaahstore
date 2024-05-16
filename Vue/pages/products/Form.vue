@@ -212,13 +212,13 @@ const toggleFormMenu = (event) => {
                 </VhField>
                 <VhField label="Categories">
                     <TreeSelect
-                        v-model="store.item.parent_category"
+                        v-model="store.item.categories"
                         :options="store.categories_dropdown_data"
                         selectionMode="multiple"
                         display="chip"
                         placeholder="Select Category"
                         :show-count="true"
-                        data-testid="product-category"
+                        data-testid="product-categories"
                         @change="store.setParentId()"
                         class=" w-full" />
 

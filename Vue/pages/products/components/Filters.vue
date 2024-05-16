@@ -2,12 +2,16 @@
 
 import { useProductStore } from '../../../stores/store-products'
 import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-import {computed} from "vue";
+import {computed, onMounted} from "vue";
 
 
 const store = useProductStore();
 
+onMounted(async () => {
 
+    await store.getCategories();
+
+});
 
 
 </script>
@@ -36,8 +40,9 @@ const store = useProductStore();
                     v-model="store.product_category_filter"
                     :options="store.categories_dropdown_data"
                     selectionMode="multiple"
-                    @node-select="store.setFilter($event)"
-                    @node-unselect="store.removeFilter($event)"
+                    display="chip"
+                    @node-select="store.selectCategoryForFilter($event)"
+                    @node-unselect="store.removeCategoryForFilter($event)"
                     placeholder="Select Category"
                     :show-count="true"
                     data-testid="products-category"

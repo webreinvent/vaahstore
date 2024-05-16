@@ -870,7 +870,7 @@ export const useProductStore = defineStore({
 
             }
         },
-        convertToTreeselectFormat(data) {
+        convertToTreeSelectFormat(data) {
             if (!Array.isArray(data)) {
                 data = [data];
             }
@@ -885,7 +885,7 @@ export const useProductStore = defineStore({
                 };
 
                 if (category.active_sub_categories_for_product && category.active_sub_categories_for_product.length > 0) {
-                    categoryItem.children = this.convertToTreeselectFormat(category.active_sub_categories_for_product);
+                    categoryItem.children = this.convertToTreeSelectFormat(category.active_sub_categories_for_product);
                 }
 
                 categories.push(categoryItem);
@@ -895,8 +895,8 @@ export const useProductStore = defineStore({
         },
 
         setParentId() {
-            if (this.item.parent_category) {
-                const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value === true);
+            if (this.item.categories) {
+                const checkedItem = Object.entries(this.item.categories).find(([key, value]) => value === true);
                 if (checkedItem) {
                     this.item.category_id = checkedItem[0];
                 } else {
@@ -946,7 +946,7 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.parent_category = this.convertToTreeSelectFormat(data.product_categories);
+                this.item.categories = this.convertToTreeSelectData(data.product_categories);
 
             }else{
                 this.$router.push({name: 'products.index'});
@@ -955,13 +955,13 @@ export const useProductStore = defineStore({
             await this.getFormMenu();
         },
 
-        convertToTreeSelectFormat(category) {
+        convertToTreeSelectData(category) {
             if (category && category.length) {
                 return category.reduce((acc, curr) => {
                     const categoryId = curr.id.toString();
                     acc[categoryId] = true;
                     if (curr.sub_categories && curr.sub_categories.length) {
-                        const subCategories = this.convertToTreeSelectFormat(curr.sub_categories);
+                        const subCategories = this.convertToTreeSelectData(curr.sub_categories);
                         Object.assign(acc, subCategories);
                     }
                     return acc;
@@ -973,10 +973,7 @@ export const useProductStore = defineStore({
 
 
 
-        getTooltipText(categories) {
-            const remaining_categories = categories.slice(1).map(category => category.name);
-            return remaining_categories.join(', ');
-        },
+
 
 
 
@@ -1295,7 +1292,7 @@ export const useProductStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
-                    this.item.parent_category = this.convertToTreeSelectFormat(data.product_categories);
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
                     this.route.params.id = null;
                     this.$router.push({name: 'products.form'});
                     await this.getFormMenu();
@@ -1307,7 +1304,7 @@ export const useProductStore = defineStore({
                     break;
                 case 'save':
                     this.item = data;
-                    this.item.parent_category = this.convertToTreeSelectFormat(data.product_categories);
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
                     break;
                 case 'delete':
                     this.item = null;
@@ -1358,7 +1355,7 @@ export const useProductStore = defineStore({
                 let self = this;
                 if (data.fill.category) {
                     const category_after_fill = [data.fill.category]
-                    this.item.parent_category = this.convertToTreeSelectFormat(category_after_fill);
+                    this.item.categories = this.convertToTreeSelectData(category_after_fill);
                 }
                 Object.keys(data.fill).forEach(function(key) {
                     self.item[key] = data.fill[key];
@@ -1545,7 +1542,7 @@ export const useProductStore = defineStore({
             );
         },
         getCategoriesAfter(data,res){
-            this.categories_dropdown_data = this.convertToTreeselectFormat(data.categories);
+            this.categories_dropdown_data = this.convertToTreeSelectFormat(data.categories);
         },
         //---------------------------------------------------------------------
         async getDefaultStore()
@@ -2436,7 +2433,7 @@ export const useProductStore = defineStore({
             }
         },
 
-        setFilter(event) {
+        selectCategoryForFilter(event) {
             const selected_categories = this.query.filter.category || [];
             const existing_category = selected_categories.find(category => category === event.data.toLowerCase());
             if (!existing_category) {
@@ -2448,7 +2445,7 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        removeFilter(event) {
+        removeCategoryForFilter(event) {
             let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
 
             if (Array.isArray(selected_categories)) {

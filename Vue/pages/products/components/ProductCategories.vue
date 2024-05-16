@@ -33,6 +33,7 @@ const removeCategory = async (category) => {
         <InputText
             v-model="store.item.search_category"
             placeholder="Search category..."
+            data-testid="products-product_categories"
             class="p-mb-2"
         />
         <DataTable
@@ -56,7 +57,7 @@ const removeCategory = async (category) => {
             <Column header="Action"  style="border: 1px solid #ccc;">
                 <template #body="props">
                     <Button class="p-button-tiny p-button-danger p-button-text"
-                            data-testid="products-table-action-trash"
+                            data-testid="products-product_categories-action-remove"
                             @click="removeCategory(props.data)"
                             v-tooltip.top="'Remove'"
                             icon="pi pi-trash" />

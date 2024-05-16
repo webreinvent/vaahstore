@@ -119,17 +119,7 @@ class Product extends VaahModel
             'created_by', 'id'
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
-    public function subCategories()
-    {
-        return $this->hasMany(Category::class, 'category_id')->with(['subCategories']);
-    }
 
-    //-------------------------------------------------
-
-    public function parentCategory()
-    {
-        return $this->belongsTo(Category::class, 'category_id','id', );
-    }
 
     public function productCategories()
     {
@@ -537,8 +527,8 @@ class Product extends VaahModel
         $item->save();
 
 
-        if (isset($inputs['parent_category'])) {
-            $selected_category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
+        if (isset($inputs['categories'])) {
+            $selected_category_ids = array_keys(array_filter($inputs['categories'], function($value) {
                 return $value === true;
             }));
 
@@ -715,7 +705,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories.parentCategory');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -738,10 +728,7 @@ class Product extends VaahModel
         }
 
         $list = $list->paginate($rows);
-        foreach ($list as $category) {
-            $parent_category_name = $category->parentCategory?->name;
-            $category->parentCategoryName = $parent_category_name;
-        }
+
         foreach($list as $item) {
 
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
@@ -1051,8 +1038,8 @@ class Product extends VaahModel
         $item->launch_at = Carbon::parse($item->launch_at)->addDay()->toDateString();
         $item->available_at = Carbon::parse($item->available_at)->addDay()->toDateString();
         $item->save();
-        if (isset($inputs['parent_category'])) {
-            $selected_category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
+        if (isset($inputs['categories'])) {
+            $selected_category_ids = array_keys(array_filter($inputs['categories'], function($value) {
                 return $value === true;
             }));
             $item->productCategories()->sync($selected_category_ids);
