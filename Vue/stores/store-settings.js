@@ -39,6 +39,7 @@ export const useSettingStore = defineStore({
                 count: 0,
                 disabled:false
             },
+
             {
                 label: 'Vendors',
                 value: 'Vendors',
@@ -47,15 +48,6 @@ export const useSettingStore = defineStore({
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Stores']
-            },
-            {
-                label: 'Vendor Products',
-                value: 'VendorsProduct',
-                isChecked: false,
-                quantity: 0,
-                count: 0,
-                disabled:false,
-                labelsToCheck: ['Stores' , 'Vendors' , 'Products']
             },
 
             {
@@ -68,6 +60,15 @@ export const useSettingStore = defineStore({
                 labelsToCheck: ['Stores']
 
 
+            },
+            {
+                label: 'Vendor Products',
+                value: 'VendorsProduct',
+                isChecked: false,
+                quantity: 0,
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Stores' , 'Products' , 'Vendors']
             },
             {
                 label: 'Product Variations',
@@ -97,6 +98,16 @@ export const useSettingStore = defineStore({
             },
 
             {
+                label: 'Warehouses',
+                value: 'Warehouses',
+                isChecked: false,
+                quantity: 0 ,
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Vendors']
+            },
+
+            {
                 label: 'Product Stocks',
                 value: 'ProductStock',
                 isChecked: false,
@@ -113,16 +124,6 @@ export const useSettingStore = defineStore({
                 quantity: 0,
                 count: 0,
                 disabled:false
-            },
-
-            {
-                label: 'Warehouses',
-                value: 'Warehouses',
-                isChecked: false,
-                quantity: 0 ,
-                count: 0,
-                disabled:false,
-                labelsToCheck: ['Vendors']
             },
             {
                 label: 'Attributes',
@@ -323,15 +324,11 @@ export const useSettingStore = defineStore({
 
             this.is_button_disabled = true ;
 
-
-
             const query = {selectedCrud : this.selected_crud};
             const options = {
                 params: query,
                 method: 'post',
             };
-
-            console.log(options);
 
             await vaah().ajax(
                 this.ajax_url+'/fill/bulk/method',
@@ -348,6 +345,7 @@ export const useSettingStore = defineStore({
         async createBulkRecordsAfter (data, res) {
 
             this.crud_options.forEach(option => {
+
                 option.isChecked = false;
 
                 option.quantity = 0;
