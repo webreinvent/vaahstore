@@ -52,7 +52,6 @@ class Product extends VaahModel
         'taxonomy_id_product_status', 'status_notes', 'meta',
         'seo_title','seo_meta_description','seo_meta_keyword',
         'created_by',
-        'category_id',
         'updated_by',
         'deleted_by',
         'is_featured_on_home_page',
@@ -132,7 +131,7 @@ class Product extends VaahModel
         return $this->belongsTo(Category::class, 'category_id','id', );
     }
 
-    public function categories()
+    public function productCategories()
     {
         return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'category_id');
     }
@@ -543,7 +542,7 @@ class Product extends VaahModel
                 return $value === true;
             }));
 
-            $item->categories()->attach($selected_category_ids, ['vh_st_product_id' => $item->id]);
+            $item->productCategories()->attach($selected_category_ids, ['vh_st_product_id' => $item->id]);
         }
 
 
@@ -657,7 +656,7 @@ class Product extends VaahModel
             };
             $get_sub_category_ids($category_ids->toArray());
             if (!empty($all_category_ids)) {
-                $query->whereHas('categories', function ($q) use ($all_category_ids) {
+                $query->whereHas('productCategories', function ($q) use ($all_category_ids) {
                     $q->whereIn('vh_st_categories.id', $all_category_ids);
                 });
             }
@@ -716,7 +715,7 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','categories.parentCategory');
+        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories.parentCategory');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -842,8 +841,8 @@ class Product extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        self::with('categories')->whereIn('id', $items_id)->each(function ($item) {
-            $item->categories()->detach();
+        self::with('productCategories')->whereIn('id', $items_id)->each(function ($item) {
+            $item->productCategories()->detach();
         });
         foreach ($items_id as $item_id)
         {
@@ -932,7 +931,7 @@ class Product extends VaahModel
                 $items = self::withTrashed()->get();
                 $items_id = self::withTrashed()->pluck('id')->toArray();
                 foreach ($items as $item) {
-                    $item->categories()->detach();
+                    $item->productCategories()->detach();
                 }
                 foreach ($items_id as $item_id)
                 {
@@ -974,7 +973,7 @@ class Product extends VaahModel
 
         $item = self::where('id', $id)
             ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status','parentCategory.subCategories','categories'
+                'brand','store','type','status','productCategories'
             ])
             ->withTrashed()
             ->first();
@@ -1056,7 +1055,7 @@ class Product extends VaahModel
             $selected_category_ids = array_keys(array_filter($inputs['parent_category'], function($value) {
                 return $value === true;
             }));
-            $item->categories()->sync($selected_category_ids);
+            $item->productCategories()->sync($selected_category_ids);
         }
 
         $response = self::getItem($item->id);
@@ -1076,7 +1075,7 @@ class Product extends VaahModel
         self::deleteRelatedRecords($item->id);
         $categories_ids = $item->categories->pluck('id')->toArray();
         foreach ($categories_ids as $category_id) {
-            $item->categories()->detach($category_id);
+            $item->productCategories()->detach($category_id);
         }
         $item->forceDelete();
         $response['success'] = true;
@@ -1263,7 +1262,7 @@ class Product extends VaahModel
 
             $item->save();
             if (isset($inputs['category'])) {
-                $item->categories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
+                $item->productCategories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
             }
             $i++;
 
@@ -1810,7 +1809,7 @@ class Product extends VaahModel
             return $response;
         }
 
-        $product->categories()->detach($category_id);
+        $product->productCategories()->detach($category_id);
         $response['data']['product'] = $product;
         $response['messages'][] = trans("vaahcms-general.action_successful");
         return $response;

@@ -181,15 +181,15 @@ const openProductCategories = (categories,product) => {
 
 
 
-             <Column field="categories.name" header="Categories">
+             <Column field="product_categories.name" header="Categories">
                  <template #body="prop">
                      <Button class="p-button-sm  white-space-nowrap ml-3"
                              data-testid="product-list_category_view"
                              v-tooltip.top="'View Categories'"
                              icon="pi pi-pencil"
-                             :disabled="prop.data.categories.length === 0"
-                             @click="openProductCategories(prop.data.categories,prop.data.name)"
-                     >{{prop.data.categories.length}}</Button>
+                             :disabled="prop.data.product_categories.length === 0"
+                             @click="openProductCategories(prop.data.product_categories,prop.data.name)"
+                     >{{prop.data.product_categories.length}}</Button>
                  </template>
              </Column>
 
