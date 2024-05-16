@@ -629,32 +629,26 @@ class Product extends VaahModel
         }
 
     }
+
+
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-            $category_names = $filter['category'];
+            $categories_slug = $filter['category'];
 
-            $category_ids = Category::whereIn('slug', $category_names)->pluck('id');
-            $all_category_ids = $category_ids->toArray();
+            $category_ids = Category::whereIn('slug', $categories_slug)->pluck('id')->toArray();
 
-            $get_sub_category_ids = function ($parentCategoryIds) use (&$get_sub_category_ids, &$all_category_ids) {
-                $sub_category_ids = Category::whereIn('category_id', $parentCategoryIds)->pluck('id')->toArray();
-                if (!empty($sub_category_ids)) {
-                    $all_category_ids = array_merge($all_category_ids, $sub_category_ids);
-                    $get_sub_category_ids($sub_category_ids);
-                }
-            };
-            $get_sub_category_ids($category_ids->toArray());
-            if (!empty($all_category_ids)) {
-                $query->whereHas('productCategories', function ($q) use ($all_category_ids) {
-                    $q->whereIn('vh_st_categories.id', $all_category_ids);
-                });
-            }
+            $subCategory_ids = Category::whereIn('category_id', $category_ids)->pluck('id')->toArray();
+
+            $all_category_ids = array_merge($category_ids, $subCategory_ids);
+
+            $query->whereHas('productCategories', function ($q) use ($all_category_ids) {
+                $q->whereIn('vh_st_categories.id', $all_category_ids);
+            });
         }
 
         return $query;
     }
-
 
 
 
@@ -1802,46 +1796,50 @@ class Product extends VaahModel
         return $response;
     }
 
+
     public static function searchCategoryUsingSlug($request)
     {
-        if ($request->has('filter')) {
-            $filter = $request->input('filter');
-            if (isset($filter['category'])) {
-                $category_names = $filter['category'];
-                if (!is_array($category_names)) {
-                    $category_names = [$category_names];
-                }
+        $response = [
+            'success' => false,
+            'data' => false
+        ];
 
-                $categories = Category::with('subCategories')->whereIn('slug', $category_names)->get();
-                $formatted_data = [];
-
-                foreach ($categories as $category) {
-                    $formatted_category = [
-                        'id' => $category->id,
-                        'uuid' => $category->uuid,
-                        'name' => $category->name,
-                        'subCategories' => []
-                    ];
-
-                    foreach ($category->subCategories as $sub_category) {
-                        $formatted_category['subCategories'][] = [
-                            'id' => $sub_category->id,
-                            'name' => $sub_category->name
-                        ];
-                    }
-
-                    $formatted_data[$category->slug] = $formatted_category;
-                }
-
-                $response['success'] = true;
-                $response['data'] = $formatted_data;
-                return $response;
-            }
+        if (!$request->has('filter')) {
+            return $response;
         }
 
-        $response['success'] = false;
-        $response['data'] = false;
-        return $response;
+        $filter = $request->input('filter');
+
+        if (!isset($filter['category'])) {
+            return $response;
+        }
+
+        $categories_slug = is_array($filter['category']) ? $filter['category'] : [$filter['category']];
+
+        $categories = Category::with('subCategories')->whereIn('slug', $categories_slug)->get();
+
+        $formatted_data = [];
+
+        foreach ($categories as $category) {
+            $formatted_category = [
+                'id' => $category->id,
+                'uuid' => $category->uuid,
+                'name' => $category->name,
+                'subCategories' => $category->subCategories->map(function ($subCategory) {
+                    return [
+                        'id' => $subCategory->id,
+                        'name' => $subCategory->name
+                    ];
+                })->toArray()
+            ];
+
+            $formatted_data[$category->slug] = $formatted_category;
+        }
+
+        return [
+            'success' => true,
+            'data' => $formatted_data
+        ];
     }
 
 
