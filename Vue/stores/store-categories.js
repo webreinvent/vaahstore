@@ -220,20 +220,19 @@ export const useCategoryStore = defineStore({
                 if(data.category)
                 {
                     this.category_data=data.category;
-                    this.categories_dropdown_data = this.convertToTreeselectFormat(data.category);
+                    this.categories_dropdown_data = this.convertToTreeSelectFormat(data.category);
 
                 }
 
             }
         },
         //---------------------------------------------------------------------
-        convertToTreeselectFormat(data) {
+        convertToTreeSelectFormat(data) {
             if (!Array.isArray(data)) {
                 data = [data];
             }
             let categories = [];
 
-            // Iterate through the categories data
             data.forEach(category => {
                 let categoryItem = {
                     key: category.id,
@@ -242,13 +241,10 @@ export const useCategoryStore = defineStore({
                     children: []
                 };
 
-                // Check if the category has child categories
                 if (category.sub_categories && category.sub_categories.length > 0) {
-                    // Recursively convert the child categories
-                    categoryItem.children = this.convertToTreeselectFormat(category.sub_categories);
+                    categoryItem.children = this.convertToTreeSelectFormat(category.sub_categories);
                 }
 
-                // Add the category item to the categories array
                 categories.push(categoryItem);
             });
 
@@ -305,8 +301,7 @@ export const useCategoryStore = defineStore({
             if(data)
             {
                 this.item = data;
-                const categories_data = {};
-                this.item.parent_category = this.convertCategoryToTreeselectData(data.parent_category);
+                this.item.parent_category = this.convertCategoryToTreeSelectData(data.parent_category);
             }else{
                 this.$router.push({name: 'categories.index',query:this.query});
             }
@@ -315,10 +310,10 @@ export const useCategoryStore = defineStore({
         },
 
 
-        convertCategoryToTreeselectData(category) {
+        convertCategoryToTreeSelectData(category) {
             if (category) {
-                const categoryId = category.id.toString();
-                return {[`${categoryId}`]: true};
+                const category_id = category.id.toString();
+                return {[`${category_id}`]: true};
             }
             return {};
         },
@@ -550,7 +545,7 @@ export const useCategoryStore = defineStore({
                 case 'save':
                     if(this.item && this.item.id){
                         this.item = data;
-                        this.item.parent_category = this.convertCategoryToTreeselectData(data.parent_category);
+                        this.item.parent_category = this.convertCategoryToTreeSelectData(data.parent_category);
                     }
                     vaah().toastSuccess(['Action Was Successful']);
                     break;
@@ -605,7 +600,7 @@ export const useCategoryStore = defineStore({
 
                 if (data.fill.category) {
                     const category_after_fill = data.fill.category;
-                    this.item.parent_category = this.convertCategoryToTreeselectData(category_after_fill);
+                    this.item.parent_category = this.convertCategoryToTreeSelectData(category_after_fill);
                 }
                 Object.keys(data.fill).forEach(function(key) {
                         self.item[key] = data.fill[key];
@@ -1083,7 +1078,7 @@ export const useCategoryStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        setFilter(event) {
+        selectCategoryForFilter(event) {
             const selected_categories = this.query.filter.category || [];
             const existing_category = selected_categories.find(category => category === event.data.toLowerCase());
             if (!existing_category) {
@@ -1094,7 +1089,7 @@ export const useCategoryStore = defineStore({
         //---------------------------------------------------------------------
 
 
-        removeFilter(event) {
+        removeCategoryForFilter(event) {
             let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
 
             if (Array.isArray(selected_categories)) {

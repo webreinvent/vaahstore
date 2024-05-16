@@ -8,17 +8,7 @@ import {useRoute, useRouter} from "vue-router";
 const store = useCategoryStore();
 const route = useRoute();
 const router = useRouter();
-const selectedCategory = ref('');
 
-const categoryFromUrl = route.query.category;
-
-selectedCategory.value = categoryFromUrl || '';
-
-const updateCategoryInUrl = () => {
-    const queryParams = { ...route.query };
-    queryParams.category = selectedCategory.value;
-    router.push({ query: queryParams });
-};
 </script>
 
 <template>
@@ -59,10 +49,11 @@ const updateCategoryInUrl = () => {
                         v-model="store.category_filter"
                         :options="store.categories_dropdown_data"
                         selectionMode="multiple"
+                        display="chip"
                         placeholder="Select Category"
                         :show-count="true"
-                        @node-select="store.setFilter($event)"
-                        @node-unselect="store.removeFilter($event)"
+                        @node-select="store.selectCategoryForFilter($event)"
+                        @node-unselect="store.removeCategoryForFilter($event)"
                         data-testid="categories-filters-category"
 
                         class=" w-full" />

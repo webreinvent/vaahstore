@@ -41,18 +41,7 @@ const useVaah = vaah();
 
             </Column>
 
-<!--             <Column field="parent_category.name" header="Parent Category"-->
-<!--                     :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                 <span v-if="prop.data.parent_category && prop.data.parent_category.name">-->
-<!--                     {{prop.data.parent_category.name}}-->
-<!--                 </span>-->
-<!--                     <span v-else>-->
-<!--                         {{ prop.data.name }}-->
-<!--                     </span>-->
-<!--                 </template>-->
 
-<!--             </Column>-->
 
              <Column field="parent_category.name" header="Parent Category"-->
                                       :sortable="true">
