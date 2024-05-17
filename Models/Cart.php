@@ -1193,18 +1193,25 @@ dd($request);
         }
     }
 
+
+
     public static function addToWishlist($request){
         $item_detail = $request->get('item_detail');
         $user_detail = $request->get('user_detail');
         $product_id = $item_detail['vh_st_product_id'];
+        $taxonomy_wishlist_status = Taxonomy::getTaxonomyByType('whishlists-status')
+            ->where('slug', 'approved')
+            ->pluck('id')
+            ->first();
 
-        $wishlist = Wishlist::firstOrCreate(
+
+        $wishlist = Wishlist::where('vh_user_id', $user_detail['id'])->firstOrCreate(
             ['vh_user_id' => $user_detail['id']],
             [
                 'uuid' => Str::uuid(),
                 'name' => $user_detail['first_name'] . "'s Wishlist",
                 'slug' => Str::slug($user_detail['first_name'] . "'s Wishlist"),
-                'taxonomy_id_whishlists_status' => 63,
+                'taxonomy_id_whishlists_status' => $taxonomy_wishlist_status,
                 'is_default' => true,
                 'status_notes' => 'Created automatically',
                 'created_by' => null,
@@ -1212,14 +1219,16 @@ dd($request);
                 'deleted_by' => null,
             ]
         );
-        if (!$wishlist->products->contains($product_id)) {
+
+        $wishlist->products()->detach($product_id);
+        if ($item_detail['is_wishlisted'] !== 1 && !$wishlist->products->contains($product_id)) {
             $wishlist->products()->attach($product_id);
         }
+
         $cart = Cart::where('vh_user_id', $user_detail['id'])->first();
         $response['success'] = true;
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['data'] = [
-            'wishlist' => $wishlist,
             'cart' => $cart,
         ];
 

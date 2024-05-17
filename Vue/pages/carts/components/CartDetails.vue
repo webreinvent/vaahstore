@@ -113,7 +113,7 @@ const totalAmount = computed(() => {
                                     data-testid="orders-table-action-trash"
                                     v-tooltip.top="'Wishlist'"
                                     @click="store.addToWishList(prop.data.pivot,store.item.user)"
-                                    icon="pi pi-heart"/>
+                                    :icon="prop.data.pivot.is_wishlisted === 1 ? 'pi pi-heart-fill' : 'pi pi-heart'"/>
 
 
                             <Button class="p-button-tiny p-button-danger p-button-text"
@@ -163,5 +163,8 @@ const totalAmount = computed(() => {
 .table_bottom {
     display: flex;
     justify-content: flex-end;
+}
+.filled-heart .pi pi-heart {
+    background-color: red; /* Change this to your desired background color */
 }
 </style>

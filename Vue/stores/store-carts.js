@@ -1335,7 +1335,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             );
         },
         addToWishListAfter(data,res){
-            console.log(data)
+           if (data){
+               this.getItem(data.cart.id);
+           }
         }
 
 
