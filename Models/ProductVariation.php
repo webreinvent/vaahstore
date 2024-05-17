@@ -1548,7 +1548,11 @@ class ProductVariation extends VaahModel
                 break;
             }
         }
-
+        if ($selected_vendor_id === null) {
+            $error_message = "This product variation is out of stock";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
         if ($cart->productVariations->contains($product_variation->id)) {
             $existing_cart_item = $cart->productVariations->where('id', $product_variation_id)->first();
 
