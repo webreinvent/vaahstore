@@ -1317,6 +1317,25 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 this.updateAddressAfter,
                 options
             );
+        },
+        async addToWishList(item,user){
+            const query = {
+                item_detail:item,
+                user_detail:user,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/add-to-wishlist',
+                this.addToWishListAfter,
+                options
+            );
+        },
+        addToWishListAfter(data,res){
+            console.log(data)
         }
 
 

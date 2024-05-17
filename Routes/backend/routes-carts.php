@@ -94,4 +94,7 @@ function () {
 
     Route::post('/place-order', [CartsController::class, 'placeOrder'])
         ->name('vh.backend.store.carts.update.address');
+
+    Route::post('/add-to-wishlist', [CartsController::class, 'addToWishlist'])
+        ->name('vh.backend.store.carts.add.to_wishlist');
 });

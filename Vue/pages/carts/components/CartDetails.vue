@@ -112,6 +112,7 @@ const totalAmount = computed(() => {
                             <Button class="p-button-tiny p-button-danger p-button-text"
                                     data-testid="orders-table-action-trash"
                                     v-tooltip.top="'Wishlist'"
+                                    @click="store.addToWishList(prop.data.pivot,store.item.user)"
                                     icon="pi pi-heart"/>
 
 

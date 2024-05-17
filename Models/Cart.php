@@ -492,6 +492,8 @@ class Cart extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        $wishlistId = Wishlist::where('vh_user_id', $item->vh_user_id)->value('id');
+
         foreach ($item->products as $product) {
             $variation_id = $product->pivot->vh_st_product_variation_id;
             $vendor_id = $product->pivot->vh_st_vendor_id;
@@ -504,6 +506,10 @@ class Cart extends VaahModel
             if ($price === null) {
                 $price = ProductVariation::getPriceOfProductVariants($variation_id);
             }
+            $is_wishlisted = $wishlistId ? $product->wishlists()->where('vh_st_wishlist_id', $wishlistId)->exists() : false;
+
+            $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
+
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
 
@@ -1185,6 +1191,39 @@ dd($request);
             $orderItem->quantity = $item['quantity'];
             $orderItem->save();
         }
+    }
+
+    public static function addToWishlist($request){
+        $item_detail = $request->get('item_detail');
+        $user_detail = $request->get('user_detail');
+        $product_id = $item_detail['vh_st_product_id'];
+
+        $wishlist = Wishlist::firstOrCreate(
+            ['vh_user_id' => $user_detail['id']],
+            [
+                'uuid' => Str::uuid(),
+                'name' => $user_detail['first_name'] . "'s Wishlist",
+                'slug' => Str::slug($user_detail['first_name'] . "'s Wishlist"),
+                'taxonomy_id_whishlists_status' => 63,
+                'is_default' => true,
+                'status_notes' => 'Created automatically',
+                'created_by' => null,
+                'updated_by' => null,
+                'deleted_by' => null,
+            ]
+        );
+        if (!$wishlist->products->contains($product_id)) {
+            $wishlist->products()->attach($product_id);
+        }
+        $cart = Cart::where('vh_user_id', $user_detail['id'])->first();
+        $response['success'] = true;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = [
+            'wishlist' => $wishlist,
+            'cart' => $cart,
+        ];
+
+        return $response;
     }
 
 
