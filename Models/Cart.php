@@ -499,7 +499,8 @@ class Cart extends VaahModel
             $vendor_id = $product->pivot->vh_st_vendor_id;
             $variation = ProductVariation::find($variation_id);
             $variation_name = $variation?->name;
-
+            $selected_vendor = Vendor::find($vendor_id);
+            $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor,$product->id,$variation_id);
             $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
                 ->where('vh_st_vendor_id', $vendor_id)
                 ->value('amount');
@@ -507,17 +508,11 @@ class Cart extends VaahModel
                 $price = ProductVariation::getPriceOfProductVariants($variation_id);
             }
             $is_wishlisted = $wishlistId ? $product->wishlists()->where('vh_st_wishlist_id', $wishlistId)->exists() : false;
-
+            $product->pivot->is_stock_available = $is_quantity_available ? 1 : 0;
             $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
-
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
 
-//            $product->pivot->cart_product_variation = $variation_name;
-//            $product->pivot->price = ProductVariation::getPriceOfProductVariants($variation_id);
-//            $selected_vendor = Product::getPriceRangeOfProduct($product->id);
-//            $product->pivot->vendor_to_this_product =  $selected_vendor;
-//            $product->pivot->vendor_id = Product::getRandomVendor($product->id);
         }
 
         $response['success'] = true;
@@ -946,9 +941,11 @@ class Cart extends VaahModel
 
 
             foreach ($cart->products as $product) {
-                if (!is_null($product->pivot->vh_st_product_variation_id)) {
-//                    $variation_price = self::getProductPrice($product);
-                    $vendor_id = $product->pivot->vh_st_vendor_id;
+                $vendor_id = $product->pivot->vh_st_vendor_id;
+                $selected_vendor = Vendor::find($vendor_id);
+                if (!is_null($product->pivot->vh_st_product_variation_id) && $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor, $product->id,$product->pivot->vh_st_product_variation_id)) {
+
+
                     $variation_id = $product->pivot->vh_st_product_variation_id;
                     $variation_price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
                         ->where('vh_st_vendor_id', $vendor_id)
@@ -992,6 +989,21 @@ class Cart extends VaahModel
         return $response;
     }
 
+    protected static function isCartItemQuantityAvailable($vendor, $product_id, $variation_id)
+    {
+
+        // Check if $vendor, $product_id, or $variation_id are null
+        if ($vendor === null || $product_id === null || $variation_id === null) {
+            return false;
+        }
+
+        return $vendor->productStocks()
+            ->where('vh_st_product_id', $product_id)
+            ->where('vh_st_product_variation_id', $variation_id)
+            ->where('quantity', '>', 0)
+            ->where('is_active', 1)
+            ->exists();
+    }
 
     private static function getProductMediaIds($product)
     {

@@ -1761,40 +1761,113 @@ class Product extends VaahModel
 
     }
 
-    public static function addProductToCart($request){
-//        dd($request->product['product_price_range']['selected_vendor']);
+//    public static function addProductToCart($request){
+////        dd($request->product['product_price_range']['selected_vendor']);
+//        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
+//
+//        if ($selected_vendor===null) {
+//            $error_message = "This product is out of stock";
+//            $response['errors'][] = $error_message;
+//            return $response;
+//        }
+//        $user_info = $request->input('user_info');
+//        $product_id = $request->input('product.id');
+//        $product = Product::find($product_id);
+//        $user_data = ['id' => $user_info['id']];
+//        if (!$user_data) {
+//            $error_message = "Please enter valid user";
+//            $response['errors'][] = $error_message;
+//            return $response;
+//        }
+//        $user = self::findOrCreateUser($user_data);
+//        $cart = self::findOrCreateCart($user);
+//        $product_with_variants = self::getDefaultVariation($product);
+//        if ($cart->products->contains($product->id)) {
+//            $existing_cart_item = $cart->products()->where('vh_st_product_id', $product->id)->first();
+//            $vendor_id=$existing_cart_item->pivot->vh_st_vendor_id;
+//            $vendor=Vendor::find($vendor_id);
+//            $is_quantity_available=static::isVendorStockActive($vendor,$product->id);
+//            if (!$is_quantity_available) {
+////                $existing_cart_item->pivot->vh_st_vendor_id = $selected_vendor['id'];
+//                self::attachProductToCart($cart, $product, $product_with_variants,$selected_vendor['id'] ?? null);
+//            }
+//            $existing_cart_item->pivot->quantity++;
+//            $existing_cart_item->pivot->save();
+//            if (!Session::has('vh_user_id')) {
+//                Session::put('vh_user_id', $user->id);
+//            }
+//            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+//            $response['data'] = $user;
+//            if ($selected_vendor !== null) {
+//                $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+//
+//            }
+//            return $response;
+//        }
+//
+//        $product_with_variants = self::getDefaultVariation($product);
+//
+//        self::attachProductToCart($cart, $product, $product_with_variants,$selected_vendor['id'] ?? null);
+//
+////        Session::forget('vh_user_id');
+//        Session::put('vh_user_id', $user->id);
+//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+//        $response['data'] = $user;
+//        return $response;
+//    }
+    public static function addProductToCart($request)
+    {
+        $response = [];
+
         $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
+        if ($selected_vendor === null) {
+            $error_message = "This product is out of stock";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
         $user_info = $request->input('user_info');
         $product_id = $request->input('product.id');
         $product = Product::find($product_id);
-        $user_data = ['id' => $user_info['id']];
-        if (!$user_data) {
+
+        if (!$user_info) {
             $error_message = "Please enter valid user";
             $response['errors'][] = $error_message;
             return $response;
         }
-        $user = self::findOrCreateUser($user_data);
-        $cart = self::findOrCreateCart($user);
 
+        $user = self::findOrCreateUser(['id' => $user_info['id']]);
+        $cart = self::findOrCreateCart($user);
+        $product_with_variants = self::getDefaultVariation($product);
         if ($cart->products->contains($product->id)) {
             $existing_cart_item = $cart->products()->where('vh_st_product_id', $product->id)->first();
-            $existing_cart_item->pivot->quantity++;
-            $existing_cart_item->pivot->save();
+            $vendor_id = $existing_cart_item->pivot->vh_st_vendor_id;
+            $vendor = Vendor::find($vendor_id);
+
+
+            if (!static::isVendorStockActive($vendor, $product->id)) {
+                self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'] ?? null);
+            } else {
+                $existing_cart_item->pivot->quantity++;
+                $existing_cart_item->pivot->save();
+            }
+
             if (!Session::has('vh_user_id')) {
                 Session::put('vh_user_id', $user->id);
             }
+
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
             $response['data'] = $user;
-            $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+            if ($selected_vendor !== null) {
+                $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+            }
             return $response;
         }
 
-        $product_with_variants = self::getDefaultVariation($product);
 
-        self::attachProductToCart($cart, $product, $product_with_variants,$selected_vendor['id'] ?? null);
-
-//        Session::forget('vh_user_id');
+        self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'] ?? null);
         Session::put('vh_user_id', $user->id);
+
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['data'] = $user;
         return $response;

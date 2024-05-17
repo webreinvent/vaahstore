@@ -24,6 +24,9 @@ watch(cartProducts, (newValue, oldValue) => {
 const totalAmount = computed(() => {
     return store.calculateTotalAmount(cartProducts.value);
 });
+const allProductsOutOfStock = computed(() => {
+    return cartProducts.value.every(product => product.pivot.is_stock_available === 0);
+});
 </script>
 
 <template>
@@ -67,6 +70,8 @@ const totalAmount = computed(() => {
                 <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere" :sortable="true">
                     <template #body="prop">
                         {{ prop.data.pivot.cart_product_variation !== null ? prop.data.name + ' - ' + prop.data.pivot.cart_product_variation : prop.data.name }}
+                        <Badge v-if="prop.data.pivot.is_stock_available === 0"  value="Out of Stock"
+                               severity="danger"></Badge>
                     </template>
                 </Column>
 
@@ -142,6 +147,7 @@ const totalAmount = computed(() => {
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
+                        :disabled="allProductsOutOfStock"
                         @click="store.checkOut(store.item.id)"
                 />
             </div>
