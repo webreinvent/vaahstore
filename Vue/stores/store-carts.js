@@ -729,6 +729,7 @@ export const useCartStore = defineStore({
             }
             this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
             this.item_user_address = vaah().clone(this.assets.item_user_address);
+            this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
 
         },
         //---------------------------------------------------------------------
@@ -1099,14 +1100,19 @@ export const useCartStore = defineStore({
         {
             if(data)
             {
+                if (data.product_details.length===0){
+                    this.$router.push({name: 'carts.index',query:this.query});
+                }
                 this.cart_item_at_checkout=data.product_details;
 
 
                 this.item_user = data.user;
                 this.total_mrp = data.total_mrp;
                 this.item_user_address = vaah().clone(this.assets.item_user_address);
+                this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
                 this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
                 // this.item_user_address=data.user_addresses;
+
                 if (data.user_addresses){
                     this.many_adresses=data.user_addresses;
                     const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
@@ -1263,18 +1269,28 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         //---------------------------------------------------------------------
 
+        // handleSameAsShippingChange() {
+        //     if (this.selectedAddress) {
+        //
+        //         if (this.bill_form) {
+        //             this.item_billing_address = { ...this.selectedAddress };
+        //         } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
+        //             this.item_user_address = vaah().clone(this.assets.item_user_address);
+        //         }
+        //     }
+        // },
         handleSameAsShippingChange() {
-            if (this.selectedAddress ) {
+            if (this.selectedAddress) {
                 if (this.bill_form) {
                     this.item_billing_address = { ...this.selectedAddress };
-
-                }
-                if (this.bill_form.length === 0){
-                    this.item_user_address = vaah().clone(this.assets.item_user_address);
+                } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
+                    this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
                 }
             }
-
         },
+
+
+
 
         //---------------------------------------------------------------------
 
@@ -1304,7 +1320,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         },
         //---------------------------------------------------------------------
         async placeOrder(orderParams) {
-            console.log(orderParams);
+            // console.log(orderParams);
 
             if (!orderParams || !orderParams.billing_address) {
                 vaah().toastErrors(['Please provide billing details']);
@@ -1322,10 +1338,34 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
             await vaah().ajax(
                 this.ajax_url+'/place-order',
-                this.updateAddressAfter,
+                this.placeOrderAfter,
                 options
             );
         },
+
+        placeOrderAfter(data,res){
+            if (data){
+                this.removeCartItemsAfterOrder(data.cart.id);
+            }
+        },
+        async removeCartItemsAfterOrder(cart_id){
+            console.log(cart_id)
+            const options={
+                method:'delete',
+            }
+            await vaah().ajax(
+                this.ajax_url + '/' + cart_id + '/remove-cartItem-after-order',
+                this.removeCartItemsAfterOrderAfter,
+                options
+            );
+        },
+        removeCartItemsAfterOrderAfter(data,res ){
+            if (data){
+                this.$router.push({name: 'carts.index',query:this.query});
+            }
+        },
+
+
         async addToWishList(item,user){
             const query = {
                 item_detail:item,

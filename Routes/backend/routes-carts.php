@@ -97,4 +97,7 @@ function () {
 
     Route::post('/add-to-wishlist', [CartsController::class, 'addToWishlist'])
         ->name('vh.backend.store.carts.add.to_wishlist');
+
+    Route::delete('/{id}/remove-cartItem-after-order', [CartsController::class, 'removeCartItemsAfterOrder'])
+        ->name('vh.backend.store.carts.delete');
 });

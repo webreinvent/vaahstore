@@ -1226,8 +1226,9 @@ class Cart extends VaahModel
 
             $orderItem->save();
         }
-
+        $cart = Cart::find($request->order_details['cart_id']);
         $response['success'] = true;
+        $response['data'] ['cart']= $cart;
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
         return $response;
@@ -1276,5 +1277,14 @@ class Cart extends VaahModel
     }
 
 
+    public static function removeCartItemsAfterOrder($request,$id){
+        $cart = Cart::find($id);
+        $cart->products()->detach();
+        return [
+            'success' => true,
+            'data' => ['cart' => $cart],
+            'messages' => [trans("vaahcms-general.record_deleted")]
+        ];
+    }
 
 }

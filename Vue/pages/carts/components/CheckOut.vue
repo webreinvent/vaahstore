@@ -2,7 +2,7 @@
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
 import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
-import {onMounted, ref, computed, watchEffect} from "vue";
+import {onMounted, ref, computed, watchEffect, watch} from "vue";
 import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
@@ -21,6 +21,13 @@ onMounted(async () => {
 });
 
 const orderParams = ref([]);
+watch(() => store.bill_form, (newValue) => {
+    if (Array.isArray(newValue) && newValue.length === 0) {
+        store.item_billing_address = null;
+    }
+});
+
+
 
 watchEffect(() => {
     orderParams.value = {
@@ -30,7 +37,7 @@ watchEffect(() => {
         discounts: 2000,
         taxes: 0,
         delivery_fee: 0,
-        // userId: store.item_user ,
+        cart_id:route.params.id ,
         billing_address:store.item_billing_address,
         payment_method:store.cash_on_delivery,
         order_items:store.cart_item_at_checkout,
@@ -187,10 +194,10 @@ watchEffect(() => {
 
                                     <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                                 </div>
-                            <div v-show="!store.bill_form?.length==1">
-                                <div v-if="store && store.item && store.item_user_address && store.item_user">
+                            <div v-show="!store.bill_form?.length==1 ">
+                                <div v-if="store && store.item && store.item_new_billing_address && store.item_user">
                                 <VhField label="Country/Region">
-                                    <AutoComplete v-model="store.item_user_address.country"
+                                    <AutoComplete v-model="store.item_new_billing_address.country"
                                                   value="id"
 
                                                   data-testid="warehouses-country"
@@ -207,7 +214,7 @@ watchEffect(() => {
                                                    name="products-name"
                                                    data-testid="products-name"
                                                    placeholder="Enter Full Name "
-                                                   v-model="store.item_user_address.name"/>
+                                                   v-model="store.item_new_billing_address.name"/>
                                     </VhField>
 
                                     <VhField label="Phone No.">
@@ -215,14 +222,14 @@ watchEffect(() => {
                                                    name="products-phone"
                                                    data-testid="products-phone"
                                                    placeholder="Enter Phone No."
-                                                   v-model="store.item_user_address.phone"/>
+                                                   v-model="store.item_new_billing_address.phone"/>
                                     </VhField>
                                     <VhField label="Address">
                                         <InputText class="w-full"
                                                    name="cart-email"
                                                    data-testid="cart-email"
                                                    placeholder="Enter Address (House No, Building, Street, Area)*"
-                                                   v-model="store.item_user_address.address_line_1"/>
+                                                   v-model="store.item_new_billing_address.address_line_1"/>
                                     </VhField>
 
                                     <VhField label="PIN Code">
@@ -230,7 +237,7 @@ watchEffect(() => {
                                                    name="cart-pin_code"
                                                    data-testid="cart-pin_code"
                                                    placeholder="Enter Pin Code"
-                                                   v-model="store.item_user_address.pin_code"/>
+                                                   v-model="store.item_new_billing_address.pin_code"/>
                                     </VhField>
 
                                     <VhField label="City">
@@ -238,26 +245,27 @@ watchEffect(() => {
                                                    name="cart-city"
                                                    data-testid="cart-city"
                                                    placeholder="Enter City"
-                                                   v-model="store.item_user_address.city"/>
+                                                   v-model="store.item_new_billing_address.city"/>
                                     </VhField>
                                     <VhField label="State">
                                         <InputText class="w-full"
                                                    name="cart-address"
                                                    data-testid="cart-address"
                                                    placeholder="Enter State / Province / Region"
-                                                   v-model="store.item_user_address.state"/>
+                                                   v-model="store.item_new_billing_address.state"/>
                                     </VhField>
                             </div>
 
 
                                 </div>
+                                <div class="flex justify-content-end gap-2">
+
+                                    <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_new_billing_address, store.item_user)"></Button>
+
+                                </div>
                             </div>
                         </div>
-                    <div class="flex justify-content-end gap-2">
 
-                        <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_user_address, store.item_user)"></Button>
-
-                    </div>
                 </AccordionTab>
 
 
@@ -335,7 +343,7 @@ watchEffect(() => {
                 </Card>
 
                 <div class="table_bottom mt-4 border-1 border-gray-200">
-                    <InputText v-model="store.item" placeholder="Enter Coupon code" class="w-full"/>
+                    <InputText v-model="coupon_code" placeholder="Enter Coupon code" class="w-full"/>
                 </div>
             </div>
         </div>

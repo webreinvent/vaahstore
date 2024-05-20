@@ -34,6 +34,7 @@ class CartsController extends Controller
             $data['fillable']['except'] = Cart::getUnFillableColumns();
             $data['empty_item'] = Cart::getEmptyItem();
             $data['item_user_address'] = Address::getEmptyItem();
+            $data['empty_item'] ['item_billing_address'] = Address::getEmptyItem();
             $model = new User();
             $fillable = $model->getFillable();
             $data['fillable']['columns'] = array_diff(
@@ -375,6 +376,24 @@ class CartsController extends Controller
     {
         try{
             return Cart::addToWishlist($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    public function removeCartItemsAfterOrder(Request $request,$id)
+    {
+//        dd($request,$id);
+        try{
+            return Cart::removeCartItemsAfterOrder($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
