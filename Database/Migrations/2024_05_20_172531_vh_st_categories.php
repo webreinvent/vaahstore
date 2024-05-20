@@ -18,7 +18,7 @@ class VhStcategories extends Migration
             Schema::create('vh_st_categories', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
-
+                $table->integer('category_id')->nullable()->index();
                 $table->string('name')->nullable()->index();
                 $table->string('slug')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
@@ -40,10 +40,10 @@ class VhStcategories extends Migration
     }
 
     /**
-    * Reverse the migrations.
-    *
-    * @return void
-    */
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::dropIfExists('vh_st_categories');
