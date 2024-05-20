@@ -160,7 +160,7 @@ const openProductCategories = (categories,product) => {
 
                         <template v-if="column === 'created_by'|| column === 'updated_by'|| column === 'all_variation'
                             || column === 'product_attributes'|| column === 'product_vendors'|| column === 'brand'
-                            || column === 'store'|| column === 'category_id'|| column === 'parent_category'|| column === 'product_categories'|| column === 'type'|| column === 'status'||
+                            || column === 'store'|| column === 'category_id'|| column === 'parent_category'|| column === 'categories'|| column === 'product_categories'|| column === 'type'|| column === 'status'||
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
@@ -222,14 +222,17 @@ const openProductCategories = (categories,product) => {
                             <tr v-if="store.item.product_categories">
                                 <td><b>Categories</b></td>
                                 <td colspan="2">
-                                    <Button class="white-space-nowrap"
-                                            data-testid="product-list_category_view"
-                                            v-tooltip.top="'View Categories'"
-                                            :disabled="store.item.product_categories.length === 0"
-                                            @click="openProductCategories(store.item.product_categories,store.item.name)"
-                                    >{{store.item.product_categories.length}}</Button>
+                                    <Badge class="white-space-nowrap"
+                                           :class="{ 'cursor-pointer': store.item.product_categories.length > 0 }"
+                                           data-testid="product-list_category_view"
+                                           v-tooltip.top="store.item.product_categories.length > 0 ? 'View Categories' : ''"
+                                           @click="store.item.product_categories.length > 0 ? openProductCategories(store.item.product_categories, store.item.name) : null"
+                                    >
+                                        {{ store.item.product_categories.length }}
+                                    </Badge>
                                 </td>
                             </tr>
+
 
 
                             <tr>

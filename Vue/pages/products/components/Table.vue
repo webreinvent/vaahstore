@@ -183,13 +183,15 @@ const openProductCategories = (categories,product) => {
 
              <Column field="product_categories.name" header="Categories">
                  <template #body="prop">
-                     <Button class="p-button-sm  white-space-nowrap ml-3"
-                             data-testid="product-list_category_view"
-                             v-tooltip.top="'View Categories'"
-                             icon="pi pi-pencil"
-                             :disabled="prop.data.product_categories.length === 0"
-                             @click="openProductCategories(prop.data.product_categories,prop.data.name)"
-                     >{{prop.data.product_categories.length}}</Button>
+                     <div class="p-inputgroup">
+                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class="p-inputgroup-addon cursor-pointer"
+                              @click="openProductCategories(prop.data.product_categories,prop.data.name)" v-tooltip.top="'View Categories'">
+                              <Badge severity="info">{{prop.data.product_categories.length}}</Badge>
+                        </span>
+                         <span class="p-inputgroup-addon" v-else>
+                             <Badge severity="info">0</Badge>
+                         </span>
+                     </div>
                  </template>
              </Column>
 
