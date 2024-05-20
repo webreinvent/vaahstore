@@ -1173,36 +1173,64 @@ class Cart extends VaahModel
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['data'] = [
             'cart_id' => $cart->id,
+            'billing_details'=>$address,
         ];
 
         return $response;
 
     }
 
+
+
+
     public static function placeOrder($request)
     {
-dd($request);
+        dd($request);
+        $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')
+            ->where('slug', 'pending')->value('id');
+
         $order = new Order();
 
-//        $order->shipping_address_id = $request->order_details['shipping_address']['id'];
         $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
         $order->amount = $request->order_details['total_amount'];
+        $order->taxonomy_id_order_status = $taxonomy_order_status;
         $order->payable = $request->order_details['payable'];
         $order->discount = $request->order_details['discounts'];
         $order->taxes = $request->order_details['taxes'];
         $order->delivery_fee = $request->order_details['delivery_fee'];
+        $order->paid = 0;
+        $order->is_paid = null;
+        $order->is_active = 1;
 
-//        $order->save();
+        $order->save();
+
+        $taxonomy_order_items_type = Taxonomy::getTaxonomyByType('order-items-types')
+            ->where('slug', 'cod')->value('id');
+        $taxonomy_order_items_status = Taxonomy::getTaxonomyByType('order-items-status')
+            ->where('slug', 'approved')->value('id');
 
         foreach ($request->order_details['order_items'] as $item) {
-            dd($item);
             $orderItem = new OrderItem();
-            $orderItem->order_id = $order->id;
+
+            $orderItem->vh_st_order_id = $order->id;
+            $orderItem->vh_user_id = $order->vh_user_id;
+            $orderItem->taxonomy_id_order_items_types = $taxonomy_order_items_type;
+            $orderItem->taxonomy_id_order_items_status = $taxonomy_order_items_status;
+            $orderItem->vh_shipping_address_id = $request->order_details['shipping_address']['id'];
+            $orderItem->vh_billing_address_id = $request->order_details['billing_address']['id'];
+
             $orderItem->vh_st_product_id = $item['product_id'];
-            $orderItem->vh_st_product_variation_id = $item['product_id'];
-            $orderItem->quantity = $item['quantity'];
+            $orderItem->vh_st_product_variation_id = $item['pivot']['product_variation_id'];
+            $orderItem->vh_st_vendor_id = $item['pivot']['selected_vendor_id'];
+            $orderItem->is_active = 1;
+
             $orderItem->save();
         }
+
+        $response['success'] = true;
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+
+        return $response;
     }
 
 

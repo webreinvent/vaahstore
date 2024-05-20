@@ -248,6 +248,8 @@ watchEffect(() => {
                                                    v-model="store.item_user_address.state"/>
                                     </VhField>
                             </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -256,7 +258,7 @@ watchEffect(() => {
                         <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_user_address, store.item_user)"></Button>
 
                     </div>
-                    </AccordionTab>
+                </AccordionTab>
 
 
 

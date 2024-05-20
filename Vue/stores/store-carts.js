@@ -70,6 +70,7 @@ export const useCartStore = defineStore({
         cart_products:null,
         cart_item_at_checkout:[],
         country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,showAll:false,selectedAddress:null,
+        new_billing_address:null,
     }),
     getters: {
         displayedAddresses() {
@@ -714,6 +715,7 @@ export const useCartStore = defineStore({
             this.cash_on_delivery=null;
             this.item_billing_address=null;
             this.bill_form=!this.bill_form;
+
         },
         //---------------------------------------------------------------------
         checkOut(cart)
@@ -1288,18 +1290,25 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
             await vaah().ajax(
                 this.ajax_url+'/create/billing-address',
-                this.updateAddressAfter,
+                this.newBillingAddressAfter,
                 options
             );
+        },
+        newBillingAddressAfter(data,res){
+            if(data){
+                this.new_billing_address=data.billing_details;
+                console.log(this.new_billing_address)
+                this.item_billing_address=this.new_billing_address;
+
+            }
         },
         //---------------------------------------------------------------------
         async placeOrder(orderParams) {
             console.log(orderParams);
 
-            // Check if orderParams or billing_address is not present
             if (!orderParams || !orderParams.billing_address) {
                 vaah().toastErrors(['Please provide billing details']);
-                return; // Stop further execution
+                return;
             }
 
             const query = {
@@ -1311,7 +1320,6 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 method: 'post',
             };
 
-            // Call ajax function with this context for updateAddressAfter
             await vaah().ajax(
                 this.ajax_url+'/place-order',
                 this.updateAddressAfter,
