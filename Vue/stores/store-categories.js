@@ -1138,16 +1138,25 @@ export const useCategoryStore = defineStore({
         //---------------------------------------------------------------------
 
         convertFilterCategoryToTreeSelect(data) {
+
+            if (data === null) {
+                return null;
+            }
+
             const tree_select_data = {};
             for (const category_name in data) {
                 if (data.hasOwnProperty(category_name)) {
                     const category = data[category_name];
-                    const category_id = category.id.toString();
-                    tree_select_data[category_id] = true;
+                   
+                    if (category && category.id !== null) {
+                        const category_id = category.id.toString();
+                        tree_select_data[category_id] = true;
+                    }
                 }
             }
             return tree_select_data;
         }
+
 
         //---------------------------------------------------------------------
     }
