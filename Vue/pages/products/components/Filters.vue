@@ -46,7 +46,7 @@ onMounted(async () => {
                     placeholder="Select Category"
                     :show-count="true"
                     data-testid="products-category"
-                    append-to="self"
+
                     class=" w-full" />
             </VhFieldVertical>
             <VhFieldVertical >
