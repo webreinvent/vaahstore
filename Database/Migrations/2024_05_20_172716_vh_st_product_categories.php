@@ -18,7 +18,7 @@ class VhStProductCategories extends Migration
             $table->increments('id');
             $table->uuid('uuid')->nullable()->index();
             $table->integer('vh_st_product_id')->nullable()->index();
-            $table->integer('category_id')->nullable()->index();
+            $table->integer('vh_st_category_id')->nullable()->index();
 
 
             //----common fields

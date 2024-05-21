@@ -123,7 +123,7 @@ class Product extends VaahModel
 
     public function productCategories()
     {
-        return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'category_id');
+        return $this->belongsToMany(Category::class, 'vh_st_product_categories', 'vh_st_product_id', 'vh_st_category_id');
     }
     //-------------------------------------------------
     public function updatedByUser()
@@ -1774,7 +1774,7 @@ class Product extends VaahModel
 
     public static function deleteCategory($request){
         $product_id = $request->vh_st_product_id;
-        $category_id = $request->category_id;
+        $category_id = $request->vh_st_category_id;
 
         $product = Product::find($product_id);
 
