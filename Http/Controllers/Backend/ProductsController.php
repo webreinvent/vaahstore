@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
@@ -56,7 +57,6 @@ class ProductsController extends Controller
             // set default values of Store if it is not null
 
 
-
             // get min and max quantity from the product filter
             $product = Product::withTrashed()->get();
             if($product->isNotEmpty())
@@ -90,6 +90,7 @@ class ProductsController extends Controller
         return $response;
     }
 
+    //------------------------------------------------------------------------------------
 
     //------------------------Get Brand data for dropdown----------------------------------
     public function getBrandData(){
@@ -108,6 +109,7 @@ class ProductsController extends Controller
             }
         }
     }
+
     //------------------------Get Store data for dropdown----------------------------------
     public function getStoreData(){
         try{
@@ -793,6 +795,22 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
 
+    public function deleteCategory(Request $request)
+    {
+        try{
+            return Product::deleteCategory($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
     public function getVendorsListForPrduct(Request $request, $id)
     {
         try{
@@ -809,6 +827,28 @@ class ProductsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
+    public function searchCategoryUsingSlug(Request $request)
+    {
+
+        try{
+            return Product::searchCategoryUsingSlug($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+
+
 
     //----------------------------------------------------------
 
@@ -830,6 +870,29 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+    public function getCategories(Request $request){
+        try{
 
+            $data = [];
+
+            $categories=Category::with('subCategories')
+                ->whereNull('parent_id')->where('is_active', 1)->get();
+            $data['categories'] = $categories;
+            $response['success'] = true;
+            $response['data'] = $data;
+            return $response;
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
 
 }

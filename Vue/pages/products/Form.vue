@@ -12,7 +12,7 @@ onMounted(async () => {
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
-
+    await store.getCategories();
     await store.getFormMenu();
     await store.watchItem();
 });
@@ -208,6 +208,19 @@ const toggleFormMenu = (event) => {
                                                 }"
                     >
                     </AutoComplete>
+
+                </VhField>
+                <VhField label="Categories">
+                    <TreeSelect
+                        v-model="store.item.categories"
+                        :options="store.categories_dropdown_data"
+                        selectionMode="multiple"
+                        display="chip"
+                        placeholder="Select Category"
+                        :show-count="true"
+                        data-testid="product-categories"
+                        @change="store.setParentId()"
+                        class=" w-full" />
 
                 </VhField>
 
