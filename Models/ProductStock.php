@@ -684,7 +684,7 @@ class ProductStock extends VaahModel
 
         if ($product_variation->quantity < 10) {
             $product_variation->is_quantity_low = 1;
-            $product_variation->is_mail_sent =1;
+            $product_variation->is_mail_sent = 1;
             $product_variation->low_stock_at = now('Asia/Kolkata');
         } else {
             $product_variation->is_quantity_low = 0;
