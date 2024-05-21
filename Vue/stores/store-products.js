@@ -884,8 +884,8 @@ export const useProductStore = defineStore({
                     children: []
                 };
 
-                if (category.active_sub_categories_for_product && category.active_sub_categories_for_product.length > 0) {
-                    categoryItem.children = this.convertToTreeSelectFormat(category.active_sub_categories_for_product);
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    categoryItem.children = this.convertToTreeSelectFormat(category.sub_categories);
                 }
 
                 categories.push(categoryItem);
@@ -960,10 +960,7 @@ export const useProductStore = defineStore({
                 return category.reduce((acc, curr) => {
                     const categoryId = curr.id.toString();
                     acc[categoryId] = true;
-                    if (curr.sub_categories && curr.sub_categories.length) {
-                        const subCategories = this.convertToTreeSelectData(curr.sub_categories);
-                        Object.assign(acc, subCategories);
-                    }
+
                     return acc;
                 }, {});
             }

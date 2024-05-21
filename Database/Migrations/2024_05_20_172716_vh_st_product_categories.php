@@ -15,17 +15,17 @@ class VhStProductCategories extends Migration
     {
 
         Schema::create('vh_st_product_categories', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->uuid('uuid')->nullable()->index();
-            $table->integer('vh_st_product_id')->nullable()->index();
-            $table->integer('vh_st_category_id')->nullable()->index();
+            $table->bigInteger('vh_st_product_id')->nullable()->index();
+            $table->bigInteger('vh_st_category_id')->nullable()->index();
 
 
             //----common fields
             $table->text('meta')->nullable();
-            $table->integer('created_by')->nullable()->index();
-            $table->integer('updated_by')->nullable()->index();
-            $table->integer('deleted_by')->nullable()->index();
+            $table->bigInteger('created_by')->nullable()->index();
+            $table->bigInteger('updated_by')->nullable()->index();
+            $table->bigInteger('deleted_by')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
             $table->index(['created_at', 'updated_at', 'deleted_at']);
