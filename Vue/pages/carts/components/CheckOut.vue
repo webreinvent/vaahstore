@@ -265,7 +265,25 @@ watchEffect(() => {
                                 </div>
                             </div>
                         </div>
-
+<!--                    <Card v-if="store.item_billing_address" class="mt-2" :pt="{-->
+<!--                                content: {-->
+<!--                                    class: 'py-0'-->
+<!--                                }-->
+<!--                            }">-->
+<!--                        <template #content>-->
+<!--                            <div class="flex align-items-center">-->
+<!--&lt;!&ndash;                                <RadioButton v-model="ingredient" inputId="ingredient1" name="address"&ndash;&gt;-->
+<!--&lt;!&ndash;                                             value="address3" />&ndash;&gt;-->
+<!--                                <label for="ingredient1" class="ml-2"><b>{{ store.item_billing_address.name }}</b></label>-->
+<!--                            </div>-->
+<!--                            <div class="p-2"><p>{{ store.item_billing_address.address_line_1 }}</p>-->
+<!--                                <span>{{ store.item_billing_address.country }}</span>-->
+<!--                            </div>-->
+<!--                            <div class="p-2 pb-0">-->
+<!--                                <span>Mobile: </span><b>{{ store.item_billing_address.phone }}</b>-->
+<!--                            </div>-->
+<!--                        </template>-->
+<!--                    </Card>-->
                 </AccordionTab>
 
 

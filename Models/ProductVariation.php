@@ -1555,15 +1555,24 @@ class ProductVariation extends VaahModel
         }
         if ($cart->productVariations->contains($product_variation->id)) {
             $existing_cart_item = $cart->productVariations->where('id', $product_variation_id)->first();
-
+//dd($existing_cart_item->pivot->vh_st_vendor_id , $selected_vendor_id);Product::isVendorStockActive($vendor, $product->id)
             if ($existing_cart_item->pivot->vh_st_vendor_id != $selected_vendor_id) {
                 self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
             } else {
+
                 $existing_cart_item->pivot->quantity++;
                 $existing_cart_item->pivot->save();
             }
         } else {
-            self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
+            if ($request->input('product_variation.quantity')>0){
+                self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
+            }else{
+                $error_message = "This product variation is out of stock";
+                $response['errors'][] = $error_message;
+                return $response;
+            }
+
+//            self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
         }
 
         if (!Session::has('vh_user_id')) {
