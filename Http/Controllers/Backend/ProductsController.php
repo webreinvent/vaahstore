@@ -877,7 +877,7 @@ class ProductsController extends Controller
             $data = [];
 
             $categories=Category::with('activeSubCategoriesForProduct')
-                ->whereNull('category_id')->where('is_active', 1)->get();
+                ->whereNull('parent_id')->where('is_active', 1)->get();
             $data['categories'] = $categories;
             $response['success'] = true;
             $response['data'] = $data;

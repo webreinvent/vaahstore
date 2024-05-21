@@ -33,7 +33,7 @@ class CategoriesController extends Controller
 
             $data['actions'] = [];
             $data['category'] = Category::with('subCategories')
-                ->where('category_id',null)
+                ->where('parent_id',null)
                 ->get();
 
             $response['success'] = true;

@@ -258,9 +258,9 @@ export const useCategoryStore = defineStore({
             if (this.item.parent_category) {
                 const checkedItem = Object.entries(this.item.parent_category).find(([key, value]) => value === true);
                 if (checkedItem) {
-                    this.item.category_id = checkedItem[0];
+                    this.item.parent_id = checkedItem[0];
                 } else {
-                    this.item.category_id = null;
+                    this.item.parent_id = null;
                 }
 
             }
@@ -1147,7 +1147,7 @@ export const useCategoryStore = defineStore({
             for (const category_name in data) {
                 if (data.hasOwnProperty(category_name)) {
                     const category = data[category_name];
-                   
+
                     if (category && category.id !== null) {
                         const category_id = category.id.toString();
                         tree_select_data[category_id] = true;

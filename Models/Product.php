@@ -638,7 +638,7 @@ class Product extends VaahModel
 
             $category_ids = Category::whereIn('slug', $categories_slug)->pluck('id')->toArray();
 
-            $subCategory_ids = Category::whereIn('category_id', $category_ids)->pluck('id')->toArray();
+            $subCategory_ids = Category::whereIn('parent_id', $category_ids)->pluck('id')->toArray();
 
             $all_category_ids = array_merge($category_ids, $subCategory_ids);
 
@@ -1353,7 +1353,7 @@ class Product extends VaahModel
          * You should also return relationship from here
          */
 
-        $random_category = Category::whereNull('category_id') ->where('is_active', 1)->inRandomOrder()->first();
+        $random_category = Category::whereNull('parent_id') ->where('is_active', 1)->inRandomOrder()->first();
         $inputs['category'] = $random_category;
 
 

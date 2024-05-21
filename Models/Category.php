@@ -29,7 +29,7 @@ class Category extends VaahModel
         'uuid',
         'name',
         'slug',
-        'category_id',
+        'parent_id',
         'is_active',
         'created_by',
         'updated_by',
@@ -116,19 +116,19 @@ class Category extends VaahModel
     //-------------------------------------------------
     public function subCategories()
     {
-        return $this->hasMany(Category::class, 'category_id')->with(['subCategories']);
+        return $this->hasMany(self::class, 'parent_id')->with(['subCategories']);
     }
 
     //-------------------------------------------------
     public function activeSubCategoriesForProduct()
     {
-        return $this->hasMany(Category::class, 'category_id')->where('is_active', 1)->with(['activeSubCategoriesForProduct']);
+        return $this->hasMany(self::class, 'parent_id')->where('is_active', 1)->with(['activeSubCategoriesForProduct']);
     }
     //-------------------------------------------------
 
     public function parentCategory()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
+        return $this->belongsTo(self::class, 'parent_id', 'id');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -300,7 +300,7 @@ class Category extends VaahModel
 
             $category_ids = self::whereIn('slug', $category_names)->pluck('id')->toArray();
 
-            $subcategory_ids = self::whereIn('category_id', $category_ids)->pluck('id')->toArray();
+            $subcategory_ids = self::whereIn('parent_id', $category_ids)->pluck('id')->toArray();
 
             $category_ids = array_merge($category_ids, $subcategory_ids);
 
@@ -411,7 +411,7 @@ class Category extends VaahModel
             case 'trash':
                 $category_model = new Category();
                 foreach ($items_id as $item_id) {
-                    $sub_categories = Category::where('category_id', $item_id)->exists();
+                    $sub_categories = Category::where('parent_id', $item_id)->exists();
                     if ($sub_categories) {
                         $category_model->recursiveTrashCategories($item_id);
                     }
@@ -460,7 +460,7 @@ class Category extends VaahModel
 
         $category_model = new Category();
         foreach ($items_id as $item_id) {
-            $sub_categories = Category::where('category_id', $item_id)->exists();
+            $sub_categories = Category::where('parent_id', $item_id)->exists();
 
             if ($sub_categories) {
                 $category_model->recursiveDeleteCategories($item_id);
@@ -481,7 +481,7 @@ class Category extends VaahModel
 
     private function recursiveDeleteCategories($category_ids)
     {
-        $sub_categories = Category::withTrashed()->where('category_id', $category_ids)->get();
+        $sub_categories = Category::withTrashed()->where('parent_id', $category_ids)->get();
         foreach ($sub_categories as $sub_category) {
             $this->recursiveDeleteCategories($sub_category->id);
             $sub_category->forceDelete();
@@ -645,9 +645,9 @@ class Category extends VaahModel
 
         return $this->where('id', $current_id)
             ->where(function($query) use ($parent_id) {
-                $query->where('category_id', $parent_id)
+                $query->where('parent_id', $parent_id)
                     ->orWhereHas('parentCategory', function($query) use ($parent_id) {
-                        $query->where('category_id', $parent_id);
+                        $query->where('parent_id', $parent_id);
                     });
             })->exists();
     }
@@ -661,7 +661,7 @@ class Category extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        $is_exist_sub_categories = Category::where('category_id', $item->id)->exists();
+        $is_exist_sub_categories = Category::where('parent_id', $item->id)->exists();
         if ($is_exist_sub_categories) {
             $category_model = new Category();
             $category_model->recursiveDeleteCategories($item->id);
@@ -690,7 +690,7 @@ class Category extends VaahModel
                     ->update(['is_active' => null]);
                 break;
             case 'trash':
-                $is_exist_sub_categories = Category::where('category_id', $id)->exists();
+                $is_exist_sub_categories = Category::where('parent_id', $id)->exists();
                 if ($is_exist_sub_categories) {
                     $category_model = new Category();
                     $category_model->recursiveTrashCategories($id);
@@ -710,7 +710,7 @@ class Category extends VaahModel
 
     private function recursiveTrashCategories($category_id)
     {
-        $sub_categories = Category::where('category_id', $category_id)->get();
+        $sub_categories = Category::where('parent_id', $category_id)->get();
         foreach ($sub_categories as $sub_category) {
             $this->recursiveTrashCategories($sub_category->id);
             $sub_category->delete();
@@ -787,7 +787,7 @@ class Category extends VaahModel
             ->first();
         if ($random_category){
             $inputs['category']=$random_category;
-            $inputs['category_id']=$random_category->id;
+            $inputs['parent_id']=$random_category->id;
         }
         $inputs['is_active'] = 1;
         $faker = Factory::create();

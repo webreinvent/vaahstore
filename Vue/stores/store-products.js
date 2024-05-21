@@ -898,9 +898,9 @@ export const useProductStore = defineStore({
             if (this.item.categories) {
                 const checkedItem = Object.entries(this.item.categories).find(([key, value]) => value === true);
                 if (checkedItem) {
-                    this.item.category_id = checkedItem[0];
+                    this.item.parent_id = checkedItem[0];
                 } else {
-                    this.item.category_id = null;
+                    this.item.parent_id = null;
                 }
             }
         },
