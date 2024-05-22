@@ -796,6 +796,7 @@ class Cart extends VaahModel
         else {
             $cart->products()
                 ->wherePivot('vh_st_product_id', $product_id)
+                ->wherePivot('vh_st_vendor_id', $vendor_id)
                 ->wherePivot('vh_st_product_variation_id', $variation_id)
                 ->updateExistingPivot($product_id, [
                     'quantity' => $new_quantity,
