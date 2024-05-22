@@ -1269,16 +1269,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         //---------------------------------------------------------------------
 
-        // handleSameAsShippingChange() {
-        //     if (this.selectedAddress) {
-        //
-        //         if (this.bill_form) {
-        //             this.item_billing_address = { ...this.selectedAddress };
-        //         } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
-        //             this.item_user_address = vaah().clone(this.assets.item_user_address);
-        //         }
-        //     }
-        // },
+
         handleSameAsShippingChange() {
             if (this.selectedAddress) {
                 if (this.bill_form) {
