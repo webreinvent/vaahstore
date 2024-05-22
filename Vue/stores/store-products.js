@@ -122,6 +122,8 @@ export const useProductStore = defineStore({
         vendor_suggestion : null,
         min_quantity : null,
         max_quantity : null,
+        filter_category:null,
+        product_category_filter:null,
         add_to_cart:false,
         show_cart_msg:false,
         product_name:null,
@@ -260,7 +262,9 @@ export const useProductStore = defineStore({
              */
             this.updateQueryFromUrl(route);
             await this.updateUrlQueryString(this.query);
-
+            if (this.route.query.filter && this.route.query.filter.category) {
+                await this.setCategoryInFilterAfterRefresh();
+            }
             if(this.query.filter.vendors)
             {
                 this.setVendorsAfterPageRefresh();
@@ -853,6 +857,7 @@ export const useProductStore = defineStore({
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
                 this.min_quantity = data.min_quantity;
                 this.max_quantity = data.max_quantity;
+                this.categories_data=data.category;
                 if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
                 {
                     this.min_quantity=this.route.query.filter.quantity[0];
@@ -870,6 +875,45 @@ export const useProductStore = defineStore({
 
             }
         },
+        convertToTreeSelectFormat(data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            let categories = [];
+
+            data.forEach(category => {
+                let categoryItem = {
+                    key: category.id,
+                    label: category.name,
+                    data : category.slug,
+                    children: []
+                };
+
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    categoryItem.children = this.convertToTreeSelectFormat(category.sub_categories);
+                }
+
+                categories.push(categoryItem);
+            });
+
+            return categories;
+        },
+
+        setParentId() {
+            if (this.item.categories) {
+                const checkedItem = Object.entries(this.item.categories).find(([key, value]) => value === true);
+                if (checkedItem) {
+                    this.item.parent_id = checkedItem[0];
+                } else {
+                    this.item.parent_id = null;
+                }
+            }
+        },
+
+
+
+
+
         //---------------------------------------------------------------------
         async getList() {
             let options = {
@@ -918,13 +962,35 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+
             }else{
                 this.$router.push({name: 'products.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        //---------------------------------------------------------------------
+
+        convertToTreeSelectData(category) {
+            if (category && category.length) {
+                return category.reduce((acc, curr) => {
+                    const categoryId = curr.id.toString();
+                    acc[categoryId] = true;
+
+                    return acc;
+                }, {});
+            }
+            return {};
+        },
+
+
+
+
+
+
+
+
+
         isListActionValid()
         {
 
@@ -1085,6 +1151,35 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        async removeCategory(type, item=null){
+
+            if(!item)
+            {
+                item = this.item;
+            }
+
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'POST',
+                params:item.pivot
+            };
+            ajax_url += '/category/'+type;
+            await vaah().ajax(
+                ajax_url,
+                this.removeCategoryAfter,
+                options
+            );
+        },
+        removeCategoryAfter(data,res){
+            if (data){
+                this.getList();
+                if (this.route.name === 'products.view'){
+                    this.getItem(data.product.id);
+                }
+            }
+        },
+        //---------------------------------------------------------------------
 
         async itemAction(type, item=null){
             if(!item)
@@ -1210,6 +1305,7 @@ export const useProductStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
                     this.route.params.id = null;
                     this.$router.push({name: 'products.form'});
                     await this.getFormMenu();
@@ -1221,6 +1317,7 @@ export const useProductStore = defineStore({
                     break;
                 case 'save':
                     this.item = data;
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
                     break;
                 case 'delete':
                     this.item = null;
@@ -1269,6 +1366,10 @@ export const useProductStore = defineStore({
             if(data)
             {
                 let self = this;
+                if (data.fill.category) {
+                    const category_after_fill = [data.fill.category]
+                    this.item.categories = this.convertToTreeSelectData(category_after_fill);
+                }
                 Object.keys(data.fill).forEach(function(key) {
                     self.item[key] = data.fill[key];
                 });
@@ -1402,6 +1503,7 @@ export const useProductStore = defineStore({
             this.selected_dates = null;
             this.min_quantity = this.assets.min_quantity;
             this.max_quantity = this.assets.max_quantity;
+            this.product_category_filter=null;
             this.quantity = null;
             vaah().toastSuccess(['Action was successful']);
             //reload page list
@@ -1436,8 +1538,24 @@ export const useProductStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.getDefaultStore();
+            this.getCategories();
 
             this.$router.push({name: 'products.form'})
+        },
+        //---------------------------------------------------------------------
+        async getCategories(){
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/categories',
+                this.getCategoriesAfter,
+                options
+            );
+        },
+        getCategoriesAfter(data,res){
+            this.categories_dropdown_data = this.convertToTreeSelectFormat(data.categories);
         },
         //---------------------------------------------------------------------
         async getDefaultStore()
@@ -1496,6 +1614,7 @@ export const useProductStore = defineStore({
         {
             this.item = item;
             this.$router.push({name: 'products.form', params:{id:item.id}})
+            this.getCategories();
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -2400,6 +2519,7 @@ export const useProductStore = defineStore({
             this.show_cart_msg=false;
         },
 
+        //---------------------------------------------------------------------
         async openVendorsPanel(item)
         {
             this.show_vendor_panel = true;
@@ -2412,6 +2532,93 @@ export const useProductStore = defineStore({
                 );
             }
         },
+
+        selectCategoryForFilter(event) {
+            const selected_categories = this.query.filter.category || [];
+            const existing_category = selected_categories.find(category => category === event.data.toLowerCase());
+            if (!existing_category) {
+                selected_categories.push(event.data.toLowerCase());
+                this.query.filter.category = selected_categories;
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
+        removeCategoryForFilter(event) {
+            let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
+
+            if (Array.isArray(selected_categories)) {
+                const index = selected_categories.findIndex(category => category === event.data.toLowerCase());
+
+                if (index !== -1) {
+                    selected_categories.splice(index, 1);
+                }
+
+                this.query.filter.category = selected_categories;
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
+        async setCategoryInFilterAfterRefresh() {
+            if (this.route.query.filter && this.route.query.filter.category) {
+                let category = this.route.query.filter.category;
+
+                let query = {
+                    filter: {
+                        category: category
+                    }
+                };
+
+                const options = {
+                    params: query,
+                    method: 'post'
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/search/category-using-slug',
+                    this.setCategoryInFilterAfterRefreshAfter,
+                    options
+                );
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+        setCategoryInFilterAfterRefreshAfter(data, res) {
+
+            if (data) {
+                this.product_category_filter = this.convertFilterCategoryToTreeSelect(data);
+            }
+        },
+        //---------------------------------------------------------------------
+
+        convertFilterCategoryToTreeSelect(data) {
+            const tree_select_data = {};
+            for (const category_name in data) {
+                if (data.hasOwnProperty(category_name)) {
+                    const category = data[category_name];
+                    const category_id = category.id.toString();
+                    tree_select_data[category_id] = true;
+                }
+            }
+            return tree_select_data;
+        },
+
+
+        //---------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 //---------------------------------------------------------------------
 

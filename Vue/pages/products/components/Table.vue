@@ -1,10 +1,33 @@
 <script setup>
-import {vaah} from '../../../vaahvue/pinia/vaah'
-import {useProductStore} from '../../../stores/store-products'
+import { vaah } from '../../../vaahvue/pinia/vaah'
+import { useProductStore } from '../../../stores/store-products'
+import ProductCategories from '../components/ProductCategories.vue'
+import { useDialog } from "primevue/usedialog";
 import {computed, ref, watch} from "vue";
 import VendorsList from './VendorsList.vue'
 const store = useProductStore();
 const useVaah = vaah()
+const visible = ref(false);
+
+const dialog = useDialog();
+const openProductCategories = (categories,product) => {
+    const dialogRef = dialog.open(ProductCategories, {
+        props: {
+            header: product,
+            style: {
+                width: '50vw',
+            },
+            breakpoints:{
+                '960px': '75vw',
+                '640px': '90vw'
+            },
+            modal: true
+        },
+        data : {'categories' : categories
+
+        },
+    });
+}
 
 </script>
 
@@ -155,6 +178,27 @@ const useVaah = vaah()
              </Column>
 
 
+
+
+
+             <Column field="product_categories.name" header="Categories">
+                 <template #body="prop">
+                     <div class="p-inputgroup">
+                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class="p-inputgroup-addon cursor-pointer"
+                              @click="openProductCategories(prop.data.product_categories,prop.data.name)" v-tooltip.top="'View Categories'">
+                              <Badge severity="info">{{prop.data.product_categories.length}}</Badge>
+                        </span>
+                         <span class="p-inputgroup-addon" v-else>
+                             <Badge severity="info">0</Badge>
+                         </span>
+                     </div>
+                 </template>
+             </Column>
+
+
+
+
+
              <Column field="status.name" header="Status"
                      :sortable="true"
                      v-if="store.isViewLarge()">
@@ -257,6 +301,8 @@ const useVaah = vaah()
                    class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
+        <DynamicDialog  />
+
         <VendorsList/>
     </div>
 

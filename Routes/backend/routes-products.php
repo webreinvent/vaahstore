@@ -188,7 +188,16 @@ function () {
     Route::any('/get/default/store', 'ProductsController@defaultStore')
         ->name('vh.backend.store.products.get.default.store');
 
+    //---------------------------------------------------------
+    Route::any('/category/{action}', 'ProductsController@deleteCategory')
+        ->name('vh.backend.store.products.get.default.store');
 
+    //---------------------------------------------------------
+    Route::post('/search/category-using-slug', 'ProductsController@searchCategoryUsingSlug')
+        ->name('vh.backend.store.products.search.filtered-category');
+
+
+    //---------------------------------------------------------
     Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.products.get.vendors-list');
 
@@ -204,4 +213,8 @@ function () {
 
     Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')
         ->name('vh.backend.store.products.disable.active-cart');
+    //---------------------------------------------------------
+    Route::get('/get/categories', 'ProductsController@getCategories')
+        ->name('vh.backend.store.products.get.categories');
+
 });
