@@ -928,13 +928,16 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
-            if (res && res.data.active_cart_user){
+            if (res?.data?.active_cart_user) {
+                const { active_cart_user: { cart_records, first_name, vh_st_cart_id } } = res.data;
                 this.add_to_cart = false;
-                this.show_cart_msg=true;
-                this.active_user=res.data.active_cart_user;
-                this.total_cart_product= res.data.active_cart_user.cart_records;
-                this.active_cart_user_name = res.data.active_cart_user.first_name;
-                this.cart_id = res.data.active_cart_user.vh_st_cart_id;
+                this.show_cart_msg = true;
+                this.active_user = res.data.active_cart_user;
+                this.total_cart_product = cart_records;
+                this.active_cart_user_name = first_name;
+                this.cart_id = vh_st_cart_id;
+            } else {
+                this.show_cart_msg = false;
             }
             if(data)
             {

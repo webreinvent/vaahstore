@@ -387,7 +387,6 @@ class Cart extends VaahModel
     public static function deleteList($request): array
     {
         $inputs = $request->all();
-
         $rules = array(
             'type' => 'required',
             'items' => 'required',
@@ -406,8 +405,19 @@ class Cart extends VaahModel
             $response['errors'] = $errors;
             return $response;
         }
+        if(session()->has('vh_user_id')) {
+            $cart_user_id = collect($inputs['items'])->pluck('user.id')->toArray();
+            $session_user_id = session('vh_user_id');
+
+            if (in_array($session_user_id, $cart_user_id)) {
+                session()->forget('vh_user_id');
+            }
+        }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('products')->whereIn('id', $items_id)->each(function ($item) {
+            $item->products()->detach();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -447,6 +457,11 @@ class Cart extends VaahModel
                     ->each->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
+                foreach ($items as $item) {
+                    $item->products()->detach();
+                }
+                session()->forget('vh_user_id');
                 $list->forceDelete();
                 break;
             case 'create-100-records':
