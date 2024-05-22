@@ -501,6 +501,10 @@ class Cart extends VaahModel
             $variation_name = $variation?->name;
             $selected_vendor = Vendor::find($vendor_id);
             $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor,$product->id,$variation_id);
+            $available_quantity = $is_quantity_available ? self::getAvailableQuantity($selected_vendor, $product->id, $variation_id) : 0;
+
+            $pivot_quantity = $product->pivot->quantity;
+            $is_pivot_quantity_valid = $pivot_quantity <= $available_quantity;
             $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
                 ->where('vh_st_vendor_id', $vendor_id)
                 ->value('amount');
@@ -508,7 +512,9 @@ class Cart extends VaahModel
                 $price = ProductVariation::getPriceOfProductVariants($variation_id);
             }
             $is_wishlisted = $wishlistId ? $product->wishlists()->where('vh_st_wishlist_id', $wishlistId)->exists() : false;
-            $product->pivot->is_stock_available = $is_quantity_available ? 1 : 0;
+//            $product->pivot->is_stock_available = $is_quantity_available ? 1 : 0;
+            $product->pivot->is_stock_available = $is_quantity_available && $is_pivot_quantity_valid ? 1 : 0;
+
             $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
@@ -521,6 +527,17 @@ class Cart extends VaahModel
         return $response;
 
     }
+    //-------------------------------------------------
+    public static function getAvailableQuantity($vendor, $product_id, $variation_id)
+    {
+        $stock = $vendor->productStocks()
+            ->where('vh_st_product_id', $product_id)
+            ->where('vh_st_product_variation_id', $variation_id)
+            ->first();
+
+        return $stock ? $stock->quantity : 0;
+    }
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
@@ -753,6 +770,7 @@ class Cart extends VaahModel
                 ->toArray();
 
             if (!empty($cart_product_table_ids)) {
+
                 foreach ($cart_product_table_ids as $cart_product_id) {
                     $cart->cartItems()->detach($cart_product_id);
                 }
@@ -761,10 +779,13 @@ class Cart extends VaahModel
             }
         }
         else {
-            $cart->products()->updateExistingPivot($product_id, [
-                'quantity' => $new_quantity,
-                'vh_st_product_variation_id' => $variation_id
-            ]);
+            $cart->products()
+                ->wherePivot('vh_st_product_id', $product_id)
+                ->wherePivot('vh_st_product_variation_id', $variation_id)
+                ->updateExistingPivot($product_id, [
+                    'quantity' => $new_quantity,
+                    'vh_st_product_variation_id' => $variation_id
+                ]);
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
         }
@@ -943,7 +964,7 @@ class Cart extends VaahModel
             foreach ($cart->products as $product) {
                 $vendor_id = $product->pivot->vh_st_vendor_id;
                 $selected_vendor = Vendor::find($vendor_id);
-                if (!is_null($product->pivot->vh_st_product_variation_id) && $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor, $product->id,$product->pivot->vh_st_product_variation_id)) {
+                if (!is_null($product->pivot->vh_st_product_variation_id) && self::isCartItemQuantityAvailable($selected_vendor, $product->id,$product->pivot->vh_st_product_variation_id)) {
 
 
                     $variation_id = $product->pivot->vh_st_product_variation_id;
@@ -1185,7 +1206,7 @@ class Cart extends VaahModel
 
     public static function placeOrder($request)
     {
-        dd($request);
+//        dd($request);
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')
             ->where('slug', 'pending')->value('id');
 
@@ -1223,9 +1244,21 @@ class Cart extends VaahModel
             $orderItem->vh_st_product_variation_id = $item['pivot']['product_variation_id'];
             $orderItem->vh_st_vendor_id = $item['pivot']['selected_vendor_id'];
             $orderItem->is_active = 1;
-
             $orderItem->save();
+            $vendor = Vendor::find($item['pivot']['selected_vendor_id']);
+            if ($vendor) {
+                $variation = $vendor->productStocks()
+                    ->where('vh_st_product_id', $item['product_id'])
+                    ->where('vh_st_product_variation_id', $item['pivot']['product_variation_id'])
+                    ->first();
+
+                if ($variation) {
+                    $variation->quantity -= $item['pivot']['quantity'];
+                    $variation->save();
+                }
+            }
         }
+        $request->session()->forget('vh_user_id');
         $cart = Cart::find($request->order_details['cart_id']);
         $response['success'] = true;
         $response['data'] ['cart']= $cart;
