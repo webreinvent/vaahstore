@@ -1014,15 +1014,19 @@ export const useCartStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        //---------------------------------------------------------------------
 
         totalPrice(){
             return true;
         },
+        //---------------------------------------------------------------------
+
         calculateTotalAmount (products) {
             return products.reduce((total, product) => {
                 return total + this.calculatePrice(product);
             }, 0);
         },
+        //---------------------------------------------------------------------
 
         calculatePrice(product){
             const price = parseFloat(product.pivot.price);
@@ -1333,12 +1337,15 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 options
             );
         },
+        //---------------------------------------------------------------------
 
         placeOrderAfter(data,res){
             if (data){
                 this.removeCartItemsAfterOrder(data.cart.id);
             }
         },
+        //---------------------------------------------------------------------
+
         async removeCartItemsAfterOrder(cart_id){
             console.log(cart_id)
             const options={
@@ -1355,6 +1362,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 this.$router.push({name: 'carts.index',query:this.query});
             }
         },
+        //---------------------------------------------------------------------
 
 
         async addToWishList(item,user){
@@ -1373,11 +1381,15 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         addToWishListAfter(data,res){
            if (data){
                this.getItem(data.cart.id);
            }
         }
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
 
 
     }

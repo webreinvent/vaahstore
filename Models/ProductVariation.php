@@ -1470,6 +1470,7 @@ class ProductVariation extends VaahModel
         }
         return $response;
     }
+    //----------------------------------------------------------
 
     public static function getPriceOfProductVariants($variation_id)
     {
@@ -1481,6 +1482,7 @@ class ProductVariation extends VaahModel
         return $variation->price;
     }
 
+    //----------------------------------------------------------
 
     public static function addVariationToCart($request)
     {
@@ -1544,12 +1546,14 @@ class ProductVariation extends VaahModel
         $response['data'] = $user;
         return $response;
     }
+    //----------------------------------------------------------
 
     protected static function findOrCreateUser($user_data)
     {
         $user = User::findOrFail($user_data['id']);
         return $user;
     }
+    //----------------------------------------------------------
 
     protected static function findOrCreateCart($user)
     {
@@ -1563,6 +1567,7 @@ class ProductVariation extends VaahModel
             return $cart;
         }
     }
+    //----------------------------------------------------------
 
     protected static function attachVariantionToCart($cart,$product_variation,$selected_vendor_id)
     {

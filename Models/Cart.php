@@ -894,6 +894,9 @@ class Cart extends VaahModel
 
         return $response;
     }
+
+    //-------------------------------------------------
+
     public static function getItemQuantity($vendor, $product_id, $variation_id)
     {
         if ($vendor === null || $product_id === null || $variation_id === null) {
@@ -912,6 +915,7 @@ class Cart extends VaahModel
 
         return ['available' => false, 'quantity' => 0];
     }
+    //-------------------------------------------------
 
     protected static function isCartItemQuantityAvailable($vendor, $product_id, $variation_id)
     {
@@ -928,6 +932,7 @@ class Cart extends VaahModel
             ->where('is_active', 1)
             ->exists();
     }
+    //-------------------------------------------------
 
     private static function getProductMediaIds($product)
     {
@@ -939,6 +944,7 @@ class Cart extends VaahModel
             return ProductMedia::where('vh_st_product_id', $product->id)->pluck('id')->toArray();
         }
     }
+    //-------------------------------------------------
 
     private static function getImageUrls($product_media_ids)
     {
@@ -951,6 +957,7 @@ class Cart extends VaahModel
         }
         return $image_urls;
     }
+    //-------------------------------------------------
 
     private static function getProductVariationName($product)
     {
@@ -958,6 +965,7 @@ class Cart extends VaahModel
         $variation = ProductVariation::find($variation_id);
         return $variation ? $variation->name : null;
     }
+    //-------------------------------------------------
 
     private static function getProductPrice($product)
     {
@@ -966,6 +974,7 @@ class Cart extends VaahModel
     }
 
 
+    //-------------------------------------------------
 
     public static function saveCartUserAddress($request){
 //        dd($request);
@@ -1007,6 +1016,7 @@ class Cart extends VaahModel
 
         return $response;
     }
+    //-------------------------------------------------
 
     public static function removeCartUserAddress($request){
         $address_details = $request->input('user_address');
@@ -1024,6 +1034,7 @@ class Cart extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
 
     public static function updateUserShippingAddress($request){
 
@@ -1063,6 +1074,7 @@ class Cart extends VaahModel
         return $response;
     }
 
+    //-------------------------------------------------
 
     public static function newBillingAddress($request){
         $inputs = $request->input('billing_address_detail');
@@ -1105,6 +1117,7 @@ class Cart extends VaahModel
     }
 
 
+    //-------------------------------------------------
 
 
     public static function placeOrder($request)
@@ -1195,6 +1208,7 @@ class Cart extends VaahModel
         }
     }
 
+    //-------------------------------------------------
 
 
     public static function addToWishlist($request){
@@ -1236,6 +1250,7 @@ class Cart extends VaahModel
 
         return $response;
     }
+    //-------------------------------------------------
 
 
     public static function removeCartItemsAfterOrder($request,$id){

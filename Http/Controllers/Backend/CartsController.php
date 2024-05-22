@@ -255,6 +255,9 @@ class CartsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
     public function deleteCartItem(Request $request)
     {
         try{
@@ -271,6 +274,8 @@ class CartsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
 
     public function getCartItemDetailsAtCheckout(Request $request, $id)
     {
@@ -289,6 +294,8 @@ class CartsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+
     public function saveCartUserAddress(Request $request)
     {
         try{
@@ -305,6 +312,9 @@ class CartsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
     public function removeCartUserAddress(Request $request)
     {
         try{
@@ -321,6 +331,9 @@ class CartsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
     public function updateUserShippingAddress(Request $request)
     {
         try{
@@ -337,6 +350,7 @@ class CartsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function newBillingAddress(Request $request)
     {
@@ -354,6 +368,7 @@ class CartsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function placeOrder(Request $request)
     {
@@ -371,6 +386,7 @@ class CartsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function addToWishlist(Request $request)
     {
@@ -388,6 +404,7 @@ class CartsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function removeCartItemsAfterOrder(Request $request,$id)
     {

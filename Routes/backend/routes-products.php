@@ -204,15 +204,30 @@ function () {
     Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
         ->name('vh.backend.store.products.preferred-vendor');
 
-
+    //---------------------------------------------------------
+    /**
+     * Search customer-users for add to cart
+     */
     Route::post('/search/user', 'ProductsController@searchUsers')
         ->name('vh.backend.store.products.search.user-for-cart');
-
+    //---------------------------------------------------------
+    /**
+     * Add product to cart
+     */
     Route::post('/add/product-to-cart', 'ProductsController@addProductToCart')
         ->name('vh.backend.store.products.save.user-info');
 
+    //---------------------------------------------------------
+    /**
+     * Disable active cart session
+     */
     Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')
         ->name('vh.backend.store.products.disable.active-cart');
+
+    //---------------------------------------------------------
+    /**
+     * get categories
+     */
     //---------------------------------------------------------
     Route::get('/get/categories', 'ProductsController@getCategories')
         ->name('vh.backend.store.products.get.categories');

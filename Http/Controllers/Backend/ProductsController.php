@@ -793,6 +793,7 @@ class ProductsController extends Controller
             }
         }
     }
+    //----------------------------------------------------------
 
     public function searchUsers(Request $request)
     {
@@ -828,6 +829,8 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
+
     public function deleteCategory(Request $request)
     {
         try{
@@ -844,6 +847,8 @@ class ProductsController extends Controller
             }
         }
     }
+    //----------------------------------------------------------
+
     public function getVendorsListForPrduct(Request $request, $id)
     {
         try{
@@ -860,6 +865,7 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function disableActiveCart(Request $request)
     {
