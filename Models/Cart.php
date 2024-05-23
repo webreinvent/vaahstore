@@ -875,7 +875,7 @@ class Cart extends VaahModel
             if (!is_null($product->pivot->vh_st_product_variation_id)) {
                 $variation_id = $product->pivot->vh_st_product_variation_id;
 
-                $quantity_info = self::getItemQuantity($selected_vendor, $product->id, $variation_id);
+                $quantity_info = ProductVariation::getItemQuantity($selected_vendor, $product->id, $variation_id);
 
                 if ($product->pivot->quantity <= $quantity_info['quantity']) {
                     $variation_price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
@@ -913,24 +913,24 @@ class Cart extends VaahModel
 
     //-------------------------------------------------
 
-    public static function getItemQuantity($vendor, $product_id, $variation_id)
-    {
-        if ($vendor === null || $product_id === null || $variation_id === null) {
-            return ['available' => false, 'quantity' => 0];
-        }
-
-        $productStock = $vendor->productStocks()
-            ->where('vh_st_product_id', $product_id)
-            ->where('vh_st_product_variation_id', $variation_id)
-            ->where('is_active', 1)
-            ->first();
-
-        if ($productStock) {
-            return ['available' => true, 'quantity' => $productStock->quantity];
-        }
-
-        return ['available' => false, 'quantity' => 0];
-    }
+//    public static function getItemQuantity($vendor, $product_id, $variation_id)
+//    {
+//        if ($vendor === null || $product_id === null || $variation_id === null) {
+//            return ['available' => false, 'quantity' => 0];
+//        }
+//
+//        $productStock = $vendor->productStocks()
+//            ->where('vh_st_product_id', $product_id)
+//            ->where('vh_st_product_variation_id', $variation_id)
+//            ->where('is_active', 1)
+//            ->first();
+//
+//        if ($productStock) {
+//            return ['available' => true, 'quantity' => $productStock->quantity];
+//        }
+//
+//        return ['available' => false, 'quantity' => 0];
+//    }
     //-------------------------------------------------
 
     protected static function isCartItemQuantityAvailable($vendor, $product_id, $variation_id)
