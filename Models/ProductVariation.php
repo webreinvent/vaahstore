@@ -1676,20 +1676,22 @@ class ProductVariation extends VaahModel
             ->first();
 
         if ($existing_cart_item) {
-            // If the product variation already exists with the new selected vendor ID, increment its quantity
+            if ($existing_cart_item->pivot->quantity < $request->input('product_variation.quantity')) {
+                // If the product variation already exists with the new selected vendor ID, increment its quantity
 //            $pivot_record = $existing_cart_item->pivot;
 //            $pivot_record->quantity += 1;
 //            $pivot_record->save();
 
-            $pivot_record = $cart->productVariations()
-                ->where('vh_st_product_variation_id', $product_variation_id)
-                ->where('vh_st_vendor_id', $selected_vendor_id)
-                ->withPivot('id', 'quantity')
-                ->first();
+                $pivot_record = $cart->productVariations()
+                    ->where('vh_st_product_variation_id', $product_variation_id)
+                    ->where('vh_st_vendor_id', $selected_vendor_id)
+                    ->withPivot('id', 'quantity')
+                    ->first();
 
-            if ($pivot_record) {
-                $pivot_record->pivot->quantity += 1;
-                $pivot_record->pivot->save();
+                if ($pivot_record) {
+                    $pivot_record->pivot->quantity += 1;
+                    $pivot_record->pivot->save();
+                }
             }
         } else {
             self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
