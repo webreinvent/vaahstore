@@ -209,9 +209,6 @@ class ProductStock extends VaahModel
 
         $product_variation->save();
 
-
-        $product_variation->save();
-
         //update quantity in product
         $product = Product::where('id', $inputs['vh_st_product_id'])->withTrashed()->first();
 
@@ -680,12 +677,17 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
 
+        $old_quantity = $product_variation->quantity;
         $product_variation->quantity += $difference_in_quantity;
+        $send_mail = false;
 
         if ($product_variation->quantity < 10) {
             $product_variation->is_quantity_low = 1;
             $product_variation->is_mail_sent = 1;
             $product_variation->low_stock_at = now('Asia/Kolkata');
+            if ($old_quantity >= 10) {
+                $send_mail = true;
+            }
         } else {
             $product_variation->is_quantity_low = 0;
             $product_variation->is_mail_sent = 0;
@@ -699,6 +701,9 @@ class ProductStock extends VaahModel
 
         $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
+        if ($send_mail) {
+            ProductVariation::sendMailForStock();
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;

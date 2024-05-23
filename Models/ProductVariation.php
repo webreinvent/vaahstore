@@ -117,21 +117,6 @@ class ProductVariation extends VaahModel
         $empty_item['quantity'] = 0;
         return $empty_item;
     }
-
-    //----------------------------------------------
-
-    protected static function booted()
-    {
-        static::updated(function ($productVariation) {
-                if ($productVariation->isDirty('quantity')) {
-                    self::sendMailForStock();
-                }
-        });
-    }
-
-
-
-
     //-------------------------------------------------
 
     public static function searchProduct($request)
@@ -311,6 +296,7 @@ class ProductVariation extends VaahModel
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->is_mail_sent = 0;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -961,7 +947,6 @@ class ProductVariation extends VaahModel
             $new_product->quantity = $new_total_quantity + $product_variation->quantity;
             $new_product->save();
         }
-        
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -1246,14 +1231,13 @@ class ProductVariation extends VaahModel
         try {
             $list_data = ProductVariation::with('product')
                 ->whereNotNull('low_stock_at')
-                ->where('is_mail_sent', '=', 0)
+                ->where('is_quantity_low', '=', 1)
                 ->whereHas('product', function ($query) {
                     $query->where('is_active', '=', 1);
                 })
                 ->where('is_active', '=', 1)
                 ->orderBy('low_stock_at', 'desc')
                 ->get();
-
 
             $filtered_data = $list_data->filter(function ($item) {
                 return $item->low_stock_at;
@@ -1292,7 +1276,9 @@ class ProductVariation extends VaahModel
                          text-align: center; margin-top: 0.3rem;">View</a></p>';
 
             if ($filtered_data->isNotEmpty()) {
-                $send_mail = UserBase::notifySuperAdmins($subject, $message);
+
+            $send_mail = UserBase::notifySuperAdmins($subject, $message);
+
             }
 
             $response['success'] = true;
