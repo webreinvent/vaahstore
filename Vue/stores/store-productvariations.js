@@ -333,13 +333,17 @@ this.fetched_product_id=selected_product_id;
                 ? 'There is no default product variation. Mark a product variation as default.'
                 : null;
 
-            if (res && res.data.active_cart_user){
-                // this.add_to_cart = false;
-                this.show_cart_msg=true;
-                this.active_user=res.data.active_cart_user;
-                this.total_cart_product= res.data.active_cart_user.cart_records;
-                this.active_cart_user_name = res.data.active_cart_user.first_name;
-                this.cart_id = res.data.active_cart_user.vh_st_cart_id;
+
+            if (res?.data?.active_cart_user) {
+                const { active_cart_user: { cart_records, display_name, vh_st_cart_id } } = res.data;
+                this.add_to_cart = false;
+                this.show_cart_msg = true;
+                this.active_user = res.data.active_cart_user;
+                this.total_cart_product = cart_records;
+                this.active_cart_user_name = display_name;
+                this.cart_id = vh_st_cart_id;
+            } else {
+                this.show_cart_msg = false;
             }
             if(data)
             {

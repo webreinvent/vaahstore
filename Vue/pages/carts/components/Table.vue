@@ -33,7 +33,7 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
-                    {{ prop.data.user.first_name }}
+                    {{ prop.data.user.display_name }}
                 </template>
 
             </Column>
