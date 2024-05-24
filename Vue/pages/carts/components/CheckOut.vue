@@ -66,7 +66,9 @@ watchEffect(() => {
                                         </div>
                                     </div>
                                     <div v-else>
-                                        <Image preview :src="'http://localhost/shivam-g001/store-dev/public/' + product.image_urls" alt="Error" class="shadow-4" width="64" />
+<!--                                        <Image preview :src="'http://localhost/shivam-g001/store-dev/public/vaahcms/backend/vaahone/images/vaahcms-logo.svg'" alt="Error" class="shadow-4" width="64" />-->
+                                        <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                             alt="Error" class="shadow-4" width="64" />
                                     </div>
                                 </div>
                                 <div class="product_desc ml-3">
@@ -80,7 +82,7 @@ watchEffect(() => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details (Add New Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab header="Shipping Details ( New Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -150,7 +152,7 @@ watchEffect(() => {
 
                     </div>
                 </AccordionTab>
-                <AccordionTab header="Shipping Details (Other Addresses)" v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
+                <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedAddress(address) }" @click="store.setSelectedAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
@@ -166,7 +168,7 @@ watchEffect(() => {
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
-                                        <li class="p-2" v-if="store.isSelectedAddress(address)">Pay On Delivery Available</li>
+                                        <li class="p-2" v-if="store.isSelectedAddress(address)">Cash On Delivery Available</li>
                                         <div v-if="store.isSelectedAddress(address)"  class="flex justify-content gap-2 mt-5">
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
@@ -177,7 +179,7 @@ watchEffect(() => {
 
                         </div>
                         <div class="flex justify-content-between mt-3">
-                            <Button icon="pi pi-plus" label="Add a new addresses"  @click="store.toggleNewAddressTab" link />
+                            <Button icon="pi pi-plus" label="Add a new address"  @click="store.toggleNewAddressTab" link />
                             <Button v-if="store.showViewMoreButton" @click="store.showAllAddresses" :label="`(${store.remainingAddressCount}) More Address`" :link="true" />
                             <Button v-if="!store.showViewMoreButton && store.many_adresses.length >2" @click=" store.hideAddressTab" :label="` Hide Address`" :link="true" />
                         </div>
@@ -335,7 +337,7 @@ watchEffect(() => {
                                 <b>Discount On MRP:</b>
                             </p>
                             <p class="text-teal-500">
-                                -₹2000
+                                -₹0
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -350,7 +352,7 @@ watchEffect(() => {
                                 <b>Total Amount :</b>
                             </p>
                             <p>
-                                <b>₹{{ store.total_mrp - 2000 }}</b>
+                                <b>₹{{ store.total_mrp - 0 }}</b>
                             </p>
                         </div>
 

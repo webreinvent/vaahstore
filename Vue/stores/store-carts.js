@@ -70,7 +70,7 @@ export const useCartStore = defineStore({
         cart_products:null,
         cart_item_at_checkout:[],
         country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,showAll:false,selectedAddress:null,
-        new_billing_address:null,
+        new_billing_address:null,total_amount_at_detail_page:0
     }),
     getters: {
         displayedAddresses() {
@@ -295,6 +295,7 @@ export const useCartStore = defineStore({
             {
                 this.item = data;
                 this.cart_products=data.products;
+                this.total_amount_at_detail_page=data.total_amount;
             }else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
@@ -1060,8 +1061,8 @@ export const useCartStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        updateQuantityAfter(data,res){
-            this.getItem(data);
+         updateQuantityAfter(data,res){
+             this.getItem(data.cart.id);
         },
 
         //---------------------------------------------------------------------
@@ -1173,9 +1174,9 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         //---------------------------------------------------------------------
 
-        saveCartUserAddressAfter(data,res){
+        async saveCartUserAddressAfter(data,res){
             if (data){
-                this.getCartItemDetailsAtCheckout(data.cart_id);
+               await this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.editingAddress = null;
                 this.shouldShowNewAddressTab=false;
             }
@@ -1198,7 +1199,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                options
            );
         },
-        removeAddressAfter(data,res){
+        async removeAddressAfter(data,res){
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.selectedAddress=null;
@@ -1247,10 +1248,10 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         //---------------------------------------------------------------------
 
-        updateAddressAfter(data,res){
+       async updateAddressAfter(data,res){
             if (data){
                 this.editingAddress = null;
-                this.getCartItemDetailsAtCheckout(data.cart_id);
+                await this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.shouldShowNewAddressTab = false;
             }
 
@@ -1272,10 +1273,20 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         },
 
         //---------------------------------------------------------------------
-
+        //
+        //
+        // handleSameAsShippingChange() {
+        //     if (this.selectedAddress) {
+        //         if (this.bill_form) {
+        //             this.item_billing_address = { ...this.selectedAddress };
+        //         } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
+        //             this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
+        //         }
+        //     }
+        // },
 
         handleSameAsShippingChange() {
-            if (this.selectedAddress) {
+            if (this.selectedAddress && this.bill_form !== undefined) {
                 if (this.bill_form) {
                     this.item_billing_address = { ...this.selectedAddress };
                 } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
@@ -1283,7 +1294,6 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                 }
             }
         },
-
 
 
 
@@ -1317,10 +1327,10 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
         async placeOrder(orderParams) {
             // console.log(orderParams);
 
-            if (!orderParams || !orderParams.billing_address) {
-                vaah().toastErrors(['Please provide billing details']);
-                return;
-            }
+            // if (!orderParams || !orderParams.billing_address) {
+            //     vaah().toastErrors(['Please provide billing details']);
+            //     return;
+            // }
 
             const query = {
                 order_details: orderParams,
@@ -1341,7 +1351,8 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         placeOrderAfter(data,res){
             if (data){
-                this.removeCartItemsAfterOrder(data.cart.id);
+                // this.removeCartItemsAfterOrder(data.cart.id);
+                this.$router.push({name: 'carts.index',query:this.query});
             }
         },
         //---------------------------------------------------------------------

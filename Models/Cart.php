@@ -507,8 +507,18 @@ class Cart extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+        // delete cart if not product available
+        if ($item->products->isEmpty()) {
+//            if ($request->session()->has('vh_user_id') && $request->session()->get('vh_user_id') == $item->vh_user_id) {
+//                $request->session()->forget('vh_user_id');
+//            }
+            self::find($id)->delete();
+            $response['success'] = true;
+            $response['data'] = null;
+            return $response;
+        }
         $wishlistId = Wishlist::where('vh_user_id', $item->vh_user_id)->value('id');
-
+        $total_amount = 0;
         foreach ($item->products as $product) {
             $variation_id = $product->pivot->vh_st_product_variation_id;
             $vendor_id = $product->pivot->vh_st_vendor_id;
@@ -529,7 +539,8 @@ class Cart extends VaahModel
             $is_wishlisted = $wishlistId ? $product->wishlists()->where('vh_st_wishlist_id', $wishlistId)->exists() : false;
 //            $product->pivot->is_stock_available = $is_quantity_available ? 1 : 0;
             $product->pivot->is_stock_available = $is_quantity_available && $is_pivot_quantity_valid ? 1 : 0;
-
+            $subtotal = $price * $pivot_quantity;
+            $total_amount += $subtotal;
             $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
@@ -538,7 +549,7 @@ class Cart extends VaahModel
 
         $response['success'] = true;
         $response['data'] = $item;
-
+        $response['data']['total_amount'] = $total_amount;
         return $response;
 
     }
@@ -805,7 +816,7 @@ class Cart extends VaahModel
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
         }
-        $response['data'] = $cart_id;
+        $response['data']['cart'] = $cart;
         return $response;
     }
 
@@ -1041,7 +1052,7 @@ class Cart extends VaahModel
         $vh_user_id = $address_details['vh_user_id'];
 
         Address::where('id', $shipping_address_id)
-            ->delete();
+            ->forceDelete();
         $cart = Cart::where('vh_user_id', $vh_user_id)->first();
         $response['messages'][] = trans("vaahcms-general.successfully_deleted");
         $response['data'] = [
@@ -1053,7 +1064,9 @@ class Cart extends VaahModel
     //-------------------------------------------------
 
     public static function updateUserShippingAddress($request){
-
+        if (!$request->has('address_detail') || !$request->has('user_detail')) {
+            return ['success' => false, 'errors' => ['Request data is incomplete']];
+        }
         $inputs = $request->input('address_detail');
 
         $validation = self::validationShippingAddress($inputs);
@@ -1138,9 +1151,19 @@ class Cart extends VaahModel
 
     public static function placeOrder($request)
     {
-//        dd($request);
+        if (is_null($request->order_details['shipping_address'])) {
+            $error_message = "Provide shipping details";
+            return ['success' => false, 'errors' => [$error_message]];
+        }
+
+        if (is_null($request->order_details['billing_address'])) {
+            $error_message = "Provide billing details";
+            return ['success' => false, 'errors' => [$error_message]];
+        }
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')
             ->where('slug', 'pending')->value('id');
+
+        $cartInstance = Cart::find($request->order_details['cart_id']);
 
         $order = new Order();
 
@@ -1190,17 +1213,45 @@ class Cart extends VaahModel
 //                }
 //            }
             self::updateStock($item['pivot']['product_variation_id'], $item['pivot']['quantity'], $item['pivot']['selected_vendor_id']);
+
+
+
         }
         foreach ($request->order_details['order_items'] as $item) {
             $product = Product::where('id', $item['product_id'])->withTrashed()->first();
+            $productVariation = $cartInstance->productVariations()
+                ->where('vh_st_product_variation_id', $item['pivot']['product_variation_id'])
+                ->where('vh_st_vendor_id', $item['pivot']['selected_vendor_id'])
+                ->first();
+
+            if ($productVariation) {
+                $pivotRecord = $productVariation->pivot;
+                $pivotRecord->delete();
+            }
+
             $product->quantity = $product->productVariations->sum('quantity');
             $product->save();
         }
         $request->session()->forget('vh_user_id');
         $cart = Cart::find($request->order_details['cart_id']);
-        $response['success'] = true;
-        $response['data'] ['cart']= $cart;
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $is_empty_cart = $cart->products->isEmpty();
+
+        if ($is_empty_cart) {
+            // If products relationship is empty, delete the cart
+            $cart->delete();
+            $response['success'] = true;
+            $response['data'] = null;
+        } else {
+            $response['success'] = true;
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $cart;
+        }
+
+//        return $response;
+//        $cart = Cart::find($request->order_details['cart_id']);
+//        $response['success'] = true;
+//        $response['data'] ['cart']= $cart;
+//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
         return $response;
     }

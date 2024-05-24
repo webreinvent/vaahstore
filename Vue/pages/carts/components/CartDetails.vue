@@ -38,7 +38,7 @@ const allProductsOutOfStock = computed(() => {
 <!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
                     <Button
                         @click="this.$router.push({name: 'carts.index'})"
-                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }} -Carts {{store.cart_products.length}} - {{ store.item.user.first_name }}</b>
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }}   - {{ store.item.user.display_name }} ({{store.cart_products.length}})</b>
 
 
                 </div>
@@ -143,7 +143,7 @@ const allProductsOutOfStock = computed(() => {
             </div>
             <!--/table-->
             <div class="table_bottom mr-4">
-                <p><b>Total Amount: </b>{{ totalAmount }}</p>
+                <p><b>Total Amount: </b>{{ store.total_amount_at_detail_page }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
