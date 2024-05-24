@@ -32,13 +32,15 @@ watch(() => store.bill_form, (newValue) => {
 watchEffect(() => {
     orderParams.value = {
         shipping_address: store.selectedAddress,
-        total_amount: store.total_mrp - 2000,
-        payable: store.total_mrp - 2000,
+        total_amount: store.total_mrp - 0,
+        payable: store.total_mrp - 0,
         discounts: 2000,
         taxes: 0,
         delivery_fee: 0,
         cart_id:route.params.id ,
-        billing_address:store.item_billing_address,
+        // billing_address:store.selectedBillingAddress,
+        billing_address: store.item_billing_address ? store.item_billing_address : store.selectedBillingAddress,
+
         payment_method:store.cash_on_delivery,
         order_items:store.cart_item_at_checkout,
     };
@@ -187,106 +189,147 @@ watchEffect(() => {
 
 
 
+                    <AccordionTab header="Billing Details ">
+                        <div v-if="store.selectedAddress" class="flex align-items-center mb-2">
+                            <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
 
-
-                <AccordionTab header="Billing Details" >
-                        <div>
-                                <div v-if="store.selectedAddress" class="flex align-items-center mb-2">
-                                    <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
-
-                                    <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
-                                </div>
-                            <div v-show="!store.bill_form?.length==1 ">
-                                <div v-if="store && store.item && store.item_new_billing_address && store.item_user">
-                                <VhField label="Country/Region">
-                                    <AutoComplete v-model="store.item_new_billing_address.country"
-                                                  value="id"
-
-                                                  data-testid="warehouses-country"
-                                                  :suggestions="store.country_suggestions"
-                                                  @complete="store.searchCountry($event)"
-                                                  :dropdown="true"
-                                                  placeholder="Select Country"
-                                                  forceSelection />
-
-                                </VhField>
-                                <div >
-                                    <VhField label="Full Name ">
-                                        <InputText class="w-full"
-                                                   name="products-name"
-                                                   data-testid="products-name"
-                                                   placeholder="Enter Full Name "
-                                                   v-model="store.item_new_billing_address.name"/>
-                                    </VhField>
-
-                                    <VhField label="Phone No.">
-                                        <InputText class="w-full"
-                                                   name="products-phone"
-                                                   data-testid="products-phone"
-                                                   placeholder="Enter Phone No."
-                                                   v-model="store.item_new_billing_address.phone"/>
-                                    </VhField>
-                                    <VhField label="Address">
-                                        <InputText class="w-full"
-                                                   name="cart-email"
-                                                   data-testid="cart-email"
-                                                   placeholder="Enter Address (House No, Building, Street, Area)*"
-                                                   v-model="store.item_new_billing_address.address_line_1"/>
-                                    </VhField>
-
-                                    <VhField label="PIN Code">
-                                        <InputText class="w-full"
-                                                   name="cart-pin_code"
-                                                   data-testid="cart-pin_code"
-                                                   placeholder="Enter Pin Code"
-                                                   v-model="store.item_new_billing_address.pin_code"/>
-                                    </VhField>
-
-                                    <VhField label="City">
-                                        <InputText class="w-full"
-                                                   name="cart-city"
-                                                   data-testid="cart-city"
-                                                   placeholder="Enter City"
-                                                   v-model="store.item_new_billing_address.city"/>
-                                    </VhField>
-                                    <VhField label="State">
-                                        <InputText class="w-full"
-                                                   name="cart-address"
-                                                   data-testid="cart-address"
-                                                   placeholder="Enter State / Province / Region"
-                                                   v-model="store.item_new_billing_address.state"/>
-                                    </VhField>
-                            </div>
-
-
-                                </div>
-                                <div class="flex justify-content-end gap-2">
-
-                                    <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_new_billing_address, store.item_user)"></Button>
-
-                                </div>
-                            </div>
+                            <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                         </div>
-<!--                    <Card v-if="store.item_billing_address" class="mt-2" :pt="{-->
-<!--                                content: {-->
-<!--                                    class: 'py-0'-->
-<!--                                }-->
-<!--                            }">-->
-<!--                        <template #content>-->
-<!--                            <div class="flex align-items-center">-->
-<!--&lt;!&ndash;                                <RadioButton v-model="ingredient" inputId="ingredient1" name="address"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             value="address3" />&ndash;&gt;-->
-<!--                                <label for="ingredient1" class="ml-2"><b>{{ store.item_billing_address.name }}</b></label>-->
+                        <div v-if="store && store.item && store.item_user && store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >= 1 && (!store.bill_form || store.bill_form.length === 0)">
+<!--                        <div  v-if="(store && store.item && store.item_user  &&store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >= 1) && store.bill_form===[]">-->
+                            <template v-for="(address, index) in store.displayedBillingAddresses" :key="index">
+                                <Card :class="{ 'selected-card': store.isSelectedBillingAddress(address) }" @click="store.setSelectedBillingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
+                                    <template #content>
+                                        <div class="flex align-items-center">
+                                            <RadioButton v-model="store.selectedBillingAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
+                                            <label :for="'address' + index" class="ml-2"><b>{{  address.name }}</b></label>
+                                        </div>
+                                        <div class="p-2">
+                                            <p>{{ address.address_line_1 }}, {{ address.city }}</p>
+                                            <span>{{ address.country }}</span>
+                                        </div>
+                                        <div class="p-2">
+                                            <span>Mobile: </span><b>{{ address.phone }}</b>
+                                        </div>
+<!--                                        <li class="p-2" v-if="store.isSelectedBillingAddress(address)">Cash On Delivery Available</li>-->
+                                        <div v-if="store.isSelectedBillingAddress(address)"  class="flex justify-content gap-2 mt-5">
+                                            <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
+                                            <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
+                                        </div>
+                                    </template>
+                                </Card>
+                            </template>
+
+                        </div>
+                        <div class="flex justify-content-between mt-3">
+                            <Button icon="pi pi-plus" label="Add a new address"  @click="store.toggleNewAddressTab" link />
+                            <Button v-if="store.showViewMoreBillingAddressButton" @click="store.showAllBillingAddresses" :label="`(${store.remainingAddressCountBilling}) More Address`" :link="true" />
+                            <Button v-if="!store.showViewMoreBillingAddressButton &&  store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >2" @click=" store.hideBillingAddressTab" :label="` Hide Address`" :link="true" />
+                        </div>
+                    </AccordionTab>
+
+
+
+
+
+<!--                <AccordionTab header="Billing Details" >-->
+<!--                        <div>-->
+<!--                                <div v-if="store.selectedAddress" class="flex align-items-center mb-2">-->
+<!--                                    <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />-->
+
+<!--                                    <label for="ingredient1" class="ml-2">Same as Shipping Details</label>-->
+<!--                                </div>-->
+<!--                            <div v-show="!store.bill_form?.length==1 ">-->
+<!--                                <div v-if="store && store.item && store.item_new_billing_address && store.item_user">-->
+<!--                                <VhField label="Country/Region">-->
+<!--                                    <AutoComplete v-model="store.item_new_billing_address.country"-->
+<!--                                                  value="id"-->
+
+<!--                                                  data-testid="warehouses-country"-->
+<!--                                                  :suggestions="store.country_suggestions"-->
+<!--                                                  @complete="store.searchCountry($event)"-->
+<!--                                                  :dropdown="true"-->
+<!--                                                  placeholder="Select Country"-->
+<!--                                                  forceSelection />-->
+
+<!--                                </VhField>-->
+<!--                                <div >-->
+<!--                                    <VhField label="Full Name ">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="products-name"-->
+<!--                                                   data-testid="products-name"-->
+<!--                                                   placeholder="Enter Full Name "-->
+<!--                                                   v-model="store.item_new_billing_address.name"/>-->
+<!--                                    </VhField>-->
+
+<!--                                    <VhField label="Phone No.">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="products-phone"-->
+<!--                                                   data-testid="products-phone"-->
+<!--                                                   placeholder="Enter Phone No."-->
+<!--                                                   v-model="store.item_new_billing_address.phone"/>-->
+<!--                                    </VhField>-->
+<!--                                    <VhField label="Address">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="cart-email"-->
+<!--                                                   data-testid="cart-email"-->
+<!--                                                   placeholder="Enter Address (House No, Building, Street, Area)*"-->
+<!--                                                   v-model="store.item_new_billing_address.address_line_1"/>-->
+<!--                                    </VhField>-->
+
+<!--                                    <VhField label="PIN Code">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="cart-pin_code"-->
+<!--                                                   data-testid="cart-pin_code"-->
+<!--                                                   placeholder="Enter Pin Code"-->
+<!--                                                   v-model="store.item_new_billing_address.pin_code"/>-->
+<!--                                    </VhField>-->
+
+<!--                                    <VhField label="City">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="cart-city"-->
+<!--                                                   data-testid="cart-city"-->
+<!--                                                   placeholder="Enter City"-->
+<!--                                                   v-model="store.item_new_billing_address.city"/>-->
+<!--                                    </VhField>-->
+<!--                                    <VhField label="State">-->
+<!--                                        <InputText class="w-full"-->
+<!--                                                   name="cart-address"-->
+<!--                                                   data-testid="cart-address"-->
+<!--                                                   placeholder="Enter State / Province / Region"-->
+<!--                                                   v-model="store.item_new_billing_address.state"/>-->
+<!--                                    </VhField>-->
 <!--                            </div>-->
-<!--                            <div class="p-2"><p>{{ store.item_billing_address.address_line_1 }}</p>-->
-<!--                                <span>{{ store.item_billing_address.country }}</span>-->
+
+
+<!--                                </div>-->
+<!--                                <div class="flex justify-content-end gap-2">-->
+
+<!--                                    <Button v-if="!store.bill_form?.length==1" type="button" label="Save" @click="store.newBillingAddress(store.item_new_billing_address, store.item_user)"></Button>-->
+
+<!--                                </div>-->
 <!--                            </div>-->
-<!--                            <div class="p-2 pb-0">-->
-<!--                                <span>Mobile: </span><b>{{ store.item_billing_address.phone }}</b>-->
-<!--                            </div>-->
-<!--                        </template>-->
-<!--                    </Card>-->
-                </AccordionTab>
+<!--                        </div>-->
+<!--&lt;!&ndash;                    <Card v-if="store.item_billing_address" class="mt-2" :pt="{&ndash;&gt;-->
+<!--&lt;!&ndash;                                content: {&ndash;&gt;-->
+<!--&lt;!&ndash;                                    class: 'py-0'&ndash;&gt;-->
+<!--&lt;!&ndash;                                }&ndash;&gt;-->
+<!--&lt;!&ndash;                            }">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <template #content>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="flex align-items-center">&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <RadioButton v-model="ingredient" inputId="ingredient1" name="address"&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                             value="address3" />&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                                <label for="ingredient1" class="ml-2"><b>{{ store.item_billing_address.name }}</b></label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="p-2"><p>{{ store.item_billing_address.address_line_1 }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <span>{{ store.item_billing_address.country }}</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="p-2 pb-0">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <span>Mobile: </span><b>{{ store.item_billing_address.phone }}</b>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </template>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </Card>&ndash;&gt;-->
+<!--                </AccordionTab>-->
 
 
 

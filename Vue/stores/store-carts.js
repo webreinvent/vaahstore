@@ -70,7 +70,7 @@ export const useCartStore = defineStore({
         cart_products:null,
         cart_item_at_checkout:[],
         country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,showAll:false,selectedAddress:null,
-        new_billing_address:null,total_amount_at_detail_page:0
+        new_billing_address:null,total_amount_at_detail_page:0,user_billing_address:null,selectedBillingAddress:null,showAllBillingAddress:false,
     }),
     getters: {
         displayedAddresses() {
@@ -90,13 +90,43 @@ export const useCartStore = defineStore({
 
             return this.showAll ? sortedAddresses : sortedAddresses.slice(0, 2);
         },
+        displayedBillingAddresses() {
+            const sortedAddresses = this.user_saved_billing_addresses.sort((a, b) => {
+                if (a.is_default === 1 && b.is_default === 0) return -1;
+                if (a.is_default === 0 && b.is_default === 1) return 1;
+                return 0;
+            });
+
+            const defaultAddress = sortedAddresses.find(address => address.is_default === 1);
+
+            if (defaultAddress) {
+                this.selectedBillingAddress = defaultAddress;
+            }else if (sortedAddresses.length > 0) {
+                this.selectedBillingAddress = sortedAddresses[0];
+            }
+
+            return this.showAllBillingAddress ? sortedAddresses : sortedAddresses.slice(0, 2);
+        },
 
         showViewMoreButton() {
             return !this.showAll && this.many_adresses.length >= 3;
         },
+        showViewMoreBillingAddressButton() {
+            return (
+                this.user_saved_billing_addresses &&
+                this.user_saved_billing_addresses.length >= 3 &&
+                !this.showAllBillingAddress
+            );
+        },
+
         showAllAddresses() {
             return () => {
                 this.showAll = true;
+            };
+        },
+        showAllBillingAddresses() {
+            return () => {
+                this.showAllBillingAddress = true;
             };
         },
         hideAddressTab() {
@@ -104,12 +134,25 @@ export const useCartStore = defineStore({
                 this.showAll = !this.showAll;
             };
         },
+        hideBillingAddressTab() {
+            return () => {
+                this.showAllBillingAddress = !this.showAllBillingAddress;
+            };
+        },
         remainingAddressCount (){
             return this.many_adresses.length - 2;
+        },
+        remainingAddressCountBilling (){
+            return this.user_saved_billing_addresses.length - 2;
         },
         isSelectedAddress() {
             return (address) => {
                 return address === this.selectedAddress;
+            };
+        },
+        isSelectedBillingAddress() {
+            return (address) => {
+                return address === this.selectedBillingAddress;
             };
         },
 
@@ -117,6 +160,9 @@ export const useCartStore = defineStore({
     actions: {
         setSelectedAddress(address)  {
             this.selectedAddress = address;
+        },
+        setSelectedBillingAddress(address)  {
+            this.selectedBillingAddress = address;
         },
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -1101,36 +1147,74 @@ export const useCartStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        async getCartItemDetailsAtCheckoutAfter(data, res)
-        {
-            if(data)
-            {
-                if (data.product_details.length===0){
-                    this.$router.push({name: 'carts.index',query:this.query});
+        // async getCartItemDetailsAtCheckoutAfter(data, res)
+        // {
+        //     if(data)
+        //     {
+        //         if (data.product_details.length===0){
+        //             this.$router.push({name: 'carts.index',query:this.query});
+        //         }
+        //         this.cart_item_at_checkout=data.product_details;
+        //
+        //
+        //         this.item_user = data.user;
+        //         this.total_mrp = data.total_mrp;
+        //         this.item_user_address = vaah().clone(this.assets.item_user_address);
+        //         this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
+        //         this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
+        //         // this.item_user_address=data.user_addresses;
+        //
+        //         if (data.user_addresses){
+        //             this.many_adresses=data.user_addresses;
+        //             const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
+        //             if (defaultAddress) {
+        //                 // If a default address is found, set it as the user_address
+        //                 this.user_address = defaultAddress;
+        //             } else {
+        //                 // If there is no default address, select a random one
+        //                 const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
+        //                 this.user_address = data.user_addresses[randomIndex];
+        //             }
+        //         }
+        //         if (data.user_billing_addresses){
+        //             this.user_saved_billing_addresses=data.user_billing_addresses;
+        //             const defaultAddress = data.user_billing_addresses.find(address => address.is_default === 1);
+        //             if (defaultAddress) {
+        //                 // If a default address is found, set it as the user_address
+        //                 this.user_billing_address = defaultAddress;
+        //             } else {
+        //                 // If there is no default address, select a random one
+        //                 const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
+        //                 this.user_billing_address = data.user_addresses[randomIndex];
+        //             }
+        //         }
+        //     }
+        async getCartItemDetailsAtCheckoutAfter(data, res) {
+            if (data) {
+                if (data.product_details.length === 0) {
+                    this.$router.push({ name: 'carts.index', query: this.query });
+                    return; // Added return to exit the function after redirecting
                 }
-                this.cart_item_at_checkout=data.product_details;
 
-
+                this.cart_item_at_checkout = data.product_details;
                 this.item_user = data.user;
                 this.total_mrp = data.total_mrp;
-                this.item_user_address = vaah().clone(this.assets.item_user_address);
-                this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
-                this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
-                // this.item_user_address=data.user_addresses;
 
-                if (data.user_addresses){
-                    this.many_adresses=data.user_addresses;
+                // Assign user addresses
+                if (data.user_addresses) {
+                    this.many_adresses = data.user_addresses;
                     const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
-                    if (defaultAddress) {
-                        // If a default address is found, set it as the user_address
-                        this.user_address = defaultAddress;
-                    } else {
-                        // If there is no default address, select a random one
-                        const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
-                        this.user_address = data.user_addresses[randomIndex];
-                    }
+                    this.user_address = defaultAddress || data.user_addresses[Math.floor(Math.random() * data.user_addresses.length)];
                 }
-            }else{
+
+                // Assign user billing addresses
+                if (data.user_billing_addresses) {
+                    this.user_saved_billing_addresses = data.user_billing_addresses;
+                    const defaultBillingAddress = data.user_billing_addresses.find(address => address.is_default === 1);
+                    this.user_billing_address = defaultBillingAddress || data.user_billing_addresses[Math.floor(Math.random() * data.user_billing_addresses.length)];
+                }
+            }
+            else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
             await this.getItemMenu();

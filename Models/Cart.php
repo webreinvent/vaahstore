@@ -869,15 +869,19 @@ class Cart extends VaahModel
         $response['data'] = [
             'product_details' => [],
             'user_addresses' => null,
+            'user_billing_addresses' => null,
             'user' => $cart->user,
             'total_mrp' => 0,
         ];
 
         // Get user address
         $user = $cart->user;
-        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
+        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'shipping')->value('id');
+        $taxonomy_id_address_type_billing = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'billing')->value('id');
         $user_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_types)->get();
+        $user_billing_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_type_billing)->get();
         $response['data']['user_addresses'] = $user_addresses;
+        $response['data']['user_billing_addresses'] = $user_billing_addresses;
 
         foreach ($cart->products as $product) {
             $vendor_id = $product->pivot->vh_st_vendor_id;
@@ -1046,6 +1050,7 @@ class Cart extends VaahModel
     //-------------------------------------------------
 
     public static function removeCartUserAddress($request){
+        dd($request);
         $address_details = $request->input('user_address');
         $shipping_address_id = $request->input('user_address.id');
 
@@ -1151,6 +1156,7 @@ class Cart extends VaahModel
 
     public static function placeOrder($request)
     {
+        dd($request);
         if (is_null($request->order_details['shipping_address'])) {
             $error_message = "Provide shipping details";
             return ['success' => false, 'errors' => [$error_message]];
