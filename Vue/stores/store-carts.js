@@ -71,6 +71,7 @@ export const useCartStore = defineStore({
         cart_item_at_checkout:[],
         country_suggestions: null,shouldShowNewAddressTab:false,editingAddress:null,showAll:false,selectedAddress:null,
         new_billing_address:null,total_amount_at_detail_page:0,user_billing_address:null,selectedBillingAddress:null,showAllBillingAddress:false,
+        showTabForBilling:false,
     }),
     getters: {
         displayedAddresses() {
@@ -155,6 +156,27 @@ export const useCartStore = defineStore({
                 return address === this.selectedBillingAddress;
             };
         },
+        accordionHeader() {
+            if (this.isEditing) {
+                if (this.editingAddress && this.user_saved_billing_addresses.includes(this.editingAddress)) {
+                    return "Billing Details (Update Address)";
+                } else {
+                    return "Shipping Details (Update Address)";
+                }
+            } else {
+                if (this.many_adresses.length === 0) {
+                    this.showTabForBilling = false;
+                    return "Shipping Details (New Address)";
+                } else if (this.showTabForBilling && this.user_saved_billing_addresses.length >= 0) {
+                    return "Billing Details (New Address)";
+                } else {
+                    return "Shipping Details (New Address)";
+                }
+            }
+        }
+
+
+
 
     },
     actions: {
@@ -761,7 +783,8 @@ export const useCartStore = defineStore({
             this.$router.push({name: 'carts.details',params:{id:item.id},query:this.query})
             this.cash_on_delivery=null;
             this.item_billing_address=null;
-            this.bill_form=!this.bill_form;
+            // this.bill_form=!this.bill_form;
+            this.bill_form=null;
 
         },
         //---------------------------------------------------------------------
@@ -1147,48 +1170,7 @@ export const useCartStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        // async getCartItemDetailsAtCheckoutAfter(data, res)
-        // {
-        //     if(data)
-        //     {
-        //         if (data.product_details.length===0){
-        //             this.$router.push({name: 'carts.index',query:this.query});
-        //         }
-        //         this.cart_item_at_checkout=data.product_details;
-        //
-        //
-        //         this.item_user = data.user;
-        //         this.total_mrp = data.total_mrp;
-        //         this.item_user_address = vaah().clone(this.assets.item_user_address);
-        //         this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
-        //         this.new_user_at_shipping = vaah().clone(this.assets.new_user_at_shipping);
-        //         // this.item_user_address=data.user_addresses;
-        //
-        //         if (data.user_addresses){
-        //             this.many_adresses=data.user_addresses;
-        //             const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
-        //             if (defaultAddress) {
-        //                 // If a default address is found, set it as the user_address
-        //                 this.user_address = defaultAddress;
-        //             } else {
-        //                 // If there is no default address, select a random one
-        //                 const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
-        //                 this.user_address = data.user_addresses[randomIndex];
-        //             }
-        //         }
-        //         if (data.user_billing_addresses){
-        //             this.user_saved_billing_addresses=data.user_billing_addresses;
-        //             const defaultAddress = data.user_billing_addresses.find(address => address.is_default === 1);
-        //             if (defaultAddress) {
-        //                 // If a default address is found, set it as the user_address
-        //                 this.user_billing_address = defaultAddress;
-        //             } else {
-        //                 // If there is no default address, select a random one
-        //                 const randomIndex = Math.floor(Math.random() * data.user_addresses.length);
-        //                 this.user_billing_address = data.user_addresses[randomIndex];
-        //             }
-        //         }
-        //     }
+
         async getCartItemDetailsAtCheckoutAfter(data, res) {
             if (data) {
                 if (data.product_details.length === 0) {
@@ -1199,8 +1181,8 @@ export const useCartStore = defineStore({
                 this.cart_item_at_checkout = data.product_details;
                 this.item_user = data.user;
                 this.total_mrp = data.total_mrp;
-
-                // Assign user addresses
+                this.item_user_address = vaah().clone(this.assets.item_user_address);
+                        this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
                 if (data.user_addresses) {
                     this.many_adresses = data.user_addresses;
                     const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
@@ -1208,7 +1190,7 @@ export const useCartStore = defineStore({
                 }
 
                 // Assign user billing addresses
-                if (data.user_billing_addresses) {
+                if (data && data.user_billing_addresses) {
                     this.user_saved_billing_addresses = data.user_billing_addresses;
                     const defaultBillingAddress = data.user_billing_addresses.find(address => address.is_default === 1);
                     this.user_billing_address = defaultBillingAddress || data.user_billing_addresses[Math.floor(Math.random() * data.user_billing_addresses.length)];
@@ -1236,17 +1218,35 @@ export const useCartStore = defineStore({
         toggleNewAddressTab(){
             this.editingAddress=null;
             this.isEditing = false;
-this.item_user_address=vaah().clone(this.assets.item_user_address);
+            this.item_user_address=vaah().clone(this.assets.item_user_address);
             this.shouldShowNewAddressTab=true;
+            this.showTabForBilling = false;
         },
-        async saveCartUserAddress(item,user_id){
+        toggleNewAddressTabForBilling(type) {
+
+            if (this.many_adresses.length === 0) {
+
+                vaah().toastErrors(['First provide shipping details']);
+                return;
+            }
+            this.editingAddress = null;
+            this.isEditing = false;
+            this.item_user_address = vaah().clone(this.assets.item_user_address);
+            if (type === 'billing') {
+                this.showTabForBilling = true;
+                this.shouldShowNewAddressTab=true;
+            }
+        },
+        async saveCartUserAddress(item,user_id,type){
             const query = {
                 user_address:item,
-                user_data:user_id
+                user_data:user_id,
+                type: type
             };
             const options = {
                 params: query,
                 method: 'post',
+
             };
 
             await vaah().ajax(
@@ -1263,6 +1263,7 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
                await this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.editingAddress = null;
                 this.shouldShowNewAddressTab=false;
+                this.showTabForBilling=false;
             }
         },
 
@@ -1287,6 +1288,8 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
             if (data){
                 this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.selectedAddress=null;
+                this.selectedBillingAddress=null;
+                this.bill_form=null;
             }
         },
         //---------------------------------------------------------------------
@@ -1345,32 +1348,23 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         removeTab(index){
             this.shouldShowNewAddressTab=false;
+            this.showTabForBilling=false;
         },
 
         //---------------------------------------------------------------------
 
-        saveShippingAddress(itemUserAddress, isNewUser){
+        saveShippingAddress(itemUserAddress, isNewUser, type) {
             if (this.editingAddress) {
-                this.item_user_address.id = this.editingAddress.id;
+                itemUserAddress.id = this.editingAddress.id;
             }
-            this.saveCartUserAddress(itemUserAddress,isNewUser);
+            this.saveCartUserAddress(itemUserAddress, isNewUser, type);
         },
 
         //---------------------------------------------------------------------
-        //
-        //
-        // handleSameAsShippingChange() {
-        //     if (this.selectedAddress) {
-        //         if (this.bill_form) {
-        //             this.item_billing_address = { ...this.selectedAddress };
-        //         } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
-        //             this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
-        //         }
-        //     }
-        // },
+
 
         handleSameAsShippingChange() {
-            if (this.selectedAddress && this.bill_form !== undefined) {
+            if (this.selectedAddress !== undefined && this.bill_form !== undefined) {
                 if (this.bill_form) {
                     this.item_billing_address = { ...this.selectedAddress };
                 } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
@@ -1381,41 +1375,11 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
 
 
+
         //---------------------------------------------------------------------
 
-        async newBillingAddress(billing_address,user) {
-            const query = {
-                billing_address_detail:billing_address,
-                user_detail:user,
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
 
-            await vaah().ajax(
-                this.ajax_url+'/create/billing-address',
-                this.newBillingAddressAfter,
-                options
-            );
-        },
-        newBillingAddressAfter(data,res){
-            if(data){
-                this.new_billing_address=data.billing_details;
-                console.log(this.new_billing_address)
-                this.item_billing_address=this.new_billing_address;
-
-            }
-        },
-        //---------------------------------------------------------------------
         async placeOrder(orderParams) {
-            // console.log(orderParams);
-
-            // if (!orderParams || !orderParams.billing_address) {
-            //     vaah().toastErrors(['Please provide billing details']);
-            //     return;
-            // }
-
             const query = {
                 order_details: orderParams,
             };
@@ -1435,28 +1399,12 @@ this.item_user_address=vaah().clone(this.assets.item_user_address);
 
         placeOrderAfter(data,res){
             if (data){
-                // this.removeCartItemsAfterOrder(data.cart.id);
                 this.$router.push({name: 'carts.index',query:this.query});
             }
         },
         //---------------------------------------------------------------------
 
-        async removeCartItemsAfterOrder(cart_id){
-            console.log(cart_id)
-            const options={
-                method:'delete',
-            }
-            await vaah().ajax(
-                this.ajax_url + '/' + cart_id + '/remove-cartItem-after-order',
-                this.removeCartItemsAfterOrderAfter,
-                options
-            );
-        },
-        removeCartItemsAfterOrderAfter(data,res ){
-            if (data){
-                this.$router.push({name: 'carts.index',query:this.query});
-            }
-        },
+
         //---------------------------------------------------------------------
 
 

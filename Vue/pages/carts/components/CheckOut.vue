@@ -84,7 +84,7 @@ watchEffect(() => {
                     </AccordionTab>
 
 
-                <AccordionTab header="Shipping Details ( New Address)" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -150,7 +150,8 @@ watchEffect(() => {
                         <Button v-if="store.many_adresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
                         <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
 
-                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>
+<!--                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>-->
+                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.showTabForBilling ? 'billing' : null)"></Button>
 
                     </div>
                 </AccordionTab>
@@ -181,8 +182,8 @@ watchEffect(() => {
 
                         </div>
                         <div class="flex justify-content-between mt-3">
-                            <Button icon="pi pi-plus" label="Add a new address"  @click="store.toggleNewAddressTab" link />
-                            <Button v-if="store.showViewMoreButton" @click="store.showAllAddresses" :label="`(${store.remainingAddressCount}) More Address`" :link="true" />
+                            <Button icon="pi pi-plus" label="Add a new shipping address"  @click="store.toggleNewAddressTab" link />
+                            <Button v-if="store.showViewMoreButton" @click="store.showAllAddresses()" :label="`(${store.remainingAddressCount}) More Address`" :link="true" />
                             <Button v-if="!store.showViewMoreButton && store.many_adresses.length >2" @click=" store.hideAddressTab" :label="` Hide Address`" :link="true" />
                         </div>
                     </AccordionTab>
@@ -222,8 +223,8 @@ watchEffect(() => {
 
                         </div>
                         <div class="flex justify-content-between mt-3">
-                            <Button icon="pi pi-plus" label="Add a new address"  @click="store.toggleNewAddressTab" link />
-                            <Button v-if="store.showViewMoreBillingAddressButton" @click="store.showAllBillingAddresses" :label="`(${store.remainingAddressCountBilling}) More Address`" :link="true" />
+                            <Button icon="pi pi-plus" label="Add a new billing address"  @click="store.toggleNewAddressTabForBilling('billing')" link />
+                            <Button v-if="store.showViewMoreBillingAddressButton" @click="store.showAllBillingAddresses()" :label="`(${store.remainingAddressCountBilling}) More Address`" :link="true" />
                             <Button v-if="!store.showViewMoreBillingAddressButton &&  store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >2" @click=" store.hideBillingAddressTab" :label="` Hide Address`" :link="true" />
                         </div>
                     </AccordionTab>

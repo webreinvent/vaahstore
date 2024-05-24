@@ -928,25 +928,7 @@ class Cart extends VaahModel
 
     //-------------------------------------------------
 
-//    public static function getItemQuantity($vendor, $product_id, $variation_id)
-//    {
-//        if ($vendor === null || $product_id === null || $variation_id === null) {
-//            return ['available' => false, 'quantity' => 0];
-//        }
-//
-//        $productStock = $vendor->productStocks()
-//            ->where('vh_st_product_id', $product_id)
-//            ->where('vh_st_product_variation_id', $variation_id)
-//            ->where('is_active', 1)
-//            ->first();
-//
-//        if ($productStock) {
-//            return ['available' => true, 'quantity' => $productStock->quantity];
-//        }
-//
-//        return ['available' => false, 'quantity' => 0];
-//    }
-    //-------------------------------------------------
+
 
     protected static function isCartItemQuantityAvailable($vendor, $product_id, $variation_id)
     {
@@ -1008,7 +990,6 @@ class Cart extends VaahModel
     //-------------------------------------------------
 
     public static function saveCartUserAddress($request){
-//        dd($request);
         $inputs = $request->input('user_address');
 
         $validation = self::validationShippingAddress($inputs);
@@ -1020,18 +1001,20 @@ class Cart extends VaahModel
 
 
 
-        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('name', 'Approved')->value('id');
-        $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('name', 'Shipping')->value('id');
+        $taxonomy_id_address_status = Taxonomy::getTaxonomyByType('address-status')->where('slug', 'approved')->value('id');
+        $taxonomy_id_shipping_address_type = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'shipping')->value('id');
+        $taxonomy_id_billing_address_type = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'billing')->value('id');
 
-        if (!$taxonomy_id_address_status || !$taxonomy_id_address_types) {
+        if (!$taxonomy_id_address_status || !$taxonomy_id_shipping_address_type || !$taxonomy_id_billing_address_type) {
             $response['success'] = false;
             $response['messages'][] = trans("vaahcms-general.error_saving_address");
             return $response;
         }
+        $taxonomy_id_address_type = $request->input('type') === 'billing' ? $taxonomy_id_billing_address_type : $taxonomy_id_shipping_address_type;
 
         $address_details['vh_user_id'] = $userId;
         $address_details['taxonomy_id_address_status'] = $taxonomy_id_address_status;
-        $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_types;
+        $address_details['taxonomy_id_address_types'] = $taxonomy_id_address_type;
 
         $address = new Address();
         $address->fill($address_details);
@@ -1050,7 +1033,6 @@ class Cart extends VaahModel
     //-------------------------------------------------
 
     public static function removeCartUserAddress($request){
-        dd($request);
         $address_details = $request->input('user_address');
         $shipping_address_id = $request->input('user_address.id');
 
@@ -1156,7 +1138,6 @@ class Cart extends VaahModel
 
     public static function placeOrder($request)
     {
-        dd($request);
         if (is_null($request->order_details['shipping_address'])) {
             $error_message = "Provide shipping details";
             return ['success' => false, 'errors' => [$error_message]];
