@@ -31,7 +31,7 @@ watch(() => store.bill_form, (newValue) => {
 
 watchEffect(() => {
     orderParams.value = {
-        shipping_address: store.selectedAddress,
+        shipping_address: store.selected_shipping_address,
         total_amount: store.total_mrp - 0,
         payable: store.total_mrp - 0,
         discounts: 2000,
@@ -39,7 +39,7 @@ watchEffect(() => {
         delivery_fee: 0,
         cart_id:route.params.id ,
         // billing_address:store.selectedBillingAddress,
-        billing_address: store.item_billing_address ? store.item_billing_address : store.selectedBillingAddress,
+        billing_address: store.item_billing_address ? store.item_billing_address : store.selected_billing_address,
 
         payment_method:store.cash_on_delivery,
         order_items:store.cart_item_at_checkout,
@@ -84,7 +84,7 @@ watchEffect(() => {
                     </AccordionTab>
 
 
-                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.shouldShowNewAddressTab">
+                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.show_new_address_tab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -151,17 +151,17 @@ watchEffect(() => {
                         <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
 
 <!--                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>-->
-                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.showTabForBilling ? 'billing' : null)"></Button>
+                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
 
                     </div>
                 </AccordionTab>
                 <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
                         <div>
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
-                                <Card :class="{ 'selected-card': store.isSelectedAddress(address) }" @click="store.setSelectedAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
+                                <Card :class="{ 'selected-card': store.isSelectedShippingAddress(address) }" @click="store.setSelectedShippingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
                                         <div class="flex align-items-center">
-                                            <RadioButton v-model="store.selectedAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
+                                            <RadioButton v-model="store.selected_shipping_address" :inputId="'address' + index" :name="'address'" :value="address"  />
                                             <label :for="'address' + index" class="ml-2"><b>{{  address.name }}</b></label>
                                         </div>
                                         <div class="p-2">
@@ -171,8 +171,8 @@ watchEffect(() => {
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
-                                        <li class="p-2" v-if="store.isSelectedAddress(address)">Cash On Delivery Available</li>
-                                        <div v-if="store.isSelectedAddress(address)"  class="flex justify-content gap-2 mt-5">
+                                        <li class="p-2" v-if="store.isSelectedShippingAddress(address)">Cash On Delivery Available</li>
+                                        <div v-if="store.isSelectedShippingAddress(address)"  class="flex justify-content gap-2 mt-5">
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
@@ -191,7 +191,7 @@ watchEffect(() => {
 
 
                     <AccordionTab header="Billing Details ">
-                        <div v-if="store.selectedAddress" class="flex align-items-center mb-2">
+                        <div v-if="store.selected_shipping_address" class="flex align-items-center mb-2">
                             <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
 
                             <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
@@ -202,7 +202,7 @@ watchEffect(() => {
                                 <Card :class="{ 'selected-card': store.isSelectedBillingAddress(address) }" @click="store.setSelectedBillingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
                                         <div class="flex align-items-center">
-                                            <RadioButton v-model="store.selectedBillingAddress" :inputId="'address' + index" :name="'address'" :value="address"  />
+                                            <RadioButton v-model="store.selected_billing_address" :inputId="'address' + index" :name="'address'" :value="address"  />
                                             <label :for="'address' + index" class="ml-2"><b>{{  address.name }}</b></label>
                                         </div>
                                         <div class="p-2">
