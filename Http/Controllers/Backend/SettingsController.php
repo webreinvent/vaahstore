@@ -1,5 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -20,9 +21,15 @@ use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use VaahCms\Modules\Store\Models\Wishlist;
+use WebReinvent\VaahCms\Libraries\VaahHelper;
+use WebReinvent\VaahCms\Libraries\VaahSetup;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\Setting;
 use WebReinvent\VaahExtend\Libraries\VaahArtisan;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SettingsController extends Controller
 {
@@ -535,6 +542,110 @@ class SettingsController extends Controller
             }
         }
         return response()->json($response);
+    }
+
+
+    public function deleteConfirm(Request $request)
+    {
+
+        $rules = array(
+            'confirm' => 'required',
+        );
+
+        $validator = \Validator::make( $request->all(), $rules);
+
+        if ( $validator->fails() ) {
+
+            $errors = errorsToArray($validator->errors());
+            $response['success'] = false;
+            $response['errors'] = $errors;
+            return response()->json($response);
+        }
+
+        if($request->confirm != 'DELETE')
+        {
+            $response['success'] = false;
+            $response['errors'][] = 'Type DELETE to confirm.';
+            return response()->json($response);
+        }
+
+        try{
+
+            if(!$request->delete_records)
+            {
+                $response['success'] = false;
+                $response['errors'][] = 'Checked Delete All confirmed.';
+                return response()->json($response);
+            }
+
+            $modelsPath = base_path('VaahCms/Modules/Store/Models');
+            $namespace = 'VaahCms\Modules\Store\Models';
+
+            // Check if the directory exists
+            if (!File::exists($modelsPath)) {
+                Log::error("The directory does not exist: $modelsPath");
+                return Response::json([
+                    'success' => false,
+                    'errors' => ["The directory does not exist: $modelsPath"],
+                ]);
+            }
+
+            // List of models to exclude from truncation
+            $excludedModels = [
+                'StoreTaxonomy',
+                'Lingual',
+                'Currency',
+            ];
+
+            // Load all PHP files in the models directory
+            $files = File::allFiles($modelsPath);
+
+            // Loop through each file and delete the records if not in excluded list
+            foreach ($files as $file) {
+                $filename = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+
+                // Build the fully qualified class name
+                $class = $namespace . '\\' . $filename;
+
+                // Check if the class exists, is a model, and not in excluded list
+                if (class_exists($class) &&
+                    is_subclass_of($class, 'Illuminate\Database\Eloquent\Model') &&
+                    !in_array($filename, $excludedModels)) {
+
+                    // Create an instance of the model
+                    $modelInstance = new $class();
+
+                    // Check if the table is vh_users
+                    if ($modelInstance->getTable() !== 'vh_users') {
+                        // Delete all records from the table
+                        $class::truncate();
+                    }
+                }
+
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            return Response::json([
+                'success' => true,
+                'data' => ['All records have been deleted from the selected models.'],
+            ]);
+
+
+
+        }catch(\Exception $e)
+
+        {
+            DB::rollBack();
+
+            return Response::json([
+                'success' => false,
+                'errors' => [$e->getMessage()],
+            ]);
+
+        }
+
     }
 
     //----------------------------------------------------------

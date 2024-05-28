@@ -31,4 +31,7 @@ function () {
 
     Route::get('/get/all-item/count', 'SettingsController@getItemsCount')
         ->name('vh.backend.store.settings.get.items.count');
+
+    Route::post('/delete/confirm', 'SettingsController@deleteConfirm')
+        ->name('vh.backend.store.settings.delete.confirm');
 });
