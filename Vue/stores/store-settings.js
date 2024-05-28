@@ -182,6 +182,13 @@ export const useSettingStore = defineStore({
 
         ],
         selected_crud:[],
+        show_delete_modal: false,
+        delete_inputs: {
+            confirm: null,
+            delete_records: null,
+        },
+        delete_confirm: null,
+        show_progress_bar: false,
     }),
     getters: {
 
@@ -360,8 +367,6 @@ export const useSettingStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
         getCopy(value)
         {
             let text =  "{!! config('settings.global."+value+"'); !!}";
@@ -384,6 +389,8 @@ export const useSettingStore = defineStore({
         storeSettingsAfter(){
             this.getList();
         },
+
+        //---------------------------------------------------------------------
 
         fillAll() {
 
@@ -423,12 +430,25 @@ export const useSettingStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
 
         resetAll() {
 
-            this.input_number_value=null;
+            this.crud_options.forEach(item => {
+                item.quantity = 0;
+            });
             vaah().toastSuccess(['Action Was Successful']);
         },
+
+
+        //---------------------------------------------------------------------
+
+        deleteAll() {
+
+            this.show_delete_modal = true ;
+        },
+
+        //---------------------------------------------------------------------
 
         async updateCounts() {
             let options = {
@@ -442,12 +462,43 @@ export const useSettingStore = defineStore({
             );
         },
 
+        //---------------------------------------------------------------------
+
         updateCountsAfter(data , res ) {
 
             this.crud_options.forEach(option => {
                         option.count = data.count[`${option.value}`] || 0;
                     });
-        }
+        },
+
+        showProgress()
+        {
+            this.show_progress_bar = true;
+        },
+
+
+        //---------------------------------------------------------------------
+        confirmReset: function () {
+            this.delete_confirm = true;
+            this.showProgress();
+
+            let params = {
+                params: this.delete_inputs,
+                method: 'post'
+            };
+
+            vaah().ajax(
+                this.ajax_url+'/delete/confirm',
+                this.afterConfirmReset,
+                params
+            );
+        },
+        //---------------------------------------------------------------------
+        async afterConfirmReset (data, res) {
+            this.delete_confirm = false;
+            this.show_delete_modal = false;
+            await this.updateCounts();
+        },
 
 
     }
