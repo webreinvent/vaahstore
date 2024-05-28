@@ -578,45 +578,51 @@ class SettingsController extends Controller
                 return response()->json($response);
             }
 
-            $modelsPath = base_path('VaahCms/Modules/Store/Models');
+            $models_path = base_path('VaahCms/Modules/Store/Models');
+
             $namespace = 'VaahCms\Modules\Store\Models';
 
             // Check if the directory exists
-            if (!File::exists($modelsPath)) {
-                Log::error("The directory does not exist: $modelsPath");
+            if (!File::exists($models_path)) {
+                Log::error("The directory does not exist: $models_path");
                 return Response::json([
                     'success' => false,
-                    'errors' => ["The directory does not exist: $modelsPath"],
+                    'errors' => ["The directory does not exist: $models_path"],
                 ]);
             }
 
             // List of models to exclude from truncation
-            $excludedModels = [
+            $excluded_models = [
                 'StoreTaxonomy',
                 'Lingual',
                 'Currency',
             ];
 
+            $loggedInUserId = Auth::id();
+
             // Load all PHP files in the models directory
-            $files = File::allFiles($modelsPath);
+            $files = File::allFiles($models_path);
 
             // Loop through each file and delete the records if not in excluded list
             foreach ($files as $file) {
-                $filename = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+                $file_name = pathinfo($file->getFilename(), PATHINFO_FILENAME);
 
                 // Build the fully qualified class name
-                $class = $namespace . '\\' . $filename;
+                $class = $namespace . '\\' . $file_name;
 
                 // Check if the class exists, is a model, and not in excluded list
                 if (class_exists($class) &&
                     is_subclass_of($class, 'Illuminate\Database\Eloquent\Model') &&
-                    !in_array($filename, $excludedModels)) {
+                    !in_array($file_name, $excluded_models)) {
 
                     // Create an instance of the model
-                    $modelInstance = new $class();
+                    $model_instance = new $class();
 
                     // Check if the table is vh_users
-                    if ($modelInstance->getTable() !== 'vh_users') {
+                    if ($model_instance->getTable() === 'vh_users') {
+                        // Delete all records except the logged-in user
+                        $class::where('id', '!=', $loggedInUserId)->delete();
+                    } else {
                         // Delete all records from the table
                         $class::truncate();
                     }
@@ -627,10 +633,10 @@ class SettingsController extends Controller
             // Commit the transaction
             DB::commit();
 
-            return Response::json([
-                'success' => true,
-                'data' => ['All records have been deleted from the selected models.'],
-            ]);
+            $response['success'] = true;
+            $response['data'] = [];
+            $response['messages'][] = "Action Was Successful";
+            return $response;
 
 
 
