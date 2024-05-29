@@ -495,9 +495,23 @@ export const useSettingStore = defineStore({
         },
         //---------------------------------------------------------------------
         async afterConfirmReset (data, res) {
-            this.delete_confirm = false;
-            this.show_delete_modal = false;
-            await this.updateCounts();
+            if(data)
+            {
+
+                this.delete_confirm = false;
+                this.show_delete_modal = false;
+                await this.updateCounts();
+                this.delete_inputs.confirm = null;
+                this.delete_inputs.delete_records = null;
+
+            }
+
+            else {
+                this.delete_confirm = false;
+                this.show_delete_modal = true;
+            }
+
+
         },
 
 

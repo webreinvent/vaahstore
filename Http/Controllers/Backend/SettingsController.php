@@ -598,7 +598,7 @@ class SettingsController extends Controller
                 'Currency',
             ];
 
-            $loggedInUserId = Auth::id();
+            $auth_user = Auth::id();
 
             // Load all PHP files in the models directory
             $files = File::allFiles($models_path);
@@ -607,7 +607,6 @@ class SettingsController extends Controller
             foreach ($files as $file) {
                 $file_name = pathinfo($file->getFilename(), PATHINFO_FILENAME);
 
-                // Build the fully qualified class name
                 $class = $namespace . '\\' . $file_name;
 
                 // Check if the class exists, is a model, and not in excluded list
@@ -615,15 +614,12 @@ class SettingsController extends Controller
                     is_subclass_of($class, 'Illuminate\Database\Eloquent\Model') &&
                     !in_array($file_name, $excluded_models)) {
 
-                    // Create an instance of the model
                     $model_instance = new $class();
 
-                    // Check if the table is vh_users
                     if ($model_instance->getTable() === 'vh_users') {
                         // Delete all records except the logged-in user
-                        $class::where('id', '!=', $loggedInUserId)->delete();
+                        $class::where('id', '!=', $auth_user)->delete();
                     } else {
-                        // Delete all records from the table
                         $class::truncate();
                     }
                 }
