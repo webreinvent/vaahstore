@@ -1,6 +1,5 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -21,8 +20,6 @@ use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use VaahCms\Modules\Store\Models\Wishlist;
-use WebReinvent\VaahCms\Libraries\VaahHelper;
-use WebReinvent\VaahCms\Libraries\VaahSetup;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\Setting;
 use WebReinvent\VaahExtend\Libraries\VaahArtisan;
