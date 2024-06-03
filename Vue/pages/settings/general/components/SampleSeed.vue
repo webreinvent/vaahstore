@@ -34,7 +34,7 @@
 
     <Button label="Delete All"
             @click="store.deleteAll()"
-            icon="pi pi-trash" class="p-button-danger"
+            class="p-button-danger"
             style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem; margin-left: 1rem"
             :disabled="store.is_button_disabled"/>
 
@@ -64,6 +64,7 @@
 
         <InputText v-model="store.delete_inputs.confirm"
                    placeholder="Type DELETE to Confirm" class="p-inputtext-md"
+                   @paste="handlePaste"
                    required
         />
 
@@ -100,7 +101,7 @@
 <script setup>
 import {useSettingStore} from '../../../../stores/store-settings'
 import {useRoute} from "vue-router";
-import {onMounted} from "vue";
+import {onMounted , ref} from "vue";
 
 const store = useSettingStore();
 
@@ -109,6 +110,12 @@ const route = useRoute();
 onMounted(async () => {
     store.updateCounts();
 });
+
+const deleteConfirm = ref('');
+
+const handlePaste = (event) => {
+    event.preventDefault();
+};
 
 
 </script>
