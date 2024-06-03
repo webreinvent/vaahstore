@@ -331,40 +331,66 @@ export const useSettingStore = defineStore({
 
             this.is_button_disabled = true ;
 
-            const query = {selectedCrud : this.selected_crud};
+            for (let item of this.selected_crud) {
+                await this.createSingleCrudRecord(item);
+            }
+
+            this.is_button_disabled = false;
+
+
+        },
+
+        //--------------------------------------------------------------------
+
+        async createSingleCrudRecord(item) {
+            const query = { selectedCrud: [item] };
             const options = {
                 params: query,
                 method: 'post',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/fill/bulk/method',
-                this.createBulkRecordsAfter,
+                this.ajax_url + '/fill/bulk/method',
+                (data, res) => this.createSingleCrudRecordAfter(data, res, item),
                 options
             );
-
-
         },
 
+        //--------------------------------------------------------------------
+        async createSingleCrudRecordAfter(data, res, item) {
+            if (res.data && res.data.success) {
+                this.updateCounts();
+                vaah().toastSuccess([data.message]);
 
-        //---------------------------------------------------------------------
+                // Uncheck the specific CRUD option and reset its quantity
+                let crudOption = this.crud_options.find(option => option.value === item.value);
+                if (crudOption) {
+                    crudOption.isChecked = false;
+                    crudOption.quantity = 0;
+                    crudOption.disabled = false;
+                }
+            } else {
+                vaah().toastErrors(data.errors);
+            }
 
-        async createBulkRecordsAfter (data, res) {
+            // Increment the completed CRUD count
+            this.completedCrudCount += 1;
 
+            // Check if all CRUD operations are complete
+            if (this.completedCrudCount === this.selected_crud.length) {
+                this.finalizeBulkOperation();
+            }
+        },
+
+        //--------------------------------------------------------------------
+        finalizeBulkOperation() {
             this.crud_options.forEach(option => {
-
                 option.isChecked = false;
-
                 option.quantity = 0;
-
-                option.disabled = false
+                option.disabled = false;
             });
 
-            this.updateCounts();
-
             this.is_button_disabled = false;
-
-
         },
         //---------------------------------------------------------------------
         getCopy(value)
