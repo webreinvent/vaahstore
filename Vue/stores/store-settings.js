@@ -27,7 +27,7 @@ export const useSettingStore = defineStore({
                 label: 'All',
                 value: 'All',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0 ,
                 disabled:false
             },
@@ -35,7 +35,7 @@ export const useSettingStore = defineStore({
                 label: 'Stores',
                 value: 'Store',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false
             },
@@ -44,7 +44,7 @@ export const useSettingStore = defineStore({
                 label: 'Vendors',
                 value: 'Vendors',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Stores']
@@ -54,7 +54,7 @@ export const useSettingStore = defineStore({
                 label: 'Products',
                 value: 'Product',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0 ,
                 disabled:false,
                 labelsToCheck: ['Stores']
@@ -65,7 +65,7 @@ export const useSettingStore = defineStore({
                 label: 'Vendor Products',
                 value: 'VendorsProduct',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Stores' , 'Products' , 'Vendors']
@@ -74,7 +74,7 @@ export const useSettingStore = defineStore({
                 label: 'Product Variations',
                 value: 'ProductVariations',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Products' ,'Stores']
@@ -83,7 +83,7 @@ export const useSettingStore = defineStore({
                 label: 'Product Attributes',
                 value: 'ProductAttribute',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 disabled:false,
                 labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores']
             },
@@ -91,7 +91,7 @@ export const useSettingStore = defineStore({
                 label: 'Product Medias',
                 value: 'ProductMedia',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false,
                 labelsToCheck:['Products' , 'Product Variations' ,'Stores']
@@ -101,7 +101,7 @@ export const useSettingStore = defineStore({
                 label: 'Warehouses',
                 value: 'Warehouses',
                 isChecked: false,
-                quantity: 0 ,
+                quantity: null ,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Vendors']
@@ -111,7 +111,7 @@ export const useSettingStore = defineStore({
                 label: 'Product Stocks',
                 value: 'ProductStock',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores']
@@ -121,7 +121,7 @@ export const useSettingStore = defineStore({
                 label: 'Brands',
                 value: 'Brand',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 count: 0,
                 disabled:false
             },
@@ -129,7 +129,7 @@ export const useSettingStore = defineStore({
                 label: 'Attributes',
                 value: 'Attributes',
                 isChecked: false,
-                quantity: 0,
+                quantity: null,
                 disabled:false
             },
 
@@ -137,7 +137,7 @@ export const useSettingStore = defineStore({
                 label: 'Attributes Group',
                 value: 'AttributeGroups',
                 isChecked: false,
-                quantity: 0 ,
+                quantity: null ,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Attributes']
@@ -146,7 +146,7 @@ export const useSettingStore = defineStore({
                 label: 'Addresses',
                 value: 'Address',
                 isChecked: false,
-                quantity: 0 ,
+                quantity: null ,
                 count: 0,
                 disabled:false
             },
@@ -154,7 +154,7 @@ export const useSettingStore = defineStore({
                 label: 'Wishlists',
                 value: 'Wishlists',
                 isChecked: false,
-                quantity: 0 ,
+                quantity: null ,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Customer']
@@ -164,15 +164,15 @@ export const useSettingStore = defineStore({
                 label: 'Customer',
                 value: 'Customer',
                 isChecked: false,
-                quantity: 0,
-                count: 0,
+                quantity: null,
+                count: null,
                 disabled:false
             },
             {
                 label: 'Customer Group',
                 value: 'CustomerGroup',
                 isChecked: false,
-                quantity: 0 ,
+                quantity: null ,
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Customer']
@@ -248,6 +248,7 @@ export const useSettingStore = defineStore({
                 // Toggle isChecked for all options based on the isChecked state of the "All" option
                 this.crud_options.forEach(option => {
                     option.isChecked = item.isChecked;
+                    option.disabled = false;
                 });
             }
 
@@ -366,7 +367,7 @@ export const useSettingStore = defineStore({
                 let crudOption = this.crud_options.find(option => option.value === item.value);
                 if (crudOption) {
                     crudOption.isChecked = false;
-                    crudOption.quantity = 0;
+                    crudOption.quantity = null;
                     crudOption.disabled = false;
                 }
             } else {
@@ -386,7 +387,7 @@ export const useSettingStore = defineStore({
         finalizeBulkOperation() {
             this.crud_options.forEach(option => {
                 option.isChecked = false;
-                option.quantity = 0;
+                option.quantity = null;
                 option.disabled = false;
             });
 
@@ -461,7 +462,8 @@ export const useSettingStore = defineStore({
         resetAll() {
 
             this.crud_options.forEach(item => {
-                item.quantity = 0;
+                item.isChecked = false;
+                item.quantity = null;
             });
             vaah().toastSuccess(['Action Was Successful']);
         },
@@ -529,6 +531,9 @@ export const useSettingStore = defineStore({
                 await this.updateCounts();
                 this.delete_inputs.confirm = null;
                 this.delete_inputs.delete_records = null;
+                this.crud_options.forEach(item => {
+                    item.quantity = null;
+                });
 
             }
 
