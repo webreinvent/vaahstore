@@ -144,14 +144,6 @@ export const useSettingStore = defineStore({
                 disabled:false,
                 labelsToCheck: ['Attributes']
             },
-            {
-                label: 'Addresses',
-                value: 'Address',
-                isChecked: false,
-                quantity: null ,
-                count: 0,
-                disabled:false
-            },
 
             {
                 label: 'Customer',
@@ -179,6 +171,14 @@ export const useSettingStore = defineStore({
                 count: 0,
                 disabled:false,
                 labelsToCheck: ['Customer']
+            },
+            {
+                label: 'Addresses',
+                value: 'Address',
+                isChecked: false,
+                quantity: null ,
+                count: 0,
+                disabled:false
             },
 
 

@@ -115,6 +115,16 @@ const route = useRoute();
 
 onMounted(async () => {
     store.updateCounts();
+
+    if(route.path === "/settings/general")
+    {
+        store.crud_options.forEach(option => {
+            option.isChecked = false;
+            option.quantity = null;
+            option.disabled = false;
+        });
+    }
+
 });
 
 const deleteConfirm = ref('');
