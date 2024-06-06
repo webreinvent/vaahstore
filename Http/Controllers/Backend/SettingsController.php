@@ -415,41 +415,6 @@ class SettingsController extends Controller
                         }
                         ProductVendor::seedSampleItems($quantity);
                         break;
-                    case "All":
-
-                        Store::seedSampleItems($quantity);
-
-                        Wishlist::seedSampleItems($quantity);
-
-                        Address::seedSampleItems($quantity);
-
-                        Brand::seedSampleItems($quantity);
-
-                        Attribute::seedSampleItems($quantity);
-
-                        AttributeGroup::seedSampleItems($quantity);
-
-                        User::seedSampleItems($quantity);
-
-                        CustomerGroup::seedSampleItems($quantity);
-
-                        Product::seedSampleItems($quantity);
-
-                        ProductVariation::seedSampleItems($quantity);
-
-                        Vendor::seedSampleItems($quantity);
-
-                        ProductAttribute::seedSampleItems($quantity);
-
-                        ProductMedia::seedSampleItems($quantity);
-
-                        ProductVendor::seedSampleItems($quantity);
-
-                        Warehouse::seedSampleItems($quantity);
-
-                        ProductStock::seedSampleItems($quantity);
-
-                        break;
 
                     default:
                         break;
