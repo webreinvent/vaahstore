@@ -9,7 +9,10 @@
             <td>
                 <Checkbox v-model="item.isChecked" :value="item.value"
                           @input="store.checkAll(item)"
-                          :binary="true" :disabled="item.disabled"/>
+                          :binary="true"
+                          :disabled="isDisabled(item)"
+
+                />
             </td>
             <td>
                 <label class="ml-3"> {{ item.label }} </label>
@@ -17,7 +20,10 @@
             </td>
 
             <td>
-                <InputNumber placeholder="Enter quantity" class="ml-4" v-model="item.quantity"/>
+                <InputNumber placeholder="Enter quantity"
+                             class="ml-4" v-model="item.quantity"
+                             :disabled="store.is_button_disabled"
+                />
             </td>
         </tr>
     </table>
@@ -115,6 +121,10 @@ const deleteConfirm = ref('');
 
 const handlePaste = (event) => {
     event.preventDefault();
+};
+
+const isDisabled = (item) => {
+    return item.disabled || store.is_button_disabled;
 };
 
 
