@@ -309,34 +309,72 @@ export const useSettingStore = defineStore({
 
            this.selected_crud = this.crud_options.filter(item => item.isChecked);
 
-            if (this.selected_crud.length === 0) {
+           if (this.selected_crud.length === 0) {
                 vaah().toastErrors(['Please Choose A crud First']);
                 return;
             }
 
             let errorOptions = [];
 
-            this.crud_options.forEach(option => {
-                // Check if the option is checked and has zero quantity
-                if (option.isChecked && (option.quantity === null || option.quantity === 0) ) {
-                    // Add the name of the option to the errorOptions array
-                    errorOptions.push(option.label);
+            let allOption = this.selected_crud.find(option => option.value === "All");
+
+            if (!allOption) {
+                // Only check for quantity errors if "All" is not selected
+                this.crud_options.forEach(option => {
+                    // Check if the option is checked and has zero quantity
+                    if (option.isChecked && (option.quantity === null || option.quantity === 0)) {
+                        // Add the name of the option to the errorOptions array
+                        errorOptions.push(option.label);
+                    }
+                });
+
+                if (errorOptions.length > 0) {
+                    let errorMessage = `Please fill the quantity of the following CRUD options: ${errorOptions.join(', ')}`;
+
+                    vaah().toastErrors([errorMessage]);
+                    return;
                 }
-            });
-
-            if (errorOptions.length > 0) {
-                let errorMessage = `Please fill the quantity of the following CRUD options: ${errorOptions.join(', ')}`;
-
-                vaah().toastErrors([errorMessage]);
-
-                return;
             }
+
+            if(allOption)
+            {
+
+                if(allOption.quantity === 0 || allOption.quantity === null)
+                {
+                    let errorMessage = 'Please fill the quantity';
+                    vaah().toastErrors([errorMessage]);
+                    return;
+                }
+
+                this.selected_crud.forEach(option => {
+
+
+                    if (option.value !== "All") {
+                        option.quantity = allOption.quantity;
+                    }
+                });
+
+                this.is_button_disabled = true ;
+
+                for (let item of this.selected_crud) {
+                    await this.createSingleCrudRecord(item);
+                }
+
+                this.is_button_disabled = false;
+            }
+
 
             this.is_button_disabled = true ;
 
-            for (let item of this.selected_crud) {
-                await this.createSingleCrudRecord(item);
+            if(!allOption)
+            {
+                for (let item of this.selected_crud) {
+                    await this.createSingleCrudRecord(item);
+                }
+
             }
+
+
 
             this.is_button_disabled = false;
 
