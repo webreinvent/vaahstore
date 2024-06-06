@@ -70,6 +70,15 @@ export const useSettingStore = defineStore({
                 disabled:false,
                 labelsToCheck: ['Stores' , 'Products' , 'Vendors']
             },
+
+            {
+                label: 'Attributes',
+                value: 'Attributes',
+                isChecked: false,
+                quantity: null,
+                disabled:false
+            },
+
             {
                 label: 'Product Variations',
                 value: 'ProductVariations',
@@ -104,7 +113,7 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 disabled:false,
-                labelsToCheck: ['Vendors']
+                labelsToCheck: ['Vendors','Stores']
             },
 
             {
@@ -125,13 +134,6 @@ export const useSettingStore = defineStore({
                 count: 0,
                 disabled:false
             },
-            {
-                label: 'Attributes',
-                value: 'Attributes',
-                isChecked: false,
-                quantity: null,
-                disabled:false
-            },
 
             {
                 label: 'Attributes Group',
@@ -149,15 +151,6 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 disabled:false
-            },
-            {
-                label: 'Wishlists',
-                value: 'Wishlists',
-                isChecked: false,
-                quantity: null ,
-                count: 0,
-                disabled:false,
-                labelsToCheck: ['Customer']
             },
 
             {
@@ -177,6 +170,15 @@ export const useSettingStore = defineStore({
                 disabled:false,
                 labelsToCheck: ['Customer']
 
+            },
+            {
+                label: 'Wishlists',
+                value: 'Wishlists',
+                isChecked: false,
+                quantity: null ,
+                count: 0,
+                disabled:false,
+                labelsToCheck: ['Customer']
             },
 
 
@@ -316,7 +318,7 @@ export const useSettingStore = defineStore({
 
             this.crud_options.forEach(option => {
                 // Check if the option is checked and has zero quantity
-                if (option.isChecked && option.quantity === 0) {
+                if (option.isChecked && (option.quantity === null || option.quantity === 0) ) {
                     // Add the name of the option to the errorOptions array
                     errorOptions.push(option.label);
                 }
@@ -370,6 +372,8 @@ export const useSettingStore = defineStore({
                     crudOption.quantity = null;
                     crudOption.disabled = false;
                 }
+
+
             } else {
                 vaah().toastErrors(data.errors);
             }
@@ -533,6 +537,7 @@ export const useSettingStore = defineStore({
                 this.delete_inputs.delete_records = null;
                 this.crud_options.forEach(item => {
                     item.quantity = null;
+                    item.isChecked = false;
                 });
 
             }
