@@ -26,37 +26,37 @@ export const useSettingStore = defineStore({
             {
                 label: 'All',
                 value: 'All',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0 ,
-                disabled:false
+                is_disabled:false
             },
             {
                 label: 'Stores',
                 value: 'Store',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false
+                is_disabled:false
             },
 
             {
                 label: 'Vendors',
                 value: 'Vendors',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Stores']
             },
 
             {
                 label: 'Products',
                 value: 'Product',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0 ,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Stores']
 
 
@@ -64,120 +64,120 @@ export const useSettingStore = defineStore({
             {
                 label: 'Vendor Products',
                 value: 'VendorsProduct',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Stores' , 'Products' , 'Vendors']
             },
 
             {
                 label: 'Attributes',
                 value: 'Attributes',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
-                disabled:false
+                is_disabled:false
             },
 
             {
                 label: 'Product Variations',
                 value: 'ProductVariations',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Products' ,'Stores']
             },
             {
                 label: 'Product Attributes',
                 value: 'ProductAttribute',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores']
             },
             {
                 label: 'Product Medias',
                 value: 'ProductMedia',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck:['Products' , 'Product Variations' ,'Stores']
             },
 
             {
                 label: 'Warehouses',
                 value: 'Warehouses',
-                isChecked: false,
+                is_checked: false,
                 quantity: null ,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Vendors','Stores']
             },
 
             {
                 label: 'Product Stocks',
                 value: 'ProductStock',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores']
             },
 
             {
                 label: 'Brands',
                 value: 'Brand',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: 0,
-                disabled:false
+                is_disabled:false
             },
 
             {
                 label: 'Attributes Group',
                 value: 'AttributeGroups',
-                isChecked: false,
+                is_checked: false,
                 quantity: null ,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Attributes']
             },
 
             {
                 label: 'Customer',
                 value: 'Customer',
-                isChecked: false,
+                is_checked: false,
                 quantity: null,
                 count: null,
-                disabled:false
+                is_disabled:false
             },
             {
                 label: 'Customer Group',
                 value: 'CustomerGroup',
-                isChecked: false,
+                is_checked: false,
                 quantity: null ,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Customer']
 
             },
             {
                 label: 'Addresses',
                 value: 'Address',
-                isChecked: false,
+                is_checked: false,
                 quantity: null ,
                 count: 0,
-                disabled:false
+                is_disabled:false
             },
             {
                 label: 'Wishlists',
                 value: 'Wishlists',
-                isChecked: false,
+                is_checked: false,
                 quantity: null ,
                 count: 0,
-                disabled:false,
+                is_disabled:false,
                 labelsToCheck: ['Customer']
             },
 
@@ -185,12 +185,12 @@ export const useSettingStore = defineStore({
 
         ],
         selected_crud:[],
-        show_delete_modal: false,
+        is_show_delete_modal: false,
         delete_inputs: {
             confirm: null,
             delete_records: null,
         },
-        delete_confirm: null,
+        is_delete_confirm: false,
         show_progress_bar: false,
     }),
     getters: {
@@ -248,16 +248,16 @@ export const useSettingStore = defineStore({
         checkAll(item) {
 
             if (item.label === 'All') {
-                // Toggle isChecked for all options based on the isChecked state of the "All" option
+                // Toggle is_checked for all options based on the is_checked state of the "All" option
                 this.crud_options.forEach(option => {
-                    option.isChecked = item.isChecked;
-                    option.disabled = false;
+                    option.is_checked = item.is_checked;
+                    option.is_disabled = false;
                 });
             }
 
             else if (item.hasOwnProperty('labelsToCheck'))
             {
-                this.labelsToCheck(item.labelsToCheck,item.isChecked)
+                this.labelsToCheck(item.labelsToCheck,item.is_checked)
             }
         },
 
@@ -273,8 +273,8 @@ export const useSettingStore = defineStore({
                     const count = option.count;
 
                     if (count < 1) {
-                        option.isChecked = is_checked
-                        option.disabled = is_checked
+                        option.is_checked = is_checked
+                        option.is_disabled = is_checked
 
                     }
                 }
@@ -282,7 +282,7 @@ export const useSettingStore = defineStore({
 
             await(self.crud_options.forEach(option => {
 
-                if (option.isChecked) {
+                if (option.is_checked) {
 
                     self.crud_options.forEach(opt => {
 
@@ -290,9 +290,9 @@ export const useSettingStore = defineStore({
 
                             const count = opt.count;
 
-                            if (!opt.isChecked && count < 1) {
-                                opt.isChecked = true
-                                opt.disabled = true
+                            if (!opt.is_checked && count < 1) {
+                                opt.is_checked = true
+                                opt.is_disabled = true
 
                             }
                         }
@@ -308,42 +308,42 @@ export const useSettingStore = defineStore({
         async createBulkRecords() {
 
 
-           this.selected_crud = this.crud_options.filter(item => item.isChecked);
+           this.selected_crud = this.crud_options.filter(item => item.is_checked);
 
            if (this.selected_crud.length === 0) {
                 vaah().toastErrors(['Please Choose A crud First']);
                 return;
             }
 
-            let errorOptions = [];
+            let error_options = [];
 
-            let allOption = this.selected_crud.find(option => option.value === "All");
+            let all_option = this.selected_crud.find(option => option.value === "All");
 
-            if (!allOption) {
+            if (!all_option) {
                 // Only check for quantity errors if "All" is not selected
                 this.crud_options.forEach(option => {
                     // Check if the option is checked and has zero quantity
-                    if (option.isChecked && (option.quantity === null || option.quantity === 0)) {
+                    if (option.is_checked && (option.quantity === null || option.quantity === 0)) {
                         // Add the name of the option to the errorOptions array
-                        errorOptions.push(option.label);
+                        error_options.push(option.label);
                     }
                 });
 
-                if (errorOptions.length > 0) {
-                    let errorMessage = `Please fill the quantity of the following CRUD options: ${errorOptions.join(', ')}`;
+                if (error_options.length > 0) {
+                    let error_message = `Please fill the quantity of the following CRUD options: ${error_options.join(', ')}`;
 
-                    vaah().toastErrors([errorMessage]);
+                    vaah().toastErrors([error_message]);
                     return;
                 }
             }
 
-            if(allOption)
+            if(all_option)
             {
 
-                if(allOption.quantity === 0 || allOption.quantity === null)
+                if(all_option.quantity === 0 || all_option.quantity === null)
                 {
-                    let errorMessage = 'Please fill the quantity';
-                    vaah().toastErrors([errorMessage]);
+                    let error_message = 'Please fill the quantity';
+                    vaah().toastErrors([error_message]);
                     return;
                 }
 
@@ -351,7 +351,7 @@ export const useSettingStore = defineStore({
 
 
                     if (option.value !== "All") {
-                        option.quantity = allOption.quantity;
+                        option.quantity = all_option.quantity;
                     }
                 });
 
@@ -367,7 +367,7 @@ export const useSettingStore = defineStore({
 
             this.is_button_disabled = true ;
 
-            if(!allOption)
+            if(!all_option)
             {
                 for (let item of this.selected_crud) {
                     await this.createSingleCrudRecord(item);
@@ -405,14 +405,14 @@ export const useSettingStore = defineStore({
                 vaah().toastSuccess([data.message]);
 
                 // Uncheck the specific CRUD option and reset its quantity
-                let crudOption = this.crud_options.find(option => option.value === item.value);
-                if (crudOption) {
-                    crudOption.isChecked = false;
-                    crudOption.quantity = null;
-                    crudOption.disabled = false;
-                    if(crudOption.label !== 'All')
+                let crud_option = this.crud_options.find(option => option.value === item.value);
+                if (crud_option) {
+                    crud_option.is_checked = false;
+                    crud_option.quantity = null;
+                    crud_option.is_disabled = false;
+                    if(crud_option.label !== 'All')
                     {
-                        vaah().toastSuccess([crudOption.label + ' ' + 'records created']);
+                        vaah().toastSuccess([crud_option.label + ' ' + 'records created']);
                     }
 
                 }
@@ -423,10 +423,10 @@ export const useSettingStore = defineStore({
             }
 
             // Increment the completed CRUD count
-            this.completedCrudCount += 1;
+            this.completed_crud_count += 1;
 
             // Check if all CRUD operations are complete
-            if (this.completedCrudCount === this.selected_crud.length) {
+            if (this.completed_crud_count === this.selected_crud.length) {
                 this.finalizeBulkOperation();
             }
         },
@@ -434,9 +434,9 @@ export const useSettingStore = defineStore({
         //--------------------------------------------------------------------
         finalizeBulkOperation() {
             this.crud_options.forEach(option => {
-                option.isChecked = false;
+                option.is_checked = false;
                 option.quantity = null;
-                option.disabled = false;
+                option.is_disabled = false;
             });
 
             this.is_button_disabled = false;
@@ -471,36 +471,36 @@ export const useSettingStore = defineStore({
 
 
             // for all items
-            const hasQuantity = this.crud_options.some(item => item.quantity > 0);
+            const has_quantity = this.crud_options.some(item => item.quantity > 0);
 
-            if (!hasQuantity) {
+            if (!has_quantity) {
                 vaah().toastErrors(['Fill Quantity At least in a single column']);
                 return;
             }
 
             // Get the quantity of the first item with a non-zero quantity
-            const firstNonZeroQuantity = this.crud_options.find(item => item.quantity > 0).quantity;
+            const first_non_zero_quantity = this.crud_options.find(item => item.quantity > 0).quantity;
 
-            const checkedCrud = this.crud_options.filter(item => item.isChecked);
+            const checked_crud = this.crud_options.filter(item => item.is_checked);
 
             // Set the quantity of all items to the quantity of the first item with a non-zero quantity
 
-            if(checkedCrud.length === 0)
+            if(checked_crud.length === 0)
 
             {
                 this.crud_options.forEach(item => {
-                    item.quantity = firstNonZeroQuantity;
+                    item.quantity = first_non_zero_quantity;
                 });
             }
 
             // If any checked items exist
-            if (checkedCrud.length > 0) {
+            if (checked_crud.length > 0) {
                 // Get the quantity of the first checked item with a non-zero quantity
-                const firstCheckedCrudQuantity = checkedCrud.find(item => item.quantity > 0).quantity;
+                const first_checked_crud_quantity = checked_crud.find(item => item.quantity > 0).quantity;
 
                 // Set the quantity of checked items to the quantity of the first checked item with a non-zero quantity
-                checkedCrud.forEach(item => {
-                    item.quantity = firstCheckedCrudQuantity;
+                checked_crud.forEach(item => {
+                    item.quantity = first_checked_crud_quantity;
                 });
             }
         },
@@ -510,7 +510,7 @@ export const useSettingStore = defineStore({
         resetAll() {
 
             this.crud_options.forEach(item => {
-                item.isChecked = false;
+                item.is_checked = false;
                 item.quantity = null;
             });
             vaah().toastSuccess(['Action Was Successful']);
@@ -521,7 +521,7 @@ export const useSettingStore = defineStore({
 
         deleteAll() {
 
-            this.show_delete_modal = true ;
+            this.is_show_delete_modal = true ;
         },
 
         //---------------------------------------------------------------------
@@ -555,7 +555,7 @@ export const useSettingStore = defineStore({
 
         //---------------------------------------------------------------------
         confirmReset: function () {
-            this.delete_confirm = true;
+            this.is_delete_confirm = true;
             this.showProgress();
 
             let params = {
@@ -574,21 +574,21 @@ export const useSettingStore = defineStore({
             if(data)
             {
 
-                this.delete_confirm = false;
-                this.show_delete_modal = false;
+                this.is_delete_confirm = false;
+                this.is_show_delete_modal = false;
                 await this.updateCounts();
                 this.delete_inputs.confirm = null;
                 this.delete_inputs.delete_records = null;
                 this.crud_options.forEach(item => {
                     item.quantity = null;
-                    item.isChecked = false;
+                    item.is_checked = false;
                 });
 
             }
 
             else {
-                this.delete_confirm = false;
-                this.show_delete_modal = true;
+                this.is_delete_confirm = false;
+                this.is_show_delete_modal = true;
             }
 
 

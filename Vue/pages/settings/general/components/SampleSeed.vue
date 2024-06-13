@@ -1,13 +1,13 @@
 <template>
 
 
-    <Button type="button" label="Fill All" icon="pi pi-arrow-down" @click="store.fillAll()"
+    <Button type="button" label="Fill All" icon="pi pi-arrow-down" @click="store.fillAll()" :disabled="store.is_button_disabled"
             style="margin-left: 50rem;  margin-top: 1.5rem; border-radius: 4rem; width: 6rem;"/>
 
     <table>
         <tr v-for="item in store.crud_options">
             <td>
-                <Checkbox v-model="item.isChecked" :value="item.value"
+                <Checkbox v-model="item.is_checked" :value="item.value"
                           @input="store.checkAll(item)"
                           :binary="true"
                           :disabled="isDisabled(item)"
@@ -46,7 +46,7 @@
 
 
     <Dialog header="Delete"
-            v-model:visible="store.show_delete_modal"
+            v-model:visible="store.is_show_delete_modal"
             :breakpoints="{'960px': '75vw', '640px': '90vw'}"
             :style="{width: '50vw'}">
 
@@ -90,13 +90,13 @@
         <template #footer>
             <Button label="No"
                     icon="pi pi-times"
-                    @click="store.show_delete_modal = false"
+                    @click="store.is_show_delete_modal = false"
                     class="p-button-text"/>
 
             <Button class="p-button-danger"
                     label="Confirm"
                     icon="pi pi-check"
-                    :loading="store.delete_confirm"
+                    :loading="store.is_delete_confirm"
                     @click="store.confirmReset()"
                     autofocus />
         </template>
@@ -119,9 +119,9 @@ onMounted(async () => {
     if(route.path === "/settings/general")
     {
         store.crud_options.forEach(option => {
-            option.isChecked = false;
+            option.is_checked = false;
             option.quantity = null;
-            option.disabled = false;
+            option.is_disabled = false;
         });
     }
 
@@ -134,7 +134,7 @@ const handlePaste = (event) => {
 };
 
 const isDisabled = (item) => {
-    return item.disabled || store.is_button_disabled;
+    return item.is_disabled || store.is_button_disabled;
 };
 
 

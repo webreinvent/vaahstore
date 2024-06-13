@@ -160,7 +160,7 @@ class SettingsController extends Controller
 
                 $quantity = $item['quantity'];
 
-                $is_check = $item ['isChecked'];
+                $is_check = $item ['is_checked'];
 
                 switch ($crud) {
                     case "Store":
