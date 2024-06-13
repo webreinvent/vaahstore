@@ -437,7 +437,6 @@ class SettingsController extends Controller
 
         $response['success'] = true;
         $response['data'] = [];
-        $response['messages'][] = trans("vaahcms-general.record_created");
         return $response;
     }
 
@@ -485,7 +484,7 @@ class SettingsController extends Controller
 
                 $data['count']['Attributes'] +   $data['count']['Brand'] + $data['count']['Address'] + $data['count']['Wishlists'] +
 
-                $data['count']['Store'] ;
+                $data['count']['Store'] + $data['count']['AttributeGroups'] ;
 
 
             $response['success'] = true;

@@ -164,6 +164,14 @@ export const useSettingStore = defineStore({
 
             },
             {
+                label: 'Addresses',
+                value: 'Address',
+                isChecked: false,
+                quantity: null ,
+                count: 0,
+                disabled:false
+            },
+            {
                 label: 'Wishlists',
                 value: 'Wishlists',
                 isChecked: false,
@@ -172,14 +180,7 @@ export const useSettingStore = defineStore({
                 disabled:false,
                 labelsToCheck: ['Customer']
             },
-            {
-                label: 'Addresses',
-                value: 'Address',
-                isChecked: false,
-                quantity: null ,
-                count: 0,
-                disabled:false
-            },
+
 
 
         ],
@@ -409,6 +410,11 @@ export const useSettingStore = defineStore({
                     crudOption.isChecked = false;
                     crudOption.quantity = null;
                     crudOption.disabled = false;
+                    if(crudOption.label !== 'All')
+                    {
+                        vaah().toastSuccess([crudOption.label + ' ' + 'records created']);
+                    }
+
                 }
 
 
