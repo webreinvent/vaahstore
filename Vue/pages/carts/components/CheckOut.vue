@@ -70,7 +70,7 @@ watchEffect(() => {
                                     <div v-else>
 <!--                                        <Image preview :src="'http://localhost/shivam-g001/store-dev/public/vaahcms/backend/vaahone/images/vaahcms-logo.svg'" alt="Error" class="shadow-4" width="64" />-->
                                         <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                             alt="Error" class="shadow-4" width="64" />
+                                             alt="Error" class="shadow-4" width="100" />
                                     </div>
                                 </div>
                                 <div class="product_desc ml-3">

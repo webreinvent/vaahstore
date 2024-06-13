@@ -1254,10 +1254,14 @@ class Cart extends VaahModel
                     'order_items_billing_address' => null,
                     'user' => null,
                     'total_mrp' => 0,
+                    'ordered_at' => null,
+                    'unique__order_id' => null,
                 ];
 
                 $user = $order->user;
                 $response['data']['user'] = $user;
+                $response['data']['ordered_at'] = $order->created_at;
+                $response['data']['unique__order_id'] = $order->uuid;
 
                 $shipping_address = Address::find($order_items->first()->vh_shipping_address_id);
                 $response['data']['order_items_shipping_address'] = $shipping_address;

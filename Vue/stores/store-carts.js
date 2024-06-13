@@ -72,7 +72,8 @@ export const useCartStore = defineStore({
         country_suggestions: null,show_new_address_tab:false,editing_address:null,showAll:false,selected_shipping_address:null,
         new_billing_address:null,total_amount_at_detail_page:0,user_billing_address:null,selected_billing_address:null,show_all_billing_address:false,
         show_tab_for_billing:false,
-        ordered_product:[],ordered_total_mrp:null,ordered_billing_address:null,ordered_shipping_address:null
+        ordered_product:[],ordered_total_mrp:null,ordered_billing_address:null,ordered_shipping_address:null,
+        ordered_at:null,ordered_unique_id:null,
     }),
     getters: {
         displayedAddresses() {
@@ -1432,6 +1433,8 @@ export const useCartStore = defineStore({
                 this.ordered_shipping_address=data.order_items_shipping_address;
                 this.ordered_billing_address=data.order_items_billing_address;
                 this.ordered_total_mrp = data.total_mrp;
+                this.ordered_unique_id = data.unique__order_id;
+                this.ordered_at = data.ordered_at;
             }
         },
 
@@ -1460,7 +1463,12 @@ export const useCartStore = defineStore({
            if (data){
                this.getItem(data.cart.id);
            }
+        },
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         }
+
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
 
