@@ -131,4 +131,7 @@ function () {
      */
     Route::delete('/{id}/remove-cartItem-after-order', [CartsController::class, 'removeCartItemsAfterOrder'])
         ->name('vh.backend.store.carts.delete');
+
+    Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
+        ->name('vh.backend.store.carts.read');
 });
