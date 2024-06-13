@@ -1177,7 +1177,7 @@ export const useCartStore = defineStore({
             if (data) {
                 if (data.product_details.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
-                    return; // Added return to exit the function after redirecting
+                    return;
                 }
 
                 this.cart_item_at_checkout = data.product_details;
@@ -1401,11 +1401,11 @@ export const useCartStore = defineStore({
 
         placeOrderAfter(data,res){
             if (data){
-                this.orderConfirmation(data.id,data.order)
+                this.orderConfirmation(data.order)
             }
         },
         //---------------------------------------------------------------------
-        orderConfirmation(user_cart_id,order){
+        orderConfirmation(order){
             this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
         },
@@ -1467,6 +1467,9 @@ export const useCartStore = defineStore({
         formatDate(dateString) {
             const date = new Date(dateString);
             return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        },
+        returnToProduct(){
+            this.$router.push({name: 'products.index'});
         }
 
         //---------------------------------------------------------------------

@@ -1159,7 +1159,7 @@ class Cart extends VaahModel
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')
             ->where('slug', 'pending')->value('id');
 
-        $cartInstance = Cart::find($request->order_details['cart_id']);
+        $cart_instance = Cart::find($request->order_details['cart_id']);
 
         $order = new Order();
 
@@ -1206,14 +1206,14 @@ class Cart extends VaahModel
         }
         foreach ($request->order_details['order_items'] as $item) {
             $product = Product::where('id', $item['product_id'])->withTrashed()->first();
-            $productVariation = $cartInstance->productVariations()
+            $product_variation = $cart_instance->productVariations()
                 ->where('vh_st_product_variation_id', $item['pivot']['product_variation_id'])
                 ->where('vh_st_vendor_id', $item['pivot']['selected_vendor_id'])
                 ->first();
 
-            if ($productVariation) {
-                $pivotRecord = $productVariation->pivot;
-                $pivotRecord->delete();
+            if ($product_variation) {
+                $pivot_record = $product_variation->pivot;
+                $pivot_record->delete();
             }
 
             $product->quantity = $product->productVariations->sum('quantity');
@@ -1224,10 +1224,10 @@ class Cart extends VaahModel
         $is_empty_cart = $cart->products->isEmpty();
 
         if ($is_empty_cart) {
-            // If products relationship is empty, delete the cart
             $cart->delete();
             $response['success'] = true;
-            $response['data'] = null;
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = ['order' => $order];
         } else {
             $response['success'] = true;
             $response['messages'][] = trans("vaahcms-general.saved_successfully");

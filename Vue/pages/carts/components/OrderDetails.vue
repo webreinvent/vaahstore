@@ -65,7 +65,7 @@ onMounted(async () => {
                             style="width:120px;">
                         <template #body="prop">
                             <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
-                                {{ prop.data.pivot.price }}</p>
+                                ₹{{ prop.data.pivot.price }}</p>
                         </template>
                     </Column>
 
@@ -81,7 +81,7 @@ onMounted(async () => {
             </div>
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
-                    <Button label="Return To Shopping" class="w-full"/>
+                    <Button @click="store.returnToProduct()" label="Return To Shopping" class="w-full"/>
                     <Button label="Track Your Order" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
