@@ -72,6 +72,8 @@ export const useCartStore = defineStore({
         country_suggestions: null,show_new_address_tab:false,editing_address:null,showAll:false,selected_shipping_address:null,
         new_billing_address:null,total_amount_at_detail_page:0,user_billing_address:null,selected_billing_address:null,show_all_billing_address:false,
         show_tab_for_billing:false,
+        ordered_product:[],ordered_total_mrp:null,ordered_billing_address:null,ordered_shipping_address:null,
+        ordered_at:null,ordered_unique_id:null,
     }),
     getters: {
         displayedAddresses() {
@@ -1175,7 +1177,7 @@ export const useCartStore = defineStore({
             if (data) {
                 if (data.product_details.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
-                    return; // Added return to exit the function after redirecting
+                    return;
                 }
 
                 this.cart_item_at_checkout = data.product_details;
@@ -1399,11 +1401,42 @@ export const useCartStore = defineStore({
 
         placeOrderAfter(data,res){
             if (data){
-                this.$router.push({name: 'carts.index',query:this.query});
+                this.orderConfirmation(data.order)
             }
         },
         //---------------------------------------------------------------------
+        orderConfirmation(order){
+            this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
+        },
+        //---------------------------------------------------------------------
+        async getOrderDetails(order_id){
+            const query = {
+                order_id:order_id,
+            };
+            const options = {
+                params: query,
+                method: 'get',
+
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get-order-details/'+order_id,
+                this.getOrderDetailsAfter,
+                options
+            );
+        },
+
+        getOrderDetailsAfter(data,res){
+            if (data){
+                this.ordered_product=data.product_details;
+                this.ordered_shipping_address=data.order_items_shipping_address;
+                this.ordered_billing_address=data.order_items_billing_address;
+                this.ordered_total_mrp = data.total_mrp;
+                this.ordered_unique_id = data.unique__order_id;
+                this.ordered_at = data.ordered_at;
+            }
+        },
 
         //---------------------------------------------------------------------
 
@@ -1430,7 +1463,15 @@ export const useCartStore = defineStore({
            if (data){
                this.getItem(data.cart.id);
            }
+        },
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        },
+        returnToProduct(){
+            this.$router.push({name: 'products.index'});
         }
+
         //---------------------------------------------------------------------
         //---------------------------------------------------------------------
 

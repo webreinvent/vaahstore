@@ -53,6 +53,8 @@ const allProductsOutOfStock = computed(() => {
             <DataTable :value="store.cart_products"
                        dataKey="id"
                        :rowClass="store.setRowClass"
+                       :rows="10"
+                       :paginator="true"
                        class="p-datatable-sm p-datatable-hoverable-rows"
                        :nullSortOrder="-1"
                        v-model:selection="store.action.items"

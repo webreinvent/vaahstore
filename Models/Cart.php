@@ -959,6 +959,15 @@ class Cart extends VaahModel
     }
     //-------------------------------------------------
 
+    private static function getProductMediaIdsAtOrder($product,$product_variation_id)
+    {
+            return $product->productVariationMedia()
+                ->where('vh_st_product_variation_id',$product_variation_id)
+                ->pluck('vh_st_product_media_id')->toArray();
+
+    }
+    //-------------------------------------------------
+
     private static function getImageUrls($product_media_ids)
     {
         $image_urls = [];
@@ -1150,7 +1159,7 @@ class Cart extends VaahModel
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')
             ->where('slug', 'pending')->value('id');
 
-        $cartInstance = Cart::find($request->order_details['cart_id']);
+        $cart_instance = Cart::find($request->order_details['cart_id']);
 
         $order = new Order();
 
@@ -1185,20 +1194,11 @@ class Cart extends VaahModel
             $orderItem->vh_st_product_id = $item['product_id'];
             $orderItem->vh_st_product_variation_id = $item['pivot']['product_variation_id'];
             $orderItem->vh_st_vendor_id = $item['pivot']['selected_vendor_id'];
+            $orderItem->quantity = $item['pivot']['quantity'];
+            $orderItem->price = $item['pivot']['price'];
             $orderItem->is_active = 1;
             $orderItem->save();
-//            $vendor = Vendor::find($item['pivot']['selected_vendor_id']);
-//            if ($vendor) {
-//                $variation = $vendor->productStocks()
-//                    ->where('vh_st_product_id', $item['product_id'])
-//                    ->where('vh_st_product_variation_id', $item['pivot']['product_variation_id'])
-//                    ->first();
-//
-//                if ($variation) {
-//                    $variation->quantity -= $item['pivot']['quantity'];
-//                    $variation->save();
-//                }
-//            }
+
             self::updateStock($item['pivot']['product_variation_id'], $item['pivot']['quantity'], $item['pivot']['selected_vendor_id']);
 
 
@@ -1206,14 +1206,14 @@ class Cart extends VaahModel
         }
         foreach ($request->order_details['order_items'] as $item) {
             $product = Product::where('id', $item['product_id'])->withTrashed()->first();
-            $productVariation = $cartInstance->productVariations()
+            $product_variation = $cart_instance->productVariations()
                 ->where('vh_st_product_variation_id', $item['pivot']['product_variation_id'])
                 ->where('vh_st_vendor_id', $item['pivot']['selected_vendor_id'])
                 ->first();
 
-            if ($productVariation) {
-                $pivotRecord = $productVariation->pivot;
-                $pivotRecord->delete();
+            if ($product_variation) {
+                $pivot_record = $product_variation->pivot;
+                $pivot_record->delete();
             }
 
             $product->quantity = $product->productVariations->sum('quantity');
@@ -1224,24 +1224,85 @@ class Cart extends VaahModel
         $is_empty_cart = $cart->products->isEmpty();
 
         if ($is_empty_cart) {
-            // If products relationship is empty, delete the cart
             $cart->delete();
             $response['success'] = true;
-            $response['data'] = null;
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = ['order' => $order];
         } else {
             $response['success'] = true;
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
             $response['data'] = $cart;
+            $response['data']['order'] = $order;
+
         }
 
-//        return $response;
-//        $cart = Cart::find($request->order_details['cart_id']);
-//        $response['success'] = true;
-//        $response['data'] ['cart']= $cart;
-//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
         return $response;
     }
+
+
+        public static function getOrderDetails($id)
+        {
+            $order = Order::find($id);
+            $order_items = OrderItem::where('vh_st_order_id', $order->id)->get();
+            $response = [];
+            if (!$order_items->isEmpty()) {
+                $response['success'] = true;
+                $response['data'] = [
+                    'product_details' => [],
+                    'order_items_shipping_address' => null,
+                    'order_items_billing_address' => null,
+                    'user' => null,
+                    'total_mrp' => 0,
+                    'ordered_at' => null,
+                    'unique__order_id' => null,
+                ];
+
+                $user = $order->user;
+                $response['data']['user'] = $user;
+                $response['data']['ordered_at'] = $order->created_at;
+                $response['data']['unique__order_id'] = $order->uuid;
+
+                $shipping_address = Address::find($order_items->first()->vh_shipping_address_id);
+                $response['data']['order_items_shipping_address'] = $shipping_address;
+
+                $billing_address = Address::find($order_items->first()->vh_billing_address_id);
+                $response['data']['order_items_billing_address'] = $billing_address;
+
+                foreach ($order_items as $order_item) {
+                    $product = Product::find($order_item->vh_st_product_id);
+                    $productVariation = ProductVariation::find($order_item->vh_st_product_variation_id);
+                    if ($product && $productVariation) {
+                        $vendor = Vendor::find($order_item->vh_st_vendor_id);
+                        $quantity = $order_item->quantity;
+                        $price = $order_item->price;
+                        $variation_name =$productVariation->name;
+                        $product_media_ids = self::getProductMediaIdsAtOrder($product,$order_item->vh_st_product_variation_id);
+                        $image_urls = self::getImageUrls($product_media_ids);
+                        $response['data']['product_details'][] = [
+                            'product_id' => $product->id,
+                            'name' => $product->name,
+                            'description' => $product->description,
+                            'image_urls' => $image_urls,
+                            'pivot' => [
+                                'cart_product_variation' => $variation_name,
+                                'product_variation_id' => $productVariation->id,
+                                'price' => $price,
+                                'quantity' => $quantity,
+                                'selected_vendor_id' => $vendor->id,
+                            ],
+                        ];
+
+                        $response['data']['total_mrp'] += $price * $quantity;
+                    }
+                }
+            } else {
+                $response['success'] = false;
+                $response['data'] = null;
+            }
+
+            return $response;
+        }
 
     public static function updateStock($variationId, $quantity, $vendorId)
     {

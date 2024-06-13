@@ -6,6 +6,7 @@ import Form from '../pages/carts/Form.vue'
 import Item from '../pages/carts/Item.vue'
 import CartDetails from '../pages/carts/components/CartDetails.vue'
 import CheckOut from '../pages/carts/components/CheckOut.vue'
+import OrderDetails from '../pages/carts/components/OrderDetails.vue'
 
 routes_list = {
 
@@ -42,9 +43,16 @@ let check_out ={
     component: CheckOut,
     props: true,
 };
+let order_detail ={
+    path: 'cart-order-details/:order_id?',
+    name: 'carts.order_details',
+    component: OrderDetails,
+    props: true,
+};
 routes.push(routes_list);
 routes.push(cart_details);
 routes.push(check_out);
+routes.push(order_detail);
 
 export default routes;
 
