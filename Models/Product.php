@@ -721,17 +721,15 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $user_id = session('vh_user_id');
-        if ($user_id) {
+        $user = null;
+        $cart_records = 0;
+        if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
                 $cart = self::findOrCreateCart($user);
                 $cart_records = $cart->products()->count();
             }
-        } else {
-            $user = null;
         }
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors');
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -1841,89 +1839,14 @@ class Product extends VaahModel
 
 
 
-//    public static function addProductToCart($request)
-//    {
-//        $response = [];
-//
-//        // Retrieve selected vendor from request
-//        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
-//        if ($selected_vendor === null) {
-//            $error_message = "This product is out of stock";
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-//        // Retrieve user info from request
-//        $user_info = $request->input('user_info');
-//        $product_id = $request->input('product.id');
-//        $product = Product::find($product_id);
-//
-//        if (!$user_info) {
-//            $error_message = "Please enter valid user";
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-//        // Find or create user and cart
-//        $user = self::findOrCreateUser(['id' => $user_info['id']]);
-//        $cart = self::findOrCreateCart($user);
-//        $product_with_variants = self::getDefaultVariation($product);
-//
-//        if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-//            $error_message = "No product variation is default";
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-//        // Check if the product already exists in the cart
-//        if ($cart->products->contains($product->id)) {
-//            $existing_cart_item = $cart->productVariations()
-//                ->where('vh_st_product_variation_id', $product_with_variants['variation_id'])
-//                ->where('vh_st_vendor_id', $selected_vendor['id'] ?? null)
-//                ->first();
-//
-//            if ($existing_cart_item) {
-//                if ($existing_cart_item->pivot->quantity < $request->product['product_price_range']['quantity']) {
-//                    $pivot_record = $cart->products()
-//                        ->where('vh_st_product_id', $product_id)
-//                        ->where('vh_st_product_variation_id', $product_with_variants['variation_id'])
-//                        ->where('vh_st_vendor_id', $selected_vendor['id'])
-//                        ->withPivot('id', 'quantity')
-//                        ->first();
-//
-//                    if ($pivot_record) {
-//                        $pivot_record->pivot->quantity += 1;
-//                        $pivot_record->pivot->save();
-//                    }
-////                    $existing_cart_item->pivot->quantity++;
-////                    $existing_cart_item->pivot->save();
-//                }
-//            } else {
-//                // iif the product variation doesn't exist with the selected vendor ID, attach it to the cart
-//                self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'] ?? null);
-//            }
-//        } else {
-//            // Product not found in cart, attach it
-//            self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'] ?? null);
-//        }
-//
-//        if (!Session::has('vh_user_id')) {
-//            Session::put('vh_user_id', $user->id);
-//        }
-//
-//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-//        $response['data'] = $user;
-//        $response['data']['selected_vendor_id'] = $selected_vendor['id'];
-//
-//        return $response;
-//    }
+
     public static function addProductToCart($request)
     {
         $response = [];
 
         $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
         if ($selected_vendor === null) {
-            return self::errorResponse("This product is out of stock");
+             $response['errors'][] ="This product is out of stock";return $response;
         }
 
         $user_info = $request->input('user_info');
@@ -1931,7 +1854,7 @@ class Product extends VaahModel
         $product = Product::find($product_id);
 
         if (!$user_info) {
-            return self::errorResponse("Please enter valid user");
+            $response['errors'][] ="Please enter valid user";return $response;
         }
 
         $user = self::findOrCreateUser(['id' => $user_info['id']]);
@@ -1939,7 +1862,7 @@ class Product extends VaahModel
         $product_with_variants = self::getDefaultVariation($product);
 
         if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-            return self::errorResponse("No product variation is default");
+            $response['errors'][] ="No product variation is default";return $response;
         }
 
         self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
@@ -1953,10 +1876,8 @@ class Product extends VaahModel
         return $response;
     }
 
-    private static function errorResponse($message)
-    {
-        return ['errors' => [$message]];
-    }
+    //----------------------------------------------------------
+
 
     private static function handleCart($cart, $product, $product_with_variants, $selected_vendor)
     {
@@ -1971,6 +1892,7 @@ class Product extends VaahModel
             self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id']);
         }
     }
+    //----------------------------------------------------------
 
     private static function findCartItem($cart, $variation_id, $selected_vendor_id)
     {
@@ -1979,25 +1901,22 @@ class Product extends VaahModel
             ->where('vh_st_vendor_id', $selected_vendor_id )
             ->first();
     }
+    //----------------------------------------------------------
 
     private static function updateQuantity($cart, $product_id,$variation_id, $selected_vendor)
     {
-//        if ($existing_cart_item->pivot->quantity < $product['product_price_range']['quantity']) {
-//            $existing_cart_item->pivot->quantity++;
-//            $existing_cart_item->pivot->save();
             $pivot_record = $cart->products()
                         ->where('vh_st_product_id', $product_id)
                         ->where('vh_st_product_variation_id', $variation_id)
                         ->where('vh_st_vendor_id', $selected_vendor['id'])
                         ->withPivot('id', 'quantity')
                         ->first();
-
-                    if ($pivot_record) {
+            if ($pivot_record) {
                         $pivot_record->pivot->quantity += 1;
                         $pivot_record->pivot->save();
-                    }
-//        }
+            }
     }
+    //----------------------------------------------------------
 
     private static function updateSession($user)
     {

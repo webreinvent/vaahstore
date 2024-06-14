@@ -537,15 +537,14 @@ class ProductVariation extends VaahModel
 
     public static function getList($request)
     {
-        $user_id = session('vh_user_id');
-        if ($user_id) {
+        $user = null;
+        $cart_records = 0;
+        if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
-                $cart = Product::findOrCreateCart($user);
+                $cart = self::findOrCreateCart($user);
                 $cart_records = $cart->products()->count();
             }
-        } else {
-            $user = null;
         }
         $default_variation = self::where('is_default', 1)->first();
         $list = self::getSorted($request->filter)->with('status','product');
@@ -572,12 +571,7 @@ class ProductVariation extends VaahModel
 
         $list = $list->paginate($rows);
 
-//        $response = [
-//            'success' => true,
-//            'data' => $list,
-//            'active_cart_user'=>$user,
-//
-//        ];
+
         $response = [
             'success' => true,
             'data' => $list,
@@ -1484,78 +1478,7 @@ class ProductVariation extends VaahModel
 
     //----------------------------------------------------------
 
-//    public static function addVariationToCart($request)
-//    {
-//        $user_info = $request->input('user_info');
-//        $product_variation_id = $request->input('product_variation.id');
-//        $product_variation = ProductVariation::find($product_variation_id);
-//        $user_data = ['id' => $user_info['id']];
-//        $response = [];
-//
-//        if (!$user_data) {
-//            $error_message = "Please enter valid user";
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-//        $user = self::findOrCreateUser($user_data);
-//        $cart = self::findOrCreateCart($user);
-//
-//        $selected_vendor = Product::getPriceRangeOfProduct($product_variation->vh_st_product_id);
-//        $selected_vendor_id = null;
-//
-//        foreach ($selected_vendor as $vendor) {
-//            if (isset($vendor['selected_vendor'])) {
-//                $selected_vendor_id = $vendor['selected_vendor']['id'];
-//                break;
-//            }
-//        }
-//
-//        if ($selected_vendor_id === null) {
-//            $error_message = "This product variation is out of stock";
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-////        $existing_cart_item = $cart->productVariations()->where('vh_st_product_variation_id', $product_variation_id)->first();
-//
-//        $existing_cart_item = $cart->productVariations()
-//            ->where('vh_st_product_variation_id', $product_variation_id)
-//            ->where('vh_st_vendor_id', $selected_vendor_id)
-//            ->first();
-//
-//        if ($existing_cart_item) {
-//            if ($existing_cart_item->pivot->quantity < $request->input('product_variation.quantity')) {
-//                // If the product variation already exists with the new selected vendor ID, increment its quantity
-////            $pivot_record = $existing_cart_item->pivot;
-////            $pivot_record->quantity += 1;
-////            $pivot_record->save();
-//
-//                $pivot_record = $cart->productVariations()
-//                    ->where('vh_st_product_variation_id', $product_variation_id)
-//                    ->where('vh_st_vendor_id', $selected_vendor_id)
-//                    ->withPivot('id', 'quantity')
-//                    ->first();
-//
-//                if ($pivot_record) {
-//                    $pivot_record->pivot->quantity += 1;
-//                    $pivot_record->pivot->save();
-//                }
-//            }
-//        } else {
-//            self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
-//        }
-//
-//        if (!Session::has('vh_user_id')) {
-//            Session::put('vh_user_id', $user->id);
-//        }
-//
-//        $response['success'] = true;
-//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-//        $response['data'] = $user;
-//
-//        return $response;
-//    }
+
 
     //----------------------------------------------------------
 
@@ -1685,7 +1608,6 @@ class ProductVariation extends VaahModel
 
     protected static function attachVariantionToCart($cart,$product_variation,$selected_vendor_id)
     {
-//        dd($cart,$product_variation,$selected_vendor_id);
         $cart->productVariations()->attach([
             $product_variation->id => [
                 'vh_st_product_id' => $product_variation->vh_st_product_id,
