@@ -3,7 +3,7 @@
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Select Crud",
-        "content": "Select a crud ."
+        "content": "Select crud."
     },
     {
         "locale_code_iso_639": "en",
@@ -15,49 +15,49 @@
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create customer role",
-        "content": "Create a  customer role."
+        "content": "Create customer role."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create customer",
-        "content": "Create a customer."
+        "content": "Create customer."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create store",
-        "content": "Create a store."
+        "content": "Create store."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create product variation",
-        "content": "Create a product variation."
+        "content": "Create product variation."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create product",
-        "content": "Create a product."
+        "content": "Create product."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create vendor",
-        "content": "Create a vendor."
+        "content": "Create vendor."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
-        "name": "Create attributes",
-        "content": "Create a attribute."
+        "name": "Create attribute",
+        "content": "Create attribute."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create warehouse",
-        "content": "Create a warehouse."
+        "content": "Create warehouse."
     },
     {
         "locale_code_iso_639": "en",
@@ -99,7 +99,7 @@
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create product , product variation and attribute",
-        "content": "Create product and product variation respectively."
+        "content": "Create product , product variation and attribute respectively."
     },
     {
         "locale_code_iso_639": "en",
@@ -117,12 +117,12 @@
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create store  , vendor , warehouse, product and product variation",
-        "content": "Create store  , vendor , warehouse,  product and product variation respectively"
+        "content": "Create store  , vendor , warehouse,  product and product variation respectively."
     },
     {
         "locale_code_iso_639": "en",
         "category": "vaahstore-crud-action",
         "name": "Create store  , attribute , product and product variation",
-        "content": "Create store , attribute , product and product variation respectively"
+        "content": "Create store , attribute , product and product variation respectively."
     }
 ]

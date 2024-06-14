@@ -261,7 +261,7 @@ class SettingsController extends Controller
                         $attribute = Attribute::exists();
                         if (!$attribute) {
                             $response['success'] = false;
-                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_attributes");
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_attribute");
                             return $response;
                         }
                         AttributeGroup::seedSampleItems($quantity);
