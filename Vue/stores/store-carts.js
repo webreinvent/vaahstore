@@ -203,13 +203,13 @@ export const useCartStore = defineStore({
              * Update query state with the query parameters of url
              */
             await this.updateQueryFromUrl(route);
-            await this.LoadAssets();
+            // await this.loadAssets();
         },
         //---------------------------------------------------------------------
         setRowClass(data){
             return [{ 'bg-gray-200': data.id == this.route.params.id }];
         },
-        async LoadAssets(){
+        async loadAssets(){
             this.assets_is_fetching=true;
             await this.getAssets();
         },
@@ -345,6 +345,7 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
 
         async getItem(id) {
+
             if(id){
                 await vaah().ajax(
                     ajax_url+'/'+id,
@@ -786,8 +787,8 @@ export const useCartStore = defineStore({
         checkOut(cart)
         {
             this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
-            this.item_user_address = vaah().clone(this.assets.item_user_address);
-            this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
+            // this.item_user_address = vaah().clone(this.assets.item_user_address);
+            // this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
 
         },
         //---------------------------------------------------------------------
@@ -1135,6 +1136,7 @@ export const useCartStore = defineStore({
 
         async getCartItemDetailsAtCheckout(id) {
             if(id){
+                await this.loadAssets();
                 await vaah().ajax(
                     ajax_url+'/cart-check-out/'+id,
                     this.getCartItemDetailsAtCheckoutAfter
@@ -1145,6 +1147,7 @@ export const useCartStore = defineStore({
 
         async getCartItemDetailsAtCheckoutAfter(data, res) {
             if (data) {
+
                 if (data.product_details.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
                     return;
