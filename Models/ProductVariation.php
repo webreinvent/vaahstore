@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Jobs\SendLowCountMail;
 use WebReinvent\VaahCms\Libraries\VaahMail;
 use WebReinvent\VaahCms\Mail\SecurityOtpMail;
 use WebReinvent\VaahCms\Models\Notification;
@@ -1277,7 +1278,7 @@ class ProductVariation extends VaahModel
 
             if ($filtered_data->isNotEmpty()) {
 
-            $send_mail = UserBase::notifySuperAdmins($subject, $message);
+                dispatch(new SendLowCountMail($filtered_data));
 
             }
 
