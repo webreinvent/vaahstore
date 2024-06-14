@@ -26,6 +26,12 @@ function () {
         ->name('vh.backend.store.settings.list.update');
 
 
-    Route::any('/fill/bulk/method', 'SettingsController@bulkCreateRecords')
+    Route::any('/fill/bulk/method', 'SettingsController@createBulkRecords')
         ->name('vh.backend.store.settings.create.bulk.records');
+
+    Route::get('/get/all-item/count', 'SettingsController@getItemsCount')
+        ->name('vh.backend.store.settings.get.items.count');
+
+    Route::post('/delete/confirm', 'SettingsController@deleteConfirm')
+        ->name('vh.backend.store.settings.delete.confirm');
 });
