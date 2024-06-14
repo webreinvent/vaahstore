@@ -28,7 +28,7 @@ onMounted(async () => {
 
                 <DataTable :value="store.ordered_product"
                            dataKey="id"
-                           :rows="10"
+                           :rows="5"
                            :paginator="true"
                            class="p-datatable-sm p-datatable-hoverable-rows"
                            :nullSortOrder="-1"

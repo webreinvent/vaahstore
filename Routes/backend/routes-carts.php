@@ -108,11 +108,7 @@ function () {
     Route::post('/update/user-shipping-address', [CartsController::class, 'updateUserShippingAddress'])
         ->name('vh.backend.store.carts.update.address');
 
-    /**
-     * create cart-user billing address
-     */
-    Route::post('/create/billing-address', [CartsController::class, 'newBillingAddress'])
-        ->name('vh.backend.store.carts.update.address');
+
 
     /**
      * Place Order
@@ -127,10 +123,9 @@ function () {
         ->name('vh.backend.store.carts.add.to_wishlist');
 
     /**
-     * Remove Cart-itms after place an order
+     * get order details after place an order
      */
-    Route::delete('/{id}/remove-cartItem-after-order', [CartsController::class, 'removeCartItemsAfterOrder'])
-        ->name('vh.backend.store.carts.delete');
+
 
     Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
         ->name('vh.backend.store.carts.read');

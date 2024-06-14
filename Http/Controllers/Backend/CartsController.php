@@ -352,22 +352,7 @@ class CartsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function newBillingAddress(Request $request)
-    {
-        try{
-            return Cart::newBillingAddress($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-            }
-            return $response;
-        }
-    }
+
     //----------------------------------------------------------
 
     public function placeOrder(Request $request)
@@ -406,23 +391,7 @@ class CartsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function removeCartItemsAfterOrder(Request $request,$id)
-    {
-//        dd($request,$id);
-        try{
-            return Cart::removeCartItemsAfterOrder($request,$id);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-            }
-            return $response;
-        }
-    }
+
     public function getOrderDetails(Request $request,$id)
     {
         try{
