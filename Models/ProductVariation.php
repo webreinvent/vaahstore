@@ -2,16 +2,11 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Jobs\SendLowCountMail;
-use WebReinvent\VaahCms\Libraries\VaahMail;
-use WebReinvent\VaahCms\Mail\SecurityOtpMail;
-use WebReinvent\VaahCms\Models\Notification;
-use WebReinvent\VaahCms\Models\UserBase;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
