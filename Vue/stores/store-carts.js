@@ -73,7 +73,7 @@ export const useCartStore = defineStore({
         new_billing_address:null,total_amount_at_detail_page:0,user_billing_address:null,selected_billing_address:null,show_all_billing_address:false,
         show_tab_for_billing:false,
         ordered_product:[],ordered_total_mrp:null,ordered_billing_address:null,ordered_shipping_address:null,
-        ordered_at:null,ordered_unique_id:null,
+        ordered_at:null,ordered_unique_id:null,cash_on_delivery:null
     }),
     getters: {
         displayedAddresses() {

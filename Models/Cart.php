@@ -1131,6 +1131,9 @@ class Cart extends VaahModel
         if (is_null($request->order_details['billing_address'])) {
             return ['success' => false, 'errors' => ["Provide billing details"]];
         }
+        if (is_null($request->order_details['payment_method'])) {
+            return ['success' => false, 'errors' => ["Select payment type"]];
+        }
 
         return ['success' => true];
     }

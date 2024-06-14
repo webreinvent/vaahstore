@@ -249,7 +249,7 @@ watchEffect(() => {
                     </AccordionTab>
                     <AccordionTab header="Payment">
                         <div class="flex flex-column px-4 gap-2 max-w-14rem">
-                            <label for="payment_type" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">{{store.cash_on_delivery}}
+                            <label for="payment_type" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">
                                     <RadioButton v-model="store.cash_on_delivery" inputId="COD" name="COD" value="COD"/>
                                     <span class="ml-2">Cash On Delivery</span>
                                 </label>
