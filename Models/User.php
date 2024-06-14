@@ -292,6 +292,16 @@ class User extends UserBase
                 if ($item->customerGroups()->exists()) {
                     $item->customerGroups()->detach();
                 }
+
+                $wishlist_items = Wishlist::where('vh_user_id', $item['id'])->withTrashed()->get();
+
+                if ($wishlist_items) {
+                    foreach ($wishlist_items as $wishlist_item) {
+                        $wishlist_item->forceDelete();
+                    }
+                }
+
+
                 $item->roles()->detach();
                 $item->forceDelete();
             }
@@ -359,6 +369,19 @@ class User extends UserBase
                 $items_id = self::whereHas('activeRoles', function ($query) {
                     $query->where('slug', 'customer');
                 })->withTrashed()->get();
+
+                foreach($items_id as $item_id)
+                {
+
+                    $wishlist_items = Wishlist::where('vh_user_id', $item_id->id)->withTrashed()->get();
+
+                    if ($wishlist_items) {
+                        foreach ($wishlist_items as $wishlist_item) {
+                            $wishlist_item->forceDelete();
+                        }
+                    }
+                }
+
                 $items_id->each(function ($item_id) {
                     $item_id->customerGroups()->detach();
                 });
@@ -512,9 +535,20 @@ class User extends UserBase
             $response['errors'][] = trans('vaahcms-general.record_does_not_exist');
             return $response;
         }
+
         if($item->customerGroups)
         {
             $item->customerGroups()->detach();
+        }
+
+        $wishlist_items = Wishlist::where('vh_user_id' , $id)->withTrashed()->get();
+
+
+        if($wishlist_items)
+        {
+            foreach ($wishlist_items as $wishlist_item) {
+                $wishlist_item->forceDelete();
+            }
         }
 
         $item->roles()->detach();
