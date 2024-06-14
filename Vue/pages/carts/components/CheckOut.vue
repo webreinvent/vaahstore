@@ -21,7 +21,7 @@ onMounted(async () => {
 });
 
 const orderParams = ref([]);
-watch(() => store.bill_form, (newValue) => {
+watch(() => store.is_same_as_shipping, (newValue) => {
     if (Array.isArray(newValue) && newValue.length === 0) {
         store.item_billing_address = null;
     }
@@ -38,7 +38,6 @@ watchEffect(() => {
         taxes: 0,
         delivery_fee: 0,
         cart_id:route.params.id ,
-        // billing_address:store.selectedBillingAddress,
         billing_address: store.item_billing_address ? store.item_billing_address : store.selected_billing_address,
 
         payment_method:store.cash_on_delivery,
@@ -173,11 +172,8 @@ watchEffect(() => {
                     </div>
                     <div class="flex justify-content-end gap-2">
                         <Button v-if="store.many_adresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
-                        <Button v-if="store.isEditing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
-
-<!--                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address,store.item_user)"></Button>-->
-                        <Button v-if="!store.isEditing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
-
+                        <Button v-if="store.is_editing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
+                        <Button v-if="!store.is_editing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
                     </div>
                 </AccordionTab>
                 <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
@@ -217,12 +213,11 @@ watchEffect(() => {
 
                     <AccordionTab header="Billing Details ">
                         <div v-if="store.selected_shipping_address" class="flex align-items-center mb-2">
-                            <Checkbox  v-model="store.bill_form" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
+                            <Checkbox  v-model="store.is_same_as_shipping" inputId="sameAsShipping" name="sameAsShipping" value="1" @change="store.handleSameAsShippingChange()" />
 
                             <label for="ingredient1" class="ml-2">Same as Shipping Details</label>
                         </div>
-                        <div v-if="store && store.item && store.item_user && store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >= 1 && (!store.bill_form || store.bill_form.length === 0)">
-<!--                        <div  v-if="(store && store.item && store.item_user  &&store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >= 1) && store.bill_form===[]">-->
+                        <div v-if="store && store.item && store.item_user && store.user_saved_billing_addresses && store.user_saved_billing_addresses.length >= 1 && (!store.is_same_as_shipping || store.is_same_as_shipping.length === 0)">
                             <template v-for="(address, index) in store.displayedBillingAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedBillingAddress(address) }" @click="store.setSelectedBillingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
                                     <template #content>
@@ -237,7 +232,6 @@ watchEffect(() => {
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
-<!--                                        <li class="p-2" v-if="store.isSelectedBillingAddress(address)">Cash On Delivery Available</li>-->
                                         <div v-if="store.isSelectedBillingAddress(address)"  class="flex justify-content gap-2 mt-5">
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>

@@ -534,7 +534,6 @@ class Cart extends VaahModel
                 $price = ProductVariation::getPriceOfProductVariants($variation_id);
             }
             $is_wishlisted = $wishlist_id ? $product->wishlists()->where('vh_st_wishlist_id', $wishlist_id)->exists() : false;
-//            $product->pivot->is_stock_available = $is_quantity_available ? 1 : 0;
             $product->pivot->is_stock_available = $is_quantity_available && $is_pivot_quantity_valid ? 1 : 0;
             $subtotal = $price * $pivot_quantity;
             $total_amount += $subtotal;
@@ -1319,9 +1318,7 @@ class Cart extends VaahModel
                 'taxonomy_id_whishlists_status' => $taxonomy_wishlist_status,
                 'is_default' => true,
                 'status_notes' => 'Created automatically',
-                'created_by' => null,
-                'updated_by' => null,
-                'deleted_by' => null,
+
             ]
         );
 

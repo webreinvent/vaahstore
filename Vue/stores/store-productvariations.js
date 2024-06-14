@@ -1308,6 +1308,7 @@ this.fetched_product_id=selected_product_id;
                 this.selected_products = data;
             }
         },
+        //---------------------------------------------------------------------
 
         async disableActiveCart(){
             const query = {
@@ -1324,9 +1325,12 @@ this.fetched_product_id=selected_product_id;
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         disableUserCartAfter(){
             this.show_cart_msg=false;
         },
+        //---------------------------------------------------------------------
 
         async addToCart(item){
             this.product_detail=item;
@@ -1338,16 +1342,17 @@ this.fetched_product_id=selected_product_id;
             }
 
         },
+        //---------------------------------------------------------------------
+
         showMsg(){
             this.add_to_cart = false;
             this.show_cart_msg=true;
         },
+        //---------------------------------------------------------------------
+
         async addVariationToCart(product_variation){
-            // this.add_to_cart = false;
-            // this.show_cart_msg=true;
-            // const user_info = this.item.user;
+
             const user_info = this.item.user ? this.item.user : this.active_user;
-            // const query = user_info;
             const query = {
                 user_info: user_info,
                 product_variation: product_variation
@@ -1363,6 +1368,8 @@ this.fetched_product_id=selected_product_id;
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         addVariationToCartAfter(data,res){
             if (data){
                 this.add_to_cart = false;
@@ -1370,6 +1377,7 @@ this.fetched_product_id=selected_product_id;
                 this.getList();
             }
         },
+        //---------------------------------------------------------------------
 
         async searchUser(event) {
             const query = event;
@@ -1395,6 +1403,7 @@ this.fetched_product_id=selected_product_id;
 
             }
         },
+        //---------------------------------------------------------------------
 
         setUser(event) {
             let user = toRaw(event.value);
@@ -1403,9 +1412,13 @@ this.fetched_product_id=selected_product_id;
             }
 
         },
+        //---------------------------------------------------------------------
+
         viewCart(id){
             this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
         }
+        //---------------------------------------------------------------------
+
 
     },
 

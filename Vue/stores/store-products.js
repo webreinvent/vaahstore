@@ -2442,11 +2442,8 @@ export const useProductStore = defineStore({
             this.show_cart_msg=true;
         },
         async addProductToCart(product){
-            // this.add_to_cart = false;
-            // this.show_cart_msg=true;
-            // const user_info = this.item.user;
+
             const user_info = this.item.user ? this.item.user : this.active_user;
-            // const query = user_info;
             const query = {
                 user_info: user_info,
                 product: product
@@ -2462,6 +2459,8 @@ export const useProductStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         saveProductInCartAfter(data,res){
            if (data){
                this.item.user=null;
@@ -2469,6 +2468,7 @@ export const useProductStore = defineStore({
            }
         },
 
+        //---------------------------------------------------------------------
 
         async searchUser(event) {
             const query = event;
@@ -2502,6 +2502,7 @@ export const useProductStore = defineStore({
             }
 
         },
+        //---------------------------------------------------------------------
 
         async disableActiveCart(){
             const query = {
@@ -2518,6 +2519,8 @@ export const useProductStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         disableUserCartAfter(){
             this.show_cart_msg=false;
         },

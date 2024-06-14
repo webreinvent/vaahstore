@@ -66,7 +66,7 @@ export const useCartStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        bill_form:null,
+        is_same_as_shipping:null,
         cart_products:null,
         cart_item_at_checkout:[],
         country_suggestions: null,show_new_address_tab:false,editing_address:null,showAll:false,selected_shipping_address:null,
@@ -159,7 +159,7 @@ export const useCartStore = defineStore({
             };
         },
         accordionHeader() {
-            if (this.isEditing) {
+            if (this.is_editing) {
                 if (this.editing_address && this.user_saved_billing_addresses.includes(this.editing_address)) {
                     return "Billing Details (Update Address)";
                 } else {
@@ -182,12 +182,6 @@ export const useCartStore = defineStore({
 
     },
     actions: {
-        setSelectedShippingAddress(address)  {
-            this.selected_shipping_address = address;
-        },
-        setSelectedBillingAddress(address)  {
-            this.selected_billing_address = address;
-        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -781,24 +775,16 @@ export const useCartStore = defineStore({
             //     this.item = vaah().clone(item);
             // }
             // this.item = item.user;
-
             this.$router.push({name: 'carts.details',params:{id:item.id},query:this.query})
             this.cash_on_delivery=null;
             this.item_billing_address=null;
             // this.bill_form=!this.bill_form;
-            this.bill_form=null;
+            this.is_same_as_shipping=null;
 
         },
         //---------------------------------------------------------------------
         checkOut(cart)
         {
-            // if(!this.item || !this.item.id || this.item.id !== item.id){
-            //     this.item = vaah().clone(item);
-            // }
-            if(this.cart_products.length<1){
-                vaah().toastErrors(['No product available in the cart']);
-                return;
-            }
             this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
             this.item_user_address = vaah().clone(this.assets.item_user_address);
             this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
@@ -1093,23 +1079,7 @@ export const useCartStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        calculateTotalAmount (products) {
-            return products.reduce((total, product) => {
-                return total + this.calculatePrice(product);
-            }, 0);
-        },
-        //---------------------------------------------------------------------
 
-        calculatePrice(product){
-            const price = parseFloat(product.pivot.price);
-            const quantity = parseInt(product.pivot.quantity);
-            let totalPrice = price * quantity;
-
-            if (isNaN(totalPrice)) {
-                totalPrice = 0;
-            }
-            return totalPrice;
-        },
         //---------------------------------------------------------------------
         async updateQuantity(pivot_data,event){
             if (event.value===null ) {
@@ -1184,7 +1154,7 @@ export const useCartStore = defineStore({
                 this.item_user = data.user;
                 this.total_mrp = data.total_mrp;
                 this.item_user_address = vaah().clone(this.assets.item_user_address);
-                        this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
+                this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
                 if (data.user_addresses) {
                     this.many_adresses = data.user_addresses;
                     const defaultAddress = data.user_addresses.find(address => address.is_default === 1);
@@ -1216,10 +1186,17 @@ export const useCartStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+        setSelectedShippingAddress(address)  {
+            this.selected_shipping_address = address;
+        },
+        setSelectedBillingAddress(address)  {
+            this.selected_billing_address = address;
+        },
+        //---------------------------------------------------------------------
 
         toggleNewAddressTab(){
             this.editing_address=null;
-            this.isEditing = false;
+            this.is_editing = false;
             this.item_user_address=vaah().clone(this.assets.item_user_address);
             this.show_new_address_tab=true;
             this.show_tab_for_billing = false;
@@ -1232,7 +1209,7 @@ export const useCartStore = defineStore({
                 return;
             }
             this.editing_address = null;
-            this.isEditing = false;
+            this.is_editing = false;
             this.item_user_address = vaah().clone(this.assets.item_user_address);
             if (type === 'billing') {
                 this.show_tab_for_billing = true;
@@ -1288,10 +1265,10 @@ export const useCartStore = defineStore({
         },
         async removeAddressAfter(data,res){
             if (data){
-                this.getCartItemDetailsAtCheckout(data.cart_id);
+                await this.getCartItemDetailsAtCheckout(data.cart_id);
                 this.selected_shipping_address=null;
                 this.selected_billing_address=null;
-                this.bill_form=null;
+                this.is_same_as_shipping=null;
             }
         },
         //---------------------------------------------------------------------
@@ -1313,7 +1290,7 @@ export const useCartStore = defineStore({
 
             this.editing_address = address;
             this.show_new_address_tab = true;
-            this.isEditing = true;
+            this.is_editing = true;
         },
 
         //---------------------------------------------------------------------
@@ -1366,10 +1343,10 @@ export const useCartStore = defineStore({
 
 
         handleSameAsShippingChange() {
-            if (this.selected_shipping_address !== undefined && this.bill_form !== undefined) {
-                if (this.bill_form) {
+            if (this.selected_shipping_address !== undefined && this.is_same_as_shipping !== undefined) {
+                if (this.is_same_as_shipping) {
                     this.item_billing_address = { ...this.selected_shipping_address };
-                } else if (Array.isArray(this.bill_form) && this.bill_form.length === 0) {
+                } else if (Array.isArray(this.is_same_as_shipping) && this.is_same_as_shipping.length === 0) {
                     this.item_new_billing_address = vaah().clone(this.assets.empty_item.item_billing_address);
                 }
             }
@@ -1464,12 +1441,22 @@ export const useCartStore = defineStore({
                this.getItem(data.cart.id);
            }
         },
+        //---------------------------------------------------------------------
+
         formatDate(dateString) {
             const date = new Date(dateString);
             return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         },
+        //---------------------------------------------------------------------
+
         returnToProduct(){
             this.$router.push({name: 'products.index'});
+        },
+        //---------------------------------------------------------------------
+
+        async redirectToCart(){
+            await this.$router.replace({query: null});
+            this.$router.push({name: 'carts.index'})
         }
 
         //---------------------------------------------------------------------

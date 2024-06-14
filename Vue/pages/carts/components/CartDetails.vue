@@ -6,7 +6,7 @@ import {useRoute} from "vue-router";
 const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
-const cartProducts = ref([]);
+const cart_products_stock_available = ref([]);
 
 onMounted(async () => {
     document.title = 'Carts - Items';
@@ -15,32 +15,23 @@ onMounted(async () => {
     }
     await store.onLoad(route);
     await store.getList();
-    cartProducts.value = store.cart_products;
+    cart_products_stock_available.value = store.cart_products;
 });
-watch(cartProducts, (newValue, oldValue) => {
-    totalAmount.value = store.calculateTotalAmount(newValue);
-}, { deep: true });
 
-const totalAmount = computed(() => {
-    return store.calculateTotalAmount(cartProducts.value);
-});
 const allProductsOutOfStock = computed(() => {
-    return cartProducts.value.every(product => product.pivot.is_stock_available === 0);
+    return cart_products_stock_available.value.every(product => product.pivot.is_stock_available === 0);
 });
 </script>
 
 <template>
 
-    <div v-if="store.list" class="bg-white">
+    <div   v-if="store.list" class="bg-white">
         <div class="cart_detail">
             <div class="flex flex-row">
-                <div>
-<!--                    <b class="mr-1">UUID-Carts 1-Rahul</b>-->
+                <div >
                     <Button
-                        @click="this.$router.push({name: 'carts.index'})"
+                        @click="store.redirectToCart"
                         label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }}   - {{ store.item.user.display_name }} ({{store.cart_products.length}})</b>
-
-
                 </div>
 
 
@@ -103,7 +94,6 @@ const allProductsOutOfStock = computed(() => {
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
                             <p>{{ prop.data.pivot.price }}</p>
-<!--                            <p>{{ calculatePrice(prop.data) }}</p>-->
                         </div>
                     </template>
 
@@ -143,7 +133,6 @@ const allProductsOutOfStock = computed(() => {
 
             </DataTable>
             </div>
-            <!--/table-->
             <div class="table_bottom mr-4">
                 <p><b>Total Amount: </b>{{ store.total_amount_at_detail_page }}</p>
             </div>

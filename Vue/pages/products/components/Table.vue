@@ -308,7 +308,6 @@ const openProductCategories = (categories,product) => {
 
     <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
         <div class="p-inputgroup py-3">
-<!--            <InputText id="create_cart" class="flex-auto" placeholder="Enter Email or Phone" autocomplete="off" />-->
             <AutoComplete
                 v-model="store.item.user"
                 @change="store.setUser($event)"
