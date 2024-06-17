@@ -929,7 +929,6 @@ class Cart extends VaahModel
     protected static function isCartItemQuantityAvailable($vendor, $product_id, $variation_id)
     {
 
-        // Check if $vendor, $product_id, or $variation_id are null
         if ($vendor === null || $product_id === null || $variation_id === null) {
             return false;
         }
@@ -1039,11 +1038,11 @@ class Cart extends VaahModel
 
     public static function removeCartUserAddress($request){
         $address_details = $request->input('user_address');
-        $shipping_address_id = $request->input('user_address.id');
+        $address_id = $request->input('user_address.id');
 
         $vh_user_id = $address_details['vh_user_id'];
 
-        Address::where('id', $shipping_address_id)
+        Address::where('id', $address_id)
             ->forceDelete();
         $cart = Cart::where('vh_user_id', $vh_user_id)->first();
         $response['messages'][] = trans("vaahcms-general.successfully_deleted");
@@ -1121,6 +1120,7 @@ class Cart extends VaahModel
 
         return $response;
     }
+    //-------------------------------------------------
 
     private static function validateOrderDetails($request)
     {
@@ -1137,6 +1137,7 @@ class Cart extends VaahModel
 
         return ['success' => true];
     }
+    //-------------------------------------------------
 
     private static function createOrder($request)
     {
@@ -1159,6 +1160,7 @@ class Cart extends VaahModel
 
         return $order;
     }
+    //-------------------------------------------------
 
     private static function createOrderItemsAndUpdateStock($request, $order)
     {
@@ -1186,6 +1188,7 @@ class Cart extends VaahModel
             self::updateStock($item['pivot']['product_variation_id'], $item['pivot']['quantity'], $item['pivot']['selected_vendor_id']);
         }
     }
+    //-------------------------------------------------
 
     private static function updateProductQuantities($request)
     {
@@ -1204,6 +1207,7 @@ class Cart extends VaahModel
             $product->save();
         }
     }
+    //-------------------------------------------------
 
     private static function clearSessionAndCart($request)
     {
@@ -1216,6 +1220,7 @@ class Cart extends VaahModel
         }
     }
 
+    //-------------------------------------------------
 
         public static function getOrderDetails($id)
         {
@@ -1279,6 +1284,7 @@ class Cart extends VaahModel
 
             return $response;
         }
+    //-------------------------------------------------
 
     public static function updateStock($variationId, $quantity, $vendorId)
     {
