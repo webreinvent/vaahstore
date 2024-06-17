@@ -32,27 +32,13 @@ function () {
         ->name('vh.backend.store.carts.list.delete');
 
 
-    /**
-     * Fill Form Inputs
-     */
-    Route::any('/fill', [CartsController::class, 'fillItem'])
-        ->name('vh.backend.store.carts.fill');
 
-    /**
-     * Create Item
-     */
-    Route::post('/', [CartsController::class, 'createItem'])
-        ->name('vh.backend.store.carts.create');
     /**
      * Get Item
      */
     Route::get('/{id}', [CartsController::class, 'getItem'])
         ->name('vh.backend.store.carts.read');
-    /**
-     * Update Item
-     */
-    Route::match(['put', 'patch'], '/{id}', [CartsController::class, 'updateItem'])
-        ->name('vh.backend.store.carts.update');
+
     /**
      * Delete Item
      */

@@ -359,8 +359,7 @@ export const useCartStore = defineStore({
             }else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
-            await this.getItemMenu();
-            await this.getFormMenu();
+
         },
         //---------------------------------------------------------------------
         isListActionValid()
@@ -482,33 +481,6 @@ export const useCartStore = defineStore({
              */
             switch (type)
             {
-                /**
-                 * Create a record, hence method is `POST`
-                 * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
-                 */
-                case 'create-and-new':
-                case 'create-and-close':
-                case 'create-and-clone':
-                    options.method = 'POST';
-                    options.params = item;
-                    break;
-
-                /**
-                 * Update a record with many columns, hence method is `PUT`
-                 * https://docs.vaah.dev/guide/laravel.html#update-a-record-update-soft-delete-status-change-etc
-                 */
-                case 'save':
-                case 'save-and-close':
-                case 'save-and-clone':
-                    options.method = 'PUT';
-                    options.params = item;
-                    ajax_url += '/'+item.id
-                    break;
-                /**
-                 * Delete a record, hence method is `DELETE`
-                 * and no need to send entire `item` object
-                 * https://docs.vaah.dev/guide/laravel.html#delete-a-record-hard-deleted
-                 */
                 case 'delete':
                     options.method = 'DELETE';
                     ajax_url += '/'+item.id
@@ -536,54 +508,15 @@ export const useCartStore = defineStore({
             if(data)
             {
                 await this.getList();
-                await this.formActionAfter(data);
-                this.getItemMenu();
-                this.getFormMenu();
+
             }
         },
         //---------------------------------------------------------------------
-        async formActionAfter (data)
-        {
-            switch (this.form.action)
-            {
-                case 'create-and-new':
-                case 'save-and-new':
-                    this.setActiveItemAsEmpty();
-                    break;
-                case 'create-and-close':
-                case 'save-and-close':
-                    this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'carts.index',query:this.query});
-                    break;
-                case 'save-and-clone':
-                case 'create-and-clone':
-                    this.item.id = null;
-                    this.$router.push({name: 'carts.form',query:this.query,params: { id: null }});
-                    await this.getFormMenu();
-                    break;
-                case 'trash':
-                case 'restore':
-                case 'save':
-                    if(this.item && this.item.id){
-                        this.item = data;
-                    }
-                    break;
-                case 'delete':
-                    this.item = null;
-                    this.toList();
-                    break;
-            }
-        },
+
         //---------------------------------------------------------------------
-        async toggleIsActive(item)
-        {
-            if(item.is_active)
-            {
-                await this.itemAction('activate', item);
-            } else{
-                await this.itemAction('deactivate', item);
-            }
-        },
+
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
@@ -597,29 +530,9 @@ export const useCartStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-        async getFormInputs () {
-            let params = {
-                model_namespace: this.model,
-                except: this.assets.fillable.except,
-            };
 
-            let url = this.ajax_url+'/fill';
-
-            await vaah().ajax(
-                url,
-                this.getFormInputsAfter,
-            );
-        },
         //---------------------------------------------------------------------
-        getFormInputsAfter: function (data, res) {
-            if(data)
-            {
-                let self = this;
-                Object.keys(data.fill).forEach(function(key) {
-                    self.item[key] = data.fill[key];
-                });
-            }
-        },
+
 
         //---------------------------------------------------------------------
 
@@ -742,28 +655,7 @@ export const useCartStore = defineStore({
             this.$router.push({name: 'carts.index',query:this.query})
         },
         //---------------------------------------------------------------------
-        toForm()
-        {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.getFormMenu();
-            this.$router.push({name: 'carts.form',query:this.query})
-        },
-        //---------------------------------------------------------------------
-        toView(item)
-        {
-            if(!this.item || !this.item.id || this.item.id !== item.id){
-                this.item = vaah().clone(item);
-            }
-            this.$router.push({name: 'carts.view', params:{id:item.id},query:this.query})
-        },
-        //---------------------------------------------------------------------
-        toEdit(item)
-        {
-            if(!this.item || !this.item.id || this.item.id !== item.id){
-                this.item = vaah().clone(item);
-            }
-            this.$router.push({name: 'carts.form', params:{id:item.id},query:this.query})
-        },
+
         //---------------------------------------------------------------------
         cartDetails(item)
         {
@@ -815,21 +707,7 @@ export const useCartStore = defineStore({
         async getListSelectedMenu()
         {
             this.list_selected_menu = [
-                {
-                    label: 'Activate',
-                    command: async () => {
-                        await this.updateList('activate')
-                    }
-                },
-                {
-                    label: 'Deactivate',
-                    command: async () => {
-                        await this.updateList('deactivate')
-                    }
-                },
-                {
-                    separator: true
-                },
+
                 {
                     label: 'Trash',
                     icon: 'pi pi-times',
@@ -858,21 +736,7 @@ export const useCartStore = defineStore({
         getListBulkMenu()
         {
             this.list_bulk_menu = [
-                {
-                    label: 'Mark all as active',
-                    command: async () => {
-                        await this.confirmAction('activate-all','Mark all as active');
-                    }
-                },
-                {
-                    label: 'Mark all as inactive',
-                    command: async () => {
-                        await this.confirmAction('deactivate-all','Mark all as inactive');
-                    }
-                },
-                {
-                    separator: true
-                },
+
                 {
                     label: 'Trash All',
                     icon: 'pi pi-times',
@@ -897,176 +761,14 @@ export const useCartStore = defineStore({
             ];
         },
         //---------------------------------------------------------------------
-        getItemMenu()
-        {
-            let item_menu = [];
-
-            if(this.item && this.item.deleted_at)
-            {
-
-                item_menu.push({
-                    label: 'Restore',
-                    icon: 'pi pi-refresh',
-                    command: () => {
-                        this.itemAction('restore');
-                    }
-                });
-            }
-
-            if(this.item && this.item.id && !this.item.deleted_at)
-            {
-                item_menu.push({
-                    label: 'Trash',
-                    icon: 'pi pi-times',
-                    command: () => {
-                        this.itemAction('trash');
-                    }
-                });
-            }
-
-            item_menu.push({
-                label: 'Delete',
-                icon: 'pi pi-trash',
-                command: () => {
-                    this.confirmDeleteItem('delete');
-                }
-            });
-
-            this.item_menu_list = item_menu;
-        },
-        //---------------------------------------------------------------------
-        async getListCreateMenu()
-        {
-            let form_menu = [];
-
-            form_menu.push(
-                {
-                    label: 'Create 100 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-100-records');
-                    }
-                },
-                {
-                    label: 'Create 1000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-1000-records');
-                    }
-                },
-                {
-                    label: 'Create 5000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-5000-records');
-                    }
-                },
-                {
-                    label: 'Create 10,000 Records',
-                    icon: 'pi pi-pencil',
-                    command: () => {
-                        this.listAction('create-10000-records');
-                    }
-                },
-
-            )
-
-            this.list_create_menu = form_menu;
-
-        },
 
         //---------------------------------------------------------------------
-        confirmDeleteItem()
-        {
-            this.form.type = 'delete';
-            vaah().confirmDialogDelete(this.confirmDeleteItemAfter);
-        },
+
+
         //---------------------------------------------------------------------
-        confirmDeleteItemAfter()
-        {
-            this.itemAction('delete', this.item);
-        },
+
         //---------------------------------------------------------------------
-        async getFormMenu()
-        {
-            let form_menu = [];
 
-            if(this.item && this.item.id)
-            {
-                let is_deleted = !!this.item.deleted_at;
-                form_menu = [
-                    {
-                        label: 'Save & Close',
-                        icon: 'pi pi-check',
-                        command: () => {
-
-                            this.itemAction('save-and-close');
-                        }
-                    },
-                    {
-                        label: 'Save & Clone',
-                        icon: 'pi pi-copy',
-                        command: () => {
-
-                            this.itemAction('save-and-clone');
-
-                        }
-                    },
-                    {
-                        label: is_deleted ? 'Restore': 'Trash',
-                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
-                        command: () => {
-                            this.itemAction(is_deleted ? 'restore': 'trash');
-                        }
-                    },
-                    {
-                        label: 'Delete',
-                        icon: 'pi pi-trash',
-                        command: () => {
-                            this.confirmDeleteItem('delete');
-                        }
-                    },
-                ];
-
-            } else{
-                form_menu = [
-                    {
-                        label: 'Create & Close',
-                        icon: 'pi pi-check',
-                        command: () => {
-                            this.itemAction('create-and-close');
-                        }
-                    },
-                    {
-                        label: 'Create & Clone',
-                        icon: 'pi pi-copy',
-                        command: () => {
-
-                            this.itemAction('create-and-clone');
-
-                        }
-                    },
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    }
-                ];
-            }
-
-            form_menu.push({
-                label: 'Fill',
-                icon: 'pi pi-pencil',
-                command: () => {
-                    this.getFormInputs();
-                }
-            },)
-
-            this.form_menu_list = form_menu;
-
-        },
         //---------------------------------------------------------------------
 
         totalPrice(){
@@ -1168,8 +870,7 @@ export const useCartStore = defineStore({
             else{
                 this.$router.push({name: 'carts.index',query:this.query});
             }
-            await this.getItemMenu();
-            await this.getFormMenu();
+
         },
 
         //---------------------------------------------------------------------

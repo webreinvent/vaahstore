@@ -33,6 +33,9 @@ const useVaah = vaah();
                     :sortable="true">
 
                 <template #body="prop">
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
                     {{ prop.data.user.display_name }}
                 </template>
 
@@ -51,6 +54,14 @@ const useVaah = vaah();
                                 v-tooltip.top="'Cart Details'"
                                 @click="store.cartDetails(prop.data)"
                                 icon="pi pi-fast-forward" />
+
+
+                        <Button class="p-button-tiny p-button-success p-button-text"
+                                data-testid="products-table-action-restore"
+                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                @click="store.itemAction('restore', prop.data)"
+                                v-tooltip.top="'Restore'"
+                                icon="pi pi-replay" />
                     </div>
 
                 </template>

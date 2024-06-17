@@ -170,46 +170,7 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function createItem($request)
-    {
 
-        $inputs = $request->all();
-
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
-
-        $item = new self();
-        $item->fill($inputs);
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        return $response;
-
-    }
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -357,15 +318,7 @@ class Cart extends VaahModel
         $items = self::whereIn('id', $items_id);
 
         switch ($inputs['type']) {
-            case 'deactivate':
-                $items->withTrashed()->where(['is_active' => 1])
-                    ->update(['is_active' => null]);
-                break;
-            case 'activate':
-                $items->withTrashed()->where(function ($q){
-                    $q->where('is_active', 0)->orWhereNull('is_active');
-                })->update(['is_active' => 1]);
-                break;
+
             case 'trash':
                 self::whereIn('id', $items_id)
                     ->get()->each->delete();
@@ -440,15 +393,7 @@ class Cart extends VaahModel
         }
 
         switch ($type) {
-            case 'activate-all':
-                $list->withTrashed()->where(function ($q){
-                    $q->where('is_active', 0)->orWhereNull('is_active');
-                })->update(['is_active' => 1]);
-                break;
-            case 'deactivate-all':
-                $list->withTrashed()->where(['is_active' => 1])
-                    ->update(['is_active' => null]);
-                break;
+
             case 'trash-all':
                 $list->get()->each->delete();
                 break;
@@ -561,48 +506,7 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function updateItem($request, $id)
-    {
-        $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-        // check if name exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-         if ($item) {
-             $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-             $response['success'] = false;
-             $response['errors'][] = $error_message;
-             return $response;
-         }
-
-         // check if slug exist
-         $item = self::where('id', '!=', $id)
-             ->withTrashed()
-             ->where('slug', $inputs['slug'])->first();
-
-         if ($item) {
-             $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-             $response['success'] = false;
-             $response['errors'][] = $error_message;
-             return $response;
-         }
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        return $response;
-
-    }
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
@@ -625,16 +529,7 @@ class Cart extends VaahModel
     {
         switch($type)
         {
-            case 'activate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => 1]);
-                break;
-            case 'deactivate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => null]);
-                break;
+
             case 'trash':
                 self::find($id)
                     ->delete();
@@ -650,26 +545,7 @@ class Cart extends VaahModel
     }
     //-------------------------------------------------
 
-    public static function validation($inputs)
-    {
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
-
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
-        }
-
-        $response['success'] = true;
-        return $response;
-
-    }
 
     public static function validationShippingAddress($inputs)
     {
@@ -724,54 +600,7 @@ class Cart extends VaahModel
 
     //-------------------------------------------------
     //-------------------------------------------------
-    public static function seedSampleItems($records=100)
-    {
 
-        $i = 0;
-
-        while($i < $records)
-        {
-            $inputs = self::fillItem(false);
-
-            $item =  new self();
-            $item->fill($inputs);
-            $item->save();
-
-            $i++;
-
-        }
-
-    }
-
-
-    //-------------------------------------------------
-    public static function fillItem($is_response_return = true)
-    {
-        $request = new Request([
-            'model_namespace' => self::class,
-            'except' => self::getUnFillableColumns()
-        ]);
-        $fillable = VaahSeeder::fill($request);
-        if(!$fillable['success']){
-            return $fillable;
-        }
-        $inputs = $fillable['data']['fill'];
-
-        $faker = Factory::create();
-
-        /*
-         * You can override the filled variables below this line.
-         * You should also return relationship from here
-         */
-
-        if(!$is_response_return){
-            return $inputs;
-        }
-
-        $response['success'] = true;
-        $response['data']['fill'] = $inputs;
-        return $response;
-    }
 
     //-------------------------------------------------
     public static function updateQuantity($request){

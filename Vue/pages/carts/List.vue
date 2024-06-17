@@ -49,7 +49,6 @@ onMounted(async () => {
      */
     await store.getList();
 
-    await store.getListCreateMenu();
 
 });
 
