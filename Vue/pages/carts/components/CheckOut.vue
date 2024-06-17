@@ -193,7 +193,7 @@ watchEffect(() => {
                                             <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
                                         <li class="p-2" v-if="store.isSelectedShippingAddress(address)">Cash On Delivery Available</li>
-                                        <div v-if="store.isSelectedShippingAddress(address)"  class="flex justify-content gap-2 mt-5">
+                                        <div   class="flex justify-content gap-2 mt-5">
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
@@ -232,7 +232,7 @@ watchEffect(() => {
                                         <div class="p-2">
                                             <span>Mobile: </span><b>{{ address.phone }}</b>
                                         </div>
-                                        <div v-if="store.isSelectedBillingAddress(address)"  class="flex justify-content gap-2 mt-5">
+                                        <div   class="flex justify-content gap-2 mt-5">
                                             <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
                                             <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
