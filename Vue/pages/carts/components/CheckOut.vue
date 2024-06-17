@@ -108,7 +108,7 @@ watchEffect(() => {
                     </AccordionTab>
 
 
-                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.many_adresses && store.many_adresses.length===0) || store.show_new_address_tab">
+                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.shipping_addresses && store.shipping_addresses.length===0) || store.show_new_address_tab">
                     <div >
 
                     <VhField label="Country/Region">
@@ -171,12 +171,12 @@ watchEffect(() => {
                         </VhField>
                     </div>
                     <div class="flex justify-content-end gap-2">
-                        <Button v-if="store.many_adresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
+                        <Button v-if="store.shipping_addresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
                         <Button v-if="store.is_editing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
                         <Button v-if="!store.is_editing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
                     </div>
                 </AccordionTab>
-                <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.many_adresses && store.many_adresses.length >= 1">
+                <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.shipping_addresses && store.shipping_addresses.length >= 1">
                         <div>
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedShippingAddress(address) }" @click="store.setSelectedShippingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
@@ -205,7 +205,7 @@ watchEffect(() => {
                         <div class="flex justify-content-between mt-3">
                             <Button icon="pi pi-plus" label="Add a new shipping address"  @click="store.toggleNewAddressTab" link />
                             <Button v-if="store.showViewMoreButton" @click="store.showAllAddresses()" :label="`(${store.remainingAddressCount}) More Address`" :link="true" />
-                            <Button v-if="!store.showViewMoreButton && store.many_adresses.length >2" @click=" store.hideAddressTab" :label="` Hide Address`" :link="true" />
+                            <Button v-if="!store.showViewMoreButton && store.shipping_addresses.length >2" @click=" store.hideAddressTab" :label="` Hide Address`" :link="true" />
                         </div>
                     </AccordionTab>
 

@@ -25,6 +25,7 @@ onMounted(async () => {
         <div class="flex gap-3 my-3">
             <div class="w-full">
                 <h1 class="text-center mb-3">Thank you for your purchase!</h1>
+                <p class="text-center">Your order will be delivered in 2 days!</p>
 
                 <DataTable :value="store.ordered_product"
                            dataKey="id"
@@ -88,7 +89,7 @@ onMounted(async () => {
 
                     <div class="w-full md:w-1/2 mb-6 md:mb-8">
 
-                        <Card class="border-1 border-gray-200 w-20rem mt-6" :pt="{content: {class: 'pb-0'} }">
+                        <Card class="border-1 border-gray-200 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
                             <template #title> Order Summary</template>
                             <template #subtitle>#{{ store.ordered_unique_id }}
                                 <br>
@@ -145,9 +146,10 @@ onMounted(async () => {
                             </template>
                         </Card>
 
-                        <Card class="mt-4">
+                        <Card class="border-1 border-gray-100 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
+                            <template #title>Shipping Address</template>
                             <template #content v-if="store && store.ordered_shipping_address">
-                                <h3 class="text-center mb-2">Address</h3>
+<!--                                <h3 class="text-center mb-2">Shipping Address</h3>-->
                                 <div class="flex align-items-center">
                                     <label class="ml-2"><b>{{ store.ordered_shipping_address.name }}</b></label>
                                 </div>
