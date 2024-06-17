@@ -89,6 +89,7 @@ export const useCartStore = defineStore({
         cash_on_delivery:null,
         item_new_billing_address:null,
         item_user_address:null,
+        discount_on_order:0,
     }),
     getters: {
 

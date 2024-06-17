@@ -30,16 +30,16 @@ watch(() => store.is_same_as_shipping, (newValue) => {
 
 
 watchEffect(() => {
+    const total_amount = store.total_mrp - store.discount_on_order;
     orderParams.value = {
         shipping_address: store.selected_shipping_address,
-        total_amount: store.total_mrp - 0,
-        payable: store.total_mrp - 0,
-        discounts: 2000,
+        total_amount: total_amount,
+        payable:  total_amount,
+        discounts: store.discount_on_order,
         taxes: 0,
         delivery_fee: 0,
         cart_id:route.params.id ,
         billing_address: store.item_billing_address ? store.item_billing_address : store.selected_billing_address,
-
         payment_method:store.cash_on_delivery,
         order_items:store.cart_item_at_checkout,
     };
@@ -290,7 +290,7 @@ watchEffect(() => {
                                 <b>Discount On MRP:</b>
                             </p>
                             <p class="text-teal-500">
-                                -₹0
+                                -₹{{store.discount_on_order}}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
