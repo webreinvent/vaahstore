@@ -127,12 +127,15 @@ export const useOrderStore = defineStore({
 
         async searchProduct(event)
         {
+            if(!this.item.vendor)
+            {
+                vaah().toastErrors(['Please Choose a Vendor First']);
+                return false;
+            }
             const query = {
-                filter: {
-                    q: event,
-                },
+                vendor_id: this.item.vh_st_vendor_id,
+                search: event
             };
-
             const options = {
                 params: query,
                 method: 'post',
@@ -158,12 +161,16 @@ export const useOrderStore = defineStore({
 
         async searchProductVariation(event)
         {
+            if(!this.item.product)
+            {
+                vaah().toastErrors(['Please Choose a Product First']);
+                return false;
+            }
             const query = {
-                filter: {
-                    q: event,
-                },
+                product_id: this.item.vh_st_product_id,
+                vendor_id: this.item.vh_st_vendor_id,
+                search: event
             };
-
             const options = {
                 params: query,
                 method: 'post',

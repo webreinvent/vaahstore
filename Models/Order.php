@@ -244,12 +244,19 @@ class Order extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
+        $price = ProductPrice::where('vh_st_product_variation_id', $inputs['product_variation']['id'])
+            ->where('vh_st_vendor_id', $inputs['vendor']['id'])
+            ->value('amount');
+        if ($price === null) {
+            $price = ProductVariation::getPriceOfProductVariants($inputs['product_variation']['id']);
+        }
         $order_item = new OrderItem;
         $order_item->fill($inputs);
         $order_item->vh_st_order_id = $inputs['id'];
         $order_item->is_active = $inputs['is_active_order_item'];
         $order_item->status_notes = $inputs['status_notes_order_item'];
+        $order_item->quantity = 1;
+        $order_item->price = $price;
         $order_item->save();
         $response['data'] = true;
         $response['messages'][] = 'order placed successfully.';
@@ -260,25 +267,23 @@ class Order extends VaahModel
 
     public static function searchProduct($request)
     {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $products = Product::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
+        $vendor_id = $request->input('vendor_id');
+        $products = Product::whereHas('productVendors', function ($query) use ($vendor_id) {
+            $query->where('vh_st_vendor_id', $vendor_id);
+        })
+            ->select('id', 'name', 'slug', 'is_default')
+            ->where('is_active', 1);
+        if ($request->has('search.query')) {
+            $products->where('name', 'LIKE', '%' .$request->input('search')['query'] . '%');
         }
-
-        else{
-
-            $products = Product::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
+        $products->where(function ($query) use ($vendor_id) {
+            $query->whereHas('productVendors', function ($query) use ($vendor_id) {
+                $query->where('vh_st_vendor_id', $vendor_id)
+                    ->where('quantity', '>', 0)
+                    ->where('is_active', 1);
+            });
+        });
+        $products = $products->take(10)->get();
 
         $response['success'] = true;
         $response['data'] = $products;
@@ -318,32 +323,28 @@ class Order extends VaahModel
     //-------------------------------------------------
     public static function searchProductVariation($request)
     {
+        $product_id = $request->input('product_id');
+        $vendor_id = $request->input('vendor_id');
+        $vendor=Vendor::find($vendor_id);
+        $available_product_stock_data = $vendor->productStocks()
+            ->where('vh_st_product_id', $product_id)
+            ->where('quantity', '>', 0)
+            ->where('is_active', 1)
+            ->get();
 
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $product_variations = ProductVariation::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
+        $product_variation_ids=$available_product_stock_data->pluck('vh_st_product_variation_id');
+        $product_variations = ProductVariation::select('id', 'name', 'slug', 'is_default', 'vh_st_product_id')
+            ->where('is_active', 1)
+            ->whereIn('id', $product_variation_ids);
+        if ($request->has('search.query')) {
+            $product_variations->where('name', 'LIKE', '%' .$request->input('search')['query'] . '%');
         }
-
-        else{
-
-            $product_variations = ProductVariation::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
+        $product_variations = $product_variations->limit(10)->get();
         $response['success'] = true;
         $response['data'] = $product_variations;
         return $response;
 
     }
-
     //-------------------------------------------------
 
     public static function searchCustomerGroup($request)
