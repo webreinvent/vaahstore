@@ -96,54 +96,118 @@ const toggleOrderProductMenu = (event) => {
                         forceSelection>
                     </AutoComplete>
                 </VhField>
-
+                <VhField label="Vendor*">
+                    <AutoComplete v-model="store.item.vendor"
+                                  @change="store.setOrderItemVendor($event)"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="productstocks-vh_st_vendor_id"
+                                  :suggestions="store.filtered_venders"
+                                  @complete="store.searchVendor"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  placeholder="Select Vendor"
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
+                        <template #option="slotProps">
+                            <div class="flex align-options-center">
+                                <div>{{ slotProps.option.name }}<span v-if="slotProps.option.is_default == 1"> (Default) </span></div>
+                            </div>
+                        </template>
+                    </AutoComplete>
+                </VhField>
                 <VhField label="Product*">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.product"
-                        @change="store.setOrderItemProduct($event)"
-                        class="w-full"
-                        name="orderitems-product"
-                        :suggestions="store.products"
-                        @complete="store.searchProduct"
-                        placeholder="Select Types"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="orderitems-product"
-                        forceSelection>
+                    <AutoComplete  v-model="store.item.product"
+                                   @change="store.setOrderItemProduct($event)"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="productstocks-vh_st_product_id"
+                                   :suggestions="store.products"
+                                   @complete="store.searchProduct($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  placeholder="Select Product"
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
+
                     </AutoComplete>
                 </VhField>
 
                 <VhField label="Product Variation*">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.product_variation"
-                        @change="store.setOrderItemProductVariation($event)"
-                        class="w-full"
-                        name="orderitems-product_variation"
-                        :suggestions="store.filtered_product_variations"
-                        @complete="store.searchProductVariation"
-                        placeholder="Select Product Variation"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="orderitems-product_variation"
-                        forceSelection>
+                    <AutoComplete v-model="store.item.product_variation"
+                                  @change="store.setOrderItemProductVariation($event)"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="productstocks-vh_st_product_variation_id"
+                                  :suggestions="store.filtered_product_variations"
+                                  @complete="store.searchProductVariation($event)"
+                                  :dropdown="true"
+                                  optionLabel="name"
+                                  placeholder="Select Product Variation"
+                                  forceSelection
+                                  :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
+
                     </AutoComplete>
                 </VhField>
 
-                <VhField label="Vendor*">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.vendor"
-                        @change="store.setOrderItemVendor($event)"
-                        class="w-full"
-                        name="orderitems-vendor"
-                        :suggestions="store.filtered_venders"
-                        @complete="store.searchVendor"
-                        placeholder="Select vendor"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="orderitems-vendor"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
+
+
+
+
+
+
+<!--                <VhField label="Vendor*">-->
+<!--                    <AutoComplete-->
+<!--                        value="id"-->
+<!--                        v-model="store.item.vendor"-->
+<!--                        @change="store.setOrderItemVendor($event)"-->
+<!--                        class="w-full"-->
+<!--                        name="orderitems-vendor"-->
+<!--                        :suggestions="store.filtered_venders"-->
+<!--                        @complete="store.searchVendor"-->
+<!--                        placeholder="Select vendor"-->
+<!--                        :dropdown="true" optionLabel="name"-->
+<!--                        data-testid="orderitems-vendor"-->
+<!--                        forceSelection>-->
+<!--                    </AutoComplete>-->
+
+<!--                </VhField>-->
 
                 <VhField label="Customer Groups*">
                     <AutoComplete
