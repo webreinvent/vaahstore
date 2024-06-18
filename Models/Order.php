@@ -258,11 +258,30 @@ class Order extends VaahModel
         $order_item->quantity = 1;
         $order_item->price = $price;
         $order_item->save();
+        $saved_order_item = OrderItem::find($order_item->id);
+        Cart::updateStock(
+            $saved_order_item->vh_st_product_variation_id,
+            $saved_order_item->quantity,
+            $saved_order_item->vh_st_vendor_id
+        );
+        self::updateOrderTotalAmount($order_item);
         $response['data'] = true;
         $response['messages'][] = 'order placed successfully.';
         return $response;
     }
 
+    public static function updateOrderTotalAmount($order_item_data){
+        $order_id = $order_item_data->vh_st_order_id;
+
+        $order = self::where('id', $order_id)->first();
+        $current_amount = $order->amount;
+        $new_item_price = $order_item_data->price ?? 0;
+        $updated_amount = $current_amount + $new_item_price;
+        $order->amount = $updated_amount;
+        $order->payable = $updated_amount;
+        $order->save();
+
+    }
     //-------------------------------------------------
 
     public static function searchProduct($request)
