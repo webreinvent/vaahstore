@@ -5,6 +5,8 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\ProductVariation;
@@ -208,7 +210,27 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
-
+    public function cart()
+    {
+        return $this->hasOne(User::class,'vh_st_carts','id');
+    }
+    //-------------------------------------------------
+    public function cartsProduct()
+    {
+        return $this->belongsToMany(Cart::class, 'vh_st_cart_products', 'vh_st_product_id', 'vh_st_cart_id')
+            ->withPivot('vh_st_product_variation_id', 'quantity');
+    }
+    //-------------------------------------------------
+    public function wishlists()
+    {
+        return $this->belongsToMany(Wishlist::class, 'vh_st_wishlist_products', 'vh_st_product_id', 'vh_st_wishlist_id');
+    }
+    //-------------------------------------------------
+    public function productVariationMedia()
+    {
+        return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_medias', 'vh_st_product_id', 'vh_st_product_variation_id')
+            ->withPivot('vh_st_product_media_id');
+    }
     public function scopeStatusFilter($query, $filter)
     {
 
@@ -701,6 +723,15 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
+        $user = null;
+        $cart_records = 0;
+        if ($user_id = session('vh_user_id')) {
+            $user = User::find($user_id);
+            if ($user) {
+                $cart = self::findOrCreateCart($user);
+                $cart_records = $cart->products()->count();
+            }
+        }
         $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -733,10 +764,12 @@ class Product extends VaahModel
         }
         $response['success'] = true;
         $response['data'] = $list;
-
+        $response['active_cart_user'] = $user;
+        if ($user) {
+            $response['active_cart_user']['cart_records'] = $cart_records;
+            $response['active_cart_user']['vh_st_cart_id'] = $cart->id;
+        }
         return $response;
-
-
     }
 
     //-------------------------------------------------
@@ -1774,6 +1807,181 @@ class Product extends VaahModel
         return $response;
     }
 
+    //----------------------------------------------------------
+
+    public static function searchUsers($request){
+        $active_customer = User::select('id', 'first_name', 'last_name','display_name','email','phone')
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            })
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query = $request->input('query');
+
+            $active_customer->where(function ($q) use ($query) {
+                $q->where('email', 'LIKE', '%' . $query . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $query . '%')
+                    ->orWhere('uuid', 'LIKE', '%' . $query . '%');
+            });
+        }
+
+        $users = $active_customer->limit(10)->get()->map(function ($user) {
+            $user['name'] = $user['display_name'] ?? '';
+            return $user;
+        });
+
+        $response['success'] = true;
+        $response['data'] = $users;
+        return $response;
+
+    }
+
+    //----------------------------------------------------------
+
+
+
+
+    public static function addProductToCart($request)
+    {
+        $response = [];
+
+        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
+        if ($selected_vendor === null) {
+             $response['errors'][] ="This product is out of stock";return $response;
+        }
+
+        $user_info = $request->input('user_info');
+        $product_id = $request->input('product.id');
+        $product = Product::find($product_id);
+
+        if (!$user_info) {
+            $response['errors'][] ="Please enter valid user";return $response;
+        }
+
+        $user = self::findOrCreateUser(['id' => $user_info['id']]);
+        $cart = self::findOrCreateCart($user);
+        $product_with_variants = self::getDefaultVariation($product);
+
+        if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
+            $response['errors'][] ="No product variation is default";return $response;
+        }
+
+        self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
+
+        self::updateSession($user);
+
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data'] = $user;
+        $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+
+        return $response;
+    }
+
+    //----------------------------------------------------------
+
+
+    private static function handleCart($cart, $product, $product_with_variants, $selected_vendor)
+    {
+        if ($cart->products->contains($product->id)) {
+            $existing_cart_item = self::findCartItem($cart, $product_with_variants['variation_id'], $selected_vendor['id']??null);
+            if ($existing_cart_item) {
+                self::updateQuantity($cart, $product->id,$product_with_variants['variation_id'], $selected_vendor);
+            } else {
+                self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id']);
+            }
+        } else {
+            self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id']);
+        }
+    }
+    //----------------------------------------------------------
+
+    private static function findCartItem($cart, $variation_id, $selected_vendor_id)
+    {
+        return $cart->productVariations()
+            ->where('vh_st_product_variation_id', $variation_id)
+            ->where('vh_st_vendor_id', $selected_vendor_id )
+            ->first();
+    }
+    //----------------------------------------------------------
+
+    private static function updateQuantity($cart, $product_id,$variation_id, $selected_vendor)
+    {
+            $pivot_record = $cart->products()
+                        ->where('vh_st_product_id', $product_id)
+                        ->where('vh_st_product_variation_id', $variation_id)
+                        ->where('vh_st_vendor_id', $selected_vendor['id'])
+                        ->withPivot('id', 'quantity')
+                        ->first();
+            if ($pivot_record) {
+                        $pivot_record->pivot->quantity += 1;
+                        $pivot_record->pivot->save();
+            }
+    }
+    //----------------------------------------------------------
+
+    private static function updateSession($user)
+    {
+        if (!Session::has('vh_user_id')) {
+            Session::put('vh_user_id', $user->id);
+        }
+    }
+
+
+
+    //----------------------------------------------------------
+
+    protected static function findOrCreateUser($user_data)
+    {
+        $user = User::findOrFail($user_data['id']);
+        return $user;
+    }
+    //----------------------------------------------------------
+
+    protected static function findOrCreateCart($user)
+    {
+        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
+        if ($existing_cart) {
+            return $existing_cart;
+        } else {
+            $cart = new Cart();
+            $cart->vh_user_id = $user->id;
+            $cart->save();
+            return $cart;
+        }
+    }
+    //----------------------------------------------------------
+
+    protected static function attachProductToCart($cart, $product, $product_with_variants,$selected_vendor_id)
+    {
+        if ($product_with_variants) {
+            $cart->products()->attach($product->id, [
+                'vh_st_product_variation_id' => $product_with_variants['variation_id'],
+                'vh_st_vendor_id' => $selected_vendor_id,
+                'quantity' =>1
+            ]);
+        } else {
+            $cart->products()->attach($product->id,  ['vh_st_vendor_id' => $selected_vendor_id, 'quantity' => 1]);
+        }
+    }
+    //----------------------------------------------------------
+
+    protected static function getDefaultVariation($product)
+    {
+        $default_variation = $product->productVariations()->where('is_default', 1)->first();
+
+        if (!$default_variation) {
+            return null;
+        }
+
+        return [
+            'variation_id' => $default_variation->id,
+            'quantity' => $default_variation->quantity,
+            'price' => $default_variation->price,
+        ];
+    }
+    //----------------------------------------------------------
+
     public static function deleteCategory($request){
         $product_id = $request->vh_st_product_id;
         $category_id = $request->vh_st_category_id;
@@ -1798,6 +2006,7 @@ class Product extends VaahModel
         return $response;
     }
 
+    //----------------------------------------------------------
 
     public static function searchCategoryUsingSlug($request)
     {
@@ -1998,6 +2207,10 @@ class Product extends VaahModel
         ];
     }
 
+
+
+
+
     //----------------------------------------------------------
 
 
@@ -2100,6 +2313,7 @@ class Product extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
 
 
 

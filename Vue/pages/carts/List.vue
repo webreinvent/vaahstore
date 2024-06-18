@@ -49,7 +49,6 @@ onMounted(async () => {
      */
     await store.getList();
 
-    await store.getListCreateMenu();
 
 });
 
@@ -82,7 +81,7 @@ const toggleCreateMenu = (event) => {
                     </div>
 
                 </template>
-
+                <Actions/>
                 <Table/>
 
             </Panel>

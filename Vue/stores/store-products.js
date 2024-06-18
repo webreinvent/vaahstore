@@ -129,6 +129,11 @@ export const useProductStore = defineStore({
         add_to_cart:false,
         show_cart_msg:false,
         product_name:null,
+        user_suggestions:null,
+        active_cart_user_name:null,
+        product_detail:null,
+        active_user:null,
+        total_cart_product:0,
 
     }),
     getters: {
@@ -925,11 +930,25 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            if (res?.data?.active_cart_user) {
+                const { active_cart_user: { cart_records, display_name, vh_st_cart_id } } = res.data;
+                this.add_to_cart = false;
+                this.show_cart_msg = true;
+                this.active_user = res.data.active_cart_user;
+                this.total_cart_product = cart_records;
+                this.active_cart_user_name = display_name;
+                this.cart_id = vh_st_cart_id;
+            } else {
+                this.show_cart_msg = false;
+            }
             if(data)
             {
                 this.list = data;
                 this.query.rows=data.per_page;
             }
+        },
+        viewCart(id){
+            this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
         },
         //---------------------------------------------------------------------
 
@@ -2422,12 +2441,102 @@ export const useProductStore = defineStore({
             )
 
         },
-        addToCart(item){
-            this.add_to_cart=true;
+        async addToCart(item){
+            this.product_detail=item;
+            if (!this.show_cart_msg){
+                this.add_to_cart=true;
+            }
+            if (this.show_cart_msg && this.active_user !== null) {
+                await this.addProductToCart(item);
+            }
+
         },
         showMsg(){
             this.add_to_cart = false;
             this.show_cart_msg=true;
+        },
+        async addProductToCart(product){
+
+            const user_info = this.item.user ? this.item.user : this.active_user;
+            const query = {
+                user_info: user_info,
+                product: product
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/add/product-to-cart',
+                this.saveProductInCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        saveProductInCartAfter(data,res){
+           if (data){
+               this.item.user=null;
+               this.getList();
+           }
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUsersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestions = data;
+
+
+            }
+        },
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            if (user && user.id) {
+                this.item.vh_user_id = user.id;
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        disableUserCartAfter(){
+            this.show_cart_msg=false;
         },
 
         //---------------------------------------------------------------------
