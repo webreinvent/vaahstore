@@ -1,13 +1,13 @@
-import {toRaw,watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Payment';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/store/orders";
+let ajax_url = base_url + "/store/payments";
 
 let empty_states = {
     query: {
@@ -26,8 +26,8 @@ let empty_states = {
     }
 };
 
-export const useOrderStore = defineStore({
-    id: 'orders',
+export const usePaymentStore = defineStore({
+    id: 'payments',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -49,7 +49,7 @@ export const useOrderStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'orders.',
+        route_prefix: 'payments.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -65,23 +65,24 @@ export const useOrderStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        suggestion: null,
-        status_suggestion: null,
-        status_order_items_suggestion: null,
-        payment_method_suggestion: null,
-        user_suggestion: null,
-        type_suggestion: null,
-        products: null,
-        vendor_suggestion: null,
-        customer_group_suggestion: null,
         form_menu_list: [],
-        order_product_menu_list : [],
-        types : null,
-        filtered_product_variations : null,
-        filtered_venders :null,
-        vendors : null,
-        filtered_customer_groups : null,
-        filtered_users : null,
+        listData: [
+            { id: 1, order: 'First Order', paymentStatus: 'Paid' }, { id: 2, order: 'First Order', paymentStatus: 'Paid' }, { id: 3, order: 'First Order', paymentStatus: 'Paid' },
+            { id: 4, order: 'Second Order', paymentStatus: 'Partially Paid' },
+            { id: 5, order: 'Third Order', paymentStatus: 'Paid' },
+            { id: 6, order: 'Fourth Order', paymentStatus: 'Paid' },
+            { id: 7, order: 'Fifth Order', paymentStatus: 'Pending' }
+        ],
+        listDataOrderPayment: [
+            { id: 1, order: 'First Order', paymentStatus: 'Partially Paid',amount:'12' },
+            { id: 2, order: 'First Order', paymentStatus: 'Partially Paid',amount:'122' },
+            // { id: 3, order: 'First Order', paymentStatus: 'Partially Paid',amount:'126' },
+            // { id: 4, order: 'First Order', paymentStatus: 'Partially Paid',amount:'123' },
+            { id: 5, order: 'First Order', paymentStatus: 'Paid',amount:'1212' }
+        ],
+        filtered_orders: [],
+        payment_method_suggestion: null,
+        amount:1234.56
     }),
     getters: {
 
@@ -98,220 +99,34 @@ export const useOrderStore = defineStore({
             /**
              * Update with view and list css column number
              */
-            this.setViewAndWidth(route.name);
+            await this.setViewAndWidth(route.name);
+
+            await(this.query = vaah().clone(this.empty_query));
+
+            await this.countFilters(this.query);
 
             /**
              * Update query state with the query parameters of url
              */
-            this.updateQueryFromUrl(route);
+            await this.updateQueryFromUrl(route);
         },
-
         //---------------------------------------------------------------------
-
-        searchType(event) {
-
-            this.type_suggestion= this.types.filter((types) => {
-                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+        setRowClass(data){
+            return [{ 'bg-gray-200': data.id == this.route.params.id }];
         },
-
         //---------------------------------------------------------------------
-        searchStatusOrderItems(event) {
-
-            this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
-                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchProduct(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchProductAfter(data,res) {
-            if(data)
-            {
-                this.products = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchProductVariation(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
-
-        //---------------------------------------------------------------------
-
-        searchProductVariationAfter(data,res) {
-            if(data)
-            {
-                this.filtered_product_variations = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchVendor(event) {
-
-                const query = {
-                    filter: {
-                        q: event,
-                    },
-                };
-
-                const options = {
-                    params: query,
-                    method: 'post',
-                };
-                await vaah().ajax(
-                    this.ajax_url+'/search/vendor',
-                    this.searchVendorAfter,
-                    options
-                );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchVendorAfter(data,res) {
-            if(data)
-            {
-                this.filtered_venders = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchCustomerGroup(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/customer-group',
-                this.searchCustomerGroupAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchCustomerGroupAfter(data,res) {
-
-            if(data)
-            {
-                this.filtered_customer_groups = data;
-                console.log(data);
-            }
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchStatus(event) {
-
-            this.status_suggestion= this.status_orders.filter((status_orders) => {
-                return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchUser(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/user',
-                this.searchUserAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchUserAfter(data,res) {
-            if(data)
-            {
-                this.filtered_users = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-
-            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-
-
         setViewAndWidth(route_name)
         {
             switch(route_name)
             {
-                case 'orders.index':
+                case 'payments.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
+                    this.show_filters = false;
                     break
             }
         },
@@ -326,6 +141,9 @@ export const useOrderStore = defineStore({
                     {
                         this.query[key] = route.query[key]
                     }
+                    if(this.query.rows){
+                        this.query.rows = parseInt(this.query.rows);
+                    }
                     this.countFilters(route.query);
                 }
             }
@@ -337,13 +155,14 @@ export const useOrderStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
                     }
 
                     this.route = newVal;
+
                     if(newVal.params.id){
                         this.getItem(newVal.params.id);
                     }
@@ -362,132 +181,18 @@ export const useOrderStore = defineStore({
                 },{deep: true}
             )
         },
-        // //---------------------------------------------------------------------
-        //  watchItem(amount)
-        //   {
-        //       if(amount && amount !== "")
-        //       {
-        //          alert(amount);
-        //       }
-        //   },
-        // //---------------------------------------------------------------------
-
-        // watchAmount()
-        // {
-        //     if(this.item){
-        //         watch(() => [this.item.amount, this.item.delivery_fee,this.item.taxes, this.item.discount],
-        //             ([newAmount, newDeliveryFee,newTaxes, newDiscount], [oldAmount, oldDeliveryFee,oldTaxes, oldDiscount]) =>
-        //             {
-        //
-        //                 let payable = newAmount + newDeliveryFee + newTaxes - newDiscount;
-        //                     this.item.payable = payable;
-        //
-        //             },{deep: true}
-        //         )
-        //     }
-        //     if (this.form_menu_list.length === 0) {
-        //         this.getFormMenu();
-        //     }
-        // },
-
-
         //---------------------------------------------------------------------
-        updateAmount(event)
-        {
-            this.item.amount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }else{
+                  this.item.slug = name;
+              }
+          },
         //---------------------------------------------------------------------
-        updateDeliveryFee(event)
-        {
-            this.item.delivery_fee = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
-        updateTaxAmount(event)
-        {
-            this.item.taxes = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDiscountAmount(event)
-        {
-            this.item.discount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
-
-        setUser(event) {
-            let user = toRaw(event.value);
-            this.item.vh_user_id = user.id;
-        },
-        //---------------------------------------------------------------------
-        setPaymentMethod(event) {
-            let payment_method = toRaw(event.value);
-            this.item.vh_st_payment_method_id = payment_method.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event) {
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_status = status.id;
-
-        },
-        //---------------------------------------------------------------------
-
-        setOrderItemType(event) {
-            let type = toRaw(event.value);
-            this.item.taxonomy_id_order_items_types = type.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProduct(event) {
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProductVariation(event) {
-            let product_variation = toRaw(event.value);
-            this.item.vh_st_product_variation_id = product_variation.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemVendor(event) {
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemCustomerGroup(event) {
-            let customer_group = toRaw(event.value);
-            this.item.vh_st_customer_group_id = customer_group.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemStatus(event) {
-
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_items_status = status.id;
-        },
-        //---------------------------------------------------------------------
-        checkPaidAmount(event)
-        {
-            this.item.paid = event.value;
-            if(this.item.paid > 0)
-            {
-                this.item.is_paid = 1;
-            }
-            else {
-                this.item.is_paid = 0;
-            }
-        },
-        //---------------------------------------------------------------------
-
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -505,19 +210,11 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_orders = data.taxonomy.status_orders;
-                this.active_users = data.active_users;
                 this.payment_methods = data.payment_methods;
-
-                this.types = data.taxonomy.types;
-                this.products = data.products;
-                this.product_variations = data.product_variations;
-                this.status_order_items = data.taxonomy.status_order_items;
-                this.customer_groups = data.customer_groups;
-                this.vendors = data.vendors;
-                if(data.rows)
+                if(!this.query.rows && data.rows)
                 {
                     this.query.rows = data.rows;
+                    this.empty_query.rows = data.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -562,7 +259,7 @@ export const useOrderStore = defineStore({
             {
                 this.item = data;
             }else{
-                this.$router.push({name: 'orders.index'});
+                this.$router.push({name: 'payments.index',query:this.query});
             }
             await this.getItemMenu();
             await this.getFormMenu();
@@ -666,45 +363,8 @@ export const useOrderStore = defineStore({
                 options
             );
         },
-
         //---------------------------------------------------------------------
-
-        async createOrder()
-        {
-           let item = this.item;
-           let id = this.route.params.order_id;
-           item.id = id;
-            let ajax_url = this.ajax_url;
-            let options = {
-                method: 'post',
-            };
-
-            options.params = item;
-            ajax_url += '/items';
-            await vaah().ajax(
-                ajax_url,
-                this.createOrderAfter,
-                options
-            );
-
-        },
-        //---------------------------------------------------------------------
-
-        async createOrderAfter(data)
-        {
-            if(data)
-            {
-                await this.getList();
-                this.setActiveItemAsEmpty();
-                this.getItemMenu();
-                this.getFormMenu();
-            }
-        },
-
-        //---------------------------------------------------------------------
-
         async itemAction(type, item=null){
-
             if(!item)
             {
                 item = this.item;
@@ -745,11 +405,6 @@ export const useOrderStore = defineStore({
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
-                    break;
-                case 'order-items':
-                    options.method = 'POST';
-                    options.params = item;
-                    ajax_url += '/items'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -793,26 +448,27 @@ export const useOrderStore = defineStore({
         {
             switch (this.form.action)
             {
-
                 case 'create-and-new':
                 case 'save-and-new':
-                case 'order-items':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'orders.index'});
+                    this.$router.push({name: 'payments.index',query:this.query});
                     break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'payments.form',query:this.query,params: { id: null }});
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
                 case 'save':
-                    this.item = data;
+                    if(this.item && this.item.id){
+                        this.item = data;
+                    }
                     break;
                 case 'delete':
                     this.item = null;
@@ -843,7 +499,6 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-
         async getFormInputs () {
             let params = {
                 model_namespace: this.model,
@@ -896,6 +551,13 @@ export const useOrderStore = defineStore({
         {
             this.action.type = 'delete-all';
             vaah().confirmDialogDelete(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -973,58 +635,41 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'payments.index',query:this.query})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'payments.index',query:this.query})
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.$router.push({name: 'orders.form'})
+            this.$router.push({name: 'payments.form',query:this.query})
         },
         //---------------------------------------------------------------------
-        toOrderItem(id)
-        {
-            this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
-
-        },
-        //---------------------------------------------------------------------
-
         toView(item)
         {
-            this.item = vaah().clone(item);
-            this.$router.push({name: 'orders.view', params:{id:item.id}})
+            if(!this.item || !this.item.id || this.item.id !== item.id){
+                this.item = vaah().clone(item);
+            }
+            this.$router.push({name: 'payments.view', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
-            this.item = item;
-            this.$router.push({name: 'orders.form', params:{id:item.id}})
+            if(!this.item || !this.item.id || this.item.id !== item.id){
+                this.item = vaah().clone(item);
+            }
+            this.$router.push({name: 'payments.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
         isViewLarge()
         {
             return this.view === 'large';
-        },
-        //---------------------------------------------------------------------
-        getIdWidth()
-        {
-            let width = 20;
-
-            if(this.list && this.list.total)
-            {
-                let chrs = this.list.total.toString();
-                chrs = chrs.length;
-                width = chrs*20;
-            }
-
-            return width+'px';
         },
         //---------------------------------------------------------------------
         getActionWidth()
@@ -1097,13 +742,13 @@ export const useOrderStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1113,14 +758,14 @@ export const useOrderStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1229,6 +874,7 @@ export const useOrderStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -1247,40 +893,21 @@ export const useOrderStore = defineStore({
 
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
-                    }
-                },)
-
 
             } else{
                 form_menu = [
@@ -1321,38 +948,24 @@ export const useOrderStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        searchOrder(event){
+            this.filtered_orders = this.listData.filter(payment_method => {
+                return payment_method.order.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+        },
         //---------------------------------------------------------------------
-        async getOrderProductMenu()
-        {
-            let order_product_menu = [];
+        searchPaymentMethod(event) {
 
-            order_product_menu = [
-
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    },
-                    {
-                        label: 'Fill',
-                        icon: 'pi pi-pencil',
-                        command: () => {
-                            this.getFormInputs();
-                        }
-                    },
-
-
-                ];
-
-            this.order_product_menu_list = order_product_menu;
-
+            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
+                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
+            });
         },
-        toOrderDetails(order){
-            this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
-
+        //---------------------------------------------------------------------
+        setPaymentMethod(event) {
+            let payment_method = toRaw(event.value);
+            this.item.vh_st_payment_method_id = payment_method.id;
         },
+        //---------------------------------------------------------------------
     }
 });
 
@@ -1360,5 +973,5 @@ export const useOrderStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useOrderStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(usePaymentStore, import.meta.hot))
 }

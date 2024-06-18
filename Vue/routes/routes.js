@@ -23,6 +23,7 @@ import categories from "./vue-routes-categories";
 import users from "./vue-routes-users";
 import cart from "./vue-routes-carts";
 import settings from "./vue-routes-settings";
+import payments from "./vue-routes-payments";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -47,6 +48,7 @@ routes = routes.concat(users);
 routes = routes.concat(categories);
 routes = routes.concat(cart);
 routes = routes.concat(settings);
+routes = routes.concat(payments);
 
 
 

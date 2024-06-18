@@ -169,7 +169,7 @@ class Order extends VaahModel
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
+        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email', 'phone');
     }
 
     //-------------------------------------------------
