@@ -28,12 +28,15 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="user" header="Name"
                     class="overflow-wrap-anywhere"
                     :sortable="true">
 
                 <template #body="prop">
-                    {{prop.data.name}}
+                    <Badge v-if="prop.data.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    {{ prop.data.user.display_name }}
                 </template>
 
             </Column>
@@ -51,6 +54,14 @@ const useVaah = vaah();
                                 v-tooltip.top="'Cart Details'"
                                 @click="store.cartDetails(prop.data)"
                                 icon="pi pi-fast-forward" />
+
+
+                        <Button class="p-button-tiny p-button-success p-button-text"
+                                data-testid="products-table-action-restore"
+                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                @click="store.itemAction('restore', prop.data)"
+                                v-tooltip.top="'Restore'"
+                                icon="pi pi-replay" />
                     </div>
 
                 </template>

@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Cart;
+use VaahCms\Modules\Store\Models\User;
+use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 
 class CartsController extends Controller
@@ -30,7 +33,18 @@ class CartsController extends Controller
             $data['fillable']['columns'] = Cart::getFillableColumns();
             $data['fillable']['except'] = Cart::getUnFillableColumns();
             $data['empty_item'] = Cart::getEmptyItem();
+            $data['item_user_address'] = Address::getEmptyItem();
+            $data['empty_item'] ['item_billing_address'] = Address::getEmptyItem();
+            $model = new User();
+            $fillable = $model->getFillable();
+            $data['fillable']['columns'] = array_diff(
+                $fillable, $data['fillable']['except']
+            );
 
+            foreach ($fillable as $column) {
+                $data['new_user_at_shipping'][$column] = null;
+            }
+            $data['countries'] = array_column(VaahCountry::getList(), 'name');
             $data['actions'] = [];
 
             $response['success'] = true;
@@ -123,39 +137,9 @@ class CartsController extends Controller
         }
     }
     //----------------------------------------------------------
-    public function fillItem(Request $request)
-    {
-        try{
-            return Cart::fillItem($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-            }
-            return $response;
-        }
-    }
+
     //----------------------------------------------------------
-    public function createItem(Request $request)
-    {
-        try{
-            return Cart::createItem($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-            }
-            return $response;
-        }
-    }
+
     //----------------------------------------------------------
     public function getItem(Request $request, $id)
     {
@@ -174,10 +158,12 @@ class CartsController extends Controller
         }
     }
     //----------------------------------------------------------
-    public function updateItem(Request $request,$id)
+
+    //----------------------------------------------------------
+    public function deleteItem(Request $request,$id)
     {
         try{
-            return Cart::updateItem($request,$id);
+            return Cart::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -191,10 +177,107 @@ class CartsController extends Controller
         }
     }
     //----------------------------------------------------------
-    public function deleteItem(Request $request,$id)
+
+    //----------------------------------------------------------
+    public function updateQuantity(Request $request)
     {
         try{
-            return Cart::deleteItem($request,$id);
+            return Cart::updateQuantity($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function deleteCartItem(Request $request)
+    {
+        try{
+            return Cart::deleteCartItem($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getCartItemDetailsAtCheckout(Request $request, $id)
+    {
+        try{
+            return Cart::getCartItemDetailsAtCheckout($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function saveCartUserAddress(Request $request)
+    {
+        try{
+            return Cart::saveCartUserAddress($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function removeCartUserAddress(Request $request)
+    {
+        try{
+            return Cart::removeCartUserAddress($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function updateUserShippingAddress(Request $request)
+    {
+        try{
+            return Cart::updateUserShippingAddress($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -224,7 +307,60 @@ class CartsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
+    public function placeOrder(Request $request)
+    {
+        try{
+            return Cart::placeOrder($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function addToWishlist(Request $request)
+    {
+        try{
+            return Cart::addToWishlist($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
     //----------------------------------------------------------
 
 
+    public function getOrderDetails(Request $request,$id)
+    {
+        try{
+            return Cart::getOrderDetails($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }

@@ -353,11 +353,8 @@ export const useProductVendorStore = defineStore({
             {
                 this.assets = data;
                 this.status_option = data.taxonomy.status;
-                this.active_vendors = data.active_vendors;
-                this.active_users = data.active_users;
-                this.active_products = data.active_products;
+
                 this.default_store = data.active_stores.filter(store => store.is_default === 1);
-                this.active_product_variation = data.active_product_variations
 
                 if(data.rows)
                 {
@@ -1416,7 +1413,7 @@ export const useProductVendorStore = defineStore({
         },
 
 
-       
+
 
 
         //---------------------------------------------------------------------

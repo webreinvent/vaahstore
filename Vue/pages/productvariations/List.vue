@@ -9,10 +9,12 @@ import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
 
 const store = useProductVariationStore();
+const product_store = useProductStore();
 const root = useRootStore();
 const route = useRoute();
 
 import { useConfirm } from "primevue/useconfirm";
+import {useProductStore} from '../../stores/store-products'
 const confirm = useConfirm();
 
 
@@ -61,6 +63,24 @@ const permissions=store.assets ? store.assets.permissions : 0;
 
 </script>
 <template>
+<!--    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :closable="false" :sticky="true" :life="1000">-->
+<!--        ( {{store.total_cart_product}} )-->
+<!--        {{store.active_cart_user_name}} <Button @click="store.viewCart(store.cart_id)" class="line-height-1" label="View Cart" link />-->
+<!--            <Button @click="store.disableActiveCart()">X</Button>-->
+<!--    </Message>-->
+    <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :sticky="true" :life="1000" @close="store.disableActiveCart()">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                 {{ store.active_cart_user_name }} ( {{ store.total_cart_product }} )
+            </div>
+            <div>
+                <Button @click="store.viewCart(store.cart_id)" class="line-height-1 mr-2" label="View Cart" link />
+<!--                <Button @click="store.disableActiveCart()">X</Button>-->
+            </div>
+        </div>
+    </Message>
+
+
 
     <div class="grid" v-if="store.assets">
 

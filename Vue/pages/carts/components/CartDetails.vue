@@ -1,28 +1,51 @@
 <script setup>
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useCartStore} from '../../../stores/store-carts'
-
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
+import {useRoute} from "vue-router";
+const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
+const cart_products_stock_available = ref([]);
 
+onMounted(async () => {
+    document.title = 'Carts - Items';
+    if (route.params && route.params.id) {
+        await store.getItem(route.params.id);
+    }
+    await store.onLoad(route);
+    await store.getList();
+    cart_products_stock_available.value = store.cart_products;
+});
+
+const allProductsOutOfStock = computed(() => {
+    return cart_products_stock_available.value.every(product => product.pivot.is_stock_available === 0);
+});
 </script>
 
 <template>
 
-    <div v-if="store.list" class="bg-white">
+    <div   v-if="store.list" class="bg-white">
         <div class="cart_detail">
             <div class="flex flex-row">
-                <div>
-                    <b class="mr-1">UUID-Carts 1-Rahul</b>
+                <div >
+                    <Button
+                        @click="store.redirectToCart"
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }}   - {{ store.item.user.display_name }} ({{store.cart_products.length}})</b>
                 </div>
+
+
 
             </div>
 
 
             <!--table-->
-            <DataTable :value="store.list.data"
+            <div v-if="store.item && store.item.user">
+            <DataTable :value="store.cart_products"
                        dataKey="id"
                        :rowClass="store.setRowClass"
+                       :rows="10"
+                       :paginator="true"
                        class="p-datatable-sm p-datatable-hoverable-rows"
                        :nullSortOrder="-1"
                        v-model:selection="store.action.items"
@@ -37,40 +60,32 @@ const useVaah = vaah();
                 <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                <Column field="product_name" header="Product Name"
-                        class="overflow-wrap-anywhere"
-                        :sortable="true">
-
+                <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere" :sortable="true">
                     <template #body="prop">
-                        {{ 'Nokia 2660 Flip 4G Volte keypad Phone' }}
+                        {{ prop.data.pivot.cart_product_variation !== null ? prop.data.name + ' - ' + prop.data.pivot.cart_product_variation : prop.data.name }}
+                        <Badge v-if="prop.data.pivot.is_stock_available === 0"  value="Out of Stock"
+                               severity="danger"></Badge>
                     </template>
-
                 </Column>
 
-                <Column field="product_quantity" header="Product Quantity"
-                        class="overflow-wrap-anywhere"
-                >
 
+
+                <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere">
                     <template #body="prop">
-                        <div class="p-inputgroup w-8rem max-w-full">
-
-                            <Button class="p-button-tiny p-button-text"
-                                    data-testid="carts-table-to-view"
-                                    v-tooltip.top="'Minus'"
-                                    @click=""
-                                    icon="pi pi-minus"/>
-                            <InputNumber v-model="value" style="width: 1rem" :min="0" :max="99"
-                                         class="w-full md:w-1rem"/>
-
-                            <Button class="p-button-tiny p-button-text"
-                                    data-testid="carts-table-to-view"
-                                    v-tooltip.top="'Plus'"
-                                    @click=""
-                                    icon="pi pi-plus"/>
+                        <div class="p-inputgroup w-8rem max-w-full" >
+                            <InputNumber  v-model="prop.data.pivot.quantity" buttonLayout="horizontal" showButtons :min="1" :max="1000000" @input="store.updateQuantity(prop.data.pivot,$event)">
+                                <template #incrementbuttonicon>
+                                    <span class="pi pi-plus" />
+                                </template>
+                                <template #decrementbuttonicon>
+                                    <span class="pi pi-minus" />
+                                </template>
+                            </InputNumber>
                         </div>
                     </template>
-
                 </Column>
+
+
 
                 <Column field="product_price" header="Product Price"
                         class="overflow-wrap-anywhere"
@@ -78,7 +93,7 @@ const useVaah = vaah();
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>{{ '4000' }}</p>
+                            <p>{{ prop.data.pivot.price }}</p>
                         </div>
                     </template>
 
@@ -94,12 +109,15 @@ const useVaah = vaah();
                             <Button class="p-button-tiny p-button-danger p-button-text"
                                     data-testid="orders-table-action-trash"
                                     v-tooltip.top="'Wishlist'"
-                                    icon="pi pi-heart"/>
+                                    @click="store.addToWishList(prop.data.pivot,store.item.user)"
+                                    :icon="prop.data.pivot.is_wishlisted === 1 ? 'pi pi-heart-fill' : 'pi pi-heart'"/>
+
 
                             <Button class="p-button-tiny p-button-danger p-button-text"
-                                    data-testid="orders-table-action-trash"
+                                    data-testid="products-table-action-trash"
+                                    @click="store.deleteCartItem(prop.data.pivot)"
                                     v-tooltip.top="'Remove'"
-                                    icon="pi pi-trash"/>
+                                    icon="pi pi-trash" />
                         </div>
 
                     </template>
@@ -114,13 +132,14 @@ const useVaah = vaah();
                 </template>
 
             </DataTable>
-            <!--/table-->
+            </div>
             <div class="table_bottom mr-4">
-                <p><b>Total Amount: </b>₹4000</p>
+                <p><b>Total Amount: </b>{{ store.total_amount_at_detail_page }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
-                        @click="store.checkOut({id:1})"
+                        :disabled="allProductsOutOfStock"
+                        @click="store.checkOut(store.item.id)"
                 />
             </div>
         </div>
@@ -141,5 +160,8 @@ const useVaah = vaah();
 .table_bottom {
     display: flex;
     justify-content: flex-end;
+}
+.filled-heart .pi pi-heart {
+    background-color: red; /* Change this to your desired background color */
 }
 </style>
