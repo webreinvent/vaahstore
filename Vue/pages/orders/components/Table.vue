@@ -38,20 +38,33 @@ const useVaah = vaah();
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-else>
-                     {{prop.data.user.first_name}}
-                         </span>
+                    {{prop.data.user.first_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
+                                                             data-testid="taxonomies-table-to-edit"
+
+                                                             @click="useVaah.copy(prop.data.user.email)"
+                                                             icon="pi pi-copy"
+                    > {{prop.data.user.email}}</Button>
+                    </span>
                     {{prop.data.name}}
                 </template>
 
             </Column>
+             <Column field="user.phone" header="Mobile No."
+                     :sortable="true">
 
+                 <template #body="prop">
+                     {{prop.data.user.phone}}
+
+                 </template>
+
+             </Column>
              <Column field="items" header="Products"
                      :sortable="false"  >
 
                  <template #body="prop">
                      {{prop.data.name}}
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
+                          <span class="p-inputgroup-addon cursor-pointer" @click="store.toOrderDetails(prop.data)">
                              <b>
                                 {{prop.data.items.length}}
                             </b>
@@ -144,22 +157,22 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="paid" header="Paid"
-                     v-if="store.isViewLarge()"
-                     :sortable="true">
+<!--             <Column field="paid" header="Paid"-->
+<!--                     v-if="store.isViewLarge()"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.paid == 0"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.paid > 0"
-                            :value="prop.data.paid"
-                            severity="info"></Badge>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.paid == 0"-->
+<!--                            value="0"-->
+<!--                            severity="danger"></Badge>-->
+<!--                     <Badge v-else-if="prop.data.paid > 0"-->
+<!--                            :value="prop.data.paid"-->
+<!--                            severity="info"></Badge>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
-             <Column field="status.name" header="Status"
+             <Column field="status.name" header="Order Status"
                      :sortable="true">
 
                  <template #body="prop">
@@ -170,6 +183,27 @@ const useVaah = vaah();
                      <Badge v-else
                             severity="warning"> {{prop.data.status.name}} </Badge>
                  </template>
+
+             </Column>
+
+             <Column  header="Payment Status"
+                     :sortable="true">
+                 <template #body="prop">
+                     <Badge severity="success">
+                         {{'In Progress' }}
+                     </Badge>
+                 </template>
+
+
+             </Column>
+             <Column  header="Shipping Status"
+                     :sortable="true">
+                 <template #body="prop">
+                     <Badge severity="success">
+                         {{'Completed' }}
+                     </Badge>
+                 </template>
+
 
              </Column>
 

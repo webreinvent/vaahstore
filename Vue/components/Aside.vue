@@ -35,6 +35,16 @@ const items = ref([
                 route: "/carts",
             },
             {
+                label: 'Orders',
+                icon: 'fa-regular fa-check-square',
+                route: "/orders"
+            },
+            {
+                label: 'Payments',
+                icon: 'fa-regular fa-dollar',
+                route: "/payments"
+            },
+            {
                 label: 'Store Payment Methods',
                 icon: 'fa-regular fa-credit-card',
                 route: "/storepaymentmethods"
@@ -99,11 +109,7 @@ const items = ref([
                 icon: 'fa-regular fa-folder-closed',
                 route: "/attributesgroup"
             },
-            {
-                label: 'Orders',
-                icon: 'fa-regular fa-check-square',
-                route: "/orders"
-            },
+
             {
                 label: 'Payment Methods',
                 icon: 'fa-regular fa-dollar',
