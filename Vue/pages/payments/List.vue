@@ -66,7 +66,7 @@ const toggleCreateMenu = (event) => {
 
     <div class="grid" v-if="store.assets">
 
-        <div :class="route.params && route.params.id ? 'col-6' : 'col'">
+        <div :class="route.params && route.params.id ? 'col-4' : 'col'">
             <Panel class="is-small">
 
                 <template class="p-1" #header>

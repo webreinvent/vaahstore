@@ -123,9 +123,10 @@ export const usePaymentStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+
                 default:
                     this.view = 'small';
-                    this.list_view_width = 6;
+                    this.list_view_width = 4;
                     this.show_filters = false;
                     break
             }

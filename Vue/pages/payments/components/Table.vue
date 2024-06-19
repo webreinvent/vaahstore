@@ -38,20 +38,22 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <div class="flex flex-wrap gap-2" v-if="prop.data.orders && prop.data.orders.length > 0">
-                         <template v-if="prop.data.orders.some(variation => variation.deleted_at === null)">
-                             <!-- Display variation names -->
-                             <template v-for="(variation, index) in prop.data.orders" :key="index">
-                                 <Badge class="h-max max-w-full" v-if="variation.deleted_at === null">
-                                     {{ variation.user.name }}
-                                 </Badge>
-                             </template>
-                             <Badge v-if="prop.data.orders.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
-                         </template>
-                         <template v-else>
-                             <Badge value="Trashed" severity="danger"></Badge>
-                         </template>
-                     </div>
+<!--                     <div class="flex flex-wrap gap-2" v-if="prop.data.orders && prop.data.orders.length > 0">-->
+<!--                         <template v-if="prop.data.orders.some(variation => variation.deleted_at === null)">-->
+<!--                             &lt;!&ndash; Display variation names &ndash;&gt;-->
+<!--                             <template v-for="(variation, index) in prop.data.orders" :key="index">-->
+<!--                                 <Badge class="h-max max-w-full" v-if="variation.deleted_at === null">-->
+<!--                                     {{ variation.user.name }}-->
+<!--                                 </Badge>-->
+<!--                             </template>-->
+<!--                             <Badge v-if="prop.data.orders.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                         <template v-else>-->
+<!--                             <Badge value="Trashed" severity="danger"></Badge>-->
+<!--                         </template>-->
+<!--                     </div>-->
+
+                     <Badge class="h-max max-w-full">{{prop.data.orders_count}}</Badge>
                  </template>
 
              </Column>
@@ -67,19 +69,19 @@ const useVaah = vaah();
 <!--                </template>-->
 
 <!--            </Column>-->
-             <Column field="paymentStatus"  header="Payment Status"
-                     :sortable="true">
-                 <template #body="prop">
-                     <Badge v-if="prop.data.paymentStatus == 'Paid'"
-                            severity="success"> {{prop.data.paymentStatus}} </Badge>
-                     <Badge v-else-if="prop.data.paymentStatus == 'Pending'"
-                            severity="danger"> {{prop.data.paymentStatus}} </Badge>
-                     <Badge v-else
-                            severity="warning"> {{prop.data.paymentStatus}} </Badge>
-                 </template>
+<!--             <Column field="paymentStatus"  header="Payment Status"-->
+<!--                     :sortable="true">-->
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.paymentStatus == 'Paid'"-->
+<!--                            severity="success"> {{prop.data.paymentStatus}} </Badge>-->
+<!--                     <Badge v-else-if="prop.data.paymentStatus == 'Pending'"-->
+<!--                            severity="danger"> {{prop.data.paymentStatus}} </Badge>-->
+<!--                     <Badge v-else-->
+<!--                            severity="warning"> {{prop.data.paymentStatus}} </Badge>-->
+<!--                 </template>-->
 
 
-             </Column>
+<!--             </Column>-->
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"

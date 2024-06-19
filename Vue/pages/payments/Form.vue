@@ -159,11 +159,38 @@ watch(totalPaidAmount, (newValue) => {
                 </VhField>
 
                 <VhField >
-                    <div v-for="(detail, index) in store.item.order" :key="index" class="flex items-center w-full mb-2">
+<!--                    <div class="flex items-center w-full ">-->
+
+<!--                        &lt;!&ndash; Render regular InputText and InputNumber for subsequent items &ndash;&gt;-->
+<!--                        <InputText placeholder="Order" disabled filled required />-->
+<!--                        <InputText filled disabled placeholder="Total amount" />-->
+<!--                        <InputNumber filled disabled placeholder="Pay Amount" inputId="minmaxfraction" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />-->
+
+
+<!--                        <div class="flex items-center ml-auto">-->
+<!--                            <Button-->
+<!--                                class="p-button-primary p-button-sm text-red-500"-->
+<!--                                label="action"-->
+<!--                                data-testid="sources-scraping_details"-->
+
+<!--                            />-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <div v-for="(detail, index) in store.item.order" :key="index" class="mb-2">
 <!--                        <InputNumber type="hidden" v-model="detail.id" />-->
-                        <InputText v-model="detail.user_name" :placeholder="'Order ' + (index + 1)" required />
-                        <InputText v-model="detail.amount" disabled  placeholder="Total amount"  />
-                        <InputNumber v-model="detail.pay_amount" placeholder="Pay Amount" inputId="minmaxfraction" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+                        <div class="flex items-center w-full ">
+                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Order Name</label>
+                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Payable amount</label>
+                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Payment Amount</label>
+                        </div>
+                        <div class="flex items-center w-full ">
+
+
+                            <!-- Render regular InputText and InputNumber for subsequent items -->
+                            <InputText v-model="detail.user_name" :placeholder="'Order ' + (index + 1)" required />
+                            <InputText v-model="detail.amount" disabled placeholder="Total amount" />
+                            <InputNumber v-model="detail.pay_amount" placeholder="Pay Amount" inputId="minmaxfraction" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+
 
                         <div class="flex items-center ml-auto">
                             <Button
@@ -173,8 +200,11 @@ watch(totalPaidAmount, (newValue) => {
                                 @click="store.removeOrderDetail(index)"
                             />
                         </div>
+                        </div>
+
+                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.amount)" id="email-error" class="p-error"> Pay Amount cannot be greater than Total amount</small>
                     </div>
-                    <InputText v-model="totalPaidAmount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
+<!--                    <InputText v-model="totalPaidAmount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />-->
                 </VhField>
 
 
@@ -205,7 +235,9 @@ watch(totalPaidAmount, (newValue) => {
 <!--                        @input ="store.checkPaidAmount($event)"-->
 <!--                        data-testid="payments-paid"/>-->
 <!--                </VhField>-->
-
+                <VhField label="Total Payment Amount" v-if="store.item.order && store.item.order.length>0">
+                    <InputText v-model="totalPaidAmount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
+                </VhField>
                 <VhField label="Payment Method">
                     <AutoComplete
                         value="id"
