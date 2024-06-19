@@ -10,7 +10,7 @@ const store = useProductVariationStore();
 
 onMounted(async () => {
 
-    await store.setQuantityRange();
+    /*await store.setQuantityRange();*/
     await store.setProductInFilter();
 
 
@@ -37,7 +37,7 @@ onMounted(async () => {
                               :complete-on-focus = "true"
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
-                              placeholder = "select product"
+                              placeholder = "Select Product"
                               class="w-full "
                               append-to="self"
                               :pt="{
@@ -58,24 +58,23 @@ onMounted(async () => {
 
             <VhFieldVertical >
                 <template #label>
-                    <b>In Stock:</b>
+                    <b>Stock Status:</b>
                 </template>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-yes"
-                                 value="true"
-                                 data-testid="product-variations-filters-in-stock-yes"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-yes">Yes</label>
-                </div>
-
-                <div class="field-radiobutton">
-                    <RadioButton name="in-stock-no"
-                                 value="false"
-                                 data-testid="product-variations-filters-in-stock-no"
-                                 v-model="store.query.filter.in_stock" />
-                    <label for="in-stock-no">No</label>
-                </div>
+                <VhField label="Stock Status">
+                    <MultiSelect
+                        v-model="store.query.filter.stock_status"
+                        :options="store.stock_options"
+                        filter
+                        option-value="value"
+                        optionLabel="label"
+                        placeholder="Select Stock Status"
+                        display="chip"
+                        class="w-full relative"
+                        data-testid="product-variations-stock-status-filters"
+                        appendTo="self"
+                    />
+                </VhField>
 
             </VhFieldVertical>
 
@@ -232,7 +231,7 @@ onMounted(async () => {
                     <Calendar v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
-                              placeholder="Choose date range"
+                              placeholder="Choose Date Range"
                               data-testid="product-variation-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
@@ -255,20 +254,24 @@ onMounted(async () => {
                 </template>
 
                 <div class="card flex justify-content-center">
-                    <div class="w-14rem">
-                        <div class="flex justify-content-between">
-                            <badge>{{ store.min_quantity | bold }}</badge>
-                            <badge>{{ store.max_quantity | bold }}</badge>
+                    <div class="w-full">
 
-                        </div>
+                        <InputNumber
+                            v-model="store.query.filter.min_quantity"
+                            data-testid="product-variation-filter-min_quantity"
+                            placeholder="Enter minimum quantity"
+                            @input="store.quantityFilterMin($event)"
+                            class="w-full mt-2"
 
-                        <Slider v-model="store.quantity"
-                                range
-                                :min="store.assets.min_max_quantity.min_quantity"
-                                :max="store.assets.min_max_quantity.max_quantity"
-                                data-testid="product-variation-sliders"
-                                @change="store.quantityFilter()"
-                                class="w-14rem mt-2"
+                        />
+
+                        <InputNumber
+                            v-model="store.query.filter.max_quantity"
+                            data-testid="product-variation-filter-max_quantity"
+                            placeholder="Enter maximum quantity"
+                            @input="store.quantityFilterMax($event)"
+                            class="w-full mt-2"
+
                         />
                     </div>
                 </div>

@@ -2,16 +2,12 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
-use WebReinvent\VaahCms\Libraries\VaahMail;
-use WebReinvent\VaahCms\Mail\SecurityOtpMail;
-use WebReinvent\VaahCms\Models\Notification;
-use WebReinvent\VaahCms\Models\UserBase;
+use VaahCms\Modules\Store\Jobs\SendLowCountMail;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -118,21 +114,6 @@ class ProductVariation extends VaahModel
         $empty_item['quantity'] = 0;
         return $empty_item;
     }
-
-    //----------------------------------------------
-
-    protected static function booted()
-    {
-        static::updated(function ($productVariation) {
-                if ($productVariation->isDirty('quantity')) {
-                    self::sendMailForStock();
-                }
-        });
-    }
-
-
-
-
     //-------------------------------------------------
 
     public static function searchProduct($request)
@@ -315,6 +296,7 @@ class ProductVariation extends VaahModel
         $item = new self();
         $item->fill($inputs);
         $item->slug = Str::slug($inputs['slug']);
+        $item->is_mail_sent = 0;
         $item->save();
 
         $response = self::getItem($item->id);
@@ -444,41 +426,52 @@ class ProductVariation extends VaahModel
 
     public function scopeStockFilter($query, $filter)
     {
-        if (!isset($filter['in_stock']) || is_null($filter['in_stock']) || $filter['in_stock'] === 'null') {
+        if (!isset($filter['stock_status']) || is_null($filter['stock_status']) || $filter['stock_status'] === 'null') {
             return $query;
         }
 
-        $in_stock = $filter['in_stock'];
+        $stock_statuses = $filter['stock_status'];
 
-        if ($in_stock === 'false') {
-            $query->where('quantity', '=', 0);
-        } elseif ($in_stock === 'true') {
-            $query->where('quantity', '>', 0);
+        foreach ($stock_statuses as $status) {
+            if ($status === 'low_stock') {
+                $query->orWhere(function ($query) {
+                    $query->where('quantity', '>=', 1)
+                        ->where('quantity', '<', 10);
+                });
+            } elseif ($status === 'in_stock') {
+                $query->orWhere('quantity', '>=', 10);
+            } elseif ($status === 'out_of_stock') {
+                $query->orWhere('quantity', '=', 0);
+            }
         }
 
         return $query;
     }
 
 
+
     //-------------------------------------------------
 
     public function scopeQuantityFilter($query, $filter)
     {
+
+
         if (
-            !isset($filter['quantity']) ||
-            is_null($filter['quantity']) ||
-            $filter['quantity'] === 'null' ||
-            count($filter['quantity']) < 2 ||
-            is_null($filter['quantity'][0]) ||
-            is_null($filter['quantity'][1])
+            !isset($filter['min_quantity']) ||
+            is_null($filter['min_quantity']) ||
+            !isset($filter['max_quantity']) ||
+            is_null($filter['max_quantity'])
         ) {
+            // If any of them are null, return the query without applying any filter
             return $query;
         }
 
-        $min_quantity = $filter['quantity'][0];
-        $max_quantity = $filter['quantity'][1];
 
+        $min_quantity = $filter['min_quantity'];
+        $max_quantity = $filter['max_quantity'];
         return $query->whereBetween('quantity', [$min_quantity, $max_quantity]);
+
+
     }
 
 
@@ -1255,77 +1248,56 @@ class ProductVariation extends VaahModel
     public static function sendMailForStock()
     {
         try {
-            $list_data = ProductVariation::with('product')->get();
+            $list_data = ProductVariation::with('product')
+                ->whereNotNull('low_stock_at')
+                ->where('is_quantity_low', '=', 1)
+                ->whereHas('product', function ($query) {
+                    $query->where('is_active', '=', 1);
+                })
+                ->where('is_active', '=', 1)
+                ->orderBy('low_stock_at', 'desc')
+                ->get();
 
             $filtered_data = $list_data->filter(function ($item) {
-                return $item->quantity >= 0 && $item->quantity < 10;
+                return $item->low_stock_at;
             });
+
             $mailers = config('mail.mailers.smtp', []);
             if (empty($mailers['host']) || empty($mailers['port'])|| empty($mailers['username'])|| empty($mailers['password'])) {
                 $response['success'] = false;
                 $response['errors'][] = 'mail configuration not set.';
                 return $response;
             }
-            foreach ($list_data as $item) {
-                if ($item->quantity > 10 && ($item->is_mail_sent === null || $item->is_mail_sent === 1)) {
-                    $item->is_mail_sent = 0;
-                    $item->save();
-                }
-            }
-
-            $product_variation_count = $filtered_data->groupBy('vh_st_product_id')->map(function ($variations) {
-                $min_quantity = $variations->min('quantity');
-                $max_quantity = $variations->max('quantity');
-
-                // If min_quantity is same as max_quantity, set min_quantity to 0
-                if ($min_quantity === $max_quantity) {
-                    $min_quantity = 0;
-                }
-
-                return [
-                    'count' => $variations->count(),
-                    'min_quantity' => $min_quantity,
-                    'max_quantity' => $max_quantity
-                ];
-            });
 
             $subject = 'Low Stock Alert';
             $message = '<html><body>';
             $message .= '<p>Hello Everyone, the following items are low in stock:</p>';
             $message .= '<table border="1">';
-            $message .= '<tr><th>Product Name</th><th>Low Quantity Variations Count</th><th>Quantity Range Between </th><th>Link</th></tr>';
+            $message .= '<tr><th>Product Name</th><th>Variation Name</th></tr>';
 
-            $processed_products = []; // Track processed products
-
-            foreach ($filtered_data as $item) {
+            foreach ($filtered_data->take(10) as $item) {
                 $product_name = isset($item->product) ? $item->product->name : '';
-                $product_slug = isset($item->product) ? $item->product->slug : '';
-                $product_id = $item->vh_st_product_id;
+                $variation_name = $item->name ?? '';
 
-                if (!in_array($product_name, $processed_products)) {
-                    $processed_products[] = $product_name;
 
                     $message .= '<tr>';
                     $message .= '<td>' . $product_name . '</td>';
-                    $message .= '<td>' . $product_variation_count[$product_id]['count'] . '</td>';
-                    $message .= '<td>' . $product_variation_count[$product_id]['min_quantity'] . ' to ' . $product_variation_count[$product_id]['max_quantity'] . '</td>';
-                    $message .= '<td><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[products][]=' . $product_slug. '&filter[quantity][]=' . $product_variation_count[$product_id]['min_quantity'] . '&filter[quantity][]=' . $product_variation_count[$product_id]['max_quantity'] . '">View</a></td>';
+                    $message .= '<td>' . $variation_name . '</td>';
                     $message .= '</tr>';
                 }
-            }
+
 
             $message .= '</table>';
-            if ($filtered_data->isNotEmpty()) {
-                // Send mail
-                $send_mail = UserBase::notifySuperAdmins($subject, $message);
+            $message .= '<p style="margin-top: 0.6rem; font-size: 15px">For more low stock variations, click here</p>';
+            $message .= '<p><a href="'.url("/").'/backend/store#/productvariations?page=1&rows=20&filter[stock_status][]=low_stock"
+                         style="background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 25px;
+                         text-decoration: none; display: inline-block; cursor: pointer; font-size: 14px; width: 7rem;
+                         text-align: center; margin-top: 0.3rem;">View</a></p>';
 
-                // Update is_mail_sent flag
-                foreach ($filtered_data as $item) {
-                    if ($item->is_mail_sent === null || $item->is_mail_sent === 0) {
-                        $item->is_mail_sent = 1;
-                        $item->save();
-                    }
-                }
+            if ($filtered_data->isNotEmpty()) {
+
+                dispatch(new SendLowCountMail($filtered_data));
+
             }
 
             $response['success'] = true;

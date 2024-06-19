@@ -196,6 +196,17 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
         $product_variation->quantity += $inputs['quantity'];
+
+        if ($product_variation->quantity < 10) {
+            $product_variation->is_quantity_low = 1;
+            $product_variation->is_mail_sent = 1;
+            $product_variation->low_stock_at = now('Asia/Kolkata');
+        } else {
+            $product_variation->is_quantity_low = 0;
+            $product_variation->is_mail_sent = 0;
+            $product_variation->low_stock_at = null;
+        }
+
         $product_variation->save();
 
         //update quantity in product
@@ -659,9 +670,6 @@ class ProductStock extends VaahModel
         $difference_in_quantity = $inputs['quantity'] - $item->quantity;
         // calculate difference between new and old quantity
         $item->fill($inputs);
-
-
-
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -669,7 +677,23 @@ class ProductStock extends VaahModel
         $product_variation = ProductVariation::where('id', $inputs['vh_st_product_variation_id'])
             ->withTrashed()->first();
 
+        $old_quantity = $product_variation->quantity;
         $product_variation->quantity += $difference_in_quantity;
+        $send_mail = false;
+
+        if ($product_variation->quantity < 10) {
+            $product_variation->is_quantity_low = 1;
+            $product_variation->is_mail_sent = 1;
+            $product_variation->low_stock_at = now('Asia/Kolkata');
+            if ($old_quantity >= 10) {
+                $send_mail = true;
+            }
+        } else {
+            $product_variation->is_quantity_low = 0;
+            $product_variation->is_mail_sent = 0;
+            $product_variation->low_stock_at = null;
+        }
+
         $product_variation->save();
 
         //update the quantity of products
@@ -677,7 +701,9 @@ class ProductStock extends VaahModel
 
         $product->quantity = $product->productVariations->sum('quantity');
         $product->save();
-
+        if ($send_mail) {
+            ProductVariation::sendMailForStock();
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -1179,6 +1205,16 @@ if ($product_variation) {
         if ($product_variation) {
             if ($product_variation->quantity) {
                 $product_variation->quantity -= $item->quantity;
+            }
+
+            if ($product_variation->quantity < 10) {
+                $product_variation->is_quantity_low = 1;
+                $product_variation->is_mail_sent = 1;
+                $product_variation->low_stock_at = now('Asia/Kolkata');
+            } else {
+                $product_variation->is_quantity_low = 0;
+                $product_variation->is_mail_sent = 0;
+                $product_variation->low_stock_at = null;
             }
 
             $product_variation->save();
