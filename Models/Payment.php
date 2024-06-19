@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -27,8 +28,8 @@ class Payment extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'name',
-        'slug',
+//        'name',
+//        'slug',
         'is_active',
         'created_by',
         'updated_by',
@@ -113,6 +114,11 @@ class Payment extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function orders()
+    {
+        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -147,38 +153,69 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-dd($request);
+//dd($request);
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
 
 
         // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
+        $item = self::withTrashed()->first();
 
-        if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
+//        if ($item) {
+//            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
+//            $response['success'] = false;
+//            $response['messages'][] = $error_message;
+//            return $response;
+//        }
+//
+//        // check if slug exist
+//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
+//
+//        if ($item) {
+//            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
+//            $response['success'] = false;
+//            $response['messages'][] = $error_message;
+//            return $response;
+//        }
 
         $item = new self();
         $item->fill($inputs);
         $item->save();
+
+
+        if (isset($inputs['order']) && is_array($inputs['order'])) {
+            $order_ids = [];
+
+            foreach ($inputs['order'] as $order_data) {
+                $order = Order::find($order_data['id']);
+                if ($order) {
+                    $item->orders()->attach($order->id, [
+                        'amount' => $order_data['amount'],
+                        'paid' => $order_data['pay_amount'],
+                        'created_at' => now(),
+                    ]);
+                    $order->paid += $order_data['pay_amount'];
+                    if ($order->amount == $order_data['pay_amount']) {
+                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'paid')->value('id');
+                    }elseif($order->amount > $order_data['pay_amount']) {
+                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'partially-paid')->value('id');
+                    }else{
+                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'pending')->value('id');
+                    }
+                    $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
+                    $order->save();
+                    $order_ids[] = $order->id;
+                }
+            }
+
+//            $attachedOrders = Order::whereIn('id', $order_ids)->get();
+//            $response['attached_orders'] = $attachedOrders;
+        }
+
 
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
@@ -272,7 +309,7 @@ dd($request);
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->with('orders');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
