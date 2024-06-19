@@ -40,7 +40,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-8" >
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -48,7 +48,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-panel-title w-7 white-space-nowrap
                 overflow-hidden text-overflow-ellipsis">
-                    #{{store.item.id}}
+                    #{{store.item.id}} {{'Order Payment Details'}}
                 </div>
 
             </template>
@@ -115,98 +115,111 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
-                <DataTable :value="store.listDataOrderPayment"
-                           dataKey="id"
-                           :rowClass="store.setRowClass"
+                <div class="mt-4" v-if="store.item && store.item.orders">
+                <DataTable :value="store.item.orders"
+                           dataKey="id" showGridlines
+                           :rows="10"
+                           :paginator="true"
                            class="p-datatable-sm p-datatable-hoverable-rows"
                            :nullSortOrder="-1"
                            v-model:selection="store.action.items"
-                           stripedRows
                            responsiveLayout="scroll">
 
-                    <Column selectionMode="multiple"
-                            v-if="store.isViewLarge()"
-                            headerStyle="width: 3em">
-                    </Column>
 
-                    <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
+
+                    <Column field="id" header="Order ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
                     </Column>
-                    <Column field="order" header="Order"
+                    <Column  header="Order"
                             class="overflow-wrap-anywhere"
                             :sortable="true">
-
                         <template #body="prop">
-                            <!--                     <Badge v-if="prop.data.deleted_at"-->
-                            <!--                            value="Trashed"-->
-                            <!--                            severity="danger"></Badge>-->
-                            <a> {{prop.data.order}}{{'(cart@gmail.com)'}}</a>
+                            {{prop.data.user.name}}
+
                         </template>
+
 
                     </Column>
                     <Column  header="Payable"
-
+                             class="overflow-wrap-anywhere"
                             :sortable="true">
 
                         <template #body="prop">
-                            <Badge severity="info">{{'1212'}}</Badge>
+                            <Badge severity="info">{{prop.data.payable}}</Badge>
 
                         </template>
 
                     </Column>
-                    <Column  header="Paid"
+                    <Column  header="Paid"  class="overflow-wrap-anywhere"
+                             :sortable="true">
+                        <template #body="prop">
+                            <Badge severity="primary">{{prop.data.paid}}</Badge>
+                        </template>
 
-                            :sortable="true">
+                    </Column>
+                    <Column  header="Payment Amount"  class="overflow-wrap-anywhere"
+                             :sortable="true">
 
                         <template #body="prop">
-                            <Badge v-if="prop.data.amount == 0"
+                            <Badge v-if="prop.data.pivot.paid == 0"
                                    value="0"
                                    severity="danger"></Badge>
-                            <Badge v-else-if="prop.data.amount > 0"
-                                   :value="prop.data.amount"
+                            <Badge v-else-if="prop.data.pivot.paid > 0"
+                                   :value="prop.data.pivot.paid"
                                    severity="secondary"></Badge>
                         </template>
 
                     </Column>
-                    <Column field="paymentStatus"  header="Payment Status"
+
+                    <Column field="paymentStatus"  header="Payment Status"  class="overflow-wrap-anywhere"
                             :sortable="true">
                         <template #body="prop">
-                            <Badge v-if="prop.data.paymentStatus == 'Paid'"
-                                   severity="success"> {{prop.data.paymentStatus}} </Badge>
-                            <Badge v-else-if="prop.data.paymentStatus == 'Pending'"
-                                   severity="danger"> {{prop.data.paymentStatus}} </Badge>
+                            <Badge v-if="prop.data.payable === prop.data.paid"
+                                   severity="success"> {{'Paid'}} </Badge>
+                            <Badge v-else-if="prop.data.payable > prop.data.paid"
+                                   severity="info"> {{'Partially Paid'}} </Badge>
                             <Badge v-else
-                                   severity="warning"> {{prop.data.paymentStatus}} </Badge>
+                                   severity="warning"> Pending </Badge>
+
+
+
+
+<!--                            <Badge v-if="prop.data.paymentStatus == 'Paid'"-->
+<!--                                   severity="success"> {{prop.data.paymentStatus}} </Badge>-->
+<!--                            <Badge v-else-if="prop.data.paymentStatus == 'Pending'"-->
+<!--                                   severity="danger"> {{prop.data.paymentStatus}} </Badge>-->
+<!--                            <Badge v-else-->
+<!--                                   severity="warning"> {{prop.data.paymentStatus}} </Badge>-->
                         </template>
 
 
                     </Column>
 
-                    <Column field="updated_at" header="Updated"
-                            v-if="store.isViewLarge()"
-                            style="width:150px;"
-                            :sortable="true">
+<!--                    <Column field="updated_at" header="Updated"-->
+<!--                            -->
+<!--                            style="width:150px;"-->
+<!--                            :sortable="true">-->
 
-                        <template #body="prop">
-                            {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
-                        </template>
+<!--                        <template #body="prop">-->
+<!--                            {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
+<!--                        </template>-->
 
-                    </Column>
+<!--                    </Column>-->
 
-                    <Column field="is_active" v-if="store.isViewLarge()"
-                            :sortable="true"
-                            style="width:100px;"
-                            header="Is Active">
+<!--                    <Column field="is_active"-->
+<!--                            :sortable="true"-->
+<!--                            style="width:100px;"-->
+<!--                            header="Is Active">-->
 
-                        <template #body="prop">
-                            <InputSwitch v-model.bool="prop.data.is_active"
-                                         data-testid="payments-table-is-active"
-                                         v-bind:false-value="0"  v-bind:true-value="1"
-                                         class="p-inputswitch-sm"
-                                         @input="store.toggleIsActive(prop.data)">
-                            </InputSwitch>
-                        </template>
+<!--                        <template #body="prop">-->
+<!--                            <InputSwitch v-model.bool="prop.data.is_active"-->
+<!--                                         data-testid="payments-table-is-active"-->
+<!--                                         v-bind:false-value="0"  v-bind:true-value="1"-->
+<!--                                         class="p-inputswitch-sm"-->
+<!--                                         @input="store.toggleIsActive(prop.data)">-->
+<!--                            </InputSwitch>-->
+<!--                        </template>-->
 
-                    </Column>
+<!--                    </Column>-->
 
 
 
@@ -217,7 +230,7 @@ const toggleItemMenu = (event) => {
                     </template>
 
                 </DataTable>
-
+                </div>
             </div>
         </Panel>
 

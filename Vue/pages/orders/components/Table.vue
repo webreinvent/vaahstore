@@ -189,12 +189,22 @@ const useVaah = vaah();
              <Column  header="Payment Status"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge v-if="prop.data.payment_status.slug == 'paid'"
-                            severity="success"> {{prop.data.payment_status.name}} </Badge>
-                     <Badge v-else-if="prop.data.payment_status.slug == 'partially-paid'"
-                            severity="warning"> {{prop.data.payment_status.name}} </Badge>
-                     <Badge v-else
-                            severity="danger"> {{'pending'}} </Badge>
+                     <template v-if="prop.data.payment_status">
+                         <Badge v-if="prop.data.payment_status.slug === 'paid'" severity="success">
+                             {{ prop.data.payment_status.name }}
+                         </Badge>
+                         <Badge v-else-if="prop.data.payment_status.slug === 'partially-paid'" severity="info">
+                             {{ prop.data.payment_status.name }}
+                         </Badge>
+                         <Badge v-else severity="danger">
+                             Pending
+                         </Badge>
+                     </template>
+                     <template v-else>
+                         <Badge severity="danger">
+                             Pending
+                         </Badge>
+                     </template>
                  </template>
 
 
@@ -203,7 +213,7 @@ const useVaah = vaah();
                      :sortable="true">
                  <template #body="prop">
                      <Badge severity="success">
-                         {{'Completed' }}
+                         {{'N/A' }}
                      </Badge>
                  </template>
 

@@ -116,7 +116,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public  function orders()
     {
-        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id');
+        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')  ->withPivot('paid', 'created_at');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -160,27 +160,15 @@ class Payment extends VaahModel
 //        if (!$validation['success']) {
 //            return $validation;
 //        }
-
-
-        // check if name exist
         $item = self::withTrashed()->first();
+        foreach ($inputs['order'] as $order_data) {
+            $order = Order::find($order_data['id']);
+            if ($order && $order_data['pay_amount'] > $order->amount) {
+                return ['success' => false, 'errors' => ["Payment amount exceeds order amount"]];
 
-//        if ($item) {
-//            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-//            $response['success'] = false;
-//            $response['messages'][] = $error_message;
-//            return $response;
-//        }
-//
-//        // check if slug exist
-//        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-//
-//        if ($item) {
-//            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-//            $response['success'] = false;
-//            $response['messages'][] = $error_message;
-//            return $response;
-//        }
+            }
+        }
+
 
         $item = new self();
         $item->fill($inputs);
@@ -309,7 +297,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('orders.user');
+        $list = self::getSorted($request->filter)->withCount('orders');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -490,7 +478,7 @@ class Payment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','orders.user'])
             ->withTrashed()
             ->first();
 
@@ -500,6 +488,8 @@ class Payment extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
+
+
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -682,8 +672,8 @@ class Payment extends VaahModel
         $query = Order::with(['user' => function ($query) {
             $query->select('id', 'display_name as user_name');
         }])
-            ->select('id', 'amount', 'created_at', 'updated_at', 'vh_user_id')
-            ->where('is_active', 1);
+            ->select('id', 'amount','paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1)->whereRaw('amount > paid');;
 
         if ($request->has('query') && $request->input('query')) {
             $query->whereHas('user', function ($q) use ($request) {
@@ -697,6 +687,7 @@ class Payment extends VaahModel
         foreach ($orders as &$order) {
             if ($order->user) {
                 $order->user_name = $order->user->user_name;
+                $order->amount -= $order->paid;
                 unset($order->user);
             }
         }
