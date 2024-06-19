@@ -964,6 +964,13 @@ export const usePaymentStore = defineStore({
         //---------------------------------------------------------------------
         searchOrdersAfter(data,res){
             this.filtered_orders=data;
+            if (data && this.item.order) {
+                this.filtered_orders = data.filter((item) => {
+                    return !this.item.order.some((activeItem) => {
+                        return activeItem.id === item.id;
+                    });
+                });
+            }
         },
         //---------------------------------------------------------------------
         removeOrderDetail(index) {

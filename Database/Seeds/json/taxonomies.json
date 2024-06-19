@@ -243,5 +243,17 @@
     {
         "type_slug": "whishlists-types",
         "name": "Whishlist-type-1"
+    },
+    {
+        "type_slug": "payment-status",
+        "name": "Paid"
+    },
+    {
+        "type_slug": "payment-status",
+        "name": "Partially Paid"
+    },
+    {
+        "type_slug": "payment-status",
+        "name": "Pending"
     }
 ]

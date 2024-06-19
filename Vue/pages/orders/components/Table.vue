@@ -157,20 +157,20 @@ const useVaah = vaah();
 
              </Column>
 
-<!--             <Column field="paid" header="Paid"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
+             <Column field="paid" header="Paid"
+                     v-if="store.isViewLarge()"
+                     :sortable="true">
 
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.paid == 0"-->
-<!--                            value="0"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <Badge v-else-if="prop.data.paid > 0"-->
-<!--                            :value="prop.data.paid"-->
-<!--                            severity="info"></Badge>-->
-<!--                 </template>-->
+                 <template #body="prop">
+                     <Badge v-if="prop.data.paid == 0"
+                            value="0"
+                            severity="danger"></Badge>
+                     <Badge v-else-if="prop.data.paid > 0"
+                            :value="prop.data.paid"
+                            severity="info"></Badge>
+                 </template>
 
-<!--             </Column>-->
+             </Column>
 
              <Column field="status.name" header="Order Status"
                      :sortable="true">
@@ -189,9 +189,12 @@ const useVaah = vaah();
              <Column  header="Payment Status"
                      :sortable="true">
                  <template #body="prop">
-                     <Badge severity="success">
-                         {{'In Progress' }}
-                     </Badge>
+                     <Badge v-if="prop.data.payment_status.slug == 'paid'"
+                            severity="success"> {{prop.data.payment_status.name}} </Badge>
+                     <Badge v-else-if="prop.data.payment_status.slug == 'partially-paid'"
+                            severity="warning"> {{prop.data.payment_status.name}} </Badge>
+                     <Badge v-else
+                            severity="danger"> {{'pending'}} </Badge>
                  </template>
 
 
