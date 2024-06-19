@@ -80,7 +80,7 @@ export const usePaymentStore = defineStore({
             // { id: 4, order: 'First Order', paymentStatus: 'Partially Paid',amount:'123' },
             { id: 5, order: 'First Order', paymentStatus: 'Paid',amount:'1212' }
         ],
-        filtered_orders: [],
+        filtered_orders: null,
         payment_method_suggestion: null,
         amount:1234.56
     }),
@@ -948,10 +948,26 @@ export const usePaymentStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
-        searchOrder(event){
-            this.filtered_orders = this.listData.filter(payment_method => {
-                return payment_method.order.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+        async searchOrders(event){
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/orders',
+                this.searchOrdersAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchOrdersAfter(data,res){
+            this.filtered_orders=data;
+        },
+        //---------------------------------------------------------------------
+        removeOrderDetail(index) {
+            this.item.order.splice(index, 1);
         },
         //---------------------------------------------------------------------
         searchPaymentMethod(event) {

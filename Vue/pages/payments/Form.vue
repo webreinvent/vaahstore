@@ -133,55 +133,70 @@ const toggleFormMenu = (event) => {
                     </div>
 
                 </Message>
-
-
                 <VhField label="Orders">
                     <div class="p-inputgroup">
                         <AutoComplete
-                            value="id"
                             v-model="store.item.order"
-
                             class="w-full"
                             multiple
                             :suggestions="store.filtered_orders"
-                            @complete="store.searchOrder($event)"
+                            @complete="store.searchOrders($event)"
                             placeholder="Select order"
                             data-testid="payments-order"
                             name="payments-order"
                             :dropdown="true"
-                            optionLabel="order"
-                            forceSelection></AutoComplete>
-
+                            optionLabel="user_name"
+                            forceSelection
+                        />
                     </div>
                 </VhField>
 
-                <VhField label="Order Amount">
+                <VhField >
+                    <div v-for="(detail, index) in store.item.order" :key="index" class="flex items-center w-full mb-2">
+<!--                        <InputNumber type="hidden" v-model="detail.id" />-->
+                        <InputText v-model="detail.user_name" :placeholder="'Order ' + (index + 1)" required />
+                        <InputText v-model="detail.amount" disabled  placeholder="Total amount"  />
+                        <InputNumber v-model="detail.pay_amount" placeholder="Pay Amount" inputId="minmaxfraction" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+
+                        <div class="flex items-center ml-auto">
+                            <Button
+                                class="p-button-primary p-button-sm text-red-500"
+                                icon="pi pi-times"
+                                data-testid="sources-scraping_details"
+                                @click="store.removeOrderDetail(index)"
+                            />
+                        </div>
+                    </div>
+                </VhField>
+
+
+<!--                <VhField label="Order Amount">-->
+<!--&lt;!&ndash;                    <InputNumber&ndash;&gt;-->
+<!--&lt;!&ndash;                        placeholder="Enter  amount"&ndash;&gt;-->
+<!--&lt;!&ndash;                        inputId="minmaxfraction" :minFractionDigits="2"&ndash;&gt;-->
+<!--&lt;!&ndash;                        name="orders-quantity"&ndash;&gt;-->
+<!--&lt;!&ndash;                        v-model="store.item.amount"&ndash;&gt;-->
+<!--&lt;!&ndash;                        mode="decimal"&ndash;&gt;-->
+<!--&lt;!&ndash;                        :min="0"&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        showButtons&ndash;&gt;-->
+<!--&lt;!&ndash;                        class="p-inputtext-sm w-full h-2rem"&ndash;&gt;-->
+<!--&lt;!&ndash;                        data-testid="orders-amount"/>&ndash;&gt;-->
+<!--                    <InputNumber v-model="store.amount" disabled  class="w-full" />-->
+<!--                </VhField>-->
+
+
+<!--                <VhField label="To Pay">-->
 <!--                    <InputNumber-->
-<!--                        placeholder="Enter  amount"-->
-<!--                        inputId="minmaxfraction" :minFractionDigits="2"-->
-<!--                        name="orders-quantity"-->
-<!--                        v-model="store.item.amount"-->
-<!--                        mode="decimal"-->
-<!--                        :min="0"-->
-
-<!--                        showButtons-->
-<!--                        class="p-inputtext-sm w-full h-2rem"-->
-<!--                        data-testid="orders-amount"/>-->
-                    <InputNumber v-model="store.amount" disabled  class="w-full" />
-                </VhField>
-
-
-                <VhField label="To Pay">
-                    <InputNumber
-                        placeholder="Enter amount to be paid"
-                        inputId="minmaxfraction" :min-fraction-digits="2"
-                        name="orders-paid"
-                        v-model="store.item.paid"
-                        mode="decimal" showButtons
-                        :min="0"  class="p-inputtext-sm w-full h-2rem"
-                        @input ="store.checkPaidAmount($event)"
-                        data-testid="payments-paid"/>
-                </VhField>
+<!--                        placeholder="Enter amount to be paid"-->
+<!--                        inputId="minmaxfraction" :min-fraction-digits="2"-->
+<!--                        name="orders-paid"-->
+<!--                        v-model="store.item.paid"-->
+<!--                        mode="decimal" showButtons-->
+<!--                        :min="0"  class="p-inputtext-sm w-full h-2rem"-->
+<!--                        @input ="store.checkPaidAmount($event)"-->
+<!--                        data-testid="payments-paid"/>-->
+<!--                </VhField>-->
 
                 <VhField label="Payment Method">
                     <AutoComplete

@@ -147,7 +147,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-
+dd($request);
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -641,6 +641,33 @@ class Payment extends VaahModel
     }
 
     //-------------------------------------------------
+    public static function searchOrders($request){
+        $query = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name');
+        }])
+            ->select('id', 'amount', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%');
+            });
+        }
+
+        $orders = $query->limit(10)->get();
+
+        foreach ($orders as &$order) {
+            if ($order->user) {
+                $order->user_name = $order->user->user_name;
+                unset($order->user);
+            }
+        }
+
+        $response['success'] = true;
+        $response['data'] = $orders;
+        return $response;
+    }
     //-------------------------------------------------
     //-------------------------------------------------
 
