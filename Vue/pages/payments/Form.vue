@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import { usePaymentStore } from '../../stores/store-payments'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
@@ -28,7 +28,14 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
+const totalPaidAmount = computed(() => {
+    if (!store.item.order) return 0;
 
+    return store.item.order.reduce((total, detail) => total + parseFloat(detail.pay_amount || 0), 0);
+});
+watch(totalPaidAmount, (newValue) => {
+    store.item.total_paid_amount = newValue;
+}, { immediate: true });
 </script>
 <template>
 
@@ -167,6 +174,7 @@ const toggleFormMenu = (event) => {
                             />
                         </div>
                     </div>
+                    <InputText v-model="totalPaidAmount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
                 </VhField>
 
 
