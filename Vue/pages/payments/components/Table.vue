@@ -11,7 +11,7 @@ const useVaah = vaah();
 
     <div v-if="store.list">
         <!--table-->
-         <DataTable :value="store.listData"
+         <DataTable :value="store.list.data"
                    dataKey="id"
                    :rowClass="store.setRowClass"
                    class="p-datatable-sm p-datatable-hoverable-rows"
@@ -27,15 +27,31 @@ const useVaah = vaah();
 
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
             </Column>
-             <Column field="order" header="Order"
+
+             <Column field="total_paid_amount" header="Payment Amount"
+                     class="overflow-wrap-anywhere"
+                     :sortable="true">
+             </Column>
+
+             <Column field="orders" header="Orders"
                      class="overflow-wrap-anywhere"
                      :sortable="true">
 
                  <template #body="prop">
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-                    <a> {{prop.data.order}}{{'(cart@gmail.com)'}}</a>
+                     <div class="flex flex-wrap gap-2" v-if="prop.data.orders && prop.data.orders.length > 0">
+                         <template v-if="prop.data.orders.some(variation => variation.deleted_at === null)">
+                             <!-- Display variation names -->
+                             <template v-for="(variation, index) in prop.data.orders" :key="index">
+                                 <Badge class="h-max max-w-full" v-if="variation.deleted_at === null">
+                                     {{ variation.user.name }}
+                                 </Badge>
+                             </template>
+                             <Badge v-if="prop.data.orders.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
+                         </template>
+                         <template v-else>
+                             <Badge value="Trashed" severity="danger"></Badge>
+                         </template>
+                     </div>
                  </template>
 
              </Column>

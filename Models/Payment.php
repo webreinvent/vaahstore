@@ -29,7 +29,7 @@ class Payment extends VaahModel
     protected $fillable = [
         'uuid',
 //        'name',
-//        'slug',
+        'total_paid_amount',
         'is_active',
         'created_by',
         'updated_by',
@@ -309,7 +309,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('orders');
+        $list = self::getSorted($request->filter)->with('orders.user');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
