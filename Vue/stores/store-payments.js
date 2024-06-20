@@ -989,6 +989,13 @@ export const usePaymentStore = defineStore({
             let payment_method = toRaw(event.value);
             this.item.vh_st_payment_method_id = payment_method.id;
         },
+
+         totalPaidAmount (event, index) {
+             this.item.order[index].pay_amount = parseFloat(event.value) || 0;
+             this.item.total_paid_amount = this.item.order.reduce((total, detail) => {
+                return total + (parseFloat(detail.pay_amount) || 0);
+            }, 0);
+        },
         //---------------------------------------------------------------------
     }
 });

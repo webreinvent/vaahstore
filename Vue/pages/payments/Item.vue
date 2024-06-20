@@ -139,23 +139,27 @@ const toggleItemMenu = (event) => {
 
 
                     </Column>
-                    <Column  header="Payable"
+                    <Column  header="Amount"
                              class="overflow-wrap-anywhere"
                             :sortable="true">
 
                         <template #body="prop">
-                            <Badge severity="info">{{prop.data.payable}}</Badge>
+                            <Badge severity="info">{{prop.data.amount}}</Badge>
 
                         </template>
 
                     </Column>
-                    <Column  header="Paid"  class="overflow-wrap-anywhere"
+                    <Column  header="Payable Amount"
+                             class="overflow-wrap-anywhere"
                              :sortable="true">
+
                         <template #body="prop">
-                            <Badge severity="primary">{{prop.data.paid}}</Badge>
+                            <Badge severity="info">{{prop.data.pivot.amount}}</Badge>
+
                         </template>
 
                     </Column>
+
                     <Column  header="Payment Amount"  class="overflow-wrap-anywhere"
                              :sortable="true">
 
@@ -173,9 +177,10 @@ const toggleItemMenu = (event) => {
                     <Column field="paymentStatus"  header="Payment Status"  class="overflow-wrap-anywhere"
                             :sortable="true">
                         <template #body="prop">
-                            <Badge v-if="prop.data.payable === prop.data.paid"
+<!--                            <Badge v-if="prop.data.payable === prop.data.paid"-->
+                            <Badge v-if="prop.data.pivot.remaining_order_payable_amount===0"
                                    severity="success"> {{'Paid'}} </Badge>
-                            <Badge v-else-if="prop.data.payable > prop.data.paid"
+                            <Badge v-else-if="prop.data.pivot.remaining_order_payable_amount !==0"
                                    severity="info"> {{'Partially Paid'}} </Badge>
                             <Badge v-else
                                    severity="warning"> Pending </Badge>
@@ -183,43 +188,11 @@ const toggleItemMenu = (event) => {
 
 
 
-<!--                            <Badge v-if="prop.data.paymentStatus == 'Paid'"-->
-<!--                                   severity="success"> {{prop.data.paymentStatus}} </Badge>-->
-<!--                            <Badge v-else-if="prop.data.paymentStatus == 'Pending'"-->
-<!--                                   severity="danger"> {{prop.data.paymentStatus}} </Badge>-->
-<!--                            <Badge v-else-->
-<!--                                   severity="warning"> {{prop.data.paymentStatus}} </Badge>-->
+
                         </template>
 
 
                     </Column>
-
-<!--                    <Column field="updated_at" header="Updated"-->
-<!--                            -->
-<!--                            style="width:150px;"-->
-<!--                            :sortable="true">-->
-
-<!--                        <template #body="prop">-->
-<!--                            {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}-->
-<!--                        </template>-->
-
-<!--                    </Column>-->
-
-<!--                    <Column field="is_active"-->
-<!--                            :sortable="true"-->
-<!--                            style="width:100px;"-->
-<!--                            header="Is Active">-->
-
-<!--                        <template #body="prop">-->
-<!--                            <InputSwitch v-model.bool="prop.data.is_active"-->
-<!--                                         data-testid="payments-table-is-active"-->
-<!--                                         v-bind:false-value="0"  v-bind:true-value="1"-->
-<!--                                         class="p-inputswitch-sm"-->
-<!--                                         @input="store.toggleIsActive(prop.data)">-->
-<!--                            </InputSwitch>-->
-<!--                        </template>-->
-
-<!--                    </Column>-->
 
 
 

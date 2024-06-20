@@ -28,12 +28,12 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
             </Column>
 
-             <Column field="total_paid_amount" header="Payment Amount"
+             <Column field="total_paid_amount" header="Payments Amount"
                      class="overflow-wrap-anywhere"
                      :sortable="true">
              </Column>
 
-             <Column field="orders" header="Orders"
+             <Column field="orders" header="Orders Count"
                      class="overflow-wrap-anywhere"
                      :sortable="true">
 
@@ -57,31 +57,7 @@ const useVaah = vaah();
                  </template>
 
              </Column>
-<!--            <Column field="name" header="Name"-->
-<!--                    class="overflow-wrap-anywhere"-->
-<!--                    :sortable="true">-->
 
-<!--                <template #body="prop">-->
-<!--                    <Badge v-if="prop.data.deleted_at"-->
-<!--                           value="Trashed"-->
-<!--                           severity="danger"></Badge>-->
-<!--                    {{prop.data.name}}-->
-<!--                </template>-->
-
-<!--            </Column>-->
-<!--             <Column field="paymentStatus"  header="Payment Status"-->
-<!--                     :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.paymentStatus == 'Paid'"-->
-<!--                            severity="success"> {{prop.data.paymentStatus}} </Badge>-->
-<!--                     <Badge v-else-if="prop.data.paymentStatus == 'Pending'"-->
-<!--                            severity="danger"> {{prop.data.paymentStatus}} </Badge>-->
-<!--                     <Badge v-else-->
-<!--                            severity="warning"> {{prop.data.paymentStatus}} </Badge>-->
-<!--                 </template>-->
-
-
-<!--             </Column>-->
 
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
@@ -94,9 +70,9 @@ const useVaah = vaah();
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+            <Column field="is_active"
                     :sortable="true"
-                    style="width:100px;"
+                    v-if="store.isViewLarge()"
                     header="Is Active">
 
                 <template #body="prop">

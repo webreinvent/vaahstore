@@ -116,7 +116,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public  function orders()
     {
-        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')  ->withPivot('paid', 'created_at');
+        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')  ->withPivot('paid','amount','remaining_order_payable_amount', 'created_at');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -156,10 +156,10 @@ class Payment extends VaahModel
 //dd($request);
         $inputs = $request->all();
 
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
         $item = self::withTrashed()->first();
         foreach ($inputs['order'] as $order_data) {
             $order = Order::find($order_data['id']);
@@ -184,10 +184,12 @@ class Payment extends VaahModel
                     $item->orders()->attach($order->id, [
                         'amount' => $order_data['amount'],
                         'paid' => $order_data['pay_amount'],
+                        'remaining_order_payable_amount' => $order_data['amount'] - $order_data['pay_amount'],
                         'created_at' => now(),
                     ]);
                     $order->paid += $order_data['pay_amount'];
-                    if ($order->amount == $order_data['pay_amount']) {
+
+                    if (($order_data['amount'] ==$order_data['pay_amount']) == $order_data['pay_amount']) {
                         $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'paid')->value('id');
                     }elseif($order->amount > $order_data['pay_amount']) {
                         $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'partially-paid')->value('id');
@@ -588,22 +590,38 @@ class Payment extends VaahModel
 
     public static function validation($inputs)
     {
+        $validated_data = validator($inputs, [
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+           'order' =>'required',
+            'order.*.pay_amount' => 'required',
+            'order.*.amount' => 'nullable',
+            'order.*.user_name' => 'required',
+        ],
+
         );
+        if($validated_data->fails()){
+            $errors = $validated_data->errors()->all();
+            if (isset($inputs['value'])) {
+                foreach ($inputs['value'] as $key => $value) {
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+                    if (in_array("value.{$key}.value", $errors)) {
+                        unset($inputs['value'][$key]);
+                    }
+                }
+            }
+            return [
+                'success' => false,
+                'errors' => $validated_data->errors()->all()
+
+            ];
         }
 
-        $response['success'] = true;
-        return $response;
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 

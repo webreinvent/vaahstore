@@ -21,6 +21,7 @@ class VhStpayments extends Migration
 
                 $table->string('name')->nullable()->index();
                 $table->string('slug')->nullable()->index();
+                $table->integer('total_paid_amount')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
 
 

@@ -21,6 +21,7 @@ class VhStOrderPayments extends Migration
             $table->integer('vh_st_order_id')->nullable()->index();
             $table->integer('amount')->nullable()->index();
             $table->double('paid')->nullable()->index();
+            $table->integer('remaining_order_payable_amount')->nullable()->index();
             //----common fields
             $table->text('meta')->nullable();
             $table->integer('created_by')->nullable()->index();
