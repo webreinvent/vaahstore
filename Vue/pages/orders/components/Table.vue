@@ -172,22 +172,31 @@ const useVaah = vaah();
 
              </Column>
 
-<!--             <Column field="status.name" header="Order Status"-->
-<!--                     :sortable="true">-->
+             <Column field="status.name" header="Order Status" :sortable="true">
 
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.status?.slug == 'approved'"-->
-<!--                            severity="success"> {{prop.data.status.name}} </Badge>-->
-<!--                     <Badge v-else-if="prop.data.status?.slug == 'rejected'"-->
-<!--                            severity="danger"> {{prop.data.status.name}} </Badge>-->
-<!--                     <Badge v-else-->
-<!--                            severity="warning"> {{prop.data.status.name}} </Badge>-->
-<!--                 </template>-->
+                 <template #body="prop">
+                     <template v-if="prop.data.status">
+                         <Badge v-if="prop.data.status.slug === 'approved'" severity="success">
+                             {{ prop.data.status.name }}
+                         </Badge>
+                         <Badge v-else-if="prop.data.status.slug === 'rejected'" severity="danger">
+                             {{ prop.data.status.name }}
+                         </Badge>
+                         <Badge v-else severity="warning">
+                             {{ prop.data.status.name }}
+                         </Badge>
+                     </template>
+                     <template v-else>
+                         <Badge severity="warning">
+                             {{ prop.data.status ? prop.data.status.name : '' }}
+                         </Badge>
+                     </template>
+                 </template>
 
-<!--             </Column>-->
+             </Column>
 
-             <Column  header="Payment Status"
-                     :sortable="true">
+
+             <Column header="Payment Status" :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data.order_payment_status">
                          <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
@@ -202,13 +211,12 @@ const useVaah = vaah();
                      </template>
                      <template v-else>
                          <Badge severity="danger">
-                             {{ prop.data.order_payment_status.name }}
+
                          </Badge>
                      </template>
                  </template>
-
-
              </Column>
+
              <Column  header="Shipping Status"
                      :sortable="true">
                  <template #body="prop">
