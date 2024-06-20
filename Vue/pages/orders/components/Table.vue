@@ -197,7 +197,7 @@ const useVaah = vaah();
                              {{ prop.data.payment_status.name }}
                          </Badge>
                          <Badge v-else severity="danger">
-                             Pending
+                             {{ prop.data.payment_status.name }}
                          </Badge>
                      </template>
                      <template v-else>

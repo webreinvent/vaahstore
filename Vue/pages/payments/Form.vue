@@ -28,11 +28,16 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
-watch(() => store.item.order, () => {
-    store.item.total_paid_amount = store.item.order.reduce((total, detail) => {
-        return total + (parseFloat(detail.pay_amount) || 0);
-    }, 0);
+watch(() => store.item.order, (newValue, oldValue) => {
+    if (Array.isArray(newValue)) {
+        store.item.amount = newValue.reduce((total, detail) => {
+            return total + (parseFloat(detail.pay_amount) || 0);
+        }, 0);
+    } else {
+        store.item.amount = 0;
+    }
 }, { deep: true });
+
 </script>
 <template>
 
@@ -180,7 +185,7 @@ watch(() => store.item.order, () => {
                     </div>
                 </VhField>
                 <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">
-                    <InputText v-model="store.item.total_paid_amount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
+                    <InputText v-model="store.item.amount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
                 </VhField>
                 <VhField label="Payment Method">
                     <AutoComplete
@@ -197,6 +202,15 @@ watch(() => store.item.order, () => {
                         forceSelection>
                     </AutoComplete>
                 </VhField>
+
+
+
+                <VhField label="Payment Notes">
+                    <Textarea placeholder="Enter Note"
+                              v-model="store.item.notes" rows="3" class="w-full"
+                              data-testid="vendors-status_notes" name="vendors-status_notes" />
+                </VhField>
+
                 <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
@@ -205,6 +219,8 @@ watch(() => store.item.order, () => {
                                  data-testid="payments-active"
                                  v-model="store.item.is_active"/>
                 </VhField>
+
+
 
             </div>
         </Panel>

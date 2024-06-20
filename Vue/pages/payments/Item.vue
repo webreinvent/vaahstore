@@ -40,7 +40,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-9" >
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -115,6 +115,54 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
+                <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
+                    <table class="p-datatable-table">
+                        <tbody class="p-datatable-tbody">
+                        <template v-for="(value, column) in store.item ">
+
+                            <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'orders'
+                            || column === 'deleted_by' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
+                             || column === 'updated_by_user'">
+                            </template>
+
+                            <template v-else-if="column === 'id' || column === 'uuid'">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           :can_copy="true"
+                                />
+                            </template>
+
+                            <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'  || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="user"
+                                />
+                            </template>
+
+
+
+                            <template v-else-if="column === 'is_active'">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="yes-no"
+                                />
+                            </template>
+
+                            <template v-else>
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                />
+                            </template>
+
+
+                        </template>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
                 <div class="mt-4" v-if="store.item && store.item.orders">
                 <DataTable :value="store.item.orders"
                            dataKey="id" showGridlines
@@ -154,7 +202,7 @@ const toggleItemMenu = (event) => {
                              :sortable="true">
 
                         <template #body="prop">
-                            <Badge severity="info">{{prop.data.pivot.amount}}</Badge>
+                            <Badge severity="info">{{prop.data.pivot.payable_amount}}</Badge>
 
                         </template>
 
@@ -164,26 +212,47 @@ const toggleItemMenu = (event) => {
                              :sortable="true">
 
                         <template #body="prop">
-                            <Badge v-if="prop.data.pivot.paid == 0"
+                            <Badge v-if="prop.data.pivot.payment_amount_paid == 0"
                                    value="0"
                                    severity="danger"></Badge>
-                            <Badge v-else-if="prop.data.pivot.paid > 0"
-                                   :value="prop.data.pivot.paid"
+                            <Badge v-else-if="prop.data.pivot.payment_amount_paid > 0"
+                                   :value="prop.data.pivot.payment_amount_paid"
+                                   severity="secondary"></Badge>
+                        </template>
+
+                    </Column>
+                    <Column  header="Remaining Payable Amount"  class="overflow-wrap-anywhere"
+                             :sortable="true">
+                        <template #body="prop">
+                            <Badge v-if="prop.data.pivot.remaining_payable_amount == 0"
+                                   value="0"
+                                  ></Badge>
+                            <Badge v-else-if="prop.data.pivot.remaining_payable_amount > 0"
+                                   :value="prop.data.pivot.remaining_payable_amount"
                                    severity="secondary"></Badge>
                         </template>
 
                     </Column>
 
-                    <Column field="paymentStatus"  header="Payment Status"  class="overflow-wrap-anywhere"
+                    <Column field="paymentStatus"  header="Order Payment Status"  class="overflow-wrap-anywhere"
                             :sortable="true">
                         <template #body="prop">
-<!--                            <Badge v-if="prop.data.payable === prop.data.paid"-->
-                            <Badge v-if="prop.data.pivot.remaining_order_payable_amount===0"
-                                   severity="success"> {{'Paid'}} </Badge>
-                            <Badge v-else-if="prop.data.pivot.remaining_order_payable_amount !==0"
-                                   severity="info"> {{'Partially Paid'}} </Badge>
-                            <Badge v-else
-                                   severity="warning"> Pending </Badge>
+                            <template v-if="prop.data.payment_status">
+                                <Badge v-if="prop.data.payment_status.slug === 'paid'" severity="success">
+                                    {{ prop.data.payment_status.name }}
+                                </Badge>
+                                <Badge v-else-if="prop.data.payment_status.slug === 'partially-paid'" severity="info">
+                                    {{ prop.data.payment_status.name }}
+                                </Badge>
+                                <Badge v-else severity="danger">
+                                    {{ prop.data.payment_status.name }}
+                                </Badge>
+                            </template>
+                            <template v-else>
+                                <Badge severity="danger">
+                                    Pending
+                                </Badge>
+                            </template>
 
 
 

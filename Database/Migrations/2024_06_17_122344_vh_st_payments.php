@@ -18,12 +18,13 @@ class VhStpayments extends Migration
             Schema::create('vh_st_payments', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
-
-                $table->string('name')->nullable()->index();
-                $table->string('slug')->nullable()->index();
-                $table->integer('total_paid_amount')->nullable()->index();
+                $table->bigInteger('transaction_id')->nullable()->index();
+                $table->bigInteger('taxonomy_id_payment_status')->nullable()->index();
+                $table->integer('amount')->nullable()->index();
+                $table->string('status_notes')->nullable();
+                $table->string('notes')->nullable();
                 $table->boolean('is_active')->nullable()->index();
-
+                $table->dateTime('date')->nullable()->index();
 
                 //----common fields
                 $table->text('meta')->nullable();

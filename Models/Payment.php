@@ -28,8 +28,8 @@ class Payment extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-//        'name',
-        'total_paid_amount',
+        'notes',
+        'amount',
         'is_active',
         'created_by',
         'updated_by',
@@ -116,7 +116,8 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public  function orders()
     {
-        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')  ->withPivot('paid','amount','remaining_order_payable_amount', 'created_at');
+        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')
+            ->withPivot('payment_amount_paid','payable_amount','remaining_payable_amount', 'created_at');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -168,8 +169,6 @@ class Payment extends VaahModel
 
             }
         }
-
-
         $item = new self();
         $item->fill($inputs);
         $item->save();
@@ -182,9 +181,9 @@ class Payment extends VaahModel
                 $order = Order::find($order_data['id']);
                 if ($order) {
                     $item->orders()->attach($order->id, [
-                        'amount' => $order_data['amount'],
-                        'paid' => $order_data['pay_amount'],
-                        'remaining_order_payable_amount' => $order_data['amount'] - $order_data['pay_amount'],
+                        'payable_amount' => $order_data['amount'],
+                        'payment_amount_paid' => $order_data['pay_amount'],
+                        'remaining_payable_amount' => $order_data['amount'] - $order_data['pay_amount'],
                         'created_at' => now(),
                     ]);
                     $order->paid += $order_data['pay_amount'];
@@ -480,7 +479,7 @@ class Payment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','orders.user'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'orders.user', 'orders.paymentStatus'])
             ->withTrashed()
             ->first();
 

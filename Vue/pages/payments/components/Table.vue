@@ -28,7 +28,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
             </Column>
 
-             <Column field="total_paid_amount" header="Payments Amount"
+             <Column field="amount" header="Payments Amount"
                      class="overflow-wrap-anywhere"
                      :sortable="true">
              </Column>

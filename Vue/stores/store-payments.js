@@ -126,7 +126,7 @@ export const usePaymentStore = defineStore({
 
                 default:
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 3;
                     this.show_filters = false;
                     break
             }
@@ -992,7 +992,7 @@ export const usePaymentStore = defineStore({
 
          totalPaidAmount (event, index) {
              this.item.order[index].pay_amount = parseFloat(event.value) || 0;
-             this.item.total_paid_amount = this.item.order.reduce((total, detail) => {
+             this.item.amount = this.item.order.reduce((total, detail) => {
                 return total + (parseFloat(detail.pay_amount) || 0);
             }, 0);
         },

@@ -15,18 +15,19 @@ class VhStOrderPayments extends Migration
     {
 
         Schema::create('vh_st_order_payments', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->uuid('uuid')->nullable()->index();
-            $table->integer('vh_st_payment_id')->nullable()->index();
-            $table->integer('vh_st_order_id')->nullable()->index();
-            $table->integer('amount')->nullable()->index();
-            $table->double('paid')->nullable()->index();
-            $table->integer('remaining_order_payable_amount')->nullable()->index();
+            $table->bigInteger('vh_st_payment_id')->nullable()->index();
+            $table->bigInteger('vh_st_order_id')->nullable()->index();
+            $table->integer('payable_amount')->nullable()->index();
+            $table->double('payment_amount_paid')->nullable()->index();
+            $table->integer('remaining_payable_amount')->nullable()->index();
+            $table->dateTime('date')->nullable()->index();
             //----common fields
             $table->text('meta')->nullable();
-            $table->integer('created_by')->nullable()->index();
-            $table->integer('updated_by')->nullable()->index();
-            $table->integer('deleted_by')->nullable()->index();
+            $table->bigInteger('created_by')->nullable()->index();
+            $table->bigInteger('updated_by')->nullable()->index();
+            $table->bigInteger('deleted_by')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
             $table->index(['created_at', 'updated_at', 'deleted_at']);
