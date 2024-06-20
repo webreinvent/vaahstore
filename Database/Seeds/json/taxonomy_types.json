@@ -58,5 +58,8 @@
     },
     {
         "name": "Payment Status"
+    },
+    {
+        "name": "Order Payment Status"
     }
 ]

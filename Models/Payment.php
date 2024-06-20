@@ -30,6 +30,7 @@ class Payment extends VaahModel
         'uuid',
         'notes',
         'amount',
+        'taxonomy_id_payment_status',
         'is_active',
         'created_by',
         'updated_by',
@@ -120,6 +121,11 @@ class Payment extends VaahModel
             ->withPivot('payment_amount_paid','payable_amount','remaining_payable_amount', 'created_at');
     }
     //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_status')->select('id','name','slug');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -171,12 +177,13 @@ class Payment extends VaahModel
         }
         $item = new self();
         $item->fill($inputs);
+        $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'failure')->value('id');
         $item->save();
-
-
+        $is_payment_for_all_orders = false;
+        $order_ids = [];
         if (isset($inputs['order']) && is_array($inputs['order'])) {
-            $order_ids = [];
 
+            $is_payment_for_all_orders = false;
             foreach ($inputs['order'] as $order_data) {
                 $order = Order::find($order_data['id']);
                 if ($order) {
@@ -189,23 +196,34 @@ class Payment extends VaahModel
                     $order->paid += $order_data['pay_amount'];
 
                     if (($order_data['amount'] ==$order_data['pay_amount']) == $order_data['pay_amount']) {
-                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'paid')->value('id');
+                        $taxonomy_payment_status_slug = 'paid';
                     }elseif($order->amount > $order_data['pay_amount']) {
-                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'partially-paid')->value('id');
+                        $taxonomy_payment_status_slug = 'partially-paid';
                     }else{
-                        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'pending')->value('id');
+                        $taxonomy_payment_status_slug = 'pending';
                     }
+                    $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')
+                        ->where('slug', $taxonomy_payment_status_slug)
+                        ->value('id');
                     $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
                     $order->save();
+                    if ($item->orders()->where('vh_st_order_id', $order->id)->exists()) {
+                        $order_ids[] = $order->id;
+                    } else {
+                        $is_payment_for_all_orders = false;
+                    }
+                    $is_payment_for_all_orders = true;
                     $order_ids[] = $order->id;
                 }
             }
-
-//            $attachedOrders = Order::whereIn('id', $order_ids)->get();
-//            $response['attached_orders'] = $attachedOrders;
         }
-
-
+        if ($is_payment_for_all_orders && !empty($order_ids)) {
+            $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'success')->value('id');
+        } else {
+            $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'pending')->value('id');
+        }
+        $item->date = now();
+        $item->save();
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -298,7 +316,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->withCount('orders');
+        $list = self::getSorted($request->filter)->with('status')->withCount('orders',);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -479,7 +497,7 @@ class Payment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'orders.user', 'orders.paymentStatus'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'orders.user', 'orders.orderPaymentStatus'])
             ->withTrashed()
             ->first();
 

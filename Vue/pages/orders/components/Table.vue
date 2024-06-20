@@ -172,37 +172,37 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status.name" header="Order Status"
-                     :sortable="true">
+<!--             <Column field="status.name" header="Order Status"-->
+<!--                     :sortable="true">-->
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
-                 </template>
+<!--                 <template #body="prop">-->
+<!--                     <Badge v-if="prop.data.status?.slug == 'approved'"-->
+<!--                            severity="success"> {{prop.data.status.name}} </Badge>-->
+<!--                     <Badge v-else-if="prop.data.status?.slug == 'rejected'"-->
+<!--                            severity="danger"> {{prop.data.status.name}} </Badge>-->
+<!--                     <Badge v-else-->
+<!--                            severity="warning"> {{prop.data.status.name}} </Badge>-->
+<!--                 </template>-->
 
-             </Column>
+<!--             </Column>-->
 
              <Column  header="Payment Status"
                      :sortable="true">
                  <template #body="prop">
-                     <template v-if="prop.data.payment_status">
-                         <Badge v-if="prop.data.payment_status.slug === 'paid'" severity="success">
-                             {{ prop.data.payment_status.name }}
+                     <template v-if="prop.data.order_payment_status">
+                         <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
+                             {{ prop.data.order_payment_status.name }}
                          </Badge>
-                         <Badge v-else-if="prop.data.payment_status.slug === 'partially-paid'" severity="info">
-                             {{ prop.data.payment_status.name }}
+                         <Badge v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
+                             {{ prop.data.order_payment_status.name }}
                          </Badge>
                          <Badge v-else severity="danger">
-                             {{ prop.data.payment_status.name }}
+                             {{ prop.data.order_payment_status.name }}
                          </Badge>
                      </template>
                      <template v-else>
                          <Badge severity="danger">
-                             Pending
+                             {{ prop.data.order_payment_status.name }}
                          </Badge>
                      </template>
                  </template>

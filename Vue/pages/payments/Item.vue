@@ -48,9 +48,12 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-panel-title w-7 white-space-nowrap
                 overflow-hidden text-overflow-ellipsis">
-                    #{{store.item.id}} {{'Order Payment Details'}}
+                    #{{store.item.id}}
                 </div>
-
+                <div class="p-panel-title w-7 white-space-nowrap
+                overflow-hidden text-overflow-ellipsis">
+                     {{'Payment Details'}}
+                </div>
             </template>
 
             <template #icons>
@@ -58,11 +61,7 @@ const toggleItemMenu = (event) => {
 
                 <div class="p-inputgroup">
 
-                    <Button label="Edit"
-                            class="p-button-sm"
-                            @click="store.toEdit(store.item)"
-                            data-testid="payments-item-to-edit"
-                            icon="pi pi-save"/>
+
 
                     <!--item_menu-->
                     <Button
@@ -115,13 +114,15 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
+                <TabView>
+                    <TabPanel header="Payment Details">
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                     <table class="p-datatable-table">
                         <tbody class="p-datatable-tbody">
                         <template v-for="(value, column) in store.item ">
 
                             <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'orders'
-                            || column === 'deleted_by' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
+                            || column === 'deleted_by' ||column === 'status' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
                              || column === 'updated_by_user'">
                             </template>
 
@@ -137,11 +138,32 @@ const toggleItemMenu = (event) => {
                                            :value="value"
                                            type="user"
                                 />
+
                             </template>
 
 
 
                             <template v-else-if="column === 'is_active'">
+
+                                <tr>
+                                    <td><b>Payment Status</b></td>
+                                    <td  colspan="2" >
+                                        <template v-if="store.item.status">
+                                            <Badge v-if="store.item.status.slug == 'approved'" severity="success">
+                                                {{store.item.status.name}}
+                                            </Badge>
+                                            <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warning">
+                                                {{store.item.status.name}}
+                                            </Badge>
+                                            <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
+                                                {{store.item.status.name}}
+                                            </Badge>
+                                            <Badge v-else severity="primary">
+                                                {{store.item.status.name}}
+                                            </Badge>
+                                        </template>
+                                    </td>
+                                </tr>
                                 <VhViewRow :label="column"
                                            :value="value"
                                            type="yes-no"
@@ -161,25 +183,26 @@ const toggleItemMenu = (event) => {
                     </table>
 
                 </div>
-
-
+                    </TabPanel>
+                    <TabPanel header="Orders Payment Details">
                 <div class="mt-4" v-if="store.item && store.item.orders">
                 <DataTable :value="store.item.orders"
-                           dataKey="id" showGridlines
+                           dataKey="id"
                            :rows="10"
                            :paginator="true"
                            class="p-datatable-sm p-datatable-hoverable-rows"
                            :nullSortOrder="-1"
+                           showGridlines
                            v-model:selection="store.action.items"
                            responsiveLayout="scroll">
 
 
 
-                    <Column field="id" header="Order ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
+                    <Column field="id" header="Order ID"  >
                     </Column>
                     <Column  header="Order"
                             class="overflow-wrap-anywhere"
-                            :sortable="true">
+                            >
                         <template #body="prop">
                             {{prop.data.user.name}}
 
@@ -189,7 +212,7 @@ const toggleItemMenu = (event) => {
                     </Column>
                     <Column  header="Amount"
                              class="overflow-wrap-anywhere"
-                            :sortable="true">
+                            >
 
                         <template #body="prop">
                             <Badge severity="info">{{prop.data.amount}}</Badge>
@@ -199,7 +222,7 @@ const toggleItemMenu = (event) => {
                     </Column>
                     <Column  header="Payable Amount"
                              class="overflow-wrap-anywhere"
-                             :sortable="true">
+                             >
 
                         <template #body="prop">
                             <Badge severity="info">{{prop.data.pivot.payable_amount}}</Badge>
@@ -209,7 +232,7 @@ const toggleItemMenu = (event) => {
                     </Column>
 
                     <Column  header="Payment Amount"  class="overflow-wrap-anywhere"
-                             :sortable="true">
+                             >
 
                         <template #body="prop">
                             <Badge v-if="prop.data.pivot.payment_amount_paid == 0"
@@ -221,8 +244,8 @@ const toggleItemMenu = (event) => {
                         </template>
 
                     </Column>
-                    <Column  header="Remaining Payable Amount"  class="overflow-wrap-anywhere"
-                             :sortable="true">
+                    <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
+                             >
                         <template #body="prop">
                             <Badge v-if="prop.data.pivot.remaining_payable_amount == 0"
                                    value="0"
@@ -235,17 +258,17 @@ const toggleItemMenu = (event) => {
                     </Column>
 
                     <Column field="paymentStatus"  header="Order Payment Status"  class="overflow-wrap-anywhere"
-                            :sortable="true">
+                           >
                         <template #body="prop">
-                            <template v-if="prop.data.payment_status">
-                                <Badge v-if="prop.data.payment_status.slug === 'paid'" severity="success">
-                                    {{ prop.data.payment_status.name }}
+                            <template v-if="prop.data.order_payment_status">
+                                <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
+                                    {{ prop.data.order_payment_status.name }}
                                 </Badge>
-                                <Badge v-else-if="prop.data.payment_status.slug === 'partially-paid'" severity="info">
-                                    {{ prop.data.payment_status.name }}
+                                <Badge v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
+                                    {{ prop.data.order_payment_status.name }}
                                 </Badge>
                                 <Badge v-else severity="danger">
-                                    {{ prop.data.payment_status.name }}
+                                    {{ prop.data.order_payment_status.name }}
                                 </Badge>
                             </template>
                             <template v-else>
@@ -253,18 +276,8 @@ const toggleItemMenu = (event) => {
                                     Pending
                                 </Badge>
                             </template>
-
-
-
-
-
                         </template>
-
-
                     </Column>
-
-
-
                     <template #empty>
                         <div class="text-center py-3">
                             No records found.
@@ -273,6 +286,8 @@ const toggleItemMenu = (event) => {
 
                 </DataTable>
                 </div>
+                    </TabPanel>
+                </TabView>
             </div>
         </Panel>
 

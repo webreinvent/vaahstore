@@ -28,7 +28,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
             </Column>
 
-             <Column field="amount" header="Payments Amount"
+             <Column field="amount" header="Payments Amount"  v-if="store.isViewLarge()"
                      class="overflow-wrap-anywhere"
                      :sortable="true">
              </Column>
@@ -38,21 +38,6 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-<!--                     <div class="flex flex-wrap gap-2" v-if="prop.data.orders && prop.data.orders.length > 0">-->
-<!--                         <template v-if="prop.data.orders.some(variation => variation.deleted_at === null)">-->
-<!--                             &lt;!&ndash; Display variation names &ndash;&gt;-->
-<!--                             <template v-for="(variation, index) in prop.data.orders" :key="index">-->
-<!--                                 <Badge class="h-max max-w-full" v-if="variation.deleted_at === null">-->
-<!--                                     {{ variation.user.name }}-->
-<!--                                 </Badge>-->
-<!--                             </template>-->
-<!--                             <Badge v-if="prop.data.orders.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>-->
-<!--                         </template>-->
-<!--                         <template v-else>-->
-<!--                             <Badge value="Trashed" severity="danger"></Badge>-->
-<!--                         </template>-->
-<!--                     </div>-->
-
                      <Badge class="h-max max-w-full">{{prop.data.orders_count}}</Badge>
                  </template>
 
@@ -69,7 +54,21 @@ const useVaah = vaah();
                     </template>
 
                 </Column>
+             <Column  header="Payment Status"  v-if="store.isViewLarge()"
+                      :sortable="true">
+                 <template #body="prop">
+                     <template v-if="prop.data.status">
+                         <Badge v-if="prop.data.status.slug == 'success'" severity="success">
+                             {{prop.data.status.name}}
+                         </Badge>
+                         <Badge v-else severity="primary">
+                             {{prop.data.status.name}}
+                         </Badge>
+                     </template>
+                 </template>
 
+
+             </Column>
             <Column field="is_active"
                     :sortable="true"
                     v-if="store.isViewLarge()"

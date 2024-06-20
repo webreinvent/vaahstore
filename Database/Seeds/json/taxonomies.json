@@ -245,15 +245,27 @@
         "name": "Whishlist-type-1"
     },
     {
-        "type_slug": "payment-status",
+        "type_slug": "order-payment-status",
         "name": "Paid"
     },
     {
-        "type_slug": "payment-status",
+        "type_slug": "order-payment-status",
         "name": "Partially Paid"
+    },
+    {
+        "type_slug": "order-payment-status",
+        "name": "Pending"
     },
     {
         "type_slug": "payment-status",
         "name": "Pending"
+    },
+    {
+        "type_slug": "payment-status",
+        "name": "Success"
+    },
+    {
+        "type_slug": "payment-status",
+        "name": "Failure"
     }
 ]

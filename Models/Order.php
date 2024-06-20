@@ -165,7 +165,7 @@ class Order extends VaahModel
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
     }
-    public function paymentStatus()
+    public function orderPaymentStatus()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_status')->select('id','name','slug');
     }
@@ -513,7 +513,7 @@ class Order extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','items','paymentStatus');
+        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','items','orderPaymentStatus');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
