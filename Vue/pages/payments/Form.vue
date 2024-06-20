@@ -28,7 +28,11 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
-
+watch(() => store.item.order, () => {
+    store.item.total_paid_amount = store.item.order.reduce((total, detail) => {
+        return total + (parseFloat(detail.pay_amount) || 0);
+    }, 0);
+}, { deep: true });
 </script>
 <template>
 
