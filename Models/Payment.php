@@ -31,6 +31,7 @@ class Payment extends VaahModel
         'notes',
         'amount',
         'taxonomy_id_payment_status',
+        'vh_st_payment_method_id',
         'is_active',
         'created_by',
         'updated_by',
@@ -613,8 +614,14 @@ class Payment extends VaahModel
             'order.*.pay_amount' => 'required',
             'order.*.amount' => 'nullable',
             'order.*.user_name' => 'required',
+            'vh_st_payment_method_id' => 'required',
+            'notes' => 'required|max:100',
         ],
-
+        [
+            'vh_st_payment_method_id.required' => 'The payment method is required.',
+            'notes.required' => 'The payment notes is required',
+            'notes.max' => 'The payment notes field may not be greater than :max characters',
+        ]
         );
         if($validated_data->fails()){
             $errors = $validated_data->errors()->all();

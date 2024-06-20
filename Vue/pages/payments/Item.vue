@@ -252,7 +252,7 @@ const toggleItemMenu = (event) => {
                                   ></Badge>
                             <Badge v-else-if="prop.data.pivot.remaining_payable_amount > 0"
                                    :value="prop.data.pivot.remaining_payable_amount"
-                                   severity="secondary"></Badge>
+                                   severity="warning"></Badge>
                         </template>
 
                     </Column>
