@@ -31,17 +31,7 @@ class Order extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_user_id',
-        'taxonomy_id_order_status',
-        'amount',
-        'delivery_fee',
-        'taxes',
-        'discount',
-        'payable',
-        'paid',
-        'is_paid',
-        'vh_st_payment_method_id',
-        'meta',
+
         'status_notes',
         'is_active',
         'created_by',
@@ -531,7 +521,7 @@ class Order extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus','payments'])
             ->withTrashed()
             ->first();
 
@@ -653,54 +643,14 @@ class Order extends VaahModel
     {
 
         $rules = validator($inputs, [
-            'vh_user_id' => 'required',
-            'amount' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'delivery_fee' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'taxes' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'discount' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'payable' => 'required|numeric|gt:0|regex:/^[+-]?\d{0,10}(\.\d{1,2})?$/',
-            'paid' => [
-                'nullable',
-                'numeric',
 
-                'regex:/^\d{1,10}(\.\d{1,2})?$/',
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($value > $inputs['payable']) {
-                        $fail('The '.$attribute.' amount must not exceed the payable amount.');
-                    }
-
-                },
-            ],
-            'vh_st_payment_method_id' => 'required',
-            'taxonomy_id_order_status' => 'required',
             'status_notes' => [
-                'required_if:status.slug,==,rejected',
+                'required',
                 'max:250'
             ],
         ],
             [
-                'vh_user_id.required' => 'The User field is required',
-                'amount.min' => 'The Amount field is required',
-                'amount.required' => 'The Amount field is required',
-                'payable.min' => 'The Payable field is required',
-                'payable.required' => 'The Payable field is required',
-                'taxes.required' => 'The Taxes field is required',
-                'discount.required' => 'The Discount field is required',
-//                'paid.min' => 'The Paid field is required',
-//                'paid.required' => 'The Paid field is required',
-                'delivery_fee.required' => 'The Delivery Fee field is required',
-                'taxonomy_id_order_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'amount.regex' => 'amount must be between 1 to 10 digits',
-                'delivery_fee.regex' => 'The Delivery charges must be between 1 to 10 digits',
-                'taxes.regex' => 'The Tax amount must be between 1 to 10 digits',
-                'discount.regex' => 'The Discount value must be between 1 to 10 digits',
-                'payable.regex' => 'The Payable amount must be between 1 to 10 digits',
-                'payable.gt' => 'The Payable amount must be greater than 0',
-//                'paid.regex' => 'The Paid amount must be between 1 to 10 digits',
-//                'paid.max' => 'The Paid amount must be less than payable amount',
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-
+                'status_notes.required' => 'The order  note field is required',
             ]
         );
 

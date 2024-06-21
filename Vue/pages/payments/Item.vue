@@ -157,7 +157,14 @@ const toggleItemMenu = (event) => {
                                         {{store.item.amount}}</span>
                                     </td>
                                 </tr>
-
+                                <tr>
+                                    <td><b>Payment  Method</b></td>
+                                    <td  colspan="2" >
+                                        <Button class="p-button-outlined p-button-secondary p-button-sm">
+                                            {{store.item.payment_method?.name}}
+                                        </Button>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td><b>Payment Status</b></td>
                                     <td  colspan="2" >
@@ -171,26 +178,18 @@ const toggleItemMenu = (event) => {
                                             <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
                                                 {{store.item.status.name}}
                                             </Badge>
-                                            <Badge v-else severity="primary">
+                                            <Badge v-else severity="success">
                                                 {{store.item.status.name}}
                                             </Badge>
                                         </template>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><b>Payment  Method</b></td>
-                                    <td  colspan="2" >
-                                        <Badge class="word-overflow">
-                                            {{store.item.payment_method?.name}}</Badge>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><b>Transaction ID</b></td>
-                                    <td  colspan="2" >
-                                        <span class="word-overflow">
-                                        {{store.item.transaction_id}}</span>
-                                    </td>
-                                </tr>
+
+                               
+                                <VhViewRow label="Transaction ID"
+                                           :value="store.item.transaction_id"
+                                           :can_copy="true"
+                                />
                                 <tr>
                                     <td><b>Transaction Date</b></td>
                                     <td  colspan="2" >
@@ -234,7 +233,7 @@ const toggleItemMenu = (event) => {
 
                 </div>
                     </TabPanel>
-                    <TabPanel header="Orders Payment Details">
+                    <TabPanel :header="`Orders Payment Details (${store.item.orders.length})`">
                 <div class="mt-4" v-if="store.item && store.item.orders">
                 <DataTable :value="store.item.orders"
                            dataKey="id"
@@ -260,6 +259,14 @@ const toggleItemMenu = (event) => {
                         </template>
 
 
+                    </Column>
+                    <Column  header="">
+                        <template #body="prop">
+                            <a @click="store.toOrderDetails(prop.data.id)" v-tooltip.top="'View Order Items'"
+                                class=" ml-2 pi pi-info-circle">
+
+                            </a>
+                        </template>
                     </Column>
                     <Column  header="Amount"
                              class="overflow-wrap-anywhere"
