@@ -27,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user.first_name" header="User"
+            <Column field="user.display_name" header="User"
                     :sortable="true">
 
                 <template #body="prop">
@@ -38,7 +38,7 @@ const useVaah = vaah();
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-else>
-                    {{prop.data.user.first_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
+                    {{prop.data.user.display_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
                                                              data-testid="taxonomies-table-to-edit"
 
                                                              @click="useVaah.copy(prop.data.user.email)"
@@ -64,15 +64,15 @@ const useVaah = vaah();
                  <template #body="prop">
                      {{prop.data.name}}
                      <div class="p-inputgroup">
-                          <span class="p-inputgroup-addon cursor-pointer" @click="store.toOrderDetails(prop.data)">
+                          <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.toOrderDetails(prop.data)">
                              <b>
                                 {{prop.data.items.length}}
                             </b>
                          </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
-                                 v-tooltip.top="'Add Products'"
-                                 @click="store.toOrderItem(prop.data.id)" />
+<!--                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"-->
+<!--                                 size="small"-->
+<!--                                 v-tooltip.top="'Add Products'"-->
+<!--                                 @click="store.toOrderItem(prop.data.id)" />-->
                      </div>
                  </template>
 

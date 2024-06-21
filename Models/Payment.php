@@ -207,6 +207,7 @@ class Payment extends VaahModel
                         ->where('slug', $taxonomy_payment_status_slug)
                         ->value('id');
                     $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
+                    $order->is_paid = 1;
                     $order->save();
                     if ($item->orders()->where('vh_st_order_id', $order->id)->exists()) {
                         $order_ids[] = $order->id;

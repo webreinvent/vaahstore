@@ -172,9 +172,15 @@ class Order extends VaahModel
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email', 'phone');
+        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email', 'phone','display_name');
     }
 
+    //-------------------------------------------------
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'vh_st_order_payments', 'vh_st_order_id', 'vh_st_payment_id')
+            ->withPivot('payment_amount_paid', 'payable_amount', 'remaining_payable_amount', 'created_at');
+    }
     //-------------------------------------------------
 
     public function deletedByUser()
@@ -733,7 +739,7 @@ class Order extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','items'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus'])
             ->withTrashed()
             ->first();
 
