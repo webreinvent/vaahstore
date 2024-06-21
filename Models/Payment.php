@@ -433,6 +433,9 @@ class Payment extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('orders')->whereIn('id', $items_id)->each(function ($item) {
+            $item->orders()->detach();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -472,6 +475,10 @@ class Payment extends VaahModel
                     ->each->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
+                foreach ($items as $item) {
+                    $item->orders()->detach();
+                }
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -577,6 +584,7 @@ class Payment extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        $item->orders()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
