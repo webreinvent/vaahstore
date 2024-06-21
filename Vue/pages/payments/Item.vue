@@ -185,7 +185,7 @@ const toggleItemMenu = (event) => {
                                     </td>
                                 </tr>
 
-                               
+
                                 <VhViewRow label="Transaction ID"
                                            :value="store.item.transaction_id"
                                            :can_copy="true"
@@ -233,7 +233,7 @@ const toggleItemMenu = (event) => {
 
                 </div>
                     </TabPanel>
-                    <TabPanel :header="`Orders Payment Details (${store.item.orders.length})`">
+                    <TabPanel :header="`Orders Payment Details (${store.item?.orders?.length})`">
                 <div class="mt-4" v-if="store.item && store.item.orders">
                 <DataTable :value="store.item.orders"
                            dataKey="id"
@@ -260,10 +260,10 @@ const toggleItemMenu = (event) => {
 
 
                     </Column>
-                    <Column  header="">
+                    <Column  header="" class="text-center">
                         <template #body="prop">
                             <a @click="store.toOrderDetails(prop.data.id)" v-tooltip.top="'View Order Items'"
-                                class=" ml-2 pi pi-info-circle">
+                                class=" pi pi-info-circle">
 
                             </a>
                         </template>
@@ -273,7 +273,7 @@ const toggleItemMenu = (event) => {
                             >
 
                         <template #body="prop">
-                            <Badge severity="info">{{prop.data.amount}}</Badge>
+                            <Badge class="min-w-max" severity="info">{{prop.data.amount}}</Badge>
 
                         </template>
 
@@ -283,21 +283,21 @@ const toggleItemMenu = (event) => {
                              >
 
                         <template #body="prop">
-                            <Badge severity="info">{{prop.data.pivot.payable_amount}}</Badge>
+                            <Badge class="min-w-max" severity="info">{{prop.data.pivot.payable_amount}}</Badge>
 
                         </template>
 
                     </Column>
 
-                    <Column  header="Payment Amount"  class="overflow-wrap-anywhere"
+                    <Column  header="Payment Amount"  class="overflow-wrap-anywhere "
                              >
 
                         <template #body="prop">
                             <Badge v-if="prop.data.pivot.payment_amount_paid == 0"
-                                   value="0"
+                                   value="0" class="min-w-max"
                                    severity="danger"></Badge>
                             <Badge v-else-if="prop.data.pivot.payment_amount_paid > 0"
-                                   :value="prop.data.pivot.payment_amount_paid"
+                                   :value="prop.data.pivot.payment_amount_paid" class="min-w-max"
                                    severity="secondary"></Badge>
                         </template>
 
@@ -305,10 +305,10 @@ const toggleItemMenu = (event) => {
                     <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
                              >
                         <template #body="prop">
-                            <Badge v-if="prop.data.pivot.remaining_payable_amount == 0"
+                            <Badge class="min-w-max" v-if="prop.data.pivot.remaining_payable_amount == 0"
                                    value="0"
                                   ></Badge>
-                            <Badge v-else-if="prop.data.pivot.remaining_payable_amount > 0"
+                            <Badge class="min-w-max" v-else-if="prop.data.pivot.remaining_payable_amount > 0"
                                    :value="prop.data.pivot.remaining_payable_amount"
                                    severity="warning"></Badge>
                         </template>
@@ -319,18 +319,18 @@ const toggleItemMenu = (event) => {
                            >
                         <template #body="prop">
                             <template v-if="prop.data.order_payment_status">
-                                <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
+                                <Badge class="min-w-max" v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
                                     {{ prop.data.order_payment_status.name }}
                                 </Badge>
-                                <Badge v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
+                                <Badge class="min-w-max" v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
                                     {{ prop.data.order_payment_status.name }}
                                 </Badge>
-                                <Badge v-else severity="danger">
+                                <Badge class="min-w-max" v-else severity="danger">
                                     {{ prop.data.order_payment_status.name }}
                                 </Badge>
                             </template>
                             <template v-else>
-                                <Badge severity="danger">
+                                <Badge class="min-w-max" severity="danger">
                                     Pending
                                 </Badge>
                             </template>
