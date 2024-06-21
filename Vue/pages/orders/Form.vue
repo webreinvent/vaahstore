@@ -67,12 +67,7 @@ const toggleFormMenu = (event) => {
                             @click="store.itemAction('save')"
                             icon="pi pi-save"/>
 
-                    <Button label="Create & New"
-                            v-else
-                            @click="store.itemAction('create-and-new')"
-                            class="p-button-sm"
-                            data-testid="orders-create-and-new"
-                            icon="pi pi-save"/>
+
 
 <!--                    <Button data-testid="orders-document" icon="pi pi-info-circle"-->
 <!--                            href="https://vaah.dev/store"-->

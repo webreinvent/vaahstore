@@ -186,14 +186,14 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Payment Status</b></td>
                                 <td  colspan="2" >
                                     <Badge class="word-overflow">
-                                        {{store.item.order_payment_status.name}}</Badge>
+                                        {{store.item.order_payment_status?.name}}</Badge>
                                 </td>
                             </tr>
                         </template>
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
                             <VhViewRow label="Payment Method"
-                                       :value="store.item.payment_method.name"
+                                       :value="store.item.payment_method?.name"
                             />
                         </template>
 
@@ -206,7 +206,7 @@ const toggleItemMenu = (event) => {
 
                         <template v-else-if="column === 'vh_user_id'">
                             <VhViewRow label="Order Name"
-                                       :value="store.item.user.display_name"
+                                       :value="store.item.user?.display_name"
                             />
 
                             <tr>

@@ -75,7 +75,6 @@ export const useOrderStore = defineStore({
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
-        order_product_menu_list : [],
         types : null,
         filtered_product_variations : null,
         filtered_venders :null,
@@ -676,37 +675,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async createOrder()
-        {
-           let item = this.item;
-           let id = this.route.params.order_id;
-           item.id = id;
-            let ajax_url = this.ajax_url;
-            let options = {
-                method: 'post',
-            };
 
-            options.params = item;
-            ajax_url += '/items';
-            await vaah().ajax(
-                ajax_url,
-                this.createOrderAfter,
-                options
-            );
-
-        },
-        //---------------------------------------------------------------------
-
-        async createOrderAfter(data)
-        {
-            if(data)
-            {
-                await this.getList();
-                this.setActiveItemAsEmpty();
-                this.getItemMenu();
-                this.getFormMenu();
-            }
-        },
 
         //---------------------------------------------------------------------
 
@@ -735,12 +704,12 @@ export const useOrderStore = defineStore({
                  * Create a record, hence method is `POST`
                  * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
                  */
-                case 'create-and-new':
-                case 'create-and-close':
-                case 'create-and-clone':
-                    options.method = 'POST';
-                    options.params = item;
-                    break;
+                // case 'create-and-new':
+                // case 'create-and-close':
+                // case 'create-and-clone':
+                //     options.method = 'POST';
+                //     options.params = item;
+                //     break;
 
                 /**
                  * Update a record with many columns, hence method is `PUT`
@@ -801,18 +770,18 @@ export const useOrderStore = defineStore({
             switch (this.form.action)
             {
 
-                case 'create-and-new':
+
                 case 'save-and-new':
-                case 'order-items':
+
                     this.setActiveItemAsEmpty();
                     break;
-                case 'create-and-close':
+
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'orders.index'});
                     break;
                 case 'save-and-clone':
-                case 'create-and-clone':
+
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
@@ -989,18 +958,18 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.index'})
         },
         //---------------------------------------------------------------------
-        toForm()
-        {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.getFormMenu();
-            this.$router.push({name: 'orders.form'})
-        },
+        // toForm()
+        // {
+        //     this.item = vaah().clone(this.assets.empty_item);
+        //     this.getFormMenu();
+        //     this.$router.push({name: 'orders.form'})
+        // },
         //---------------------------------------------------------------------
-        toOrderItem(id)
-        {
-            this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
-
-        },
+        // toOrderItem(id)
+        // {
+        //     this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
+        //
+        // },
         //---------------------------------------------------------------------
 
         toView(item)
@@ -1289,33 +1258,8 @@ export const useOrderStore = defineStore({
                 },)
 
 
-            } else{
-                form_menu = [
-                    {
-                        label: 'Create & Close',
-                        icon: 'pi pi-check',
-                        command: () => {
-                            this.itemAction('create-and-close');
-                        }
-                    },
-                    {
-                        label: 'Create & Clone',
-                        icon: 'pi pi-copy',
-                        command: () => {
-
-                            this.itemAction('create-and-clone');
-
-                        }
-                    },
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    }
-                ];
             }
+
 
             form_menu.push({
                 label: 'Fill',
@@ -1329,33 +1273,7 @@ export const useOrderStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async getOrderProductMenu()
-        {
-            let order_product_menu = [];
 
-            order_product_menu = [
-
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    },
-                    {
-                        label: 'Fill',
-                        icon: 'pi pi-pencil',
-                        command: () => {
-                            this.getFormInputs();
-                        }
-                    },
-
-
-                ];
-
-            this.order_product_menu_list = order_product_menu;
-
-        },
         toOrderDetails(order){
             this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
