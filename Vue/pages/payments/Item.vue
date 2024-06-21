@@ -116,14 +116,20 @@ const toggleItemMenu = (event) => {
                 </Message>
                 <TabView>
                     <TabPanel header="Payment Details">
+                        <Message severity="info" :closable="false" v-if="store.item.notes">
+                            <div>
+                                <pre style="font-family: Inter, ui-sans-serif, system-ui; width:350px;overflow-wrap: break-word;word-wrap:break-word;" v-html="store.item.notes"></pre>
+                            </div>
+                        </Message>
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                     <table class="p-datatable-table">
                         <tbody class="p-datatable-tbody">
                         <template v-for="(value, column) in store.item ">
 
                             <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'orders'
-                            || column === 'deleted_by' ||column === 'status' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
-                             || column === 'updated_by_user'">
+                            || column === 'deleted_by' ||column === 'status'||column === 'date' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
+                             || column === 'updated_by_user'|| column === 'payment_method'||column === 'meta'|| column === 'amount'||column === 'status_notes'||column === 'notes'||
+                             column === 'vh_st_payment_method_id'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -144,6 +150,13 @@ const toggleItemMenu = (event) => {
 
 
                             <template v-else-if="column === 'is_active'">
+                                <tr>
+                                    <td><b>Payment  Amount</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.amount}}</span>
+                                    </td>
+                                </tr>
 
                                 <tr>
                                     <td><b>Payment Status</b></td>
@@ -162,6 +175,43 @@ const toggleItemMenu = (event) => {
                                                 {{store.item.status.name}}
                                             </Badge>
                                         </template>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Payment  Method</b></td>
+                                    <td  colspan="2" >
+                                        <Badge class="word-overflow">
+                                            {{store.item.payment_method?.name}}</Badge>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Transaction ID</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.transaction_id}}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Transaction Date</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.date}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td><b>Payment Status  Note</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.status_notes}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td><b>Payment Gate  Response</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.meta}}</span>
                                     </td>
                                 </tr>
                                 <VhViewRow :label="column"
@@ -200,6 +250,7 @@ const toggleItemMenu = (event) => {
 
                     <Column field="id" header="Order ID"  >
                     </Column>
+
                     <Column  header="Order"
                             class="overflow-wrap-anywhere"
                             >

@@ -32,6 +32,7 @@ class Payment extends VaahModel
         'amount',
         'taxonomy_id_payment_status',
         'vh_st_payment_method_id',
+        'transaction_id',
         'is_active',
         'created_by',
         'updated_by',
@@ -116,6 +117,11 @@ class Payment extends VaahModel
     }
 
     //-------------------------------------------------
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+    }
+    //-------------------------------------------------
     public  function orders()
     {
         return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')
@@ -176,9 +182,11 @@ class Payment extends VaahModel
 
             }
         }
+        $transaction_id = uniqid('TXN');
         $item = new self();
         $item->fill($inputs);
         $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'failure')->value('id');
+        $item->transaction_id = $transaction_id;
         $item->save();
         $is_payment_for_all_orders = false;
         $order_ids = [];
@@ -499,7 +507,7 @@ class Payment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'orders.user', 'orders.orderPaymentStatus'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'orders.user', 'orders.orderPaymentStatus','paymentMethod'])
             ->withTrashed()
             ->first();
 

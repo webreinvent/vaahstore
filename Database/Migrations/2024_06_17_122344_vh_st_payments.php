@@ -19,7 +19,7 @@ class VhStpayments extends Migration
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
                 $table->bigInteger('vh_st_payment_method_id')->nullable()->index();
-                $table->bigInteger('transaction_id')->nullable()->index();
+                $table->string('transaction_id')->nullable()->index();
                 $table->bigInteger('taxonomy_id_payment_status')->nullable()->index();
                 $table->integer('amount')->nullable()->index();
                 $table->string('status_notes')->nullable();
