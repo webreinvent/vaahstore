@@ -994,6 +994,24 @@ export const usePaymentStore = defineStore({
             this.display_response_modal=true;
         },
         //---------------------------------------------------------------------
+        formatDateTime (datetimeString) {
+            if (!datetimeString) return '';
+
+            const datetime = new Date(datetimeString);
+
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+
+            return datetime.toLocaleDateString('en-US', options);
+        }
+        //---------------------------------------------------------------------
     }
 });
 

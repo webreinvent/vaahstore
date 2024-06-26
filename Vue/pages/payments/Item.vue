@@ -194,7 +194,7 @@ const toggleItemMenu = (event) => {
                                     <td><b>Transaction Date</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                        {{store.item.date}} </span>
+                                         {{ store.formatDateTime(store.item.date) }} </span>
                                     </td>
                                 </tr>
 
