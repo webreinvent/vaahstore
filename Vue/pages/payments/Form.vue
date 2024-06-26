@@ -28,15 +28,19 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
-watch(() => store.item.order, (newValue, oldValue) => {
-    if (Array.isArray(newValue)) {
-        store.item.amount = newValue.reduce((total, detail) => {
-            return total + (parseFloat(detail.pay_amount) || 0);
-        }, 0);
-    } else {
-        store.item.amount = 0;
-    }
-}, { deep: true });
+watch(
+    () => store.item?.order,
+    (newValue, oldValue) => {
+        if (Array.isArray(newValue)) {
+            store.item.amount = newValue.reduce((total, detail) => {
+                return total + (parseFloat(detail.pay_amount) || 0);
+            }, 0);
+        } else {
+            store.item.amount = 0;
+        }
+    },
+    { deep: true }
+);
 
 </script>
 <template>
@@ -142,6 +146,7 @@ watch(() => store.item.order, (newValue, oldValue) => {
                     </div>
 
                 </Message>
+                <div v-if="!$route.params.id">
                 <VhField label="Orders">
                     <div class="p-inputgroup">
                         <AutoComplete
@@ -203,7 +208,7 @@ watch(() => store.item.order, (newValue, oldValue) => {
                     </AutoComplete>
                 </VhField>
 
-
+                </div>
 
                 <VhField label="Payment Notes">
                     <Textarea placeholder="Enter Note"
