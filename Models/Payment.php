@@ -742,6 +742,32 @@ class Payment extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
+        $orders = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name');
+        }])
+            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1)
+            ->whereRaw('amount > paid');
+
+        $orders = $orders->limit(10)->get();
+
+        if ($orders->isNotEmpty()) {
+            $random_order = $orders->random();
+            $inputs['order'] = [$random_order];
+            foreach ($orders as &$order) {
+                if ($order->user) {
+                    $order->user_name = $order->user->user_name;
+                    $order->amount -= $order->paid;
+                    unset($order->user);
+                }
+            }
+        }
+        $payment_method = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+        $payment_method_ids = $payment_method->pluck('id')->toArray();
+        $payment_id = $payment_method_ids[array_rand($payment_method_ids)];
+        $inputs['vh_st_payment_method_id'] = $payment_id;
+        $payment_method_input = $payment_method->where('id',$payment_id)->first();
+        $inputs['payment_method']=$payment_method_input;
 
         /*
          * You can override the filled variables below this line.
