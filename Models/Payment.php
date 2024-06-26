@@ -33,6 +33,7 @@ class Payment extends VaahModel
         'taxonomy_id_payment_status',
         'vh_st_payment_method_id',
         'transaction_id',
+        'meta',
         'is_active',
         'created_by',
         'updated_by',
@@ -44,8 +45,38 @@ class Payment extends VaahModel
     ];
 
     //-------------------------------------------------
+//    protected $casts =[
+//        'meta'=>'array',
+//    ];
+    //-------------------------------------------------
     protected $appends = [
     ];
+
+    //-------------------------------------------------
+
+    public function getMetaAttribute($value)
+    {
+        if (!is_null($value)) {
+            return json_decode($value);
+        } else {
+            return (object) [];
+        }
+    }
+
+    //-------------------------------------------------
+
+
+    public function setMetaAttribute($value)
+    {
+        if (!is_null($value) && $value !== '') {
+            if (!is_array($value) && !is_object($value)) {
+                $value = ['message' => $value];
+            }
+            $this->attributes['meta'] = json_encode($value);
+        } else {
+            $this->attributes['meta'] = null;
+        }
+    }
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)

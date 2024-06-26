@@ -66,20 +66,7 @@ export const usePaymentStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
-        listData: [
-            { id: 1, order: 'First Order', paymentStatus: 'Paid' }, { id: 2, order: 'First Order', paymentStatus: 'Paid' }, { id: 3, order: 'First Order', paymentStatus: 'Paid' },
-            { id: 4, order: 'Second Order', paymentStatus: 'Partially Paid' },
-            { id: 5, order: 'Third Order', paymentStatus: 'Paid' },
-            { id: 6, order: 'Fourth Order', paymentStatus: 'Paid' },
-            { id: 7, order: 'Fifth Order', paymentStatus: 'Pending' }
-        ],
-        listDataOrderPayment: [
-            { id: 1, order: 'First Order', paymentStatus: 'Partially Paid',amount:'12' },
-            { id: 2, order: 'First Order', paymentStatus: 'Partially Paid',amount:'122' },
-            // { id: 3, order: 'First Order', paymentStatus: 'Partially Paid',amount:'126' },
-            // { id: 4, order: 'First Order', paymentStatus: 'Partially Paid',amount:'123' },
-            { id: 5, order: 'First Order', paymentStatus: 'Paid',amount:'1212' }
-        ],
+        display_response_modal:false,
         filtered_orders: null,
         payment_method_suggestion: null,
         amount:1234.56
@@ -1000,6 +987,11 @@ export const usePaymentStore = defineStore({
         toOrderDetails(order_id){
             this.$router.push({name: 'carts.order_details',params:{order_id:order_id},query:this.query})
 
+        },
+        //---------------------------------------------------------------------
+        openPaymentGateResponseModal(item){
+            this.item.meta = JSON.stringify(item,null,2);
+            this.display_response_modal=true;
         },
         //---------------------------------------------------------------------
     }

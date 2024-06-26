@@ -194,7 +194,7 @@ const toggleItemMenu = (event) => {
                                     <td><b>Transaction Date</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                        {{store.item.date}}</span>
+                                        {{store.item.date}} </span>
                                     </td>
                                 </tr>
 
@@ -209,10 +209,25 @@ const toggleItemMenu = (event) => {
                                 <tr>
                                     <td><b>Payment Gate  Response</b></td>
                                     <td  colspan="2" >
-                                        <span class="word-overflow">
-                                        {{store.item.meta}}</span>
+
+                                        <Button icon="pi pi-eye"
+                                                label="view"
+                                                class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                                @click="store.openPaymentGateResponseModal(value)"
+                                                data-testid="display-payment-gate-response"
+                                        />
                                     </td>
                                 </tr>
+                                <Dialog
+                                    v-model:visible="store.display_response_modal"
+                                    :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+                                    :style="{width: '50vw'}"
+                                    :modal="true"
+                                >
+                                    <p class="m-0" v-if="store.item.meta && store.item.meta.message" v-html="'<pre>' + store.item.meta.message + '</pre>'"></p>
+                                    <p class="m-0" v-else>No response available.</p>
+                                </Dialog>
+
                                 <VhViewRow :label="column"
                                            :value="value"
                                            type="yes-no"
@@ -305,7 +320,7 @@ const toggleItemMenu = (event) => {
                     <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
                              >
                         <template #body="prop">
-                            <Badge class="min-w-max" v-if="prop.data.pivot.remaining_payable_amount == 0"
+                            <Badge  v-if="prop.data.pivot.remaining_payable_amount == 0"
                                    value="0"
                                   ></Badge>
                             <Badge class="min-w-max" v-else-if="prop.data.pivot.remaining_payable_amount > 0"
