@@ -23,7 +23,7 @@ onMounted(async () => {
     /**
      * Fetch the record from the database
      */
-    if(!store.item || Object.keys(store.item).length < 1)
+    if(route.params && route.params.id)
     {
         await store.getItem(route.params.id);
     }

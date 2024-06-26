@@ -291,9 +291,13 @@ const toggleItemMenu = (event) => {
 
 
                                 <Column field="transaction_id" header="Transaction ID"  >
+                                    <template #body="prop">
+                                        <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toPaymentHistory(prop.data.id)">{{prop.data.transaction_id}}</span>
+
+                                    </template>
                                 </Column>
                                 <Column  header="Created By"
-                                         
+
                                 >
                                     <template #body="prop">
                                         {{prop.data.created_by_user.name}}
