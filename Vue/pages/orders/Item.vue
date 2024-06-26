@@ -23,7 +23,7 @@ onMounted(async () => {
     /**
      * Fetch the record from the database
      */
-    if(!store.item || Object.keys(store.item).length < 1)
+    if(route.params && route.params.id)
     {
         await store.getItem(route.params.id);
     }
@@ -214,7 +214,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Payable Amount</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.payable}}</span>
+                                         {{ store.item.amount - store.item.paid }}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -320,9 +320,9 @@ const toggleItemMenu = (event) => {
                                     </template>
                                 </Column>
                                 <Column  header="Payment"
-                                         class="overflow-wrap-anywhere"
+                                        
                                 >
-                                    <template #body="prop">
+                                    <template #body="prop" >
                                         {{prop.data.pivot.payment_amount_paid}}
                                     </template>
 

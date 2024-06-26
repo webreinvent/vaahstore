@@ -985,7 +985,7 @@ export const usePaymentStore = defineStore({
         },
         //---------------------------------------------------------------------
         toOrderDetails(order_id){
-            this.$router.push({name: 'carts.order_details',params:{order_id:order_id},query:this.query})
+            this.$router.push({name: 'orders.view',params:{id:order_id}})
 
         },
         //---------------------------------------------------------------------
