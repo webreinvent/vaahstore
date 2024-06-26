@@ -269,20 +269,13 @@ const toggleItemMenu = (event) => {
                             class="overflow-wrap-anywhere"
                             >
                         <template #body="prop">
-                            {{prop.data.user.name}}
+                            <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toOrderDetails(prop.data.id)">{{prop.data.user.name}}</span>
 
                         </template>
 
 
                     </Column>
-                    <Column  header="" class="text-center">
-                        <template #body="prop">
-                            <a @click="store.toOrderDetails(prop.data.id)" v-tooltip.top="'View Order Items'"
-                                class=" pi pi-info-circle">
 
-                            </a>
-                        </template>
-                    </Column>
                     <Column  header="Amount"
                              class="overflow-wrap-anywhere"
                             >
