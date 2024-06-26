@@ -21,7 +21,7 @@ class VhStpayments extends Migration
                 $table->bigInteger('vh_st_payment_method_id')->nullable()->index();
                 $table->string('transaction_id')->nullable()->index();
                 $table->bigInteger('taxonomy_id_payment_status')->nullable()->index();
-                $table->integer('amount')->nullable()->index();
+                $table->decimal('amount',11,2)->nullable()->index();
                 $table->string('status_notes')->nullable();
                 $table->string('notes')->nullable();
                 $table->boolean('is_active')->nullable()->index();
