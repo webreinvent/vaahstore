@@ -56,7 +56,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-8" >
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -143,7 +143,8 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
-
+                <TabView>
+                    <TabPanel header="Order Details">
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                 <table class="p-datatable-table">
                     <tbody class="p-datatable-tbody">
@@ -274,6 +275,75 @@ const toggleItemMenu = (event) => {
                 </table>
 
                 </div>
+                    </TabPanel>
+                    <TabPanel :header="`Transaction History (${store.item?.payments?.length})`">
+                        <div class="mt-4" v-if="store.item && store.item.payments">
+                            <DataTable :value="store.item.payments"
+                                       dataKey="id"
+                                       :rows="10"
+                                       :paginator="true"
+                                       class="p-datatable-sm p-datatable-hoverable-rows"
+                                       :nullSortOrder="-1"
+                                       showGridlines
+                                       v-model:selection="store.action.items"
+                                       responsiveLayout="scroll">
+
+
+
+                                <Column field="transaction_id" header="Transaction ID"  >
+                                </Column>
+                                <Column  header="Created By"
+                                         
+                                >
+                                    <template #body="prop">
+                                        {{prop.data.created_by_user.name}}
+                                    </template>
+
+
+                                </Column>
+                                <Column  header="Transaction Date"
+                                         class="overflow-wrap-anywhere"
+                                >
+                                    <template #body="prop">
+                                        {{store.formatDateTime(prop.data.date)}}
+                                    </template>
+
+
+                                </Column>
+                                <Column header="Payable Amount" class="overflow-wrap-anywhere">
+                                    <template #body="prop">
+                                        {{prop.data.pivot.payable_amount}}
+                                    </template>
+                                </Column>
+                                <Column  header="Payment"
+                                         class="overflow-wrap-anywhere"
+                                >
+                                    <template #body="prop">
+                                        {{prop.data.pivot.payment_amount_paid}}
+                                    </template>
+
+
+                                </Column>
+                                <Column  header="Remaining Payable"
+                                         class="overflow-wrap-anywhere"
+                                >
+                                    <template #body="prop">
+                                        {{prop.data.pivot.remaining_payable_amount}}
+                                    </template>
+
+
+                                </Column>
+
+                                <template #empty>
+                                    <div class="text-center py-3">
+                                        No records found.
+                                    </div>
+                                </template>
+
+                            </DataTable>
+                        </div>
+                    </TabPanel>
+                </TabView>
             </div>
         </Panel>
 

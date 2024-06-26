@@ -315,6 +315,10 @@ export const useOrderStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+                case 'orders.view':
+                    this.view = 'small';
+                    this.list_view_width = 4;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
@@ -1278,6 +1282,23 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
         },
+        formatDateTime (datetimeString) {
+            if (!datetimeString) return '';
+
+            const datetime = new Date(datetimeString);
+
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+
+            return datetime.toLocaleDateString('en-US', options);
+        }
     }
 });
 

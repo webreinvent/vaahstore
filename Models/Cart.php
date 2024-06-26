@@ -971,12 +971,16 @@ class Cart extends VaahModel
     private static function createOrder($request)
     {
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')->where('slug', 'pending')->value('id');
+        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')
+            ->where('slug', 'pending')
+            ->value('id');
 
         $order = new Order();
 
         $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
         $order->amount = $request->order_details['total_amount'];
         $order->taxonomy_id_order_status = $taxonomy_order_status;
+        $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
         $order->payable = $request->order_details['payable'];
         $order->discount = $request->order_details['discounts'];
         $order->taxes = $request->order_details['taxes'];
