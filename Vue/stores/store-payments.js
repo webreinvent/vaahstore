@@ -263,6 +263,7 @@ export const usePaymentStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.payment_amount=data.amount;
             }else{
                 this.$router.push({name: 'payments.index',query:this.query});
             }

@@ -161,7 +161,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     <td><b>Payment  Amount</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                        {{store.item.amount}}</span>
+                                        {{store.payment_amount}}</span>
                                     </td>
                                 </tr>
                                 <tr>
