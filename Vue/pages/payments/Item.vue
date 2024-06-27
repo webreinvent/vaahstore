@@ -42,6 +42,8 @@ watchEffect(() => {
         store.order_filter_key= '';
     }
 });
+const selectedTabIndex = ref(route.query && route.query.filter && route.query.filter.order ? 1 : 0);
+
 </script>
 <template>
 
@@ -119,7 +121,7 @@ watchEffect(() => {
                     </div>
 
                 </Message>
-                <TabView>
+                <TabView :activeIndex="selectedTabIndex">
                     <TabPanel header="Payment Details">
                         <Message severity="info" :closable="false" v-if="store.item.notes">
                             <div>
@@ -253,7 +255,7 @@ watchEffect(() => {
 
                 </div>
                     </TabPanel>
-                    <TabPanel :header="`Orders Payment Details (${store.item?.orders?.length})`">
+                    <TabPanel :header="`Orders Payment Details (${store.item?.orders?.length})`" >
                         <InputText class="" v-model="store.order_filter_key" placeholder="Search by Order" />
                 <div class="mt-4" v-if="store.item && store.item.orders">
                 <DataTable :value="store.filteredOrders"
