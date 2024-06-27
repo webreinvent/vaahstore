@@ -44,13 +44,13 @@ const useVaah = vaah();
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
+                <Column field="created_at" header="Created"
                         v-if="store.isViewLarge()"
                         style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.created_at)}}
                     </template>
 
                 </Column>

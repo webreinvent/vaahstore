@@ -302,7 +302,7 @@ class Order extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','items','orderPaymentStatus');
+        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','orderPaymentStatus')->withCount('items');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);

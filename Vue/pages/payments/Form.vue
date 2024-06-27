@@ -19,7 +19,7 @@ onMounted(async () => {
             store.item.order = [{
                     id: order_store.item.id,
                     user_name: order_store.item.user.name,
-                    amount: order_store.item.payable-order_store.item.paid,
+                payable_amount: order_store.item.payable-order_store.item.paid,
             }];
         } else {
             store.item.order = null;
@@ -172,7 +172,7 @@ const toggleFormMenu = (event) => {
                         </div>
                         <div class="flex items-center w-full ">
                             <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                            <InputNumber class="w-full" v-model="detail.amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
+                            <InputNumber class="w-full" v-model="detail.payable_amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
                             <InputNumber v-model="detail.pay_amount" placeholder="Pay amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
                             <div class="flex items-center ml-auto">
                             <Button
@@ -183,7 +183,7 @@ const toggleFormMenu = (event) => {
                             />
                         </div>
                         </div>
-                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.amount)" id="email-error" class="p-error"> Pay Amount cannot be greater than Total amount</small>
+                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Pay Amount cannot be greater than Total amount</small>
                     </div>
                 </VhField>
                 <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">

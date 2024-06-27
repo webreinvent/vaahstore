@@ -208,9 +208,12 @@ class Payment extends VaahModel
         $item = self::withTrashed()->first();
         foreach ($inputs['order'] as $order_data) {
             $order = Order::find($order_data['id']);
-            if ($order && $order_data['pay_amount'] > $order->amount) {
+            if ($order_data['pay_amount'] > $order->amount) {
                 return ['success' => false, 'errors' => ["Payment amount exceeds order amount"]];
+            }
 
+            if ($order_data['pay_amount'] > $order_data['payable_amount']) {
+                return ['success' => false, 'errors' => ["Payment amount exceeds payable amount"]];
             }
         }
         $transaction_id = uniqid('TXN');
@@ -222,20 +225,18 @@ class Payment extends VaahModel
         $is_payment_for_all_orders = false;
         $order_ids = [];
         if (isset($inputs['order']) && is_array($inputs['order'])) {
-
             $is_payment_for_all_orders = false;
             foreach ($inputs['order'] as $order_data) {
                 $order = Order::find($order_data['id']);
                 if ($order) {
                     $item->orders()->attach($order->id, [
-                        'payable_amount' => $order_data['amount'],
+                        'payable_amount' => $order_data['payable_amount'],
                         'payment_amount_paid' => $order_data['pay_amount'],
-                        'remaining_payable_amount' => $order_data['amount'] - $order_data['pay_amount'],
+                        'remaining_payable_amount' => $order_data['payable_amount'] - $order_data['pay_amount'],
                         'created_at' => now(),
                     ]);
                     $order->paid += $order_data['pay_amount'];
-
-                    if (($order_data['amount'] ==$order_data['pay_amount']) == $order_data['pay_amount']) {
+                    if (($order_data['payable_amount'] ==$order_data['pay_amount']) == $order_data['pay_amount']) {
                         $taxonomy_payment_status_slug = 'paid';
                     }elseif($order->amount > $order_data['pay_amount']) {
                         $taxonomy_payment_status_slug = 'partially-paid';
@@ -270,6 +271,9 @@ class Payment extends VaahModel
         return $response;
 
     }
+
+
+
 
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
@@ -347,9 +351,8 @@ class Payment extends VaahModel
         $search_array = explode(' ',$filter['q']);
         foreach ($search_array as $search_item){
             $query->where(function ($q1) use ($search_item) {
-                $q1->where('name', 'LIKE', '%' . $search_item . '%')
-                    ->orWhere('slug', 'LIKE', '%' . $search_item . '%')
-                    ->orWhere('id', 'LIKE', $search_item . '%');
+                $q1->Where('id', 'LIKE', $search_item . '%')
+                    ->orWhere('transaction_id', 'LIKE', $search_item . '%');
             });
         }
 
@@ -728,7 +731,7 @@ class Payment extends VaahModel
             foreach ($orders as &$order) {
                 if ($order->user) {
                     $order->user_name = $order->user->user_name;
-                    $order->amount -= $order->paid;
+                    $order->payable_amount= $order->amount - $order->paid;
                     unset($order->user);
                 }
             }
@@ -774,7 +777,7 @@ class Payment extends VaahModel
         foreach ($orders as &$order) {
             if ($order->user) {
                 $order->user_name = $order->user->user_name;
-                $order->amount -= $order->paid;
+                $order->payable_amount= $order->amount - $order->paid;
                 unset($order->user);
             }
         }

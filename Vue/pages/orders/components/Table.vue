@@ -49,7 +49,7 @@ const useVaah = vaah();
                 </template>
 
             </Column>
-             <Column field="user.phone" header="Mobile No."
+             <Column field="user.phone" header="Mobile No." v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -62,11 +62,11 @@ const useVaah = vaah();
                      :sortable="false"  >
 
                  <template #body="prop">
-                     {{prop.data.name}}
+
                      <div class="p-inputgroup">
                           <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.toOrderDetails(prop.data)">
                              <b>
-                                {{prop.data.items.length}}
+                                {{prop.data.items_count}}
                             </b>
                          </span>
                          <Button
@@ -109,7 +109,8 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status.name" header="Order Status" :sortable="true">
+             <Column field="status.name" header="Order Status" :sortable="true"
+                     v-if="store.isViewLarge()">
 
                  <template #body="prop">
                      <template v-if="prop.data.status">
@@ -133,7 +134,8 @@ const useVaah = vaah();
              </Column>
 
 
-             <Column header="Payment Status" :sortable="true">
+             <Column header="Payment Status" :sortable="true"
+                     v-if="store.isViewLarge()">
                  <template #body="prop">
                      <template v-if="prop.data.order_payment_status">
                          <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
@@ -155,7 +157,7 @@ const useVaah = vaah();
              </Column>
 
              <Column  header="Shipping Status"
-                     :sortable="true">
+                     :sortable="true" v-if="store.isViewLarge()">
                  <template #body="prop">
                      <Badge severity="success">
                          {{'N/A' }}
