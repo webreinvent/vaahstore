@@ -58,7 +58,7 @@ const useVaah = vaah();
                  </template>
 
              </Column>
-             <Column field="items" header="Products"
+             <Column field="items" header="Order Items"
                      :sortable="false"  >
 
                  <template #body="prop">

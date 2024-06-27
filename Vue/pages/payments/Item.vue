@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
 import {useRoute} from 'vue-router';
 
 import { usePaymentStore } from '../../stores/store-payments'
@@ -37,6 +37,11 @@ const toggleItemMenu = (event) => {
 };
 //--------/toggle item menu
 
+watchEffect(() => {
+    if (!route.query.filter || !route.query.filter.order) {
+        store.order_filter_key= '';
+    }
+});
 </script>
 <template>
 
@@ -249,8 +254,9 @@ const toggleItemMenu = (event) => {
                 </div>
                     </TabPanel>
                     <TabPanel :header="`Orders Payment Details (${store.item?.orders?.length})`">
+                        <InputText class="" v-model="store.order_filter_key" placeholder="Search by Order" />
                 <div class="mt-4" v-if="store.item && store.item.orders">
-                <DataTable :value="store.item.orders"
+                <DataTable :value="store.filteredOrders"
                            dataKey="id"
                            :rows="10"
                            :paginator="true"

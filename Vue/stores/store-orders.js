@@ -1299,8 +1299,18 @@ export const useOrderStore = defineStore({
 
             return datetime.toLocaleDateString('en-US', options);
         },
-        toPaymentHistory(payment_id){
-            this.$router.push({name: 'payments.view',params:{id:payment_id}})
+        toPaymentHistory(payment,user){
+            const query = {
+                filter: {
+                    order: [user.name]
+                }
+            };
+            const route = {
+                name: 'payments.view',
+                params: { id: payment.id },
+                query: query
+            };
+            this.$router.push(route);
 
         },
     }

@@ -1,4 +1,4 @@
-import {toRaw, watch} from 'vue'
+import {computed, toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -69,10 +69,23 @@ export const usePaymentStore = defineStore({
         display_response_modal:false,
         filtered_orders: null,
         payment_method_suggestion: null,
-        amount:1234.56
+        amount:1234.56,
+        order_filter_key:''
     }),
     getters: {
+        filteredOrders() {
+            const key = this.order_filter_key.toLowerCase().trim();
+            const route_search_query = this.route.query.filter && this.route.query.filter.order ? decodeURIComponent(this.route.query.filter.order).toLowerCase().trim() : '';
 
+            if (key || route_search_query) {
+                return this.item.orders.filter(order => {
+                    const order_user_name = order.user.name.toLowerCase();
+                    return (!key || order_user_name.includes(key)) && (!route_search_query || order_user_name.includes(route_search_query));
+                });
+            } else {
+                return this.item.orders;
+            }
+        }
     },
     actions: {
         //---------------------------------------------------------------------
