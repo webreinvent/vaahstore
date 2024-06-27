@@ -83,15 +83,17 @@ onMounted(async () => {
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
                     <Button @click="store.returnToProduct()" label="Return To Shopping" class="w-full"/>
-                    <Button label="Track Your Order" severity="secondary" outlined class="w-full"/>
+                    <Button label="Track Your Order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
 
                     <div class="w-full md:w-1/2 mb-6 md:mb-8">
 
                         <Card class="border-1 border-gray-200 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
-                            <template #title> Order Summary</template>
-                            <template #subtitle>#{{ store.ordered_unique_id }}
+
+                            <template #title> Order Summary </template>
+
+                            <template #subtitle>#{{ store.order?.uuid }}
                                 <br>
                                 <div class="flex justify-content-between">
                                     <p class="m-0">
@@ -99,6 +101,15 @@ onMounted(async () => {
                                     </p>
                                     <p class="m-0">
                                         {{ store.formatDate(store.ordered_at) }}
+                                    </p>
+                                </div>
+                                <div class="flex justify-content-between">
+                                    <p class="m-0">
+                                        <b>Amount Paid :</b>
+                                    </p>
+                                    <p class="m-0">
+                                        <i v-if="store.is_order_amount_paid" class="pi pi-check-circle text-success text-xl"></i>
+                                        <i v-else class="pi pi-times-circle text-danger text-xl"></i>
                                     </p>
                                 </div>
                             </template>

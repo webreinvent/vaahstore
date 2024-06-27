@@ -85,11 +85,12 @@ export const useCartStore = defineStore({
         ordered_billing_address:null,
         ordered_shipping_address:null,
         ordered_at:null,
-        ordered_unique_id:null,
         cash_on_delivery:null,
         item_new_billing_address:null,
         item_user_address:null,
         discount_on_order:0,
+        is_order_amount_paid:false,
+        order:null,
     }),
     getters: {
 
@@ -1106,11 +1107,12 @@ export const useCartStore = defineStore({
         getOrderDetailsAfter(data,res){
             if (data){
                 this.ordered_product=data.product_details;
+                this.order=data.order;
                 this.ordered_shipping_address=data.order_items_shipping_address;
                 this.ordered_billing_address=data.order_items_billing_address;
                 this.ordered_total_mrp = data.total_mrp;
-                this.ordered_unique_id = data.unique__order_id;
                 this.ordered_at = data.ordered_at;
+                this.is_order_amount_paid=data.is_paid;
             }
         },
 
@@ -1156,9 +1158,12 @@ export const useCartStore = defineStore({
         async redirectToCart(){
             await this.$router.replace({query: null});
             this.$router.push({name: 'carts.index'})
-        }
+        },
 
         //---------------------------------------------------------------------
+        toOrderView(order_id){
+            this.$router.push({name: 'orders.view',params:{id:order_id}})
+        },
         //---------------------------------------------------------------------
 
 
