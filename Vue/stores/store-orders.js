@@ -1313,6 +1313,12 @@ export const useOrderStore = defineStore({
             this.$router.push(route);
 
         },
+        toOrderPayment(order_id) {
+            this.$router.push({
+                name: 'payments.form',
+                query:{ order_id : order_id}
+            });
+        },
     }
 });
 

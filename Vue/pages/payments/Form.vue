@@ -4,22 +4,31 @@ import { usePaymentStore } from '../../stores/store-payments'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {useOrderStore} from "../../stores/store-orders";
 
 
 const store = usePaymentStore();
 const route = useRoute();
+const order_store=useOrderStore();
 
 onMounted(async () => {
-    /**
-     * Fetch the record from the database
-     */
-    if((!store.item || Object.keys(store.item).length < 1)
-            && route.params && route.params.id)
-    {
-        await store.getItem(route.params.id);
+    if (route.query && route.query.order_id) {
+        await order_store.getItem(route.query.order_id);
+        if (order_store.item.id) {
+            store.item = store.item || {};
+            store.item.order = [{
+                    id: order_store.item.id,
+                    user_name: order_store.item.user.name,
+                    amount: order_store.item.payable-order_store.item.paid,
+            }];
+        } else {
+            store.item.order = null;
+        }
     }
 
     await store.getFormMenu();
+
+    store.watchOrderAmount();
 });
 
 //--------form_menu
@@ -28,19 +37,7 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
-watch(
-    () => store.item?.order,
-    (newValue, oldValue) => {
-        if (Array.isArray(newValue)) {
-            store.item.amount = newValue.reduce((total, detail) => {
-                return total + (parseFloat(detail.pay_amount) || 0);
-            }, 0);
-        } else {
-            store.item.amount = 0;
-        }
-    },
-    { deep: true }
-);
+
 
 </script>
 <template>
@@ -174,9 +171,9 @@ watch(
                         <label class=" w-full" v-if="index === 0" for="pay-amount-input">Payment Amount</label>
                         </div>
                         <div class="flex items-center w-full ">
-                            <InputText v-model="detail.user_name" :placeholder="'Order ' + (index + 1)" required />
+                            <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
                             <InputNumber class="w-full" v-model="detail.amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
-                            <InputNumber v-model="detail.pay_amount" placeholder="Pay Amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+                            <InputNumber v-model="detail.pay_amount" placeholder="Pay amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
                             <div class="flex items-center ml-auto">
                             <Button
                                 class="p-button-primary p-button-sm text-red-500"

@@ -340,7 +340,13 @@ const toggleItemMenu = (event) => {
 
                                 <template #empty>
                                     <div class="text-center py-3">
-                                        No records found.
+<!--                                        No records found.-->
+                                        Click to make payment.
+                                        <Button label="Create Payment" severity="info" raised
+                                                v-tooltip.top="'Create Payment'"
+                                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                                @click="store.toOrderPayment(store.item.id)"
+                                        />
                                     </div>
                                 </template>
 

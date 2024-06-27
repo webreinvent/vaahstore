@@ -70,7 +70,8 @@ export const usePaymentStore = defineStore({
         filtered_orders: null,
         payment_method_suggestion: null,
         amount:1234.56,
-        order_filter_key:''
+        order_filter_key:'',
+
     }),
     getters: {
         filteredOrders() {
@@ -88,6 +89,9 @@ export const usePaymentStore = defineStore({
         }
     },
     actions: {
+
+
+
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -642,13 +646,18 @@ export const usePaymentStore = defineStore({
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'payments.index',query:this.query})
+            this.$router.push({name: 'payments.index'})
+
         },
         //---------------------------------------------------------------------
         toForm()
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            if (this.query.order_id){
+                this.query.order_id=null;
+            }
+
             this.$router.push({name: 'payments.form',query:this.query})
         },
         //---------------------------------------------------------------------
@@ -1023,8 +1032,27 @@ export const usePaymentStore = defineStore({
             };
 
             return datetime.toLocaleDateString('en-US', options);
-        }
+        },
         //---------------------------------------------------------------------
+        watchOrderAmount(){
+            watch(
+                () => this.item?.order,
+                (newValue, oldValue) => {
+                    if (newValue && Array.isArray(newValue)) {
+                        this.item.amount = newValue.reduce((total, detail) => {
+                            return total + (parseFloat(detail.pay_amount) || 0);
+                        }, 0);
+                    } else {
+                        if (this.item) {
+                            this.item.amount = 0;
+                        } else {
+                            this.item = { amount: 0 };
+                        }
+                    }
+                },
+                { deep: true }
+            );
+        },
     }
 });
 
