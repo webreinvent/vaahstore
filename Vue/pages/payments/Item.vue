@@ -231,7 +231,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     :style="{width: '50vw'}"
                                     :modal="true"
                                 >
-                                    <p class="m-0" v-if="store.item.meta && store.item.meta.message" v-html="'<pre>' + store.item.meta.message + '</pre>'"></p>
+                                    <p class="m-0" v-if="store.item.meta && store.item.meta" v-html="'<pre>' + store.item.meta + '</pre>'"></p>
                                     <p class="m-0" v-else>No response available.</p>
                                 </Dialog>
 

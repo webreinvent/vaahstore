@@ -1013,7 +1013,6 @@ export const usePaymentStore = defineStore({
         },
         //---------------------------------------------------------------------
         openPaymentGateResponseModal(item){
-            this.item.meta = JSON.stringify(item,null,2);
             this.display_response_modal=true;
         },
         //---------------------------------------------------------------------

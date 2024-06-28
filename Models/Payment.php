@@ -54,29 +54,25 @@ class Payment extends VaahModel
 
     //-------------------------------------------------
 
-    public function getMetaAttribute($value)
-    {
-        if (!is_null($value)) {
-            return json_decode($value);
-        } else {
-            return (object) [];
-        }
-    }
+
 
     //-------------------------------------------------
-
-
     public function setMetaAttribute($value)
     {
-        if (!is_null($value) && $value !== '') {
-            if (!is_array($value) && !is_object($value)) {
-                $value = ['message' => $value];
-            }
-            $this->attributes['meta'] = json_encode($value);
-        } else {
-            $this->attributes['meta'] = null;
-        }
+        $this->attributes['meta'] = json_encode($value);
     }
+    //-------------------------------------------------
+    public function getMetaAttribute($value)
+    {
+        if($value && $value!='null'){
+            return json_decode($value);
+        }else{
+            return json_decode('{}');
+        }
+
+    }
+
+
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -742,6 +738,8 @@ class Payment extends VaahModel
         $inputs['vh_st_payment_method_id'] = $payment_id;
         $payment_method_input = $payment_method->where('id',$payment_id)->first();
         $inputs['payment_method']=$payment_method_input;
+
+       
 
         /*
          * You can override the filled variables below this line.

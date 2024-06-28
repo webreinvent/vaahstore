@@ -183,7 +183,7 @@ const toggleFormMenu = (event) => {
                             />
                         </div>
                         </div>
-                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Pay Amount cannot be greater than Total amount</small>
+                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Payment amount cannot be greater than payable amount</small>
                     </div>
                 </VhField>
                 <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">

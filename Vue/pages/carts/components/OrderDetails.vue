@@ -105,7 +105,7 @@ onMounted(async () => {
                                 </div>
                                 <div class="flex justify-content-between">
                                     <p class="m-0">
-                                        <b>Amount Paid :</b>
+                                        <b>Total Amount Paid :</b>
                                     </p>
                                     <p class="m-0">
                                         <i v-if="store.is_order_amount_paid" class="pi pi-check-circle text-success text-xl"></i>
