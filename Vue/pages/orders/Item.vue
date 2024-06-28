@@ -321,7 +321,7 @@ const toggleItemMenu = (event) => {
 
 
                                 </Column>
-                                <Column header="Payable Amount" class="overflow-wrap-anywhere">
+                                <Column header="Payable" >
                                     <template #body="prop">
                                         {{prop.data.pivot.payable_amount}}
                                     </template>

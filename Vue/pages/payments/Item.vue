@@ -294,7 +294,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                         </template>
 
                     </Column>
-                    <Column  header="Payable Amount"
+                    <Column  header="Payable"
                              class="overflow-wrap-anywhere"
                              >
 
@@ -305,7 +305,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                     </Column>
 
-                    <Column  header="Payment Amount"  class="overflow-wrap-anywhere "
+                    <Column  header="Payment"  class="overflow-wrap-anywhere "
                              >
 
                         <template #body="prop">

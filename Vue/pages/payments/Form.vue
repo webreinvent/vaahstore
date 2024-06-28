@@ -17,8 +17,8 @@ onMounted(async () => {
         if (order_store.item.id) {
             store.item = store.item || {};
             store.item.order = [{
-                    id: order_store.item.id,
-                    user_name: order_store.item.user.name,
+                id: order_store.item.id,
+                user_name: order_store.item.user.name,
                 payable_amount: order_store.item.payable-order_store.item.paid,
             }];
         } else {
@@ -144,71 +144,71 @@ const toggleFormMenu = (event) => {
 
                 </Message>
                 <div v-if="!$route.params.id">
-                <VhField label="Orders">
-                    <div class="p-inputgroup">
-                        <AutoComplete
-                            v-model="store.item.order"
-                            class="w-full"
-                            multiple
-                            :suggestions="store.filtered_orders"
-                            @complete="store.searchOrders($event)"
-                            placeholder="Select orders"
-                            data-testid="payments-order"
-                            name="payments-order"
-                            :dropdown="true"
-                            optionLabel="user_name"
-                            forceSelection
-                        />
-                    </div>
-                </VhField>
-
-                <VhField >
-
-                    <div v-for="(detail, index) in store.item.order" :key="index" class="mb-2">
-                        <div class="flex items-center w-full ">
-                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Order Name</label>
-                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Payable amount</label>
-                        <label class=" w-full" v-if="index === 0" for="pay-amount-input">Payment Amount</label>
-                        </div>
-                        <div class="flex items-center w-full ">
-                            <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                            <InputNumber class="w-full" v-model="detail.payable_amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
-                            <InputNumber v-model="detail.pay_amount" placeholder="Pay amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
-                            <div class="flex items-center ml-auto">
-                            <Button
-                                class="p-button-primary p-button-sm text-red-500"
-                                icon="pi pi-times"
-                                data-testid="sources-scraping_details"
-                                @click="store.removeOrderDetail(index)"
+                    <VhField label="Orders">
+                        <div class="p-inputgroup">
+                            <AutoComplete
+                                v-model="store.item.order"
+                                class="w-full"
+                                multiple
+                                :suggestions="store.filtered_orders"
+                                @complete="store.searchOrders($event)"
+                                placeholder="Select orders"
+                                data-testid="payments-order"
+                                name="payments-order"
+                                :dropdown="true"
+                                optionLabel="user_name"
+                                forceSelection
                             />
                         </div>
+                    </VhField>
+
+                    <VhField >
+
+                        <div v-for="(detail, index) in store.item.order" :key="index" class="mb-2">
+                            <div class="flex items-center w-full ">
+                                <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Order </label>
+                                <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Payable </label>
+                                <label class=" w-full ml-5" v-if="index === 0" for="pay-amount-input">Payment </label>
+                            </div>
+                            <div class="flex items-center w-full ">
+                                <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
+                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
+                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+                                <div class="flex items-center ml-auto">
+                                    <Button
+                                        class="p-button-primary p-button-sm text-red-500"
+                                        icon="pi pi-times"
+                                        data-testid="sources-scraping_details"
+                                        @click="store.removeOrderDetail(index)"
+                                    />
+                                </div>
+                            </div>
+                            <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Payment amount cannot be greater than payable amount</small>
                         </div>
-                        <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Payment amount cannot be greater than payable amount</small>
-                    </div>
-                </VhField>
-                <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">
-                    <InputText v-model="store.item.amount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
-                </VhField>
-                <VhField label="Payment Method">
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.payment_method"
-                        @change="store.setPaymentMethod($event)"
-                        class="w-full"
-                        name="orders-payment_method"
-                        :suggestions="store.payment_method_suggestion"
-                        @complete="store.searchPaymentMethod($event)"
-                        placeholder="Select payment method"
-                        :dropdown="true" optionLabel="name"
-                        data-testid="payments-payment_method"
-                        forceSelection>
-                    </AutoComplete>
-                </VhField>
+                    </VhField>
+                    <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">
+                        <InputText v-model="store.item.amount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
+                    </VhField>
+                    <VhField label="Payment Method">
+                        <AutoComplete
+                            value="id"
+                            v-model="store.item.payment_method"
+                            @change="store.setPaymentMethod($event)"
+                            class="w-full"
+                            name="orders-payment_method"
+                            :suggestions="store.payment_method_suggestion"
+                            @complete="store.searchPaymentMethod($event)"
+                            placeholder="Select payment method"
+                            :dropdown="true" optionLabel="name"
+                            data-testid="payments-payment_method"
+                            forceSelection>
+                        </AutoComplete>
+                    </VhField>
 
                 </div>
 
                 <VhField label="Payment Notes">
-                    <Textarea placeholder="Enter Note"
+                    <Textarea placeholder="Enter note"
                               v-model="store.item.notes" rows="3" class="w-full"
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
