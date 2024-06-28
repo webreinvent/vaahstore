@@ -159,8 +159,8 @@ const useVaah = vaah();
              <Column  header="Shipping Status"
                      :sortable="true" v-if="store.isViewLarge()">
                  <template #body="prop">
-                     <Badge severity="success">
-                         {{'N/A' }}
+                     <Badge severity="warning">
+                         {{'Pending' }}
                      </Badge>
                  </template>
 
