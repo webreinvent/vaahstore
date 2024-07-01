@@ -123,10 +123,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                 </Message>
                 <TabView :activeIndex="selectedTabIndex">
                     <TabPanel header="Payment Details">
+
                         <Message severity="info" :closable="false" v-if="store.item.notes">
-                            <div>
-                                <pre style="font-family: Inter, ui-sans-serif, system-ui; width:350px;overflow-wrap: break-word;word-wrap:break-word;" v-html="store.item.notes"></pre>
-                            </div>
+                            <pre style="font-family: Inter, ui-sans-serif, system-ui; word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.notes}}</pre>
                         </Message>
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                     <table class="p-datatable-table">

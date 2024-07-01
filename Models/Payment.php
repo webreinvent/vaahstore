@@ -588,6 +588,12 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        $validatedData = $request->validate([
+            'notes' => 'required|max:100',
+        ], [
+            'notes.required' => 'The payment notes field is required.',
+            'notes.max' => 'The payment notes field must not exceed :max characters.',
+        ]);
         $inputs = $request->all();
         $item = self::where('id', $id)->withTrashed()->first();
         $item->notes=$inputs['notes'];
