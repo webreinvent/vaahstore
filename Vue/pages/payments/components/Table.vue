@@ -42,18 +42,18 @@ const useVaah = vaah();
                  </template>
 
              </Column>
+             <Column  header="Payment Method"
+                      :sortable="true">
+
+                 <template #body="prop">
+                     <Button class="p-button-outlined p-button-secondary p-button-sm">
+                         {{prop.data.payment_method?.name}}
+                     </Button>
+                 </template>
+
+             </Column>
 
 
-                <Column field="created_at" header="Created"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
-
-                    <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.created_at)}}
-                    </template>
-
-                </Column>
              <Column  header="Payment Status"  v-if="store.isViewLarge()"
                       :sortable="true">
                  <template #body="prop">
@@ -84,7 +84,16 @@ const useVaah = vaah();
                 </template>
 
             </Column>
+             <Column field="created_at" header="Created"
+                     v-if="store.isViewLarge()"
+                     style="width:150px;"
+                     :sortable="true">
 
+                 <template #body="prop">
+                     {{useVaah.toLocalTimeShortFormat(prop.data.created_at)}}
+                 </template>
+
+             </Column>
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">

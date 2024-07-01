@@ -373,7 +373,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status')->withCount('orders',);
+        $list = self::getSorted($request->filter)->with('status','paymentMethod')->withCount('orders',);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
