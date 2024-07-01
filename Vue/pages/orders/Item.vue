@@ -221,7 +221,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Payable Amount</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                         {{ store.item.amount - store.item.paid }}</span>
+                                         {{ (store.item.amount - store.item.paid).toFixed(2) }}</span>
                                 </td>
                             </tr>
                             <tr>

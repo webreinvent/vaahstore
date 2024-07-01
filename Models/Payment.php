@@ -209,9 +209,10 @@ class Payment extends VaahModel
         $item = self::withTrashed()->first();
         foreach ($inputs['orders'] as $order_data) {
             $order = Order::find($order_data['id']);
-            $payable_amount =  $order_data['payable_amount'];
+            $payable_amount =  round($order_data['payable_amount'], 2);
             $pay_amount = $order_data['pay_amount'];
-            $order_payable_amount =  $order->payable -  $order->paid;
+            $order_payable_amount = round($order->payable - $order->paid, 2);
+
             if (!$order) {
                 return ['success' => false, 'errors' => ["Order not found for ID: {$order_data['id']}"]];
             }
@@ -228,6 +229,7 @@ class Payment extends VaahModel
                 return ['success' => false, 'errors' => ["Payment amount for order '{$order->user->name}' must be greater than 0."]];
             }
         }
+//        dd(2);
         $transaction_id = uniqid('TXN');
         $item = new self();
         $item->fill($inputs);
@@ -796,7 +798,8 @@ class Payment extends VaahModel
         foreach ($orders as &$order) {
             if ($order->user) {
                 $order->user_name = $order->user->user_name;
-                $order->payable_amount= $order->amount - $order->paid;
+//                $order->payable_amount= $order->amount - $order->paid;
+                $order->payable_amount = round($order->amount - $order->paid, 2);
                 unset($order->user);
             }
         }

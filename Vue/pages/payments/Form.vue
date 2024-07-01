@@ -172,7 +172,7 @@ const toggleFormMenu = (event) => {
                             </div>
                             <div class="flex items-center w-full ">
                                 <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                <InputNumber class="w-full" v-model="detail.payable_amount"   placeholder="Total amount" :minFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
                                 <InputNumber v-model="detail.pay_amount" placeholder=" amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="2"  class="w-full" />
                                 <div class="flex items-center ml-auto">
                                     <Button
