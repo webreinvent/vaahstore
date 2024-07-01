@@ -228,7 +228,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Paid Amount</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.paid}}</span>
+                                        {{(store.item.paid).toFixed(2) }}</span>
                                 </td>
                             </tr>
 
@@ -236,28 +236,28 @@ const toggleItemMenu = (event) => {
                                 <td><b>Delivery Fee</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.delivery_fee}}</span>
+                                        {{(store.item.delivery_fee).toFixed(2) }}</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Taxes</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.taxes}}</span>
+                                        {{(store.item.taxes).toFixed(2) }}</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Discount</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.discount}}</span>
+                                        {{(store.item.discount).toFixed(2) }}</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Order Amount</b></td>
                                 <td  colspan="2" >
                                     <span class="word-overflow">
-                                        {{store.item.amount}}</span>
+                                    {{ (store.item.amount).toFixed(2) }}</span>
                                 </td>
                             </tr>
                         </template>
