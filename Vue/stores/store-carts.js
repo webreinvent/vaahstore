@@ -89,7 +89,7 @@ export const useCartStore = defineStore({
         item_new_billing_address:null,
         item_user_address:null,
         discount_on_order:0,
-        is_order_amount_paid:false,
+        order_paid_amount:0,
         order:null,
     }),
     getters: {
@@ -1118,7 +1118,7 @@ export const useCartStore = defineStore({
                 this.ordered_billing_address=data.order_items_billing_address;
                 this.ordered_total_mrp = data.total_mrp;
                 this.ordered_at = data.ordered_at;
-                this.is_order_amount_paid=data.is_paid;
+                this.order_paid_amount=data.order_paid_amount;
             }
         },
 
