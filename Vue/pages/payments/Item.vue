@@ -135,7 +135,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'order_payments'
                             || column === 'deleted_by' ||column === 'status'||column === 'date' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
                              || column === 'updated_by_user'|| column === 'payment_method'||column === 'meta'|| column === 'amount'||column === 'status_notes'||column === 'notes'||
-                             column === 'vh_st_payment_method_id'">
+                             column === 'vh_st_payment_method_id' || column==='payment_gate_response'|| column==='payment_gate_status'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -211,7 +211,13 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                         {{store.item.status_notes}}</span>
                                     </td>
                                 </tr>
-
+                                <tr>
+                                    <td><b>Payment Gate  Status</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.payment_gate_status}}</span>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td><b>Payment Gate  Response</b></td>
                                     <td  colspan="2" >
@@ -230,7 +236,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     :style="{width: '50vw'}"
                                     :modal="true"
                                 >
-                                    <p class="m-0" v-if="store.item.meta && store.item.meta" v-html="'<pre>' + store.item.meta + '</pre>'"></p>
+                                    <p class="m-0" v-if="store.item.payment_gate_response && store.item.payment_gate_response" v-html="'<pre>' + store.item.payment_gate_response + '</pre>'"></p>
                                     <p class="m-0" v-else>No response available.</p>
                                 </Dialog>
 
