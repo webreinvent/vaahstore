@@ -73,7 +73,7 @@ const useVaah = vaah();
                              icon="pi pi-plus"
                              severity="info"
                              size="small"
-                             :disabled="prop.data.paid >= prop.data.amount"
+
                              v-tooltip.top="'Create Payment'"
                              @click="store.toOrderPayment(prop.data.id)"
                          />

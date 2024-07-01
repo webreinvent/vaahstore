@@ -19,6 +19,7 @@ class VhStOrderPayments extends Migration
             $table->uuid('uuid')->nullable()->index();
             $table->bigInteger('vh_st_payment_id')->nullable()->index();
             $table->bigInteger('vh_st_order_id')->nullable()->index();
+            $table->integer('taxonomy_id_order_payment_status')->nullable()->index();
             $table->decimal('payable_amount', 11, 2)->nullable()->index();
             $table->decimal('payment_amount_paid', 11, 2)->nullable()->index();
             $table->decimal('remaining_payable_amount', 11, 2)->nullable()->index();

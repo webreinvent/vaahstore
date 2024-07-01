@@ -1078,7 +1078,13 @@ export const useCartStore = defineStore({
 
         placeOrderAfter(data,res){
             if (data){
-                this.orderConfirmation(data.order)
+                this.orderConfirmation(data.order);
+                this.cash_on_delivery=null;
+                this.item_billing_address=null;
+                this.selected_shipping_address=null;
+                this.selected_billing_address=null;
+                // this.bill_form=!this.bill_form;
+                this.is_same_as_shipping=null;
             }
         },
         //---------------------------------------------------------------------

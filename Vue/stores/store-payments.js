@@ -79,12 +79,12 @@ export const usePaymentStore = defineStore({
             const route_search_query = this.route.query.filter && this.route.query.filter.order ? decodeURIComponent(this.route.query.filter.order).toLowerCase().trim() : '';
 
             if (key || route_search_query) {
-                return this.item.orders.filter(order => {
-                    const order_user_name = order.user.name.toLowerCase();
+                return this.item.order_payments.filter(order_payment => {
+                    const order_user_name = order_payment.order.user.name.toLowerCase();
                     return (!key || order_user_name.includes(key)) && (!route_search_query || order_user_name.includes(route_search_query));
                 });
             } else {
-                return this.item.orders;
+                return this.item.order_payments;
             }
         }
     },
@@ -975,9 +975,9 @@ export const usePaymentStore = defineStore({
         //---------------------------------------------------------------------
         searchOrdersAfter(data,res){
             this.filtered_orders=data;
-            if (data && this.item.order) {
+            if (data && this.item.orders) {
                 this.filtered_orders = data.filter((item) => {
-                    return !this.item.order.some((activeItem) => {
+                    return !this.item.orders.some((activeItem) => {
                         return activeItem.id === item.id;
                     });
                 });
@@ -985,7 +985,7 @@ export const usePaymentStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeOrderDetail(index) {
-            this.item.order.splice(index, 1);
+            this.item.orders.splice(index, 1);
         },
         //---------------------------------------------------------------------
         searchPaymentMethod(event) {
@@ -1001,8 +1001,8 @@ export const usePaymentStore = defineStore({
         },
 
          totalPaidAmount (event, index) {
-             this.item.order[index].pay_amount = parseFloat(event.value) || 0;
-             this.item.amount = this.item.order.reduce((total, detail) => {
+             this.item.orders[index].pay_amount = parseFloat(event.value) || 0;
+             this.item.amount = this.item.orders.reduce((total, detail) => {
                 return total + (parseFloat(detail.pay_amount) || 0);
             }, 0);
         },
