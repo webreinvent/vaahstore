@@ -151,10 +151,15 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public  function orders()
     {
-        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id')
-            ->withPivot('payment_amount_paid','payable_amount','remaining_payable_amount', 'created_at');
+        return $this->belongsToMany(Order::class, 'vh_st_order_payments', 'vh_st_payment_id', 'vh_st_order_id');
     }
     //-------------------------------------------------
+    public function orderPayments()
+    {
+        return $this->hasMany(OrderPayment::class, 'vh_st_payment_id')->with('taxonomyOrderPaymentStatus');
+    }
+    //-------------------------------------------------
+
     public function status()
     {
         return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_status')->select('id','name','slug');
@@ -202,16 +207,29 @@ class Payment extends VaahModel
             return $validation;
         }
         $item = self::withTrashed()->first();
-        foreach ($inputs['order'] as $order_data) {
+        foreach ($inputs['orders'] as $order_data) {
             $order = Order::find($order_data['id']);
-            if ($order_data['pay_amount'] > $order->amount) {
-                return ['success' => false, 'errors' => ["Payment amount exceeds order amount"]];
-            }
+            $payable_amount =  round($order_data['payable_amount'], 2);
+            $pay_amount = $order_data['pay_amount'];
+            $order_payable_amount = round($order->payable - $order->paid, 2);
 
-            if ($order_data['pay_amount'] > $order_data['payable_amount']) {
-                return ['success' => false, 'errors' => ["Payment amount exceeds payable amount"]];
+            if (!$order) {
+                return ['success' => false, 'errors' => ["Order not found for ID: {$order_data['id']}"]];
+            }
+            if ( $order_payable_amount == 0) {
+                return ['success' => false, 'errors' => ["Order '{$order->user->name}' has already been fully paid."]];
+            }
+            if ( $payable_amount != $order_payable_amount) {
+                return ['success' => false, 'errors' => ["Order '{$order->user->name}' has incorrect payable amount."]];
+            }
+            if ($pay_amount > $order_payable_amount) {
+                return ['success' => false, 'errors' => ["Payment amount exceeds payable amount for order '{$order->user->name}'"]];
+            }
+            if ($pay_amount <= 0) {
+                return ['success' => false, 'errors' => ["Payment amount for order '{$order->user->name}' must be greater than 0."]];
             }
         }
+//        dd(2);
         $transaction_id = uniqid('TXN');
         $item = new self();
         $item->fill($inputs);
@@ -220,38 +238,37 @@ class Payment extends VaahModel
         $item->save();
         $is_payment_for_all_orders = false;
         $order_ids = [];
-        if (isset($inputs['order']) && is_array($inputs['order'])) {
+        if (isset($inputs['orders']) && is_array($inputs['orders'])) {
             $is_payment_for_all_orders = false;
-            foreach ($inputs['order'] as $order_data) {
+            foreach ($inputs['orders'] as $order_data) {
                 $order = Order::find($order_data['id']);
                 if ($order) {
-                    $item->orders()->attach($order->id, [
-                        'payable_amount' => $order_data['payable_amount'],
-                        'payment_amount_paid' => $order_data['pay_amount'],
-                        'remaining_payable_amount' => $order_data['payable_amount'] - $order_data['pay_amount'],
-                        'created_at' => now(),
-                    ]);
                     $order->paid += $order_data['pay_amount'];
-                    if (($order_data['payable_amount'] ==$order_data['pay_amount']) == $order_data['pay_amount']) {
+                    if (($order_data['payable_amount'] == $order_data['pay_amount']) == $order_data['pay_amount']) {
                         $taxonomy_payment_status_slug = 'paid';
-                    }elseif($order->amount > $order_data['pay_amount']) {
+                    } elseif ($order->amount > $order_data['pay_amount']) {
                         $taxonomy_payment_status_slug = 'partially-paid';
-                    }else{
+                    } else {
                         $taxonomy_payment_status_slug = 'pending';
                     }
                     $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')
                         ->where('slug', $taxonomy_payment_status_slug)
                         ->value('id');
+                    $item->orders()->attach($order->id, [
+                        'payable_amount' => $order_data['payable_amount'],
+                        'payment_amount_paid' => $order_data['pay_amount'],
+                        'remaining_payable_amount' => $order_data['payable_amount'] - $order_data['pay_amount'],
+                        'taxonomy_id_order_payment_status' => $taxonomy_payment_status_id,
+                        'created_at' => now(),
+                    ]);
                     $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
                     $order->is_paid = 1;
                     $order->save();
-                    if ($item->orders()->where('vh_st_order_id', $order->id)->exists()) {
-                        $order_ids[] = $order->id;
-                    } else {
-                        $is_payment_for_all_orders = false;
-                    }
+
                     $is_payment_for_all_orders = true;
                     $order_ids[] = $order->id;
+                } else {
+                    $is_payment_for_all_orders = false;
                 }
             }
         }
@@ -356,7 +373,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status')->withCount('orders',);
+        $list = self::getSorted($request->filter)->with('status','paymentMethod')->withCount('orders',);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -544,7 +561,13 @@ class Payment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'orders.user', 'orders.orderPaymentStatus','paymentMethod'])
+            ->with([
+                'createdByUser',
+                'updatedByUser',
+                'deletedByUser',
+                'status','orderPayments','orderPayments.order.user',
+                'paymentMethod',
+            ])
             ->withTrashed()
             ->first();
 
@@ -565,6 +588,12 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+        $validatedData = $request->validate([
+            'notes' => 'required|max:100',
+        ], [
+            'notes.required' => 'The payment notes field is required.',
+            'notes.max' => 'The payment notes field must not exceed :max characters.',
+        ]);
         $inputs = $request->all();
         $item = self::where('id', $id)->withTrashed()->first();
         $item->notes=$inputs['notes'];
@@ -628,12 +657,12 @@ class Payment extends VaahModel
     {
         $validated_data = validator($inputs, [
 
-           'order' =>'required',
-            'order.*.pay_amount' => 'required',
-            'order.*.amount' => 'nullable',
-            'order.*.user_name' => 'required',
+           'orders' =>'required',
+            'orders.*.pay_amount' => 'required|numeric|min:0',
+            'orders.*.amount' => 'nullable|numeric',
+            'orders.*.user_name' => 'required|string',
             'vh_st_payment_method_id' => 'required',
-            'notes' => 'required|max:100',
+            'notes' => 'required|string|max:100',
         ],
         [
             'vh_st_payment_method_id.required' => 'The payment method is required.',
@@ -723,7 +752,7 @@ class Payment extends VaahModel
 
         if ($orders->isNotEmpty()) {
             $random_order = $orders->random();
-            $inputs['order'] = [$random_order];
+            $inputs['orders'] = [$random_order];
             foreach ($orders as &$order) {
                 if ($order->user) {
                     $order->user_name = $order->user->user_name;
@@ -739,7 +768,7 @@ class Payment extends VaahModel
         $payment_method_input = $payment_method->where('id',$payment_id)->first();
         $inputs['payment_method']=$payment_method_input;
 
-       
+
 
         /*
          * You can override the filled variables below this line.
@@ -775,7 +804,8 @@ class Payment extends VaahModel
         foreach ($orders as &$order) {
             if ($order->user) {
                 $order->user_name = $order->user->user_name;
-                $order->payable_amount= $order->amount - $order->paid;
+//                $order->payable_amount= $order->amount - $order->paid;
+                $order->payable_amount = round($order->amount - $order->paid, 2);
                 unset($order->user);
             }
         }

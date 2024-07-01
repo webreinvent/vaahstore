@@ -123,20 +123,19 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                 </Message>
                 <TabView :activeIndex="selectedTabIndex">
                     <TabPanel header="Payment Details">
+
                         <Message severity="info" :closable="false" v-if="store.item.notes">
-                            <div>
-                                <pre style="font-family: Inter, ui-sans-serif, system-ui; width:350px;overflow-wrap: break-word;word-wrap:break-word;" v-html="store.item.notes"></pre>
-                            </div>
+                            <pre style="font-family: Inter, ui-sans-serif, system-ui; word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.notes}}</pre>
                         </Message>
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                     <table class="p-datatable-table">
                         <tbody class="p-datatable-tbody">
                         <template v-for="(value, column) in store.item ">
 
-                            <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'orders'
+                            <template v-if="column === 'created_by'|| column === 'updated_by'||column === 'order_payments'
                             || column === 'deleted_by' ||column === 'status'||column === 'date' || column === 'taxonomy_id_payment_status' || column === 'transaction_id'|| column === 'created_at'|| column === 'updated_at'
                              || column === 'updated_by_user'|| column === 'payment_method'||column === 'meta'|| column === 'amount'||column === 'status_notes'||column === 'notes'||
-                             column === 'vh_st_payment_method_id'">
+                             column === 'vh_st_payment_method_id' || column==='payment_gate_response'|| column==='payment_gate_status'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -212,7 +211,13 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                         {{store.item.status_notes}}</span>
                                     </td>
                                 </tr>
-
+                                <tr>
+                                    <td><b>Payment Gate  Status</b></td>
+                                    <td  colspan="2" >
+                                        <span class="word-overflow">
+                                        {{store.item.payment_gate_status}}</span>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td><b>Payment Gate  Response</b></td>
                                     <td  colspan="2" >
@@ -231,7 +236,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     :style="{width: '50vw'}"
                                     :modal="true"
                                 >
-                                    <p class="m-0" v-if="store.item.meta && store.item.meta" v-html="'<pre>' + store.item.meta + '</pre>'"></p>
+                                    <p class="m-0" v-if="store.item.payment_gate_response && store.item.payment_gate_response" v-html="'<pre>' + store.item.payment_gate_response + '</pre>'"></p>
                                     <p class="m-0" v-else>No response available.</p>
                                 </Dialog>
 
@@ -255,9 +260,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                 </div>
                     </TabPanel>
-                    <TabPanel :header="`Orders Payment Details (${store.item?.orders?.length})`" >
-                        <InputText class="" v-model="store.order_filter_key" placeholder="Search by Order" />
-                <div class="mt-4" v-if="store.item && store.item.orders">
+                    <TabPanel :header="`Orders Payment Details (${store.item?.order_payments?.length})`" >
+                        <InputText class="" v-model="store.order_filter_key" placeholder="Search By Order" />
+                <div class="mt-4" v-if="store.item && store.item.order_payments">
                 <DataTable :value="store.filteredOrders"
                            dataKey="id"
                            :rows="10"
@@ -270,14 +275,14 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
 
 
-                    <Column field="id" header="Order ID"  >
+                    <Column field="order.id" header="Order ID"  >
                     </Column>
 
                     <Column  header="Order"
                             class="overflow-wrap-anywhere"
                             >
                         <template #body="prop">
-                            <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toOrderDetails(prop.data.id)">{{prop.data.user.name}}</span>
+                            <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toOrderDetails(prop.data.order.id)">{{prop.data.order.user.name}}</span>
 
                         </template>
 
@@ -289,7 +294,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             >
 
                         <template #body="prop">
-                            <Badge class="min-w-max" severity="info">{{prop.data.amount}}</Badge>
+<!--                            <Badge class="min-w-max" severity="info">-->
+                                {{prop.data.order.amount}}
+<!--                            </Badge>-->
 
                         </template>
 
@@ -299,7 +306,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                              >
 
                         <template #body="prop">
-                            <Badge class="min-w-max" severity="info">{{prop.data.pivot.payable_amount}}</Badge>
+<!--                            <Badge class="min-w-max" severity="info">-->
+                                {{prop.data.payable_amount}}
+<!--                            </Badge>-->
 
                         </template>
 
@@ -309,23 +318,23 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                              >
 
                         <template #body="prop">
-                            <Badge v-if="prop.data.pivot.payment_amount_paid == 0"
+                            <span v-if="prop.data.payment_amount_paid == 0"
                                    value="0" class="min-w-max"
-                                   severity="danger"></Badge>
-                            <Badge v-else-if="prop.data.pivot.payment_amount_paid > 0"
-                                   :value="prop.data.pivot.payment_amount_paid" class="min-w-max"
-                                   severity="secondary"></Badge>
+                                   severity="danger">0</span>
+                            <span v-else-if="prop.data.payment_amount_paid > 0"
+                                   :value="prop.data.payment_amount_paid" class="min-w-max"
+                                   severity="secondary">{{prop.data.payment_amount_paid}}</span>
                         </template>
 
                     </Column>
                     <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
                              >
                         <template #body="prop">
-                            <Badge  v-if="prop.data.pivot.remaining_payable_amount == 0"
+                            <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
-                                  ></Badge>
-                            <Badge class="min-w-max" v-else-if="prop.data.pivot.remaining_payable_amount > 0"
-                                   :value="prop.data.pivot.remaining_payable_amount"
+                                  >0</span>
+                            <Badge class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
+                                   :value="prop.data.remaining_payable_amount"
                                    severity="warning"></Badge>
                         </template>
 
@@ -334,15 +343,15 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     <Column field="paymentStatus"  header="Order Payment Status"  class="overflow-wrap-anywhere"
                            >
                         <template #body="prop">
-                            <template v-if="prop.data.order_payment_status">
-                                <Badge class="min-w-max" v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
-                                    {{ prop.data.order_payment_status.name }}
+                            <template v-if="prop.data.taxonomy_order_payment_status">
+                                <Badge class="min-w-max" v-if="prop.data.taxonomy_order_payment_status.slug === 'paid'" severity="success">
+                                    {{ prop.data.taxonomy_order_payment_status.name }}
                                 </Badge>
-                                <Badge class="min-w-max" v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
-                                    {{ prop.data.order_payment_status.name }}
+                                <Badge class="min-w-max" v-else-if="prop.data.taxonomy_order_payment_status.slug === 'partially-paid'" severity="info">
+                                    {{ prop.data.taxonomy_order_payment_status.name }}
                                 </Badge>
                                 <Badge class="min-w-max" v-else severity="danger">
-                                    {{ prop.data.order_payment_status.name }}
+                                    {{ prop.data.taxonomy_order_payment_status.name }}
                                 </Badge>
                             </template>
                             <template v-else>

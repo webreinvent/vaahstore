@@ -25,36 +25,43 @@ const useVaah = vaah();
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">{{'1'}}
+            <Column field="id" header="ID" :style="{width: '60px'}" :sortable="true">{{'1'}}
             </Column>
-
-             <Column field="amount" header="Payment Amount"  v-if="store.isViewLarge()"
-                     class="overflow-wrap-anywhere"
-                     :sortable="true">
+             <Column field="amount" header="Amount" :sortable="true" :style="{width: '80px'}">
+                 <template #body="prop">
+                     <div class="justify-content-end flex">
+                         {{prop.data.amount}}
+                     </div>
+                 </template>
              </Column>
 
+
              <Column field="orders" header="Orders Count"
-                     class="overflow-wrap-anywhere"
+                    
                      :sortable="true">
 
                  <template #body="prop">
+                     <div class="justify-content-center flex">
                      <Badge class="h-max max-w-full">{{prop.data.orders_count}}</Badge>
+                     </div>
+                 </template>
+
+             </Column>
+             <Column  header="Payment Method" style="width: 150px"
+                      :sortable="true">
+
+                 <template #body="prop">
+                     <div class="justify-content-center flex">
+                     <Tag severity="info">
+                         {{prop.data.payment_method?.name}}
+                     </Tag>
+                     </div>
                  </template>
 
              </Column>
 
 
-                <Column field="created_at" header="Created"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
-
-                    <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.created_at)}}
-                    </template>
-
-                </Column>
-             <Column  header="Payment Status"  v-if="store.isViewLarge()"
+             <Column  header="Payment Status"  v-if="store.isViewLarge()"  class="overflow-wrap-anywhere justify-content-center flex"
                       :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data.status">
@@ -75,16 +82,27 @@ const useVaah = vaah();
                     header="Is Active">
 
                 <template #body="prop">
+                    <div class="justify-content-center flex">
                     <InputSwitch v-model.bool="prop.data.is_active"
                                  data-testid="payments-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
+                                 class="p-inputswitch-sm "
                                  @input="store.toggleIsActive(prop.data)">
                     </InputSwitch>
+                    </div>
                 </template>
 
             </Column>
+             <Column field="created_at" header="Created"
+                     v-if="store.isViewLarge()"
+                     style="width:150px;"
+                     :sortable="true">
 
+                 <template #body="prop">
+                     {{useVaah.toLocalTimeShortFormat(prop.data.created_at)}}
+                 </template>
+
+             </Column>
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
@@ -150,3 +168,4 @@ const useVaah = vaah();
     </div>
 
 </template>
+

@@ -107,9 +107,9 @@ onMounted(async () => {
                                     <p class="m-0">
                                         <b>Total Amount Paid :</b>
                                     </p>
-                                    <p class="m-0">
-                                        <i v-if="store.is_order_amount_paid" class="pi pi-check-circle text-success text-xl"></i>
-                                        <i v-else class="pi pi-times-circle text-danger text-xl"></i>
+                                    <p class="m-0">₹{{store.order_paid_amount}}
+<!--                                        <i v-if="store.is_order_amount_paid" class="pi pi-check-circle text-success text-xl"></i>-->
+<!--                                        <i v-else class="pi pi-times-circle text-danger text-xl"></i>-->
                                     </p>
                                 </div>
                             </template>

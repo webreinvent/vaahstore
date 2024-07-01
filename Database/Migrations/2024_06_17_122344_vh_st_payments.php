@@ -24,6 +24,8 @@ class VhStpayments extends Migration
                 $table->decimal('amount',11,2)->nullable()->index();
                 $table->string('status_notes')->nullable();
                 $table->string('notes')->nullable();
+                $table->text('payment_gate_response')->nullable();
+                $table->string('payment_gate_status')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
                 $table->dateTime('date')->nullable()->index();
 

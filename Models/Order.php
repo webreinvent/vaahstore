@@ -172,7 +172,10 @@ class Order extends VaahModel
             ->withPivot('payment_amount_paid', 'payable_amount', 'remaining_payable_amount', 'created_at');
     }
     //-------------------------------------------------
-
+    public function orderPayments()
+    {
+        return $this->hasMany(OrderPayment::class, 'vh_st_order_id');
+    }
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,

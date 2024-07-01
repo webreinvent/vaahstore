@@ -16,13 +16,13 @@ onMounted(async () => {
         await order_store.getItem(route.query.order_id);
         if (order_store.item.id) {
             store.item = store.item || {};
-            store.item.order = [{
+            store.item.orders = [{
                 id: order_store.item.id,
                 user_name: order_store.item.user.name,
                 payable_amount: order_store.item.payable-order_store.item.paid,
             }];
         } else {
-            store.item.order = null;
+            store.item.orders = null;
         }
     }
 
@@ -147,7 +147,7 @@ const toggleFormMenu = (event) => {
                     <VhField label="Orders">
                         <div class="p-inputgroup">
                             <AutoComplete
-                                v-model="store.item.order"
+                                v-model="store.item.orders"
                                 class="w-full"
                                 multiple
                                 :suggestions="store.filtered_orders"
@@ -164,7 +164,7 @@ const toggleFormMenu = (event) => {
 
                     <VhField >
 
-                        <div v-for="(detail, index) in store.item.order" :key="index" class="mb-2">
+                        <div v-for="(detail, index) in store.item.orders" :key="index" class="mb-2">
                             <div class="flex items-center w-full ">
                                 <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Order </label>
                                 <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Payable </label>
@@ -172,8 +172,8 @@ const toggleFormMenu = (event) => {
                             </div>
                             <div class="flex items-center w-full ">
                                 <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled placeholder="Total amount" inputId="locale-indian"  locale="en-IN"/>
-                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"  @input="store.totalPaidAmount($event, index)"  inputId="locale-indian"  locale="en-IN" :minFractionDigits="2" :maxFractionDigits="5" class="w-full" />
+                                <InputNumber class="w-full" v-model="detail.payable_amount"   placeholder="Total amount" :minFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="2"  class="w-full" />
                                 <div class="flex items-center ml-auto">
                                     <Button
                                         class="p-button-primary p-button-sm text-red-500"
@@ -186,8 +186,8 @@ const toggleFormMenu = (event) => {
                             <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Payment amount cannot be greater than payable amount</small>
                         </div>
                     </VhField>
-                    <VhField label="Total Payment" v-if="store.item.order && store.item.order.length>0">
-                        <InputText v-model="store.item.amount" placeholder="Total payment amount" disabled label="Total Amount" class="w-full" />
+                    <VhField label="Total Payment" v-if="store.item.orders && store.item.orders.length>0">
+                        <InputNumber v-model="store.item.amount" placeholder="Total payment amount" :minFractionDigits="2" disabled label="Total Amount" class="w-full" />
                     </VhField>
                     <VhField label="Payment Method">
                         <AutoComplete
