@@ -58,6 +58,10 @@ class OrdersController extends Controller
 
         return $response;
     }
+    public static function getPaymentMethods(){
+        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+        return $payment_methods ?? null;
+    }
 
     //----------------------------------------------------------
     public function getList(Request $request)
