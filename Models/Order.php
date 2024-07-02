@@ -303,10 +303,30 @@ class Order extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopePaymentStatusFilter($query, $filter)
+    {
+
+        if(!isset($filter['payment_status'])
+            || is_null($filter['payment_status'])
+            || $filter['payment_status'] === 'null'
+        )
+        {
+            return $query;
+        }
+
+        $status = $filter['payment_status'];
+
+        $query->whereHas('orderPaymentStatus', function ($query) use ($status) {
+            $query->whereIn('slug', $status);
+        });
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','paymentMethod','user','orderPaymentStatus')->withCount('items');
         $list->isActiveFilter($request->filter);
+        $list->paymentStatusFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
 

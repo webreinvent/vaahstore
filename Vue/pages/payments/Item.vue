@@ -298,7 +298,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                         <template #body="prop">
 <!--                            <Badge class="min-w-max" severity="info">-->
-                                {{prop.data.order.amount}}
+                                {{(prop.data.order.amount).toFixed(2)}}
 <!--                            </Badge>-->
 
                         </template>

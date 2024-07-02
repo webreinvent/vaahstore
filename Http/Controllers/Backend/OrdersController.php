@@ -36,7 +36,9 @@ class OrdersController extends Controller
             $data['fillable']['columns'] = Order::getFillableColumns();
             $data['fillable']['except'] = Order::getUnFillableColumns();
             $data['empty_item'] = Order::getEmptyItem();
-
+            $data['taxonomy'] = [
+                "order_payment_status" => Taxonomy::getTaxonomyByType('order-payment-status'),
+            ];
             $data['actions'] = [];
 
             $data['payment_methods'] = self::getPaymentMethods();

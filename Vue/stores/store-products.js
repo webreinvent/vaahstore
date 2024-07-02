@@ -2320,17 +2320,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
 
-        minQuantity(event){
-            this.query.filter.min_quantity = event.value
-
-        },
-
-        //---------------------------------------------------------------------
-
-        maxQuantity(event){
-            this.query.filter.max_quantity = event.value
-        },
-
+       
         //---------------------------------------------------------------------
 
 
