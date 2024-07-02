@@ -172,8 +172,8 @@ const toggleFormMenu = (event) => {
                             </div>
                             <div class="flex items-center w-full ">
                                 <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                                <InputNumber class="w-full" v-model="detail.payable_amount"   placeholder="Total amount" :minFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
-                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="2"  class="w-full" />
+                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
                                 <div class="flex items-center ml-auto">
                                     <Button
                                         class="p-button-primary p-button-sm text-red-500"
@@ -187,7 +187,7 @@ const toggleFormMenu = (event) => {
                         </div>
                     </VhField>
                     <VhField label="Total Payment" v-if="store.item.orders && store.item.orders.length>0">
-                        <InputNumber v-model="store.item.amount" placeholder="Total payment amount" :minFractionDigits="2" disabled label="Total Amount" class="w-full" />
+                        <InputNumber v-model="store.item.amount" placeholder="Total payment amount" :minFractionDigits="0" :maxFractionDigits="2" disabled label="Total Amount" class="w-full" />
                     </VhField>
                     <VhField label="Payment Method">
                         <AutoComplete

@@ -323,14 +323,18 @@ const toggleItemMenu = (event) => {
                                 </Column>
                                 <Column header="Payable" >
                                     <template #body="prop">
+                                        <div class="justify-content-end flex">
                                         {{prop.data.pivot.payable_amount}}
+                                        </div>
                                     </template>
                                 </Column>
                                 <Column  header="Payment"
 
                                 >
                                     <template #body="prop" >
+                                        <div class="justify-content-end flex">
                                         {{prop.data.pivot.payment_amount_paid}}
+                                        </div>
                                     </template>
 
 
@@ -339,7 +343,9 @@ const toggleItemMenu = (event) => {
                                          class="overflow-wrap-anywhere"
                                 >
                                     <template #body="prop">
+                                        <div class="justify-content-end flex">
                                         {{prop.data.pivot.remaining_payable_amount}}
+                                        </div>
                                     </template>
 
 

@@ -212,7 +212,8 @@ class Payment extends VaahModel
             $payable_amount =  round($order_data['payable_amount'], 2);
             $pay_amount = $order_data['pay_amount'];
             $order_payable_amount = round($order->payable - $order->paid, 2);
-
+//dd($payable_amount,$pay_amount,$order_payable_amount);
+//dd($order_data['payable_amount'] == $order_data['pay_amount']) == $order_data['pay_amount']);
             if (!$order) {
                 return ['success' => false, 'errors' => ["Order not found for ID: {$order_data['id']}"]];
             }

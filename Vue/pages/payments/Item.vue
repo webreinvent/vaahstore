@@ -306,10 +306,11 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                              >
 
                         <template #body="prop">
+                            <div class="justify-content-end flex">
 <!--                            <Badge class="min-w-max" severity="info">-->
                                 {{prop.data.payable_amount}}
 <!--                            </Badge>-->
-
+                            </div>
                         </template>
 
                     </Column>
@@ -318,24 +319,28 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                              >
 
                         <template #body="prop">
+                            <div class="justify-content-end flex">
                             <span v-if="prop.data.payment_amount_paid == 0"
                                    value="0" class="min-w-max"
                                    severity="danger">0</span>
                             <span v-else-if="prop.data.payment_amount_paid > 0"
                                    :value="prop.data.payment_amount_paid" class="min-w-max"
                                    severity="secondary">{{prop.data.payment_amount_paid}}</span>
+                            </div>
                         </template>
 
                     </Column>
                     <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
                              >
                         <template #body="prop">
+                            <div class="justify-content-end flex">
                             <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
                                   >0</span>
                             <Badge class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
                                    :value="prop.data.remaining_payable_amount"
                                    severity="warning"></Badge>
+                            </div>
                         </template>
 
                     </Column>
