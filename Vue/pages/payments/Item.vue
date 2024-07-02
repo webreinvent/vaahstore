@@ -68,7 +68,11 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                 <div class="p-inputgroup">
 
-
+                    <Button label="Edit"
+                            class="p-button-sm"
+                            @click="store.toEdit(store.item)"
+                            data-testid="orders-item-to-edit"
+                            icon="pi pi-save"/>
 
                     <!--item_menu-->
                     <Button
@@ -207,8 +211,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                 <tr>
                                     <td><b>Payment Status  Note</b></td>
                                     <td  colspan="2" >
-                                        <span class="word-overflow">
-                                        {{store.item.status_notes}}</span>
+                                        <span class="word-overflow" v-html="store.item.status_notes"></span>
                                     </td>
                                 </tr>
                                 <tr>

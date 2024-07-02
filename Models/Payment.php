@@ -201,60 +201,40 @@ class Payment extends VaahModel
     {
 //dd($request);
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
-        $item = self::withTrashed()->first();
+        $payment_method_slug = $inputs['payment_method']['slug'] ?? null;
+        if ($payment_method_slug !== 'cod') {
+            return ['success' => false, 'errors' => ["Currently dealing with COD payment method"]];
+        }
         foreach ($inputs['orders'] as $order_data) {
             $order = Order::find($order_data['id']);
-            $payable_amount =  round($order_data['payable_amount'], 2);
-            $pay_amount = $order_data['pay_amount'];
-            $order_payable_amount = round($order->payable - $order->paid, 2);
-//dd($payable_amount,$pay_amount,$order_payable_amount);
-//dd($order_data['payable_amount'] == $order_data['pay_amount']) == $order_data['pay_amount']);
-            if (!$order) {
-                return ['success' => false, 'errors' => ["Order not found for ID: {$order_data['id']}"]];
+            $validation_result = self::validateOrderAndPayment($order, $order_data);
+            if (!$validation_result['success']) {
+                return $validation_result;
             }
-            if ( $order_payable_amount == 0) {
-                return ['success' => false, 'errors' => ["Order '{$order->user->name}' has already been fully paid."]];
-            }
-            if ( $payable_amount != $order_payable_amount) {
-                return ['success' => false, 'errors' => ["Order '{$order->user->name}' has incorrect payable amount."]];
-            }
-            if ($pay_amount > $order_payable_amount) {
-                return ['success' => false, 'errors' => ["Payment amount exceeds payable amount for order '{$order->user->name}'"]];
-            }
-            if ($pay_amount <= 0) {
-                return ['success' => false, 'errors' => ["Payment amount for order '{$order->user->name}' must be greater than 0."]];
-            }
+            $successfully_paid_orders[] = $order->user->name;
         }
-//        dd(2);
         $transaction_id = uniqid('TXN');
         $item = new self();
         $item->fill($inputs);
         $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'failure')->value('id');
         $item->transaction_id = $transaction_id;
-        $item->save();
         $is_payment_for_all_orders = false;
         $order_ids = [];
+        $item->save();
         if (isset($inputs['orders']) && is_array($inputs['orders'])) {
             $is_payment_for_all_orders = false;
             foreach ($inputs['orders'] as $order_data) {
                 $order = Order::find($order_data['id']);
                 if ($order) {
                     $order->paid += $order_data['pay_amount'];
-                    if (($order_data['payable_amount'] == $order_data['pay_amount']) == $order_data['pay_amount']) {
-                        $taxonomy_payment_status_slug = 'paid';
-                    } elseif ($order->amount > $order_data['pay_amount']) {
-                        $taxonomy_payment_status_slug = 'partially-paid';
-                    } else {
-                        $taxonomy_payment_status_slug = 'pending';
-                    }
-                    $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')
-                        ->where('slug', $taxonomy_payment_status_slug)
-                        ->value('id');
+                    $payable_amount = round($order_data['payable_amount'], 2);
+                    $pay_amount = $order_data['pay_amount'];
+                    $taxonomy_payment_status_slug = ($payable_amount == $pay_amount) ? 'paid' : 'partially-paid';
+                    $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')->where('slug', $taxonomy_payment_status_slug)->value('id');
                     $item->orders()->attach($order->id, [
                         'payable_amount' => $order_data['payable_amount'],
                         'payment_amount_paid' => $order_data['pay_amount'],
@@ -270,14 +250,17 @@ class Payment extends VaahModel
                     $order_ids[] = $order->id;
                 } else {
                     $is_payment_for_all_orders = false;
+                    break;
                 }
             }
         }
-        if ($is_payment_for_all_orders && !empty($order_ids)) {
-            $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'success')->value('id');
-        } else {
-            $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'pending')->value('id');
-        }
+
+        $overall_payment_status = $is_payment_for_all_orders ? 'success' : 'pending';
+        $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')
+            ->where('slug', $overall_payment_status)
+            ->value('id');
+        $successfully_paid_order_names = implode(', ', $successfully_paid_orders);
+        $item->status_notes = "Payment successfully done for orders: <strong>{$successfully_paid_order_names}</strong>";
         $item->date = now();
         $item->save();
         $response = self::getItem($item->id);
@@ -286,6 +269,29 @@ class Payment extends VaahModel
 
     }
 
+    private static function validateOrderAndPayment($order, $order_data)
+    {
+        $payable_amount = round($order_data['payable_amount'], 2);
+        $pay_amount = $order_data['pay_amount'];
+        $order_payable_amount = round($order->payable - $order->paid, 2);
+        if (!$order) {
+            return ['success' => false, 'errors' => ["Order not found for ID: {$order_data['id']}"]];
+        }
+        if ($order_payable_amount == 0) {
+            return ['success' => false, 'errors' => ["Order '{$order->user->name}' has already been fully paid."]];
+        }
+        if ($payable_amount != $order_payable_amount) {
+            return ['success' => false, 'errors' => ["Order '{$order->user->name}' has incorrect payable amount."]];
+        }
+        if ($pay_amount > $order_payable_amount) {
+            return ['success' => false, 'errors' => ["Payment amount exceeds payable amount for order '{$order->user->name}'"]];
+        }
+        if ($pay_amount <= 0) {
+            return ['success' => false, 'errors' => ["Payment amount for order '{$order->user->name}' must be greater than 0."]];
+        }
+
+        return ['success' => true];
+    }
 
 
 
@@ -796,7 +802,8 @@ class Payment extends VaahModel
         if ($request->has('query') && $request->input('query')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%');
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
             });
         }
 
