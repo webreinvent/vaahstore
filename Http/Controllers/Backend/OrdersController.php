@@ -36,18 +36,11 @@ class OrdersController extends Controller
             $data['fillable']['columns'] = Order::getFillableColumns();
             $data['fillable']['except'] = Order::getUnFillableColumns();
             $data['empty_item'] = Order::getEmptyItem();
-            $data['taxonomy'] = [
-                'status_orders' => Taxonomy::getTaxonomyByType('order-status'),
-                'status_order_items' => Taxonomy::getTaxonomyByType('order-items-status'),
-                'types' =>  Taxonomy::getTaxonomyByType('order-items-types')
-            ];
+
             $data['actions'] = [];
-            $data['customer_groups'] = self::getCustomerGroups();
+
             $data['payment_methods'] = self::getPaymentMethods();
-            $data['active_users'] = self::getUsers();
-            $data['products'] = self::getProducts();
-            $data['product_variations'] = self::getProductVariations();
-            $data['vendors'] = self::getVendors();
+
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -104,41 +97,13 @@ class OrdersController extends Controller
 
     //----------------------------------------------------------
 
-    public static function getCustomerGroups(){
-        $customer_groups = CustomerGroup::get();
-        return $customer_groups ?? null;
-    }
+
 
     //----------------------------------------------------------
 
-    public static function getPaymentMethods(){
-        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
-        return $payment_methods ?? null;
-    }
+
 
     //----------------------------------------------------------
-    public static function getUsers(){
-        $users = User::where(['is_active'=>1,'deleted_at'=>null])->get();
-        return $users ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getProducts(){
-        $products = Product::where('is_active',1)->get();
-        return $products ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getProductVariations(){
-        $product_variations = ProductVariation::where('is_active',1)->get();
-        return $product_variations ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getVendors(){
-        $vendors = Vendor::where('is_active',1)->get();
-        return $vendors ?? null;
-    }
 
     //----------------------------------------------------------
 

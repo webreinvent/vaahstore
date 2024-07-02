@@ -107,203 +107,20 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchType(event) {
 
-            this.type_suggestion= this.types.filter((types) => {
-                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-        searchStatusOrderItems(event) {
-
-            this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
-                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
 
         //---------------------------------------------------------------------
 
-        async searchProduct(event)
-        {
-            if(!this.item.vendor)
-            {
-                vaah().toastErrors(['Please Choose a Vendor First']);
-                return false;
-            }
-            const query = {
-                vendor_id: this.item.vh_st_vendor_id,
-                search: event
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-
-        },
 
         //---------------------------------------------------------------------
 
-        searchProductAfter(data,res) {
-            if(data)
-            {
-                this.products = data;
-            }
-        },
 
         //---------------------------------------------------------------------
 
-        async searchProductVariation(event)
-        {
-            if(!this.item.product)
-            {
-                vaah().toastErrors(['Please Choose a Product First']);
-                return false;
-            }
-            const query = {
-                product_id: this.item.vh_st_product_id,
-                vendor_id: this.item.vh_st_vendor_id,
-                search: event
-            };
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
 
         //---------------------------------------------------------------------
 
-        searchProductVariationAfter(data,res) {
-            if(data)
-            {
-                this.filtered_product_variations = data;
-            }
-        },
 
-        //---------------------------------------------------------------------
-
-        async searchVendor(event) {
-
-                const query = {
-                    filter: {
-                        q: event,
-                    },
-                };
-
-                const options = {
-                    params: query,
-                    method: 'post',
-                };
-                await vaah().ajax(
-                    this.ajax_url+'/search/vendor',
-                    this.searchVendorAfter,
-                    options
-                );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchVendorAfter(data,res) {
-            if(data)
-            {
-                this.filtered_venders = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchCustomerGroup(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/customer-group',
-                this.searchCustomerGroupAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchCustomerGroupAfter(data,res) {
-
-            if(data)
-            {
-                this.filtered_customer_groups = data;
-                console.log(data);
-            }
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchStatus(event) {
-
-            this.status_suggestion= this.status_orders.filter((status_orders) => {
-                return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchUser(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/user',
-                this.searchUserAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchUserAfter(data,res) {
-            if(data)
-            {
-                this.filtered_users = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-
-            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
 
 
 
@@ -515,16 +332,10 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_orders = data.taxonomy.status_orders;
-                this.active_users = data.active_users;
+
+
                 this.payment_methods = data.payment_methods;
 
-                this.types = data.taxonomy.types;
-                this.products = data.products;
-                this.product_variations = data.product_variations;
-                this.status_order_items = data.taxonomy.status_order_items;
-                this.customer_groups = data.customer_groups;
-                this.vendors = data.vendors;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
