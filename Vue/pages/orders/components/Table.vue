@@ -38,12 +38,12 @@ const useVaah = vaah();
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-else>
-                    {{prop.data.user.display_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
+                    {{prop.data.user?.display_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
                                                              data-testid="taxonomies-table-to-edit"
 
-                                                             @click="useVaah.copy(prop.data.user.email)"
+                                                             @click="useVaah.copy(prop.data.user?.email)"
                                                              icon="pi pi-copy"
-                    > {{prop.data.user.email}}</Button>
+                    > {{prop.data.user?.email}}</Button>
                     </span>
                     {{prop.data.name}}
                 </template>
@@ -53,7 +53,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     {{prop.data.user.phone}}
+                     {{prop.data.user?.phone}}
 
                  </template>
 
@@ -115,13 +115,13 @@ const useVaah = vaah();
                  <template #body="prop">
                      <template v-if="prop.data.status">
                          <Badge v-if="prop.data.status.slug === 'approved'" severity="success">
-                             {{ prop.data.status.name }}
+                             {{ prop.data.status?.name }}
                          </Badge>
                          <Badge v-else-if="prop.data.status.slug === 'rejected'" severity="danger">
-                             {{ prop.data.status.name }}
+                             {{ prop.data.status?.name }}
                          </Badge>
                          <Badge v-else severity="warning">
-                             {{ prop.data.status.name }}
+                             {{ prop.data.status?.name }}
                          </Badge>
                      </template>
                      <template v-else>

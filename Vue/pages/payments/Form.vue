@@ -144,7 +144,7 @@ const toggleFormMenu = (event) => {
 
                 </Message>
                 <div v-if="!$route.params.id">
-                    <VhField label="Orders">
+                    <VhField label="Orders*">
                         <div class="p-inputgroup">
                             <AutoComplete
                                 v-model="store.item.orders"
@@ -173,7 +173,7 @@ const toggleFormMenu = (event) => {
                             <div class="flex items-center w-full ">
                                 <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
                                 <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
-                                <InputNumber v-model="detail.pay_amount" placeholder=" amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
+                                <InputNumber v-model="detail.pay_amount" placeholder=" Amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
                                 <div class="flex items-center ml-auto">
                                     <Button
                                         class="p-button-primary p-button-sm text-red-500"
@@ -189,7 +189,7 @@ const toggleFormMenu = (event) => {
                     <VhField label="Total Payment" v-if="store.item.orders && store.item.orders.length>0">
                         <InputNumber v-model="store.item.amount" placeholder="Total payment amount" :minFractionDigits="0" :maxFractionDigits="2" disabled label="Total Amount" class="w-full" />
                     </VhField>
-                    <VhField label="Payment Method">
+                    <VhField label="Payment Method*">
                         <AutoComplete
                             value="id"
                             v-model="store.item.payment_method"
@@ -208,7 +208,7 @@ const toggleFormMenu = (event) => {
                 </div>
 
                 <VhField label="Payment Notes">
-                    <Textarea placeholder="Enter note"
+                    <Textarea placeholder="Enter payment note"
                               v-model="store.item.notes" rows="3" class="w-full"
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>

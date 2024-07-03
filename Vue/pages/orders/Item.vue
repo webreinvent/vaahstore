@@ -219,47 +219,68 @@ const toggleItemMenu = (event) => {
 
                             <tr>
                                 <td><b>Order Payable Amount</b></td>
-                                <td  colspan="2" >
+                                <td colspan="2">
                                     <span class="word-overflow">
-                                         {{ (store.item.amount - store.item.paid).toFixed(2) }}</span>
+                                        {{ store.item && store.item.amount !== null && store.item.paid !== null
+                                        ? (store.item.amount - store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Order Paid Amount</b></td>
-                                <td  colspan="2" >
+                                <td colspan="2">
                                     <span class="word-overflow">
-                                        {{(store.item.paid).toFixed(2) }}</span>
+                                        {{ store.item && store.item.paid !== null
+                                        ? (store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
 
-                            <tr>
+
+                            <tr >
                                 <td><b>Delivery Fee</b></td>
-                                <td  colspan="2" >
+                                <td colspan="2">
                                     <span class="word-overflow">
-                                        {{(store.item.delivery_fee).toFixed(2) }}</span>
+                                       {{store.item && store.item.delivery_fee !== null
+                                        ? (store.item.delivery_fee).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Taxes</b></td>
-                                <td  colspan="2" >
+                                <td colspan="2">
                                     <span class="word-overflow">
-                                        {{(store.item.taxes).toFixed(2) }}</span>
+                                        {{store.item && store.item.taxes !== null
+                                        ? (store.item.taxes).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr >
                                 <td><b>Discount</b></td>
-                                <td  colspan="2" >
+                                <td colspan="2">
                                     <span class="word-overflow">
-                                        {{(store.item.discount).toFixed(2) }}</span>
+                                        {{store.item && store.item.discount !== null
+                                        ? (store.item.discount).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr >
                                 <td><b>Order Amount</b></td>
-                                <td  colspan="2" >
-                                    <span class="word-overflow">
-                                    {{ (store.item.amount).toFixed(2) }}</span>
+                                <td colspan="2">
+                                <span class="word-overflow">
+                                    {{store.item && store.item.amount !== null
+                                    ? (store.item.amount).toFixed(2)
+                                    : '' }}
+                                </span>
                                 </td>
                             </tr>
+
+
                         </template>
 
                         <template v-else-if="column === 'is_active'">

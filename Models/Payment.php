@@ -691,11 +691,11 @@ class Payment extends VaahModel
             'orders.*.amount' => 'nullable|numeric',
             'orders.*.user_name' => 'required|string',
             'vh_st_payment_method_id' => 'required',
-            'notes' => 'required|string|max:100',
+            'notes' => 'nullable|string|max:100',
         ],
         [
             'vh_st_payment_method_id.required' => 'The payment method is required.',
-            'notes.required' => 'The payment notes is required',
+
             'notes.max' => 'The payment notes field may not be greater than :max characters',
         ]
         );
