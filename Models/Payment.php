@@ -747,8 +747,28 @@ class Payment extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
+            $item->date=now();
             $item->save();
+            if (isset($inputs['orders']) && is_array($inputs['orders']) && count($inputs['orders']) > 0) {
+                foreach ($inputs['orders'] as $order) {
+                    $payable_amount = $order['payable_amount'];
 
+                    $pay_amount = 0;
+                    $remaining_payable_amount = $payable_amount - $pay_amount;
+
+                    $orderData = [
+                        'payable_amount' => $payable_amount,
+                        'pay_amount' => $pay_amount,
+                    ];
+                    $attachmentData = [
+                        'payable_amount' => $orderData['payable_amount'],
+                        'payment_amount_paid' => $orderData['pay_amount'],
+                        'remaining_payable_amount' => $remaining_payable_amount,
+                        'created_at' => now(),
+                    ];
+                    $item->orders()->attach($order['id'], $attachmentData);
+                }
+            }
             $i++;
 
         }
@@ -797,8 +817,11 @@ class Payment extends VaahModel
         $payment_method_input = $payment_method->where('id',$payment_id)->first();
         $inputs['payment_method']=$payment_method_input;
 
-
-
+        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'failure');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_payment_status'] = $status_id;
+        $inputs['amount'] = 0;
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
