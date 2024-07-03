@@ -328,7 +328,7 @@ const toggleItemMenu = (event) => {
                                         </div>
                                     </template>
                                 </Column>
-                                <Column  header="Payment"
+                                <Column  header="Paid"
 
                                 >
                                     <template #body="prop" >
