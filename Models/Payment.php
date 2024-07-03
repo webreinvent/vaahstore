@@ -378,11 +378,33 @@ class Payment extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeOrderFilter($query, $filter)
+    {
+        if(!isset($filter['order']))
+        {
+            return $query;
+        }
+        $orders = array_map('urldecode', $filter['order']);
+        $query->whereHas('orders', function ($q) use ($orders) {
+            $q->where(function ($ou) use ($orders) {
+                foreach ($orders as $order) {
+                    $ou->orWhereHas('user', function ($d) use ($order) {
+                        $d->where('display_name', 'LIKE', '%' . $order . '%');
+                    });
+                }
+            });
+        });
+
+        return $query;
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','paymentMethod')->withCount('orders',);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
+        $list->orderFilter($request->filter);
         $list->searchFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -823,6 +845,62 @@ class Payment extends VaahModel
         return $response;
     }
     //-------------------------------------------------
+    public static function getOrdersForFilter($request){
+        $query = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name','email');
+        }])
+            ->select('id', 'amount','paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+            });
+        }
+
+        $orders = $query->limit(10)->get();
+
+        foreach ($orders as &$order) {
+            if ($order->user) {
+                $order->user_name = $order->user->user_name;
+                $order->slug = Str::slug($order->user->user_name);
+                $order->email = $order->user->email;
+
+                unset($order->user);
+            }
+        }
+
+        $response['success'] = true;
+        $response['data'] = $orders;
+        return $response;
+    }
+    //-------------------------------------------------
+    public static function getOrdersByName($request)
+    {
+        $query = $request['filter']['order'];
+        $orders = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name', 'email');
+        }])
+            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->whereHas('user', function ($q) use ($query) {
+                $q->whereIn('display_name', $query);
+            })
+            ->get();
+        foreach ($orders as &$order) {
+            if ($order->user) {
+                $order->user_name = $order->user->user_name;
+                $order->slug = Str::slug($order->user->user_name);
+                $order->email = $order->user->email;
+
+                unset($order->user);
+            }
+        }
+        $response['success'] = true;
+        $response['data'] = $orders;
+        return $response;
+    }
     //-------------------------------------------------
 
 

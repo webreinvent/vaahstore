@@ -69,8 +69,8 @@ export const usePaymentStore = defineStore({
         display_response_modal:false,
         filtered_orders: null,
         payment_method_suggestion: null,
-        amount:1234.56,
         order_filter_key:'',
+        selected_order:null,
 
     }),
     getters: {
@@ -113,6 +113,7 @@ export const usePaymentStore = defineStore({
              * Update query state with the query parameters of url
              */
             await this.updateQueryFromUrl(route);
+            if (this.query.filter.order) this.getOrdersByName();
         },
         //---------------------------------------------------------------------
         setRowClass(data){
@@ -624,6 +625,7 @@ export const usePaymentStore = defineStore({
         async resetQuery()
         {
             //reset query strings
+            this.selected_order=null;
             await this.resetQueryString();
 
             //reload page list
@@ -647,7 +649,7 @@ export const usePaymentStore = defineStore({
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'payments.index'})
+            this.$router.push({name: 'payments.index',query:this.query})
 
         },
         //---------------------------------------------------------------------
@@ -1052,6 +1054,66 @@ export const usePaymentStore = defineStore({
                 },
                 { deep: true }
             );
+        },
+        //---------------------------------------------------------------------
+        async getOrdersForFilter(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/get/orders',
+                this.getOrdersForFilterAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        getOrdersForFilterAfter(data,res) {
+            if(data)
+            {
+                this.filter_order_suggestion = data;
+            }
+        },
+
+        addOrderFIlter() {
+            const unique_order = Array.from(new Set(this.selected_order.map(v => v.id)));
+            this.selected_order = unique_order.map(id => this.selected_order.find(v => v.id === id));
+            this.query.filter.order = this.selected_order.map(v => v.user_name);
+        },
+        //---------------------------------------------------------------------
+
+        async getOrdersByName()
+        {
+
+            let decodedOrders = this.query.filter.order.map(order => decodeURIComponent(order));
+
+            let query = {
+                filter: {
+                    order: decodedOrders,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/order-by-user-name',
+                this.getOrdersByNameAfterRefresh,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        getOrdersByNameAfterRefresh(data, res) {
+
+            if (data) {
+                this.selected_order= data;
+            }
         },
     }
 });

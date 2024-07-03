@@ -37,6 +37,41 @@ const store = usePaymentStore();
 
                 </template>
 
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Orders By:</b>
+                    </template>
+                    <VhField label="Order">
+                        <AutoComplete name="payments-filters-order"
+                                      data-testid="payments-filters-order"
+                                      v-model="store.selected_order"
+                                      @change = "store.addOrderFIlter()"
+                                      option-label = "user_name"
+                                      option-value = "user_name"
+                                      multiple
+                                      :complete-on-focus = "true"
+                                      :suggestions="store.filter_order_suggestion"
+                                      @complete="store.getOrdersForFilter($event)"
+                                      placeholder="Select Orders"
+                                      class="w-full "
+                                      append-to="self"
+                                      :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"/>
+                    </VhField>
+
+
+                </VhFieldVertical>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>

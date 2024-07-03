@@ -248,6 +248,40 @@ class PaymentsController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function getOrdersForFilter(Request $request)
+    {
+        try{
+            return Payment::getOrdersForFilter($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+    public function getOrdersByName(Request $request)
+    {
+        try{
+            return Payment::getOrdersByName($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
+    //----------------------------------------------------------
 
 
 }
