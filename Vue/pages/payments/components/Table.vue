@@ -30,9 +30,14 @@ const useVaah = vaah();
 
              <Column field="transaction_id"
                      header="Transaction Id"
-                     v-if="store.isViewLarge()"
+                     style="width:150px;"
+                    
                      :sortable="true">
-
+                 <template #body="prop">
+                     <Button @click="useVaah.copy(prop.data?.transaction_id)">
+                         {{prop.data?.transaction_id}}
+                     </Button>
+                 </template>
              </Column>
              <Column field="amount" header="Amount" :sortable="true" :style="{width: '80px'}">
                  <template #body="prop">

@@ -47,7 +47,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-7" >
 
         <Panel class="is-small" v-if="store && store.item">
 
