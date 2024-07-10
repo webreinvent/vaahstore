@@ -134,7 +134,7 @@ export const useOrderStore = defineStore({
                     break;
                 case 'orders.view':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 5;
                     break;
                 default:
                     this.view = 'small';

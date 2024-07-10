@@ -290,19 +290,19 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     </Column>
 
                     <Column  header="Amount"
-                             class="overflow-wrap-anywhere"
+
                             >
 
                         <template #body="prop">
-<!--                            <Badge class="min-w-max" severity="info">-->
+                            <div class="justify-content-end flex">
                                 {{(prop.data.order.amount).toFixed(2)}}
-<!--                            </Badge>-->
+                            </div>
 
                         </template>
 
                     </Column>
                     <Column  header="Payable"
-                             class="overflow-wrap-anywhere"
+
                              >
 
                         <template #body="prop">
@@ -330,16 +330,16 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                         </template>
 
                     </Column>
-                    <Column  header="Remaining Payable"  class="overflow-wrap-anywhere"
+                    <Column  header="Remaining"
                              >
                         <template #body="prop">
                             <div class="justify-content-end flex">
                             <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
-                                  >0</span>
-                            <Badge class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
-                                   :value="prop.data.remaining_payable_amount"
-                                   severity="warning"></Badge>
+                                  >{{ prop.data.remaining_payable_amount }}</span>
+                            <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
+
+                                   severity="warning">{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 
@@ -348,22 +348,24 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     <Column field="paymentStatus"  header="Order Payment Status"  class="overflow-wrap-anywhere"
                            >
                         <template #body="prop">
+
                             <template v-if="prop.data.taxonomy_order_payment_status">
-                                <Badge class="min-w-max" v-if="prop.data.taxonomy_order_payment_status.slug === 'paid'" severity="success">
+                                <span class="min-w-max" v-if="prop.data.taxonomy_order_payment_status.slug === 'paid'" severity="success">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
-                                </Badge>
-                                <Badge class="min-w-max" v-else-if="prop.data.taxonomy_order_payment_status.slug === 'partially-paid'" severity="info">
+                                </span>
+                                <span class="min-w-max" v-else-if="prop.data.taxonomy_order_payment_status.slug === 'partially-paid'" severity="info">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
-                                </Badge>
-                                <Badge class="min-w-max" v-else severity="danger">
+                                </span>
+                                <span class="min-w-max" v-else severity="danger">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
-                                </Badge>
+                                </span>
                             </template>
                             <template v-else>
                                 <Badge class="min-w-max" severity="danger">
                                     Pending
                                 </Badge>
                             </template>
+
                         </template>
                     </Column>
                     <template #empty>

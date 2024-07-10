@@ -56,7 +56,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-7" >
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -305,6 +305,14 @@ const toggleItemMenu = (event) => {
                 </div>
                     </TabPanel>
                     <TabPanel :header="`Transaction History (${store.item?.payments?.length})`">
+                        <div class=" justify-content-end flex" v-if="(store.item.paid !== store.item.payable)
+                        && (store.item && store.item.payments && store.item.payments.length>0)">
+                            <Button label="Create Payment" class="p-button-sm" severity="info" raised
+                                    v-tooltip.top="'Create Payment'"
+                                    style="border-width : 0; background: #4f46e5;"
+                                    @click="store.toOrderPayment(store.item.id)"
+                            />
+                        </div>
                         <div class="mt-4" v-if="store.item && store.item.payments">
                             <DataTable :value="store.item.payments"
                                        dataKey="id"
@@ -320,27 +328,20 @@ const toggleItemMenu = (event) => {
 
                                 <Column field="transaction_id" header="Transaction ID"  >
                                     <template #body="prop">
-                                        <span style="text-wrap:nowrap" class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toPaymentHistory(prop.data,store.item.user)">{{prop.data.transaction_id}}</span>
+                                        <span  class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toPaymentHistory(prop.data,store.item.user)">{{prop.data.transaction_id}}</span>
 
                                     </template>
                                 </Column>
-                                <Column  header="Created By"
 
-                                >
-                                    <template #body="prop">
-                                        {{prop.data.created_by_user.name}}
-                                    </template>
-
-
-                                </Column>
-                                <Column  header="Transaction Date"
-                                         class="overflow-wrap-anywhere"
-                                >
+                                <Column  header="Transaction Date">
                                     <template #body="prop">
                                         {{store.formatDateTime(prop.data.date)}}
                                     </template>
-
-
+                                </Column>
+                                <Column  header="Created By">
+                                    <template #body="prop">
+                                        {{prop.data.created_by_user.name}}
+                                    </template>
                                 </Column>
                                 <Column header="Payable" >
                                     <template #body="prop">
@@ -360,8 +361,8 @@ const toggleItemMenu = (event) => {
 
 
                                 </Column>
-                                <Column  header="Remaining Payable"
-                                         class="overflow-wrap-anywhere"
+                                <Column  header="Remaining"
+
                                 >
                                     <template #body="prop">
                                         <div class="justify-content-end flex">

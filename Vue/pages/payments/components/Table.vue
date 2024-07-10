@@ -31,7 +31,7 @@ const useVaah = vaah();
              <Column field="transaction_id"
                      header="Transaction Id"
                      style="width:150px;"
-                    
+
                      :sortable="true">
                  <template #body="prop">
                      <Button @click="useVaah.copy(prop.data?.transaction_id)">
@@ -39,7 +39,7 @@ const useVaah = vaah();
                      </Button>
                  </template>
              </Column>
-             <Column field="amount" header="Amount" :sortable="true" :style="{width: '80px'}">
+             <Column field="amount" header="Amount"  :sortable="true" :style="{width: '120px'}">
                  <template #body="prop">
                      <div class="justify-content-end flex">
                          {{prop.data.amount}}
@@ -66,9 +66,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-<!--                     <div class="justify-content-center flex">-->
                          <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.toView(prop.data)" >{{prop.data.orders_count}}</Tag>
-<!--                     </div>-->
                  </template>
 
              </Column>
@@ -90,7 +88,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="created_at" header="Created"
+             <Column field="created_at" header="Created At"
                      v-if="store.isViewLarge()"
                      style="width:150px;"
                      :sortable="true">
