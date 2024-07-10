@@ -41,7 +41,7 @@ const items = ref([
             },
             {
                 label: 'Payments',
-                icon: 'fa-regular fa-dollar',
+                icon: 'pi pi-paypal',
                 route: "/payments"
             },
             {
