@@ -215,14 +215,14 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><b>Payment Gate  Status</b></td>
+                                    <td><b>Payment Gateway Status</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
                                         {{store.item.payment_gate_status}}</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><b>Payment Gate  Response</b></td>
+                                    <td><b>Payment Gateway  Response</b></td>
                                     <td  colspan="2" >
 
                                         <Button icon="pi pi-eye"
@@ -243,10 +243,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     <p class="m-0" v-else>No response available.</p>
                                 </Dialog>
 
-                                <VhViewRow :label="column"
-                                           :value="value"
-                                           type="yes-no"
-                                />
+
                             </template>
 
                             <template v-else>

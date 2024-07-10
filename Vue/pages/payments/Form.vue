@@ -213,14 +213,14 @@ const toggleFormMenu = (event) => {
                               data-testid="vendors-status_notes" name="vendors-status_notes" />
                 </VhField>
 
-                <VhField label="Is Active">
+<!--                <VhField label="Is Active">
                     <InputSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  name="payments-active"
                                  data-testid="payments-active"
                                  v-model="store.item.is_active"/>
-                </VhField>
+                </VhField>-->
 
 
 

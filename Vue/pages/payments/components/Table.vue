@@ -25,8 +25,15 @@ const useVaah = vaah();
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: '60px'}" :sortable="true">{{'1'}}
-            </Column>
+             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
+             </Column>
+
+             <Column field="transaction_id"
+                     header="Transaction Id"
+                     v-if="store.isViewLarge()"
+                     :sortable="true">
+
+             </Column>
              <Column field="amount" header="Amount" :sortable="true" :style="{width: '80px'}">
                  <template #body="prop">
                      <div class="justify-content-end flex">
@@ -36,34 +43,35 @@ const useVaah = vaah();
              </Column>
 
 
-             <Column field="orders" header="Orders Count"
-                    
-                     :sortable="true">
 
-                 <template #body="prop">
-                     <div class="justify-content-center flex">
-                     <Badge class="h-max max-w-full">{{prop.data.orders_count}}</Badge>
-                     </div>
-                 </template>
-
-             </Column>
              <Column  header="Payment Method" style="width: 150px"
                       :sortable="true">
 
                  <template #body="prop">
                      <div class="justify-content-center flex">
-                     <Tag severity="info">
+                     <span >
                          {{prop.data.payment_method?.name}}
-                     </Tag>
+                     </span>
                      </div>
                  </template>
 
              </Column>
+             <Column header="Orders Count"
+                     class="overflow-wrap-anywhere justify-content-center flex"
+                     :sortable="true">
 
+                 <template #body="prop">
+<!--                     <div class="justify-content-center flex">-->
+                         <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.toView(prop.data)" >{{prop.data.orders_count}}</Tag>
+<!--                     </div>-->
+                 </template>
 
-             <Column  header="Payment Status"  v-if="store.isViewLarge()"  class="overflow-wrap-anywhere justify-content-center flex"
+             </Column>
+
+             <Column  header="Payment Status"  v-if="store.isViewLarge()"  class="overflow-wrap-anywhere "
                       :sortable="true">
                  <template #body="prop">
+
                      <template v-if="prop.data.status">
                          <Badge v-if="prop.data.status.slug == 'success'" severity="success">
                              {{prop.data.status.name}}
@@ -76,23 +84,7 @@ const useVaah = vaah();
 
 
              </Column>
-            <Column field="is_active"
-                    :sortable="true"
-                    v-if="store.isViewLarge()"
-                    header="Is Active">
 
-                <template #body="prop">
-                    <div class="justify-content-center flex">
-                    <InputSwitch v-model.bool="prop.data.is_active"
-                                 data-testid="payments-table-is-active"
-                                 v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm "
-                                 @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
-                    </div>
-                </template>
-
-            </Column>
              <Column field="created_at" header="Created"
                      v-if="store.isViewLarge()"
                      style="width:150px;"
