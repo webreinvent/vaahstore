@@ -111,14 +111,7 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
-                <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                    <tr>
-                        <td  colspan="2" >
-                            <div  style="width:300px;word-break: break-word;">
-                                {{store.item.status_notes}}</div>
-                        </td>
-                    </tr>
-                </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
@@ -145,6 +138,14 @@ const toggleItemMenu = (event) => {
                 </Message>
                 <TabView>
                     <TabPanel header="Order Details">
+                        <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                            <tr>
+                                <td  colspan="2" >
+                                    <div  style="width:300px;word-break: break-word;">
+                                        {{store.item.status_notes}}</div>
+                                </td>
+                            </tr>
+                        </Message>
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                 <table class="p-datatable-table">
                     <tbody class="p-datatable-tbody">
