@@ -669,7 +669,7 @@ class Order extends VaahModel
 
             'status_notes' => [
                 'required',
-                'max:250'
+                'max:100'
             ],
         ],
             [

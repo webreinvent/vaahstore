@@ -63,6 +63,7 @@ const useVaah = vaah();
              </Column>
              <Column header="Orders Count"
                      class="overflow-wrap-anywhere justify-content-center flex"
+                     :style="{width: '120px'}"
                      :sortable="true">
 
                  <template #body="prop">
