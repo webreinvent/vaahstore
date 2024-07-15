@@ -170,10 +170,18 @@ const toggleFormMenu = (event) => {
                                 <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Payable </label>
                                 <label class=" w-full ml-5" v-if="index === 0" for="pay-amount-input">Payment </label>
                             </div>
+
                             <div class="flex items-center w-full ">
                                 <InputText v-model="detail.user_name" disabled :placeholder="'Order ' + (index + 1)" required />
-                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                <InputGroup>
+                                    <InputGroupAddon>&#8377;</InputGroupAddon>
+                                    <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+
+                                </InputGroup>
+<!--                                <InputNumber class="w-full" v-model="detail.payable_amount" disabled  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>-->
+
                                 <InputNumber v-model="detail.pay_amount" placeholder=" Amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
+
                                 <div class="flex items-center ml-auto">
                                     <Button
                                         class="p-button-primary p-button-sm text-red-500"

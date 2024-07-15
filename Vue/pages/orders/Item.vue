@@ -222,7 +222,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Payable Amount</b></td>
                                 <td colspan="2">
                                     <span class="word-overflow">
-                                        {{ store.item && store.item.amount !== null && store.item.paid !== null
+                                       &#8377; {{ store.item && store.item.amount !== null && store.item.paid !== null
                                         ? (store.item.amount - store.item.paid).toFixed(2)
                                         : '' }}
                                     </span>
@@ -232,7 +232,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Paid Amount</b></td>
                                 <td colspan="2">
                                     <span class="word-overflow">
-                                        {{ store.item && store.item.paid !== null
+                                      &#8377;  {{ store.item && store.item.paid !== null
                                         ? (store.item.paid).toFixed(2)
                                         : '' }}
                                     </span>
@@ -244,7 +244,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Delivery Fee</b></td>
                                 <td colspan="2">
                                     <span class="word-overflow">
-                                       {{store.item && store.item.delivery_fee !== null
+                                      &#8377; {{store.item && store.item.delivery_fee !== null
                                         ? (store.item.delivery_fee).toFixed(2)
                                         : '' }}
                                     </span>
@@ -254,7 +254,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Taxes</b></td>
                                 <td colspan="2">
                                     <span class="word-overflow">
-                                        {{store.item && store.item.taxes !== null
+                                       &#8377; {{store.item && store.item.taxes !== null
                                         ? (store.item.taxes).toFixed(2)
                                         : '' }}
                                     </span>
@@ -264,7 +264,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Discount</b></td>
                                 <td colspan="2">
                                     <span class="word-overflow">
-                                        {{store.item && store.item.discount !== null
+                                       &#8377; {{store.item && store.item.discount !== null
                                         ? (store.item.discount).toFixed(2)
                                         : '' }}
                                     </span>
@@ -274,7 +274,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Order Amount</b></td>
                                 <td colspan="2">
                                 <span class="word-overflow">
-                                    {{store.item && store.item.amount !== null
+                                   &#8377; {{store.item && store.item.amount !== null
                                     ? (store.item.amount).toFixed(2)
                                     : '' }}
                                 </span>
@@ -346,8 +346,8 @@ const toggleItemMenu = (event) => {
                                 </Column>
                                 <Column header="Payable" >
                                     <template #body="prop">
-                                        <div class="justify-content-end flex">
-                                        {{prop.data.pivot.payable_amount}}
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.payable_amount}}
                                         </div>
                                     </template>
                                 </Column>
@@ -355,8 +355,8 @@ const toggleItemMenu = (event) => {
 
                                 >
                                     <template #body="prop" >
-                                        <div class="justify-content-end flex">
-                                        {{prop.data.pivot.payment_amount_paid}}
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.payment_amount_paid}}
                                         </div>
                                     </template>
 
@@ -366,8 +366,8 @@ const toggleItemMenu = (event) => {
 
                                 >
                                     <template #body="prop">
-                                        <div class="justify-content-end flex">
-                                        {{prop.data.pivot.remaining_payable_amount}}
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.remaining_payable_amount}}
                                         </div>
                                     </template>
 

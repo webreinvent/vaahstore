@@ -164,7 +164,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     <td><b>Payment  Amount</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                        {{store.payment_amount}}</span>
+                                       &#8377; {{store.payment_amount}}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -294,8 +294,8 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             >
 
                         <template #body="prop">
-                            <div class="justify-content-end flex">
-                                {{(prop.data.order.amount).toFixed(2)}}
+                            <div class="justify-content-end flex min-w-max">
+                                &#8377; {{(prop.data.order.amount).toFixed(2)}}
                             </div>
 
                         </template>
@@ -306,9 +306,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                              >
 
                         <template #body="prop">
-                            <div class="justify-content-end flex">
+                            <div class="justify-content-end flex min-w-max">
 <!--                            <Badge class="min-w-max" severity="info">-->
-                                {{prop.data.payable_amount}}
+                                &#8377;  {{prop.data.payable_amount}}
 <!--                            </Badge>-->
                             </div>
                         </template>
@@ -321,11 +321,11 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                         <template #body="prop">
                             <div class="justify-content-end flex">
                             <span v-if="prop.data.payment_amount_paid == 0"
-                                   value="0" class="min-w-max"
-                                   severity="danger">0</span>
+                                   class="min-w-max"
+                                   >&#8377;{{ prop.data.payment_amount_paid }}</span>
                             <span v-else-if="prop.data.payment_amount_paid > 0"
                                    :value="prop.data.payment_amount_paid" class="min-w-max"
-                                   severity="secondary">{{prop.data.payment_amount_paid}}</span>
+                                   severity="secondary">&#8377;{{prop.data.payment_amount_paid}}</span>
                             </div>
                         </template>
 
@@ -336,10 +336,10 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             <div class="justify-content-end flex">
                             <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
-                                  >{{ prop.data.remaining_payable_amount }}</span>
+                                  >&#8377;{{ prop.data.remaining_payable_amount }}</span>
                             <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
 
-                                   severity="warning">{{prop.data.remaining_payable_amount}}</span>
+                                   severity="warning">&#8377;{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 
@@ -350,13 +350,13 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                         <template #body="prop">
 
                             <template v-if="prop.data.taxonomy_order_payment_status">
-                                <span class="min-w-max" v-if="prop.data.taxonomy_order_payment_status.slug === 'paid'" severity="success">
+                                <span  v-if="prop.data.taxonomy_order_payment_status.slug === 'paid'" severity="success">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
                                 </span>
-                                <span class="min-w-max" v-else-if="prop.data.taxonomy_order_payment_status.slug === 'partially-paid'" severity="info">
+                                <span  v-else-if="prop.data.taxonomy_order_payment_status.slug === 'partially-paid'" severity="info">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
                                 </span>
-                                <span class="min-w-max" v-else severity="danger">
+                                <span v-else severity="danger">
                                     {{ prop.data.taxonomy_order_payment_status.name }}
                                 </span>
                             </template>

@@ -88,7 +88,7 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge severity="info">{{prop.data.payable}}</Badge>
+                     <Badge severity="info">&#8377;{{prop.data.payable}}</Badge>
 
                  </template>
 
@@ -103,8 +103,8 @@ const useVaah = vaah();
                             value="0"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.paid > 0"
-                            :value="prop.data.paid"
-                            severity="info"></Badge>
+
+                            severity="info">&#8377;{{prop.data.paid}}</Badge>
                  </template>
 
              </Column>

@@ -42,7 +42,7 @@ const useVaah = vaah();
              <Column field="amount" header="Amount"  :sortable="true" :style="{width: '120px'}">
                  <template #body="prop">
                      <div class="justify-content-end flex">
-                         {{prop.data.amount}}
+                         &#8377;{{prop.data.amount}}
                      </div>
                  </template>
              </Column>
