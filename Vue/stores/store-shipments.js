@@ -65,7 +65,25 @@ export const useShipmentStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        order_list : [
+            { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
+            { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
+            { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
+            { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
+        ],
+        order_item_list : [
+            { "name": "Order 1 Item 1", "id": 260, "amount": 22, "deleted_at": null },
+            { "name": "Order 1 Item 2", "id": 367, "amount": 22, "deleted_at": null },
+            { "name": "Order 2 Item 3", "id": 368, "amount": 22, "deleted_at": null },
+            { "name": "Order 2 Item 4", "id": 369, "amount": 22, "deleted_at": null }
+        ],
+        order_list_table : [
+            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
+        ]
     }),
     getters: {
 
@@ -106,6 +124,7 @@ export const useShipmentStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
+
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
