@@ -45,6 +45,11 @@ const items = ref([
                 route: "/payments"
             },
             {
+                label: 'Shipments',
+                icon: 'fa fa-truck',
+                route: "/shipments"
+            },
+            {
                 label: 'Store Payment Methods',
                 icon: 'fa-regular fa-credit-card',
                 route: "/storepaymentmethods"
