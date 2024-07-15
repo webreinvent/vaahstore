@@ -1473,11 +1473,16 @@ class ProductVariation extends VaahModel
         $cart = self::findOrCreateCart($user);
 
         $selected_vendor = self::getSelectedVendor($product_variation);
+        if ($selected_vendor === null || $selected_vendor['id'] === null) {
+            $error_message = "This product variation is out of stock.";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
         $selected_vendor_id=$selected_vendor['id'];
 
         $quantity_info = self::getItemQuantity($selected_vendor, $product_variation->vh_st_product_id, $product_variation_id);
-        if ($selected_vendor_id === null || $quantity_info['quantity']===0) {
-            $error_message = "This product variation is out of stock";
+        if ($quantity_info['quantity'] === 0) {
+            $error_message = "This product variation is out of stock for selected vendor.";
             $response['errors'][] = $error_message;
             return $response;
         }
