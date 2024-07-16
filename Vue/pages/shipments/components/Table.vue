@@ -2,9 +2,16 @@
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useShipmentStore } from '../../../stores/store-shipments'
 import OrdersList from './OrdersList.vue'
+import {onMounted, ref} from "vue";
 const store = useShipmentStore();
 const useVaah = vaah();
-
+onMounted(async () => {
+    store.getDomainFilterMenu();
+});
+const selected_shipping_status = ref();
+const toggleQuickFilterState = (event) => {
+    selected_shipping_status.value.toggle(event);
+};
 </script>
 
 <template>
@@ -58,7 +65,22 @@ const useVaah = vaah();
                  <template #body="prop">
                      <div class="p-inputgroup">
 
-                         <Badge class="word-overflow" severity="success" value="Delivered"/>
+                         <Button
+                             data-testid="crawledpagedata-domain-filter"
+                             type="button"
+                             @click="toggleQuickFilterState"
+                             aria-haspopup="true"
+                             aria-controls="overlay_menu"
+                             class="ml-1 p-button-sm"
+
+                             :label="store.shipping_status ? store.shipping_status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Delivered'"
+
+                             icon="pi pi-angle-down"
+                         >
+                         </Button>
+                         <Menu ref="selected_shipping_status"
+                               :model="store.shipping_status_menu"
+                               :popup="true"/>
                      </div>
                  </template>
              </Column>
