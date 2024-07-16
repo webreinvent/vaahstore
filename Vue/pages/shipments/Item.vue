@@ -27,7 +27,7 @@ onMounted(async () => {
     {
         await store.getItem(route.params.id);
     }
-
+    store.getDomainFilterMenu();
 });
 
 //--------toggle item menu
@@ -36,7 +36,10 @@ const toggleItemMenu = (event) => {
     item_menu_state.value.toggle(event);
 };
 //--------/toggle item menu
-
+const selected_shipping_status = ref();
+const toggleQuickFilterState = (event) => {
+    selected_shipping_status.value.toggle(event);
+};
 </script>
 <template>
 
@@ -116,50 +119,191 @@ const toggleItemMenu = (event) => {
 
                 </Message>
 
-                <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
-                <table class="p-datatable-table overflow-wrap-anywhere">
-                    <tbody class="p-datatable-tbody">
-                    <template v-for="(value, column) in store.item ">
+                <TabView >
+                    <TabPanel header="Shipment Details">
+                        <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
+                            <table class="p-datatable-table overflow-wrap-anywhere">
+                                <tbody class="p-datatable-tbody">
+                                <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'updated_by'
+                                    <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'
                         || column === 'deleted_by'">
-                        </template>
+                                    </template>
 
-                        <template v-else-if="column === 'id' || column === 'uuid'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       :can_copy="true"
-                            />
-                        </template>
+                                    <template v-else-if="column === 'id' || column === 'uuid'">
+                                        <VhViewRow :label="column"
+                                                   :value="value"
+                                                   :can_copy="true"
+                                        />
+                                    </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                                    <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                         || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="user"
-                            />
-                        </template>
+                                        <VhViewRow :label="column"
+                                                   :value="value"
+                                                   type="user"
+                                        />
+                                    </template>
 
-                        <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
+                                    <template v-else-if="column === 'is_active'">
+                                        <tr>
+                                            <td><b>Shipment  Tracking Id</b></td>
+                                            <td  colspan="2" >
+                                                <span class="word-overflow" >9623-41ce-b4fc
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Shipment  Status</b></td>
+                                            <td  colspan="2" >
+                                        <Badge class="word-overflow" severity="success" value="Out For Delivery">
+                                                </Badge>
+                                            </td>
+                                        </tr>
+                                    </template>
 
-                        <template v-else>
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       />
-                        </template>
+                                    <template v-else>
+                                        <VhViewRow :label="column"
+                                                   :value="value"
+                                        />
+                                    </template>
 
 
-                    </template>
-                    </tbody>
+                                </template>
+                                </tbody>
 
-                </table>
+                            </table>
 
-                </div>
+                        </div>
+                    </TabPanel>
+                    <TabPanel header="Shipment Orders Detail">
+<!--                        <DataTable  :value="store.order_list" style="border: 1px solid #ccc;margin-top:20px;"-->
+<!--                                    :rows="20"-->
+<!--                                    :paginator="true"-->
+<!--                                    class="p-datatable-sm p-datatable-hoverable-rows">-->
+<!--                            <Column field="id" header="Order ID" :style="{width: '80px'}" :sortable="true" style="border: 1px solid #ccc;">-->
+<!--                            </Column>-->
+<!--                            <Column field="name" header="Order Name" style="border: 1px solid #ccc;">-->
+<!--                                <template #body="props">-->
+<!--                                    <div  >-->
+<!--                                        {{props.data.name}}-->
+
+<!--                                    </div>-->
+<!--                                </template>-->
+<!--                            </Column>-->
+
+<!--                                        <Column  header="Shipment Order Items" style="border: 1px solid #ccc;" :sortable="false">-->
+<!--                                            <template #body="prop">-->
+<!--                                                <div class="p-inputgroup justify-content-center">-->
+<!--                                        <span class="p-inputgroup-addon cursor-pointer"-->
+<!--                                              v-tooltip.top="'Track Order Shipment'"-->
+
+<!--                                        >-->
+<!--                                            <b > 2</b>-->
+<!--                                        </span>-->
+<!--                                                </div>-->
+<!--                                            </template>-->
+<!--                                        </Column>-->
+
+
+
+
+<!--                            <column field="Action" header="Track Order Shipment" style="border:1px solid #ccc;">-->
+<!--                                <template #body="props">-->
+
+<!--                                    <div class="justify-content-center flex">-->
+<!--                                    <Button class="p-button-tiny p-button-text"-->
+<!--                                            data-testid="shipments-table-to-view"-->
+<!--                                            v-tooltip.top="'View'"-->
+<!--                                            @click="store.openOrdersPanel(props.data)"-->
+<!--                                            icon="pi pi-slack" />-->
+<!--                                    </div>-->
+<!--                                </template>-->
+<!--                            </column>-->
+<!--                            <template #empty="prop">-->
+
+<!--                                <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>-->
+
+<!--                            </template>-->
+<!--                        </DataTable>-->
+
+                        <DataTable :value="store.order_list_table_with_vendor"
+                                   dataKey="id"
+                                   :rows="10"
+                                   :paginator="true"
+                                   class="p-datatable-sm p-datatable-hoverable-rows"
+                                   :nullSortOrder="-1"
+                                   showGridlines
+                                   v-model:selection="store.action.items"
+                                   responsiveLayout="scroll">
+
+
+
+                            <Column field="id" header="Order ID"  >
+                            </Column>
+
+                            <Column  header="Item Name"
+                                     class="overflow-wrap-anywhere"
+                            >
+                                <template #body="prop">
+                                    {{prop.data.name}}
+                                </template>
+                            </Column>
+
+                            <Column  header="Vendor Name"
+                                     class="overflow-wrap-anywhere"
+                            >
+                                <template #body="prop">
+                                    {{prop.data.vendor_name}}
+                                </template>
+                            </Column>
+                            <Column  header="Quantity "
+                                     class="overflow-wrap-anywhere"
+                            >
+                                <template #body="prop">
+                                    {{prop.data.available_quantity}}
+                                </template>
+                            </Column>
+                            <Column  header="Status"
+                                     class="overflow-wrap-anywhere"
+                            >
+                                <template #body="prop">
+
+<!--                                    <Badge  v-if="prop.data.status === 'Out For Delivery'" severity="success">-->
+<!--                                        {{ prop.data.status }}-->
+<!--                                    </Badge>-->
+
+<!--                                    <Badge v-else severity="warn">-->
+<!--                                        {{ prop.data.status }}-->
+<!--                                    </Badge>-->
+
+                                    <Button
+                                        data-testid="crawledpagedata-domain-filter"
+                                        type="button"
+                                        @click="toggleQuickFilterState"
+                                        aria-haspopup="true"
+                                        aria-controls="overlay_menu"
+                                        class="ml-1 p-button-sm"
+                                        :label=" prop.data.status"
+                                        icon="pi pi-angle-down"
+                                    >
+                                    </Button>
+                                    <Menu ref="selected_shipping_status"
+                                          :model="store.shipping_status_menu"
+                                          :popup="true"/>
+                                </template>
+                            </Column>
+                            <template #empty>
+                                <div class="text-center py-3">
+                                    No records found.
+                                </div>
+                            </template>
+
+                        </DataTable>
+                    </TabPanel>
+                </TabView>
+
+
             </div>
         </Panel>
 

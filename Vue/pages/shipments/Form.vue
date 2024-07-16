@@ -179,17 +179,17 @@ const toggleInventoryBulkMenu = (event) => {
                                     <div class="flex w-full justify-content-between">
                                         <div class="flex">
                                             <h4>Order Details</h4>
-                                            <Chip
-                                                :label="`Credit: `"
-                                                style="margin-left:8px;height:20px"
-                                                :pt="{
-                                                root: {
-                                                        style: {
-                                                                background: 'lightblue'
-                                                                }
-                                                        }
-                                                }"
-                                            />
+<!--                                            <Chip-->
+<!--                                                :label="`Credit: `"-->
+<!--                                                style="margin-left:8px;height:20px"-->
+<!--                                                :pt="{-->
+<!--                                                root: {-->
+<!--                                                        style: {-->
+<!--                                                                background: 'lightblue'-->
+<!--                                                                }-->
+<!--                                                        }-->
+<!--                                                }"-->
+<!--                                            />-->
                                         </div>
 
                                     </div>
@@ -300,18 +300,18 @@ const toggleInventoryBulkMenu = (event) => {
                                      headerStyle="width: 3em">
 
                             </Column>
-                            <Column header="Order Item" >
+                            <Column header="Order Item Name" style="width: 200px" >
                                 <template #body="prop">
                                     <span >{{prop.data.name}}</span>
 
                                 </template>
                             </Column>
-                            <Column header="Is Paid" >
-                                <template #body="prop">
-                                    <span >{{prop.data.is_paid}}</span>
+<!--                            <Column header="Is Paid" >-->
+<!--                                <template #body="prop">-->
+<!--                                    <span >{{prop.data.is_paid}}</span>-->
 
-                                </template>
-                            </Column>
+<!--                                </template>-->
+<!--                            </Column>-->
                             <Column header="Qty in Stock" field="quantity" style="width:100px;">
                                 <template #body="prop">
                                     <span >{{prop.data.quantity}}</span>

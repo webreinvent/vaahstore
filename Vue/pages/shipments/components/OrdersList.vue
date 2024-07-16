@@ -11,61 +11,73 @@ const useVaah = vaah()
 
 
 <template>
-    <Sidebar v-model:visible="store.show_orders_panel"  header="Product Price With Vendors" position="right" style="width:600px;">
+    <Sidebar v-model:visible="store.show_orders_panel"  header="Order Name:" position="right" style="width:600px;">
         <template #header>
-            <h2 style="font-weight: bold;" v-if="store.item" >Shipment Orders:</h2>
+            <h2 style="font-weight: bold;"  >Order Name: Order 1</h2>
         </template>
 
 
 
-
-
-
-        <DataTable  :value="store.order_list" style="border: 1px solid #ccc;margin-top:20px;"
-                   :rows="20"
+        <DataTable :value="store.order_list_table_with_vendor"
+                   dataKey="id"
+                   :rows="10"
                    :paginator="true"
-                   class="p-datatable-sm p-datatable-hoverable-rows">
+                   class="p-datatable-sm p-datatable-hoverable-rows"
+                   :nullSortOrder="-1"
+                   showGridlines
+                   v-model:selection="store.action.items"
+                   responsiveLayout="scroll">
 
-            <Column field="name" header="Order" style="border: 1px solid #ccc;">
-                <template #body="props">
-                    <div  >
-                        {{props.data.name}}
 
-                    </div>
-                </template>
+
+            <Column field="id" header="Order ID"  >
             </Column>
 
-            <Column  header="Shipment Order Items" style="border: 1px solid #ccc;" :sortable="false">
-                <template #body="prop">
-                    <div class="p-inputgroup justify-content-center">
-            <span class="p-inputgroup-addon cursor-pointer"
-                  v-tooltip.top="'Track Order Shipment'"
-                  @click="store.openOrdersPanel(prop.data)"
+            <Column  header="Item Name"
+                     class="overflow-wrap-anywhere"
             >
-                <b > 2</b>
-            </span>
-                    </div>
+                <template #body="prop">
+                    {{prop.data.name}}
                 </template>
             </Column>
 
-
-
-
-            <column field="Action" header="Track Order Shipment" style="border:1px solid #ccc;">
-                <template #body="props">
-                    <Button class="p-button-tiny p-button-text"
-                            data-testid="shipments-table-to-view"
-                            v-tooltip.top="'View'"
-                            @click="store.toView(prop.data)"
-                            icon="pi pi-eye" />
+            <Column  header="Vendor Name"
+                     class="overflow-wrap-anywhere"
+            >
+                <template #body="prop">
+                    {{prop.data.vendor_name}}
                 </template>
-            </column>
-            <template #empty="prop">
+            </Column>
+            <Column  header="Quantity "
+                     class="overflow-wrap-anywhere"
+            >
+                <template #body="prop">
+                    {{prop.data.available_quantity}}
+                </template>
+            </Column>
+            <Column  header="Status"
+                     class="overflow-wrap-anywhere"
+            >
+                <template #body="prop">
 
-                <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+                    <Badge  v-if="prop.data.status === 'Out For Delivery'" severity="success">
+                                    {{ prop.data.status }}
+                                </Badge>
 
+                    <Badge v-else severity="warn">
+                                    {{ prop.data.status }}
+                                </Badge>
+                </template>
+            </Column>
+            <template #empty>
+                <div class="text-center py-3">
+                    No records found.
+                </div>
             </template>
+
         </DataTable>
+
+
     </Sidebar>
 </template>
 
