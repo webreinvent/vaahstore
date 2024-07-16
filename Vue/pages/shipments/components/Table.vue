@@ -1,7 +1,7 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useShipmentStore } from '../../../stores/store-shipments'
-
+import OrdersList from './OrdersList.vue'
 const store = useShipmentStore();
 const useVaah = vaah();
 
@@ -48,6 +48,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup">
             <span class="p-inputgroup-addon cursor-pointer"
                   v-tooltip.top="'Track Order Shipment'"
+                  @click="store.openOrdersPanel(prop.data)"
                   >
 
                 <b >
@@ -146,7 +147,7 @@ const useVaah = vaah();
                    class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
-
+<OrdersList/>
     </div>
 
 </template>
