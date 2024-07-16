@@ -544,7 +544,7 @@ class Order extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus','payments.createdByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus','payments.createdByUser'])->withCount('items')
             ->withTrashed()
             ->first();
 
