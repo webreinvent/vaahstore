@@ -27,6 +27,8 @@ const useVaah = vaah();
 
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
+             <Column header="Tracking ID"  :sortable="true">
+             </Column>
 
             <Column field="name" header="Name"
                     class="overflow-wrap-anywhere"
@@ -41,7 +43,21 @@ const useVaah = vaah();
 
             </Column>
 
+             <Column  header="Orders Count" :sortable="false">
+                 <template #body="prop">
+                     <div class="p-inputgroup">
+            <span class="p-inputgroup-addon cursor-pointer"
+                  v-tooltip.top="'Track Order Shipment'"
+                  >
 
+                <b >
+                    2
+                </b>
+            </span>
+
+                     </div>
+                 </template>
+             </Column>
                 <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
                         style="width:150px;"

@@ -86,7 +86,7 @@ const toggleInventoryBulkMenu = (event) => {
                                 <h3>Orders Shipments</h3>
                                 <h5>Manage your orders</h5>
                             </div>
-                            <span style="font-size:18px;margin-left:5px;"><b>#</b></span>
+                            <span style="font-size:18px;margin-left:5px;"><b>#{{store.item.uuid}}</b></span>
                             <div>
                                 <Chip label="Out "
                                       style="margin-left:8px;height:25px;"
@@ -102,7 +102,7 @@ const toggleInventoryBulkMenu = (event) => {
                                 <Dropdown
 
                                     v-model="store.item.vh_taxonomy_id_po_status"
-                                    :options="store.assets.status"
+                                    :options="store.shipment_status"
                                     optionLabel="name"
                                     optionValue="id"
                                     class="ml-2 w-7rem border-round-3xl border-primary-500 bg-primary-50"
@@ -194,6 +194,7 @@ const toggleInventoryBulkMenu = (event) => {
 
                                     </div>
                                     <div class="w-full mt-2">
+
                                         <VhField label="Order">
                                             <MultiSelect
                                                 v-model="store.item.orders"
@@ -208,7 +209,8 @@ const toggleInventoryBulkMenu = (event) => {
                                         </VhField>
                                     </div>
 
-                                    <div class="w-full mt-2">
+                                    <div v-if="store.item.orders?.length>0" class="w-full mt-2">
+
                                         <VhField label="Order Items">
                                             <MultiSelect
                                                 v-model="store.item.order_items"
@@ -222,6 +224,13 @@ const toggleInventoryBulkMenu = (event) => {
                                                 class="w-full relative" />
                                         </VhField>
                                     </div>
+                                    <VhField label="Comment">
+                                            <Textarea rows="3" class="w-full"
+                                                      placeholder="Enter Comment"
+                                                      name="products-status_notes"
+                                                      data-testid="products-status_notes"
+                                                      v-model="store.item.status_notes"/>
+                                    </VhField>
 
                                 </template>
                             </Card>
@@ -311,7 +320,7 @@ const toggleInventoryBulkMenu = (event) => {
                             <Column header="Quantity" field="ordered_quantity" style="width:100px;">
                                 <template #body="prop">
                                     <div class="p-inputgroup w-8rem max-w-full" >
-                                    <InputNumber  v-model="prop.data.quantity" buttonLayout="horizontal" showButtons :min="1" :max="1000000" @input="store.updateQuantity(prop.data.pivot,$event)">
+                                    <InputNumber  v-model="prop.data.available_quantity" buttonLayout="horizontal" showButtons :min="1" :max="1000000" @input="store.updateQuantity(prop.data.pivot,$event)">
                                         <template #incrementbuttonicon>
                                             <span class="pi pi-plus" />
                                         </template>
