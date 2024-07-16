@@ -81,11 +81,31 @@ export const useOrderStore = defineStore({
         vendors : null,
         filtered_customer_groups : null,
         filtered_users : null,
+        order_list_table_with_vendor : [
+            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 1,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
+                ,"vendor_name":"vendor 1"},
+            { "name": "soni-soni-color", "id": 367, "quantity": 2,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status":
+                    "In transit","vendor_name":"vendor 1" },
+
+
+        ],
     }),
     getters: {
 
     },
     actions: {
+        async openOrderItems(item)
+        {
+            this.show_orders_panel = true;
+            // this.product_id=item.id;
+            // this.product_name=item.name;
+            // if (item.id) {
+            //     await vaah().ajax(
+            //         ajax_url + '/get-vendors-list'+'/' + item.id,
+            //         this.openVendorsPanelAfter
+            //     );
+            // }
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {

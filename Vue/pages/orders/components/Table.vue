@@ -1,6 +1,7 @@
     <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useOrderStore } from '../../../stores/store-orders'
+import OrderItems from "./OrderItems.vue";
 
 const store = useOrderStore();
 const useVaah = vaah();
@@ -64,7 +65,8 @@ const useVaah = vaah();
                  <template #body="prop">
 
                      <div class="p-inputgroup">
-                          <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.toOrderDetails(prop.data)">
+<!--                          <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.toOrderDetails(prop.data)">-->
+                          <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.openOrderItems(prop.data)">
                              <b>
                                 {{prop.data.items_count}}
                             </b>
@@ -241,7 +243,7 @@ const useVaah = vaah();
                    class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
-
+<OrderItems/>
     </div>
 
 </template>
