@@ -83,10 +83,10 @@ const toggleInventoryBulkMenu = (event) => {
                         <div class="flex justify-content-center">
 
                             <div class="ml-2">
-                                <h3>Orders Shipments</h3>
-                                <h5>Manage your orders</h5>
+                                <h3>Shipments</h3>
+                                <h5>Create your shipment</h5>
                             </div>
-                            <span class="ml-1" style="font-size:15px;"><b>#{{store.item.uuid}}</b></span>
+                            <span v-if="store.item?.uuid" class="ml-1" style="font-size:15px;"><b>#{{store.item.uuid}}</b></span>
                             <div >
 <!--                                <Chip label="Out "
                                       style="margin-left:8px;height:25px;"
@@ -239,7 +239,7 @@ const toggleInventoryBulkMenu = (event) => {
                     </div>
                     <hr class="mt-4" />
 
-                    <div class="flex w-full justify-content-between mt-3">
+                    <div v-if="store.item.order_items"  class="flex w-full justify-content-between mt-3">
 
                         <div>
                             <div class="p-inputgroup">
@@ -366,7 +366,7 @@ const toggleInventoryBulkMenu = (event) => {
 
                         </DataTable>
                     </div>
-                    <div class="flex mt-4 mb-4 justify-content-between">
+                    <div  class="flex mt-4 mb-4 justify-content-between">
                         <div style="width:40%;">
 
                         </div>
