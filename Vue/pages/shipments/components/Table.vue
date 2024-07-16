@@ -28,6 +28,9 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
              <Column header="Tracking ID"  :sortable="true">
+                 <template #body="prop">
+                   {{prop.data.uuid}}
+                 </template>
              </Column>
 
             <Column field="name" header="Name"
@@ -43,7 +46,7 @@ const useVaah = vaah();
 
             </Column>
 
-             <Column  header="Orders Count" :sortable="false">
+             <Column  header="Shipment Items Count" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup">
             <span class="p-inputgroup-addon cursor-pointer"
@@ -52,7 +55,7 @@ const useVaah = vaah();
                   >
 
                 <b >
-                    2
+                  4
                 </b>
             </span>
 
