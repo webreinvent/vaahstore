@@ -79,10 +79,21 @@ export const useShipmentStore = defineStore({
             { "name": "Order 2 Item 4", "id": 369, "amount": 22, "deleted_at": null }
         ],
         order_list_table : [
-            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
+            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Out For Delivery" },
+            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Picked" },
+            // { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            // { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
+        ],
+        order_list_table_with_vendor : [
+            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Out For Delivery"
+            ,"vendor_name":"vendor 1"},
+            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
+                    "Out For Delivery","vendor_name":"vendor 1" },
+            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
+                    "Out For Delivery","vendor_name":"vendor 3" },
+            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
+                    "Out For Delivery","vendor_name":"vendor 4" },
+
         ],
         shipment_status : [
             { "name": "Pending", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
@@ -91,6 +102,7 @@ export const useShipmentStore = defineStore({
             { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
         ],
         // show_orders_panel:false,
+        shipping_status_menu:[]
     }),
     getters: {
 
@@ -968,6 +980,28 @@ export const useShipmentStore = defineStore({
             //         this.openVendorsPanelAfter
             //     );
             // }
+        },
+        async getDomainFilterMenu() {
+
+            this.shipping_status_menu = [
+                {
+                    label: 'Pending',
+
+                },
+                {
+                    label: 'Picked',
+
+                },
+                {
+                    label: 'In Transit',
+
+                },
+                {
+                    label: 'Delivered',
+
+                }
+            ]
+
         },
         //---------------------------------------------------------------------
     }
