@@ -13,7 +13,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
-
+        {
+            path: 'form/:id?',
+            name: 'shipments.form',
+            component: Form,
+            props: true,
+        },
         {
             path: 'view/:id?',
             name: 'shipments.view',
