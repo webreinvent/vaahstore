@@ -269,28 +269,15 @@ const toggleQuickFilterState = (event) => {
                             >
                                 <template #body="prop">
 
-<!--                                    <Badge  v-if="prop.data.status === 'Out For Delivery'" severity="success">-->
-<!--                                        {{ prop.data.status }}-->
-<!--                                    </Badge>-->
+                                    <Badge  v-if="prop.data.status === 'Out For Delivery'" severity="success">
+                                        {{ prop.data.status }}
+                                    </Badge>
 
-<!--                                    <Badge v-else severity="warn">-->
-<!--                                        {{ prop.data.status }}-->
-<!--                                    </Badge>-->
+                                    <Badge v-else severity="warn">
+                                        {{ prop.data.status }}
+                                    </Badge>
 
-                                    <Button
-                                        data-testid="crawledpagedata-domain-filter"
-                                        type="button"
-                                        @click="toggleQuickFilterState"
-                                        aria-haspopup="true"
-                                        aria-controls="overlay_menu"
-                                        class="ml-1 p-button-sm"
-                                        :label=" prop.data.status"
-                                        icon="pi pi-angle-down"
-                                    >
-                                    </Button>
-                                    <Menu ref="selected_shipping_status"
-                                          :model="store.shipping_status_menu"
-                                          :popup="true"/>
+
                                 </template>
                             </Column>
                             <template #empty>

@@ -100,7 +100,7 @@ const toggleInventoryBulkMenu = (event) => {
 <!--                                      input-class="text-primary-500"-->
 <!--                                />-->
                                 <Dropdown
-                                    v-model="store.item.vh_taxonomy_id_shipping_status"
+                                    v-model="store.item.shipment_status"
                                     :options="store.shipment_status"
                                     optionLabel="name"
                                     optionValue="id"

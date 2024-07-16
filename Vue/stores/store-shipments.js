@@ -989,22 +989,34 @@ export const useShipmentStore = defineStore({
             this.shipping_status_menu = [
                 {
                     label: 'Pending',
-
+                    command: async () => {
+                        await this.updateDomainFilter('Pending')
+                    }
                 },
                 {
                     label: 'Picked',
-
+                    command: async () => {
+                        await this.updateDomainFilter('Picked')
+                    }
                 },
                 {
                     label: 'In Transit',
-
+                    command: async () => {
+                        await this.updateDomainFilter('InTransit')
+                    }
                 },
                 {
                     label: 'Delivered',
-
+                    command: async () => {
+                        await this.updateDomainFilter('Delivered')
+                    }
                 }
             ]
 
+        },
+        async updateDomainFilter(name)
+        {
+            this.shipping_status = name;
         },
         //---------------------------------------------------------------------
     }
