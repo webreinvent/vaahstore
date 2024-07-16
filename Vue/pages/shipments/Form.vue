@@ -70,7 +70,7 @@ const toggleInventoryBulkMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-12" >
+    <div class="col-8" >
 
         <Card class="is-small">
 
@@ -86,22 +86,21 @@ const toggleInventoryBulkMenu = (event) => {
                                 <h3>Orders Shipments</h3>
                                 <h5>Manage your orders</h5>
                             </div>
-                            <span style="font-size:18px;margin-left:5px;"><b>#{{store.item.uuid}}</b></span>
-                            <div>
-                                <Chip label="Out "
+                            <span class="ml-1" style="font-size:15px;"><b>#{{store.item.uuid}}</b></span>
+                            <div >
+<!--                                <Chip label="Out "
                                       style="margin-left:8px;height:25px;"
                                       class="w-4rem bg-primary-100 border-primary-500"
                                       input-class="text-primary-500"
 
-                                />
+                                />-->
 <!--                                <Chip-->
 <!--                                      style="margin-left:8px;height:25px;"-->
 <!--                                      class="w-9rem bg-primary-100 border-primary-500"-->
 <!--                                      input-class="text-primary-500"-->
 <!--                                />-->
                                 <Dropdown
-
-                                    v-model="store.item.vh_taxonomy_id_po_status"
+                                    v-model="store.item.vh_taxonomy_id_shipping_status"
                                     :options="store.shipment_status"
                                     optionLabel="name"
                                     optionValue="id"

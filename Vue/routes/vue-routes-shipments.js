@@ -13,7 +13,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
-
+        {
+            path: 'form/:id?',
+            name: 'shipments.form',
+            component: Form,
+            props: true,
+        },
         {
             path: 'view/:id?',
             name: 'shipments.view',
@@ -22,13 +27,13 @@ routes_list = {
         }
     ]
 };
-let shipment_form ={
-    path: 'form/:id?',
-    name: 'shipments.form',
-    component: Form,
-    props: true,
-};
-routes.push(shipment_form);
+// let shipment_form ={
+//     path: 'form/:id?',
+//     name: 'shipments.form',
+//     component: Form,
+//     props: true,
+// };
+// routes.push(shipment_form);
 routes.push(routes_list);
 
 export default routes;

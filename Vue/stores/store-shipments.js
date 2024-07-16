@@ -85,14 +85,14 @@ export const useShipmentStore = defineStore({
             // { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
         ],
         order_list_table_with_vendor : [
-            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Out For Delivery"
+            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
             ,"vendor_name":"vendor 1"},
             { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Out For Delivery","vendor_name":"vendor 1" },
+                    "Delivered","vendor_name":"vendor 1" },
             { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Out For Delivery","vendor_name":"vendor 3" },
+                    "Delivered","vendor_name":"vendor 3" },
             { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Out For Delivery","vendor_name":"vendor 4" },
+                    "Delivered","vendor_name":"vendor 4" },
 
         ],
         shipment_status : [
@@ -143,7 +143,10 @@ export const useShipmentStore = defineStore({
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
-
+                case 'shipments.form':
+                    this.view = 'small';
+                    this.list_view_width = 4;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;

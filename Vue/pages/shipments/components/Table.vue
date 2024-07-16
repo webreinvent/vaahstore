@@ -49,16 +49,16 @@ const useVaah = vaah();
              <Column  header="Shipment Items Count" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup">
-            <span class="p-inputgroup-addon cursor-pointer"
-                  v-tooltip.top="'Track Order Shipment'"
-                  @click="store.openOrdersPanel(prop.data)"
-                  >
 
-                <b >
-                  4
-                </b>
-            </span>
+                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">4</Tag>
+                     </div>
+                 </template>
+             </Column>
+             <Column  header="Status" :sortable="false">
+                 <template #body="prop">
+                     <div class="p-inputgroup">
 
+                         <Badge class="word-overflow" severity="success" value="Delivered"/>
                      </div>
                  </template>
              </Column>
