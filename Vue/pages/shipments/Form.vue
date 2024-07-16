@@ -101,7 +101,7 @@ watchEffect(() => {
                                 <h3>Orders Shipments</h3>
                                 <h5>Manage your orders</h5>
                             </div>
-                            <span style="font-size:18px;margin-left:5px;"><b>#</b></span>
+                            <span style="font-size:18px;margin-left:5px;"><b>#{{store.item.uuid}}</b></span>
                             <div>
                                 <Chip label="Out "
                                       style="margin-left:8px;height:25px;"
@@ -117,7 +117,7 @@ watchEffect(() => {
                                 <Dropdown
 
                                     v-model="store.item.vh_taxonomy_id_po_status"
-                                    :options="store.assets.status"
+                                    :options="store.shipment_status"
                                     optionLabel="name"
                                     optionValue="id"
                                     class="ml-2 w-7rem border-round-3xl border-primary-500 bg-primary-50"
@@ -209,6 +209,7 @@ watchEffect(() => {
 
                                     </div>
                                     <div class="w-full mt-2">
+
                                         <VhField label="Order">
                                             <MultiSelect
                                                 v-model="store.item.orders"
@@ -223,7 +224,8 @@ watchEffect(() => {
                                         </VhField>
                                     </div>
 
-                                    <div class="w-full mt-2">
+                                    <div v-if="store.item.orders?.length>0" class="w-full mt-2">
+
                                         <VhField label="Order Items">
                                             <MultiSelect
                                                 v-model="store.item.order_items"
@@ -237,6 +239,13 @@ watchEffect(() => {
                                                 class="w-full relative" />
                                         </VhField>
                                     </div>
+                                    <VhField label="Comment">
+                                            <Textarea rows="3" class="w-full"
+                                                      placeholder="Enter Comment"
+                                                      name="products-status_notes"
+                                                      data-testid="products-status_notes"
+                                                      v-model="store.item.status_notes"/>
+                                    </VhField>
 
                                 </template>
                             </Card>
