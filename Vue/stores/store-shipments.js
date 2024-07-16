@@ -83,6 +83,12 @@ export const useShipmentStore = defineStore({
             { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
             { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
             { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
+        ],
+        shipment_status : [
+            { "name": "Pending", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "Picked", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "In Transit", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
+            { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
         ]
     }),
     getters: {
