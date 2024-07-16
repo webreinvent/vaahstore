@@ -281,6 +281,17 @@ const toggleItemMenu = (event) => {
                                 </td>
                             </tr>
 
+                            <tr >
+                                <td><b>Order Items</b></td>
+                                <td colspan="2">
+                                <Tag class=" cursor-pointer" v-tooltip.top="'View Order Details'" @click="store.toOrderDetails(store.item)">
+                             <b>
+                                {{store.item.items_count}}
+                            </b>
+                         </Tag>
+                                </td>
+                            </tr>
+
 
                         </template>
 
