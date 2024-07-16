@@ -156,7 +156,7 @@ const toggleQuickFilterState = (event) => {
                                         <tr>
                                             <td><b>Shipment  Status</b></td>
                                             <td  colspan="2" >
-                                        <Badge class="word-overflow" severity="success" value="Out For Delivery">
+                                        <Badge class="word-overflow" severity="success" value="Delivered">
                                                 </Badge>
                                             </td>
                                         </tr>
@@ -176,7 +176,7 @@ const toggleQuickFilterState = (event) => {
 
                         </div>
                     </TabPanel>
-                    <TabPanel header="Shipment Orders Detail">
+                    <TabPanel header="Shipment Items Detail">
 <!--                        <DataTable  :value="store.order_list" style="border: 1px solid #ccc;margin-top:20px;"-->
 <!--                                    :rows="20"-->
 <!--                                    :paginator="true"-->
