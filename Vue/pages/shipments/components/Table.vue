@@ -38,6 +38,9 @@ const openLinkInNewTab = (url) => {
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
              <Column header="Tracking ID"  :sortable="true">
+                 <template #body="prop">
+                   {{prop.data.uuid}}
+                 </template>
              </Column>
 
 

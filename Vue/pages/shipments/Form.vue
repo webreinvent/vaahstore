@@ -194,17 +194,17 @@ watchEffect(() => {
                                     <div class="flex w-full justify-content-between">
                                         <div class="flex">
                                             <h4>Order Details</h4>
-                                            <Chip
-                                                :label="`Credit: `"
-                                                style="margin-left:8px;height:20px"
-                                                :pt="{
-                                                root: {
-                                                        style: {
-                                                                background: 'lightblue'
-                                                                }
-                                                        }
-                                                }"
-                                            />
+<!--                                            <Chip-->
+<!--                                                :label="`Credit: `"-->
+<!--                                                style="margin-left:8px;height:20px"-->
+<!--                                                :pt="{-->
+<!--                                                root: {-->
+<!--                                                        style: {-->
+<!--                                                                background: 'lightblue'-->
+<!--                                                                }-->
+<!--                                                        }-->
+<!--                                                }"-->
+<!--                                            />-->
                                         </div>
 
                                     </div>
