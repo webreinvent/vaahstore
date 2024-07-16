@@ -69,8 +69,8 @@ export const useShipmentStore = defineStore({
         order_list : [
             { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
             { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
-            { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-            { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
+            // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
+            // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
         ],
         order_item_list : [
             { "name": "Order 1 Item 1", "id": 260, "amount": 22, "deleted_at": null },
@@ -89,7 +89,8 @@ export const useShipmentStore = defineStore({
             { "name": "Picked", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
             { "name": "In Transit", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
             { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
-        ]
+        ],
+        // show_orders_panel:false,
     }),
     getters: {
 
@@ -954,6 +955,19 @@ export const useShipmentStore = defineStore({
 
             this.form_menu_list = form_menu;
 
+        },
+        //---------------------------------------------------------------------
+        async openOrdersPanel(item)
+        {
+            this.show_orders_panel = true;
+            // this.product_id=item.id;
+            // this.product_name=item.name;
+            // if (item.id) {
+            //     await vaah().ajax(
+            //         ajax_url + '/get-vendors-list'+'/' + item.id,
+            //         this.openVendorsPanelAfter
+            //     );
+            // }
         },
         //---------------------------------------------------------------------
     }
