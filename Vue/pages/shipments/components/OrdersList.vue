@@ -18,7 +18,7 @@ const useVaah = vaah()
 
 
 
-        <DataTable :value="store.order_list_table_with_vendor"
+        <DataTable :value="store.order_list_new"
                    dataKey="id"
                    :rows="10"
                    :paginator="true"
@@ -33,21 +33,28 @@ const useVaah = vaah()
             <Column field="id" header="Order ID"  >
             </Column>
 
-            <Column  header="Item Name"
+            <Column  header="Order Name"
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
                     {{prop.data.name}}
                 </template>
             </Column>
-
-            <Column  header="Vendor Name"
-                     class="overflow-wrap-anywhere"
-            >
+            <Column  header="Shipped Items" :sortable="false">
                 <template #body="prop">
-                    {{prop.data.vendor_name}}
+                    <div class="p-inputgroup justify-content-center">
+
+                        <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">{{prop.data.order_items}}</Tag>
+                    </div>
                 </template>
             </Column>
+<!--            <Column  header="Vendor Name"-->
+<!--                     class="overflow-wrap-anywhere"-->
+<!--            >-->
+<!--                <template #body="prop">-->
+<!--                    {{prop.data.vendor_name}}-->
+<!--                </template>-->
+<!--            </Column>-->
             <Column  header="Quantity "
                      class="overflow-wrap-anywhere"
             >

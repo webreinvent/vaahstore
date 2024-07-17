@@ -72,6 +72,14 @@ export const useShipmentStore = defineStore({
             // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
             // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
         ],
+        order_list_new : [
+            { "name": "Order  1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
+                ,"vendor_name":"vendor 1"  ,"order_items":2 },
+            { "name": "Order  2","id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
+                ,"vendor_name":"vendor 1","order_items":2  },
+            // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
+            // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
+        ],
         order_item_list : [
             { "name": "Adidas-Adidas-price", "id": 260, "amount": 22, "deleted_at": null },
             { "name": "soni-soni-color", "id": 367, "amount": 22, "deleted_at": null },
@@ -85,9 +93,9 @@ export const useShipmentStore = defineStore({
             // { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
         ],
         order_list_table_with_vendor : [
-            { "name": "Order 1 Item 1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
+            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
             ,"vendor_name":"vendor 1"},
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
+            { "name": "soni-soni-color", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
                     "Delivered","vendor_name":"vendor 1" },
             { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
                     "Delivered","vendor_name":"vendor 3" },
