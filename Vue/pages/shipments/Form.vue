@@ -31,7 +31,7 @@ const toggleFormMenu = (event) => {
 const selectedOrders = ref([]);
 const orderListTables = ref([]);
 const addOrdersToShipment = () => {
-    orderListTables.value = store.item.orders.map(order => ({
+    store.orderListTables = store.item.orders.map(order => ({
         name: order.name,
         items: order.items // Assuming 'items' is an array of items for each order
     }));
@@ -42,7 +42,7 @@ const removeOrder = (removedOrder) => {
     // console.log(index)
     if (index !== -1) {
         store.item.orders.splice(index, 1);
-        orderListTables.value.splice(index, 1); // Remove corresponding table
+        store.orderListTables.splice(index, 1); // Remove corresponding table
     }
 };
 
@@ -195,7 +195,7 @@ const removeOrder = (removedOrder) => {
 
 
                 <VhField label="Select Order">
-                    <div class="flex justify-content-center">{{store.item.orders}}
+                    <div class="flex justify-content-center">
                         <AutoComplete
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
@@ -215,7 +215,7 @@ const removeOrder = (removedOrder) => {
                         />
                     </div>
                 </VhField>
-                <template v-for="(order, index) in orderListTables" :key="index">
+                <template v-for="(order, index) in store.orderListTables" :key="index">
                     <VhField>
                         <div class="mb-1"><b>{{order.name}}</b>
                             <i  @click="store.removeOrderDetail(index)" class="pi pi-times-circle text-danger ml-2"></i>

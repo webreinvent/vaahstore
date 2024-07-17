@@ -176,6 +176,7 @@ export const useShipmentStore = defineStore({
         },
         removeOrderDetail(index) {
             this.item.orders.splice(index, 1);
+            this.orderListTables.splice(index, 1);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
