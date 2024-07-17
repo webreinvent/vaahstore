@@ -66,11 +66,60 @@ export const useShipmentStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
+        // order_list : [
+        //     { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
+        //     { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
+        //     // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
+        //     // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
+        // ],
         order_list : [
-            { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
-            { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
-            // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-            // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
+            { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null , "items": [{
+                    id: 1000, name: 'Item 1', quantity: 2, order: {
+                        name: 'Order 1',
+                        image: 'ionibowcher.png'
+                    },
+                    shipped:0,
+                    pending:0
+                },{
+                    id: 1000, name: 'Item 2', quantity: 2, order: {
+                        name: 'Order 1',
+                        image: 'ionibowcher.png'
+                    },
+                    shipped:0,
+                    pending:0
+                }] },
+            { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null,"items": [{
+                    id: 1000, name: 'Item 3', quantity: 2, order: {
+                        name: 'Order 2',
+                        image: 'ionibowcher.png'
+                    },
+                    shipped:0,
+                    pending:0
+                } ]},
+
+        ],
+        order_list1 : [
+
+            // {
+            //     id: 1000, name: 'Item 1', quantity: 2, order: {
+            //         name: 'Order 1',
+            //         image: 'ionibowcher.png'
+            //     },
+            //     shipped:0,
+            //     pending:0
+            // },
+            // {
+            //     id: 1000,
+            //     name: 'Item 2',
+            //     quantity: 2,
+            //     order: {
+            //         name: 'Order 1',
+            //         image: 'ionibowcher.png'
+            //     },
+            //     shipped:0,
+            //     pending:0
+            // },
+
         ],
         order_list_new : [
             { "name": "Order  1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
@@ -110,12 +159,24 @@ export const useShipmentStore = defineStore({
             { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
         ],
         // show_orders_panel:false,
-        shipping_status_menu:[]
+        shipping_status_menu:[],
+        orderListTables:[],
     }),
     getters: {
 
     },
     actions: {
+        AddOrderToShipment(orders){
+            console.log(orders)
+            orders.forEach(order => {
+                order.items.forEach(item => {
+                    this.order_list1.push(item);
+                });
+            });
+        },
+        removeOrderDetail(index) {
+            this.item.orders.splice(index, 1);
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -1025,6 +1086,37 @@ export const useShipmentStore = defineStore({
         async updateDomainFilter(name)
         {
             this.shipping_status = name;
+        },
+        searchOrders(event) {
+            const query = event.query.toLowerCase();
+            this.order_suggestion_list = this.order_list.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
+        },
+        async addOrders() {
+            const unique_orders = [];
+            const check_names = new Set();
+
+            for (const order of this.item.orders) {
+                if (!check_names.has(order.name)) {
+                    unique_orders.push(order);
+                    check_names.add(order.name);
+                }
+                else {
+                    this.item.orders = unique_orders;
+                    vaah().toastErrors(['This Currency is already added']);
+                    return false;
+                }
+            }
+            if(unique_orders.length == 0)
+            {
+                await this.getItem(this.route.params.id);
+                return false;
+            }
+            this.item.orders = unique_orders;
+            if ( this.route.name === 'view' && this.item.id ) {
+                await this.itemAction('save');
+            }
         },
         //---------------------------------------------------------------------
     }
