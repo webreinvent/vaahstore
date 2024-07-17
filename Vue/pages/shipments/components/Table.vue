@@ -53,11 +53,11 @@ const toggleQuickFilterState = (event) => {
 
             </Column>
 
-             <Column  header="Shipment Items Count" :sortable="false">
+             <Column  header="Shipment Orders Count" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup">
 
-                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">4</Tag>
+                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">2</Tag>
                      </div>
                  </template>
              </Column>
