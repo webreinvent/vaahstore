@@ -161,6 +161,19 @@ const openLinkInNewTab = (url) => {
 <!--                        </Button>-->
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
+                                v-tooltip.top="'Track Your Shipment'"
+                                :disabled="prop.data.is_active !== 1"
+                                @click="openLinkInNewTab('https://www.delhivery.com/')"
+                                icon="pi pi pi-external-link"
+                                 />
+<!--                            <a href="https://www.delhivery.com/"-->
+<!--                                target="_blank"-->
+<!--                                class=" ml-2 pi pi-globe">-->
+
+<!--                            </a>-->
+<!--                        </Button>-->
+                        <Button class="p-button-tiny p-button-text"
+                                data-testid="shipments-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
