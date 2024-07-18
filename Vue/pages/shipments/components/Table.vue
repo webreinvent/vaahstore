@@ -37,12 +37,6 @@ const openLinkInNewTab = (url) => {
 
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
-             <Column header="Tracking ID"  :sortable="true">
-                 <template #body="prop">
-                     af75851e-9623-41ce-b4fc
-<!--                     - {{prop.data.uuid}}-->
-                 </template>
-             </Column>
 
 
             <Column field="name" header="Name"
@@ -165,7 +159,7 @@ const openLinkInNewTab = (url) => {
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_active !== 1"
                                 @click="openLinkInNewTab('https://www.delhivery.com/')"
-                                icon="pi pi pi-external-link"
+                                icon="pi pi-globe"
                                  />
 <!--                            <a href="https://www.delhivery.com/"-->
 <!--                                target="_blank"-->
