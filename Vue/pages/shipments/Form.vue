@@ -28,48 +28,8 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
-const selectedOrders = ref([]);
-const orderListTables = ref([]);
-const addOrdersToShipment = () => {
-    store.orderListTables = store.item.orders.map(order => ({
-        name: order.name,
-        items: order.items // Assuming 'items' is an array of items for each order
-    }));
-};
-const removeOrder = (removedOrder) => {
-    const index = store.item.orders.findIndex(order => order.name === removedOrder.name);
-    if (index !== -1) {
-        store.item.orders.splice(index, 1);
-        store.orderListTables.splice(index, 1);
-    }
-};
-const updateQuantities = (event,index,item,order) => {
-    // console.log(event.value)
-    // const shipped = parseFloat(event.value) || 0;
-    // item.shipped = shipped;
-    // item.pending = item.quantity - shipped;
-    //
-    //
-    // order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
-    //
-    // console.log('Updated quantities:', item, order);
-    const shipped = parseFloat(event.value) || 0;
 
-    if (shipped > item.quantity) {
-        item.shipped = item.quantity;
-    } else {
-        item.shipped = shipped;
-    }
 
-    item.pending = item.quantity - item.shipped;
-    if (item.pending < 0) {
-        item.pending = 0;
-    }
-
-    // Update total shipped for the order
-    order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
-
-};
 
 
 </script>
@@ -177,49 +137,6 @@ const updateQuantities = (event,index,item,order) => {
 
                 </Message>
 
-
-<!--                <VhField label="Select Order">-->
-<!--                    <div class="flex justify-content-center">-->
-<!--                        <AutoComplete-->
-<!--                            v-model="store.item.orders"-->
-<!--                            :suggestions="store.order_suggestion_list"-->
-<!--                           multiple-->
-<!--                            dropdown-->
-<!--                            optionLabel="name"-->
-<!--                            placeholder="Select Order"-->
-<!--                            display="chip"-->
-<!--                            @change = "store.addOrders()"-->
-<!--                            @complete="store.searchOrders($event)"-->
-<!--                            class="w-full relative" />-->
-<!--                        <Button label="Add"-->
-<!--                                class="p-button-sm ml-1"-->
-<!--                                data-testid="articles-item-restore"-->
-<!--                                @click="store.AddOrderToShipment(store.item.orders)">-->
-<!--                        </Button>-->
-<!--&lt;!&ndash;                        <div class="required-field hidden"></div>&ndash;&gt;-->
-<!--                    </div>-->
-<!--                </VhField>-->
-
-<!--                <VhField >-->
-<!--                <DataTable :value="store.order_list1" rowGroupMode="subheader" groupRowsBy="order.name" sortMode="single"-->
-<!--                           sortField="order.name" :sortOrder="1" scrollable scrollHeight="400px" >-->
-<!--&lt;!&ndash;                    <Column field="order.name" header="Representative"></Column>&ndash;&gt;-->
-<!--                    <Column field="name" header="Name" ></Column>-->
-<!--                    <Column field="quantity" header="Quantity" ></Column>-->
-<!--                    <Column field="shipped" header="Shipped" ></Column>-->
-<!--                    <Column field="pending" header="Pending" ></Column>-->
-
-<!--                    <template #groupheader="slotProps">-->
-<!--                        <div class="flex items-center gap-2">-->
-<!--                            <span>{{ slotProps.data.order.name }}</span>-->
-<!--                        </div>-->
-<!--                    </template>-->
-
-<!--                </DataTable>-->
-<!--                </VhField>-->
-
-
-
                 <VhField label="Select Order">
                     <div class="flex justify-content-center">
                         <AutoComplete
@@ -237,11 +154,11 @@ const updateQuantities = (event,index,item,order) => {
                         <Button
                             label="Add"
                             class="p-button-sm ml-1"
-                            @click="addOrdersToShipment"
+                            @click="store.addOrdersToShipment"
                         />
                     </div>
                 </VhField>
-                <template v-for="(order, index) in store.orderListTables" :key="index">
+                <template v-for="(order, index) in store.order_list_tables" :key="index">
                     <VhField>
                         <div class="mb-1"><b>{{order.name}}</b>
                             <i  @click="store.removeOrderDetail(index)" class="pi pi-times-circle text-danger ml-2"></i>
@@ -256,13 +173,25 @@ const updateQuantities = (event,index,item,order) => {
                             scrollable
                             scrollHeight="400px"
                         >
-                            <Column field="name" header="Name"></Column>
-                            <Column field="quantity" header="Quantity"></Column>
-                            <Column field="shipped" header="Shipped"></Column>
+                            <Column field="name" header="Name">
+                                <template #footer="slotProps">
+                                    Total
+                                </template>
+                            </Column>
+                            <Column field="quantity" header="Quantity">
+                                <template #footer="slotProps">
+                                     {{ store.calculateTotalQuantity(order.items) }}
+                                </template>
+                            </Column>
+                            <Column field="shipped" header="Shipped">
+                                <template #footer="slotProps">
+                                     {{ store.calculateTotalShipped(order.items) }}
+                                </template>
+                            </Column>
                             <Column field="pending" header="Pending">
-<!--                                <template #body="prop">-->
-<!--                                   {{prop.data.quantity-prop.data.shipped}}-->
-<!--                                </template>-->
+                                <template #footer="slotProps">
+                                    {{ store.calculateTotalPending(order.items) }}
+                                </template>
                             </Column>
                             <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
                                 <template #body="prop" >
@@ -272,17 +201,13 @@ const updateQuantities = (event,index,item,order) => {
                                             buttonLayout="horizontal"
                                             :min="0"
                                             :max="prop.data.quantity"
-                                            @input="updateQuantities($event, index,prop.data,order)"
+                                            @input="store.updateQuantities($event, index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
                                 </template>
                             </Column>
 
-<!--                            <template #groupheader="slotProps">-->
-<!--                                <div class="flex items-center gap-2">-->
-<!--                                    <span>{{ slotProps.data.order.name }}</span>-->
-<!--                                </div>-->
-<!--                            </template>-->
+
                         </DataTable>
                     </VhField>
                 </template>
