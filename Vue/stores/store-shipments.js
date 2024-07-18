@@ -107,6 +107,10 @@ export const useShipmentStore = defineStore({
                     name: 'Order 1',
                     image: 'ionibowcher.png'
                 },
+                vendor:{
+                    id:106,
+                    name:'vendor 1',
+                },
                 shipped:2,
                 pending:0
             },
@@ -118,6 +122,10 @@ export const useShipmentStore = defineStore({
                     name: 'Order 1',
                     image: 'ionibowcher.png'
                 },
+                vendor:{
+                    id:106,
+                    name:'vendor 1',
+                },
                 shipped:2,
                 pending:0
             },{
@@ -127,6 +135,10 @@ export const useShipmentStore = defineStore({
                 order: {
                     name: 'Order 2',
                     image: 'ionibowcher.png'
+                },
+                vendor:{
+                    id:107,
+                    name:'vendor 2',
                 },
                 shipped:1,
                 pending:0
@@ -1135,6 +1147,21 @@ export const useShipmentStore = defineStore({
             if ( this.route.name === 'view' && this.item.id ) {
                 await this.itemAction('save');
             }
+        },
+        toViewVendor(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    q: product.vendor.id
+                }
+            };
+            const route = {
+                name: 'vendors.index',
+                query: query
+            };
+            this.$router.push(route);
         },
         //---------------------------------------------------------------------
     }

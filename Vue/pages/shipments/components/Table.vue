@@ -39,7 +39,8 @@ const openLinkInNewTab = (url) => {
             </Column>
              <Column header="Tracking ID"  :sortable="true">
                  <template #body="prop">
-                   {{prop.data.uuid}}
+                     af75851e-9623-41ce-b4fc
+<!--                     - {{prop.data.uuid}}-->
                  </template>
              </Column>
 
