@@ -58,6 +58,8 @@ export const useShipmentStore = defineStore({
             action: null,
             is_button_loading: null
         },
+        options:[{ name: 'Yes', value: 1 },
+            { name: 'No', value: 0 }],
         is_list_loading: null,
         count_filters: 0,
         list_selected_menu: [],
@@ -1142,6 +1144,13 @@ export const useShipmentStore = defineStore({
                 return item.name.toLowerCase().includes(query);
             });
         },
+        searchStatus(event) {
+            const query = event.query.toLowerCase();
+            this.status_suggestion_list = this.shipment_status.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
+        },
+
         async addOrders() {
             const unique_orders = [];
             const check_names = new Set();
