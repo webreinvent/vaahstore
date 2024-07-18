@@ -150,7 +150,7 @@ watchEffect(() => {
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
                             multiple
-
+                            :dropdown="true"
                             @complete="store.searchOrders($event)"
                             optionLabel="name"
                             placeholder="Select orders"
@@ -208,22 +208,25 @@ watchEffect(() => {
                                 </template>
                             </Column>
                             <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
-                                <template #body="prop" >
+                                <template #body="prop" >{{store.item.to_be_shipped}}
                                     <div class="p-inputgroup w-6rem max-w-full">
                                         <InputNumber
-                                            v-model="prop.data.shipped"
+                                            v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"
                                             :min="0"
                                             :max="prop.data.quantity"
-                                            @input="store.updateQuantities($event, index,prop.data,order)"
+                                            @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
 
-                                </template><template #footer="slotProps">
-                                <div class="ml-4">
-                                {{ store.calculateTotalShipped(order.items) }}
-                                </div>
-                            </template>
+                                </template>
+<!--                                <template #footer="slotProps">-->
+<!--                                <div class="ml-4">-->
+<!--&lt;!&ndash;                                {{ store.calculateTotalToBeShipped(order) }}&ndash;&gt;-->
+<!--                                {{ store.item.total_to_be_shipped }}-->
+<!--                                </div>-->
+
+<!--                            </template>-->
 
                             </Column>
 

@@ -83,7 +83,7 @@ export const useShipmentStore = defineStore({
                         id: 1,
                     },
                     shipped:0,
-                    pending:0,
+                    pending:2,
                     shippedQuantity:0
                 },{
                     id: 102, name: 'Item 2', quantity: 2, order: {
@@ -91,7 +91,7 @@ export const useShipmentStore = defineStore({
                         id: 1,
                     },
                     shipped:0,
-                    pending:0,
+                    pending:2,
                     shippedQuantity:0
                 }] },
             { "name": "Order  2", "id": 2, "amount": 22, "deleted_at": null,"items": [{
@@ -99,8 +99,8 @@ export const useShipmentStore = defineStore({
                         name: 'Order 2',
                         id: 2,
                     },
-                    shipped:0,
-                    pending:0,
+                    shipped:1,
+                    pending:1,
                     shippedQuantity:0
                 } ]},
 
@@ -185,30 +185,23 @@ export const useShipmentStore = defineStore({
             this.order_list_tables.splice(index, 1);
         },
          updateQuantities (event,index,item,order) {
-            // console.log(event.value)
-            // const shipped = parseFloat(event.value) || 0;
-            // item.shipped = shipped;
-            // item.pending = item.quantity - shipped;
-            //
-            //
-            // order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
-            //
-            // console.log('Updated quantities:', item, order);
+
+
             const shipped = parseFloat(event.value) || 0;
 
-            if (shipped > item.quantity) {
-                item.shipped = item.quantity;
-            } else {
-                item.shipped = shipped;
+            if (shipped >= item.pending) {
+                item.to_be_shipped = item.pending;
             }
 
-            item.pending = item.quantity - item.shipped;
-            if (item.pending < 0) {
-                item.pending = 0;
-            }
 
-            // Update total shipped for the order
-            order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+
+        },
+        calculateTotalToBeShipped(order){
+            if (!order || !Array.isArray(order.items) || order.items.length === 0) {
+                return 0;
+            }
+            return order.items.reduce((total, item) => total + (item.to_be_shipped || 0), 0);
+
 
         },
         calculateTotalQuantity(items) {
