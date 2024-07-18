@@ -66,6 +66,7 @@ export const useShipmentStore = defineStore({
         item_menu_list: [],
         item_menu_state: null,
         form_menu_list: [],
+        order_list_tables:[],
         // order_list : [
         //     { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
         //     { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
@@ -164,23 +165,66 @@ export const useShipmentStore = defineStore({
         ],
         // show_orders_panel:false,
         shipping_status_menu:[],
-        orderListTables:[],
+
     }),
     getters: {
 
     },
     actions: {
-        AddOrderToShipment(orders){
-            console.log(orders)
-            orders.forEach(order => {
-                order.items.forEach(item => {
-                    this.order_list1.push(item);
-                });
-            });
+         addOrdersToShipment () {
+            this.order_list_tables = this.item.orders.map(order => ({
+                name: order.name,
+                items: order.items
+            }));
         },
+
         removeOrderDetail(index) {
             this.item.orders.splice(index, 1);
-            this.orderListTables.splice(index, 1);
+            this.order_list_tables.splice(index, 1);
+        },
+         updateQuantities (event,index,item,order) {
+            // console.log(event.value)
+            // const shipped = parseFloat(event.value) || 0;
+            // item.shipped = shipped;
+            // item.pending = item.quantity - shipped;
+            //
+            //
+            // order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+            //
+            // console.log('Updated quantities:', item, order);
+            const shipped = parseFloat(event.value) || 0;
+
+            if (shipped > item.quantity) {
+                item.shipped = item.quantity;
+            } else {
+                item.shipped = shipped;
+            }
+
+            item.pending = item.quantity - item.shipped;
+            if (item.pending < 0) {
+                item.pending = 0;
+            }
+
+            // Update total shipped for the order
+            order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+
+        },
+        calculateTotalQuantity(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => total + item.quantity, 0);
+        },
+        calculateTotalShipped(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => total + item.shipped, 0);
+        },calculateTotalPending(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => total + item.pending, 0);
         },
         //---------------------------------------------------------------------
         async onLoad(route)
