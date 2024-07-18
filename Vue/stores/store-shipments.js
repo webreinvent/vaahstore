@@ -73,28 +73,32 @@ export const useShipmentStore = defineStore({
         //     // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
         // ],
         order_list : [
-            { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null , "items": [{
-                    id: 1000, name: 'Item 1', quantity: 2, order: {
+            { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
+                "items": [{
+                    id: 101, name: 'Item 1', quantity: 2, order: {
                         name: 'Order 1',
-                        image: 'ionibowcher.png'
+                        id: 1,
                     },
                     shipped:0,
-                    pending:0
+                    pending:0,
+                    shippedQuantity:0
                 },{
-                    id: 1000, name: 'Item 2', quantity: 2, order: {
+                    id: 102, name: 'Item 2', quantity: 2, order: {
                         name: 'Order 1',
-                        image: 'ionibowcher.png'
+                        id: 1,
                     },
                     shipped:0,
-                    pending:0
+                    pending:0,
+                    shippedQuantity:0
                 }] },
-            { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null,"items": [{
+            { "name": "Order  2", "id": 2, "amount": 22, "deleted_at": null,"items": [{
                     id: 1000, name: 'Item 3', quantity: 2, order: {
                         name: 'Order 2',
-                        image: 'ionibowcher.png'
+                        id: 2,
                     },
                     shipped:0,
-                    pending:0
+                    pending:0,
+                    shippedQuantity:0
                 } ]},
 
         ],
