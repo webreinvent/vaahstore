@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
 import { useShipmentStore } from '../../stores/store-shipments'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
@@ -31,7 +31,14 @@ const toggleFormMenu = (event) => {
 
 
 
+const trackableSelection = computed(() => {
+    const isEmpty = !store.item.tracking_key || !store.item.tracking_value || !store.item.tracking_url;
+    return isEmpty ? 0 : 1;
+});
 
+watchEffect(() => {
+    store.item.is_trackable = trackableSelection.value;
+});
 </script>
 <template>
 
@@ -137,20 +144,21 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="Select Order">
+                <VhField label="Orders">
                     <div class="flex justify-content-center">
                         <AutoComplete
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
                             multiple
-                            dropdown
+
                             @complete="store.searchOrders($event)"
                             optionLabel="name"
-                            placeholder="Select Order"
+                            placeholder="Select orders"
                             display="chip"
 
                             class="w-full relative"
                         />
+
                         <Button
                             label="Add"
                             class="p-button-sm ml-1"
@@ -173,29 +181,35 @@ const toggleFormMenu = (event) => {
                             scrollable
                             scrollHeight="400px"
                         >
-                            <Column field="name" header="Name">
+                            <Column field="name" header="Order Item">
                                 <template #footer="slotProps">
                                     Total
                                 </template>
                             </Column>
                             <Column field="quantity" header="Quantity">
                                 <template #footer="slotProps">
+                                    <div class="ml-2">
                                      {{ store.calculateTotalQuantity(order.items) }}
+                                    </div>
                                 </template>
                             </Column>
                             <Column field="shipped" header="Shipped">
                                 <template #footer="slotProps">
+                                    <div class="ml-2">
                                      {{ store.calculateTotalShipped(order.items) }}
+                                    </div>
                                 </template>
                             </Column>
                             <Column field="pending" header="Pending">
                                 <template #footer="slotProps">
+                                    <div class="ml-2">
                                     {{ store.calculateTotalPending(order.items) }}
+                                    </div>
                                 </template>
                             </Column>
                             <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
                                 <template #body="prop" >
-                                    <div class="p-inputgroup w-8rem max-w-full">
+                                    <div class="p-inputgroup w-6rem max-w-full">
                                         <InputNumber
                                             v-model="prop.data.shipped"
                                             buttonLayout="horizontal"
@@ -204,7 +218,13 @@ const toggleFormMenu = (event) => {
                                             @input="store.updateQuantities($event, index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
-                                </template>
+
+                                </template><template #footer="slotProps">
+                                <div class="ml-4">
+                                {{ store.calculateTotalShipped(order.items) }}
+                                </div>
+                            </template>
+
                             </Column>
 
 
@@ -212,6 +232,59 @@ const toggleFormMenu = (event) => {
                     </VhField>
                 </template>
 
+                <VhField label="Tracking Url">
+                    <div class="p-inputgroup">
+                        <InputText class="w-full"
+                                   placeholder="Enter the tracking url"
+                                   name="sources-slug"
+                                   data-testid="sources-slug"
+                                   v-model="store.item.tracking_url" required/>
+                        <div class="required-field hidden"></div>
+                    </div>
+                </VhField>
+
+                <VhField label="Tracking Key">
+                    <div class="p-inputgroup">
+                        <InputText class="w-full"
+                                   placeholder="Enter tracking key"
+                                   name="sources-slug"
+                                   data-testid="sources-slug"
+                                   v-model="store.item.tracking_key" required/>
+                        <div class="required-field hidden"></div>
+                    </div>
+                </VhField>
+                <VhField label="Tracking Value">
+                    <div class="p-inputgroup">
+                        <InputText class="w-full"
+                                   placeholder="Enter tracking value"
+                                   name="sources-slug"
+                                   data-testid="sources-slug"
+                                   v-model="store.item.tracking_value" required/>
+                        <div class="required-field hidden"></div>
+                    </div>
+                </VhField>
+
+                <VhField label="Status">
+                    <AutoComplete v-model="store.item.status"
+                                  value="id"
+                                  class="w-full"
+                                  data-testid="store-taxonomy_status"
+                                  :suggestions="store.status_suggestion_list"
+                                  @complete="store.searchStatus($event)"
+                                  :dropdown="true"
+                                  placeholder="Select status"
+                                  optionLabel="name"
+                                  forceSelection />
+                </VhField>
+
+                <VhField label="Is Trackable">
+
+                    <SelectButton v-model="trackableSelection" :options="store.options"
+                                  optionLabel="name"
+                                  optionValue="value"
+                                  disabled
+                                  aria-labelledby="basic" allowEmpty :invalid="value === null"  />
+                </VhField>
 
 
             </div>
