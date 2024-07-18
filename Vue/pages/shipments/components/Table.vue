@@ -37,12 +37,7 @@ const openLinkInNewTab = (url) => {
 
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
-             <Column header="Tracking ID"  :sortable="true">
-                 <template #body="prop">
-                     af75851e-9623-41ce-b4fc
-<!--                     - {{prop.data.uuid}}-->
-                 </template>
-             </Column>
+
 
             <Column field="name" header="Name"
                     class="overflow-wrap-anywhere"
@@ -56,29 +51,32 @@ const openLinkInNewTab = (url) => {
                 </template>
 
             </Column>
+             <Column header="Tracking Key"  :sortable="true">
 
-             <Column  header="Shipment Orders Count" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup">
+<!--                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">-->
+                         AWB
+<!--                     </Button>-->
+                 </template>
+             </Column>
+             <Column header="Tracking Value"  :sortable="true">
+
+                 <template #body="prop">
+                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">
+                         af75851e-9623-41ce-b4fc
+                     </Button>
+                 </template>
+             </Column>
+             <Column  header="Orders Count" :sortable="true">
+                 <template #body="prop">
+                     <div class="p-inputgroup justify-content-center">
 
                  <Tag severity="info" class="p-inputgroup-addon cursor-pointer">2</Tag>
                      </div>
                  </template>
              </Column>
-             <Column field="type" header="Is Trackable">
 
-                 <template #body="prop">
-                     <span v-if="prop.data.is_active === 1" style="padding-left: 5px;">
-                       Yes
-                    </span>
-                     <span v-else style="padding-left: 5px;">
-                      No
-                    </span>
-<!--                     Yes-->
-                 </template>
-
-             </Column>
-             <Column  header="Status" :sortable="false">
+             <Column  header="Status" :sortable="true">
                  <template #body="prop">
                      <div class="p-inputgroup">
 
@@ -87,9 +85,22 @@ const openLinkInNewTab = (url) => {
                      </div>
                  </template>
              </Column>
-                <Column field="updated_at" header="Updated"
+             <Column field="type" header="Is Trackable" :sortable="true">
+
+                 <template #body="prop">
+                     <span v-if="prop.data.is_active === 1" style="padding-left: 5px;">
+                       Yes
+                    </span>
+                     <span v-else style="padding-left: 5px;">
+                      No
+                    </span>
+                     <!--                     Yes-->
+                 </template>
+
+             </Column>
+                <Column field="updated_at" header="Created"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+                        style="width:100px;"
                         :sortable="true">
 
                     <template #body="prop">
@@ -126,7 +137,7 @@ const openLinkInNewTab = (url) => {
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_active !== 1"
                                 @click="openLinkInNewTab('https://www.delhivery.com/')"
-                                icon="pi pi pi-external-link"
+                                icon="pi pi-globe"
                                  />
 <!--                            <a href="https://www.delhivery.com/"-->
 <!--                                target="_blank"-->

@@ -42,7 +42,7 @@ watchEffect(() => {
 </script>
 <template>
 
-    <div class="col-8" >
+    <div class="col-7" >
 
         <Panel class="is-small">
 
@@ -143,7 +143,14 @@ watchEffect(() => {
                     </div>
 
                 </Message>
-
+                <VhField label="Name">
+                    <InputText class="w-full"
+                               name="products-name"
+                               data-testid="products-name"
+                               @update:modelValue="store.watchItem"
+                               placeholder="Enter Name"
+                               v-model="store.item.name"/>
+                </VhField>
                 <VhField label="Orders">
                     <div class="flex justify-content-center">
                         <AutoComplete
@@ -167,9 +174,10 @@ watchEffect(() => {
                     </div>
                 </VhField>
                 <template v-for="(order, index) in store.order_list_tables" :key="index">
-                    <VhField>
-                        <div class="mb-1"><b>{{order.name}}</b>
-                            <i  @click="store.removeOrderDetail(index)" class="pi pi-times-circle text-danger ml-2"></i>
+<!--                    <VhField>-->
+                    <div class="mb-4">
+                    <div class="mt-2 mb-2 p-1" style="font-size: 16px"><b>{{order.name}}</b>
+                            <i style="font-size: 15px" @click="store.removeOrderDetail(index)" class="pi pi-times-circle cursor-pointer text-danger  ml-2"></i>
                         </div>
                         <DataTable
                             :value="order.items"
@@ -177,6 +185,7 @@ watchEffect(() => {
                             :groupRowsBy="order.name"
                             sortMode="single"
                             :sortField="order.name"
+                            showGridlines
                             :sortOrder="1"
                             scrollable
                             scrollHeight="400px"
@@ -214,6 +223,7 @@ watchEffect(() => {
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"
                                             :min="0"
+                                            placeholder="quantity"
                                             :max="prop.data.quantity"
                                             @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
@@ -232,17 +242,18 @@ watchEffect(() => {
 
 
                         </DataTable>
-                    </VhField>
+                    </div>
+<!--                    </VhField>-->
                 </template>
 
                 <VhField label="Tracking Url">
-                    <div class="p-inputgroup">
+                    <div class="p-inputgroup ">
                         <InputText class="w-full"
                                    placeholder="Enter the tracking url"
                                    name="sources-slug"
                                    data-testid="sources-slug"
                                    v-model="store.item.tracking_url" required/>
-                        <div class="required-field hidden"></div>
+
                     </div>
                 </VhField>
 
@@ -253,7 +264,7 @@ watchEffect(() => {
                                    name="sources-slug"
                                    data-testid="sources-slug"
                                    v-model="store.item.tracking_key" required/>
-                        <div class="required-field hidden"></div>
+
                     </div>
                 </VhField>
                 <VhField label="Tracking Value">
@@ -263,7 +274,7 @@ watchEffect(() => {
                                    name="sources-slug"
                                    data-testid="sources-slug"
                                    v-model="store.item.tracking_value" required/>
-                        <div class="required-field hidden"></div>
+
                     </div>
                 </VhField>
 
