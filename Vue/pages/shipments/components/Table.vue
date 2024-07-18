@@ -12,6 +12,9 @@ const selected_shipping_status = ref();
 const toggleQuickFilterState = (event) => {
     selected_shipping_status.value.toggle(event);
 };
+const openLinkInNewTab = (url) => {
+    window.open(url, '_blank');
+};
 </script>
 
 <template>
@@ -34,11 +37,7 @@ const toggleQuickFilterState = (event) => {
 
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
-             <Column header="Tracking ID"  :sortable="true">
-                 <template #body="prop">
-                   {{prop.data.uuid}}
-                 </template>
-             </Column>
+
 
             <Column field="name" header="Name"
                     class="overflow-wrap-anywhere"
@@ -52,41 +51,56 @@ const toggleQuickFilterState = (event) => {
                 </template>
 
             </Column>
+             <Column header="Tracking Key"  :sortable="true">
 
-             <Column  header="Shipment Orders Count" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup">
+<!--                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">-->
+                         AWB
+<!--                     </Button>-->
+                 </template>
+             </Column>
+             <Column header="Tracking Value"  :sortable="true">
 
-                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">2</Tag>
+                 <template #body="prop">
+                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">
+                         af75851e-9623-41ce-b4fc
+                     </Button>
+                 </template>
+             </Column>
+             <Column  header="Orders Count" :sortable="true">
+                 <template #body="prop">
+                     <div class="p-inputgroup justify-content-center">
+
+                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer">2</Tag>
                      </div>
                  </template>
              </Column>
-             <Column  header="Status" :sortable="false">
+
+             <Column  header="Status" :sortable="true">
                  <template #body="prop">
                      <div class="p-inputgroup">
 
-                         <Button
-                             data-testid="crawledpagedata-domain-filter"
-                             type="button"
-                             @click="toggleQuickFilterState"
-                             aria-haspopup="true"
-                             aria-controls="overlay_menu"
-                             class="ml-1 p-button-sm"
+                        <Badge severity="success"> Delivered</Badge>
 
-                             :label="store.shipping_status ? store.shipping_status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Delivered'"
-
-                             icon="pi pi-angle-down"
-                         >
-                         </Button>
-                         <Menu ref="selected_shipping_status"
-                               :model="store.shipping_status_menu"
-                               :popup="true"/>
                      </div>
                  </template>
              </Column>
-                <Column field="updated_at" header="Updated"
+             <Column field="type" header="Is Trackable" :sortable="true">
+
+                 <template #body="prop">
+                     <span v-if="prop.data.is_active === 1" style="padding-left: 5px;">
+                       Yes
+                    </span>
+                     <span v-else style="padding-left: 5px;">
+                      No
+                    </span>
+                     <!--                     Yes-->
+                 </template>
+
+             </Column>
+                <Column field="updated_at" header="Created"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+                        style="width:100px;"
                         :sortable="true">
 
                     <template #body="prop">
@@ -95,7 +109,7 @@ const toggleQuickFilterState = (event) => {
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+<!--            <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"
                     style="width:100px;"
                     header="Is Active">
@@ -109,15 +123,28 @@ const toggleQuickFilterState = (event) => {
                     </InputSwitch>
                 </template>
 
-            </Column>
+            </Column>-->
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup justify-content-center">
 
+                        <Button class="p-button-tiny p-button-text"
+                                data-testid="shipments-table-to-view"
+                                v-tooltip.top="'Track Your Shipment'"
+                                :disabled="prop.data.is_active !== 1"
+                                @click="openLinkInNewTab('https://www.delhivery.com/')"
+                                icon="pi pi-globe"
+                                 />
+<!--                            <a href="https://www.delhivery.com/"-->
+<!--                                target="_blank"-->
+<!--                                class=" ml-2 pi pi-globe">-->
+
+<!--                            </a>-->
+<!--                        </Button>-->
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'View'"

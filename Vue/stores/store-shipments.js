@@ -58,6 +58,8 @@ export const useShipmentStore = defineStore({
             action: null,
             is_button_loading: null
         },
+        options:[{ name: 'Yes', value: 1 },
+            { name: 'No', value: 0 }],
         is_list_loading: null,
         count_filters: 0,
         list_selected_menu: [],
@@ -67,12 +69,7 @@ export const useShipmentStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         order_list_tables:[],
-        // order_list : [
-        //     { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
-        //     { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
-        //     // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-        //     // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
-        // ],
+
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -81,7 +78,7 @@ export const useShipmentStore = defineStore({
                         id: 1,
                     },
                     shipped:0,
-                    pending:0,
+                    pending:2,
                     shippedQuantity:0
                 },{
                     id: 102, name: 'Item 2', quantity: 2, order: {
@@ -89,7 +86,7 @@ export const useShipmentStore = defineStore({
                         id: 1,
                     },
                     shipped:0,
-                    pending:0,
+                    pending:2,
                     shippedQuantity:0
                 }] },
             { "name": "Order  2", "id": 2, "amount": 22, "deleted_at": null,"items": [{
@@ -97,74 +94,58 @@ export const useShipmentStore = defineStore({
                         name: 'Order 2',
                         id: 2,
                     },
-                    shipped:0,
-                    pending:0,
+                    shipped:1,
+                    pending:1,
                     shippedQuantity:0
                 } ]},
 
         ],
         order_list1 : [
 
-            // {
-            //     id: 1000, name: 'Item 1', quantity: 2, order: {
-            //         name: 'Order 1',
-            //         image: 'ionibowcher.png'
-            //     },
-            //     shipped:0,
-            //     pending:0
-            // },
-            // {
-            //     id: 1000,
-            //     name: 'Item 2',
-            //     quantity: 2,
-            //     order: {
-            //         name: 'Order 1',
-            //         image: 'ionibowcher.png'
-            //     },
-            //     shipped:0,
-            //     pending:0
-            // },
+            {
+                id: 1000, name: 'Item 1', quantity: 2, order: {
+                    name: 'Order 1',
+                    image: 'ionibowcher.png'
+                },
+                vendor:{
+                    id:106,
+                    name:'vendor 1',
+                },
+                shipped:2,
+                pending:0
+            },
+            {
+                id: 1000,
+                name: 'Item 2',
+                quantity: 2,
+                order: {
+                    name: 'Order 1',
+                    image: 'ionibowcher.png'
+                },
+                vendor:{
+                    id:106,
+                    name:'vendor 1',
+                },
+                shipped:2,
+                pending:0
+            },{
+                id: 1000,
+                name: 'Item 3',
+                quantity: 1,
+                order: {
+                    name: 'Order 2',
+                    image: 'ionibowcher.png'
+                },
+                vendor:{
+                    id:107,
+                    name:'vendor 2',
+                },
+                shipped:1,
+                pending:0
+            },
 
         ],
-        order_list_new : [
-            { "name": "Order  1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-                ,"vendor_name":"vendor 1"  ,"order_items":2 },
-            { "name": "Order  2","id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-                ,"vendor_name":"vendor 1","order_items":2  },
-            // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-            // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
-        ],
-        order_item_list : [
-            { "name": "Adidas-Adidas-price", "id": 260, "amount": 22, "deleted_at": null },
-            { "name": "soni-soni-color", "id": 367, "amount": 22, "deleted_at": null },
-            { "name": "Order 2 Item 3", "id": 368, "amount": 22, "deleted_at": null },
-            { "name": "Order 2 Item 4", "id": 369, "amount": 22, "deleted_at": null }
-        ],
-        order_list_table : [
-            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 1,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Out For Delivery" },
-            { "name": "soni-soni-color", "id": 367, "quantity": 2,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Picked" },
-            // { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            // { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
-        ],
-        order_list_table_with_vendor : [
-            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-            ,"vendor_name":"vendor 1"},
-            { "name": "soni-soni-color", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 1" },
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 3" },
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 4" },
 
-        ],
-        shipment_status : [
-            { "name": "Pending", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Picked", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "In Transit", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
-        ],
-        // show_orders_panel:false,
-        shipping_status_menu:[],
 
     }),
     getters: {
@@ -183,30 +164,23 @@ export const useShipmentStore = defineStore({
             this.order_list_tables.splice(index, 1);
         },
          updateQuantities (event,index,item,order) {
-            // console.log(event.value)
-            // const shipped = parseFloat(event.value) || 0;
-            // item.shipped = shipped;
-            // item.pending = item.quantity - shipped;
-            //
-            //
-            // order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
-            //
-            // console.log('Updated quantities:', item, order);
+
+
             const shipped = parseFloat(event.value) || 0;
 
-            if (shipped > item.quantity) {
-                item.shipped = item.quantity;
-            } else {
-                item.shipped = shipped;
+            if (shipped >= item.pending) {
+                item.to_be_shipped = item.pending;
             }
 
-            item.pending = item.quantity - item.shipped;
-            if (item.pending < 0) {
-                item.pending = 0;
-            }
 
-            // Update total shipped for the order
-            order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+
+        },
+        calculateTotalToBeShipped(order){
+            if (!order || !Array.isArray(order.items) || order.items.length === 0) {
+                return 0;
+            }
+            return order.items.reduce((total, item) => total + (item.to_be_shipped || 0), 0);
+
 
         },
         calculateTotalQuantity(items) {
@@ -263,7 +237,7 @@ export const useShipmentStore = defineStore({
                     break;
                 case 'shipments.form':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 5;
                     break;
                 default:
                     this.view = 'small';
@@ -783,6 +757,8 @@ export const useShipmentStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'shipments.index',query:this.query})
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
         toForm()
@@ -1142,6 +1118,13 @@ export const useShipmentStore = defineStore({
                 return item.name.toLowerCase().includes(query);
             });
         },
+        searchStatus(event) {
+            const query = event.query.toLowerCase();
+            this.status_suggestion_list = this.shipment_status.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
+        },
+
         async addOrders() {
             const unique_orders = [];
             const check_names = new Set();
@@ -1166,6 +1149,21 @@ export const useShipmentStore = defineStore({
             if ( this.route.name === 'view' && this.item.id ) {
                 await this.itemAction('save');
             }
+        },
+        toViewVendor(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    q: product.vendor.id
+                }
+            };
+            const route = {
+                name: 'vendors.index',
+                query: query
+            };
+            this.$router.push(route);
         },
         //---------------------------------------------------------------------
     }
