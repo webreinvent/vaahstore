@@ -40,6 +40,9 @@ const selected_shipping_status = ref();
 const toggleQuickFilterState = (event) => {
     selected_shipping_status.value.toggle(event);
 };
+const openVendorPage = (id) => {
+    window.open(vendorUrl, '_blank');
+};
 </script>
 <template>
 
@@ -154,6 +157,28 @@ const toggleQuickFilterState = (event) => {
                                             </td>
                                         </tr>
                                         <tr>
+                                            <td><b>Tracking Url</b></td>
+                                            <td  colspan="2" >
+                                                <a href="https://www.delhivery.com/" target="_blank" class="word-overflow">
+                                                    https://www.delhivery.com/
+                                                </a>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><b>Tracking Key</b></td>
+                                            <td  colspan="2" >
+                                                <span class="word-overflow" >AWB
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        <VhViewRow label="Tracking value"
+                                                   value="af75851e-9623-41ce-b4fc"
+                                                   :can_copy="true"
+                                        />
+                                        <tr>
                                             <td><b>Shipment  Status</b></td>
                                             <td  colspan="2" >
                                         <Badge class="word-overflow" severity="success" value="Delivered">
@@ -194,6 +219,17 @@ const toggleQuickFilterState = (event) => {
 
                             <Column field="name" header="Order Item">
 
+                            </Column>
+                            <Column field="name" header="Vendor">
+                                <template #body="prop">
+                                    <router-link
+                                        :to="{ name: 'vendors.index', query: { page: 1, rows: 20, 'filter[q]': prop.data.vendor.id } }"
+                                        target="_blank"
+                                    >
+                                        {{ prop.data.vendor.name }}
+                                    </router-link>
+
+                                </template>
                             </Column>
                             <Column field="quantity" header="Quantity">
 
