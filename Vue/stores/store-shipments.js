@@ -69,12 +69,7 @@ export const useShipmentStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         order_list_tables:[],
-        // order_list : [
-        //     { "name": "Order  1", "id": 260, "amount": 22, "deleted_at": null },
-        //     { "name": "Order  2", "id": 367, "amount": 22, "deleted_at": null },
-        //     // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-        //     // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
-        // ],
+
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -107,66 +102,38 @@ export const useShipmentStore = defineStore({
         ],
         order_list1 : [
 
-            // {
-            //     id: 1000, name: 'Item 1', quantity: 2, order: {
-            //         name: 'Order 1',
-            //         image: 'ionibowcher.png'
-            //     },
-            //     shipped:0,
-            //     pending:0
-            // },
-            // {
-            //     id: 1000,
-            //     name: 'Item 2',
-            //     quantity: 2,
-            //     order: {
-            //         name: 'Order 1',
-            //         image: 'ionibowcher.png'
-            //     },
-            //     shipped:0,
-            //     pending:0
-            // },
+            {
+                id: 1000, name: 'Item 1', quantity: 2, order: {
+                    name: 'Order 1',
+                    image: 'ionibowcher.png'
+                },
+                shipped:2,
+                pending:0
+            },
+            {
+                id: 1000,
+                name: 'Item 2',
+                quantity: 2,
+                order: {
+                    name: 'Order 1',
+                    image: 'ionibowcher.png'
+                },
+                shipped:2,
+                pending:0
+            },{
+                id: 1000,
+                name: 'Item 3',
+                quantity: 1,
+                order: {
+                    name: 'Order 2',
+                    image: 'ionibowcher.png'
+                },
+                shipped:1,
+                pending:0
+            },
 
         ],
-        order_list_new : [
-            { "name": "Order  1", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-                ,"vendor_name":"vendor 1"  ,"order_items":2 },
-            { "name": "Order  2","id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-                ,"vendor_name":"vendor 1","order_items":2  },
-            // { "name": "Order  3", "id": 368, "amount": 22, "deleted_at": null },
-            // { "name": "Order  4", "id": 369, "amount": 22, "deleted_at": null }
-        ],
-        order_item_list : [
-            { "name": "Adidas-Adidas-price", "id": 260, "amount": 22, "deleted_at": null },
-            { "name": "soni-soni-color", "id": 367, "amount": 22, "deleted_at": null },
-            { "name": "Order 2 Item 3", "id": 368, "amount": 22, "deleted_at": null },
-            { "name": "Order 2 Item 4", "id": 369, "amount": 22, "deleted_at": null }
-        ],
-        order_list_table : [
-            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 1,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Out For Delivery" },
-            { "name": "soni-soni-color", "id": 367, "quantity": 2,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Picked" },
-            // { "name": "Order 2 Item 3", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            // { "name": "Order 2 Item 4", "id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
-        ],
-        order_list_table_with_vendor : [
-            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-            ,"vendor_name":"vendor 1"},
-            { "name": "soni-soni-color", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 1" },
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 3" },
-            { "name": "Order 1 Item 2", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null, "status":
-                    "Delivered","vendor_name":"vendor 4" },
 
-        ],
-        shipment_status : [
-            { "name": "Pending", "id": 260, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Picked", "id": 367, "quantity": 22,"available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "In Transit", "id": 368, "quantity": 22, "available_quantity": 2,"is_paid": "Yes", "deleted_at": null },
-            { "name": "Delivered","id": 369, "quantity": 22, "available_quantity": 22,"is_paid": "Yes", "deleted_at": null }
-        ],
-        // show_orders_panel:false,
-        shipping_status_menu:[],
 
     }),
     getters: {
