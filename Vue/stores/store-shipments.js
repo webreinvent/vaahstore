@@ -237,7 +237,7 @@ export const useShipmentStore = defineStore({
                     break;
                 case 'shipments.form':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 5;
                     break;
                 default:
                     this.view = 'small';
@@ -757,6 +757,8 @@ export const useShipmentStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'shipments.index',query:this.query})
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
         toForm()
