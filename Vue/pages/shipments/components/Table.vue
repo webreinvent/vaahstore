@@ -12,6 +12,9 @@ const selected_shipping_status = ref();
 const toggleQuickFilterState = (event) => {
     selected_shipping_status.value.toggle(event);
 };
+const openLinkInNewTab = (url) => {
+    window.open(url, '_blank');
+};
 </script>
 
 <template>
@@ -61,26 +64,25 @@ const toggleQuickFilterState = (event) => {
                      </div>
                  </template>
              </Column>
+             <Column field="type" header="Is Trackable">
+
+                 <template #body="prop">
+                     <span v-if="prop.data.is_active === 1" style="padding-left: 5px;">
+                       Yes
+                    </span>
+                     <span v-else style="padding-left: 5px;">
+                      No
+                    </span>
+<!--                     Yes-->
+                 </template>
+
+             </Column>
              <Column  header="Status" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup">
 
-                         <Button
-                             data-testid="crawledpagedata-domain-filter"
-                             type="button"
-                             @click="toggleQuickFilterState"
-                             aria-haspopup="true"
-                             aria-controls="overlay_menu"
-                             class="ml-1 p-button-sm"
+                        <Badge severity="success"> Delivered</Badge>
 
-                             :label="store.shipping_status ? store.shipping_status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Delivered'"
-
-                             icon="pi pi-angle-down"
-                         >
-                         </Button>
-                         <Menu ref="selected_shipping_status"
-                               :model="store.shipping_status_menu"
-                               :popup="true"/>
                      </div>
                  </template>
              </Column>
@@ -95,7 +97,7 @@ const toggleQuickFilterState = (event) => {
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+<!--            <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="true"
                     style="width:100px;"
                     header="Is Active">
@@ -109,15 +111,28 @@ const toggleQuickFilterState = (event) => {
                     </InputSwitch>
                 </template>
 
-            </Column>
+            </Column>-->
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup justify-content-center">
 
+                        <Button class="p-button-tiny p-button-text"
+                                data-testid="shipments-table-to-view"
+                                v-tooltip.top="'Track Your Shipment'"
+                                :disabled="prop.data.is_active !== 1"
+                                @click="openLinkInNewTab('https://www.delhivery.com/')"
+                                icon="pi pi pi-external-link"
+                                 />
+<!--                            <a href="https://www.delhivery.com/"-->
+<!--                                target="_blank"-->
+<!--                                class=" ml-2 pi pi-globe">-->
+
+<!--                            </a>-->
+<!--                        </Button>-->
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'View'"
