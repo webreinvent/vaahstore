@@ -60,7 +60,7 @@ const openLinkInNewTab = (url) => {
                  <template #body="prop">
                      <div class="p-inputgroup">
 
-                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer" @click="store.openOrdersPanel(prop.data)">2</Tag>
+                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer">2</Tag>
                      </div>
                  </template>
              </Column>

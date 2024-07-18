@@ -177,114 +177,40 @@ const toggleQuickFilterState = (event) => {
                         </div>
                     </TabPanel>
                     <TabPanel header="Shipment Items Detail">
-<!--                        <DataTable  :value="store.order_list" style="border: 1px solid #ccc;margin-top:20px;"-->
-<!--                                    :rows="20"-->
-<!--                                    :paginator="true"-->
-<!--                                    class="p-datatable-sm p-datatable-hoverable-rows">-->
-<!--                            <Column field="id" header="Order ID" :style="{width: '80px'}" :sortable="true" style="border: 1px solid #ccc;">-->
-<!--                            </Column>-->
-<!--                            <Column field="name" header="Order Name" style="border: 1px solid #ccc;">-->
-<!--                                <template #body="props">-->
-<!--                                    <div  >-->
-<!--                                        {{props.data.name}}-->
-
-<!--                                    </div>-->
-<!--                                </template>-->
-<!--                            </Column>-->
-
-<!--                                        <Column  header="Shipment Order Items" style="border: 1px solid #ccc;" :sortable="false">-->
-<!--                                            <template #body="prop">-->
-<!--                                                <div class="p-inputgroup justify-content-center">-->
-<!--                                        <span class="p-inputgroup-addon cursor-pointer"-->
-<!--                                              v-tooltip.top="'Track Order Shipment'"-->
-
-<!--                                        >-->
-<!--                                            <b > 2</b>-->
-<!--                                        </span>-->
-<!--                                                </div>-->
-<!--                                            </template>-->
-<!--                                        </Column>-->
 
 
 
 
-<!--                            <column field="Action" header="Track Order Shipment" style="border:1px solid #ccc;">-->
-<!--                                <template #body="props">-->
+                        <DataTable
+                            :value="store.order_list1"
+                            rowGroupMode="subheader"
+                            :groupRowsBy="'order.name'"
+                            sortMode="single"
+                            :sortField="'order.name'"
+                            :sortOrder="1"
+                            scrollable
+                            scrollHeight="400px"
+                        >
 
-<!--                                    <div class="justify-content-center flex">-->
-<!--                                    <Button class="p-button-tiny p-button-text"-->
-<!--                                            data-testid="shipments-table-to-view"-->
-<!--                                            v-tooltip.top="'View'"-->
-<!--                                            @click="store.openOrdersPanel(props.data)"-->
-<!--                                            icon="pi pi-slack" />-->
-<!--                                    </div>-->
-<!--                                </template>-->
-<!--                            </column>-->
-<!--                            <template #empty="prop">-->
+                            <Column field="name" header="Order Item">
 
-<!--                                <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>-->
-
-<!--                            </template>-->
-<!--                        </DataTable>-->
-
-                        <DataTable :value="store.order_list_table_with_vendor"
-                                   dataKey="id"
-                                   :rows="10"
-                                   :paginator="true"
-                                   class="p-datatable-sm p-datatable-hoverable-rows"
-                                   :nullSortOrder="-1"
-                                   showGridlines
-                                   v-model:selection="store.action.items"
-                                   responsiveLayout="scroll">
-
-
-
-                            <Column field="id" header="Order ID"  >
                             </Column>
+                            <Column field="quantity" header="Quantity">
 
-                            <Column  header="Item Name"
-                                     class="overflow-wrap-anywhere"
-                            >
-                                <template #body="prop">
-                                    {{prop.data.name}}
-                                </template>
                             </Column>
+                            <Column field="shipped" header="Shipped">
 
-                            <Column  header="Vendor Name"
-                                     class="overflow-wrap-anywhere"
-                            >
-                                <template #body="prop">
-                                    {{prop.data.vendor_name}}
-                                </template>
                             </Column>
-                            <Column  header="Quantity "
-                                     class="overflow-wrap-anywhere"
-                            >
-                                <template #body="prop">
-                                    {{prop.data.available_quantity}}
-                                </template>
+                            <Column field="pending" header="Pending">
+
                             </Column>
-                            <Column  header="Status"
-                                     class="overflow-wrap-anywhere"
-                            >
-                                <template #body="prop">
+                            <template #groupheader="prop">
+                                <div class="flex items-center gap-2">
 
-                                    <Badge  v-if="prop.data.status === 'Out For Delivery'" severity="success">
-                                        {{ prop.data.status }}
-                                    </Badge>
-
-                                    <Badge v-else severity="warn">
-                                        {{ prop.data.status }}
-                                    </Badge>
-
-
-                                </template>
-                            </Column>
-                            <template #empty>
-                                <div class="text-center py-3">
-                                    No records found.
+                                    <span><b>{{ prop.data.order.name }}</b></span>
                                 </div>
                             </template>
+
 
                         </DataTable>
                     </TabPanel>
