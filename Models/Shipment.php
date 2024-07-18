@@ -147,7 +147,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-//dd($request);
+dd($request);
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
