@@ -37,14 +37,40 @@ const addOrdersToShipment = () => {
     }));
 };
 const removeOrder = (removedOrder) => {
-    console.log(removedOrder)
     const index = store.item.orders.findIndex(order => order.name === removedOrder.name);
-    // console.log(index)
     if (index !== -1) {
         store.item.orders.splice(index, 1);
-        store.orderListTables.splice(index, 1); // Remove corresponding table
+        store.orderListTables.splice(index, 1);
     }
 };
+const updateQuantities = (event,index,item,order) => {
+    // console.log(event.value)
+    // const shipped = parseFloat(event.value) || 0;
+    // item.shipped = shipped;
+    // item.pending = item.quantity - shipped;
+    //
+    //
+    // order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+    //
+    // console.log('Updated quantities:', item, order);
+    const shipped = parseFloat(event.value) || 0;
+
+    if (shipped > item.quantity) {
+        item.shipped = item.quantity;
+    } else {
+        item.shipped = shipped;
+    }
+
+    item.pending = item.quantity - item.shipped;
+    if (item.pending < 0) {
+        item.pending = 0;
+    }
+
+    // Update total shipped for the order
+    order.shipped = order.items.reduce((total, i) => total + i.shipped, 0);
+
+};
+
 
 </script>
 <template>
@@ -233,7 +259,24 @@ const removeOrder = (removedOrder) => {
                             <Column field="name" header="Name"></Column>
                             <Column field="quantity" header="Quantity"></Column>
                             <Column field="shipped" header="Shipped"></Column>
-                            <Column field="pending" header="Pending"></Column>
+                            <Column field="pending" header="Pending">
+<!--                                <template #body="prop">-->
+<!--                                   {{prop.data.quantity-prop.data.shipped}}-->
+<!--                                </template>-->
+                            </Column>
+                            <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
+                                <template #body="prop" >
+                                    <div class="p-inputgroup w-8rem max-w-full">
+                                        <InputNumber
+                                            v-model="prop.data.shipped"
+                                            buttonLayout="horizontal"
+                                            :min="0"
+                                            :max="prop.data.quantity"
+                                            @input="updateQuantities($event, index,prop.data,order)"
+                                        ></InputNumber>
+                                    </div>
+                                </template>
+                            </Column>
 
 <!--                            <template #groupheader="slotProps">-->
 <!--                                <div class="flex items-center gap-2">-->
