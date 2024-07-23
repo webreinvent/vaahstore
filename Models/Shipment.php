@@ -116,6 +116,11 @@ class Shipment extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function orders()
+    {
+        return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -153,15 +158,14 @@ class Shipment extends VaahModel
 //dd($request);
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
 
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
         if ($item) {
             $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
@@ -176,7 +180,24 @@ class Shipment extends VaahModel
         $item = new self();
         $item->fill($inputs);
         $item->save();
-
+            foreach ($inputs['orders'] as $order) {
+                $order_items = $order['items'];
+                foreach ($order_items as $order_item) {
+                    $item_id = $order_item['id'];
+//                        $item_shipped_quantity = $order_item['to_be_shipped'];
+//                        $item->orders()->attach($order['id'], [
+//                            'vh_st_order_item_id' => $item_id,
+//                            'quantity' => $item_shipped_quantity,
+//                        ]);
+                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                        $item_shipped_quantity = $order_item['to_be_shipped'];
+                        $item->orders()->attach($order['id'], [
+                            'vh_st_order_item_id' => $item_id,
+                            'quantity' => $item_shipped_quantity,
+                        ]);
+                    }
+                }
+            }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -671,6 +692,7 @@ class Shipment extends VaahModel
 //                    $item->shipped = 0;
                     $item->pending = $item->quantity-$item->shipped;
                     unset($item->productVariation);
+
                 }
             }
             if ($order->user) {
