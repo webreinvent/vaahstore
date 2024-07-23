@@ -158,7 +158,7 @@ const openLinkInNewTab = (url) => {
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_trackable !== 1"
-                                @click="openLinkInNewTab('https://www.delhivery.com/')"
+                                @click="openLinkInNewTab(prop.data.tracking_url)"
                                 icon="pi pi-globe"
                                  />
 <!--                            <a href="https://www.delhivery.com/"-->
