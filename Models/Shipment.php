@@ -469,7 +469,7 @@ class Shipment extends VaahModel
 
         return $response;
     }
-    //-------------------------------------------------
+//    -------------------------------------------------
     public static function getItem($id)
     {
 
@@ -491,6 +491,8 @@ class Shipment extends VaahModel
             ->first();
 
 
+
+
         if(!$item)
         {
             $response['success'] = false;
@@ -503,6 +505,9 @@ class Shipment extends VaahModel
         return $response;
 
     }
+
+
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {

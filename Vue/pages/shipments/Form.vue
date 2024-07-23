@@ -32,12 +32,15 @@ const toggleFormMenu = (event) => {
 
 
 const trackableSelection = computed(() => {
-    const isEmpty = !store.item.tracking_key || !store.item.tracking_value || !store.item.tracking_url;
+    const isEmpty = !store.item?.tracking_key || !store.item?.tracking_value || !store.item?.tracking_url;
     return isEmpty ? 0 : 1;
 });
 
 watchEffect(() => {
-    store.item.is_trackable = trackableSelection.value;
+    // Check if store.item exists before assigning is_trackable
+    if (store.item) {
+        store.item.is_trackable = trackableSelection.value;
+    }
 });
 </script>
 <template>
