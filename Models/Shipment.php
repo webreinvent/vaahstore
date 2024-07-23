@@ -118,7 +118,13 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public  function orders()
     {
-        return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id');
+        return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id')
+            ->withPivot('quantity');
+    }
+    public  function shipmentOrderItems()
+    {
+        return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
+            ->withPivot('quantity');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -468,9 +474,22 @@ class Shipment extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with([
+                'createdByUser',
+                'updatedByUser',
+                'deletedByUser',
+
+                'shipmentOrderItems.order.user',
+                'shipmentOrderItems.productVariation' => function ($query) {
+                    $query->select('id', 'name', 'slug');
+                },
+                'shipmentOrderItems.vendor' => function ($query) {
+                    $query->select('id', 'name', 'slug');
+                }
+            ])
             ->withTrashed()
             ->first();
+
 
         if(!$item)
         {

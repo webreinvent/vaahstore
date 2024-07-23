@@ -207,20 +207,23 @@ const openVendorPage = (id) => {
 
 
                         <DataTable
-                            :value="store.order_list1"
+                            :value="store.item.shipment_order_items"
                             rowGroupMode="subheader"
-                            :groupRowsBy="'order.name'"
+                            :groupRowsBy="'order.id'"
                             sortMode="single"
-                            :sortField="'order.name'"
+                            :sortField="'order.id'"
                             :sortOrder="1"
                             scrollable
                             scrollHeight="400px"
                         >
 
                             <Column field="name" header="Order Item">
+                                <template #body="prop">
+                                    {{prop.data.product_variation.name}}
 
+                                </template>
                             </Column>
-                            <Column field="name" header="Vendor">
+                            <Column  header="Vendor">
                                 <template #body="prop">
                                     <router-link
                                         :to="{ name: 'vendors.index', query: { page: 1, rows: 20, 'filter[q]': prop.data.vendor.id } }"
@@ -235,15 +238,20 @@ const openVendorPage = (id) => {
 
                             </Column>
                             <Column field="shipped" header="Shipped">
+                                <template #body="prop">
+                                   {{prop.data.pivot.quantity}}
 
+                                </template>
                             </Column>
                             <Column field="pending" header="Pending">
-
+                                <template #body="{ data }">
+                                    {{ data.quantity - data.pivot.quantity }}
+                                </template>
                             </Column>
                             <template #groupheader="prop">
                                 <div class="flex items-center gap-2">
 
-                                    <span><b>{{ prop.data.order.name }}</b></span>
+                                    <span style="font-size: 15px;"><b>{{ prop.data.order.user.display_name }}</b></span>
                                 </div>
                             </template>
 
