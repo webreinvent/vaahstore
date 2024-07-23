@@ -71,7 +71,7 @@ const openLinkInNewTab = (url) => {
                  <template #body="prop">
                      <div class="p-inputgroup justify-content-center">
 
-                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer">2</Tag>
+                 <Tag severity="info" class="p-inputgroup-addon cursor-pointer">{{ prop.data.orders_count }}</Tag>
                      </div>
                  </template>
              </Column>
