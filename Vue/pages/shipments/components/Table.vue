@@ -157,7 +157,7 @@ const openLinkInNewTab = (url) => {
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
-                                :disabled="prop.data.is_active !== 1"
+                                :disabled="prop.data.is_trackable !== 1"
                                 @click="openLinkInNewTab('https://www.delhivery.com/')"
                                 icon="pi pi-globe"
                                  />
