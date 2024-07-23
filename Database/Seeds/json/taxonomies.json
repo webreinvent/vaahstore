@@ -267,5 +267,33 @@
     {
         "type_slug": "payment-status",
         "name": "Failure"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Pending"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Partially Shipped"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Shipped"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Partially In Transit"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Partially Delivered"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "Delivered"
+    },
+    {
+        "type_slug": "shipment-status",
+        "name": "In Transit"
     }
 ]
