@@ -159,7 +159,7 @@ watchEffect(() => {
                             multiple
                             :dropdown="true"
                             @complete="store.searchOrders($event)"
-                            optionLabel="name"
+                            optionLabel="user_name"
                             placeholder="Select orders"
                             display="chip"
 
