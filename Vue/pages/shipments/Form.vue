@@ -32,12 +32,15 @@ const toggleFormMenu = (event) => {
 
 
 const trackableSelection = computed(() => {
-    const isEmpty = !store.item.tracking_key || !store.item.tracking_value || !store.item.tracking_url;
+    const isEmpty = !store.item?.tracking_key || !store.item?.tracking_value || !store.item?.tracking_url;
     return isEmpty ? 0 : 1;
 });
 
 watchEffect(() => {
-    store.item.is_trackable = trackableSelection.value;
+    // Check if store.item exists before assigning is_trackable
+    if (store.item) {
+        store.item.is_trackable = trackableSelection.value;
+    }
 });
 </script>
 <template>
@@ -159,7 +162,7 @@ watchEffect(() => {
                             multiple
                             :dropdown="true"
                             @complete="store.searchOrders($event)"
-                            optionLabel="name"
+                            optionLabel="user_name"
                             placeholder="Select orders"
                             display="chip"
 
@@ -216,9 +219,9 @@ watchEffect(() => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
+                            <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >{{store.item.to_be_shipped}}
-                                    <div class="p-inputgroup w-6rem max-w-full">
+                                    <div v-if="prop.data.pending !==0" class="p-inputgroup w-6rem max-w-full">
                                         <InputNumber
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"

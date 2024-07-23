@@ -3,6 +3,7 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -28,8 +29,10 @@ class Shipment extends VaahModel
     protected $fillable = [
         'uuid',
         'name',
-        'slug',
-        'is_active',
+        'tracking_url',
+        'tracking_key',
+        'tracking_value',
+        'is_trackable',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -113,6 +116,17 @@ class Shipment extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function orders()
+    {
+        return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id')
+            ->withPivot('quantity');
+    }
+    public  function shipmentOrderItems()
+    {
+        return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
+            ->withPivot('quantity');
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()
@@ -147,18 +161,17 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-dd($request);
+//dd($request);
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
 
 
         // check if name exist
         $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
         if ($item) {
             $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
             $response['success'] = false;
@@ -166,20 +179,26 @@ dd($request);
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
-        if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
+
+
 
         $item = new self();
         $item->fill($inputs);
         $item->save();
-
+            foreach ($inputs['orders'] as $order) {
+                $order_items = $order['items'];
+                foreach ($order_items as $order_item) {
+                    $item_id = $order_item['id'];
+                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                        $item_shipped_quantity = $order_item['to_be_shipped'];
+                        $item->orders()->attach($order['id'], [
+                            'vh_st_order_item_id' => $item_id,
+                            'quantity' => $item_shipped_quantity,
+                        ]);
+                    }
+                }
+            }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -272,7 +291,9 @@ dd($request);
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->withCount(['orders' => function ($query) {
+            $query->select(DB::raw('count(distinct vh_st_order_id)'));
+        }]);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -448,14 +469,29 @@ dd($request);
 
         return $response;
     }
-    //-------------------------------------------------
+//    -------------------------------------------------
     public static function getItem($id)
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with([
+                'createdByUser',
+                'updatedByUser',
+                'deletedByUser',
+
+                'shipmentOrderItems.order.user',
+                'shipmentOrderItems.productVariation' => function ($query) {
+                    $query->select('id', 'name', 'slug');
+                },
+                'shipmentOrderItems.vendor' => function ($query) {
+                    $query->select('id', 'name', 'slug');
+                }
+            ])
             ->withTrashed()
             ->first();
+
+
+
 
         if(!$item)
         {
@@ -469,15 +505,18 @@ dd($request);
         return $response;
 
     }
+
+
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
 
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
 
         // check if name exist
         $item = self::where('id', '!=', $id)
@@ -492,16 +531,7 @@ dd($request);
          }
 
          // check if slug exist
-         $item = self::where('id', '!=', $id)
-             ->withTrashed()
-             ->where('slug', $inputs['slug'])->first();
 
-         if ($item) {
-             $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-             $response['success'] = false;
-             $response['errors'][] = $error_message;
-             return $response;
-         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
@@ -641,7 +671,59 @@ dd($request);
     }
 
     //-------------------------------------------------
+    public static function searchOrders($request){
+        $query = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name');
+        }])
+            ->with(['items' => function ($query) {
+                $query->select('id', 'uuid', 'vh_st_order_id', 'vh_user_id', 'vh_st_product_variation_id','quantity')
+                    ->with(['ProductVariation' => function ($query) {
+                        $query->select('id', 'name');
+                    }]);
+            }])
+            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+            });
+        }
+
+        $orders = $query->limit(10)->get();
+
+        foreach ($orders as &$order) {
+            foreach ($order->items as &$item) {
+                if ($item->productVariation) {
+                    $item->name = $item->productVariation->name;
+
+                    $shippedQuantity = static::getShippedQuantity($item->id);
+                    $item->shipped = $shippedQuantity;
+//                    $item->shipped = 0;
+                    $item->pending = $item->quantity-$item->shipped;
+                    unset($item->productVariation);
+
+                }
+            }
+            if ($order->user) {
+                $order->user_name = $order->user->user_name;
+                unset($order->user);
+            }
+        }
+
+        $response['success'] = true;
+        $response['data'] = $orders;
+        return $response;
+    }
+
     //-------------------------------------------------
+    private static function getShippedQuantity($itemId) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $itemId)
+            ->sum('quantity');
+    }
     //-------------------------------------------------
 
 

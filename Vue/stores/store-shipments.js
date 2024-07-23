@@ -154,7 +154,7 @@ export const useShipmentStore = defineStore({
     actions: {
          addOrdersToShipment () {
             this.order_list_tables = this.item.orders.map(order => ({
-                name: order.name,
+                name: order.user_name,
                 items: order.items
             }));
         },
@@ -193,12 +193,13 @@ export const useShipmentStore = defineStore({
             if (!Array.isArray(items) || items.length === 0) {
                 return 0;
             }
-            return items.reduce((total, item) => total + item.shipped, 0);
+            return items.reduce((acc, item) => acc + parseInt(item.shipped), 0);
         },calculateTotalPending(items) {
             if (!Array.isArray(items) || items.length === 0) {
                 return 0;
             }
-            return items.reduce((total, item) => total + item.pending, 0);
+            return items.reduce((acc, item) => acc + parseInt(item.pending), 0);
+
         },
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -373,9 +374,47 @@ export const useShipmentStore = defineStore({
             if(data)
             {
                 this.item = data;
+
+
             }else{
                 this.$router.push({name: 'shipments.index',query:this.query});
             }
+
+            let uniqueOrders = [];
+
+            for (let item of this.item.shipment_order_items) {
+                let order = item.order;
+                let existingOrder = uniqueOrders.find(o => o.id === order.id);
+
+                let formattedItem = {
+                    ...item,
+                    shipped: item.pivot.quantity,
+                    pending: item.quantity - item.pivot.quantity,
+                    name: item.product_variation.name
+                };
+
+                if (!existingOrder) {
+                    uniqueOrders.push({
+                        ...order,
+                        user_name: order.user.display_name,
+                        items: [formattedItem],
+                    });
+                } else {
+                    existingOrder.items.push(formattedItem);
+                }
+            }
+
+            this.item.orders = uniqueOrders;
+
+            if (this.item.orders){
+
+                this.order_list_tables = this.item.orders.map(order => ({
+                    name: order.user_name,
+                    items: order.items
+                }));
+            }
+
+
             await this.getItemMenu();
             await this.getFormMenu();
         },
@@ -1112,12 +1151,37 @@ export const useShipmentStore = defineStore({
         {
             this.shipping_status = name;
         },
-        searchOrders(event) {
-            const query = event.query.toLowerCase();
-            this.order_suggestion_list = this.order_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
-            });
+        // searchOrders(event) {
+        //     const query = event.query.toLowerCase();
+        //     this.order_suggestion_list = this.order_list.filter(item => {
+        //         return item.name.toLowerCase().includes(query);
+        //     });
+        // },
+        async searchOrders(event){
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/orders',
+                this.searchOrdersAfter,
+                options
+            );
         },
+        searchOrdersAfter(data,res){
+            this.order_suggestion_list=data;
+            if (data && this.item.orders) {
+                this.order_suggestion_list = data.filter((item) => {
+                    return !this.item.orders.some((activeItem) => {
+                        return activeItem.id === item.id;
+                    });
+                });
+            }
+        },
+
+
         searchStatus(event) {
             const query = event.query.toLowerCase();
             this.status_suggestion_list = this.shipment_status.filter(item => {

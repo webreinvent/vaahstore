@@ -5,9 +5,10 @@ import {useRoute} from 'vue-router';
 import { useShipmentStore } from '../../stores/store-shipments'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
+import {vaah} from "../../vaahvue/pinia/vaah";
 const store = useShipmentStore();
 const route = useRoute();
-
+const useVaah = vaah();
 onMounted(async () => {
 
     /**
@@ -43,6 +44,7 @@ const toggleQuickFilterState = (event) => {
 const openVendorPage = (id) => {
     window.open(vendorUrl, '_blank');
 };
+
 </script>
 <template>
 
@@ -129,8 +131,8 @@ const openVendorPage = (id) => {
                                 <tbody class="p-datatable-tbody">
                                 <template v-for="(value, column) in store.item ">
 
-                                    <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'
-                        || column === 'deleted_by'">
+                                    <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'|| column === 'tracking_key'|| column === 'tracking_value'|| column === 'tracking_url'
+                        || column === 'deleted_by'|| column === 'orders'|| column === 'shipment_order_items'|| column === 'taxonomy_id_shipment_status'">
                                     </template>
 
                                     <template v-else-if="column === 'id' || column === 'uuid'">
@@ -148,19 +150,13 @@ const openVendorPage = (id) => {
                                         />
                                     </template>
 
-                                    <template v-else-if="column === 'is_active'">
-                                        <tr>
-                                            <td><b>Shipment  Tracking Id</b></td>
-                                            <td  colspan="2" >
-                                                <span class="word-overflow" >9623-41ce-b4fc
-                                                </span>
-                                            </td>
-                                        </tr>
+                                    <template v-else-if="column === 'is_trackable'">
+
                                         <tr>
                                             <td><b>Tracking Url</b></td>
                                             <td  colspan="2" >
-                                                <a href="https://www.delhivery.com/" target="_blank" class="word-overflow">
-                                                    https://www.delhivery.com/
+                                                <a :href="store.item.tracking_url" target="_blank" class="word-overflow">
+                                                    {{ store.item.tracking_url }}
                                                 </a>
 
                                             </td>
@@ -169,15 +165,23 @@ const openVendorPage = (id) => {
                                         <tr>
                                             <td><b>Tracking Key</b></td>
                                             <td  colspan="2" >
-                                                <span class="word-overflow" >AWB
+                                                <span class="word-overflow" >{{ store.item.tracking_key }}
+
                                                 </span>
                                             </td>
                                         </tr>
 
-                                        <VhViewRow label="Tracking value"
-                                                   value="af75851e-9623-41ce-b4fc"
-                                                   :can_copy="true"
-                                        />
+
+                                        <tr>
+                                            <td><b>Tracking Value</b></td>
+                                            <td  colspan="2" >
+                                                <Button  @click="useVaah.copy(store.item.tracking_value)"
+                                                        >
+                                        {{store.item.tracking_value}}
+                                    </Button>
+
+                                            </td>
+                                        </tr>
                                         <tr>
                                             <td><b>Shipment  Status</b></td>
                                             <td  colspan="2" >
@@ -207,20 +211,23 @@ const openVendorPage = (id) => {
 
 
                         <DataTable
-                            :value="store.order_list1"
+                            :value="store.item.shipment_order_items"
                             rowGroupMode="subheader"
-                            :groupRowsBy="'order.name'"
+                            :groupRowsBy="'order.id'"
                             sortMode="single"
-                            :sortField="'order.name'"
+                            :sortField="'order.id'"
                             :sortOrder="1"
                             scrollable
                             scrollHeight="400px"
                         >
 
                             <Column field="name" header="Order Item">
+                                <template #body="prop">
+                                    {{prop.data.product_variation.name}}
 
+                                </template>
                             </Column>
-                            <Column field="name" header="Vendor">
+                            <Column  header="Vendor">
                                 <template #body="prop">
                                     <router-link
                                         :to="{ name: 'vendors.index', query: { page: 1, rows: 20, 'filter[q]': prop.data.vendor.id } }"
@@ -235,20 +242,28 @@ const openVendorPage = (id) => {
 
                             </Column>
                             <Column field="shipped" header="Shipped">
+                                <template #body="prop">
+                                   {{prop.data.pivot.quantity}}
 
+                                </template>
                             </Column>
                             <Column field="pending" header="Pending">
-
+                                <template #body="{ data }">
+                                    {{ data.quantity - data.pivot.quantity }}
+                                </template>
                             </Column>
                             <template #groupheader="prop">
                                 <div class="flex items-center gap-2">
 
-                                    <span><b>{{ prop.data.order.name }}</b></span>
+                                    <span style="font-size: 15px;"><b>{{ prop.data.order.user.display_name }}</b></span>
                                 </div>
                             </template>
 
 
                         </DataTable>
+
+
+
                     </TabPanel>
                 </TabView>
 
