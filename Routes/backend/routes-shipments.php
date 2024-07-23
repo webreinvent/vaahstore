@@ -5,9 +5,9 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\ShipmentsController;
 Route::group(
     [
         'prefix' => 'backend/store/shipments',
-        
+
         'middleware' => ['web', 'has.backend.access'],
-        
+
 ],
 function () {
     /**
@@ -72,5 +72,7 @@ function () {
         ->name('vh.backend.store.shipments.item.action');
 
     //---------------------------------------------------------
+    Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
+        ->name('vh.backend.store.shipments.search.orders');
 
 });

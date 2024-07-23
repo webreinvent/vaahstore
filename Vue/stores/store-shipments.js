@@ -154,7 +154,7 @@ export const useShipmentStore = defineStore({
     actions: {
          addOrdersToShipment () {
             this.order_list_tables = this.item.orders.map(order => ({
-                name: order.name,
+                name: order.user_name,
                 items: order.items
             }));
         },
@@ -1112,12 +1112,37 @@ export const useShipmentStore = defineStore({
         {
             this.shipping_status = name;
         },
-        searchOrders(event) {
-            const query = event.query.toLowerCase();
-            this.order_suggestion_list = this.order_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
-            });
+        // searchOrders(event) {
+        //     const query = event.query.toLowerCase();
+        //     this.order_suggestion_list = this.order_list.filter(item => {
+        //         return item.name.toLowerCase().includes(query);
+        //     });
+        // },
+        async searchOrders(event){
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/orders',
+                this.searchOrdersAfter,
+                options
+            );
         },
+        searchOrdersAfter(data,res){
+            this.order_suggestion_list=data;
+            if (data && this.item.orders) {
+                this.order_suggestion_list = data.filter((item) => {
+                    return !this.item.orders.some((activeItem) => {
+                        return activeItem.id === item.id;
+                    });
+                });
+            }
+        },
+
+
         searchStatus(event) {
             const query = event.query.toLowerCase();
             this.status_suggestion_list = this.shipment_status.filter(item => {

@@ -3,6 +3,7 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -641,7 +642,58 @@ dd($request);
     }
 
     //-------------------------------------------------
+    public static function searchOrders($request){
+        $query = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name');
+        }])
+            ->with(['items' => function ($query) {
+                $query->select('id', 'uuid', 'vh_st_order_id', 'vh_user_id', 'vh_st_product_variation_id','quantity')
+                    ->with(['ProductVariation' => function ($query) {
+                        $query->select('id', 'name');
+                    }]);
+            }])
+            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+            });
+        }
+
+        $orders = $query->limit(10)->get();
+
+        foreach ($orders as &$order) {
+            foreach ($order->items as &$item) {
+                if ($item->productVariation) {
+                    $item->name = $item->productVariation->name;
+
+                    $shippedQuantity = static::getShippedQuantity($item->id);
+                    $item->shipped = $shippedQuantity;
+//                    $item->shipped = 0;
+                    $item->pending = $item->quantity-$item->shipped;
+                    unset($item->productVariation);
+                }
+            }
+            if ($order->user) {
+                $order->user_name = $order->user->user_name;
+                unset($order->user);
+            }
+        }
+
+        $response['success'] = true;
+        $response['data'] = $orders;
+        return $response;
+    }
+
     //-------------------------------------------------
+    private static function getShippedQuantity($itemId) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $itemId)
+            ->sum('quantity');
+    }
     //-------------------------------------------------
 
 
