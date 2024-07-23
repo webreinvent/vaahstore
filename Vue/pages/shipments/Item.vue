@@ -43,6 +43,13 @@ const toggleQuickFilterState = (event) => {
 const openVendorPage = (id) => {
     window.open(vendorUrl, '_blank');
 };
+const expandedRows = ref({});
+// const onRowCollapse = (event) => {
+//     toast.add({ severity: 'success', summary: 'Product Collapsed', detail: event.data.name, life: 3000 });
+// };
+const expandAll = () => {
+    expandedRows.value = products.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
+};
 </script>
 <template>
 
@@ -257,6 +264,9 @@ const openVendorPage = (id) => {
 
 
                         </DataTable>
+
+
+
                     </TabPanel>
                 </TabView>
 
