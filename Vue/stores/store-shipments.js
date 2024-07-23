@@ -384,19 +384,25 @@ export const useShipmentStore = defineStore({
 
             for (let item of this.item.shipment_order_items) {
                 let order = item.order;
-
                 let existingOrder = uniqueOrders.find(o => o.id === order.id);
+
+                let formattedItem = {
+                    ...item,
+                    shipped: item.pivot.quantity,
+                    pending: item.quantity - item.pivot.quantity,
+                    name: item.product_variation.name
+                };
 
                 if (!existingOrder) {
                     uniqueOrders.push({
                         ...order,
-                        user_name: order.user.display_name
+                        user_name: order.user.display_name,
+                        items: [formattedItem],
                     });
+                } else {
+                    existingOrder.items.push(formattedItem);
                 }
             }
-
-
-
 
             this.item.orders = uniqueOrders;
 
