@@ -216,9 +216,9 @@ watchEffect(() => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column  header="To Be Shipped" class="overflow-wrap-anywhere">
+                            <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >{{store.item.to_be_shipped}}
-                                    <div class="p-inputgroup w-6rem max-w-full">
+                                    <div v-if="prop.data.pending !==0" class="p-inputgroup w-6rem max-w-full">
                                         <InputNumber
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"

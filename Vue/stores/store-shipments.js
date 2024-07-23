@@ -193,12 +193,13 @@ export const useShipmentStore = defineStore({
             if (!Array.isArray(items) || items.length === 0) {
                 return 0;
             }
-            return items.reduce((total, item) => total + item.shipped, 0);
+            return items.reduce((acc, item) => acc + parseInt(item.shipped), 0);
         },calculateTotalPending(items) {
             if (!Array.isArray(items) || items.length === 0) {
                 return 0;
             }
-            return items.reduce((total, item) => total + item.pending, 0);
+            return items.reduce((acc, item) => acc + parseInt(item.pending), 0);
+
         },
         //---------------------------------------------------------------------
         async onLoad(route)
