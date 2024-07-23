@@ -55,7 +55,7 @@ const openLinkInNewTab = (url) => {
 
                  <template #body="prop">
 <!--                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">-->
-                         AWB
+                         {{prop.data.tracking_key}}
 <!--                     </Button>-->
                  </template>
              </Column>
@@ -63,7 +63,7 @@ const openLinkInNewTab = (url) => {
 
                  <template #body="prop">
                      <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">
-                         af75851e-9623-41ce-b4fc
+                         {{prop.data.tracking_value}}
                      </Button>
                  </template>
              </Column>
@@ -88,7 +88,7 @@ const openLinkInNewTab = (url) => {
              <Column field="type" header="Is Trackable" :sortable="true">
 
                  <template #body="prop">
-                     <span v-if="prop.data.is_active === 1" style="padding-left: 5px;">
+                     <span v-if="prop.data.is_trackable === 1" style="padding-left: 5px;">
                        Yes
                     </span>
                      <span v-else style="padding-left: 5px;">
@@ -135,7 +135,7 @@ const openLinkInNewTab = (url) => {
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
-                                :disabled="prop.data.is_active !== 1"
+                                :disabled="prop.data.is_trackable !== 1"
                                 @click="openLinkInNewTab('https://www.delhivery.com/')"
                                 icon="pi pi-globe"
                                  />
