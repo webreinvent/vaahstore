@@ -29,8 +29,10 @@ class Shipment extends VaahModel
     protected $fillable = [
         'uuid',
         'name',
-        'slug',
-        'is_active',
+        'tracking_url',
+        'tracking_key',
+        'tracking_value',
+        'is_trackable',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -148,7 +150,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-dd($request);
+//dd($request);
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -167,15 +169,9 @@ dd($request);
             return $response;
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
-        if ($item) {
-            $error_message = "This slug is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
-        }
+
+
 
         $item = new self();
         $item->fill($inputs);
