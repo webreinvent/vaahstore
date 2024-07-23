@@ -184,11 +184,6 @@ class Shipment extends VaahModel
                 $order_items = $order['items'];
                 foreach ($order_items as $order_item) {
                     $item_id = $order_item['id'];
-//                        $item_shipped_quantity = $order_item['to_be_shipped'];
-//                        $item->orders()->attach($order['id'], [
-//                            'vh_st_order_item_id' => $item_id,
-//                            'quantity' => $item_shipped_quantity,
-//                        ]);
                     if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
                         $item_shipped_quantity = $order_item['to_be_shipped'];
                         $item->orders()->attach($order['id'], [
@@ -290,7 +285,9 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter);
+        $list = self::getSorted($request->filter)->withCount(['orders' => function ($query) {
+            $query->select(DB::raw('count(distinct vh_st_order_id)'));
+        }]);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
