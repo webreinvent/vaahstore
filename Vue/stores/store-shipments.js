@@ -374,9 +374,41 @@ export const useShipmentStore = defineStore({
             if(data)
             {
                 this.item = data;
+
+
             }else{
                 this.$router.push({name: 'shipments.index',query:this.query});
             }
+
+            let uniqueOrders = [];
+
+            for (let item of this.item.shipment_order_items) {
+                let order = item.order;
+
+                let existingOrder = uniqueOrders.find(o => o.id === order.id);
+
+                if (!existingOrder) {
+                    uniqueOrders.push({
+                        ...order,
+                        user_name: order.user.display_name
+                    });
+                }
+            }
+
+
+
+
+            this.item.orders = uniqueOrders;
+
+            if (this.item.orders){
+
+                this.order_list_tables = this.item.orders.map(order => ({
+                    name: order.user_name,
+                    items: order.items
+                }));
+            }
+
+
             await this.getItemMenu();
             await this.getFormMenu();
         },
