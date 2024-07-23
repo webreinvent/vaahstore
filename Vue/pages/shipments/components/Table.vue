@@ -62,7 +62,7 @@ const openLinkInNewTab = (url) => {
              <Column header="Tracking Value"  :sortable="true">
 
                  <template #body="prop">
-                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">
+                     <Button @click="useVaah.copy(prop.data.tracking_value)">
                          {{prop.data.tracking_value}}
                      </Button>
                  </template>
@@ -136,7 +136,7 @@ const openLinkInNewTab = (url) => {
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_trackable !== 1"
-                                @click="openLinkInNewTab('https://www.delhivery.com/')"
+                                @click="openLinkInNewTab(prop.data.tracking_url)"
                                 icon="pi pi-globe"
                                  />
 <!--                            <a href="https://www.delhivery.com/"-->

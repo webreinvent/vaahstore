@@ -5,9 +5,10 @@ import {useRoute} from 'vue-router';
 import { useShipmentStore } from '../../stores/store-shipments'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
+import {vaah} from "../../vaahvue/pinia/vaah";
 const store = useShipmentStore();
 const route = useRoute();
-
+const useVaah = vaah();
 onMounted(async () => {
 
     /**
@@ -43,13 +44,7 @@ const toggleQuickFilterState = (event) => {
 const openVendorPage = (id) => {
     window.open(vendorUrl, '_blank');
 };
-const expandedRows = ref({});
-// const onRowCollapse = (event) => {
-//     toast.add({ severity: 'success', summary: 'Product Collapsed', detail: event.data.name, life: 3000 });
-// };
-const expandAll = () => {
-    expandedRows.value = products.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
-};
+
 </script>
 <template>
 
@@ -136,8 +131,8 @@ const expandAll = () => {
                                 <tbody class="p-datatable-tbody">
                                 <template v-for="(value, column) in store.item ">
 
-                                    <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'
-                        || column === 'deleted_by'">
+                                    <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'|| column === 'tracking_key'|| column === 'tracking_value'|| column === 'tracking_url'
+                        || column === 'deleted_by'|| column === 'orders'|| column === 'shipment_order_items'|| column === 'taxonomy_id_shipment_status'">
                                     </template>
 
                                     <template v-else-if="column === 'id' || column === 'uuid'">
@@ -155,19 +150,13 @@ const expandAll = () => {
                                         />
                                     </template>
 
-                                    <template v-else-if="column === 'is_active'">
-                                        <tr>
-                                            <td><b>Shipment  Tracking Id</b></td>
-                                            <td  colspan="2" >
-                                                <span class="word-overflow" >9623-41ce-b4fc
-                                                </span>
-                                            </td>
-                                        </tr>
+                                    <template v-else-if="column === 'is_trackable'">
+
                                         <tr>
                                             <td><b>Tracking Url</b></td>
                                             <td  colspan="2" >
-                                                <a href="https://www.delhivery.com/" target="_blank" class="word-overflow">
-                                                    https://www.delhivery.com/
+                                                <a :href="store.item.tracking_url" target="_blank" class="word-overflow">
+                                                    {{ store.item.tracking_url }}
                                                 </a>
 
                                             </td>
@@ -176,15 +165,23 @@ const expandAll = () => {
                                         <tr>
                                             <td><b>Tracking Key</b></td>
                                             <td  colspan="2" >
-                                                <span class="word-overflow" >AWB
+                                                <span class="word-overflow" >{{ store.item.tracking_key }}
+
                                                 </span>
                                             </td>
                                         </tr>
 
-                                        <VhViewRow label="Tracking value"
-                                                   value="af75851e-9623-41ce-b4fc"
-                                                   :can_copy="true"
-                                        />
+
+                                        <tr>
+                                            <td><b>Tracking Value</b></td>
+                                            <td  colspan="2" >
+                                                <Button  @click="useVaah.copy(store.item.tracking_value)"
+                                                        >
+                                        {{store.item.tracking_value}}
+                                    </Button>
+
+                                            </td>
+                                        </tr>
                                         <tr>
                                             <td><b>Shipment  Status</b></td>
                                             <td  colspan="2" >
