@@ -35,6 +35,7 @@ class Shipment extends VaahModel
         'tracking_key',
         'tracking_value',
         'is_trackable',
+        'taxonomy_id_shipment_status',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -127,6 +128,11 @@ class Shipment extends VaahModel
     {
         return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
             ->withPivot('quantity');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_shipment_status');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -293,7 +299,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->withCount(['orders' => function ($query) {
+        $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
             $query->select(DB::raw('count(distinct vh_st_order_id)'));
         }]);
         $list->isActiveFilter($request->filter);
@@ -480,6 +486,7 @@ class Shipment extends VaahModel
                 'createdByUser',
                 'updatedByUser',
                 'deletedByUser',
+                'status',
 
                 'shipmentOrderItems.order.user',
                 'shipmentOrderItems.productVariation' => function ($query) {
@@ -519,7 +526,7 @@ class Shipment extends VaahModel
 //        if (!$validation['success']) {
 //            return $validation;
 //        }
-
+//dd($inputs);
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
