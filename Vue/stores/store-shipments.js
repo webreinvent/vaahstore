@@ -388,7 +388,8 @@ export const useShipmentStore = defineStore({
                 let formattedItem = {
                     ...item,
                     shipped: item.pivot.quantity,
-                    pending: item.quantity - item.pivot.quantity,
+                    // pending: item.quantity - item.pivot.quantity,
+                    pending:item.pivot.pending,
                     name: item.product_variation.name
                 };
 
