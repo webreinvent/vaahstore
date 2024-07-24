@@ -165,7 +165,6 @@ export const useShipmentStore = defineStore({
         },
          updateQuantities (event,index,item,order) {
 
-
             const shipped = parseFloat(event.value) || 0;
 
             if (shipped >= item.pending) {
