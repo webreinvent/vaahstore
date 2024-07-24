@@ -282,16 +282,19 @@ watchEffect(() => {
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.status"
-                                  value="id"
-                                  class="w-full"
-                                  data-testid="store-taxonomy_status"
-                                  :suggestions="store.status_suggestion_list"
-                                  @complete="store.searchStatus($event)"
-                                  :dropdown="true"
-                                  placeholder="Select status"
-                                  optionLabel="name"
-                                  forceSelection />
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
+                        class="w-full"
+                        name="shipments-status"
+                        :suggestions="store.status_suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="shipments-status"
+                        forceSelection>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Is Trackable">
