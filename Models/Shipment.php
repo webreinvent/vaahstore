@@ -572,6 +572,7 @@ class Shipment extends VaahModel
                     return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
                 }
                 $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
+//                dd(abs($quantity - $item_single['pending']));
                 $order_item_id = $item_single['id'] ?? null;
                 $order_id = $item_single['vh_st_order_id'] ?? null;
                 $item_ids[$order_item_id] = [
@@ -823,6 +824,12 @@ class Shipment extends VaahModel
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
+    }//-------------------------------------------------
+    private static function getPendingQuantity($itemId) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $itemId)
+            ->orderByDesc('created_at')
+            ->value('pending');
     }
 
     //-------------------------------------------------
