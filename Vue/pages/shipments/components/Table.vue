@@ -78,11 +78,12 @@ const openLinkInNewTab = (url) => {
 
              <Column  header="Status" :sortable="true">
                  <template #body="prop">
-                     <div class="p-inputgroup">
+                     <Badge v-if="prop.data.status && prop.data.status.name == 'Delivered'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
 
-                        <Badge severity="success"> Delivered</Badge>
+                     <Badge v-else class="min-w-max"
+                            severity="warning"> {{prop.data.status?.name}}</Badge>
 
-                     </div>
                  </template>
              </Column>
              <Column field="type" header="Is Trackable" :sortable="true">
