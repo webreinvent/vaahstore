@@ -171,31 +171,29 @@ class Shipment extends VaahModel
     {
 //dd($request);
         $inputs = $request->all();
-
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-        if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
+//dd($inputs['orders']);
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
-
-
-
-
-
+        if (isset($inputs['orders'])){
+        foreach ($inputs['orders'] as $order) {
+            $order_items = $order['items'];
+            foreach ($order_items as $order_item) {
+                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                    if ($order_item['to_be_shipped'] > $order_item['pending']) {
+                        return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$order_item['product_variation']['name']}"]];
+                    }
+                }
+            }
+        }
+        }
         $item = new self();
         $item->fill($inputs);
         $item->save();
             foreach ($inputs['orders'] as $order) {
                 $order_items = $order['items'];
+                $order_id = $order['id'];
                 foreach ($order_items as $order_item) {
                     $item_id = $order_item['id'];
                     if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
@@ -206,7 +204,15 @@ class Shipment extends VaahModel
                         ]);
                     }
                 }
+               /* $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+//            dd($shipped_order_quantity);
+                $order = Order::with('items')->findOrFail($order_id);
+
+                $total_order_quantity = $order->items()->sum('quantity');
+                $order_payment_status = $order->orderPaymentStatus()->first();
+                dd($shipped_order_quantity,$total_order_quantity,$order_payment_status->name);*/
             }
+
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -522,11 +528,10 @@ class Shipment extends VaahModel
     {
         $inputs = $request->all();
 
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//dd($inputs);
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
@@ -539,13 +544,47 @@ class Shipment extends VaahModel
              return $response;
          }
 
-         // check if slug exist
+        $item_ids = [];
+        foreach ($inputs['orders'] as $shipment_order_items) {
+            foreach ($shipment_order_items['items'] as $item_single) {
 
+                if ((isset($item_single['to_be_shipped'])) && ($item_single['to_be_shipped'] > $item_single['pending'])) {
+                    return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
+                }
+                $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
+                $order_item_id = $item_single['id'] ?? null;
+                $order_id = $item_single['vh_st_order_id'] ?? null;
 
+                $item_ids[$order_item_id] = [
+                    'quantity' => $quantity,
+                    'vh_st_order_item_id' => $order_item_id,
+                    'vh_st_order_id' => $order_id,
+                ];
+            }
+        }
+
+       /* $item_ids = [];
+
+        foreach ($inputs['orders'] as $shipment_order_items) {
+            foreach ($shipment_order_items['items'] as $item_single) {
+                // Check if 'to_be_shipped' is present and greater than 0
+                if (isset($item_single['to_be_shipped']) && $item_single['to_be_shipped'] > 0) {
+                    $quantity = $item_single['to_be_shipped'];
+                    $order_item_id = $item_single['id'] ?? null;
+                    $order_id = $item_single['vh_st_order_id'] ?? null;
+
+                    $item_ids[$order_item_id] = [
+                        'quantity' => $quantity,
+                        'vh_st_order_item_id' => $order_item_id,
+                        'vh_st_order_id' => $order_id,
+                    ];
+                }
+            }
+        }*/
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->save();
-
+        $item->shipmentOrderItems()->sync($item_ids);
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -600,22 +639,41 @@ class Shipment extends VaahModel
 
     public static function validation($inputs)
     {
+        $rules = [
+            'name' => 'required',
+            'orders' => 'required',
+            'status' => 'required',
+        ];
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
+        if (!empty($inputs['tracking_url'])) {
+            $rules['tracking_key'] = 'required';
+            $rules['tracking_value'] = 'required';
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        }
+        $validated_data = validator($inputs, $rules);
+        if($validated_data->fails()){
+            $errors = $validated_data->errors()->all();
+            if (isset($inputs['value'])) {
+                foreach ($inputs['value'] as $key => $value) {
+
+                    if (in_array("value.{$key}.value", $errors)) {
+                        unset($inputs['value'][$key]);
+                    }
+                }
+            }
+            return [
+                'success' => false,
+                'errors' => $validated_data->errors()->all()
+
+            ];
         }
 
-        $response['success'] = true;
-        return $response;
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 
