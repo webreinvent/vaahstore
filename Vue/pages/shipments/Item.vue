@@ -132,7 +132,8 @@ const openVendorPage = (id) => {
                                 <template v-for="(value, column) in store.item ">
 
                                     <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'|| column === 'tracking_key'|| column === 'tracking_value'|| column === 'tracking_url'
-                        || column === 'deleted_by'|| column === 'orders'|| column === 'shipment_order_items'|| column === 'taxonomy_id_shipment_status'">
+                        || column === 'deleted_by'|| column === 'orders'|| column === 'shipment_order_items'|| column === 'taxonomy_id_shipment_status'
+                        ||  column=== 'status'">
                                     </template>
 
                                     <template v-else-if="column === 'id' || column === 'uuid'">
@@ -185,8 +186,12 @@ const openVendorPage = (id) => {
                                         <tr>
                                             <td><b>Shipment  Status</b></td>
                                             <td  colspan="2" >
-                                        <Badge class="word-overflow" severity="success" value="Delivered">
-                                                </Badge>
+                                                <Badge v-if="store.item.status && store.item.status.name == 'Delivered'"
+                                                       severity="success"> {{store.item.status.name}} </Badge>
+
+                                                <Badge v-else
+                                                       severity="warning"> {{store.item.status?.name}}</Badge>
+
                                             </td>
                                         </tr>
                                     </template>
@@ -218,24 +223,26 @@ const openVendorPage = (id) => {
                             :sortField="'order.id'"
                             :sortOrder="1"
                             scrollable
-                            scrollHeight="400px"
+                            scrollHeight="700px"
                         >
 
                             <Column field="name" header="Order Item">
                                 <template #body="prop">
+                                    <div class="min-w-max">
                                     {{prop.data.product_variation.name}}
-
+                                    </div>
                                 </template>
                             </Column>
                             <Column  header="Vendor">
                                 <template #body="prop">
+                                    <div class="min-w-max">
                                     <router-link
                                         :to="{ name: 'vendors.index', query: { page: 1, rows: 20, 'filter[q]': prop.data.vendor.id } }"
                                         target="_blank"
                                     >
                                         {{ prop.data.vendor.name }}
                                     </router-link>
-
+                                    </div>
                                 </template>
                             </Column>
                             <Column field="quantity" header="Quantity">

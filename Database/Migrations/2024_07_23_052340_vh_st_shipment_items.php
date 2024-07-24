@@ -21,6 +21,7 @@ class VhStShipmentItems extends Migration
             $table->bigInteger('vh_st_order_id')->nullable()->index();
             $table->bigInteger('vh_st_order_item_id')->nullable()->index();
             $table->bigInteger('quantity')->nullable()->index();
+            $table->bigInteger('pending')->nullable()->index();
             //----common fields
             $table->text('meta')->nullable();
             $table->bigInteger('created_by')->nullable()->index();

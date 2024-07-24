@@ -160,7 +160,7 @@ watchEffect(() => {
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
                             multiple
-                            :dropdown="true"
+
                             @complete="store.searchOrders($event)"
                             optionLabel="user_name"
                             placeholder="Select orders"
@@ -220,17 +220,28 @@ watchEffect(() => {
                                 </template>
                             </Column>
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
-                                <template #body="prop" >{{store.item.to_be_shipped}}
-                                    <div v-if="prop.data.pending !==0" class="p-inputgroup w-6rem max-w-full">
+                                <template #body="prop" >
+
+                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity))">
+                                        <Button data-testid="vendors-document" icon="pi pi-info-circle"
+                                                href="https://vaah.dev/store"
+                                                class="p-button-sm"
+                                                v-tooltip.top="`Overall shipped quantity with other shipment is : ${prop.data.overall_shipped_quantity}`"
+                                               />
+                                    </div>
+                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="(store.item.id && prop.data.pending ===0) || prop.data.pending !==0">
                                         <InputNumber
+
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"
                                             :min="0"
-                                            placeholder="quantity"
+                                            class="w-full"
+                                            placeholder="Enter quantity"
                                             :max="prop.data.quantity"
                                             @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
+
 
                                 </template>
 <!--                                <template #footer="slotProps">-->
@@ -253,8 +264,8 @@ watchEffect(() => {
                     <div class="p-inputgroup ">
                         <InputText class="w-full"
                                    placeholder="Enter the tracking url"
-                                   name="sources-slug"
-                                   data-testid="sources-slug"
+                                   name="shipments-tracking-url"
+                                   data-testid="shipments-tracking-url"
                                    v-model="store.item.tracking_url" required/>
 
                     </div>
@@ -274,24 +285,27 @@ watchEffect(() => {
                     <div class="p-inputgroup">
                         <InputText class="w-full"
                                    placeholder="Enter tracking value"
-                                   name="sources-slug"
-                                   data-testid="sources-slug"
+                                   name="shipments-tracking-value"
+                                   data-testid="shipments-tracking-value"
                                    v-model="store.item.tracking_value" required/>
 
                     </div>
                 </VhField>
 
                 <VhField label="Status">
-                    <AutoComplete v-model="store.item.status"
-                                  value="id"
-                                  class="w-full"
-                                  data-testid="store-taxonomy_status"
-                                  :suggestions="store.status_suggestion_list"
-                                  @complete="store.searchStatus($event)"
-                                  :dropdown="true"
-                                  placeholder="Select status"
-                                  optionLabel="name"
-                                  forceSelection />
+                    <AutoComplete
+                        value="id"
+                        v-model="store.item.status"
+                        @change="store.setStatus($event)"
+                        class="w-full"
+                        name="shipments-status"
+                        :suggestions="store.status_suggestion"
+                        @complete="store.searchStatus($event)"
+                        placeholder="Select Status"
+                        :dropdown="true" optionLabel="name"
+                        data-testid="shipments-status"
+                        forceSelection>
+                    </AutoComplete>
                 </VhField>
 
                 <VhField label="Is Trackable">
@@ -299,7 +313,7 @@ watchEffect(() => {
                     <SelectButton v-model="trackableSelection" :options="store.options"
                                   optionLabel="name"
                                   optionValue="value"
-                                  disabled
+                                  readonly
                                   aria-labelledby="basic" allowEmpty :invalid="value === null"  />
                 </VhField>
 

@@ -61,5 +61,8 @@
     },
     {
         "name": "Order Payment Status"
+    },
+    {
+        "name": "Shipment Status"
     }
 ]

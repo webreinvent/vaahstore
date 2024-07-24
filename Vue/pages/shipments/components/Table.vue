@@ -78,11 +78,12 @@ const openLinkInNewTab = (url) => {
 
              <Column  header="Status" :sortable="true">
                  <template #body="prop">
-                     <div class="p-inputgroup">
+                     <Badge v-if="prop.data.status && prop.data.status.name == 'Delivered'"
+                            severity="success"> {{prop.data.status.name}} </Badge>
 
-                        <Badge severity="success"> Delivered</Badge>
+                     <Badge v-else class="min-w-max"
+                            severity="warning"> {{prop.data.status?.name}}</Badge>
 
-                     </div>
                  </template>
              </Column>
              <Column field="type" header="Is Trackable" :sortable="true">
@@ -90,6 +91,14 @@ const openLinkInNewTab = (url) => {
                  <template #body="prop">
                      <span v-if="prop.data.is_trackable === 1" style="padding-left: 5px;">
                        Yes
+
+                         <Button class="p-button-tiny p-button-text"
+                                 data-testid="shipments-table-to-view"
+                                 v-tooltip.top="'Track Your Shipment'"
+                                 :disabled="prop.data.is_trackable !== 1"
+                                 @click="openLinkInNewTab(prop.data.tracking_url)"
+                                 icon="pi pi-external-link"
+                         />
                     </span>
                      <span v-else style="padding-left: 5px;">
                       No
@@ -132,13 +141,13 @@ const openLinkInNewTab = (url) => {
                 <template #body="prop">
                     <div class="p-inputgroup justify-content-center">
 
-                        <Button class="p-button-tiny p-button-text"
+<!--                        <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_trackable !== 1"
                                 @click="openLinkInNewTab(prop.data.tracking_url)"
                                 icon="pi pi-globe"
-                                 />
+                                 />-->
 <!--                            <a href="https://www.delhivery.com/"-->
 <!--                                target="_blank"-->
 <!--                                class=" ml-2 pi pi-globe">-->

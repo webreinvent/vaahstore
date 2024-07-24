@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Entities\TaxonomyType;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -33,6 +35,7 @@ class Shipment extends VaahModel
         'tracking_key',
         'tracking_value',
         'is_trackable',
+        'taxonomy_id_shipment_status',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -119,12 +122,17 @@ class Shipment extends VaahModel
     public  function orders()
     {
         return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id')
-            ->withPivot('quantity');
+            ->withPivot('quantity','pending');
     }
     public  function shipmentOrderItems()
     {
         return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
-            ->withPivot('quantity');
+            ->withPivot('quantity','pending');
+    }
+    //-------------------------------------------------
+    public function status()
+    {
+        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_shipment_status');
     }
     //-------------------------------------------------
     public function getTableColumns()
@@ -163,42 +171,52 @@ class Shipment extends VaahModel
     {
 //dd($request);
         $inputs = $request->all();
-
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-        if ($item) {
-            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-            $response['success'] = false;
-            $response['messages'][] = $error_message;
-            return $response;
+//dd($inputs['orders']);
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
-
-
-
-
-
+        if (isset($inputs['orders'])){
+        foreach ($inputs['orders'] as $order) {
+            $order_items = $order['items'];
+            foreach ($order_items as $order_item) {
+                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                    if ($order_item['to_be_shipped'] > $order_item['pending']) {
+                        return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$order_item['product_variation']['name']}"]];
+                    }
+                }
+            }
+        }
+        }
         $item = new self();
         $item->fill($inputs);
         $item->save();
             foreach ($inputs['orders'] as $order) {
                 $order_items = $order['items'];
+                $order_id = $order['id'];
                 foreach ($order_items as $order_item) {
                     $item_id = $order_item['id'];
                     if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
                         $item_shipped_quantity = $order_item['to_be_shipped'];
+                        $item_pending_quantity = $order_item['pending'];
+//                        dd($item_pending_quantity);
                         $item->orders()->attach($order['id'], [
                             'vh_st_order_item_id' => $item_id,
                             'quantity' => $item_shipped_quantity,
+                            'pending' => $item_pending_quantity-$item_shipped_quantity,
+                            'created_at'=>now(),
                         ]);
                     }
                 }
+               /* $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+//            dd($shipped_order_quantity);
+                $order = Order::with('items')->findOrFail($order_id);
+
+                $total_order_quantity = $order->items()->sum('quantity');
+                $order_payment_status = $order->orderPaymentStatus()->first();
+                dd($shipped_order_quantity,$total_order_quantity,$order_payment_status->name);*/
             }
+
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -291,7 +309,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->withCount(['orders' => function ($query) {
+        $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
             $query->select(DB::raw('count(distinct vh_st_order_id)'));
         }]);
         $list->isActiveFilter($request->filter);
@@ -478,6 +496,7 @@ class Shipment extends VaahModel
                 'createdByUser',
                 'updatedByUser',
                 'deletedByUser',
+                'status',
 
                 'shipmentOrderItems.order.user',
                 'shipmentOrderItems.productVariation' => function ($query) {
@@ -492,6 +511,10 @@ class Shipment extends VaahModel
 
 
 
+
+        foreach ($item->shipmentOrderItems as $shipped_item) {
+            $shipped_item->overall_shipped_quantity = static::getShippedQuantity($shipped_item->id);
+        }
 
         if(!$item)
         {
@@ -508,16 +531,19 @@ class Shipment extends VaahModel
 
 
 
+
+
+
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
 
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
         // check if name exist
         $item = self::where('id', '!=', $id)
             ->withTrashed()
@@ -530,13 +556,51 @@ class Shipment extends VaahModel
              return $response;
          }
 
-         // check if slug exist
+        $item_ids = [];
+        foreach ($inputs['orders'] as $shipment_order_items) {
+            foreach ($shipment_order_items['items'] as $item_single) {
+//                dd($item_single['pending']);
+                $sum_item_quantity = ShipmentItem::where('vh_st_order_item_id', $item_single['id'])->sum('quantity');
+//                dd($sum_item_quantity,$item_single['id']);
+                if ((isset($item_single['to_be_shipped'])) && ($item_single['to_be_shipped'] > $item_single['pending'])) {
+                    return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
+                }
+                $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
+//                dd(abs($quantity - $item_single['pending']));
+                $order_item_id = $item_single['id'] ?? null;
+                $order_id = $item_single['vh_st_order_id'] ?? null;
 
+                $item_ids[$order_item_id] = [
+                    'quantity' => $quantity,
+                    'vh_st_order_item_id' => $order_item_id,
+                    'vh_st_order_id' => $order_id,
+//                    'pending' => abs($quantity - $item_single['pending']),
+                ];
+            }
+        }
 
+       /* $item_ids = [];
+
+        foreach ($inputs['orders'] as $shipment_order_items) {
+            foreach ($shipment_order_items['items'] as $item_single) {
+                // Check if 'to_be_shipped' is present and greater than 0
+                if (isset($item_single['to_be_shipped']) && $item_single['to_be_shipped'] > 0) {
+                    $quantity = $item_single['to_be_shipped'];
+                    $order_item_id = $item_single['id'] ?? null;
+                    $order_id = $item_single['vh_st_order_id'] ?? null;
+
+                    $item_ids[$order_item_id] = [
+                        'quantity' => $quantity,
+                        'vh_st_order_item_id' => $order_item_id,
+                        'vh_st_order_id' => $order_id,
+                    ];
+                }
+            }
+        }*/
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->save();
-
+        $item->shipmentOrderItems()->sync($item_ids);
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -591,22 +655,41 @@ class Shipment extends VaahModel
 
     public static function validation($inputs)
     {
+        $rules = [
+            'name' => 'required',
+            'orders' => 'required',
+            'status' => 'required',
+        ];
 
-        $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
-        );
+        if (!empty($inputs['tracking_url'])) {
+            $rules['tracking_key'] = 'required';
+            $rules['tracking_value'] = 'required';
 
-        $validator = \Validator::make($inputs, $rules);
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $response['success'] = false;
-            $response['errors'] = $messages->all();
-            return $response;
+        }
+        $validated_data = validator($inputs, $rules);
+        if($validated_data->fails()){
+            $errors = $validated_data->errors()->all();
+            if (isset($inputs['value'])) {
+                foreach ($inputs['value'] as $key => $value) {
+
+                    if (in_array("value.{$key}.value", $errors)) {
+                        unset($inputs['value'][$key]);
+                    }
+                }
+            }
+            return [
+                'success' => false,
+                'errors' => $validated_data->errors()->all()
+
+            ];
         }
 
-        $response['success'] = true;
-        return $response;
+        $validated_data = $validated_data->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data
+        ];
 
     }
 
@@ -700,9 +783,15 @@ class Shipment extends VaahModel
                     $item->name = $item->productVariation->name;
 
                     $shippedQuantity = static::getShippedQuantity($item->id);
+                    $pending_quantity = static::getPendingQuantity($item->id);
                     $item->shipped = $shippedQuantity;
 //                    $item->shipped = 0;
-                    $item->pending = $item->quantity-$item->shipped;
+                    if ($pending_quantity != 0) { // Use double equals for comparison
+
+                        $item->pending = $pending_quantity;
+                    } else {
+                        $item->pending = $item->quantity - $shippedQuantity;
+                    }
                     unset($item->productVariation);
 
                 }
@@ -723,8 +812,35 @@ class Shipment extends VaahModel
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
+    }//-------------------------------------------------
+    private static function getPendingQuantity($itemId) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $itemId)
+            ->orderByDesc('created_at')
+            ->value('pending');
     }
     //-------------------------------------------------
+    public static function searchStatus($request){
+        $query = $request->input('query');
+        if(empty($query)) {
+            $item = Taxonomy::getTaxonomyByType('shipment-status');
+        } else {
+            $status = TaxonomyType::getFirstOrCreate('shipment-status');
+            $item =array();
 
+            if(!$status){
+                return $item;
+            }
+            $item = Taxonomy::whereNotNull('is_active')
+                ->where('vh_taxonomy_type_id',$status->id)
+                ->where('name', 'LIKE', '%' . $query . '%')
+                ->get();
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
+    }
 
 }
