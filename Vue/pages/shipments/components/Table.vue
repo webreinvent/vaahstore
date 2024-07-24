@@ -90,6 +90,14 @@ const openLinkInNewTab = (url) => {
                  <template #body="prop">
                      <span v-if="prop.data.is_trackable === 1" style="padding-left: 5px;">
                        Yes
+
+                         <Button class="p-button-tiny p-button-text"
+                                 data-testid="shipments-table-to-view"
+                                 v-tooltip.top="'Track Your Shipment'"
+                                 :disabled="prop.data.is_trackable !== 1"
+                                 @click="openLinkInNewTab(prop.data.tracking_url)"
+                                 icon="pi pi-external-link"
+                         />
                     </span>
                      <span v-else style="padding-left: 5px;">
                       No
@@ -132,13 +140,13 @@ const openLinkInNewTab = (url) => {
                 <template #body="prop">
                     <div class="p-inputgroup justify-content-center">
 
-                        <Button class="p-button-tiny p-button-text"
+<!--                        <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'Track Your Shipment'"
                                 :disabled="prop.data.is_trackable !== 1"
                                 @click="openLinkInNewTab(prop.data.tracking_url)"
                                 icon="pi pi-globe"
-                                 />
+                                 />-->
 <!--                            <a href="https://www.delhivery.com/"-->
 <!--                                target="_blank"-->
 <!--                                class=" ml-2 pi pi-globe">-->

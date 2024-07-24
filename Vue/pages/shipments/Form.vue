@@ -160,7 +160,7 @@ watchEffect(() => {
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
                             multiple
-                            :dropdown="true"
+
                             @complete="store.searchOrders($event)"
                             optionLabel="user_name"
                             placeholder="Select orders"
@@ -221,12 +221,14 @@ watchEffect(() => {
                             </Column>
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >{{store.item.to_be_shipped}}
-                                    <div v-if="prop.data.pending !==0" class="p-inputgroup w-6rem max-w-full">
+                                    <div class="p-inputgroup w-7rem max-w-full">
                                         <InputNumber
+                                            v-if="(store.item.id && prop.data.pending ===0) || prop.data.pending !==0"
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"
                                             :min="0"
-                                            placeholder="quantity"
+                                            class="w-full"
+                                            placeholder="Enter quantity"
                                             :max="prop.data.quantity"
                                             @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
@@ -253,8 +255,8 @@ watchEffect(() => {
                     <div class="p-inputgroup ">
                         <InputText class="w-full"
                                    placeholder="Enter the tracking url"
-                                   name="sources-slug"
-                                   data-testid="sources-slug"
+                                   name="shipments-tracking-url"
+                                   data-testid="shipments-tracking-url"
                                    v-model="store.item.tracking_url" required/>
 
                     </div>
@@ -274,8 +276,8 @@ watchEffect(() => {
                     <div class="p-inputgroup">
                         <InputText class="w-full"
                                    placeholder="Enter tracking value"
-                                   name="sources-slug"
-                                   data-testid="sources-slug"
+                                   name="shipments-tracking-value"
+                                   data-testid="shipments-tracking-value"
                                    v-model="store.item.tracking_value" required/>
 
                     </div>
@@ -302,7 +304,7 @@ watchEffect(() => {
                     <SelectButton v-model="trackableSelection" :options="store.options"
                                   optionLabel="name"
                                   optionValue="value"
-                                  disabled
+                                  readonly
                                   aria-labelledby="basic" allowEmpty :invalid="value === null"  />
                 </VhField>
 
