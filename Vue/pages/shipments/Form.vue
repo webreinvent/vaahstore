@@ -160,7 +160,7 @@ watchEffect(() => {
                             v-model="store.item.orders"
                             :suggestions="store.order_suggestion_list"
                             multiple
-                            :dropdown="true"
+
                             @complete="store.searchOrders($event)"
                             optionLabel="user_name"
                             placeholder="Select orders"

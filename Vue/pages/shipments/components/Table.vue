@@ -160,7 +160,7 @@ const openLinkInNewTab = (url) => {
                                 :disabled="prop.data.is_trackable !== 1"
                                 @click="openLinkInNewTab(prop.data.tracking_url)"
                                 icon="pi pi-globe"
-                                 />
+                                 />-->
 <!--                            <a href="https://www.delhivery.com/"-->
 <!--                                target="_blank"-->
 <!--                                class=" ml-2 pi pi-globe">-->
