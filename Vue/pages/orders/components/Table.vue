@@ -172,7 +172,7 @@ const useVaah = vaah();
 
 
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+<!--            <Column field="is_active" v-if="store.isViewLarge()"
                     style="width:100px;"
                     header="Is Active">
 
@@ -185,7 +185,7 @@ const useVaah = vaah();
                     </InputSwitch>
                 </template>
 
-            </Column>
+            </Column>-->
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
