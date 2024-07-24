@@ -1,4 +1,4 @@
-import {watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
@@ -69,7 +69,7 @@ export const useShipmentStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         order_list_tables:[],
-
+        status_suggestion:null,
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -1182,12 +1182,7 @@ export const useShipmentStore = defineStore({
         },
 
 
-        searchStatus(event) {
-            const query = event.query.toLowerCase();
-            this.status_suggestion_list = this.shipment_status.filter(item => {
-                return item.name.toLowerCase().includes(query);
-            });
-        },
+
 
         async addOrders() {
             const unique_orders = [];
@@ -1228,6 +1223,32 @@ export const useShipmentStore = defineStore({
                 query: query
             };
             this.$router.push(route);
+        },
+        //---------------------------------------------------------------------
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_shipment_status = status.id;
         },
         //---------------------------------------------------------------------
     }
