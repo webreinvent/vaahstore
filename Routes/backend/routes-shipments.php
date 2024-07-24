@@ -75,4 +75,10 @@ function () {
     Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
         ->name('vh.backend.store.shipments.search.orders');
 
+    /**
+     * Search status
+     */
+    Route::any('/search/status',[ShipmentsController::class, 'searchStatus'])
+        ->name('vh.backend.store.shipments.search.status');
+
 });
