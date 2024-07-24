@@ -220,10 +220,18 @@ watchEffect(() => {
                                 </template>
                             </Column>
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
-                                <template #body="prop" >{{store.item.to_be_shipped}}
-                                    <div class="p-inputgroup w-7rem max-w-full">
+                                <template #body="prop" >
+
+                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity))">
+                                        <Button data-testid="vendors-document" icon="pi pi-info-circle"
+                                                href="https://vaah.dev/store"
+                                                class="p-button-sm"
+                                                v-tooltip.top="`Overall shipped quantity with other shipment is : ${prop.data.overall_shipped_quantity}`"
+                                               />
+                                    </div>
+                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="(store.item.id && prop.data.pending ===0) || prop.data.pending !==0">
                                         <InputNumber
-                                            v-if="(store.item.id && prop.data.pending ===0) || prop.data.pending !==0"
+
                                             v-model="prop.data.to_be_shipped"
                                             buttonLayout="horizontal"
                                             :min="0"
@@ -233,6 +241,7 @@ watchEffect(() => {
                                             @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
+
 
                                 </template>
 <!--                                <template #footer="slotProps">-->
