@@ -169,9 +169,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function createItem($request)
     {
-//dd($request);
         $inputs = $request->all();
-//dd($inputs['orders']);
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -515,9 +513,16 @@ class Shipment extends VaahModel
 
 
 
-
+        $item->is_items_exist_already = false;
         foreach ($item->shipmentOrderItems as $shipped_item) {
             $shipped_item->overall_shipped_quantity = static::getShippedQuantity($shipped_item->id);
+            $is_exist_with_other_shipment = ShipmentItem::where('vh_st_order_item_id', $shipped_item->id)
+                ->where('vh_st_shipment_id', '!=', $item->id)
+                ->exists();
+            if ($is_exist_with_other_shipment) {
+                $shipped_item->is_items_exist_already = true;
+            }
+
         }
 
         if(!$item)
@@ -563,22 +568,17 @@ class Shipment extends VaahModel
         $item_ids = [];
         foreach ($inputs['orders'] as $shipment_order_items) {
             foreach ($shipment_order_items['items'] as $item_single) {
-//                dd($item_single['pending']);
-                $sum_item_quantity = ShipmentItem::where('vh_st_order_item_id', $item_single['id'])->sum('quantity');
-//                dd($sum_item_quantity,$item_single['id']);
                 if ((isset($item_single['to_be_shipped'])) && ($item_single['to_be_shipped'] > $item_single['pending'])) {
                     return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
                 }
                 $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
-//                dd(abs($quantity - $item_single['pending']));
                 $order_item_id = $item_single['id'] ?? null;
                 $order_id = $item_single['vh_st_order_id'] ?? null;
-
                 $item_ids[$order_item_id] = [
                     'quantity' => $quantity,
                     'vh_st_order_item_id' => $order_item_id,
                     'vh_st_order_id' => $order_id,
-//                    'pending' => abs($quantity - $item_single['pending']),
+                    'pending' => abs($item_single['quantity'] - $quantity),
                 ];
             }
         }
@@ -604,7 +604,14 @@ class Shipment extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->save();
-        $item->shipmentOrderItems()->sync($item_ids);
+        foreach ($item_ids as $order_item_id => $data) {
+            $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
+                ->where('vh_st_shipment_id', '!=', $id)
+                ->exists();
+            if (!$is_exist_order_item) {
+                $item->shipmentOrderItems()->sync($item_ids);
+            }
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -789,8 +796,7 @@ class Shipment extends VaahModel
                     $shippedQuantity = static::getShippedQuantity($item->id);
                     $pending_quantity = static::getPendingQuantity($item->id);
                     $item->shipped = $shippedQuantity;
-//                    $item->shipped = 0;
-                    if ($pending_quantity != 0) { // Use double equals for comparison
+                    if ($pending_quantity != 0) {
 
                         $item->pending = $pending_quantity;
                     } else {
@@ -818,11 +824,7 @@ class Shipment extends VaahModel
             ->where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
     }
-    private static function getShippedQuantityOverAll($order_item_id,$record_id) {
-        return DB::table('vh_st_shipment_items')
-            ->where('vh_st_order_item_id', $order_item_id)
-            ->sum('quantity');
-    }
+
     //-------------------------------------------------
     private static function getPendingQuantity($itemId) {
         return DB::table('vh_st_shipment_items')
