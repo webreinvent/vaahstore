@@ -15,8 +15,9 @@ class AddColumnPaymentStatusInVhStOrders extends Migration
     {
 
         Schema::table('vh_st_orders', function($table) {
-            $table->after('taxonomy_id_order_status',function($table){
+            $table->after('vh_st_payment_method_id',function($table){
                 $table->integer('taxonomy_id_payment_status')->nullable()->index();
+                $table->string('order_shipment_status')->nullable()->index();
             });
         });
     }
@@ -28,8 +29,8 @@ class AddColumnPaymentStatusInVhStOrders extends Migration
     */
     public function down()
     {
-        Schema::table('vh_st_order_items', function($table) {
-            $table->dropColumn(['taxonomy_id_payment_status']);
+        Schema::table('vh_st_orders', function($table) {
+            $table->dropColumn(['taxonomy_id_payment_status','order_shipment_status']);
         });
     }
 }
