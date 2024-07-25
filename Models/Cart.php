@@ -979,8 +979,9 @@ class Cart extends VaahModel
 
         $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
         $order->amount = $request->order_details['total_amount'];
-        $order->taxonomy_id_order_status = $taxonomy_order_status;
+        $order->order_status = 'Placed';
         $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
+        $order->order_shipment_status = 'Pending';
         $order->payable = $request->order_details['payable'];
         $order->discount = $request->order_details['discounts'];
         $order->taxes = $request->order_details['taxes'];

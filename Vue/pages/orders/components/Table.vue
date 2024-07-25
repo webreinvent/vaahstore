@@ -111,11 +111,11 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status.name" header="Order Status" :sortable="true"
+             <Column  header="Order Status" :sortable="true"
                      v-if="store.isViewLarge()">
 
                  <template #body="prop">
-                     <template v-if="prop.data.status">
+<!--                     <template v-if="prop.data.status">
                          <Badge v-if="prop.data.status.slug === 'approved'" severity="success">
                              {{ prop.data.status?.name }}
                          </Badge>
@@ -130,7 +130,10 @@ const useVaah = vaah();
                          <Badge severity="warning">
                              {{ prop.data.status ? prop.data.status.name : '' }}
                          </Badge>
-                     </template>
+                     </template>-->
+                     <Badge >
+                         {{prop.data.order_status}}
+                     </Badge>
                  </template>
 
              </Column>
@@ -162,7 +165,8 @@ const useVaah = vaah();
                      :sortable="true" v-if="store.isViewLarge()">
                  <template #body="prop">
                      <Badge severity="warning">
-                         {{'Pending' }}
+<!--                         {{'Pending' }}-->
+                         {{prop.data.order_shipment_status}}
                      </Badge>
                  </template>
 
