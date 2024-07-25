@@ -167,60 +167,268 @@ class Shipment extends VaahModel
     }
 
     //-------------------------------------------------
+//    public static function createItem($request)
+//    {
+//        $inputs = $request->all();
+////        dd($inputs['taxonomy_id_shipment_status']);
+//        $validation = self::validation($inputs);
+//        if (!$validation['success']) {
+//            return $validation;
+//        }
+//        if (isset($inputs['orders'])){
+//        foreach ($inputs['orders'] as $order) {
+//            $order_items = $order['items'];
+//            foreach ($order_items as $order_item) {
+//                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+//                    if ($order_item['to_be_shipped'] > $order_item['pending']) {
+//                        return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$order_item['product_variation']['name']}"]];
+//                    }
+//                }
+//            }
+//        }
+//        }
+//        $item = new self();
+//        $item->fill($inputs);
+//        $item->save();
+//            foreach ($inputs['orders'] as $order) {
+//                $order_items = $order['items'];
+//                $order_id = $order['id'];
+//                foreach ($order_items as $order_item) {
+//                    $item_id = $order_item['id'];
+//                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+//                        $item_shipped_quantity = $order_item['to_be_shipped'];
+//                        $item_pending_quantity = $order_item['pending'];
+////                        dd($item_pending_quantity);
+//                        $item->orders()->attach($order['id'], [
+//                            'vh_st_order_item_id' => $item_id,
+//                            'quantity' => $item_shipped_quantity,
+//                            'pending' => $item_pending_quantity-$item_shipped_quantity,
+//                            'created_at'=>now(),
+//                        ]);
+//                    }
+//                }
+//                $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+//                $self_status_name=Taxonomy::where('id',$inputs['taxonomy_id_shipment_status'])->first();
+//                $order = Order::with('items')->findOrFail($order_id);
+//                $total_order_quantity = $order->items()->sum('quantity');
+//                $order_payment_status = $order->orderPaymentStatus()->first();
+//                if ($order_payment_status->slug === 'pending') {
+//                    switch ($self_status_name->slug) {
+//                        case 'pending':
+//                            $order->taxonomy_id_order_status = 'Placed';
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        case 'delivered':
+//                            if ($shipped_order_quantity==$total_order_quantity){
+//                            $order->taxonomy_id_order_status = 'Payment Pending';
+//                            }
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        default:
+//                            $order->taxonomy_id_order_status = $self_status_name->name;
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                    }
+//                    $order->save();
+//                }
+//                if ($order_payment_status->slug === 'partially-paid') {
+//                    switch ($self_status_name->slug) {
+//                        case 'pending':
+//                            $order->taxonomy_id_order_status = 'Placed';
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        case 'delivered':
+//                            if ($shipped_order_quantity==$total_order_quantity) {
+//                                $order->taxonomy_id_order_status = 'Partially-Paid';
+//                            }
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        default:
+//                            $order->taxonomy_id_order_status = $self_status_name->name;
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                    }
+//                    $order->save();
+//                }
+//                if ($order_payment_status->slug === 'paid') {
+//                    switch ($self_status_name->slug) {
+//                        case 'pending':
+//                            $order->taxonomy_id_order_status = 'Placed';
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        case 'delivered':
+//                            if ($shipped_order_quantity==$total_order_quantity) {
+//                                $order->taxonomy_id_order_status = 'Completed';
+//                            }
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                        default:
+//                            $order->taxonomy_id_order_status = $self_status_name->name;
+//                            $order->shipment_status = $self_status_name->name;
+//                            break;
+//                    }
+//                    $order->save();
+//                }
+//            }
+//
+//        $response = self::getItem($item->id);
+//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+//        return $response;
+//
+//    }
+
+
     public static function createItem($request)
     {
         $inputs = $request->all();
+
+        // Validate inputs
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
-        if (isset($inputs['orders'])){
-        foreach ($inputs['orders'] as $order) {
-            $order_items = $order['items'];
-            foreach ($order_items as $order_item) {
-                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-                    if ($order_item['to_be_shipped'] > $order_item['pending']) {
-                        return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$order_item['product_variation']['name']}"]];
+
+        if (isset($inputs['orders'])) {
+            foreach ($inputs['orders'] as $order) {
+                $order_items = $order['items'];
+                foreach ($order_items as $order_item) {
+                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                        if ($order_item['to_be_shipped'] > $order_item['pending']) {
+                            return [
+                                'success' => false,
+                                'errors' => [
+                                    "To be shipped quantity should not exceed pending quantity for item: {$order_item['product_variation']['name']}"
+                                ]
+                            ];
+                        }
                     }
                 }
             }
         }
-        }
+
+        // Create the shipment item
         $item = new self();
         $item->fill($inputs);
         $item->save();
-            foreach ($inputs['orders'] as $order) {
-                $order_items = $order['items'];
-                $order_id = $order['id'];
-                foreach ($order_items as $order_item) {
-                    $item_id = $order_item['id'];
-                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-                        $item_shipped_quantity = $order_item['to_be_shipped'];
-                        $item_pending_quantity = $order_item['pending'];
-//                        dd($item_pending_quantity);
-                        $item->orders()->attach($order['id'], [
-                            'vh_st_order_item_id' => $item_id,
-                            'quantity' => $item_shipped_quantity,
-                            'pending' => $item_pending_quantity-$item_shipped_quantity,
-                            'created_at'=>now(),
-                        ]);
-                    }
-                }
-               /* $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-//            dd($shipped_order_quantity);
-                $order = Order::with('items')->findOrFail($order_id);
 
-                $total_order_quantity = $order->items()->sum('quantity');
-                $order_payment_status = $order->orderPaymentStatus()->first();
-                dd($shipped_order_quantity,$total_order_quantity,$order_payment_status->name);*/
+        // Process each order associated with the shipment item
+        foreach ($inputs['orders'] as $order) {
+            $order_id = $order['id'];
+            $order_items = $order['items'];
+
+            // Attach each order item to the shipment item
+            foreach ($order_items as $order_item) {
+                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
+                    $item_id = $order_item['id'];
+                    $item_shipped_quantity = $order_item['to_be_shipped'];
+                    $item_pending_quantity = $order_item['pending'];
+
+                    $item->orders()->attach($order_id, [
+                        'vh_st_order_item_id' => $item_id,
+                        'quantity' => $item_shipped_quantity,
+                        'pending' => $item_pending_quantity - $item_shipped_quantity,
+                        'created_at' => now(),
+                    ]);
+                }
             }
 
+            // Calculate shipped order quantity
+            $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+
+            // Fetch shipment status name
+            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('slug');
+
+            // Fetch order details
+            $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
+            $total_order_quantity = $order->items()->sum('quantity');
+            $order_payment_status_slug = $order->orderPaymentStatus->slug;
+
+            // Update order status based on payment status and shipment status
+
+            self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
+        }
+
+        // Get the created item and return the response
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
-
     }
+    public static function updateOrderStatus($order, $paymentStatusSlug, $shipmentStatusName, $shippedQuantity, $totalQuantity)
+    {
+        switch ($paymentStatusSlug) {
+            case 'pending':
+                switch ($shipmentStatusName) {
+                    case 'pending':
+                        $order->order_status = 'Placed';
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                    case 'delivered':
+                        $order->order_status = 'Payment Pending';
+                        if ($shippedQuantity != $totalQuantity) {
+                            $order->order_shipment_status = 'Partially Delivered';
+                        } else {
+                            $order->order_shipment_status = $shipmentStatusName;
+                        }
+                        break;
+                    default:
+                        $order->order_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                }
+                break;
 
+            case 'partially-paid':
+                switch ($shipmentStatusName) {
+                    case 'pending':
+                        $order->order_status = 'Placed';
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                    case 'delivered':
+                        $order->order_status = 'Partially-Paid';
+                        if ($shippedQuantity != $totalQuantity) {
+                            $order->order_shipment_status = 'Partially Delivered';
+                        } else {
+                            $order->order_shipment_status = $shipmentStatusName;
+                        }
+                        break;
+                    default:
+                        $order->order_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                }
+                break;
+
+            case 'paid':
+                switch ($shipmentStatusName) {
+                    case 'pending':
+                        $order->order_status = 'Placed';
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                    case 'delivered':
+                        $order->order_status = 'Completed';
+                        if ($shippedQuantity != $totalQuantity) {
+                            $order->order_shipment_status = 'Partially Delivered';
+                        } else {
+                            $order->order_shipment_status = $shipmentStatusName;
+                        }
+                        break;
+                    default:
+                        $order->order_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipmentStatusName;
+                        break;
+                }
+                break;
+
+            default:
+                // Handle any other payment status if needed
+                $order->order_status = $shipmentStatusName;
+                $order->order_shipment_status = $shipmentStatusName;
+                break;
+        }
+
+        // Save the order
+        $order->save();
+    }
     //-------------------------------------------------
     public function scopeGetSorted($query, $filter)
     {
