@@ -254,9 +254,11 @@ const openVendorPage = (id) => {
 
                                 </template>
                             </Column>
-                            <Column field="pending" header="Pending">
-                                <template #body="{ data }">
-                                    {{ data.quantity - data.pivot.quantity }}
+                            <Column field="pending" header="Total Pending">
+<!--                                <template #body="{ data }">-->
+                                    <template #body="prop">
+                                    {{prop.data.pivot.pending}}
+<!--                                    {{ data.quantity - data.pivot.quantity }}-->
                                 </template>
                             </Column>
                             <template #groupheader="prop">
