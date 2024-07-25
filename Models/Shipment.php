@@ -824,7 +824,13 @@ class Shipment extends VaahModel
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
-    }//-------------------------------------------------
+    }
+    private static function getShippedQuantityOverAll($order_item_id,$record_id) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $order_item_id)
+            ->sum('quantity');
+    }
+    //-------------------------------------------------
     private static function getPendingQuantity($itemId) {
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
