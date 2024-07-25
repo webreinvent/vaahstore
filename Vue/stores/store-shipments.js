@@ -389,6 +389,7 @@ export const useShipmentStore = defineStore({
                     ...item,
                     shipped: item.pivot.quantity,
                     // pending: item.quantity - item.pivot.quantity,
+                    is_exist:item.is_items_exist_already,
                     pending:item.pivot.pending,
                     name: item.product_variation.name
                 };
