@@ -127,7 +127,7 @@ class Shipment extends VaahModel
     public  function shipmentOrderItems()
     {
         return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
-            ->withPivot('quantity','pending');
+            ->withPivot('id', 'quantity', 'pending');
     }
     //-------------------------------------------------
     public function status()
@@ -457,6 +457,10 @@ class Shipment extends VaahModel
                     ->each->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
+                foreach ($items as $item) {
+                    $item->orders()->detach();
+                }
                 $list->forceDelete();
                 break;
             case 'create-100-records':
@@ -792,6 +796,7 @@ class Shipment extends VaahModel
                     } else {
                         $item->pending = $item->quantity - $shippedQuantity;
                     }
+                    $item->overall_shipped_quantity = static::getShippedQuantity($item->id);
                     unset($item->productVariation);
 
                 }
@@ -812,7 +817,13 @@ class Shipment extends VaahModel
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
-    }//-------------------------------------------------
+    }
+    private static function getShippedQuantityOverAll($order_item_id,$record_id) {
+        return DB::table('vh_st_shipment_items')
+            ->where('vh_st_order_item_id', $order_item_id)
+            ->sum('quantity');
+    }
+    //-------------------------------------------------
     private static function getPendingQuantity($itemId) {
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
