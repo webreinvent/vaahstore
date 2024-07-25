@@ -198,13 +198,23 @@ watchEffect(() => {
                                     Total
                                 </template>
                             </Column>
-                            <Column field="quantity" header="Quantity">
+
+                            <Column  field="quantity" header="Quantity">
                                 <template #footer="slotProps">
                                     <div class="ml-2">
                                      {{ store.calculateTotalQuantity(order.items) }}
                                     </div>
                                 </template>
                             </Column>
+<!--                            <template v-if="store.item && store.item.id">-->
+<!--                                <Column header="Total Quantity In Shipment" >-->
+<!--                                    <template #body="prop">-->
+<!--                                        <div class="ml-2">-->
+<!--                                            {{ prop.data.overall_shipped_quantity }}-->
+<!--                                        </div>-->
+<!--                                    </template>-->
+<!--                                </Column>-->
+<!--                            </template>-->
                             <Column field="shipped" header="Shipped">
                                 <template #footer="slotProps">
                                     <div class="ml-2">
@@ -212,24 +222,28 @@ watchEffect(() => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column field="pending" header="Pending">
+                            <Column  header="Pending">
+                                <template #body="prop">
+                                    {{prop.data.quantity -prop.data.overall_shipped_quantity}}
+                                </template>
                                 <template #footer="slotProps">
                                     <div class="ml-2">
                                     {{ store.calculateTotalPending(order.items) }}
                                     </div>
                                 </template>
                             </Column>
+
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >
 
-                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity))">
+                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity)) ">
                                         <Button data-testid="vendors-document" icon="pi pi-info-circle"
                                                 href="https://vaah.dev/store"
                                                 class="p-button-sm"
                                                 v-tooltip.top="`Overall shipped quantity with other shipment is : ${prop.data.overall_shipped_quantity}`"
                                                />
                                     </div>
-                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="(store.item.id && prop.data.pending ===0) || prop.data.pending !==0">
+                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="((store.item.id && prop.data.pending ===0) || prop.data.pending !==0) && !store.item.id">
                                         <InputNumber
 
                                             v-model="prop.data.to_be_shipped"
