@@ -65,6 +65,7 @@ class Order extends VaahModel
             'deleted_by',
         ];
     }
+
     //-------------------------------------------------
 
     public static function getFillableColumns()
@@ -84,8 +85,7 @@ class Order extends VaahModel
         $model = new self();
         $fillable = $model->getFillable();
         $empty_item = [];
-        foreach ($fillable as $column)
-        {
+        foreach ($fillable as $column) {
             $empty_item[$column] = null;
         }
         $empty_item['is_active'] = null;
@@ -141,28 +141,31 @@ class Order extends VaahModel
 
     public function paymentMethod()
     {
-        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+        return $this->hasOne(PaymentMethod::class, 'id', 'vh_st_payment_method_id')->select('id', 'name', 'slug');
     }
+
     //-------------------------------------------------
     public function items()
     {
-        return $this->hasMany(OrderItem::class,'vh_st_order_id','id');
+        return $this->hasMany(OrderItem::class, 'vh_st_order_id', 'id');
     }
 
     //-------------------------------------------------
 
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_order_status')->select('id', 'name', 'slug');
     }
+
     public function orderPaymentStatus()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_payment_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_payment_status')->select('id', 'name', 'slug');
     }
+
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email', 'phone','display_name');
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select('id', 'first_name', 'email', 'phone', 'display_name');
     }
 
     //-------------------------------------------------
@@ -171,11 +174,13 @@ class Order extends VaahModel
         return $this->belongsToMany(Payment::class, 'vh_st_order_payments', 'vh_st_order_id', 'vh_st_payment_id')
             ->withPivot('payment_amount_paid', 'payable_amount', 'remaining_payable_amount', 'created_at');
     }
+
     //-------------------------------------------------
     public function orderPayments()
     {
         return $this->hasMany(OrderPayment::class, 'vh_st_order_id');
     }
+
     public function deletedByUser()
     {
         return $this->belongsTo(User::class,
@@ -218,14 +223,12 @@ class Order extends VaahModel
     //-------------------------------------------------
 
 
-
     //-------------------------------------------------
 
     public function scopeGetSorted($query, $filter)
     {
 
-        if(!isset($filter['sort']))
-        {
+        if (!isset($filter['sort'])) {
             return $query->orderBy('id', 'desc');
         }
 
@@ -234,8 +237,7 @@ class Order extends VaahModel
 
         $direction = Str::contains($sort, ':');
 
-        if(!$direction)
-        {
+        if (!$direction) {
             return $query->orderBy($sort, 'asc');
         }
 
@@ -243,74 +245,72 @@ class Order extends VaahModel
 
         return $query->orderBy($sort[0], $sort[1]);
     }
+
     //-------------------------------------------------
     public function scopeIsActiveFilter($query, $filter)
     {
 
-        if(!isset($filter['is_active'])
+        if (!isset($filter['is_active'])
             || is_null($filter['is_active'])
             || $filter['is_active'] === 'null'
-        )
-        {
+        ) {
             return $query;
         }
         $is_active = $filter['is_active'];
 
-        if($is_active === 'true' || $is_active === true)
-        {
+        if ($is_active === 'true' || $is_active === true) {
             return $query->where('is_active', 1);
-        } else{
-            return $query->where(function ($q){
+        } else {
+            return $query->where(function ($q) {
                 $q->whereNull('is_active')
                     ->orWhere('is_active', 0);
             });
         }
 
     }
+
     //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
 
-        if(!isset($filter['trashed']))
-        {
+        if (!isset($filter['trashed'])) {
             return $query;
         }
         $trashed = $filter['trashed'];
 
-        if($trashed === 'include')
-        {
+        if ($trashed === 'include') {
             return $query->withTrashed();
-        } else if($trashed === 'only'){
+        } else if ($trashed === 'only') {
             return $query->onlyTrashed();
         }
 
     }
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('id', 'LIKE', '%' . $search . '%')
                 ->orwhereHas('user', function ($query) use ($search) {
-                    $query->where('first_name','LIKE', '%'.$search.'%');
+                    $query->where('first_name', 'LIKE', '%' . $search . '%');
                 });
         });
 
     }
+
     //-------------------------------------------------
     public function scopePaymentStatusFilter($query, $filter)
     {
 
-        if(!isset($filter['payment_status'])
+        if (!isset($filter['payment_status'])
             || is_null($filter['payment_status'])
             || $filter['payment_status'] === 'null'
-        )
-        {
+        ) {
             return $query;
         }
 
@@ -321,10 +321,11 @@ class Order extends VaahModel
         });
 
     }
+
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','orderPaymentStatus')->withCount('items');
+        $list = self::getSorted($request->filter)->with('status', 'paymentMethod', 'user', 'orderPaymentStatus')->withCount('items');
         $list->isActiveFilter($request->filter);
         $list->paymentStatusFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -332,8 +333,7 @@ class Order extends VaahModel
 
         $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
@@ -370,8 +370,7 @@ class Order extends VaahModel
             return $response;
         }
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -439,13 +438,13 @@ class Order extends VaahModel
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -456,7 +455,7 @@ class Order extends VaahModel
 
         $list = self::query();
 
-        if($request->has('filter')){
+        if ($request->has('filter')) {
             $list->getSorted($request->filter);
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
@@ -465,30 +464,30 @@ class Order extends VaahModel
 
         switch ($type) {
             case 'deactivate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => null]);
                 }
                 break;
             case 'activate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => 1]);
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
                     $items->update(['deleted_by' => auth()->user()->id]);
                 }
 
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
                     $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
                     OrderItem::deleteOrder($items_id);
                 }
@@ -516,21 +515,21 @@ class Order extends VaahModel
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if (!config('store.is_dev')) {
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if (count($matches) !== 2) {
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -539,19 +538,19 @@ class Order extends VaahModel
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function getItem($id)
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','orderPaymentStatus','payments.createdByUser'])->withCount('items')
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'paymentMethod', 'user', 'orderPaymentStatus', 'payments.createdByUser'])->withCount('items')
             ->withTrashed()
             ->first();
 
-        if(!$item)
-        {
+        if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = 'Record not found with ID: ' . $id;
             return $response;
         }
         //To get data for dropdown of order items
@@ -616,11 +615,11 @@ class Order extends VaahModel
         $item->forceDelete();
         OrderItem::deleteOrder($item->id);
 
-    $response['success'] = true;
-    $response['data'] = [];
-    $response['messages'][] = 'Record has been deleted';
+        $response['success'] = true;
+        $response['data'] = [];
+        $response['messages'][] = 'Record has been deleted';
 
-    return $response;
+        return $response;
     }
 
     //-------------------------------------------------
@@ -628,8 +627,7 @@ class Order extends VaahModel
     public static function itemAction($request, $id, $type): array
     {
 
-        switch($type)
-        {
+        switch ($type) {
             case 'activate':
                 self::where('id', $id)
                     ->withTrashed()
@@ -642,9 +640,9 @@ class Order extends VaahModel
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
-                $item = self::where('id',$id)->withTrashed()->first();
+                    ->withTrashed()
+                    ->delete();
+                $item = self::where('id', $id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
                 $item->save();
                 break;
@@ -652,7 +650,7 @@ class Order extends VaahModel
                 self::where('id', $id)
                     ->withTrashed()
                     ->restore();
-                $item = self::where('id',$id)->withTrashed()->first();
+                $item = self::where('id', $id)->withTrashed()->first();
                 $item->deleted_by = null;
                 $item->save();
                 break;
@@ -660,6 +658,7 @@ class Order extends VaahModel
 
         return self::getItem($id);
     }
+
     //-------------------------------------------------
 
     public static function validation($inputs)
@@ -677,7 +676,7 @@ class Order extends VaahModel
             ]
         );
 
-        if($rules->fails()){
+        if ($rules->fails()) {
             return [
                 'success' => false,
                 'errors' => $rules->errors()->all()
@@ -703,16 +702,15 @@ class Order extends VaahModel
 
     //-------------------------------------------------
 
-    public static function seedSampleItems($records=100)
+    public static function seedSampleItems($records = 100)
     {
 
         $i = 0;
 
-        while($i < $records)
-        {
+        while ($i < $records) {
             $inputs = self::fillItem(false);
 
-            $item =  new self();
+            $item = new self();
             $item->fill($inputs);
             $item->save();
 
@@ -731,7 +729,7 @@ class Order extends VaahModel
             'except' => self::getUnFillableColumns()
         ]);
         $fillable = VaahSeeder::fill($request);
-        if(!$fillable['success']){
+        if (!$fillable['success']) {
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
@@ -746,8 +744,7 @@ class Order extends VaahModel
         // fill the user field with any random user here
 
 
-
-        if(!$is_response_return){
+        if (!$is_response_return) {
             return $inputs;
         }
 
@@ -788,7 +785,7 @@ class Order extends VaahModel
                 'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
             ]);
 
-        if($rules->fails()){
+        if ($rules->fails()) {
             return [
                 'success' => false,
                 'errors' => $rules->errors()->all()
@@ -803,7 +800,30 @@ class Order extends VaahModel
 
     }
 
-    //-------------------------------------------------
+    public static function getShippedOrderItems($id)
+    {
+        $order_items = OrderItem::where('vh_st_order_id', $id)
+            ->with('ProductVariation')
+            ->get();
+
+        $total_quantities = [];
+
+        $shipment_items = ShipmentItem::where('vh_st_order_id', $id)
+            ->get()
+            ->groupBy('vh_st_order_item_id');
+
+        foreach ($shipment_items as $item_id => $items) {
+            $total_quantities[$item_id] = $items->sum('quantity');
+        }
+
+        foreach ($order_items as $order_item) {
+            $order_item->shipped_quantity = $total_quantities[$order_item->id] ?? 0;
+        }
+        return [
+            'success' => true,
+            'data' => $order_items
+        ];
+    }
 
 
 }
