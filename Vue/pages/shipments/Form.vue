@@ -226,15 +226,15 @@ watchEffect(() => {
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >
 
-                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity)) ">
+<!--                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity)) ">
                                         <Button data-testid="vendors-document" icon="pi pi-info-circle"
                                                 href="https://vaah.dev/store"
                                                 class="p-button-sm"
                                                 v-tooltip.top="`Overall shipped quantity with other shipment is : ${prop.data.overall_shipped_quantity}`"
                                                />
-                                    </div>
+                                    </div>-->
 <!--                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="((store.item.id && prop.data.pending ===0) || prop.data.pending !==0) && !store.item.id">-->
-                                    <div class="p-inputgroup w-7rem max-w-full" >
+                                    <div class="p-inputgroup w-7rem max-w-full" v-if="prop.data.pending !==0">
                                         <InputNumber
 
                                             v-model="prop.data.to_be_shipped"
