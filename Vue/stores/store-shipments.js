@@ -1252,6 +1252,11 @@ export const useShipmentStore = defineStore({
             this.item.taxonomy_id_shipment_status = status.id;
         },
         //---------------------------------------------------------------------
+        toOrderDetails(order_id){
+            this.$router.push({name: 'orders.view',params:{id:order_id}})
+
+        },
+        //---------------------------------------------------------------------
     }
 });
 

@@ -48,7 +48,9 @@ const useVaah = vaah()
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
+                     <span style="text-wrap:nowrap" class=" text-primary hover:text-primary-700 cursor-pointer">
                     {{prop.data.vendor?.name}}
+                         </span>
                 </template>
             </Column>
             <Column  header=" Quantity "

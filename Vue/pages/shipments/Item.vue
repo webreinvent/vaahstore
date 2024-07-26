@@ -263,8 +263,9 @@ const openVendorPage = (id) => {
                             </Column>
                             <template #groupheader="prop">
                                 <div class="flex items-center gap-2">
+                                    <span style="text-wrap:nowrap" class=" hover:text-primary-700 cursor-pointer" @click="store.toOrderDetails(prop.data.order.id)"><b>{{ prop.data.order.user.display_name }}</b></span>
 
-                                    <span style="font-size: 15px;"><b>{{ prop.data.order.user.display_name }}</b></span>
+
                                 </div>
                             </template>
 
