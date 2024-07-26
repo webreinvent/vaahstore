@@ -1,7 +1,7 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useShipmentStore } from '../../../stores/store-shipments'
-import OrdersList from './OrdersList.vue'
+
 import {onMounted, ref} from "vue";
 const store = useShipmentStore();
 const useVaah = vaah();
@@ -221,7 +221,7 @@ const openLinkInNewTab = (url) => {
                    class="bg-white-alpha-0 pt-2">
         </Paginator>
         <!--/paginator-->
-<OrdersList/>
+
     </div>
 
 </template>

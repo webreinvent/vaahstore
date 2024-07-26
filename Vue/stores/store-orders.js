@@ -94,18 +94,7 @@ export const useOrderStore = defineStore({
 
     },
     actions: {
-        async openOrderItems(item)
-        {
-            this.show_orders_panel = true;
-            // this.product_id=item.id;
-            // this.product_name=item.name;
-            // if (item.id) {
-            //     await vaah().ajax(
-            //         ajax_url + '/get-vendors-list'+'/' + item.id,
-            //         this.openVendorsPanelAfter
-            //     );
-            // }
-        },
+
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -1030,6 +1019,42 @@ export const useOrderStore = defineStore({
                 name: 'payments.form',
                 query:{ order_id : order_id}
             });
+        },
+
+        async openOrderItems(item)
+        {
+            this.show_orders_panel = true;
+            this.order_id=item.id;
+            this.order_name=item.name;
+
+            if (item.id) {
+                await vaah().ajax(
+                    ajax_url + '/get-order-items'+'/' + item.id,
+                    // this.openVendorsPanelAfter
+                );
+            }
+        },
+        openVendorsPanelAfter(data, res) {
+
+            if (data) {
+                data.sort((a, b) => {
+                    const preferred_vendor = b.is_preferred - a.is_preferred;
+                    if (preferred_vendor !== 0) {
+                        return preferred_vendor;
+                    }
+
+                    const default_vendor = b.is_default - a.is_default;
+                    if (default_vendor !== 0) {
+                        return default_vendor;
+                    }
+
+                    return b.quantity - a.quantity;
+                });
+
+                this.item.vendor_data = data;
+            } else {
+                this.$router.push({name: 'products.index', query: this.query});
+            }
         },
     }
 });
