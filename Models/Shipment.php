@@ -281,8 +281,6 @@ class Shipment extends VaahModel
     public static function createItem($request)
     {
         $inputs = $request->all();
-
-        // Validate inputs
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
@@ -305,18 +303,14 @@ class Shipment extends VaahModel
                 }
             }
         }
-
-        // Create the shipment item
         $item = new self();
         $item->fill($inputs);
         $item->save();
 
-        // Process each order associated with the shipment item
         foreach ($inputs['orders'] as $order) {
             $order_id = $order['id'];
             $order_items = $order['items'];
 
-            // Attach each order item to the shipment item
             foreach ($order_items as $order_item) {
                 if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
                     $item_id = $order_item['id'];
@@ -332,101 +326,92 @@ class Shipment extends VaahModel
                 }
             }
 
-            // Calculate shipped order quantity
+            // get total shipped quantity of items in order
             $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-
-            // Fetch shipment status name
-            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('slug');
-
-            // Fetch order details
+            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('name');
             $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
+            // total order quantity to be shipped
             $total_order_quantity = $order->items()->sum('quantity');
             $order_payment_status_slug = $order->orderPaymentStatus->slug;
 
-            // Update order status based on payment status and shipment status
 
             self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
         }
-
-        // Get the created item and return the response
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
-    public static function updateOrderStatus($order, $paymentStatusSlug, $shipmentStatusName, $shippedQuantity, $totalQuantity)
+    public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
     {
-        switch ($paymentStatusSlug) {
+        switch ($payment_status_slug) {
             case 'pending':
-                switch ($shipmentStatusName) {
-                    case 'pending':
+                switch ($shipment_status_name) {
+                    case 'Pending':
                         $order->order_status = 'Placed';
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
-                    case 'delivered':
+                    case 'Delivered':
                         $order->order_status = 'Payment Pending';
-                        if ($shippedQuantity != $totalQuantity) {
+                        if ($shipped_order_quantity != $total_order_quantity) {
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
-                            $order->order_shipment_status = $shipmentStatusName;
+                            $order->order_shipment_status = $shipment_status_name;
                         }
                         break;
                     default:
-                        $order->order_status = $shipmentStatusName;
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_status = $shipment_status_name;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
                 }
                 break;
 
             case 'partially-paid':
-                switch ($shipmentStatusName) {
-                    case 'pending':
+                switch ($shipment_status_name) {
+                    case 'Pending':
                         $order->order_status = 'Placed';
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
-                    case 'delivered':
+                    case 'Delivered':
                         $order->order_status = 'Partially-Paid';
-                        if ($shippedQuantity != $totalQuantity) {
+                        if ($shipped_order_quantity != $total_order_quantity) {
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
-                            $order->order_shipment_status = $shipmentStatusName;
+                            $order->order_shipment_status = $shipment_status_name;
                         }
                         break;
                     default:
-                        $order->order_status = $shipmentStatusName;
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_status = $shipment_status_name;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
                 }
                 break;
 
             case 'paid':
-                switch ($shipmentStatusName) {
-                    case 'pending':
+                switch ($shipment_status_name) {
+                    case 'Pending':
                         $order->order_status = 'Placed';
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
-                    case 'delivered':
+                    case 'Delivered':
                         $order->order_status = 'Completed';
-                        if ($shippedQuantity != $totalQuantity) {
+                        if ($shipped_order_quantity != $total_order_quantity) {
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
-                            $order->order_shipment_status = $shipmentStatusName;
+                            $order->order_shipment_status = $shipment_status_name;
                         }
                         break;
                     default:
-                        $order->order_status = $shipmentStatusName;
-                        $order->order_shipment_status = $shipmentStatusName;
+                        $order->order_status = $shipment_status_name;
+                        $order->order_shipment_status = $shipment_status_name;
                         break;
                 }
                 break;
 
             default:
-                // Handle any other payment status if needed
-                $order->order_status = $shipmentStatusName;
-                $order->order_shipment_status = $shipmentStatusName;
+                $order->order_status = $shipment_status_name;
+                $order->order_shipment_status = $shipment_status_name;
                 break;
         }
-
-        // Save the order
         $order->save();
     }
     //-------------------------------------------------
