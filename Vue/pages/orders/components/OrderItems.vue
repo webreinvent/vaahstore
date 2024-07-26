@@ -11,10 +11,9 @@ const useVaah = vaah()
 
 
 <template>
-    <Sidebar v-model:visible="store.show_orders_panel"  header="Order Name:" position="right" style="width:600px;">
+    <Sidebar v-model:visible="store.show_orders_panel"  header="Order Name:" position="right" style="width:700px;">
         <template #header>
-            <h2 style="font-weight: bold;"  >Test
-                <br><span  style="font-weight: normal;">5fc2-4361-a870-a7a29092dd4e</span>
+            <h2 style="font-weight: bold;" v-if="store.item"  >{{ store.order_name }}
             </h2>
         </template>
 
@@ -28,56 +27,52 @@ const useVaah = vaah()
                    :nullSortOrder="-1"
                    showGridlines
                    v-model:selection="store.action.items"
+                   scrollHeight="700px"
                    responsiveLayout="scroll">
 
 
 
-            <Column field="id" header="Order ID"  >
+            <Column field="id" header="Item ID"  >
             </Column>
 
             <Column  header="Item Name"
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
-                    {{prop.data.name}}
+
+                    {{prop.data.product?.name  + '-' +prop.data.product_variation?.name}}
                 </template>
             </Column>
 
-<!--            <Column  header="Vendor Name"
+          <Column  header="Vendor"
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
-                    {{prop.data.vendor_name}}
+                    {{prop.data.vendor?.name}}
                 </template>
-            </Column>-->
-            <Column  header="Ordered Quantity "
+            </Column>
+            <Column  header=" Quantity "
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
                     {{prop.data.quantity}}
                 </template>
             </Column>
-            <Column  header="Shipped Quantity "
+            <Column  header="Shipped  "
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
-                    {{prop.data.available_quantity}}
+                    {{prop.data.shipped_quantity}}
                 </template>
             </Column>
-            <Column  header="Status"
+            <Column  header="Pending"
                      class="overflow-wrap-anywhere"
             >
                 <template #body="prop">
-
-                    <Badge  v-if="prop.data.status === 'Delivered'" severity="success">
-                        {{ prop.data.status }}
-                    </Badge>
-
-                    <Badge v-else severity="warn">
-                        {{ prop.data.status }}
-                    </Badge>
+                    {{prop.data.quantity-prop.data.shipped_quantity}}
                 </template>
             </Column>
+
             <template #empty>
                 <div class="text-center py-3">
                     No records found.

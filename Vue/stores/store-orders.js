@@ -81,14 +81,9 @@ export const useOrderStore = defineStore({
         vendors : null,
         filtered_customer_groups : null,
         filtered_users : null,
-        order_list_table_with_vendor : [
-            { "name": "Adidas-Adidas-price", "id": 260, "quantity": 1,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status": "Delivered"
-                ,"vendor_name":"vendor 1"},
-            { "name": "soni-soni-color", "id": 367, "quantity": 2,"available_quantity": 1,"is_paid": "Yes", "deleted_at": null, "status":
-                    "In transit","vendor_name":"vendor 1" },
 
-
-        ],
+        order_list_table_with_vendor:null,
+        order_name:null,
     }),
     getters: {
 
@@ -1144,35 +1139,21 @@ export const useOrderStore = defineStore({
         {
             this.show_orders_panel = true;
             this.order_id=item.id;
-            this.order_name=item.name;
+            this.order_name=item.user.display_name;
 
             if (item.id) {
                 await vaah().ajax(
                     ajax_url + '/get-order-items'+'/' + item.id,
-                    // this.openVendorsPanelAfter
+                    this.openVendorsPanelAfter
                 );
             }
         },
         openVendorsPanelAfter(data, res) {
 
             if (data) {
-                data.sort((a, b) => {
-                    const preferred_vendor = b.is_preferred - a.is_preferred;
-                    if (preferred_vendor !== 0) {
-                        return preferred_vendor;
-                    }
-
-                    const default_vendor = b.is_default - a.is_default;
-                    if (default_vendor !== 0) {
-                        return default_vendor;
-                    }
-
-                    return b.quantity - a.quantity;
-                });
-
-                this.item.vendor_data = data;
+                this.order_list_table_with_vendor=data;
             } else {
-                this.$router.push({name: 'products.index', query: this.query});
+                this.$router.push({name: 'orders.index', query: this.query});
             }
         },
     }
