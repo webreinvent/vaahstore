@@ -395,6 +395,7 @@ class Shipment extends VaahModel
                     case 'Delivered':
                         $order->order_status = 'Completed';
                         if ($shipped_order_quantity != $total_order_quantity) {
+                            $order->order_status = 'Partially Delivered';
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
                             $order->order_shipment_status = $shipment_status_name;
