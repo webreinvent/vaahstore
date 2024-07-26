@@ -239,6 +239,10 @@ export const useShipmentStore = defineStore({
                     this.view = 'small';
                     this.list_view_width = 5;
                     break;
+                case 'shipments.view':
+                    this.view = 'small';
+                    this.list_view_width = 5;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
@@ -622,6 +626,7 @@ export const useShipmentStore = defineStore({
                 case 'restore':
                 case 'save':
                     if(this.item && this.item.id){
+                        this.getItem(this.item.id);
                         this.item = data;
                     }
                     break;
@@ -689,6 +694,8 @@ export const useShipmentStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
         confirmDelete()
@@ -806,6 +813,8 @@ export const useShipmentStore = defineStore({
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
             this.$router.push({name: 'shipments.form',query:this.query})
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
         toView(item)

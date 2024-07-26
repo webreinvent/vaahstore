@@ -61,8 +61,7 @@ watchEffect(() => {
                     <div >
                         <DataTable :value="store.cart_item_at_checkout"
                                    dataKey="id"
-                                   :rows="5"
-                                   :paginator="true"
+                                   
                                    class="p-datatable-sm p-datatable-hoverable-rows"
                                    :nullSortOrder="-1"
                                    v-model:selection="store.action.items"

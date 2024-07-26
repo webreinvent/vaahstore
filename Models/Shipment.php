@@ -291,7 +291,7 @@ class Shipment extends VaahModel
                 $order_items = $order['items'];
                 foreach ($order_items as $order_item) {
                     if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-                        if ($order_item['to_be_shipped'] > $order_item['pending']) {
+                        if ($order_item['to_be_shipped'] > $order_item['pending'] ) {
                             return [
                                 'success' => false,
                                 'errors' => [
@@ -395,6 +395,7 @@ class Shipment extends VaahModel
                     case 'Delivered':
                         $order->order_status = 'Completed';
                         if ($shipped_order_quantity != $total_order_quantity) {
+                            $order->order_status = 'Partially Delivered';
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
                             $order->order_shipment_status = $shipment_status_name;
