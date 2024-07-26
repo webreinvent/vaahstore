@@ -759,8 +759,8 @@ class Shipment extends VaahModel
          }
 
         $item_ids = [];
-        foreach ($inputs['orders'] as $shipment_order_items) {
-            foreach ($shipment_order_items['items'] as $item_single) {
+        foreach ($inputs['orders'] as $shipment_order) {
+            foreach ($shipment_order['items'] as $item_single) {
                 if ((isset($item_single['to_be_shipped'])) && ($item_single['to_be_shipped'] > $item_single['pending'])) {
                     return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
                 }
@@ -774,6 +774,18 @@ class Shipment extends VaahModel
                     'pending' => abs($item_single['quantity'] - $quantity),
                 ];
             }
+            $order_id = $shipment_order['id'];
+            $order_items = $shipment_order['items'];
+            $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('name');
+            $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
+            // total order quantity to be shipped
+            $total_order_quantity = $order->items()->sum('quantity');
+//            dd($shipped_order_quantity,$total_order_quantity);
+            $order_payment_status_slug = $order->orderPaymentStatus->slug;
+
+
+            self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
         }
 
        /* $item_ids = [];
